@@ -39,11 +39,12 @@ export function PublisherSelectionStep({
 
     for (const consultant of consultantsQuery.data?.data ?? []) {
       if (!consultant.isActive) continue;
+      const consultantIdentifier = consultant.agentId ?? consultant.userId;
 
       next.push({
-        id: `consultant:${consultant.userId}`,
+        id: `consultant:${consultantIdentifier}`,
         image: consultant.avatar?.trim() || undefined,
-        name: consultant.name?.trim() || `مشاور شماره ${consultant.userId}`,
+        name: consultant.name?.trim() || `مشاور شماره ${consultantIdentifier}`,
         type: "consultant",
       });
     }
@@ -53,9 +54,15 @@ export function PublisherSelectionStep({
 
   const selectedPublisher = useMemo(() => {
     if (consultantId) {
-      const consultant = options.find(
-        (option) => option.id === `consultant:${String(consultantId).trim()}`,
-      );
+      const consultant = options.find((option) => {
+        if (option.id === `consultant:${String(consultantId).trim()}`) return true;
+        const matched = (consultantsQuery.data?.data ?? []).find(
+          (c) =>
+            String(c.agentId) === String(consultantId).trim() ||
+            String(c.userId) === String(consultantId).trim(),
+        );
+        return matched ? option.id === `consultant:${matched.agentId ?? matched.userId}` : false;
+      });
       if (consultant) return consultant;
     }
 

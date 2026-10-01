@@ -6,6 +6,8 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage, getApiFieldError } from "../../../shared/api/api";
 import { backRoute } from "../../../shared/navigation/navigation";
 import {
+  getAdvertisementPreview,
+  getAgencyAdvertisementPreview,
   mapAdvertisementToAdCard,
   type AdvertisementFeature,
   type AdvertisementItem,
@@ -15,11 +17,12 @@ import type { PublicAgencyDto } from "../../agencies/api/agency.service";
 import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../crm/api/crm.service";
 import {
   useAdvertiseFormDefinitionQuery,
-  useMyAdvertisementDetailQuery,
   useCreateAdvertisementMutation,
   useUpdateAdvertisementMutation,
   useSaveAdvertiseDraftMutation,
 } from "../api/advertisement.hooks";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import { handleValidationFailure, scrollToFirstError } from "./validationScroll";
@@ -351,6 +354,10 @@ function readText(value: unknown): string {
   }
 
   return "";
+}
+
+function isFilledValue(value: unknown): boolean {
+  return value !== undefined && value !== null && value !== "";
 }
 
 function readNestedText(source: Record<string, unknown>, keys: string[]): string {
@@ -822,15 +829,18 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("weekendDailyPrice", readFirstValue(ad, features, ["weekend_daily_price"], ["weekend_daily_price", "weekendDailyPrice"]), numericInputText);
   setText("specialDailyPrice", readFirstValue(ad, features, ["special_daily_price"], ["special_daily_price", "specialDailyPrice"]), numericInputText);
   setText("extraPersonPrice", readFirstValue(ad, features, ["extra_person_price"], ["extra_person_price", "extraPersonPrice"]), numericInputText);
-  setText("loanAmount", readFirstValue(ad, features, ["loan_amount"], ["loan_amount", "loanAmount"]), numericInputText);
-  setText("loanInstallment", readFirstValue(ad, features, ["loan_installment"], ["loan_installment", "loanInstallment"]), numericInputText);
+  const rawLoanAmount = readFirstValue(ad, features, ["loan_amount"], ["loan_amount", "loanAmount"]) ?? ad.loan?.amount;
+  const rawLoanInstallment = readFirstValue(ad, features, ["loan_installment"], ["loan_installment", "loanInstallment"]) ?? ad.loan?.installment;
+  setText("loanAmount", rawLoanAmount, numericInputText);
+  setText("loanInstallment", rawLoanInstallment, numericInputText);
   setText("virtualTourLink", readFirstValue(ad, features, ["virtual_tour_link", "virtual_tour", "tour_3d", "tour3d"], ["virtual_tour_link", "virtualTourLink"]));
   setText("title", readFirstValue(ad, features, ["title"], ["title", "label", "name"]));
   setText("description", readFirstValue(ad, features, ["description"], ["description", "short_description", "body"]));
   setText("publisherName", readPublisherName(ad, features));
   setText("agencyId", readTextValue(ad, features, ["agency_id", "agencyId"], ["agency_id", "agencyId"]));
-  setText("ownerFullName", readTextValue(ad, features, ["owner_name", "advertiser_name"], ["owner_name", "advertiser_name"]));
-  setText("ownerExactAddress", readTextValue(ad, features, ["owner_address", "contact_address"], ["owner_address", "contact_address"]));
+  setText("ownerPhone", readTextValue(ad, features, ["owner_contact_phone"], ["owner_contact_phone"]));
+  setText("ownerFullName", readTextValue(ad, features, ["owner_contact_name", "owner_name"], ["owner_contact_name", "owner_name"]));
+  setText("ownerExactAddress", readTextValue(ad, features, ["owner_contact_address", "owner_address"], ["owner_contact_address", "owner_address"]));
   setText("telegram", readSocialValue(ad, "telegram"));
   setText("whatsapp", readSocialValue(ad, "whatsapp"));
 
@@ -876,7 +886,21 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setBool("constructionPermit", readFirstValue(ad, features, ["construction_permit", "build_permit"], ["construction_permit", "constructionPermit"]));
   setBool("commercialPermit", readFirstValue(ad, features, ["commercial_permit"], ["commercial_permit", "commercialPermit"]));
   setBool("saleTermsEnabled", readFirstValue(ad, features, ["sale_terms_enabled", "installment_sale"], ["saleTermsEnabled", "installment_sale"]));
-  setBool("loanEnabled", readFirstValue(ad, features, ["has_loan"], ["has_loan", "loanEnabled"]));
+  const hasLoanExplicit = readFirstValue(ad, features, ["has_loan"], ["has_loan", "loanEnabled"]);
+  const hasLoanFromValues = Boolean(
+    next.loanAmount ||
+      next.loanInstallment ||
+      isFilledValue(rawLoanAmount) ||
+      isFilledValue(rawLoanInstallment) ||
+      isFilledValue(ad.loan?.amount) ||
+      isFilledValue(ad.loan?.installment) ||
+      readFirstValue(ad, features, ["loan_amount", "loan_installment"], ["loan_amount", "loan_installment"]),
+  );
+  if (hasLoanFromValues) {
+    next.loanEnabled = true;
+  } else {
+    setBool("loanEnabled", hasLoanExplicit);
+  }
   setBool("exchangeEnabled", readFirstValue(ad, features, ["has_exchange"], ["has_exchange", "exchangeEnabled"]));
   setBool("hasVideo", readFirstValue(ad, features, ["has_video"], ["has_video"]));
   setBool("hasVirtualTour", readFirstValue(ad, features, ["has_virtual_tour"], ["has_virtual_tour"]));
@@ -986,7 +1010,24 @@ export function NewAdFlowPage() {
   const advertiseFormQuery = useAdvertiseFormDefinitionQuery(
     !isCrmSource ? currentFormCode : null,
   );
-  const editAdQuery = useMyAdvertisementDetailQuery(isEditMode && !isCrmEditMode ? editAdId : null);
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const isAgencyRole = activeRole === REAL_ESTATE_MANAGER;
+
+  const editAdQuery = useQuery<AdvertisementItem, Error>({
+    enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),
+    queryFn: async () => {
+      const id = String(editAdId);
+      if (isAgencyRole) {
+        try {
+          return await getAgencyAdvertisementPreview(id);
+        } catch {
+          return await getAdvertisementPreview(id);
+        }
+      }
+      return await getAdvertisementPreview(id);
+    },
+    queryKey: ["advertisement", "edit-preview", editAdId, activeRole],
+  });
   const crmEditAdQuery = useQuery({
     enabled: Boolean(isCrmEditMode && editAdId),
     queryFn: () => getCrmAdvertise(editAdId ?? ""),
@@ -1510,7 +1551,11 @@ export function NewAdFlowPage() {
       dynamicFieldKeys: advertiseFormQuery.data?.fields?.map((field) => field.key),
       formCode: resolvedFormCode,
       isEdit: isEditMode,
+      isDraft: true,
     });
+
+    formData.delete("label");
+    formData.delete("description");
 
     const activeDraftId = draftAdId || (isEditMode ? editAdId : null);
     if (activeDraftId) {
@@ -1546,6 +1591,17 @@ export function NewAdFlowPage() {
             : isEditMode
             ? "ویرایش آگهی"
             : "ثبت آگهی";
+
+  const isAssigned = Boolean(
+    (editAdState as any)?.isAssigned ||
+    (editAdState.ad as any)?.isAssigned ||
+    (editAdState.ad as any)?.assignment_status ||
+    (editAdState.ad as any)?.assigned_agency_id ||
+    (editAdData as any)?.isAssigned ||
+    (editAdData as any)?.assignment_status ||
+    (editAdData as any)?.assigned_agency_id ||
+    (editAdState.card as any)?.isAssigned
+  );
 
   return (
     <PageFrame
@@ -1617,6 +1673,7 @@ export function NewAdFlowPage() {
           <MediaStep
             errors={fieldErrors}
             forceFullEditFields={isEditMode && !isEditingIncomplete}
+            isAssigned={isAssigned}
             label={label}
             onBack={goToDetails}
             onChangePublisher={() => setStep("publisherSelection")}

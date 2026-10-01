@@ -17,6 +17,7 @@ import {
   FormattedDetailValueView,
 } from "./viewAdComponents";
 import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
+import { formatDetailPrice } from "../../../shared/lib/MoneyHandler";
 import { Typography } from "../../../shared/ui/Typography";
 
 export type AlbumMediaItem = {
@@ -111,31 +112,7 @@ function formatPublishedAge(
 }
 
 function formatPrice(value: unknown) {
-  const numericValue = toNumber(value);
-
-  if (numericValue === undefined) {
-    return toText(value, "توافقی");
-  }
-
-  if (numericValue >= 1_000_000_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000_000_000)} همت`;
-  }
-
-  if (numericValue >= 1_000_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000_000)} میلیارد`;
-  }
-
-  if (numericValue >= 1_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000)} میلیون`;
-  }
-
-  return new Intl.NumberFormat("fa-IR").format(numericValue);
+  return formatDetailPrice(value);
 }
 
 
@@ -186,6 +163,8 @@ const propertyInfoLabelMap: Record<string, string> = {
   renovated: "بازسازی شده",
   furnished: "مبله با لوازم",
   has_loan: "وام",
+  loan_amount: "مبلغ وام",
+  loan_installment: "مبلغ قسط",
   suitable_for: "مناسب برای",
   document_type: "نوع سند",
   land_position: "موقعیت زمین",
@@ -385,6 +364,8 @@ const ignoredFeatureLabels = new Set([
   "parkingCount",
   "terrace_count",
   "terraceCount",
+  "loan_amount",
+  "loan_installment",
 ]);
 
 export type AdvertisementFeatureMap = Record<string, unknown>;
@@ -474,6 +455,33 @@ function getResolvedAdvertisementFeatures(
 
   for (const key of rootKeys) {
     addRootValue(key, ad[key]);
+  }
+
+  const loanAmountVal =
+    getFirstExistingFeatureValue(resolved, [
+      "loan_amount",
+      "mortgage_amount",
+      "loan_price",
+      "loan_value",
+    ]) ?? ad.loan?.amount;
+  const loanInstallmentVal =
+    getFirstExistingFeatureValue(resolved, [
+      "loan_installment",
+      "installment_amount",
+      "loan_payment",
+      "monthly_installment",
+    ]) ?? ad.loan?.installment;
+  const hasLoanPresent = isFilledValue(loanAmountVal) || isFilledValue(loanInstallmentVal);
+  if (hasLoanPresent) {
+    const existingIndex = resolved.findIndex(
+      (item) => item.label === "has_loan" || item.key === "has_loan",
+    );
+    if (existingIndex >= 0) {
+      resolved[existingIndex] = { ...resolved[existingIndex], value: true };
+    } else {
+      resolved.push({ label: "has_loan", value: true });
+      labels.add("has_loan");
+    }
   }
 
   return resolved;
@@ -834,7 +842,7 @@ function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
     return text ? `${text} متر` : "-";
   }
 
-  if (["price", "meter_price", "daily_price", "min_price", "max_price", "mortgage_price", "rent_price", "normal_daily_price", "weekend_daily_price", "special_daily_price", "extra_person_price", "evacuation_guarantee"].includes(label)) {
+  if (["price", "meter_price", "daily_price", "min_price", "max_price", "mortgage_price", "rent_price", "normal_daily_price", "weekend_daily_price", "special_daily_price", "extra_person_price", "evacuation_guarantee", "loan_amount", "loan_installment"].includes(label)) {
     return `${formatPrice(value)} تومان`;
   }
 
@@ -1340,7 +1348,7 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
       name,
       rank: readMetric(agency?.rank),
       ratingScore: readMetric(agency?.rating_score),
-      subtitle: "آژانس املاک",
+      subtitle: "آژانس",
     };
   }
 
@@ -1359,15 +1367,24 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
 
     if (agencyName) params.set("agency", agencyName);
 
+    const isAgencyAgent = Boolean(agencyName || agent?.agency_id || ad.agency);
+    const subtitle = isAgencyAgent ? "مشاور آژانس" : "مشاور مستقل";
+    const rawAvatar =
+      (typeof agent?.avatar === "string" && agent.avatar.trim()) ||
+      (typeof agent?.img === "string" && agent.img.trim()) ||
+      (typeof agent?.logo === "string" && agent.logo.trim()) ||
+      "";
+
     return {
       href: `/agents/${encodeURIComponent(String(id))}?${params.toString()}`,
       id: String(id),
       kind: "agent",
       location,
+      logoUrl: rawAvatar ? getApiAssetUrl(rawAvatar) : undefined,
       name,
       rank: readMetric(agent?.rank),
       ratingScore: readMetric(agent?.rating_score),
-      subtitle: agencyName || "مشاور املاک",
+      subtitle,
     };
   }
 
@@ -2288,10 +2305,8 @@ function createLoanRow(
   ]);
 
   const statusFromBoolean = toBooleanLike(loanStatusRaw);
-  const hasTopLevelLoan = isFilledValue(ad.loan?.amount) || isFilledValue(ad.loan?.installment);
-  const hasLoan = hasTopLevelLoan || (
-    statusFromBoolean ?? (isFilledValue(loanAmountRaw) || isFilledValue(installmentRaw))
-  );
+  const hasValues = isFilledValue(loanAmountRaw) || isFilledValue(installmentRaw);
+  const hasLoan = hasValues || (statusFromBoolean === true);
 
   const extraRows =
     hasLoan === true

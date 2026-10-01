@@ -1,4 +1,5 @@
 import { ApiError, api, baseUrl, publicApi } from "../../../shared/api/api";
+import { formatCardPrice } from "../../../shared/lib/MoneyHandler";
 import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
 import { getAdvertisementImageUrls } from "../utils/advertisement-images";
 
@@ -46,7 +47,10 @@ export type AdvertisementAgent = {
   _id?: number | string;
   agency_id?: number | string | null;
   agency_name?: string;
+  avatar?: string;
   id?: number | string;
+  img?: string;
+  logo?: string;
   name?: string;
   rank?: number | string | null;
   rating_score?: number | string | null;
@@ -103,6 +107,9 @@ export type AdvertisementItem = Record<string, unknown> & {
   neighborhood?: AdvertisementLocationEntity | null;
   neighborhood_id?: number | string | null;
   neighborhood_name?: string;
+  owner_contact_name?: string | null;
+  owner_contact_phone?: string | null;
+  owner_contact_address?: string | null;
   owner_type?: string;
   publisher_type?: "user" | "agency" | "agent" | string;
   publisher_user_id?: number | string | null;
@@ -516,17 +523,6 @@ function buildAdvertiseSearchParams(filters?: AdvertisementSearchFilters) {
   });
 }
 
-function toNumber(value: unknown) {
-  if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
-
-  if (typeof value === "string" && value.trim()) {
-    const parsed = Number(value.replace(/[^\d.]/g, ""));
-    return Number.isFinite(parsed) ? parsed : undefined;
-  }
-
-  return undefined;
-}
-
 function toText(value: unknown, fallback = "") {
   if (typeof value === "string" && value.trim()) return value;
   if (typeof value === "number") return String(value);
@@ -578,29 +574,7 @@ export function getAdvertisementPublisherName(item: AdvertisementItem) {
 }
 
 function formatPrice(value: unknown) {
-  const numericValue = toNumber(value);
-
-  if (numericValue === undefined) return toText(value, "توافقی");
-
-  if (numericValue >= 1_000_000_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000_000_000)} همت`;
-  }
-
-  if (numericValue >= 1_000_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000_000)} میلیارد`;
-  }
-
-  if (numericValue >= 1_000_000) {
-    return `${new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: 1,
-    }).format(numericValue / 1_000_000)} میلیون`;
-  }
-
-  return new Intl.NumberFormat("fa-IR").format(numericValue);
+  return formatCardPrice(value);
 }
 
 function readFeatureValue(item: AdvertisementItem, labels: string[]) {
@@ -972,11 +946,50 @@ export async function getAdvertisementList({
   } satisfies AdvertisementPage;
 }
 
+function extractLoanFromFeatures(
+  features?: AdvertisementFeature[],
+): AdvertisementItem["loan"] {
+  if (!Array.isArray(features)) return undefined;
+
+  const findValue = (keys: string[]) =>
+    features.find((f) => keys.includes(f.label ?? "") || keys.includes(f.key ?? ""))?.value;
+
+  const amount = findValue(["loan_amount", "mortgage_amount", "loan_price", "loan_value"]);
+  const installment = findValue([
+    "loan_installment",
+    "installment_amount",
+    "loan_payment",
+    "monthly_installment",
+  ]);
+
+  if (amount !== undefined || installment !== undefined) {
+    return {
+      amount: (amount ?? null) as string | number | null,
+      installment: (installment ?? null) as string | number | null,
+    };
+  }
+  return undefined;
+}
+
+export function normalizeAdvertisementLoan(item: AdvertisementItem): AdvertisementItem {
+  if (!item || typeof item !== "object") return item;
+
+  const loanFromFeatures = extractLoanFromFeatures(item.features);
+  if (loanFromFeatures) {
+    item.loan = {
+      amount: item.loan?.amount ?? loanFromFeatures.amount,
+      installment: item.loan?.installment ?? loanFromFeatures.installment,
+    };
+  }
+
+  return item;
+}
+
 function unwrapAdvertisementShowResponse(
   response: AdvertisementShowResponse,
 ): AdvertisementItem {
   if (response?.data && typeof response.data === "object") {
-    return response.data;
+    return normalizeAdvertisementLoan(response.data);
   }
 
   throw new ApiError(500, "ساختار اطلاعات آگهی از سرور قابل استفاده نیست.");
@@ -1183,19 +1196,20 @@ export async function getMyAdvertisementDetail(id: string): Promise<Advertisemen
     ? asRecord(response.advertise) as AdvertisementItem | null
     : null;
   if (advertise) {
+    const normalized = normalizeAdvertisementLoan(advertise);
     const category = typeof response.category === "string" ? response.category.trim() : "";
 
     return category
       ? {
-          ...advertise,
+          ...normalized,
           category,
-          category_title: advertise.category_title ?? category,
+          category_title: normalized.category_title ?? category,
         }
-      : advertise;
+      : normalized;
   }
 
-  if ("data" in response && response.data) return response.data as AdvertisementItem;
-  return response as AdvertisementItem;
+  if ("data" in response && response.data) return normalizeAdvertisementLoan(response.data as AdvertisementItem);
+  return normalizeAdvertisementLoan(response as AdvertisementItem);
 }
 
 export async function createAdvertisement(payload: FormData) {
@@ -1217,6 +1231,14 @@ export async function createAdvertisement(payload: FormData) {
 }
 
 export async function saveAdvertiseDraft(payload: FormData | Record<string, unknown>) {
+  if (payload instanceof FormData) {
+    payload.delete("label");
+    payload.delete("description");
+  } else if (payload && typeof payload === "object") {
+    delete (payload as Record<string, unknown>).label;
+    delete (payload as Record<string, unknown>).description;
+  }
+
   const options = payload instanceof FormData
     ? { body: payload }
     : { json: payload };
@@ -1257,6 +1279,34 @@ export async function updateAdvertisement({
         : response as AdvertisementItem;
 
   return updatedAdvertise;
+}
+
+export async function updateOwnerContact({
+  advertiseId,
+  ownerContactName,
+  ownerContactPhone,
+  ownerContactAddress,
+}: {
+  advertiseId: string;
+  ownerContactName?: string;
+  ownerContactPhone?: string;
+  ownerContactAddress?: string;
+}) {
+  const payload = new FormData();
+  if (ownerContactName !== undefined) {
+    payload.append("owner_contact_name", ownerContactName);
+  }
+  if (ownerContactPhone !== undefined) {
+    payload.append("owner_contact_phone", ownerContactPhone);
+  }
+  if (ownerContactAddress !== undefined) {
+    payload.append("owner_contact_address", ownerContactAddress);
+  }
+
+  return updateAdvertisement({
+    advertiseId,
+    payload,
+  });
 }
 
 export async function deleteAdvertisement({

@@ -25,6 +25,7 @@ function FieldError({ message }: { message?: string }) {
 
 export function MediaStep({
   errors = {},
+  isAssigned = false,
   label,
   onBack,
   onChangePublisher,
@@ -34,6 +35,7 @@ export function MediaStep({
 }: {
   errors?: NewAdFieldErrors;
   forceFullEditFields?: boolean;
+  isAssigned?: boolean;
   label: string;
   onBack: () => void;
   onChangePublisher: () => void;
@@ -45,16 +47,24 @@ export function MediaStep({
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
   const publisherType = getParams().publisherType?.toLowerCase() ?? "";
-  const isAgencyPublisher = publisherType === "agency";
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const isProfessionalPublisher =
+    publisherType === "agency" ||
+    publisherType === "agent" ||
+    activeRole === "real_estate_manager" ||
+    activeRole === "independent_consultant" ||
+    activeRole === "real_estate_consultant";
+  const isAgencyPublisher = publisherType === "agency" || activeRole === "real_estate_manager";
   const { data: profile } = useMyProfileQuery();
-  const { data: agencyProfile } = useMyAgencyProfileQuery({ enabled: isAgencyPublisher });
+  const { data: agencyProfile } = useMyAgencyProfileQuery({
+    enabled: isAgencyPublisher || activeRole === "real_estate_consultant",
+  });
   const { data: consultantsPage } = useAgencyConsultantsQuery({
     enabled: isAgencyPublisher && Boolean(values.consultantId),
     page: 1,
     perPage: 100,
   });
-  const session = getStoredAuthSession();
-  const activeRole = getActiveAuthRole(session);
   const allowAssignmentChoice = activeRole === "user";
   const storedMobile = session?.mobile?.trim() ?? "";
   const meShowMobile = profile?.mobile?.trim() || profile?.phone?.trim() || "";
@@ -65,21 +75,36 @@ export function MediaStep({
     .join(" ");
   const selectedConsultant = values.consultantId
     ? consultantsPage?.data.find(
-        (consultant) => String(consultant.userId) === String(values.consultantId),
+        (consultant) =>
+          String(consultant.agentId) === String(values.consultantId) ||
+          String(consultant.userId) === String(values.consultantId),
       )
     : undefined;
-  const agencyPublisherIsConsultant = Boolean(values.consultantId);
-  const agencyPublisherName =
-    selectedConsultant?.name?.trim() ||
-    values.publisherName?.trim() ||
-    agencyProfile?.name?.trim() ||
-    "آژانس";
+  const isIndependent = activeRole === "independent_consultant";
+  const isAgencyConsultant =
+    Boolean(values.consultantId) || activeRole === "real_estate_consultant";
+  const agencyPublisherIsConsultant = isIndependent || isAgencyConsultant;
+
+  const agencyPublisherName = agencyPublisherIsConsultant
+    ? selectedConsultant?.name?.trim() ||
+      (profileFullName ? profileFullName : undefined) ||
+      values.publisherName?.trim() ||
+      "مشاور"
+    : agencyProfile?.name?.trim() ||
+      values.publisherName?.trim() ||
+      "آژانس";
+
   const agencyPublisherLogoUrl = getApiAssetUrl(
     agencyPublisherIsConsultant
-      ? selectedConsultant?.avatar?.trim() || ""
+      ? selectedConsultant?.avatar?.trim() || profile?.avatar?.trim() || ""
       : agencyProfile?.logo?.trim() || agencyProfile?.img?.trim() || "",
   );
-  const agencyPublisherSubtitle = agencyPublisherIsConsultant ? "مشاور" : "مالک";
+
+  const agencyPublisherSubtitle = isIndependent
+    ? "مشاور مستقل"
+    : isAgencyConsultant
+      ? "مشاور آژانس"
+      : "آژانس";
   const isAgencyFlow = values.registrantType === "agency";
 
   const setField = <T extends keyof NewAdFormValues>(
@@ -236,6 +261,8 @@ export function MediaStep({
             agencyPublisherSubtitle={agencyPublisherSubtitle}
             allowAssignmentChoice={allowAssignmentChoice}
             errors={errors}
+            isAssigned={isAssigned}
+            isProfessionalPublisher={isProfessionalPublisher}
             label={label}
             mobile={profileMobile || values.phoneNumber}
             onChangePublisher={onChangePublisher}

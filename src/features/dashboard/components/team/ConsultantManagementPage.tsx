@@ -40,6 +40,7 @@ export type TeamConsultant = {
   adQuota?: number;
   agentId?: number;
   id: number;
+  userId?: number;
   requestId?: number;
   name: string;
   avatarSrc?: string;
@@ -80,7 +81,8 @@ export function mapAgencyConsultantToTeamConsultant(
     adQuota: consultant.adQuota,
     agentId: consultant.agentId,
     avatarSrc: consultant.avatar,
-    id: consultant.userId,
+    id: consultant.agentId ?? consultant.userId,
+    userId: consultant.userId,
     isActive: consultant.isActive,
     name: consultant.name,
     permissions: consultant.permissions,
@@ -515,30 +517,53 @@ export function AddConsultantPage() {
           </section>
 
           <section className="grid gap-4 border-t-[8px] border-surface-container bg-surface-container-lowest px-4 py-5">
-            <QuotaStepper
-              label="سهمیه آگهی"
-              max={agencyBalances?.unassignedAdCreditBalance ?? agencyBalances?.adCreditBalance ?? 0}
-              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedAdCreditBalance ?? agencyBalances?.adCreditBalance)}`}
-              remainingClassName="text-primary"
-              setValue={setAdQuota}
-              value={adQuota}
-            />
-            <QuotaStepper
-              label="سهمیه بروزرسانی"
-              max={agencyBalances?.unassignedRenewCreditBalance ?? agencyBalances?.renewCreditBalance ?? 0}
-              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedRenewCreditBalance ?? agencyBalances?.renewCreditBalance)}`}
-              remainingClassName="text-tertiary"
-              setValue={setUpdateQuota}
-              value={updateQuota}
-            />
-            <QuotaStepper
-              label="سهمیه ویژه"
-              max={agencyBalances?.unassignedSpecialCreditBalance ?? agencyBalances?.specialCreditBalance ?? 0}
-              remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(agencyBalances?.unassignedSpecialCreditBalance ?? agencyBalances?.specialCreditBalance)}`}
-              remainingClassName="text-warning"
-              setValue={setSpecialQuota}
-              value={specialQuota}
-            />
+            {(() => {
+              const availableAdBalance =
+                agencyBalances?.unassignedAdCreditBalance ??
+                agencyBalances?.adCreditBalance ??
+                0;
+              const availableRenewBalance =
+                agencyBalances?.unassignedRenewCreditBalance ??
+                agencyBalances?.renewCreditBalance ??
+                0;
+              const availableSpecialBalance =
+                agencyBalances?.unassignedSpecialCreditBalance ??
+                agencyBalances?.specialCreditBalance ??
+                0;
+
+              const currentAgencyAdRemaining = Math.max(0, availableAdBalance - adQuota);
+              const currentAgencyRenewRemaining = Math.max(0, availableRenewBalance - updateQuota);
+              const currentAgencySpecialRemaining = Math.max(0, availableSpecialBalance - specialQuota);
+
+              return (
+                <>
+                  <QuotaStepper
+                    label="سهمیه آگهی"
+                    max={availableAdBalance}
+                    remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(currentAgencyAdRemaining)}`}
+                    remainingClassName="text-primary"
+                    setValue={setAdQuota}
+                    value={adQuota}
+                  />
+                  <QuotaStepper
+                    label="سهمیه بروزرسانی"
+                    max={availableRenewBalance}
+                    remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(currentAgencyRenewRemaining)}`}
+                    remainingClassName="text-tertiary"
+                    setValue={setUpdateQuota}
+                    value={updateQuota}
+                  />
+                  <QuotaStepper
+                    label="سهمیه ویژه"
+                    max={availableSpecialBalance}
+                    remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(currentAgencySpecialRemaining)}`}
+                    remainingClassName="text-warning"
+                    setValue={setSpecialQuota}
+                    value={specialQuota}
+                  />
+                </>
+              );
+            })()}
           </section>
         </div>
       </main>
@@ -884,7 +909,7 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             <RouteLink
               className="flex justify-center items-center gap-2"
               state={{ consultant }}
-              to={`${consultantTeamPaths.remove}/${consultant.id}`}
+              to={`${consultantTeamPaths.remove}/${consultant.agentId ?? consultant.id}`}
             >
               <LinearDelete className="w-5 h-5" />
               حذف

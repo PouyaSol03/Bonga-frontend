@@ -40,7 +40,8 @@ import { AdCardTomanIcon } from "../components/AdCardIcons";
 import TonalInstagram from "../../../shared/icons/TonalInstagram";
 import TonalTelegram from "../../../shared/icons/TonalTelegram";
 import TonalWhatsapp from "../../../shared/icons/TonalWhatsapp";
-import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 import { pushRoute } from "../../../shared/navigation/navigation";
 import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
 import type { ChatThread } from "../../chat/api/chat.service";
@@ -68,6 +69,7 @@ import {
   AgencyUserContactBottomSheet,
   type AgencyUserContactData,
 } from "./components/AgencyUserContactBottomSheet";
+import { AgencyOwnerContactBottomSheet } from "./components/AgencyOwnerContactBottomSheet";
 import { ViewAdNotePage } from "./pages/ViewAdNotePage";
 import {
   ViewAdViolationReportPage,
@@ -80,6 +82,23 @@ import {
   clearConsultantsSelectedNeighborhood,
   saveConsultantsSelectedNeighborhood,
 } from "../../consultants/consultantsNeighborhoodSelection";
+import { getMyAdStatusInfo } from "../../account/myAdsStatus";
+
+function isPublishedAdvertisement(ad: unknown): boolean {
+  if (!ad) return false;
+  const statusInfo = getMyAdStatusInfo(ad);
+  if (statusInfo.key === "published" || statusInfo.label === "منتشر شده") {
+    return true;
+  }
+  const record = typeof ad === "object" ? (ad as Record<string, unknown>) : null;
+  const rawStatus = String(record?.status ?? record?.ad_status ?? record?.status_label ?? "").toLowerCase();
+  return (
+    rawStatus === "published" ||
+    rawStatus === "accepted" ||
+    rawStatus === "3" ||
+    rawStatus.includes("منتشر")
+  );
+}
 
 type ActionToast = {
   message: string;
@@ -1315,10 +1334,18 @@ function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
         className="block rounded-2xl px-2 py-2 text-inherit no-underline transition active:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
         to={preview.href}
       >
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-lg border border-outline-var bg-primary-container">
-          <Typography as="span" variant="headline" size="small" className="text-2xl font-bold leading-none text-on-primary-container">
-            {initial}
-          </Typography>
+        <div className="mx-auto grid h-16 w-16 place-items-center overflow-hidden rounded-full border border-outline-var bg-primary-container">
+          {preview.logoUrl ? (
+            <img
+              alt={preview.name}
+              className="h-full w-full object-cover"
+              src={preview.logoUrl}
+            />
+          ) : (
+            <Typography as="span" variant="headline" size="small" className="text-2xl font-bold leading-none text-on-primary-container">
+              {initial}
+            </Typography>
+          )}
         </div>
         <Typography as="h2" variant="title" size="medium" weight="semibold" className="mt-4 text-base font-semibold leading-6 text-on-surface-var">
           {preview.name}
@@ -1494,6 +1521,7 @@ function readAdvertisementBookmarkState(advertisement: AdvertisementItem | undef
 export function ViewAdPage() {
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isAgencyContactSheetOpen, setIsAgencyContactSheetOpen] = useState(false);
+  const [isOwnerContactSheetOpen, setIsOwnerContactSheetOpen] = useState(false);
   const [isAlbumOpen, setIsAlbumOpen] = useState(false);
   const [albumInitialIndex, setAlbumInitialIndex] = useState(0);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -1504,7 +1532,9 @@ export function ViewAdPage() {
   const [toast, setToast] = useState<ActionToast | null>(null);
   const adId = parseViewAdIdFromPath(window.location.pathname);
   const isPreview = window.location.pathname.startsWith("/preview-ad/");
-  const initialAgencyPreview = isPreview && isAgencyAuthRole() && shouldUseAgencyAllocationPreview();
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const isAgencyManager = activeRole === REAL_ESTATE_MANAGER;
+  const initialAgencyPreview = isPreview && (isAgencyManager || shouldUseAgencyAllocationPreview());
   const toggleBadge = useToggleAdvertiseBadgeMutation();
   const saveNote = useSaveAdvertiseNoteMutation();
   const createAdvertiseChat = useCreateAdvertiseChatMutation();
@@ -1526,7 +1556,14 @@ export function ViewAdPage() {
     ? activePreviewQuery
     : detailQuery;
   const useAgencyAllocationPreview =
-    isPreview && (shouldUseAgencyAllocationPreview() || shouldUseAgencyAllocationPreview(ad));
+    isPreview && (ad ? shouldUseAgencyAllocationPreview(ad) : shouldUseAgencyAllocationPreview());
+  const isAgencyRole = isAgencyAuthRole();
+  const isAdAssigned =
+    Boolean(ad?.is_assigned) ||
+    Boolean(ad?.isAssigned) ||
+    Boolean(ad?.assignment_status === "pending" || ad?.assignment_status === "accepted") ||
+    useAgencyAllocationPreview;
+  const showAgencyOwnerContact = isPreview && isAgencyRole && !isAdAssigned;
 
   useEffect(() => {
     const bookmarkState = readAdvertisementBookmarkState(ad);
@@ -1578,6 +1615,7 @@ export function ViewAdPage() {
   const details = mapAdToDetails(resolvedAd);
   const isOwnAd = isOwnAdvertisement(resolvedAd);
   const usesPublicAdPresentation = isPreview || !isOwnAd;
+  const isAdPublished = isPublishedAdvertisement(resolvedAd);
   const contactInfo = readContactInfo(resolvedAd);
   const rawAgencyUserContact = (window.history.state as Record<string, unknown> | null)?.userContact as
     | AgencyUserContactData
@@ -1749,7 +1787,9 @@ export function ViewAdPage() {
     }
 
     if (icon === "share") {
-      const shareUrl = window.location.href;
+      const shareUrl = isPreview && adId
+        ? `${window.location.origin}/ads/${adId}`
+        : window.location.href;
       const shareTitle = details.title || document.title;
 
       try {
@@ -1923,7 +1963,15 @@ export function ViewAdPage() {
       />
       <h1 className="sr-only">{details.title || details.headline || "آگهی املاک"}</h1>
       <ViewAdTopBar
-        actionIcons={isPreview ? [] : usesPublicAdPresentation ? undefined : ["share"]}
+        actionIcons={
+          isPreview
+            ? isAdPublished
+              ? ["share"]
+              : []
+            : usesPublicAdPresentation
+              ? undefined
+              : ["share"]
+        }
         backTo="/home"
         bookmarked={isBookmarked}
         onBack={() => goBackFromAd("/home")}
@@ -1976,6 +2024,17 @@ export function ViewAdPage() {
               </Button>
             </div>
           </div>
+        ) : showAgencyOwnerContact ? (
+          <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
+            <Button
+              unstyled
+              className="h-10 w-full rounded-[12px] bg-primary text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+              onClick={() => setIsOwnerContactSheetOpen(true)}
+              type="button"
+            >
+              تماس با مالک
+            </Button>
+          </div>
         ) : null
       ) : (
         <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
@@ -2018,7 +2077,51 @@ export function ViewAdPage() {
           isOpen={isAgencyContactSheetOpen}
           onClose={() => setIsAgencyContactSheetOpen(false)}
         />
-      ) : isPreview ? null : (
+      ) : isPreview ? (
+        showAgencyOwnerContact ? (
+          <AgencyOwnerContactBottomSheet
+            adId={String(ad?.id ?? adId)}
+            isOpen={isOwnerContactSheetOpen}
+            onClose={() => setIsOwnerContactSheetOpen(false)}
+            onUpdated={() => {
+              void refetch();
+            }}
+            ownerContactAddress={
+              (typeof ad?.owner_contact_address === "string" && ad.owner_contact_address) ||
+              (typeof ad?.owner_address === "string" && ad.owner_address) ||
+              (Array.isArray(ad?.features)
+                ? String(
+                    ad.features.find(
+                      (f: any) => f?.label === "owner_contact_address" || f?.label === "owner_address"
+                    )?.value ?? ""
+                  )
+                : "") ||
+              undefined
+            }
+            ownerContactName={
+              (typeof ad?.owner_contact_name === "string" && ad.owner_contact_name) ||
+              (typeof ad?.owner_name === "string" && ad.owner_name) ||
+              (Array.isArray(ad?.features)
+                ? String(
+                    ad.features.find(
+                      (f: any) => f?.label === "owner_contact_name" || f?.label === "owner_name"
+                    )?.value ?? ""
+                  )
+                : "") ||
+              undefined
+            }
+            ownerContactPhone={
+              (typeof ad?.owner_contact_phone === "string" && ad.owner_contact_phone) ||
+              (Array.isArray(ad?.features)
+                ? String(
+                    ad.features.find((f: any) => f?.label === "owner_contact_phone")?.value ?? ""
+                  )
+                : "") ||
+              undefined
+            }
+          />
+        ) : null
+      ) : (
         <ContactInfoBottomSheet
           contactInfo={contactInfo}
           isOpen={isContactSheetOpen}

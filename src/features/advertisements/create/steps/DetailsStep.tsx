@@ -67,7 +67,6 @@ import {
 } from "../components/NewAdControls";
 import { CrmTargetOwnerSelect } from "../components/CrmTargetOwnerSelect";
 import { RentPriceConversion } from "../components/RentPriceConversion";
-import { parseRentPriceValue, RENT_CONVERSION_MORTGAGE_UNIT, RENT_CONVERSION_RENT_PER_UNIT } from "../rentPriceConversion";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { DailyHotelRoomsSection } from "./dailyHotel/DailyHotelRoomsSection";
 import { ProjectSaleTermsFields } from "./project/ProjectSaleTermsFields";
@@ -198,16 +197,6 @@ export function DetailsStep({
   const allowRentConversion = formSchema?.create?.pricing?.rentConversion !== false && !isPartnership && isRent;
 
   const values = watch();
-
-  // Real-time validation for rent prices: mortgage must be divisible by 1M, rent by 30K
-  const mortgagePriceNum = parseRentPriceValue(values.mortgagePrice);
-  const rentPriceNum = parseRentPriceValue(values.rentPrice);
-  const mortgageInlineError = isRent && mortgagePriceNum > 0 && mortgagePriceNum % RENT_CONVERSION_MORTGAGE_UNIT !== 0
-    ? "مبلغ رهن باید مضربی از یک میلیون تومان باشد."
-    : undefined;
-  const rentInlineError = isRent && rentPriceNum > 0 && rentPriceNum % RENT_CONVERSION_RENT_PER_UNIT !== 0
-    ? "مبلغ اجاره باید مضربی از ۳۰ هزار تومان باشد."
-    : undefined;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -342,6 +331,22 @@ export function DetailsStep({
     setValue(key as never, value as never, { shouldDirty: true });
     onClearError?.(key);
   };
+
+  const isLoanActive = Boolean(values.loanEnabled || values.loanAmount || values.loanInstallment);
+
+  const handleLoanToggle = (checked: boolean) => {
+    setField("loanEnabled", checked);
+    if (!checked) {
+      setField("loanAmount", "");
+      setField("loanInstallment", "");
+    }
+  };
+
+  useEffect(() => {
+    if ((values.loanAmount || values.loanInstallment) && !values.loanEnabled) {
+      setField("loanEnabled", true);
+    }
+  }, [values.loanAmount, values.loanInstallment, values.loanEnabled]);
 
   const handleFacilityClick = (id: string) => {
     if (id === "elevator") {
@@ -620,12 +625,12 @@ export function DetailsStep({
             {allowLoan ? (
               <>
                 <Toggle
-                  checked={values.loanEnabled}
+                  checked={isLoanActive}
                   label="وام دارد"
-                  onChange={(checked) => setField("loanEnabled", checked)}
+                  onChange={handleLoanToggle}
                 />
 
-                {values.loanEnabled ? (
+                {isLoanActive ? (
                   <div className="space-y-3">
                     <div data-field-key="loanAmount">
                       <InputBox
@@ -742,13 +747,13 @@ export function DetailsStep({
               className={`${priceHasSupportingText ? "mt-4" : "mt-5"} border-t border-outline-var`}
             >
               <PriceToggleRow
-                checked={values.loanEnabled}
+                checked={isLoanActive}
                 label="وام دارد"
-                onChange={(checked) => setField("loanEnabled", checked)}
+                onChange={handleLoanToggle}
               />
             </div>
 
-            {values.loanEnabled ? (
+            {isLoanActive ? (
               <div className="mt-3 space-y-4">
                 <div data-field-key="loanAmount">
                   <InputBox
@@ -791,7 +796,7 @@ export function DetailsStep({
                 ? priceHasSupportingText
                   ? "mt-4"
                   : "mt-5"
-                : values.loanEnabled
+                : isLoanActive
                   ? "mt-4"
                   : ""
             } border-t border-outline-var`}

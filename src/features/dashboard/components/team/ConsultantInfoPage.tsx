@@ -70,7 +70,8 @@ function createConsultantPieDatum({
 }
 export function ConsultantInfoPage() {
   const routeConsultant = getRouteConsultant();
-  const consultantId = getRouteConsultantId() ?? routeConsultant.id;
+  const consultantId =
+    routeConsultant.agentId ?? getRouteConsultantId() ?? routeConsultant.id;
   const consultantQuery = useAgencyConsultantQuery({ agentId: consultantId });
   const agencyDashboardQuery = useAgencyDashboardQuery();
 
@@ -88,7 +89,8 @@ export function ConsultantInfoPage() {
   const agencyDashboard = agencyDashboardQuery.data;
   const periodActivity = consultantQuery.data?.periodActivity;
   const dashboardConsultantActivity = agencyDashboard?.consultantActivity.find(
-    (activity) => String(activity.userId) === String(consultant.id),
+    (activity) =>
+      String(activity.userId) === String(consultant.userId ?? consultant.id),
   );
   const totalRenewals = agencyDashboard
     ? agencyDashboard.consultantActivity.reduce((sum, activity) => sum + activity.renewCount, 0)

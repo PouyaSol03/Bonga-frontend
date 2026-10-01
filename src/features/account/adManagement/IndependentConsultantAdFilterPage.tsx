@@ -612,9 +612,10 @@ function PublisherSelectField({
 
     (consultantsQuery.data?.data ?? []).forEach((consultant) => {
       if (!consultant.name?.trim()) return;
+      const id = String(consultant.agentId ?? consultant.userId);
 
       options.push({
-        id: String(consultant.userId),
+        id,
         image: consultant.avatar,
         name: consultant.name.trim(),
         type: "consultant",

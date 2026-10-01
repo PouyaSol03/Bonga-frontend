@@ -94,7 +94,7 @@ function PersonalContactFields({
   phoneEnabled: boolean;
 }) {
   return (
-    <div className="border-t border-dashed border-outline-var pt-5">
+    <div data-field-key="contactMethods" className="border-t border-dashed border-outline-var pt-5">
       <SectionHeading required title="روش‌های ارتباطی" />
 
       <CheckRow
@@ -153,7 +153,7 @@ function AgencyContactFields({
       </div>
 
       <div className="mt-5 space-y-4">
-        <div>
+        <div data-field-key="ownerFullName">
           <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
             نام و نام خانوادگی مالک (اختیاری)
           </div>
@@ -166,7 +166,7 @@ function AgencyContactFields({
           />
         </div>
 
-        <div>
+        <div data-field-key="ownerExactAddress">
           <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
             آدرس دقیق ملک (اختیاری)
           </div>
@@ -397,7 +397,7 @@ export function AdInformationFields({
         />
       ) : null}
 
-      <div className="border-t border-dashed border-outline-var pt-5">
+      <div data-field-key="title" className="border-t border-dashed border-outline-var pt-5">
         <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
           عنوان آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
         </div>
@@ -411,7 +411,7 @@ export function AdInformationFields({
         />
       </div>
 
-      <div>
+      <div data-field-key="description">
         <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
           توضیحات آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
         </div>

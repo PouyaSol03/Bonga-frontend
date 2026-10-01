@@ -201,8 +201,10 @@ export function MediaStep({
         dir="rtl"
       >
         <Section icon="image.svg" title="عکس آگهی" warning>
-          <PhotoUploader onChange={() => onClearError?.("photos")} />
-          <FieldError message={errors.photos} />
+          <div data-field-key="photos">
+            <PhotoUploader onChange={() => onClearError?.("photos")} />
+            <FieldError message={errors.photos} />
+          </div>
           <div>
             <Toggle
               checked={values.images_belong_to_ad}
@@ -222,7 +224,9 @@ export function MediaStep({
             />
           </div>
           {values.hasVideo ? (
-            <VideoUploader onChange={() => onClearError?.("video")} />
+            <div data-field-key="video">
+              <VideoUploader onChange={() => onClearError?.("video")} />
+            </div>
           ) : null}
           <FieldError message={values.hasVideo ? errors.video : undefined} />
           <div>
@@ -237,7 +241,7 @@ export function MediaStep({
             />
           </div>
           {values.hasVirtualTour ? (
-            <div className="mt-3">
+            <div data-field-key="virtualTourLink" className="mt-3">
               <InputBox
                 error={errors.virtualTourLink}
                 floatingLabel="لینک تور مجازی"

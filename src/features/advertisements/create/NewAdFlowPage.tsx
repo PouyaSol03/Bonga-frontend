@@ -25,6 +25,7 @@ import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/au
 import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
+import { handleValidationFailure, scrollToFirstError } from "./validationScroll";
 import {
   adManagementPaths,
   getAdPaymentPath,
@@ -1229,6 +1230,7 @@ export function NewAdFlowPage() {
       setFieldErrors(validation.errors);
       setSubmitError("");
       setStep(validation.step);
+      handleValidationFailure(validation.errors, methods.setValue, methods.getValues);
       return;
     }
 
@@ -1369,6 +1371,7 @@ export function NewAdFlowPage() {
       }));
       setSubmitError("");
       setStep("media");
+      scrollToFirstError({ photos: "لطفا حداقل یک عکس معتبر برای آگهی انتخاب کنید." });
       return;
     }
 
@@ -1462,6 +1465,7 @@ export function NewAdFlowPage() {
       setFieldErrors(validation.errors);
       setSubmitError("");
       setStep(validation.step);
+      handleValidationFailure(validation.errors, methods.setValue, methods.getValues);
       return;
     }
 
@@ -1523,6 +1527,7 @@ export function NewAdFlowPage() {
     if (validation) {
       setFieldErrors(validation.errors);
       setSubmitError("");
+      handleValidationFailure(validation.errors, methods.setValue, methods.getValues);
       return;
     }
 

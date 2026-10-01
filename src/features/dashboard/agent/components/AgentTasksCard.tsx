@@ -38,38 +38,56 @@ export function AgentTasksCard({
   const taskList = items ?? defaultItems;
 
   return (
-    <section className="w-full rounded-[16px] bg-gradient-to-r from-[#5A82E2] to-[#456DCF] p-4 text-white shadow-sm [direction:rtl]">
-      {/* Title */}
-      <h2 className="mb-3 text-[14px] font-bold text-white">
-        <span>کارهای امروز: </span>
-        <span className="text-[#FFD13B] font-extrabold">{toPersianNumber(totalCount)}</span>
-        <span> کار برای انجام داری</span>
-      </h2>
+    <section className="relative w-full overflow-hidden rounded-[16px] border border-[#0048C4]/40 bg-white p-4 shadow-sm [direction:rtl]">
+      {/* Gradient from bottom (Schemes/On Primery Container) to top (Schemes/Primery) over Schemes/Surface Container Lowest base */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          background:
+            "linear-gradient(to top, var(--on-primary-container, #002099), var(--primary, #0048C4))",
+        }}
+      />
 
-      {/* Task Rows */}
-      <div className="flex flex-col">
-        {taskList.map((item, idx) => {
-          const isLast = idx === taskList.length - 1;
-          return (
-            <RouteLink
-              key={item.id}
-              to={item.to}
-              className={`flex items-center justify-between py-2.5 transition active:opacity-80 no-underline ${
-                !isLast ? "border-b border-white/15" : ""
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span className="min-w-[20px] text-[14px] font-bold text-[#FFD13B]">
-                  {toPersianNumber(item.count)}
-                </span>
-                <span className="text-[12px] font-normal text-white">
-                  {item.label}
-                </span>
-              </div>
-              <LinearArrowLeft1 className="h-3.5 w-3.5 text-white/70" />
-            </RouteLink>
-          );
-        })}
+      <div className="relative z-10 flex flex-col">
+        {/* Header */}
+        <div className="mb-3 flex items-center gap-2 text-white">
+          <span className="text-[16px] font-medium leading-[24px]">
+            کار های امروز :
+          </span>
+          <span className="text-[16px] font-semibold leading-[24px] text-[#FFB100]">
+            {toPersianNumber(totalCount)}
+          </span>
+          <span className="text-[14px] font-normal leading-[20px] text-white">
+            کار برای انجام داری
+          </span>
+        </div>
+
+        {/* Task Rows */}
+        <div className="flex flex-col">
+          {taskList.map((item, idx) => {
+            const isLast = idx === taskList.length - 1;
+            return (
+              <RouteLink
+                key={item.id}
+                to={item.to}
+                className={`flex items-center justify-between py-2.5 transition active:opacity-80 no-underline ${
+                  !isLast ? "border-b border-white/15" : ""
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="min-w-[20px] text-[16px] font-semibold leading-[24px] text-[#FFB100]">
+                    {toPersianNumber(item.count)}
+                  </span>
+                  <span className="text-[14px] font-normal leading-[20px] text-white">
+                    {item.label}
+                  </span>
+                </div>
+                <LinearArrowLeft1 className="h-6 w-6 shrink-0 text-white" />
+              </RouteLink>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

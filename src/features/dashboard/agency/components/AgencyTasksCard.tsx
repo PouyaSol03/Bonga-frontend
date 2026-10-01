@@ -20,55 +20,73 @@ export function AgencyTasksCard({
   items = defaultItems,
 }: AgencyTasksCardProps) {
   return (
-    <section className="w-full overflow-hidden rounded-[16px] bg-gradient-to-b from-[#5A82E2] to-[#456DCF] p-4 text-white shadow-sm [direction:rtl]">
-      {/* Header */}
-      <h2 className="mb-3 text-[14px] font-bold text-white">
-        <span>کارهای امروز: </span>
-        <span className="text-[#FFD13B] font-extrabold">{toPersianNumber(totalCount)}</span>
-        <span> کار برای انجام داری</span>
-      </h2>
+    <section className="relative w-full overflow-hidden rounded-[16px] border border-[#0048C4]/40 bg-white p-4 shadow-sm [direction:rtl]">
+      {/* Gradient from bottom (Schemes/On Primery Container) to top (Schemes/Primery) over Schemes/Surface Container Lowest base */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          background:
+            "linear-gradient(to top, var(--on-primary-container, #002099), var(--primary, #0048C4))",
+        }}
+      />
 
-      {/* Task Rows */}
-      <div className="flex flex-col">
-        {items.map((item, idx) => {
-          const isLast = idx === items.length - 1;
-          const content = (
-            <div
-              className={`flex items-center justify-between py-2.5 transition active:opacity-80 ${
-                !isLast ? "border-b border-white/15" : ""
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span className="min-w-[20px] text-[14px] font-bold text-[#FFD13B]">
-                  {toPersianNumber(item.count)}
-                </span>
-                <span className="text-[13px] font-medium text-white">
-                  {item.label}
-                </span>
+      <div className="relative z-10 flex flex-col">
+        {/* Header */}
+        <div className="mb-3 flex items-center gap-2 text-white">
+          <span className="text-[16px] font-medium leading-[24px]">
+            کار های امروز :
+          </span>
+          <span className="text-[16px] font-semibold leading-[24px] text-[#FFB100]">
+            {toPersianNumber(totalCount)}
+          </span>
+          <span className="text-[14px] font-normal leading-[20px] text-white">
+            کار برای انجام داری
+          </span>
+        </div>
+
+        {/* Task Rows */}
+        <div className="flex flex-col">
+          {items.map((item, idx) => {
+            const isLast = idx === items.length - 1;
+            const content = (
+              <div
+                className={`flex items-center justify-between py-2.5 transition active:opacity-80 ${
+                  !isLast ? "border-b border-white/15" : ""
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="min-w-[20px] text-[16px] font-semibold leading-[24px] text-[#FFB100]">
+                    {toPersianNumber(item.count)}
+                  </span>
+                  <span className="text-[14px] font-normal leading-[20px] text-white">
+                    {item.label}
+                  </span>
+                </div>
+                <LinearArrowLeft1 className="h-6 w-6 shrink-0 text-white" />
               </div>
-              <LinearArrowLeft1 className="h-4 w-4 text-white/80" />
-            </div>
-          );
-
-          if (item.to) {
-            return (
-              <RouteLink key={item.id} className="no-underline" to={item.to}>
-                {content}
-              </RouteLink>
             );
-          }
 
-          return (
-            <button
-              key={item.id}
-              className="w-full text-right cursor-pointer bg-transparent border-none p-0"
-              onClick={item.onClick}
-              type="button"
-            >
-              {content}
-            </button>
-          );
-        })}
+            if (item.to) {
+              return (
+                <RouteLink key={item.id} className="no-underline" to={item.to}>
+                  {content}
+                </RouteLink>
+              );
+            }
+
+            return (
+              <button
+                key={item.id}
+                className="w-full text-right cursor-pointer bg-transparent border-none p-0"
+                onClick={item.onClick}
+                type="button"
+              >
+                {content}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

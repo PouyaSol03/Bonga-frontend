@@ -31,47 +31,55 @@ const iconMap = {
 
 export function AgentCreditsCard({ items = defaultCredits }: AgentCreditsCardProps) {
   return (
-    <section className="w-full rounded-[16px] bg-white p-4 shadow-sm [direction:rtl]">
+    <section className="w-full rounded-[16px] bg-white p-5 shadow-sm [direction:rtl]">
       {/* Title */}
-      <h2 className="mb-4 text-[14px] font-bold text-[#1A1A1A]">اعتبارها</h2>
+      <h2 className="mb-4 text-[18px] font-bold text-[#1A1A1A]">اعتبارها</h2>
 
-      {/* 3 Columns for Agent */}
-      <div className="grid grid-cols-3 divide-x divide-x-reverse divide-[#F3F4F6]">
-        {items.map((col) => {
+      {/* Columns for Agent with standalone centered dividers */}
+      <div className="flex w-full items-center justify-between">
+        {items.map((col, idx) => {
           const cfg = iconMap[col.type];
           const Icon = cfg.icon;
+          const isNotLast = idx < items.length - 1;
 
           return (
-            <div key={col.key} className="flex flex-col items-center px-1 text-center">
-              {/* Squircle Icon */}
-              <div
-                className={`mb-2 flex h-9 w-9 items-center justify-center rounded-[10px] ${cfg.bg} ${cfg.text}`}
-              >
-                <Icon className="h-5 w-5" />
+            <div key={col.key} className="flex flex-1 items-center">
+              <div className="flex flex-1 flex-col items-center text-center">
+                {/* Squircle Icon 48x48 */}
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-[14px] ${cfg.bg} ${cfg.text}`}
+                >
+                  <Icon className="h-6 w-6" />
+                </div>
+
+                {/* Label */}
+                <span className="mt-2 mb-1.5 text-[13px] font-medium text-[#4D4D4D]">
+                  {col.label}
+                </span>
+
+                {/* Value */}
+                <span className="mb-1 text-[26px] font-bold leading-tight text-[#1A1A1A]">
+                  {toPersianNumber(col.value)}
+                </span>
+
+                {/* Delta / Trend */}
+                <span
+                  className={`text-[12px] font-semibold ${
+                    col.isPositive
+                      ? "text-[#059669]"
+                      : col.isNegative
+                        ? "text-[#DC2626]"
+                        : "text-[#6B7280]"
+                  }`}
+                >
+                  {col.deltaText}
+                </span>
               </div>
 
-              {/* Label */}
-              <span className="mb-1 text-[11px] font-normal text-[#757575]">
-                {col.label}
-              </span>
-
-              {/* Value */}
-              <span className="text-[18px] font-extrabold text-[#1A1A1A]">
-                {toPersianNumber(col.value)}
-              </span>
-
-              {/* Delta or Tag */}
-              <span
-                className={`mt-1 text-[10px] font-medium ${
-                  col.isPositive
-                    ? "text-[#10B981]"
-                    : col.isNegative
-                      ? "text-[#EF4444]"
-                      : "text-[#6B7280]"
-                }`}
-              >
-                {col.deltaText}
-              </span>
+              {/* Partial vertical divider */}
+              {isNotLast && (
+                <div className="h-[120px] w-[1px] rounded-full bg-[#F0F0F0]" />
+              )}
             </div>
           );
         })}

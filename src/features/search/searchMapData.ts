@@ -1,3 +1,4 @@
+import type { AdCardData } from "../advertisements/components/AdCard";
 import { defaultSelectedCity } from "../../shared/lib/selectedCityStorage";
 
 export type SearchFilterChip = {
@@ -46,6 +47,7 @@ export type SearchMapListing = {
   totalUnits?: string;
   builderShare?: string;
   currentStatus?: string;
+  adCard?: AdCardData;
 };
 
 export type SearchMapDotMarker = {

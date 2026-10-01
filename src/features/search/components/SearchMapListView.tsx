@@ -23,6 +23,8 @@ function toFaCount(n: number): string {
 }
 
 function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
+  if (listing.adCard) return listing.adCard;
+
   const imageCount = listing.images?.length ?? 0;
 
   return {
@@ -30,9 +32,9 @@ function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
     agency: listing.agencyName,
     status: "",
     imageCount: toFaCount(imageCount),
-    priceLabelPrimary: "",
+    priceLabelPrimary: listing.priceLabel || "",
     pricePrimary: listing.priceValue.replace(/[٫.]/g, "/"),
-    priceLabelSecondary: "",
+    priceLabelSecondary: listing.priceSecondary ? "رهن:" : "",
     priceSecondary: listing.priceSecondary ? listing.priceSecondary.replace(/[٫.]/g, "/") : "",
     area: listing.area,
     rooms: listing.rooms,
@@ -93,7 +95,7 @@ export function SearchMapListView({
                 <AdCard
                   className="shrink-0 border-b-[12px] border-surface-container last:border-b-0"
                   key={listing.id}
-                  ad={searchMapListingToAdCardData(listing)}
+                  ad={listing.adCard ?? searchMapListingToAdCardData(listing)}
                   to={`/ads/${listing.id}`}
                 />
               ))}

@@ -20,7 +20,7 @@ export function SearchMapPreviewCard({
 }: SearchMapPreviewCardProps) {
   return (
     <AdCard
-      ad={searchMapListingToPreviewAdCardData(listing)}
+      ad={listing.adCard ?? searchMapListingToPreviewAdCardData(listing)}
       isSelected={isSelected}
       mapPreviewImages={normalizePreviewImages(listing.images)}
       mapSliderCardId={listing.id}
@@ -32,14 +32,16 @@ export function SearchMapPreviewCard({
 }
 
 function searchMapListingToPreviewAdCardData(listing: SearchMapListing): AdCardData {
+  if (listing.adCard) return listing.adCard;
+
   return {
     id: listing.id,
     agency: listing.agencyName,
     status: "",
     imageCount: String(listing.images.length),
-    priceLabelPrimary: "",
+    priceLabelPrimary: listing.priceLabel || "",
     pricePrimary: mapCardPriceDisplay(listing.priceValue),
-    priceLabelSecondary: "",
+    priceLabelSecondary: listing.priceSecondary ? "رهن:" : "",
     priceSecondary: listing.priceSecondary ? mapCardPriceDisplay(listing.priceSecondary) : "",
     area: listing.area,
     rooms: listing.rooms,

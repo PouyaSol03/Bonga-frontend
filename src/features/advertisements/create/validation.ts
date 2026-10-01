@@ -423,22 +423,22 @@ export function getMediaValidationErrors(
     }
   }
 
-  // 6. Title (Min 10, Max 50)
+  // 6. Title (Min 3, Max 50)
   const trimmedTitle = values.title.trim();
   if (!hasRequiredText(trimmedTitle)) {
     errors.title = "لطفا عنوان آگهی را وارد کنید.";
-  } else if (trimmedTitle.length < 10) {
-    errors.title = "عنوان آگهی باید حداقل ۱۰ کاراکتر باشد.";
+  } else if (trimmedTitle.length < 3) {
+    errors.title = "عنوان آگهی باید حداقل ۳ کاراکتر باشد.";
   } else if (trimmedTitle.length > 50) {
     errors.title = "عنوان آگهی حداکثر می‌تواند ۵۰ کاراکتر باشد.";
   }
 
-  // 7. Description (Min 20, Max 500)
+  // 7. Description (Min 10, Max 500)
   const trimmedDesc = values.description.trim();
   if (!hasRequiredText(trimmedDesc)) {
     errors.description = "لطفا توضیحات آگهی را وارد کنید.";
-  } else if (trimmedDesc.length < 20) {
-    errors.description = "توضیحات آگهی باید حداقل ۲۰ کاراکتر باشد.";
+  } else if (trimmedDesc.length < 10) {
+    errors.description = "توضیحات آگهی باید حداقل ۱۰ کاراکتر باشد.";
   } else if (trimmedDesc.length > 500) {
     errors.description = "توضیحات آگهی حداکثر می‌تواند ۵۰۰ کاراکتر باشد.";
   }

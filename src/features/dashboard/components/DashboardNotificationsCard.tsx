@@ -51,7 +51,7 @@ export function DashboardNotificationsCard({
   viewAllTo = "/account/dashboard/messages",
 }: DashboardNotificationsCardProps) {
   return (
-    <section className="w-full rounded-[16px] bg-white p-4 shadow-sm [direction:rtl]">
+    <section className="w-full rounded-[16px] bg-surface-container-lowest p-4 shadow-sm [direction:rtl]">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <Typography
@@ -59,15 +59,15 @@ export function DashboardNotificationsCard({
           variant="title"
           size="small"
           weight="semibold"
-          className="text-[#1A1A1A]"
+          className="text-on-surface"
         >
           آخرین اعلان‌ها
         </Typography>
         <RouteLink
-          className="flex items-center gap-1 text-[12px] font-medium text-[#0048C4] hover:underline"
+          className="flex items-center gap-1 text-primary hover:underline"
           to={viewAllTo}
         >
-          <Typography as="span" variant="label" size="small" weight="medium">
+          <Typography as="span" variant="label" size="small" weight="medium" className="text-primary">
             مشاهده همه
           </Typography>
           <LinearArrowLeft1 className="h-3.5 w-3.5" />
@@ -81,23 +81,23 @@ export function DashboardNotificationsCard({
           return (
             <article
               key={item.id}
-              className={`flex flex-col py-3 ${!isLast ? "border-b border-[#F1F5F9]" : ""}`}
+              className={`flex flex-col py-3 ${!isLast ? "border-b border-surface-container-high" : ""}`}
             >
               {/* Top row: Title + Time */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   {item.type === "ad_published" && (
-                    <span className="h-2 w-2 rotate-45 rounded-xs bg-[#10B981]" />
+                    <span className="h-2 w-2 rotate-45 rounded-xs bg-tertiary" />
                   )}
                   {item.type === "ad_stopped" && (
-                    <span className="h-2 w-2 rotate-45 rounded-xs bg-[#F97316]" />
+                    <span className="h-2 w-2 rotate-45 rounded-xs bg-warning" />
                   )}
                   <Typography
                     as="h3"
                     variant="label"
                     size="medium"
                     weight="semibold"
-                    className="text-[#1A1A1A]"
+                    className="text-on-surface"
                   >
                     {item.title}
                   </Typography>
@@ -107,7 +107,7 @@ export function DashboardNotificationsCard({
                   variant="body"
                   size="small"
                   weight="regular"
-                  className="text-[#9CA3AF]"
+                  className="text-outline"
                 >
                   {item.time}
                 </Typography>
@@ -119,7 +119,7 @@ export function DashboardNotificationsCard({
                 variant="body"
                 size="small"
                 weight="regular"
-                className="mt-1 leading-relaxed text-[#757575]"
+                className="mt-1 leading-relaxed text-on-surface-var"
               >
                 {item.description}
               </Typography>
@@ -130,16 +130,20 @@ export function DashboardNotificationsCard({
                   <button
                     type="button"
                     onClick={item.primaryAction?.onClick}
-                    className="flex h-7 items-center justify-center rounded-[8px] bg-[#0048C4] px-4 text-[11px] font-medium text-white transition hover:bg-[#003bb0] active:scale-95 cursor-pointer border-none"
+                    className="flex h-7 items-center justify-center rounded-[8px] bg-primary px-4 transition hover:opacity-90 active:scale-95 cursor-pointer border-none"
                   >
-                    {item.primaryAction?.label ?? "تایید"}
+                    <Typography as="span" variant="label" size="small" weight="medium" className="text-on-primary">
+                      {item.primaryAction?.label ?? "تایید"}
+                    </Typography>
                   </button>
                   <button
                     type="button"
                     onClick={item.secondaryAction?.onClick}
-                    className="flex h-7 items-center justify-center rounded-[8px] border border-[#E5E7EB] bg-white px-3 text-[11px] font-medium text-[#4B5563] transition hover:bg-neutral-50 active:scale-95 cursor-pointer"
+                    className="flex h-7 items-center justify-center rounded-[8px] border border-surface-container-highest bg-surface-container-lowest px-3 transition hover:bg-surface-container-low active:scale-95 cursor-pointer"
                   >
-                    {item.secondaryAction?.label ?? "عدم تایید"}
+                    <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface">
+                      {item.secondaryAction?.label ?? "عدم تایید"}
+                    </Typography>
                   </button>
                 </div>
               )}
@@ -148,9 +152,11 @@ export function DashboardNotificationsCard({
                 <div className="mt-2 flex justify-start">
                   <RouteLink
                     to={item.linkAction.to}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-[#0048C4] hover:underline"
+                    className="flex items-center gap-1 text-primary hover:underline"
                   >
-                    <span>{item.linkAction.label}</span>
+                    <Typography as="span" variant="label" size="small" weight="semibold" className="text-primary">
+                      {item.linkAction.label}
+                    </Typography>
                     <LinearArrowLeft1 className="h-3 w-3" />
                   </RouteLink>
                 </div>

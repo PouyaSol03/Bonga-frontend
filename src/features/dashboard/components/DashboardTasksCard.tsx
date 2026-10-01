@@ -45,22 +45,22 @@ export function DashboardTasksCard({
 
   return (
     <section
-      className="relative w-full overflow-hidden rounded-[16px] border border-[#0048C4]/40 p-4 shadow-sm [direction:rtl]"
+      className="relative w-full overflow-hidden rounded-[16px] border border-primary/40 p-4 shadow-sm [direction:rtl]"
       style={{
         background:
-          "linear-gradient(to left, var(--on-primary-container, #002099), var(--primary, #0048C4))",
+          "linear-gradient(to left, var(--on-primary-container), var(--primary))",
       }}
     >
       <div className="relative z-10 flex flex-col">
         {/* Header */}
-        <div className="mb-3 flex items-center gap-2 text-white">
-          <Typography as="span" variant="label" size="large" weight="medium" className="text-white">
+        <div className="mb-3 flex items-center gap-2 text-on-primary">
+          <Typography as="span" variant="label" size="large" weight="medium" className="text-on-primary">
             کار های امروز :
           </Typography>
-          <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#FFB100]">
+          <Typography as="span" variant="label" size="large" weight="semibold" className="text-[var(--warning-400)]">
             {toPersianNumber(totalCount)}
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-white">
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-primary">
             کار برای انجام داری
           </Typography>
         </div>
@@ -72,7 +72,7 @@ export function DashboardTasksCard({
             const content = (
               <div
                 className={`flex items-center justify-between py-2.5 transition active:opacity-80 ${
-                  !isLast ? "border-b border-white/15" : ""
+                  !isLast ? "border-b border-on-primary/15" : ""
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -81,15 +81,15 @@ export function DashboardTasksCard({
                     variant="label"
                     size="large"
                     weight="semibold"
-                    className="min-w-[20px] text-[#FFB100]"
+                    className="min-w-[20px] text-[var(--warning-400)]"
                   >
                     {toPersianNumber(item.count)}
                   </Typography>
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="text-white">
+                  <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-primary">
                     {item.label}
                   </Typography>
                 </div>
-                <LinearArrowLeft1 className="h-6 w-6 shrink-0 text-white" />
+                <LinearArrowLeft1 className="h-6 w-6 shrink-0 text-on-primary" />
               </div>
             );
 

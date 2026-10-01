@@ -18,12 +18,12 @@ export function DashboardBadgeBanner({
   categoryLabel = "نشان مشاور",
   to = "/account/dashboard/ranking",
   icon: Icon = LinearStar,
-  iconBgClass = "bg-[#FFF9E6]",
-  iconTextClass = "text-[#FFB100]",
+  iconBgClass = "bg-warning-container",
+  iconTextClass = "text-warning",
 }: DashboardBadgeBannerProps) {
   return (
     <RouteLink
-      className="flex h-[64px] items-center justify-between rounded-[16px] bg-white px-4 shadow-sm transition hover:bg-neutral-50 active:scale-[0.99] no-underline [direction:rtl]"
+      className="flex h-[64px] items-center justify-between rounded-[16px] bg-surface-container-lowest px-4 shadow-sm transition hover:bg-surface-container-low active:scale-[0.99] no-underline [direction:rtl]"
       to={to}
     >
       <div className="flex items-center gap-3">
@@ -41,7 +41,7 @@ export function DashboardBadgeBanner({
             variant="label"
             size="small"
             weight="medium"
-            className="text-[#808080]"
+            className="text-outline"
           >
             {categoryLabel}
           </Typography>
@@ -50,14 +50,14 @@ export function DashboardBadgeBanner({
             variant="title"
             size="small"
             weight="semibold"
-            className="text-[#1A1A1A]"
+            className="text-on-surface"
           >
             {badgeName}
           </Typography>
         </div>
       </div>
 
-      <LinearArrowLeft1 className="h-4 w-4 text-[#8C8C8C]" />
+      <LinearArrowLeft1 className="h-4 w-4 text-outline" />
     </RouteLink>
   );
 }

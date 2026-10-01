@@ -3,10 +3,10 @@ import { Typography } from "../../../shared/ui/Typography";
 import { toPersianNumber } from "../../../shared/lib/numberUtils";
 import LinearTag from "../../../shared/icons/LinearTag";
 import LinearRefresh from "../../../shared/icons/LinearRefresh";
-import LinearStar from "../../../shared/icons/LinearStar";
 import LinearClock from "../../../shared/icons/LinearClock";
 
 import LinearCalendar from "../../../shared/icons/LinearCalendar";
+import LinearStartup from "../../../shared/icons/LinearStartup";
 
 export interface DashboardCreditItem {
   key: string;
@@ -22,14 +22,14 @@ const iconMap: Record<
   string,
   { icon: ComponentType<{ className?: string }>; bg: string; text: string }
 > = {
-  ad: { icon: LinearTag, bg: "bg-[#EFF6FF]", text: "text-[#2563EB]" },
-  refresh: { icon: LinearRefresh, bg: "bg-[#ECFDF5]", text: "text-[#059669]" },
-  update: { icon: LinearRefresh, bg: "bg-[#ECFDF5]", text: "text-[#059669]" },
-  special: { icon: LinearStar, bg: "bg-[#FFFBEB]", text: "text-[#D97706]" },
-  extend: { icon: LinearClock, bg: "bg-[#F5F3FF]", text: "text-[#7C3AED]" },
-  expiry: { icon: LinearCalendar, bg: "bg-[#F1F5F9]", text: "text-[#475569]" },
-  ladder: { icon: LinearRefresh, bg: "bg-[#ECFDF5]", text: "text-[#059669]" },
-  urgent: { icon: LinearClock, bg: "bg-[#F5F3FF]", text: "text-[#7C3AED]" },
+  ad: { icon: LinearTag, bg: "bg-primary-container", text: "text-primary" },
+  refresh: { icon: LinearRefresh, bg: "bg-tertiary-container", text: "text-tertiary" },
+  update: { icon: LinearRefresh, bg: "bg-tertiary-container", text: "text-tertiary" },
+  special: { icon: LinearStartup, bg: "bg-warning-container", text: "text-warning" },
+  extend: { icon: LinearClock, bg: "bg-secondary-container", text: "text-secondary" },
+  expiry: { icon: LinearCalendar, bg: "bg-surface-container-high", text: "text-on-surface-var" },
+  ladder: { icon: LinearRefresh, bg: "bg-tertiary-container", text: "text-tertiary" },
+  urgent: { icon: LinearClock, bg: "bg-warning-container", text: "text-warning" },
 };
 
 export interface DashboardCreditsCardProps {
@@ -42,9 +42,9 @@ export function DashboardCreditsCard({
   items,
 }: DashboardCreditsCardProps) {
   return (
-    <section className="w-full rounded-[16px] bg-white p-5 shadow-sm [direction:rtl]">
+    <section className="w-full rounded-[16px] bg-surface-container-lowest p-5 shadow-sm [direction:rtl]">
       {/* Title */}
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="mb-4 text-[#1A1A1A]">
+      <Typography as="h2" variant="label" size="large" weight="medium" className="mb-4 text-on-surface">
         {title}
       </Typography>
 
@@ -60,7 +60,7 @@ export function DashboardCreditsCard({
               <div className="flex flex-1 flex-col items-center text-center">
                 {/* Squircle Icon 48x48 */}
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-[14px] ${cfg.bg} ${cfg.text}`}
+                  className={`flex p-2 items-center justify-center rounded-[14px] ${cfg.bg} ${cfg.text}`}
                 >
                   <Icon className="h-6 w-6" />
                 </div>
@@ -71,15 +71,15 @@ export function DashboardCreditsCard({
                   variant="label"
                   size="medium"
                   weight="medium"
-                  className="mt-2 mb-1.5 text-[#4D4D4D]"
+                  className="mt-2 mb-1.5 text-on-surface-var"
                 >
                   {col.label}
                 </Typography>
 
                 {/* Value */}
-                <span className="mb-1 text-[26px] font-bold leading-tight text-[#1A1A1A]">
+                <Typography variant="title" size="large" weight="medium" className="mb-1 text-on-surface">
                   {toPersianNumber(col.value)}
-                </span>
+                </Typography>
 
                 {/* Delta / Trend */}
                 <Typography
@@ -89,10 +89,10 @@ export function DashboardCreditsCard({
                   weight="semibold"
                   className={
                     col.isPositive
-                      ? "text-[#059669]"
+                      ? "text-tertiary"
                       : col.isNegative
-                        ? "text-[#DC2626]"
-                        : "text-[#6B7280]"
+                        ? "text-error"
+                        : "text-outline"
                   }
                 >
                   {col.deltaText}
@@ -101,7 +101,7 @@ export function DashboardCreditsCard({
 
               {/* Partial vertical divider */}
               {isNotLast && (
-                <div className="h-[120px] w-[1px] rounded-full bg-[#F0F0F0]" />
+                <div className="h-[120px] w-[1px] rounded-full bg-surface-container" />
               )}
             </div>
           );

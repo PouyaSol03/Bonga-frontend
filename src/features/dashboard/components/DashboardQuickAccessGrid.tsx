@@ -62,15 +62,15 @@ export function DashboardQuickAccessGrid({
           <RouteLink
             key={action.id}
             to={action.to}
-            className="flex flex-1 flex-col items-center justify-center gap-2 rounded-[12px] bg-white py-2 shadow-sm transition hover:bg-neutral-50 active:scale-95 no-underline"
+            className="flex flex-1 flex-col items-center justify-center gap-2 rounded-[12px] bg-surface-container-lowest py-2 shadow-sm transition hover:bg-surface-container-low active:scale-95 no-underline"
           >
-            <Icon className="h-6 w-6 text-[#0048C4]" />
+            <Icon className="h-6 w-6 text-primary" />
             <Typography
               as="span"
               variant="label"
               size="small"
               weight="semibold"
-              className="text-[#1A1A1A]"
+              className="text-on-surface"
             >
               {action.label}
             </Typography>

@@ -28,10 +28,11 @@ import {
 } from "../../shared/lib/browserLocation";
 import { formatCardPrice } from "../../shared/lib/MoneyHandler";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
-import type {
-  AdvertisementItem,
-  AdvertisementListParams,
-  AdvertisementSearchFilters,
+import {
+  mapAdvertisementToAdCard,
+  type AdvertisementItem,
+  type AdvertisementListParams,
+  type AdvertisementSearchFilters,
 } from "../advertisements/api/advertisement.service";
 import { SearchMapSearchScreen } from "./components/SearchMapSearchScreen";
 import { SearchMapFloatingActions } from "./components/SearchMapFloatingActions";
@@ -850,6 +851,7 @@ function mapAdvertisementToSearchListing(
     priceSecondary,
     category,
     formCode,
+    adCard: mapAdvertisementToAdCard(item, index),
   };
 }
 

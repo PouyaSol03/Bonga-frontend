@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Typography } from "../../../shared/ui/Typography";
 import LinearTag from "../../../shared/icons/LinearTag";
 import LinearEditUser from "../../../shared/icons/LinearEditUser";
 import LinearDocument from "../../../shared/icons/LinearDocument";
@@ -64,9 +65,15 @@ export function DashboardQuickAccessGrid({
             className="flex flex-1 flex-col items-center justify-center gap-2 rounded-[12px] bg-white py-2 shadow-sm transition hover:bg-neutral-50 active:scale-95 no-underline"
           >
             <Icon className="h-6 w-6 text-[#0048C4]" />
-            <span className="text-[12px] font-semibold text-[#1A1A1A]">
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="semibold"
+              className="text-[#1A1A1A]"
+            >
               {action.label}
-            </span>
+            </Typography>
           </RouteLink>
         );
       })}

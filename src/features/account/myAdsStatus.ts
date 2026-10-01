@@ -1,5 +1,7 @@
 export type MyAdStatusKey =
   | "archived"
+  | "deal_success"
+  | "deal_unsuccessful"
   | "deleted"
   | "expired"
   | "incomplete"
@@ -96,6 +98,16 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
     badgeClassName: "bg-warning-container text-warning",
     key: "needs_edit",
     label: "نیازمند ویرایش",
+  },
+  deal_success: {
+    badgeClassName: "bg-tertiary-container text-tertiary",
+    key: "deal_success",
+    label: "معامله موفق",
+  },
+  deal_unsuccessful: {
+    badgeClassName: "bg-error-container text-error",
+    key: "deal_unsuccessful",
+    label: "معامله ناموفق",
   },
 };
 
@@ -287,6 +299,26 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     (status.includes("آژانس") && (status.includes("انتظار") || status.includes("بررسی")))
   ) {
     return myAdStatusConfig.wait_for_agency;
+  }
+
+  if (
+    status === "deal-success" ||
+    status === "deal_success" ||
+    status === "successful-deal" ||
+    status === "successful_deal" ||
+    status.includes("معامله موفق")
+  ) {
+    return myAdStatusConfig.deal_success;
+  }
+
+  if (
+    status === "deal-unsuccessful" ||
+    status === "deal_unsuccessful" ||
+    status === "unsuccessful-deal" ||
+    status === "unsuccessful_deal" ||
+    status.includes("معامله ناموفق")
+  ) {
+    return myAdStatusConfig.deal_unsuccessful;
   }
 
   if (["-4", "-1", "edit", "need-edit", "needs-edit", "rejected", "stopped"].includes(status)) {

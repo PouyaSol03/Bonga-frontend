@@ -562,7 +562,7 @@ export function DetailsStep({
           <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
             <div data-field-key="mortgagePrice">
               <InputBox
-                error={errors.mortgagePrice || mortgageInlineError}
+                error={errors.mortgagePrice}
                 formatNumeric
                 numeric
                 leftText="تومان"
@@ -574,7 +574,7 @@ export function DetailsStep({
             </div>
             <div data-field-key="rentPrice">
               <InputBox
-                error={errors.rentPrice || rentInlineError}
+                error={errors.rentPrice}
                 formatNumeric
                 numeric
                 leftText="تومان"

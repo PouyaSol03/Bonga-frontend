@@ -44,17 +44,13 @@ export function DashboardTasksCard({
   const taskList = items ?? defaultItems;
 
   return (
-    <section className="relative w-full overflow-hidden rounded-[16px] border border-[#0048C4]/40 bg-white p-4 shadow-sm [direction:rtl]">
-      {/* Background gradient from bottom (On Primary Container) to top (Primary) over white base */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          background:
-            "linear-gradient(to top, var(--on-primary-container, #002099), var(--primary, #0048C4))",
-        }}
-      />
-
+    <section
+      className="relative w-full overflow-hidden rounded-[16px] border border-[#0048C4]/40 p-4 shadow-sm [direction:rtl]"
+      style={{
+        background:
+          "linear-gradient(to left, var(--on-primary-container, #002099), var(--primary, #0048C4))",
+      }}
+    >
       <div className="relative z-10 flex flex-col">
         {/* Header */}
         <div className="mb-3 flex items-center gap-2 text-white">

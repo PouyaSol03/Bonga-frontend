@@ -39,7 +39,7 @@ export const ManagementAdStatusBadge: React.FC<Props> = ({
 
   return (
     <span
-      className={`inline-flex items-center justify-center rounded-[8px] px-2.5 py-1 text-xs font-semibold leading-none shrink-0 ${style.bg} ${style.text} ${className}`}
+      className={`inline-flex h-7 items-center justify-center rounded-[8px] px-3 text-[12px] font-normal leading-none shrink-0 ${style.bg} ${style.text} ${className}`}
     >
       {displayLabel}
     </span>

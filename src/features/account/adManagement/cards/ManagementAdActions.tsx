@@ -1,9 +1,9 @@
 import React from "react";
 import { RouteLink } from "../../../../shared/navigation/RouteLink";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
-import LinearPreview from "../../../../shared/icons/LinearPreview";
 import LinearEdit2 from "../../../../shared/icons/LinearEdit2";
 import LinearAnalytics from "../../../../shared/icons/LinearAnalytics";
+import { LinearMonitorCheck } from "../../../../shared/icons/LinearMonitorCheck";
 import { getAdEditPath, getAdStatePath, adManagementPaths } from "../adManagementData";
 import type { ManagementAdCardProps } from "./types";
 
@@ -46,14 +46,14 @@ export const ManagementAdActions: React.FC<Props> = ({
   const analyticsState = { ad: sourceAd, statisticsAd: ad };
 
   const iconBtnClass =
-    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#CCCCCC]/60 bg-white text-[#4D4D4D] shadow-sm transition hover:bg-gray-50 active:scale-95 no-underline";
+    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-transparent text-[#1A1A1A] transition hover:bg-neutral-100 active:scale-95 no-underline cursor-pointer border-none";
 
   return (
-    <div className="flex items-center justify-between gap-3 pt-3 [direction:rtl]">
+    <div className="flex items-center justify-between pt-4 [direction:rtl]">
       {/* Primary Action Button: میزکار آگهی */}
       {onDeskClick ? (
         <button
-          className="flex h-10 items-center justify-center gap-1.5 rounded-[10px] bg-[#0048C4] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#003bb0] active:scale-95 cursor-pointer border-none"
+          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-[#0048C4] px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-[#003bb0] active:scale-95 cursor-pointer border-none"
           onClick={onDeskClick}
           type="button"
         >
@@ -62,7 +62,7 @@ export const ManagementAdActions: React.FC<Props> = ({
         </button>
       ) : (
         <RouteLink
-          className="flex h-10 items-center justify-center gap-1.5 rounded-[10px] bg-[#0048C4] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#003bb0] active:scale-95 no-underline"
+          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-[#0048C4] px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-[#003bb0] active:scale-95 no-underline"
           state={state}
           to={effectiveDeskPath}
         >
@@ -72,8 +72,8 @@ export const ManagementAdActions: React.FC<Props> = ({
       )}
 
       {/* Secondary Circular Actions */}
-      <div className="flex items-center gap-2 [direction:ltr]">
-        {/* Preview */}
+      <div className="flex items-center gap-6 [direction:ltr]">
+        {/* Preview / Monitor Check */}
         {onPreviewClick ? (
           <button
             aria-label="پیش‌نمایش آگهی"
@@ -81,7 +81,7 @@ export const ManagementAdActions: React.FC<Props> = ({
             onClick={onPreviewClick}
             type="button"
           >
-            <LinearPreview className="h-5 w-5" />
+            <LinearMonitorCheck className="h-5 w-5" />
           </button>
         ) : (
           <RouteLink
@@ -89,7 +89,7 @@ export const ManagementAdActions: React.FC<Props> = ({
             className={iconBtnClass}
             to={effectivePreviewPath}
           >
-            <LinearPreview className="h-5 w-5" />
+            <LinearMonitorCheck className="h-5 w-5" />
           </RouteLink>
         )}
 

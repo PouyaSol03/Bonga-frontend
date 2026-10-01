@@ -62,15 +62,15 @@ export const ManagementAdHeader: React.FC<Props> = ({
   );
 
   const titleNode = (
-    <h3 className="line-clamp-2 text-sm font-bold text-[#1A1A1A] leading-snug text-right m-0">
+    <h3 className="truncate text-[13px] font-bold text-[#1A1A1A] leading-tight text-right m-0">
       {ad.title}
     </h3>
   );
 
   return (
-    <div className="flex items-start gap-3 [direction:rtl]">
+    <div className="flex items-center gap-3 [direction:rtl]">
       {/* Thumbnail */}
-      <div className="relative h-20 w-[120px] shrink-0 overflow-hidden rounded-[8px] bg-gray-100 border border-gray-200/60">
+      <div className="relative h-20 w-[120px] shrink-0 overflow-hidden rounded-[8px] bg-gray-100">
         {ad.imageUrl ? (
           <img
             alt={ad.title}
@@ -87,29 +87,33 @@ export const ManagementAdHeader: React.FC<Props> = ({
 
       {/* Content */}
       <div className="flex h-20 flex-1 min-w-0 flex-col justify-between py-0.5">
-        <div className="flex items-start justify-between gap-2">
-          {to ? (
-            <RouteLink className="min-w-0 flex-1 no-underline" state={state} to={to}>
-              {titleNode}
-            </RouteLink>
-          ) : (
-            <div className="min-w-0 flex-1">{titleNode}</div>
-          )}
-
-          {showStatusBadge ? (
+        {/* Row 1: Status Badge */}
+        {showStatusBadge ? (
+          <div className="flex justify-start">
             <ManagementAdStatusBadge
               label={statusLabel}
               source={sourceAd}
               statusKey={statusKey}
             />
-          ) : null}
+          </div>
+        ) : <div />}
+
+        {/* Row 2: Title */}
+        <div className="min-w-0">
+          {to ? (
+            <RouteLink className="block min-w-0 no-underline" state={state} to={to}>
+              {titleNode}
+            </RouteLink>
+          ) : (
+            titleNode
+          )}
         </div>
 
-        {/* Subtitle: Name | Role */}
+        {/* Row 3: Subtitle: Name | Role */}
         <div className="flex items-center gap-1.5 text-xs text-[#808080]">
-          <span className="truncate max-w-[140px] font-medium text-[#4D4D4D]">{name}</span>
-          <span className="h-3 w-px bg-[#CCCCCC]" />
-          <span className="shrink-0">{role}</span>
+          <span className="truncate max-w-[130px] font-medium text-[#1A1A1A]">{name}</span>
+          <span className="h-2 w-px bg-[#CCCCCC]" />
+          <span className="shrink-0 text-[#808080]">{role}</span>
         </div>
       </div>
     </div>

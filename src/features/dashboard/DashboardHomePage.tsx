@@ -5,6 +5,10 @@ import {
   AgencyDashboardReportsView,
 } from "./agency";
 import {
+  AgentDashboardView,
+  AgentDashboardReportsView,
+} from "./agent";
+import {
   authSessionChangedEventName,
   getActiveAuthRole,
   getStoredAuthSession,
@@ -96,6 +100,24 @@ export function DashboardHomePage() {
       return <AgencyDashboardReportsView onBack={handleCloseReports} />;
     }
     return <AgencyDashboardView onViewReports={handleOpenReports} />;
+  }
+
+  // Real estate consultants (in-agency and independent) receive the modern Agent Dashboard UI
+  if (isAgentRole) {
+    const roleType =
+      activeRole === INDEPENDENT_CONSULTANT
+        ? "INDEPENDENT_CONSULTANT"
+        : "REAL_ESTATE_CONSULTANT";
+
+    if (isReportsView) {
+      return <AgentDashboardReportsView onBack={handleCloseReports} />;
+    }
+    return (
+      <AgentDashboardView
+        role={roleType}
+        onViewReports={handleOpenReports}
+      />
+    );
   }
 
   return (

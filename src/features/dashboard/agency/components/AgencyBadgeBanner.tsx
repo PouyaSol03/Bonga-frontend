@@ -8,8 +8,8 @@ export interface AgencyBadgeBannerProps extends DashboardBadgeBannerProps {}
 export function AgencyBadgeBanner(props: AgencyBadgeBannerProps) {
   return (
     <DashboardBadgeBanner
-      categoryLabel="نشان آژانس"
-      badgeName="آژانس ممتاز"
+      categoryLabel="سطح آژانس"
+      badgeName="آژانس تازه‌کار"
       to="/account/dashboard/ranking"
       {...props}
     />

@@ -2,7 +2,7 @@ import type { ComponentType } from "react";
 import { Typography } from "../../../shared/ui/Typography";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
-import LinearStar from "../../../shared/icons/LinearStar";
+import LinearRanking from "../../../shared/icons/LinearRanking";
 
 export interface DashboardBadgeBannerProps {
   badgeName?: string;
@@ -14,12 +14,12 @@ export interface DashboardBadgeBannerProps {
 }
 
 export function DashboardBadgeBanner({
-  badgeName = "ستاره بی‌رقیب",
-  categoryLabel = "نشان مشاور",
+  badgeName = "مشاور تازه‌کار",
+  categoryLabel = "سطح مشاور",
   to = "/account/dashboard/ranking",
-  icon: Icon = LinearStar,
-  iconBgClass = "bg-warning-container",
-  iconTextClass = "text-warning",
+  icon: Icon = LinearRanking,
+  iconBgClass = "bg-[#FFF4E5] dark:bg-[#3D2500]",
+  iconTextClass = "text-[#FF8D00] dark:text-[#FFAA33]",
 }: DashboardBadgeBannerProps) {
   return (
     <RouteLink
@@ -41,7 +41,7 @@ export function DashboardBadgeBanner({
             variant="label"
             size="small"
             weight="medium"
-            className="text-outline"
+            className="text-on-surface-var"
           >
             {categoryLabel}
           </Typography>
@@ -57,7 +57,7 @@ export function DashboardBadgeBanner({
         </div>
       </div>
 
-      <LinearArrowLeft1 className="h-4 w-4 text-outline" />
+      <LinearArrowLeft1 className="h-4 w-4 text-on-surface-var" />
     </RouteLink>
   );
 }

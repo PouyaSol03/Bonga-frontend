@@ -236,6 +236,16 @@ export const queryKeys = {
       [...queryKeys.dashboard.all, "agency", "ranking"] as const,
     agent: (period: string) =>
       [...queryKeys.dashboard.all, "agent", period] as const,
+    agentBadges: () =>
+      [...queryKeys.dashboard.all, "agent", "badges"] as const,
+    agentBadgeDetail: (slug: string) =>
+      [...queryKeys.dashboard.all, "agent", "badges", slug] as const,
+    agentRanking: () =>
+      [...queryKeys.dashboard.all, "agent", "ranking"] as const,
+    agentRankingProgress: () =>
+      [...queryKeys.dashboard.all, "agent", "ranking-progress"] as const,
+    agentWorkSummary: () =>
+      [...queryKeys.dashboard.all, "agent", "work-summary"] as const,
   },
 
   account: {

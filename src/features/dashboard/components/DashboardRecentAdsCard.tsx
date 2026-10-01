@@ -2,8 +2,8 @@ import { useState, useRef } from "react";
 import { Typography } from "../../../shared/ui/Typography";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
-import { AdCard, type AdCardData } from "../../advertisements/components/AdCard";
-import { defaultRecentAds } from "./dashboardRecentAds.mock";
+import type { AdCardData } from "../../advertisements/components/AdCard";
+import { DashboardAdCard } from "../DashboardAdCard";
 
 export type DashboardRecentAdItem = AdCardData;
 
@@ -20,7 +20,7 @@ export function DashboardRecentAdsCard({
   viewAllTo = "/account/manage-ads",
   title = "آخرین آگهی‌ها",
 }: DashboardRecentAdsCardProps) {
-  const adList = ads && ads.length > 0 ? ads : ad ? [ad] : defaultRecentAds;
+  const adList = ads && ads.length > 0 ? ads : ad ? [ad] : [];
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
@@ -69,37 +69,53 @@ export function DashboardRecentAdsCard({
         </RouteLink>
       </div>
 
-      {/* Working Slider */}
-      <div
-        ref={scrollerRef}
-        onScroll={handleScroll}
-        className="flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-none [direction:rtl]"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {adList.map((item) => (
-          <div key={item.id} className="w-full shrink-0 snap-center min-w-full">
-            <AdCard ad={item} variant="dashboard" />
-          </div>
-        ))}
-      </div>
-
-      {/* Pagination Indicator Dots */}
-      {adList.length > 1 && (
-        <div className="mt-3 flex items-center justify-center gap-1.5" aria-label="انتخاب اسلاید آگهی">
-          {adList.map((_, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => scrollToSlide(idx)}
-              aria-label={`اسلاید ${idx + 1}`}
-              className={`h-1.5 rounded-full transition-all duration-300 border-none p-0 cursor-pointer ${
-                idx === activeIndex
-                  ? "w-4 bg-on-surface"
-                  : "w-1.5 bg-surface-container-highest hover:bg-outline"
-              }`}
-            />
-          ))}
+      {adList.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="medium"
+            className="text-on-surface-var text-sm"
+          >
+            آگهی اخیری برای نمایش وجود ندارد
+          </Typography>
         </div>
+      ) : (
+        <>
+          {/* Working Slider */}
+          <div
+            ref={scrollerRef}
+            onScroll={handleScroll}
+            className="flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-none [direction:rtl]"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {adList.map((item) => (
+              <div key={item.id} className="w-full shrink-0 snap-center min-w-full">
+                <DashboardAdCard ad={item} returnTo={viewAllTo} />
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination Indicator Dots */}
+          {adList.length > 1 && (
+            <div className="mt-3 flex items-center justify-center gap-1.5" aria-label="انتخاب اسلاید آگهی">
+              {adList.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => scrollToSlide(idx)}
+                  aria-label={`اسلاید ${idx + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-300 border-none p-0 cursor-pointer ${
+                    idx === activeIndex
+                      ? "w-4 bg-on-surface"
+                      : "w-1.5 bg-surface-container-highest hover:bg-outline"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </section>
   );

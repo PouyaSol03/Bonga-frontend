@@ -161,7 +161,7 @@ function NotificationTopBarIcon() {
       {hasAuthSession ? (
         <Suspense fallback={null}>
           <UnreadNotificationBadge
-            className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-error ring-2 ring-surface-container-high"
+            className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-error ring-2 ring-surface-container"
           />
         </Suspense>
       ) : null}

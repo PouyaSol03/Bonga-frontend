@@ -21,7 +21,7 @@
     "test:e2e:ad:headed": "playwright test tests/e2e/advertise --headed",
     "test:e2e:ad:debug": "playwright test tests/e2e/advertise --debug",
     "test:contracts": "playwright test tests/contracts",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "storybook dev -p 6006 --host 192.168.1.242",
     "build-storybook": "storybook build"
   },
   "dependencies": {

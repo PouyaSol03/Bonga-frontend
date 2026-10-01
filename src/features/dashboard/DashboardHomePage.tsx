@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import { DashboardHomeOverview } from "./components/home/DashboardHomeOverview";
-import {
-  AgencyDashboardView,
-  AgencyDashboardReportsView,
-} from "./agency";
-import {
-  AgentDashboardView,
-  AgentDashboardReportsView,
-} from "./agent";
+import { DashboardView, DashboardReportsView } from "./components";
 import {
   authSessionChangedEventName,
   getActiveAuthRole,
@@ -19,7 +12,10 @@ import {
   REAL_ESTATE_MANAGER,
 } from "../../shared/constants/roles.constants";
 import { getApiErrorMessage } from "../../shared/api/api";
-import { useAgentDashboardQuery } from "./api/dashboard.hooks";
+import {
+  useAgentDashboardQuery,
+  useAgencyDashboardQuery,
+} from "./api/dashboard.hooks";
 import { useAgentEntitlementsQuery } from "../packages/api/package.hooks";
 
 export * from "./dashboardSubPages";
@@ -80,6 +76,10 @@ export function DashboardHomePage() {
     enabled: isAgentRole,
     period: "30d",
   });
+  const agencyDashboardQuery = useAgencyDashboardQuery({
+    enabled: isRealEstateManager,
+    period: "30d",
+  });
   const agentEntitlementsQuery = useAgentEntitlementsQuery({
     enabled: isAgentRole,
   });
@@ -97,9 +97,22 @@ export function DashboardHomePage() {
   // Real estate manager receives the modern Agency Dashboard UI matching SVG
   if (isRealEstateManager) {
     if (isReportsView) {
-      return <AgencyDashboardReportsView onBack={handleCloseReports} />;
+      return (
+        <DashboardReportsView
+          role="REAL_ESTATE_MANAGER"
+          dashboard={agencyDashboardQuery.data}
+          onBack={handleCloseReports}
+        />
+      );
     }
-    return <AgencyDashboardView onViewReports={handleOpenReports} />;
+    return (
+      <DashboardView
+        role="REAL_ESTATE_MANAGER"
+        dashboard={agencyDashboardQuery.data}
+        isLoading={agencyDashboardQuery.isLoading}
+        onViewReports={handleOpenReports}
+      />
+    );
   }
 
   // Real estate consultants (in-agency and independent) receive the modern Agent Dashboard UI
@@ -110,11 +123,19 @@ export function DashboardHomePage() {
         : "REAL_ESTATE_CONSULTANT";
 
     if (isReportsView) {
-      return <AgentDashboardReportsView onBack={handleCloseReports} />;
+      return (
+        <DashboardReportsView
+          role={roleType}
+          dashboard={agentDashboard}
+          onBack={handleCloseReports}
+        />
+      );
     }
     return (
-      <AgentDashboardView
+      <DashboardView
         role={roleType}
+        dashboard={agentDashboard}
+        isLoading={agentDashboardQuery.isLoading}
         onViewReports={handleOpenReports}
       />
     );

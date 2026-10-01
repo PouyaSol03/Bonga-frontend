@@ -7,6 +7,15 @@ const config: StorybookConfig = {
   ],
   "addons": [],
   "framework": "@storybook/react-vite",
-  "staticDirs": ["../public"]
+  "staticDirs": ["../public"],
+  async viteFinal(config) {
+    return {
+      ...config,
+      server: {
+        ...config.server,
+        host: "0.0.0.0",
+      },
+    };
+  },
 };
 export default config;

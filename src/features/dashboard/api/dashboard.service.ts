@@ -35,6 +35,23 @@ export type DashboardUsage = {
   totalAvailable: number;
 };
 
+export type DashboardUrgentActionItem = {
+  id: string;
+  count: number;
+  title: string;
+  description: string;
+  priority: "critical" | "high" | "medium";
+  priorityLabel: string;
+  to: string;
+};
+
+export type DashboardTaskItemPayload = {
+  id: string;
+  count: number;
+  label: string;
+  to: string;
+};
+
 export type DashboardOverview = {
   advertiseRegistrationProgress: Array<{
     count: number;
@@ -89,6 +106,8 @@ export type DashboardOverview = {
     publishedAdvertises: number;
     rejected: number;
   } | null;
+  urgentActions?: DashboardUrgentActionItem[];
+  tasks?: DashboardTaskItemPayload[];
 };
 
 export type AgencyDashboardCreditsSection = Pick<
@@ -139,6 +158,8 @@ type AgencyDashboardApiResponse = {
   ranking?: RawRecord;
   ranking_progress?: unknown[];
   status?: boolean;
+  urgent_actions?: unknown[];
+  tasks?: unknown[];
 };
 
 type AgentDashboardApiResponse = {
@@ -153,6 +174,8 @@ type AgentDashboardApiResponse = {
   usage_deltas?: RawRecord;
   wallet?: RawRecord;
   work_summary?: RawRecord;
+  urgent_actions?: unknown[];
+  tasks?: unknown[];
 };
 
 function asRecord(value: unknown): RawRecord {
@@ -279,6 +302,44 @@ function normalizeBalanceDeltas(value: unknown) {
   };
 }
 
+function normalizeUrgentActions(value: unknown): DashboardUrgentActionItem[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.map((item, index) => {
+    const rec = asRecord(item);
+    const priority =
+      rec.priority === "critical" || rec.priority === "high" || rec.priority === "medium"
+        ? rec.priority
+        : "medium";
+
+    return {
+      id: String(rec.id ?? `urgent_${index}`),
+      count: Math.max(0, toNumber(rec.count)),
+      title: toText(rec.title) || "اقدام فوری",
+      description: toText(rec.description),
+      priority,
+      priorityLabel:
+        toText(rec.priority_label) ||
+        (priority === "critical" ? "خیلی بالا" : priority === "high" ? "بالا" : "متوسط"),
+      to: toText(rec.to) || "/account/dashboard",
+    };
+  });
+}
+
+function normalizeTasks(value: unknown): DashboardTaskItemPayload[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.map((item, index) => {
+    const rec = asRecord(item);
+    return {
+      id: String(rec.id ?? `task_${index}`),
+      count: Math.max(0, toNumber(rec.count)),
+      label: toText(rec.label) || "مورد",
+      to: toText(rec.to) || "/account/manage-ads",
+    };
+  });
+}
+
 function normalizeAgencyDashboard(
   response: AgencyDashboardApiResponse,
   requestedPeriod: DashboardPeriod,
@@ -355,6 +416,8 @@ function normalizeAgencyDashboard(
     specialUsage: null,
     walletCredit: null,
     workSummary: null,
+    urgentActions: normalizeUrgentActions(response.urgent_actions),
+    tasks: normalizeTasks(response.tasks),
   };
 }
 
@@ -422,6 +485,8 @@ function normalizeAgentDashboard(
             ),
             rejected: Math.max(0, toNumber(workSummary.rejected)),
           },
+    urgentActions: normalizeUrgentActions(response.urgent_actions),
+    tasks: normalizeTasks(response.tasks),
   };
 }
 
@@ -575,4 +640,104 @@ export async function getAgentDashboard(
     .json<AgentDashboardApiResponse>();
 
   return normalizeAgentDashboard(response, period);
+}
+
+export interface AgentBadge {
+  slug: string;
+  title: string;
+  level: number;
+  earned: boolean;
+  current_value: number;
+  next_target: number | null;
+  progress: number;
+  thresholds: number[];
+}
+
+export interface AgentBadgesApiResponse {
+  status: boolean;
+  badges: AgentBadge[];
+}
+
+export interface AgentBadgeDetailApiResponse {
+  status: boolean;
+  badge: AgentBadge;
+}
+
+export async function getAgentBadges(): Promise<AgentBadge[]> {
+  const response = await api.get("me/agent/badges").json<AgentBadgesApiResponse>();
+  return response.badges ?? [];
+}
+
+export async function getAgentBadge(slug: string): Promise<AgentBadge | null> {
+  const response = await api.get(`me/agent/badges/${slug}`).json<AgentBadgeDetailApiResponse>();
+  return response.badge ?? null;
+}
+
+export async function getAgentRanking(): Promise<unknown> {
+  return api.get("me/agent/ranking").json();
+}
+
+export async function getAgentRankingProgress(): Promise<unknown> {
+  return api.get("me/agent/ranking/progress").json();
+}
+
+export async function getAgentWorkSummary(): Promise<unknown> {
+  return api.get("me/agent/work-summary").json();
+}
+
+export type DashboardRolePersona = "agency" | "agent" | "agent_in_agency";
+
+export async function getDashboardOverviewByRole(
+  role: DashboardRolePersona,
+  period: DashboardPeriod = "30d",
+): Promise<DashboardOverview> {
+  try {
+    const response = await api
+      .get("dashboard/overview", {
+        searchParams: { period, role },
+      })
+      .json<AgencyDashboardApiResponse & AgentDashboardApiResponse>();
+
+    return role === "agency"
+      ? normalizeAgencyDashboard(response, period)
+      : normalizeAgentDashboard(response, period);
+  } catch {
+    if (role === "agency") {
+      return getAgencyDashboard(period);
+    }
+    return getAgentDashboard(period);
+  }
+}
+
+export async function getDashboardTasks(
+  role: DashboardRolePersona,
+): Promise<{ totalCount: number; items: DashboardTaskItemPayload[] }> {
+  try {
+    const res = await api
+      .get("dashboard/tasks", { searchParams: { role } })
+      .json<{ data?: { total_count?: number; items?: unknown[] } }>();
+    const items = normalizeTasks(res.data?.items);
+    return {
+      totalCount: toNumber(
+        res.data?.total_count,
+        items.reduce((acc, i) => acc + i.count, 0),
+      ),
+      items,
+    };
+  } catch {
+    return { totalCount: 0, items: [] };
+  }
+}
+
+export async function getDashboardUrgentActions(
+  role: DashboardRolePersona,
+): Promise<DashboardUrgentActionItem[]> {
+  try {
+    const res = await api
+      .get("dashboard/urgent-actions", { searchParams: { role } })
+      .json<{ data?: { items?: unknown[] } }>();
+    return normalizeUrgentActions(res.data?.items);
+  } catch {
+    return [];
+  }
 }

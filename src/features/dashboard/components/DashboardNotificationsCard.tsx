@@ -4,11 +4,10 @@ import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import { useNotificationsInfiniteQuery } from "../../notifications/api/notification.hooks";
 import type { NotificationItem } from "../../notifications/api/notification.service";
 import {
-  formatNotificationTime,
-  getNotificationActionLabel,
   getNotificationPath,
+  navigateTo,
 } from "../../notifications/notificationRouting";
-import { getNotificationDiamondColor } from "../../notifications/notificationDiamond";
+import { NotificationCardStandardContent } from "../../notifications/components/NotificationCardStandardContent";
 
 export type DashboardNotificationItem = NotificationItem;
 
@@ -51,7 +50,7 @@ const defaultNotifications: NotificationItem[] = [
 
 export function DashboardNotificationsCard({
   items,
-  viewAllTo = "/account/dashboard/messages",
+  viewAllTo = "/notifications",
 }: DashboardNotificationsCardProps) {
   const { data } = useNotificationsInfiniteQuery({ perPage: 3 });
   const serverNotifications = data?.pages?.[0]?.data;
@@ -79,106 +78,41 @@ export function DashboardNotificationsCard({
           className="flex items-center gap-1 text-primary hover:underline"
           to={viewAllTo}
         >
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-primary">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-primary"
+          >
             مشاهده همه
           </Typography>
           <LinearArrowLeft1 className="h-3.5 w-3.5" />
         </RouteLink>
       </div>
 
-      {/* Notifications List */}
+      {/* Notifications List - Exact match to NotificationsPage standard UI */}
       <div className="flex flex-col">
         {notificationList.map((item, idx) => {
           const isLast = idx === notificationList.length - 1;
-          const diamondColor = getNotificationDiamondColor(item);
-          const timeText = item.created_at ? formatNotificationTime(item.created_at) : "";
-          const actionLabel = getNotificationActionLabel(item);
           const actionPath = getNotificationPath(item);
-          const isTradeApproval = item.category === "trades" || item.type === "deal_approval";
+          const handleOpen = () => {
+            if (actionPath) {
+              navigateTo(actionPath);
+            } else {
+              navigateTo("/notifications");
+            }
+          };
 
           return (
             <article
               key={String(item.id ?? idx)}
-              className={`flex flex-col py-3 ${!isLast ? "border-b border-surface-container-high" : ""}`}
+              className={`flex flex-col py-3.5 cursor-pointer transition-colors hover:bg-surface-container-low/40 rounded-lg px-2 -mx-2 ${
+                !isLast ? "border-b border-surface-container-high" : ""
+              }`}
+              onClick={handleOpen}
             >
-              {/* Top row: Status/Diamond + Title + Time */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  {diamondColor ? (
-                    <span className={`h-2 w-2 shrink-0 rotate-45 rounded-[2px] ${diamondColor}`} />
-                  ) : null}
-                  {!item.is_read ? (
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-error" />
-                  ) : null}
-                  <Typography
-                    as="h3"
-                    variant="label"
-                    size="medium"
-                    weight="semibold"
-                    className="text-on-surface"
-                  >
-                    {item.title || "اعلان جدید"}
-                  </Typography>
-                </div>
-                {timeText ? (
-                  <Typography
-                    as="span"
-                    variant="body"
-                    size="small"
-                    weight="regular"
-                    className="text-outline"
-                  >
-                    {timeText}
-                  </Typography>
-                ) : null}
-              </div>
-
-              {/* Subtitle / Description */}
-              {item.description ? (
-                <Typography
-                  as="p"
-                  variant="body"
-                  size="small"
-                  weight="regular"
-                  className="mt-1 leading-relaxed text-on-surface-var"
-                >
-                  {item.description}
-                </Typography>
-              ) : null}
-
-              {/* Actions */}
-              {isTradeApproval ? (
-                <div className="mt-2.5 flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="flex h-7 items-center justify-center rounded-[8px] bg-primary px-4 transition hover:opacity-90 active:scale-95 cursor-pointer border-none"
-                  >
-                    <Typography as="span" variant="label" size="small" weight="medium" className="text-on-primary">
-                      تایید
-                    </Typography>
-                  </button>
-                  <button
-                    type="button"
-                    className="flex h-7 items-center justify-center rounded-[8px] border border-surface-container-highest bg-surface-container-lowest px-3 transition hover:bg-surface-container-low active:scale-95 cursor-pointer"
-                  >
-                    <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface">
-                      عدم تایید
-                    </Typography>
-                  </button>
-                </div>
-              ) : actionLabel && actionPath ? (
-                <div className="mt-2 flex justify-start">
-                  <RouteLink
-                    to={actionPath}
-                    className="flex items-center gap-1 text-primary hover:underline"
-                  >
-                    <Typography as="span" variant="label" size="small" weight="semibold" className="text-primary">
-                      {actionLabel}
-                    </Typography>
-                    <LinearArrowLeft1 className="h-3 w-3" />
-                  </RouteLink>
-                </div>
-              ) : null}
+              <NotificationCardStandardContent item={item} onOpen={handleOpen} />
             </article>
           );
         })}

@@ -36,17 +36,24 @@ const iconMap: Record<
 
 export interface DashboardCreditsCardProps {
   title?: string;
-  items: DashboardCreditItem[];
+  items?: DashboardCreditItem[];
 }
+
+const defaultCredits: DashboardCreditItem[] = [
+  { key: "ads", label: "آگهی", value: 34, deltaText: "۲۴%", isPositive: true, type: "ad" },
+  { key: "updates", label: "بروزرسانی", value: 13, deltaText: "۵%", isPositive: true, type: "refresh" },
+  { key: "specials", label: "ویژه", value: 9, deltaText: "۱۶%", isNegative: true, type: "special" },
+  { key: "expiry", label: "اعتبار", value: 12, deltaText: "روز", type: "expiry" },
+];
 
 export function DashboardCreditsCard({
   title = "اعتبارها",
-  items,
+  items = defaultCredits,
 }: DashboardCreditsCardProps) {
   return (
-    <section className="w-full rounded-[16px] bg-surface-container-lowest p-5 shadow-sm [direction:rtl]">
+    <section className="w-full rounded-[16px] bg-surface-container-lowest shadow-sm [direction:rtl]">
       {/* Title */}
-      <Typography as="h2" variant="label" size="large" weight="medium" className="mb-4 text-on-surface">
+      <Typography as="h2" variant="label" size="large" weight="medium" className="mb-2.5 pt-4 pr-4 text-on-surface">
         {title}
       </Typography>
 
@@ -59,7 +66,7 @@ export function DashboardCreditsCard({
 
           return (
             <div key={col.key} className="flex flex-1 items-center">
-              <div className="flex flex-1 flex-col items-center text-center">
+              <div className="flex flex-1 flex-col items-center gap-2 text-center py-4">
                 {/* Squircle Icon 48x48 */}
                 <div
                   className={`flex p-2 items-center justify-center rounded-[14px] ${cfg.bg} ${cfg.text}`}
@@ -73,22 +80,22 @@ export function DashboardCreditsCard({
                   variant="label"
                   size="medium"
                   weight="medium"
-                  className="mt-2 mb-1.5 text-on-surface-var"
+                  className="text-on-surface-var"
                 >
                   {col.label}
                 </Typography>
 
                 {/* Value */}
-                <Typography variant="title" size="large" weight="medium" className="mb-1 text-on-surface">
+                <Typography variant="title" size="large" weight="medium" className="text-on-surface">
                   {toPersianNumber(col.value)}
                 </Typography>
 
                 {/* Delta / Trend */}
                 <div className="flex items-center justify-center gap-1">
                   {col.isPositive ? (
-                    <LinearChartUp className="h-3.5 w-3.5 text-tertiary" />
+                    <LinearChartUp className="h-4 w-4 text-tertiary" />
                   ) : col.isNegative ? (
-                    <LinearChartDown className="h-3.5 w-3.5 text-error" />
+                    <LinearChartDown className="h-4 w-4 text-error" />
                   ) : null}
                   <Typography
                     as="span"

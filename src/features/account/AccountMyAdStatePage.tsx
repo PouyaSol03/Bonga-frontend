@@ -885,7 +885,7 @@ function getManagerActions(
     return [preview, edit, result, remove, upgrade, history];
   }
   if (status === "wait_for_stop" || status === "wait_for_deal_confirmation") {
-    return [preview, remove, history];
+    return [preview, edit, remove, history];
   }
   if (status === "wait_for_payment") {
     return [preview, edit, payment, remove, history];
@@ -894,12 +894,12 @@ function getManagerActions(
     return [preview, edit, payment, remove, history];
   }
   if (status === "pending") {
-    return [preview, remove, history];
+    return [preview, edit, remove, history];
   }
   if (status === "expired") {
     return [preview, result, remove, history];
   }
-  return [preview, history];
+  return [preview, edit, history];
 }
 
 function ManagerAdSummary({
@@ -1324,12 +1324,12 @@ function getStateActions(
 
   if (status === "published") {
     if (isAssigned) {
-      return [preview, stopPublish, callAgency, chatAgency, history];
+      return [preview, edit, stopPublish, callAgency, chatAgency, history];
     }
     return [preview, edit, remove, upgrade, stats, history];
   }
-  if (status === "wait_for_agency") return [preview, callAgency, chatAgency, history];
-  if (status === "wait_for_stop") return [preview, callAgency, chatAgency, history];
+  if (status === "wait_for_agency") return [preview, edit, callAgency, chatAgency, history];
+  if (status === "wait_for_stop") return [preview, edit, callAgency, chatAgency, history];
   if (status === "wait_for_deal_confirmation") return [preview, history];
   if (status === "wait_for_repost" || status === "rejected_by_agency") return [preview, remove, history];
   if (status === "archived") return [preview, remove];

@@ -72,7 +72,9 @@ export function IndependentConsultantAdAllocationReviewPage(props?: IndependentC
   const assignment = props?.assignment ?? routeState.assignment;
   const ad = props?.ad ?? getSelectedConsultantAd();
   const [publisher, setPublisher] = useState<PublisherType>(
-    props?.initialPublisherType ?? routeState.publisherType ?? assignment?.targetType ?? "agency",
+    props?.initialPublisherType ??
+      (routeState.publisherType === "consultant" ? "consultant" : undefined) ??
+      (assignment?.targetType === "consultant" ? "consultant" : "agency"),
   );
   const [assignedConsultant, setAssignedConsultant] = useState<SelectableConsultant | null>(
     props?.initialAssignedConsultant ?? null,

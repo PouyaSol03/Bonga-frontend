@@ -1,14 +1,43 @@
 import { useState } from "react";
-
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { Typography } from "../../shared/ui/Typography";
+import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
+import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT } from "../../shared/constants/roles.constants";
 
 type AgencyLevel = {
   image: string;
   points: string;
   title: string;
 };
+
+const consultantLevels: AgencyLevel[] = [
+  {
+    image: "/vectors/agentLevel/beginner.png",
+    points: "۰-۴۹",
+    title: "مشاور تازه‌کار",
+  },
+  {
+    image: "/vectors/agentLevel/regional_expert.png",
+    points: "۵۰-۶۴",
+    title: "کارشناس منطقه",
+  },
+  {
+    image: "/vectors/agentLevel/selected_agent.png",
+    points: "۶۵-۷۹",
+    title: "مشاور منتخب",
+  },
+  {
+    image: "/vectors/agentLevel/deal_diamond.png",
+    points: "۸۰-۸۹",
+    title: "الماس معاملات",
+  },
+  {
+    image: "/vectors/agentLevel/unmatched_star.png",
+    points: "۹۰-۱۰۰",
+    title: "ستاره بی‌رقیب",
+  },
+];
 
 const agencyLevels: AgencyLevel[] = [
   {
@@ -39,6 +68,11 @@ const agencyLevels: AgencyLevel[] = [
 ];
 
 export function DashboardRankingLevelsGuidePage() {
+  const role = getActiveAuthRole(getStoredAuthSession());
+  const isConsultant = role === INDEPENDENT_CONSULTANT || role === REAL_ESTATE_CONSULTANT;
+  const levels = isConsultant ? consultantLevels : agencyLevels;
+  const pageTitle = isConsultant ? "سطح پیشرفت مشاور" : "سطح پیشرفت آژانس";
+
   return (
     <PageFrame
       className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
@@ -48,17 +82,17 @@ export function DashboardRankingLevelsGuidePage() {
         backTo="/account/dashboard/ranking"
         className="bg-surface-container"
         contentClassName="px-1"
-        title="سطح پیشرفت آژانس"
+        title={pageTitle}
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
         <div className="grid h-12 grid-cols-3 items-center border-b border-outline-var text-base font-normal leading-6 text-on-surface-var [direction:rtl]">
           <Typography as="span" variant="body" size="medium" weight="regular" className="pr-4">امتیاز</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="">نماد</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="pl-4">عنوان</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-center">نماد</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="pl-4 text-left">عنوان</Typography>
         </div>
 
-        {agencyLevels.map((level) => (
+        {levels.map((level) => (
           <AgencyLevelRow key={level.title} level={level} />
         ))}
       </main>
@@ -75,7 +109,7 @@ function AgencyLevelRow({ level }: { level: AgencyLevel }) {
 
       <LevelImage src={level.image} />
 
-      <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-on-surface">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="pl-4 text-left text-sm font-medium text-on-surface [direction:rtl]">
         {level.title}
       </Typography>
     </div>

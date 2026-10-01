@@ -1,4 +1,5 @@
 import type { BadgeItem } from "../api/account.service";
+import type { AgentBadge } from "../../dashboard/api/dashboard.service";
 
 export type BadgeProgressVariant = "complete" | "current" | "locked";
 
@@ -85,5 +86,32 @@ export function readBadgeProgressLevels(badge?: BadgeItem): BadgeProgressLevel[]
     title: "پیشرفت کلی",
     total: "۱۰۰٪",
     variant: progress >= 100 ? "complete" : "current",
+  }];
+}
+
+export function readAgentBadgeProgressLevels(badge?: AgentBadge | null): BadgeProgressLevel[] {
+  if (!badge) return [];
+  if (Array.isArray(badge.thresholds) && badge.thresholds.length > 0) {
+    return badge.thresholds.map((threshold, idx) => {
+      const levelNumber = idx + 1;
+      const isComplete = badge.level >= levelNumber;
+      const isCurrent = badge.level + 1 === levelNumber;
+      const progress = isComplete ? 100 : isCurrent ? Math.max(0, Math.min(100, badge.progress)) : 0;
+      const variant: BadgeProgressVariant = isComplete ? "complete" : isCurrent ? "current" : "locked";
+      return {
+        title: `سطح ${formatBadgeProgressNumber(levelNumber)}`,
+        done: formatBadgeProgressNumber(isComplete ? threshold : badge.current_value),
+        total: formatBadgeProgressNumber(threshold),
+        progress,
+        variant,
+      };
+    });
+  }
+  return [{
+    title: "پیشرفت کلی",
+    done: `${formatBadgeProgressNumber(badge.progress)}٪`,
+    total: "۱۰۰٪",
+    progress: Math.max(0, Math.min(100, badge.progress)),
+    variant: badge.progress >= 100 ? "complete" : "current",
   }];
 }

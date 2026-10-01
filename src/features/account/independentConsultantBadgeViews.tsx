@@ -1,12 +1,10 @@
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { Typography } from "../../shared/ui/Typography";
-import { useMyBadgesQuery } from "./api/account.hooks";
+import { useAgentBadgeDetailQuery } from "../dashboard/api/dashboard.hooks";
 import {
-  badgeProgressNumber,
   formatBadgeProgressNumber,
-  readBadgeLevelCount,
-  readBadgeProgressLevels,
+  readAgentBadgeProgressLevels,
   type BadgeProgressLevel,
 } from "./utils/badgeProgress";
 
@@ -20,45 +18,41 @@ type BadgeDefinition = {
 const badgeDefinitions: Record<BadgeKey, BadgeDefinition> = {
   file: {
     image: "/figma/account/ranking-badge-detail-file.png",
-    name: "فایل ساز",
+    name: "پرونده‌ساز",
   },
   magnet: {
     image: "/figma/account/ranking-badge-detail-magnet.png",
-    name: "مغناطیس بازار",
+    name: "آهنربای بازار",
   },
   response: {
     image: "/figma/account/ranking-badge-detail-response.png",
-    name: "ساعقه پاسخ",
+    name: "صاعقه پاسخ",
   },
   time: {
     image: "/figma/account/ranking-badge-detail-time.png",
-    name: "همیشگی",
+    name: "همیشه فعال",
   },
 };
 
+const slugMap: Record<BadgeKey, string> = {
+  file: "file_maker",
+  magnet: "market_magnet",
+  time: "always_active",
+  response: "response",
+};
+
 export function IndependentConsultantBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
-  const badgesQuery = useMyBadgesQuery();
+  const targetSlug = slugMap[badgeKey] || badgeKey;
+  const badgeQuery = useAgentBadgeDetailQuery(targetSlug);
   const definition = badgeDefinitions[badgeKey];
-  const badge = (badgesQuery.data ?? []).find(
-    (item) => typeof item.slug === "string" && item.slug.trim().toLowerCase() === badgeKey,
-  );
-  const badgeName =
-    typeof badge?.name === "string" && badge.name.trim()
-      ? badge.name.trim()
-      : definition.name;
-  const badgeImage =
-    typeof badge?.image === "string" && badge.image.trim()
-      ? badge.image
-      : typeof badge?.logo === "string" && badge.logo.trim()
-        ? badge.logo
-        : definition.image;
-  const progress = badgeProgressNumber(badge?.progress);
-  const metricValue =
-    progress === null
-      ? "—"
-      : `${formatBadgeProgressNumber(Math.max(0, Math.min(100, progress)))}٪`;
-  const levels = readBadgeProgressLevels(badge);
-  const starCount = readBadgeLevelCount(badge);
+  const badge = badgeQuery.data;
+
+  const badgeName = badge?.title || definition.name;
+  const badgeImage = definition.image;
+  const progress = badge?.progress ?? 0;
+  const metricValue = `${formatBadgeProgressNumber(progress)}٪`;
+  const levels = readAgentBadgeProgressLevels(badge);
+  const starCount = badge?.level ?? 0;
 
   return (
     <PageFrame
@@ -88,7 +82,7 @@ export function IndependentConsultantBadgeDetailsPage({ badgeKey }: { badgeKey: 
           <strong className="font-semibold text-on-surface">{metricValue}</strong>
         </Typography>
 
-        {badgesQuery.isLoading ? (
+        {badgeQuery.isLoading ? (
           <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-outline">
             در حال دریافت جزئیات نشان...
           </Typography>

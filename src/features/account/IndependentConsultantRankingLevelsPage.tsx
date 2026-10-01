@@ -4,29 +4,29 @@ import { Typography } from "../../shared/ui/Typography";
 
 const consultantLevels = [
   {
-    image: "/figma/account/ranking-level-beginner.png",
+    image: "/vectors/agentLevel/beginner.png",
     points: "۰–۴۹",
-    title: "آژانس تازه‌کار",
+    title: "مشاور تازه‌کار",
   },
   {
-    image: "/figma/account/ranking-level-active.png",
+    image: "/vectors/agentLevel/regional_expert.png",
     points: "۵۰–۶۴",
-    title: "آژانس فعال",
+    title: "کارشناس منطقه",
   },
   {
-    image: "/figma/account/ranking-level-dynamic.png",
+    image: "/vectors/agentLevel/selected_agent.png",
     points: "۶۵–۷۹",
-    title: "آژانس پویا",
+    title: "مشاور منتخب",
   },
   {
-    image: "/figma/account/ranking-level-regional.png",
+    image: "/vectors/agentLevel/deal_diamond.png",
     points: "۸۰–۸۹",
-    title: "آژانس برتر منطقه",
+    title: "الماس معاملات",
   },
   {
-    image: "/figma/account/ranking-level-legendary.png",
+    image: "/vectors/agentLevel/unmatched_star.png",
     points: "۹۰–۱۰۰",
-    title: "آژانس افسانه‌ای",
+    title: "ستاره بی‌رقیب",
   },
 ];
 

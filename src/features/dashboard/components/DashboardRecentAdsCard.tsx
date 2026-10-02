@@ -3,6 +3,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import type { AdCardData } from "../../advertisements/components/AdCard";
+import { AdCardSkeleton } from "../../advertisements/components/AdCardSkeleton";
 import { DashboardAdCard } from "../DashboardAdCard";
 
 export type DashboardRecentAdItem = AdCardData;
@@ -10,6 +11,7 @@ export type DashboardRecentAdItem = AdCardData;
 export interface DashboardRecentAdsCardProps {
   ads?: AdCardData[];
   ad?: AdCardData;
+  isLoading?: boolean;
   viewAllTo?: string;
   title?: string;
 }
@@ -17,6 +19,7 @@ export interface DashboardRecentAdsCardProps {
 export function DashboardRecentAdsCard({
   ads,
   ad,
+  isLoading = false,
   viewAllTo = "/account/manage-ads",
   title = "آخرین آگهی‌ها",
 }: DashboardRecentAdsCardProps) {
@@ -69,7 +72,11 @@ export function DashboardRecentAdsCard({
         </RouteLink>
       </div>
 
-      {adList.length === 0 ? (
+      {isLoading ? (
+        <div className="w-full">
+          <AdCardSkeleton variant="dashboard" />
+        </div>
+      ) : adList.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <Typography
             as="p"

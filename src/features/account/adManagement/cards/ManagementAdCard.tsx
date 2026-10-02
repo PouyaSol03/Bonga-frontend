@@ -29,7 +29,7 @@ export const ManagementAdCard: React.FC<ManagementAdCardProps> = ({
 }) => {
   return (
     <article
-      className={`w-full max-w-[360px] mx-auto overflow-hidden rounded-[16px] bg-white p-4 shadow-sm border border-[#EBEBEB] [direction:rtl] ${className}`}
+      className={`w-full max-w-[360px] mx-auto overflow-hidden rounded-[16px] bg-surface-container-lowest p-4 shadow-sm border border-outline-variant [direction:rtl] ${className}`}
     >
       {/* Optional Top Meta (e.g. countdown for assigned ads) */}
       {headerMeta ? <div className="mb-3">{headerMeta}</div> : null}
@@ -55,7 +55,7 @@ export const ManagementAdCard: React.FC<ManagementAdCardProps> = ({
       />
 
       {/* Horizontal Divider */}
-      <div className="h-[1px] w-full bg-[#CCCCCC]" />
+      <div className="h-[1px] w-full bg-outline-variant" />
 
       {/* Actions (Ad Desk button, Preview, Edit, Analytics) */}
       <ManagementAdActions

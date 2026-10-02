@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { DashboardTasksCard, type DashboardTaskItem } from "./DashboardTasksCard";
 import { DashboardQuickAccessGrid, type DashboardRole } from "./DashboardQuickAccessGrid";
 import { DashboardBadgeBanner } from "./DashboardBadgeBanner";
@@ -9,6 +10,13 @@ import { DashboardRecentAdsCard } from "./DashboardRecentAdsCard";
 import { DashboardSkeleton } from "./DashboardSkeleton";
 import type { DashboardOverview } from "../api/dashboard.service";
 import { toPersianNumber } from "../../../shared/lib/numberUtils";
+import { useMyAdsInfiniteQuery } from "../../account/api/account.hooks";
+import { mapAdvertisementToAdCard } from "../../advertisements/api/advertisement.service";
+import {
+  getAgencyRankingLevel,
+  getConsultantRankingLevel,
+  formatRankingLevelTitle,
+} from "../utils/rankingLevels";
 
 export interface DashboardViewProps {
   role?: DashboardRole;
@@ -39,6 +47,17 @@ export function DashboardView({
   }
   const isManager = role === "REAL_ESTATE_MANAGER";
   const isAssigned = role === "REAL_ESTATE_CONSULTANT";
+
+  const adsQuery = useMyAdsInfiniteQuery({
+    perPage: 5,
+    type: "active",
+  });
+
+  const recentAds = useMemo(() => {
+    const pages = adsQuery.data?.pages ?? [];
+    const firstPageAds = pages[0]?.data ?? [];
+    return firstPageAds.slice(0, 5).map((item, idx) => mapAdvertisementToAdCard(item, idx));
+  }, [adsQuery.data]);
 
   const taskItems: DashboardTaskItem[] | undefined = dashboard?.tasks
     ? dashboard.tasks
@@ -121,6 +140,25 @@ export function DashboardView({
   const levelTitle = rawLevel
     ? LEVEL_TITLE_MAP[rawLevel.toLowerCase()] || rawLevel
     : undefined;
+  const currentScore = dashboard?.ranking?.current?.totalScore;
+  const levelAsset = isManager
+    ? getAgencyRankingLevel({
+        score: currentScore,
+        levelTitle,
+        levelSlug: dashboard?.ranking?.current?.levelSlug,
+      })
+    : getConsultantRankingLevel({
+        score: currentScore,
+        levelTitle,
+        levelSlug: dashboard?.ranking?.current?.levelSlug,
+      });
+
+  const displayBadgeName = formatRankingLevelTitle({
+    isAgency: isManager,
+    score: currentScore,
+    levelTitle,
+    levelSlug: dashboard?.ranking?.current?.levelSlug,
+  });
 
   return (
     <div className="min-h-full bg-surface-container pb-6 [direction:rtl]">
@@ -139,11 +177,8 @@ export function DashboardView({
         {/* 3. Badge Banner */}
         <DashboardBadgeBanner
           categoryLabel={isManager ? "سطح آژانس" : "سطح مشاور"}
-          badgeName={
-            isManager
-              ? (levelTitle ? `آژانس ${levelTitle}` : "آژانس تازه‌کار")
-              : (levelTitle ? `مشاور ${levelTitle}` : "مشاور تازه‌کار")
-          }
+          badgeName={displayBadgeName}
+          imageSrc={levelAsset.image}
           to={isManager ? "/account/dashboard/ranking" : "/account/ranking"}
         />
 
@@ -160,7 +195,10 @@ export function DashboardView({
         <DashboardReportsTeaserCard onViewReports={onViewReports} />
 
         {/* 8. Recent Ads Card */}
-        <DashboardRecentAdsCard />
+        <DashboardRecentAdsCard
+          ads={recentAds}
+          isLoading={adsQuery.isLoading}
+        />
       </main>
     </div>
   );

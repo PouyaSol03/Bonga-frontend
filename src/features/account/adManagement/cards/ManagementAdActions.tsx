@@ -4,6 +4,7 @@ import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 import LinearEdit2 from "../../../../shared/icons/LinearEdit2";
 import LinearAnalytics from "../../../../shared/icons/LinearAnalytics";
 import { LinearMonitorCheck } from "../../../../shared/icons/LinearMonitorCheck";
+import { Typography } from "../../../../shared/ui/Typography";
 import { getAdEditPath, getAdStatePath, adManagementPaths } from "../adManagementData";
 import type { ManagementAdCardProps } from "./types";
 
@@ -46,27 +47,43 @@ export const ManagementAdActions: React.FC<Props> = ({
   const analyticsState = { ad: sourceAd, statisticsAd: ad };
 
   const iconBtnClass =
-    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-transparent text-[#1A1A1A] transition hover:bg-neutral-100 active:scale-95 no-underline cursor-pointer border-none";
+    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-transparent text-on-surface transition hover:bg-surface-container active:scale-95 no-underline cursor-pointer border-none";
 
   return (
     <div className="flex items-center justify-between pt-4 [direction:rtl]">
       {/* Primary Action Button: میزکار آگهی */}
       {onDeskClick ? (
         <button
-          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-[#0048C4] px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-[#003bb0] active:scale-95 cursor-pointer border-none"
+          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-primary px-4 text-xs font-semibold text-on-primary shadow-sm transition hover:bg-primary/90 active:scale-95 cursor-pointer border-none"
           onClick={onDeskClick}
           type="button"
         >
-          <span>میزکار آگهی</span>
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="semibold"
+            className="text-xs font-semibold text-on-primary"
+          >
+            میزکار آگهی
+          </Typography>
           <LinearArrowLeft1 className="h-4 w-4" />
         </button>
       ) : (
         <RouteLink
-          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-[#0048C4] px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-[#003bb0] active:scale-95 no-underline"
+          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-primary px-4 text-xs font-semibold text-on-primary shadow-sm transition hover:bg-primary/90 active:scale-95 no-underline"
           state={state}
           to={effectiveDeskPath}
         >
-          <span>میزکار آگهی</span>
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="semibold"
+            className="text-xs font-semibold text-on-primary"
+          >
+            میزکار آگهی
+          </Typography>
           <LinearArrowLeft1 className="h-4 w-4" />
         </RouteLink>
       )}

@@ -1,7 +1,7 @@
-type AdCardSkeletonProps = {
+export type AdCardSkeletonProps = {
   className?: string;
   showDeleteButton?: boolean;
-  variant?: "standard" | "mapPreview" | "assigned";
+  variant?: "standard" | "mapPreview" | "assigned" | "dashboard" | "management";
 };
 
 export function AdCardSkeleton({
@@ -9,6 +9,64 @@ export function AdCardSkeleton({
   showDeleteButton = false,
   variant = "standard",
 }: AdCardSkeletonProps) {
+  if (variant === "management") {
+    return (
+      <article
+        aria-hidden="true"
+        className={`w-full max-w-[360px] mx-auto overflow-hidden rounded-[16px] bg-surface-container-lowest p-4 shadow-sm border border-outline-variant [direction:rtl] ${className}`}
+      >
+        {/* Header: Thumbnail + Content */}
+        <div className="flex items-center gap-3 [direction:rtl]">
+          <div className="h-20 w-[120px] shrink-0 rounded-[8px] animate-skeleton" />
+          <div className="flex h-20 flex-1 min-w-0 flex-col justify-between py-0.5">
+            <div className="h-7 w-20 rounded-[8px] animate-skeleton" />
+            <div className="h-4 w-3/4 rounded animate-skeleton" />
+            <div className="h-3 w-1/2 rounded animate-skeleton" />
+          </div>
+        </div>
+
+        {/* Metrics Row: 4 columns */}
+        <div className="grid grid-cols-4 pt-6 pb-5 px-1 [direction:rtl]">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div className="flex flex-col items-center justify-center gap-1.5" key={i}>
+              <div className="h-6 w-6 rounded-full animate-skeleton" />
+              <div className="h-4 w-8 rounded animate-skeleton" />
+              <div className="h-3 w-10 rounded animate-skeleton" />
+            </div>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div className="h-[1px] w-full bg-outline-variant" />
+
+        {/* Actions Row */}
+        <div className="flex items-center justify-between pt-4 [direction:rtl]">
+          <div className="h-10 w-[136px] rounded-[10px] animate-skeleton" />
+          <div className="flex items-center gap-6 [direction:ltr]">
+            <div className="h-10 w-10 rounded-full animate-skeleton" />
+            <div className="h-10 w-10 rounded-full animate-skeleton" />
+            <div className="h-10 w-10 rounded-full animate-skeleton" />
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  if (variant === "dashboard") {
+    return (
+      <article
+        aria-hidden="true"
+        className={`flex w-full min-w-0 flex-col gap-4 text-right ${className}`}
+      >
+        <div className="relative aspect-[328/219.3] w-full overflow-hidden rounded-[16px] animate-skeleton" />
+        <div className="flex flex-col gap-2 px-1">
+          <div className="h-5 w-3/4 rounded-lg animate-skeleton" />
+          <div className="h-4 w-1/2 rounded-md animate-skeleton" />
+        </div>
+      </article>
+    );
+  }
+
   if (variant === "mapPreview") {
     return (
       <article
@@ -31,22 +89,48 @@ export function AdCardSkeleton({
     return (
       <article
         aria-hidden="true"
-        className={`overflow-hidden bg-surface-container-lowest shadow-[0_4px_16px_rgba(26,26,26,0.06)] [direction:rtl] ${className}`}
+        className={`w-full max-w-[360px] mx-auto overflow-hidden rounded-[16px] bg-surface-container-lowest shadow-[0_4px_16px_rgba(26,26,26,0.06)] border border-outline-variant [direction:rtl] ${className}`}
       >
-        <div className="mx-4 mt-4 h-9 rounded-full animate-skeleton" />
-        <div className="p-4 pb-3">
-          <div className="aspect-[328/219.3] w-full rounded-2xl animate-skeleton" />
-          <div className="mt-3 h-5 w-3/4 rounded-lg animate-skeleton" />
-          <div className="mt-3 flex items-center justify-start gap-6">
-            <div className="h-4 w-16 rounded-md animate-skeleton" />
-            <div className="h-4 w-16 rounded-md animate-skeleton" />
-            <div className="h-4 w-16 rounded-md animate-skeleton" />
+        {/* Top allocation countdown badge */}
+        <div className="mx-4 mt-4 h-9 rounded-xl animate-skeleton" />
+
+        <div className="p-4">
+          {/* Header */}
+          <div className="flex items-center gap-3 [direction:rtl]">
+            <div className="h-20 w-[120px] shrink-0 rounded-[8px] animate-skeleton" />
+            <div className="flex h-20 flex-1 min-w-0 flex-col justify-between py-0.5">
+              <div className="h-7 w-20 rounded-[8px] animate-skeleton" />
+              <div className="h-4 w-3/4 rounded animate-skeleton" />
+              <div className="h-3 w-1/2 rounded animate-skeleton" />
+            </div>
           </div>
-          <div className="mt-3 flex items-center justify-between">
-            <div className="h-5 w-32 rounded-md animate-skeleton" />
-            <div className="h-4 w-20 rounded-md animate-skeleton" />
+
+          {/* Metrics */}
+          <div className="grid grid-cols-4 pt-6 pb-5 px-1 [direction:rtl]">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div className="flex flex-col items-center justify-center gap-1.5" key={i}>
+                <div className="h-6 w-6 rounded-full animate-skeleton" />
+                <div className="h-4 w-8 rounded animate-skeleton" />
+                <div className="h-3 w-10 rounded animate-skeleton" />
+              </div>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className="h-[1px] w-full bg-outline-variant" />
+
+          {/* Actions */}
+          <div className="flex items-center justify-between pt-4 [direction:rtl]">
+            <div className="h-10 w-[136px] rounded-[10px] animate-skeleton" />
+            <div className="flex items-center gap-6 [direction:ltr]">
+              <div className="h-10 w-10 rounded-full animate-skeleton" />
+              <div className="h-10 w-10 rounded-full animate-skeleton" />
+              <div className="h-10 w-10 rounded-full animate-skeleton" />
+            </div>
           </div>
         </div>
+
+        {/* Bottom Review & Allocation Button */}
         <div className="px-4 pb-4 pt-1">
           <div className="h-11 w-full rounded-lg animate-skeleton" />
         </div>

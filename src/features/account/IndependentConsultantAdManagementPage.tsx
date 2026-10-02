@@ -487,13 +487,13 @@ export function IndependentConsultantAdManagementPage() {
             ) : (
               <AccountMyAdsEmptyState
                 description="آگهی‌هایی که کاربران برای ثبت و انتشار به آژانس شما می‌سپارند، در این بخش نمایش داده می‌شوند."
-                title="هنوز آگهی تخصیصی ندارید!"
+                title="آگهی تخصیصی وجود ندارد"
               />
             )
           ) : adsQuery.isLoading ? (
             <>
               {Array.from({ length: 3 }).map((_, index) => (
-                <AdCardSkeleton key={index} />
+                <AdCardSkeleton key={index} variant="management" />
               ))}
             </>
           ) : adsQuery.isError ? (
@@ -555,7 +555,7 @@ export function IndependentConsultantAdManagementPage() {
           )}
 
           {(assignedTab ? assignmentsQuery.isFetchingNextPage : adsQuery.isFetchingNextPage) ? (
-            <AdCardSkeleton variant={assignedTab ? "assigned" : "standard"} />
+            <AdCardSkeleton variant={assignedTab ? "assigned" : "management"} />
           ) : null}
         </div>
       </main>
@@ -592,9 +592,17 @@ function AssignedConsultantAdCard({
         className={`flex gap-2 items-center rounded-xl mt-4 mx-4 py-2 px-3 text-center text-xs font-medium ${countdownClassName}`}
       >
         <LinearTimeQuarter className="w-4 h-4"/>
-        {countdown.isExpired
-          ? "مهلت تخصیص به پایان رسیده است"
-          : `${formatAllocationCountdown(countdown)} تا پایان مهلت تخصیص`}
+        <Typography
+          as="span"
+          variant="label"
+          size="small"
+          weight="medium"
+          className="text-xs font-medium"
+        >
+          {countdown.isExpired
+            ? "مهلت تخصیص به پایان رسیده است"
+            : `${formatAllocationCountdown(countdown)} تا پایان مهلت تخصیص`}
+        </Typography>
       </div>
 
       <ConsultantAdCard
@@ -606,11 +614,19 @@ function AssignedConsultantAdCard({
 
       <div className="px-4 pb-4 pt-1">
         <RouteLink
-          className="flex h-11 w-full items-center justify-center rounded-lg bg-surface-container-lowest text-sm font-medium leading-5 text-primary no-underline border border-primary active:bg-primary/10"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-surface-container-lowest text-sm font-medium leading-5 text-primary no-underline border border-primary active:bg-primary/10"
           state={routeState}
           to={getAllocationReviewPath(ad.id)}
         >
-          بررسی و تخصیص
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-sm font-medium text-primary"
+          >
+            بررسی و تخصیص
+          </Typography>
           <LinearArrowLeft2 className="w-5 h-5"/>
         </RouteLink>
       </div>

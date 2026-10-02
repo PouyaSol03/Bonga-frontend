@@ -19,6 +19,10 @@ import LinearActivity from "../../shared/icons/LinearActivity";
 import LinearLike from "../../shared/icons/LinearLike";
 import LinearCommentClock from "../../shared/icons/LinearCommentClock";
 import LinearTimeQuarter from "../../shared/icons/LinearTimeQuarter";
+import {
+  getConsultantRankingLevel,
+  formatRankingLevelTitle,
+} from "../dashboard/utils/rankingLevels";
 
 type Badge = {
   active: boolean;
@@ -128,10 +132,26 @@ export function IndependentConsultantRankingPage() {
       />
 
       <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-surface-container px-4 py-4">
-        <LevelSummaryCard
-          levelTitle={ranking?.current.levelTitle || "—"}
-          score={formatOptionalNumber(ranking?.current.totalScore)}
-        />
+        {(() => {
+          const currentLevel = getConsultantRankingLevel({
+            score: ranking?.current.totalScore,
+            levelTitle: ranking?.current.levelTitle,
+            levelSlug: ranking?.current.levelSlug,
+          });
+          const displayLevelTitle = formatRankingLevelTitle({
+            isAgency: false,
+            score: ranking?.current.totalScore,
+            levelTitle: ranking?.current.levelTitle,
+            levelSlug: ranking?.current.levelSlug,
+          });
+          return (
+            <LevelSummaryCard
+              image={currentLevel.image}
+              levelTitle={displayLevelTitle}
+              score={formatOptionalNumber(ranking?.current.totalScore)}
+            />
+          );
+        })()}
         <MetricSummaryCard
           icon={<LinearRanking className="h-6 w-6 text-tertiary" />}
           iconClassName="bg-tertiary-container/30"
@@ -156,7 +176,15 @@ export function IndependentConsultantRankingPage() {
   );
 }
 
-function LevelSummaryCard({ levelTitle, score }: { levelTitle: string; score: string }) {
+function LevelSummaryCard({
+  image,
+  levelTitle,
+  score,
+}: {
+  image: string;
+  levelTitle: string;
+  score: string;
+}) {
   return (
     <RouteLink
       aria-label="سطح پیشرفت مشاور"
@@ -179,7 +207,7 @@ function LevelSummaryCard({ levelTitle, score }: { levelTitle: string; score: st
           </Typography>
         </div>
       </div>
-      <img alt="" className="h-12 w-12 shrink-0 object-contain" src="/vectors/agentLevel/deal_diamond.png" />
+      <img alt={levelTitle} className="h-12 w-12 shrink-0 object-contain" src={image} />
     </RouteLink>
   );
 }

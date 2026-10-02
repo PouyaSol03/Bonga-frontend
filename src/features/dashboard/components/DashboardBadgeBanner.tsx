@@ -8,6 +8,7 @@ export interface DashboardBadgeBannerProps {
   badgeName?: string;
   categoryLabel?: string;
   to?: string;
+  imageSrc?: string;
   icon?: ComponentType<{ className?: string }>;
   iconBgClass?: string;
   iconTextClass?: string;
@@ -17,6 +18,7 @@ export function DashboardBadgeBanner({
   badgeName = "مشاور تازه‌کار",
   categoryLabel = "سطح مشاور",
   to = "/account/dashboard/ranking",
+  imageSrc,
   icon: Icon = LinearRanking,
   iconBgClass = "bg-[#FFF4E5] dark:bg-[#3D2500]",
   iconTextClass = "text-[#FF8D00] dark:text-[#FFAA33]",
@@ -28,11 +30,19 @@ export function DashboardBadgeBanner({
     >
       <div className="flex items-center gap-3">
         {/* Visual Badge Icon */}
-        <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBgClass} ${iconTextClass}`}
-        >
-          <Icon className="h-6 w-6" />
-        </div>
+        {imageSrc ? (
+          <img
+            alt={badgeName}
+            className="h-10 w-10 shrink-0 object-contain"
+            src={imageSrc}
+          />
+        ) : (
+          <div
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBgClass} ${iconTextClass}`}
+          >
+            <Icon className="h-6 w-6" />
+          </div>
+        )}
 
         {/* Text with Typography */}
         <div className="flex flex-col">

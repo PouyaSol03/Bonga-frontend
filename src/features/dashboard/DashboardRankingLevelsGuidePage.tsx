@@ -4,73 +4,16 @@ import { TopBar } from "../../shared/components/TopBar";
 import { Typography } from "../../shared/ui/Typography";
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT } from "../../shared/constants/roles.constants";
-
-type AgencyLevel = {
-  image: string;
-  points: string;
-  title: string;
-};
-
-const consultantLevels: AgencyLevel[] = [
-  {
-    image: "/vectors/agentLevel/beginner.png",
-    points: "۰-۴۹",
-    title: "مشاور تازه‌کار",
-  },
-  {
-    image: "/vectors/agentLevel/regional_expert.png",
-    points: "۵۰-۶۴",
-    title: "کارشناس منطقه",
-  },
-  {
-    image: "/vectors/agentLevel/selected_agent.png",
-    points: "۶۵-۷۹",
-    title: "مشاور منتخب",
-  },
-  {
-    image: "/vectors/agentLevel/deal_diamond.png",
-    points: "۸۰-۸۹",
-    title: "الماس معاملات",
-  },
-  {
-    image: "/vectors/agentLevel/unmatched_star.png",
-    points: "۹۰-۱۰۰",
-    title: "ستاره بی‌رقیب",
-  },
-];
-
-const agencyLevels: AgencyLevel[] = [
-  {
-    image: "/vectors/agencyLevel/newbie.webp",
-    points: "۰-۴۹",
-    title: "آژانس تازه‌کار",
-  },
-  {
-    image: "/vectors/agencyLevel/active.webp",
-    points: "۵۰-۶۴",
-    title: "آژانس فعال",
-  },
-  {
-    image: "/vectors/agencyLevel/very_active.webp",
-    points: "۶۵-۷۹",
-    title: "آژانس پویا",
-  },
-  {
-    image: "/vectors/agencyLevel/top_one.webp",
-    points: "۸۰-۸۹",
-    title: "آژانس برتر منطقه",
-  },
-  {
-    image: "/vectors/agencyLevel/legendery.webp",
-    points: "۹۰-۱۰۰",
-    title: "آژانس افسانه‌ای",
-  },
-];
+import {
+  AGENCY_RANKING_LEVELS,
+  CONSULTANT_RANKING_LEVELS,
+  type RankingLevel,
+} from "./utils/rankingLevels";
 
 export function DashboardRankingLevelsGuidePage() {
   const role = getActiveAuthRole(getStoredAuthSession());
   const isConsultant = role === INDEPENDENT_CONSULTANT || role === REAL_ESTATE_CONSULTANT;
-  const levels = isConsultant ? consultantLevels : agencyLevels;
+  const levels = isConsultant ? CONSULTANT_RANKING_LEVELS : AGENCY_RANKING_LEVELS;
   const pageTitle = isConsultant ? "سطح پیشرفت مشاور" : "سطح پیشرفت آژانس";
 
   return (
@@ -100,7 +43,7 @@ export function DashboardRankingLevelsGuidePage() {
   );
 }
 
-function AgencyLevelRow({ level }: { level: AgencyLevel }) {
+function AgencyLevelRow({ level }: { level: RankingLevel }) {
   return (
     <div className="grid h-[88px] grid-cols-3 items-center border-b border-outline-var text-sm leading-5 [direction:rtl] last:border-b-0">
       <strong className="pr-4 text-right text-sm font-semibold text-on-surface">

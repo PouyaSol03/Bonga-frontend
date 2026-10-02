@@ -33,7 +33,7 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { getMyAdStatusInfo } from "./myAdsStatus";
 import { AccountMyAdsEmptyState } from "./accountPageViews";
-import { INDEPENDENT_CONSULTANT } from "../../shared/constants/roles.constants";
+import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
 
 const assignmentPageSize = 20;
 const loadMoreRemainingCount = 10;
@@ -533,8 +533,18 @@ export function IndependentConsultantAdManagementPage() {
                   <ConsultantAdCard
                     ad={card}
                     onDeleteIncomplete={isIncomplete ? () => void handleDeleteIncomplete(String(sourceAd.id ?? sourceAd._id ?? card.id)) : undefined}
+                    roleType={
+                      activeRole === REAL_ESTATE_MANAGER
+                        ? "agency"
+                        : activeRole === REAL_ESTATE_CONSULTANT
+                          ? "agent_in_agency"
+                          : "agent"
+                    }
                     showStatusBadge
+                    sourceAd={sourceAd}
                     state={destinationState}
+                    statusKey={statusInfo.key}
+                    statusLabel={statusInfo.label}
                     to={destination}
                   />
                 </div>

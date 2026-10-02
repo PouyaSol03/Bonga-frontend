@@ -22,7 +22,7 @@ import {
   useSaveAdvertiseDraftMutation,
 } from "../api/advertisement.hooks";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
-import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
+import { REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import {
@@ -1434,11 +1434,28 @@ export function NewAdFlowPage() {
           return;
         }
 
+        const values = methods.getValues();
+        const isAgencyPublisher = isAgencyRole || routeParams.publisherType === "agency";
+        const isConsultantPublisher =
+          activeRole === REAL_ESTATE_CONSULTANT ||
+          routeParams.publisherType === "agent" ||
+          routeParams.publisherType === "consultant";
+        const effectivePublisherType = values.consultantId
+          ? "consultant"
+          : isAgencyPublisher
+            ? "agency"
+            : isConsultantPublisher
+              ? "consultant"
+              : (routeParams.publisherType ?? "user");
+
         markNewAdCheckout(createdAdId);
         navigateTo(getAdPaymentPath(createdAdId), {
           ad: createdAd,
           card: ad,
+          consultantId: values.consultantId || undefined,
+          isAgencyPublisher,
           paymentFlow: "new-ad",
+          publisherType: effectivePublisherType,
           status: "wait_for_payment",
           tab: "status",
         });

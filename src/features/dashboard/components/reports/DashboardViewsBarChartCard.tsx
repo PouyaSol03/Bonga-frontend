@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Typography } from "../../../../shared/ui/Typography";
+import { DashboardChartEmptyState } from "./DashboardChartEmptyState";
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 import LinearArrowRight1 from "../../../../shared/icons/LinearArrowRight1";
@@ -30,7 +31,7 @@ export interface DashboardViewsBarChartCardProps {
 export function DashboardViewsBarChartCard({
   data,
   periodLabel,
-  trendText = "۲۳% کاهش پیشرفت",
+  trendText,
   onPeriodChange,
 }: DashboardViewsBarChartCardProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<"month" | "year">("year");
@@ -130,29 +131,31 @@ export function DashboardViewsBarChartCard({
       </div>
 
       {/* Sub-metric: Icon first, then Percent, then trend text */}
-      <div className="mt-2 flex items-center gap-1.5">
-        <ChartIcon
-          className={`h-4 w-4 shrink-0 ${isPositive ? "text-tertiary" : "text-error"}`}
-        />
-        <Typography
-          as="span"
-          variant="label"
-          size="small"
-          weight="semibold"
-          className={isPositive ? "text-tertiary font-bold text-xs" : "text-error font-bold text-xs"}
-        >
-          {percentValue}٪
-        </Typography>
-        <Typography
-          as="span"
-          variant="label"
-          size="small"
-          weight="medium"
-          className="text-on-surface-var text-xs"
-        >
-          {statusText}
-        </Typography>
-      </div>
+      {trendText && visibleData.length > 0 && (
+        <div className="mt-2 flex items-center gap-1.5">
+          <ChartIcon
+            className={`h-4 w-4 shrink-0 ${isPositive ? "text-tertiary" : "text-error"}`}
+          />
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="semibold"
+            className={isPositive ? "text-tertiary font-bold text-xs" : "text-error font-bold text-xs"}
+          >
+            {percentValue}٪
+          </Typography>
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-on-surface-var text-xs"
+          >
+            {statusText}
+          </Typography>
+        </div>
+      )}
 
       {/* Shift arrows row */}
       {dataset.length > windowSize && (
@@ -189,17 +192,10 @@ export function DashboardViewsBarChartCard({
 
       {/* Bar Chart or Empty State */}
       {visibleData.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Typography
-            as="p"
-            variant="body"
-            size="medium"
-            weight="medium"
-            className="text-on-surface-var"
-          >
-            داده‌ای برای نمایش بازدید آگهی‌ها وجود ندارد
-          </Typography>
-        </div>
+        <DashboardChartEmptyState
+          title="داده‌ای برای نمایش بازدید آگهی‌ها وجود ندارد"
+          description="پس از ثبت بازدید آگهی‌ها، آمار تفکیکی در این بخش قرار می‌گیرد."
+        />
       ) : (
         <div className="mt-1 h-56 w-full [direction:ltr]">
           <ResponsiveContainer height="100%" width="100%">

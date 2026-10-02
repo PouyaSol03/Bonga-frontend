@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Typography } from "../../../../shared/ui/Typography";
+import { DashboardChartEmptyState } from "./DashboardChartEmptyState";
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 import type { DashboardRole } from "../DashboardQuickAccessGrid";
@@ -133,17 +134,10 @@ export function DashboardPublishedAdsPieCard({
       </div>
 
       {currentData.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Typography
-            as="p"
-            variant="body"
-            size="medium"
-            weight="medium"
-            className="text-on-surface-var"
-          >
-            داده‌ای برای نمایش توزیع آگهی‌ها وجود ندارد
-          </Typography>
-        </div>
+        <DashboardChartEmptyState
+          title="داده‌ای برای نمایش توزیع آگهی‌ها وجود ندارد"
+          description="با انتشار آگهی‌ها در دسته‌بندی‌های مختلف، نمودار دایره‌ای فعال می‌شود."
+        />
       ) : (
         <>
           {/* Pie Chart */}

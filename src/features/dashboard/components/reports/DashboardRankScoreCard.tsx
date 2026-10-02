@@ -1,5 +1,6 @@
 import { RouteLink } from "../../../../shared/navigation/RouteLink";
 import { Typography } from "../../../../shared/ui/Typography";
+import { DashboardChartEmptyState } from "./DashboardChartEmptyState";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 import LinearChartDown from "../../../../shared/icons/LinearChartDown";
 import LinearChartUp from "../../../../shared/icons/LinearChartUp";
@@ -7,6 +8,10 @@ import LinearRanking from "../../../../shared/icons/LinearRanking";
 import LinearStar from "../../../../shared/icons/LinearStar";
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 import type { DashboardRole } from "../DashboardQuickAccessGrid";
+import {
+  getAgencyRankingLevel,
+  getConsultantRankingLevel,
+} from "../../utils/rankingLevels";
 
 export interface DashboardRankScoreCardProps {
   role?: DashboardRole;
@@ -32,14 +37,15 @@ export function DashboardRankScoreCard({
   title,
 }: DashboardRankScoreCardProps) {
   const isManager = role === "REAL_ESTATE_MANAGER";
+  const levelAsset = isManager
+    ? getAgencyRankingLevel({ score, levelTitle: badgeName })
+    : getConsultantRankingLevel({ score, levelTitle: badgeName });
+
   const displayTitle =
     title ?? (isManager ? "رتبه و امتیاز آژانس" : "رتبه و امتیاز من");
-  const displayBadgeName =
-    badgeName ?? (isManager ? "آژانس برتر منطقه‌ای" : "ستاره بی‌رقیب");
+  const displayBadgeName = badgeName ?? levelAsset.title;
   const entityLabel = isManager ? "آژانس" : "مشاور";
-  const centerImage = isManager
-    ? "/vectors/agencyLevel/top_one.webp"
-    : "/vectors/agentLevel/unmatched_star.png";
+  const centerImage = levelAsset.image;
 
   const isRankImproved = deltaRank >= 0;
   const DeltaIcon = isRankImproved ? LinearChartUp : LinearChartDown;
@@ -58,17 +64,10 @@ export function DashboardRankScoreCard({
             {displayTitle}
           </Typography>
         </div>
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Typography
-            as="p"
-            variant="body"
-            size="medium"
-            weight="medium"
-            className="text-on-surface-var"
-          >
-            اطلاعات رتبه و امتیاز در دسترس نیست
-          </Typography>
-        </div>
+        <DashboardChartEmptyState
+          title="اطلاعات رتبه و امتیاز در دسترس نیست"
+          description="با فعالیت و ثبت معاملات در سامانه بونگا، امتیاز و رتبه شما محاسبه خواهد شد."
+        />
       </section>
     );
   }

@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Typography } from "../../../../shared/ui/Typography";
+import { DashboardChartEmptyState } from "./DashboardChartEmptyState";
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 import LinearArrowRight1 from "../../../../shared/icons/LinearArrowRight1";
@@ -183,17 +184,10 @@ export function DashboardConsultantsBarChartCard({
 
       {/* Grouped Bar Chart or Empty State */}
       {visibleData.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Typography
-            as="p"
-            variant="body"
-            size="medium"
-            weight="medium"
-            className="text-on-surface-var"
-          >
-            داده‌ای برای نمایش فعالیت مشاورین وجود ندارد
-          </Typography>
-        </div>
+        <DashboardChartEmptyState
+          title="داده‌ای برای نمایش فعالیت مشاورین وجود ندارد"
+          description="عملکرد مشاورین آژانس بر اساس ثبت آگهی، بروزرسانی و نشان ویژه در این بخش درج می‌شود."
+        />
       ) : (
         <>
           <div className="mt-4 h-56 w-full [direction:ltr]">

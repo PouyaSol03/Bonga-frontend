@@ -1,4 +1,5 @@
 import { Typography } from "../../../../shared/ui/Typography";
+import { DashboardChartEmptyState } from "./DashboardChartEmptyState";
 
 export interface FunnelStage {
   id: string;
@@ -36,17 +37,10 @@ export function DashboardConversionFunnelCard({
       </Typography>
 
       {currentStages.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Typography
-            as="p"
-            variant="body"
-            size="medium"
-            weight="medium"
-            className="text-on-surface-var"
-          >
-            داده‌ای برای نمایش نرخ تبدیل وجود ندارد
-          </Typography>
-        </div>
+        <DashboardChartEmptyState
+          title="داده‌ای برای نمایش نرخ تبدیل وجود ندارد"
+          description="با پیگیری سرنخ‌ها و ثبت معامله آگهی‌ها، مراحل تبدیل در این بخش تحلیل می‌شوند."
+        />
       ) : (
         <div className="flex flex-col gap-1">
           {currentStages.map((st) => (

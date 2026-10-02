@@ -83,6 +83,37 @@ export function LoginVerifyPage() {
     return () => window.clearInterval(timerId);
   }, [resendSeconds]);
 
+  // WebOTP API: Auto-read verification code from incoming SMS
+  useEffect(() => {
+    if (typeof window === "undefined" || !("OTPCredential" in window) || !navigator.credentials) {
+      return;
+    }
+
+    const abortController = new AbortController();
+
+    navigator.credentials
+      .get({
+        otp: { transport: ["sms"] },
+        signal: abortController.signal,
+      } as unknown as CredentialRequestOptions)
+      .then((content: unknown) => {
+        const code = (content as { code?: string })?.code;
+        if (code) {
+          const digits = normalizeDigits(code).replace(/\D/g, "").slice(0, 4);
+          if (digits.length === 4) {
+            setVerificationCodeSlots(digits.split(""));
+          }
+        }
+      })
+      .catch(() => {
+        // Ignored when aborted or user dismisses
+      });
+
+    return () => {
+      abortController.abort();
+    };
+  }, []);
+
 
   useEffect(() => {
     const code = verificationCodeSlots.join("");
@@ -303,7 +334,7 @@ export function LoginVerifyPage() {
                     className="h-14 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-3 py-1 text-center !text-[22px] font-medium leading-none text-on-surface outline-none caret-primary placeholder:!text-sm placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-container)] [:-webkit-autofill]:[box-shadow:0_0_0_1000px_var(--color-surface-container-lowest)_inset] [:-webkit-autofill]:[-webkit-text-fill-color:var(--color-on-surface)] min-[390px]:h-14"
                     aria-label={`رقم ${index + 1}`}
                     inputMode="numeric"
-                    maxLength={1}
+                    maxLength={index === 0 ? 4 : 1}
                     name={`otp-${index}`}
                     onKeyDown={(event) => handleCodeKeyDown(index, event)}
                     onPaste={(event) => handleCodePaste(index, event)}

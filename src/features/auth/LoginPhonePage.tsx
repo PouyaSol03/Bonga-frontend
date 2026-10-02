@@ -7,7 +7,7 @@ import { useRequestOtpMutation } from "./api/auth.hooks";
 import { getAuthErrorMessage, normalizeMobile } from "./api/auth.service";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
-import { goBackOrNavigate } from "../../shared/navigation/navigation";
+import { goBackOrNavigate, pushRoute } from "../../shared/navigation/navigation";
 
 export function LoginPhonePage() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -37,8 +37,7 @@ export function LoginPhonePage() {
 
     try {
       await requestOtpMutation.mutateAsync({ mobile });
-      window.history.pushState({}, "", "/login/verify");
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      pushRoute("/login/verify");
     } catch (error) {
       setNotice({
         message: getAuthErrorMessage(error, "ارسال کد تایید انجام نشد."),

@@ -1,10 +1,10 @@
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ClipboardEvent,
   type FormEvent,
-  type KeyboardEvent,
 } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
@@ -55,14 +55,15 @@ async function ensureSelectedCityAfterLogin() {
 }
 
 export function LoginVerifyPage() {
-  const [verificationCodeSlots, setVerificationCodeSlots] = useState(["", "", "", ""]);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isFocused, setIsFocused] = useState(true);
   const [notice, setNotice] = useState<{
     message: string;
     title: string;
     variant: "error" | "success" | "info" | "warning";
   } | null>(null);
   const [resendSeconds, setResendSeconds] = useState(getOtpResendSecondsRemaining);
-  const otpInputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
   const lastAutoSubmittedCodeRef = useRef("");
   const phoneNumber = getPendingOtpMobile();
@@ -70,6 +71,20 @@ export function LoginVerifyPage() {
   const resendOtpMutation = useResendOtpMutation();
   const isSubmitting = verifyOtpMutation.isPending;
   const isResending = resendOtpMutation.isPending;
+
+  const verificationCodeSlots = useMemo(
+    () => [
+      verificationCode[0] ?? "",
+      verificationCode[1] ?? "",
+      verificationCode[2] ?? "",
+      verificationCode[3] ?? "",
+    ],
+    [verificationCode],
+  );
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     if (resendSeconds <= 0) {
@@ -101,7 +116,7 @@ export function LoginVerifyPage() {
         if (code) {
           const digits = normalizeDigits(code).replace(/\D/g, "").slice(0, 4);
           if (digits.length === 4) {
-            setVerificationCodeSlots(digits.split(""));
+            setVerificationCode(digits);
           }
         }
       })
@@ -114,64 +129,30 @@ export function LoginVerifyPage() {
     };
   }, []);
 
-
   useEffect(() => {
-    const code = verificationCodeSlots.join("");
+    if (verificationCode.length !== 4 || isSubmitting || isResending) return;
+    if (lastAutoSubmittedCodeRef.current === verificationCode) return;
 
-    if (!/^\d{4}$/.test(code) || isSubmitting || isResending) return;
-    if (lastAutoSubmittedCodeRef.current === code) return;
-
-    lastAutoSubmittedCodeRef.current = code;
+    lastAutoSubmittedCodeRef.current = verificationCode;
     const timerId = window.setTimeout(() => formRef.current?.requestSubmit(), 0);
 
     return () => window.clearTimeout(timerId);
-  }, [isResending, isSubmitting, verificationCodeSlots]);
+  }, [isResending, isSubmitting, verificationCode]);
 
-  function handleCodeChange(index: number, rawValue: string) {
-    const digits = normalizeDigits(rawValue)
-      .replace(/\D/g, "")
-      .slice(0, verificationCodeSlots.length - index);
-
+  function handleCodeChange(rawValue: string) {
+    const digits = normalizeDigits(rawValue).replace(/\D/g, "").slice(0, 4);
     setNotice(null);
-
-    if (!digits) {
-      setVerificationCodeSlots((current) =>
-        current.map((value, currentIndex) => (currentIndex === index ? "" : value)),
-      );
-      return;
-    }
-
-    setVerificationCodeSlots((current) =>
-      current.map((value, currentIndex) => {
-        const replacement = digits[currentIndex - index];
-        return replacement ?? value;
-      }),
-    );
-
-    const nextIndex = Math.min(index + digits.length, verificationCodeSlots.length - 1);
-    otpInputRefs.current[nextIndex]?.focus();
+    setVerificationCode(digits);
   }
 
-  function handleCodePaste(index: number, event: ClipboardEvent<HTMLInputElement>) {
+  function handlePaste(event: ClipboardEvent<HTMLInputElement>) {
     const digits = normalizeDigits(event.clipboardData.getData("text"))
       .replace(/\D/g, "")
-      .slice(0, verificationCodeSlots.length - index);
+      .slice(0, 4);
 
-    if (!digits) {
-      return;
-    }
-
-    event.preventDefault();
-    handleCodeChange(index, digits);
-  }
-
-  function handleCodeKeyDown(index: number, event: KeyboardEvent<HTMLInputElement>) {
-    if (
-      event.key === "Backspace" &&
-      verificationCodeSlots[index] === "" &&
-      index > 0
-    ) {
-      otpInputRefs.current[index - 1]?.focus();
+    if (digits) {
+      event.preventDefault();
+      handleCodeChange(digits);
     }
   }
 
@@ -179,7 +160,7 @@ export function LoginVerifyPage() {
     event.preventDefault();
 
     const mobile = normalizeMobile(phoneNumber);
-    const code = verificationCodeSlots.join("");
+    const code = verificationCode;
 
     if (!mobile) {
       setNotice({
@@ -248,10 +229,10 @@ export function LoginVerifyPage() {
 
     try {
       await resendOtpMutation.mutateAsync({ mobile });
-      setVerificationCodeSlots(["", "", "", ""]);
+      setVerificationCode("");
       lastAutoSubmittedCodeRef.current = "";
       setResendSeconds(getOtpResendSecondsRemaining());
-      otpInputRefs.current[0]?.focus();
+      inputRef.current?.focus();
       setNotice({
         message: "کد تایید مجددا به شماره همراه شما ارسال شد.",
         title: "کد ارسال شد.",
@@ -322,32 +303,56 @@ export function LoginVerifyPage() {
             </div>
 
             <div
-              className="grid w-full mt-6 grid-cols-4 gap-2.5"
+              className="relative mt-6 w-full"
               dir="ltr"
-              aria-label="کد تایید"
             >
-              {verificationCodeSlots.map((slot, index) => (
-                <label className="block min-w-0" key={index}>
-                  <input
-                    aria-invalid={notice?.variant === "error" ? "true" : undefined}
-                    autoComplete={index === 0 ? "one-time-code" : "off"}
-                    className="h-14 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-3 py-1 text-center !text-[22px] font-medium leading-none text-on-surface outline-none caret-primary placeholder:!text-sm placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-container)] [:-webkit-autofill]:[box-shadow:0_0_0_1000px_var(--color-surface-container-lowest)_inset] [:-webkit-autofill]:[-webkit-text-fill-color:var(--color-on-surface)] min-[390px]:h-14"
-                    aria-label={`رقم ${index + 1}`}
-                    inputMode="numeric"
-                    maxLength={index === 0 ? 4 : 1}
-                    name={`otp-${index}`}
-                    onKeyDown={(event) => handleCodeKeyDown(index, event)}
-                    onPaste={(event) => handleCodePaste(index, event)}
-                    placeholder="-"
-                    ref={(input) => {
-                      otpInputRefs.current[index] = input;
-                    }}
-                    type="text"
-                    value={slot}
-                    onChange={(event) => handleCodeChange(index, event.target.value)}
-                  />
-                </label>
-              ))}
+              <input
+                ref={inputRef}
+                aria-invalid={notice?.variant === "error" ? "true" : undefined}
+                aria-label="کد تایید چهار رقمی"
+                autoComplete="one-time-code"
+                autoFocus
+                className="absolute inset-0 z-10 h-full w-full opacity-0 cursor-pointer text-transparent caret-transparent"
+                inputMode="numeric"
+                maxLength={4}
+                name="one-time-code"
+                onBlur={() => setIsFocused(false)}
+                onChange={(event) => handleCodeChange(event.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onPaste={handlePaste}
+                pattern="[0-9]*"
+                type="text"
+                value={verificationCode}
+              />
+
+              <div
+                aria-hidden="true"
+                className="grid w-full grid-cols-4 gap-2.5 pointer-events-none"
+              >
+                {verificationCodeSlots.map((slot, index) => {
+                  const isActive =
+                    isFocused &&
+                    (index === verificationCode.length ||
+                      (index === 3 && verificationCode.length === 4));
+
+                  return (
+                    <div
+                      key={index}
+                      className={`flex h-14 w-full items-center justify-center rounded-xl border bg-surface-container-lowest px-3 py-1 text-center !text-[22px] font-medium leading-none text-on-surface transition-colors min-[390px]:h-14 ${
+                        notice?.variant === "error"
+                          ? "border-error"
+                          : isActive
+                            ? "border-primary shadow-[0_0_0_3px_var(--color-primary-container)]"
+                            : "border-outline-var"
+                      }`}
+                    >
+                      {slot || (
+                        <span className="text-sm font-normal text-outline">-</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {resendSeconds > 0 ? (

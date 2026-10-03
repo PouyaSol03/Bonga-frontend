@@ -39,17 +39,17 @@ export function ViewAdLeadsSection({
   return (
     <section
       aria-label="لیست سرنخ‌های آگهی"
-      className={`flex flex-col gap-4 bg-surface-container py-4 [direction:rtl] ${className}`}
+      className={`flex flex-col [direction:rtl] ${className}`}
     >
-      {/* Filter Bar Container matching Figma / Capture */}
-      <div className="px-4">
-        <div className="flex items-center justify-between gap-1.5 rounded-2xl border border-outline-variant/70 bg-surface-container-lowest p-2 shadow-xs">
+      {/* Filter Bar Container: white background */}
+      <div className="bg-surface-container-lowest px-4 pt-4 pb-4">
+        <div className="flex items-center justify-between gap-2 rounded-2xl border border-surface-container bg-surface-container-lowest p-4 shadow-[0_4px_16px_0_rgba(26,26,26,0.08)]">
           {LEAD_FILTERS.map((f) => (
             <Chip
               key={f.key}
               selected={activeFilter === f.key}
               onClick={() => setActiveFilter(f.key)}
-              className="flex-1 justify-center py-1.5 px-1 text-xs rounded-xl"
+              className="justify-center"
             >
               {f.label}
             </Chip>
@@ -57,8 +57,8 @@ export function ViewAdLeadsSection({
         </div>
       </div>
 
-      {/* Cards List: Full-bleed white cards separated by container gap */}
-      <div className="flex flex-col gap-4">
+      {/* Cards List: 16px gap on surface-container background */}
+      <div className="flex flex-col gap-4 bg-surface-container py-4">
         {filteredLeads.map((lead) => (
           <ViewAdLeadCard key={lead.id} lead={lead} onChatClick={onChatClick} />
         ))}

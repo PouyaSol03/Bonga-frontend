@@ -24,12 +24,14 @@ export interface ViewAdLeadItem {
 export interface ViewAdLeadCardProps {
   lead: ViewAdLeadItem;
   onChatClick?: (lead: ViewAdLeadItem) => void;
+  onDetailsClick?: (lead: ViewAdLeadItem) => void;
   className?: string;
 }
 
 export function ViewAdLeadCard({
   lead,
   onChatClick,
+  onDetailsClick,
   className = "",
 }: ViewAdLeadCardProps) {
   const detailsHref = lead.detailsUrl || `/account/dashboard/lead-followup`;
@@ -160,21 +162,40 @@ export function ViewAdLeadCard({
 
       {/* Bottom Action Bar: Call (left) + Chat (mid) + Details Button (right) */}
       <div className="flex items-center gap-2">
-        <RouteLink
-          to={detailsHref}
-          className="flex-1 h-10 rounded-xl border border-primary text-primary flex items-center justify-center gap-1.5 text-xs font-semibold hover:bg-primary/5 transition no-underline active:scale-[0.99]"
-        >
-          <Typography
-            as="span"
-            variant="label"
-            size="small"
-            weight="semibold"
-            className="text-xs text-primary font-semibold"
+        {onDetailsClick ? (
+          <button
+            type="button"
+            onClick={() => onDetailsClick(lead)}
+            className="flex-1 h-10 rounded-xl border border-primary text-primary flex items-center justify-center gap-1.5 text-xs font-semibold hover:bg-primary/5 transition active:scale-[0.99] cursor-pointer"
           >
-            جزییات
-          </Typography>
-          <LinearArrowLeft1 className="h-4 w-4 text-primary" />
-        </RouteLink>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="semibold"
+              className="text-xs text-primary font-semibold"
+            >
+              جزییات
+            </Typography>
+            <LinearArrowLeft1 className="h-4 w-4 text-primary" />
+          </button>
+        ) : (
+          <RouteLink
+            to={detailsHref}
+            className="flex-1 h-10 rounded-xl border border-primary text-primary flex items-center justify-center gap-1.5 text-xs font-semibold hover:bg-primary/5 transition no-underline active:scale-[0.99]"
+          >
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="semibold"
+              className="text-xs text-primary font-semibold"
+            >
+              جزییات
+            </Typography>
+            <LinearArrowLeft1 className="h-4 w-4 text-primary" />
+          </RouteLink>
+        )}
 
         <button
           type="button"

@@ -6,12 +6,14 @@ import {
   type ViewAdLeadItem,
   MOCK_VIEW_AD_LEADS,
 } from "./ViewAdLeadCard";
+import { ViewAdLeadDetailsBottomSheet } from "./ViewAdLeadDetailsBottomSheet";
 
 export type LeadFilterKey = "all" | "new" | "visit" | "followup" | "cancel";
 
 export interface ViewAdLeadsSectionProps {
   leads?: ViewAdLeadItem[];
   onChatClick?: (lead: ViewAdLeadItem) => void;
+  onDetailsClick?: (lead: ViewAdLeadItem) => void;
   className?: string;
 }
 
@@ -26,9 +28,17 @@ const LEAD_FILTERS: { key: LeadFilterKey; label: string; statusMatch?: string }[
 export function ViewAdLeadsSection({
   leads = MOCK_VIEW_AD_LEADS,
   onChatClick,
+  onDetailsClick,
   className = "",
 }: ViewAdLeadsSectionProps) {
   const [activeFilter, setActiveFilter] = useState<LeadFilterKey>("all");
+  const [selectedLeadForDetails, setSelectedLeadForDetails] =
+    useState<ViewAdLeadItem | null>(null);
+
+  const handleDetailsClick = (lead: ViewAdLeadItem) => {
+    setSelectedLeadForDetails(lead);
+    onDetailsClick?.(lead);
+  };
 
   const filteredLeads = leads.filter((lead) => {
     if (activeFilter === "all") return true;
@@ -60,7 +70,12 @@ export function ViewAdLeadsSection({
       {/* Cards List: no top gap from filters, 16px gap between cards */}
       <div className="flex flex-col gap-4 bg-surface-container pb-4">
         {filteredLeads.map((lead) => (
-          <ViewAdLeadCard key={lead.id} lead={lead} onChatClick={onChatClick} />
+          <ViewAdLeadCard
+            key={lead.id}
+            lead={lead}
+            onChatClick={onChatClick}
+            onDetailsClick={handleDetailsClick}
+          />
         ))}
 
         {filteredLeads.length === 0 && (
@@ -77,6 +92,13 @@ export function ViewAdLeadsSection({
           </div>
         )}
       </div>
+
+      {/* Lead Details BottomSheet matching Main Container.svg */}
+      <ViewAdLeadDetailsBottomSheet
+        isOpen={Boolean(selectedLeadForDetails)}
+        onClose={() => setSelectedLeadForDetails(null)}
+        lead={selectedLeadForDetails}
+      />
     </section>
   );
 }

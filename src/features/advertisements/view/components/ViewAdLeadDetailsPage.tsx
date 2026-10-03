@@ -3,12 +3,16 @@ import { PageFrame } from "../../../../shared/layout/PageFrame";
 import { TopBar } from "../../../../shared/components/TopBar";
 import { Typography } from "../../../../shared/ui/Typography";
 import { toPersianNumber as toPersianDigits } from "../../../../shared/lib/numberUtils";
+import { Chip } from "../../../../shared/ui/Chip";
+import { TextField } from "../../../../shared/ui/TextField";
+import { SelectField } from "../../../../shared/ui/SelectField";
+import { Button } from "../../../../shared/ui/Button";
+import { BottomSheet, BottomSheetActionList } from "../../../../shared/components/BottomSheet";
+import { JalaliDatePickerSheet } from "../../../advertisements/create/steps/project/JalaliDatePickerSheet";
 import LinearCall from "../../../../shared/icons/LinearCall";
 import LinearChat from "../../../../shared/icons/LinearChat";
 import LinearCalendar from "../../../../shared/icons/LinearCalendar";
 import LinearClock from "../../../../shared/icons/LinearClock";
-import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
-import LinearCancelSmall from "../../../../shared/icons/LinearCancelSmall";
 import LinearNoteAdd from "../../../../shared/icons/LinearNoteAdd";
 import {
   type ViewAdLeadItem,
@@ -41,6 +45,22 @@ const DEFAULT_ACTIVITIES: ActivityLogItem[] = [
 ];
 
 const STATUS_OPTIONS = ["بازدید", "پیگیری", "انصراف"] as const;
+
+const TIME_OPTIONS = [
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+  "19:00",
+  "20:00",
+  "21:00",
+];
 
 function readLeadIdFromUrl(): string | undefined {
   if (typeof window === "undefined") return undefined;
@@ -79,9 +99,11 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
   const [selectedStatus, setSelectedStatus] = useState<string>(
     resolvedLead.status || "بازدید"
   );
-  const [visitDate, setVisitDate] = useState("۱۲ اسفند ۱۴۰۴");
-  const [visitTime] = useState("۱۸:۰۰");
+  const [visitDate, setVisitDate] = useState("۱۴۰۴/۱۲/۱۲");
+  const [visitTime, setVisitTime] = useState("۱۸:۰۰");
   const [isVisited, setIsVisited] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isTimeSheetOpen, setIsTimeSheetOpen] = useState(false);
   const [note, setNote] = useState("");
   const [activities, setActivities] = useState<ActivityLogItem[]>(DEFAULT_ACTIVITIES);
 
@@ -107,7 +129,7 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
         title="جزئیات سرنخ"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-16">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
         {/* Section 1: User Card matching state-ad page typography, fonts, positions */}
         <section
           aria-label={`اطلاعات سرنخ ${resolvedLead.name}`}
@@ -248,111 +270,87 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
             انتخاب وضعیت سرنخ
           </Typography>
 
-          {/* Status Selection Pills */}
+          {/* Status Selection Chips */}
           <div className="flex items-center gap-2">
             {STATUS_OPTIONS.map((status) => {
               const isSelected = selectedStatus === status;
               return (
-                <button
+                <Chip
                   key={status}
-                  type="button"
+                  selected={isSelected}
                   onClick={() => setSelectedStatus(status)}
-                  className={`flex-1 rounded-xl py-2 px-3 text-xs font-medium transition cursor-pointer border text-center ${
-                    isSelected
-                      ? "border-primary bg-primary/15 text-primary font-semibold shadow-2xs"
-                      : "border-surface-container bg-surface-container-lowest text-outline hover:border-outline-variant"
-                  }`}
+                  className="flex-1 shrink justify-center py-2.5"
                 >
                   {status}
-                </button>
+                </Chip>
               );
             })}
           </div>
 
           {/* Sub-card: تاریخ و ساعت بازدید */}
-          <div className="rounded-2xl border border-surface-container bg-surface-container-lowest p-4 flex flex-col gap-3.5 shadow-2xs">
-            <div className="flex items-center gap-2 text-on-surface">
-              <LinearCalendar className="h-4 w-4 text-outline" />
+          <div className="rounded-2xl border border-surface-container bg-surface-container-lowest p-4 flex flex-col gap-4 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <LinearCalendar className="h-5 w-5 text-on-surface-var" />
               <Typography
                 as="span"
                 variant="label"
                 size="medium"
-                weight="medium"
-                className="text-xs font-semibold text-on-surface"
+                weight="semibold"
+                className="text-on-surface-var"
               >
                 تاریخ و ساعت بازدید
               </Typography>
             </div>
 
-            {/* Date Input */}
-            <div className="relative flex items-center justify-between rounded-xl border border-surface-container bg-surface-container-lowest px-3 py-2">
-              <div className="flex flex-col">
-                <Typography
-                  as="span"
-                  variant="body"
-                  size="small"
-                  weight="regular"
-                  className="text-[10px] text-outline"
-                >
-                  تاریخ بازدید *
-                </Typography>
-                <Typography
-                  as="span"
-                  variant="body"
-                  size="small"
-                  weight="medium"
-                  className="text-xs text-on-surface mt-0.5"
-                >
-                  {visitDate}
-                </Typography>
-              </div>
-              <button
-                type="button"
-                onClick={() => setVisitDate("")}
-                className="text-outline hover:text-on-surface transition cursor-pointer"
-                title="پاک کردن"
-              >
-                <LinearCancelSmall className="h-4 w-4" />
-              </button>
+            {/* Date Input with floating label */}
+            <div className="relative">
+              <TextField
+                label="تاریخ بازدید *"
+                value={visitDate}
+                onChange={(e) => setVisitDate(e.target.value)}
+                onClear={() => setVisitDate("")}
+                trailingSlot={
+                  <button
+                    type="button"
+                    onClick={() => setIsDatePickerOpen(true)}
+                    className="p-1 text-on-surface-var hover:text-on-surface transition cursor-pointer"
+                    title="انتخاب از تقویم"
+                  >
+                    <LinearCalendar className="h-5 w-5" />
+                  </button>
+                }
+              />
             </div>
 
-            {/* Time Input */}
-            <div className="relative flex items-center justify-between rounded-xl border border-surface-container bg-surface-container-lowest px-3 py-2.5">
-              <Typography
-                as="span"
-                variant="body"
-                size="small"
-                weight="regular"
-                className="text-xs text-outline"
-              >
-                ساعت بازدید *
-              </Typography>
-              <LinearArrowDown1 className="h-4 w-4 text-outline" />
-            </div>
+            {/* Time Input with floating label & BottomSheet */}
+            <SelectField
+              placeholder="ساعت بازدید *"
+              value={visitTime ? toPersianDigits(visitTime) : undefined}
+              onClick={() => setIsTimeSheetOpen(true)}
+            />
 
             {/* Action Row */}
             <div className="flex items-center justify-between gap-3 pt-1">
-              <button
-                type="button"
-                onClick={handleVisitedClick}
-                className={`rounded-xl px-4 py-2 text-xs font-semibold transition cursor-pointer shrink-0 ${
-                  isVisited
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 active:scale-[0.98]"
-                }`}
-              >
-                {isVisited ? "بازدید شد ✓" : "بازدید شد"}
-              </button>
-
               <Typography
                 as="p"
                 variant="body"
                 size="small"
                 weight="regular"
-                className="text-[11px] text-outline leading-5 flex-1"
+                className="flex-1 text-on-surface-var text-xs leading-5"
               >
                 درصورتی که بازدید را انجام دادید دکمه «بازدید شد» را بفشارید
               </Typography>
+
+              <Button
+                type="button"
+                onClick={handleVisitedClick}
+                variant={isVisited ? "primary" : "secondary"}
+                size="x-medium"
+                radius="medium"
+                className="shrink-0"
+              >
+                {isVisited ? "بازدید شد ✓" : "بازدید شد"}
+              </Button>
             </div>
           </div>
         </section>
@@ -362,14 +360,14 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
 
         {/* Section 3: یادداشت */}
         <section className="bg-surface-container-lowest p-4 flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-on-surface">
-            <LinearNoteAdd className="h-4 w-4 text-outline" />
+          <div className="flex items-center gap-2">
+            <LinearNoteAdd className="h-6 w-6 text-on-surface-var" />
             <Typography
               as="h3"
-              variant="title"
-              size="small"
+              variant="label"
+              size="large"
               weight="medium"
-              className="text-xs font-semibold text-on-surface"
+              className="text-on-surface"
             >
               یادداشت
             </Typography>
@@ -380,7 +378,7 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
             onChange={(e) => setNote(e.target.value)}
             placeholder="اطلاعات بیشتر را وارد کنید..."
             rows={3}
-            className="w-full rounded-xl border border-surface-container p-3 bg-surface-container-lowest text-xs text-on-surface placeholder:text-outline focus:border-primary focus:outline-none min-h-[90px] resize-none"
+            className="w-full rounded-xl border border-surface-container px-3 py-4.5 bg-surface-container-lowest text-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none min-h-[90px] resize-none"
           />
         </section>
 
@@ -388,15 +386,14 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
         <div className="h-4 bg-surface-container" />
 
         {/* Section 4: آخرین تغییرات */}
-        <section className="bg-surface-container-lowest p-4 flex flex-col gap-3">
+        <section className="bg-surface-container-lowest p-4 flex flex-col gap-4">
           <div className="flex items-center gap-2 text-on-surface">
-            <LinearClock className="h-4 w-4 text-outline" />
             <Typography
               as="h3"
-              variant="title"
-              size="small"
+              variant="label"
+              size="large"
               weight="medium"
-              className="text-xs font-semibold text-on-surface"
+              className="text-on-surface"
             >
               آخرین تغییرات
             </Typography>
@@ -405,15 +402,15 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
           <div className="flex flex-col">
             {activities.map((act, index) => (
               <div key={act.id} className="flex flex-col">
-                <div className="flex flex-col gap-1 py-2">
-                  <div className="flex items-center gap-1.5 text-outline text-[11px]">
-                    <LinearClock className="h-3.5 w-3.5 text-outline" />
+                <div className="flex flex-col gap-2 py-2">
+                  <div className="flex items-center gap-1">
+                    <LinearClock className="h-4 w-4 text-on-surface-var" />
                     <Typography
                       as="span"
                       variant="body"
                       size="small"
                       weight="regular"
-                      className="text-[11px] text-outline"
+                      className="text-on-surface-var"
                     >
                       {act.time}
                     </Typography>
@@ -421,9 +418,9 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
                   <Typography
                     as="p"
                     variant="body"
-                    size="small"
+                    size="medium"
                     weight="regular"
-                    className="text-xs text-on-surface leading-relaxed mt-0.5"
+                    className="text-on-surface"
                   >
                     {act.description}
                   </Typography>
@@ -436,6 +433,56 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
           </div>
         </section>
       </main>
+
+      <JalaliDatePickerSheet
+        isOpen={isDatePickerOpen}
+        onClose={() => setIsDatePickerOpen(false)}
+        onConfirm={(date) => {
+          setVisitDate(toPersianDigits(date));
+          setIsDatePickerOpen(false);
+        }}
+        title="تاریخ بازدید"
+        value={visitDate}
+      />
+
+      <BottomSheet
+        ariaLabel="ساعت بازدید"
+        className="rounded-t-[14px]"
+        contentClassName="pt-0 pb-4"
+        handleClassName="h-1 w-[42px] rounded-full bg-outline-var"
+        heightClassName="h-auto max-h-[50svh]"
+        maxHeight="50svh"
+        isOpen={isTimeSheetOpen}
+        headerButtonAriaLabel="بازگشت"
+        onBack={() => setIsTimeSheetOpen(false)}
+        onClose={() => setIsTimeSheetOpen(false)}
+        panelPaddingClassName="pt-3"
+        showBackButton
+        showHandle
+        showHeader
+        showHeaderDivider={false}
+        title="ساعت بازدید"
+        titleAlign="right"
+      >
+        <div className="px-2" dir="rtl">
+          <BottomSheetActionList
+            align="right"
+            isOpen={isTimeSheetOpen}
+            items={TIME_OPTIONS.map((time) => ({
+              id: time,
+              title: toPersianDigits(time),
+            }))}
+            itemClassName="h-12 text-sm font-normal leading-5"
+            onSelect={(item) => {
+              setVisitTime(item.id);
+              setIsTimeSheetOpen(false);
+            }}
+            selectedId={visitTime}
+            showCheckIcon
+            showDividers={false}
+          />
+        </div>
+      </BottomSheet>
     </PageFrame>
   );
 }

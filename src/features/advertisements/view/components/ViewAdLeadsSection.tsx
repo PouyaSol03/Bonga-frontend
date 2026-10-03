@@ -45,7 +45,6 @@ export function ViewAdLeadsSection({
       aria-label="لیست سرنخ‌های آگهی"
       className={`flex flex-col [direction:rtl] ${className}`}
     >
-      {/* Filter Bar Container: white background */}
       <div className="bg-surface-container-lowest p-4">
         <div className="flex items-center justify-between gap-2 rounded-2xl border border-surface-container bg-surface-container-lowest p-4">
           {LEAD_FILTERS.map((f) => (
@@ -61,7 +60,6 @@ export function ViewAdLeadsSection({
         </div>
       </div>
 
-      {/* Cards List: no top gap from filters, 16px gap between cards */}
       <div className="flex flex-col gap-4 bg-surface-container pb-4">
         {filteredLeads.map((lead) => (
           <ViewAdLeadCard

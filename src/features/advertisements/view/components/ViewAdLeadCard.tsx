@@ -29,13 +29,7 @@ export interface ViewAdLeadCardProps {
   className?: string;
 }
 
-export function ViewAdLeadCard({
-  lead,
-  adId,
-  onChatClick,
-  onDetailsClick,
-  className = "",
-}: ViewAdLeadCardProps) {
+export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, className = "" }: ViewAdLeadCardProps) {
   const detailsHref = adId
     ? `/account/my-ads/${encodeURIComponent(String(adId))}/lead-details?leadId=${encodeURIComponent(lead.id)}`
     : lead.detailsUrl || `/account/my-ads/lead-details?leadId=${encodeURIComponent(lead.id)}`;
@@ -45,9 +39,7 @@ export function ViewAdLeadCard({
       aria-label={`سرنخ ${lead.name}`}
       className={`w-full bg-surface-container-lowest p-4 text-right [direction:rtl] ${className}`}
     >
-      {/* Top Section: Avatar + Client Info (Right) & Status + Schedule (Left) */}
       <div className="flex items-start gap-2">
-        {/* Right side: Avatar + Info */}
         <div className="flex gap-3">
           {lead.avatarUrl ? (
             <img
@@ -88,7 +80,6 @@ export function ViewAdLeadCard({
               {toPersianDigits(lead.phone)}
             </Typography>
 
-            {/* Interaction Chips: Call count first, then Chat count */}
             <div className="mt-2 flex items-center gap-2">
               <span className="inline-flex items-center gap-1 py-0.5 px-1.5 rounded-md border border-surface-container">
                 <LinearCall className="h-4 w-4 text-outline" />
@@ -119,7 +110,6 @@ export function ViewAdLeadCard({
           </div>
         </div>
 
-        {/* Left side: Status badge + Date & Time */}
         <div className="flex flex-col items-start shrink-0 gap-2">
           <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-lg bg-tertiary/8 text-tertiary">
             <Typography
@@ -161,10 +151,8 @@ export function ViewAdLeadCard({
         </div>
       </div>
 
-      {/* Divider */}
       <div className="my-4 w-full border-b border-outline-variant/60" />
 
-      {/* Bottom Action Bar: Call (left) + Chat (mid) + Details Button (right) */}
       <div className="flex items-center gap-2">
         <RouteLink
           to={detailsHref}
@@ -205,80 +193,4 @@ export function ViewAdLeadCard({
   );
 }
 
-export const MOCK_VIEW_AD_LEADS: ViewAdLeadItem[] = [
-  {
-    id: "lead-1",
-    name: "ناصر اشرفی",
-    phone: "09155214062",
-    avatarUrl: "/mock/lead-avatar-sample.jpg",
-    status: "بازدید",
-    statusType: "success",
-    date: "پنجشنبه ۳۱ تیر",
-    time: "۱۸:۰۰",
-    chatCount: 5,
-    callCount: 2,
-    detailsUrl: "/account/dashboard/lead-followup",
-  },
-  {
-    id: "lead-2",
-    name: "ناصر اشرفی",
-    phone: "09155214062",
-    avatarUrl: "/mock/lead-avatar-sample.jpg",
-    status: "بازدید",
-    statusType: "success",
-    date: "پنجشنبه ۳۱ تیر",
-    time: "۱۸:۰۰",
-    chatCount: 5,
-    callCount: 2,
-    detailsUrl: "/account/dashboard/lead-followup",
-  },
-  {
-    id: "lead-3",
-    name: "ناصر اشرفی",
-    phone: "09155214062",
-    avatarUrl: "/mock/lead-avatar-sample.jpg",
-    status: "بازدید",
-    statusType: "success",
-    date: "پنجشنبه ۳۱ تیر",
-    time: "۱۸:۰۰",
-    chatCount: 5,
-    callCount: 2,
-    detailsUrl: "/account/dashboard/lead-followup",
-  },
-  {
-    id: "lead-4",
-    name: "سارا محمدی",
-    phone: "09123456789",
-    status: "جدید",
-    statusType: "info",
-    date: "جمعه ۱ مرداد",
-    time: "۱۰:۳۰",
-    chatCount: 1,
-    callCount: 0,
-    detailsUrl: "/account/dashboard/lead-followup",
-  },
-  {
-    id: "lead-5",
-    name: "امیرحسین رضایی",
-    phone: "09351234567",
-    status: "پیگیری",
-    statusType: "warning",
-    date: "شنبه ۲ مرداد",
-    time: "۱۵:۰۰",
-    chatCount: 3,
-    callCount: 1,
-    detailsUrl: "/account/dashboard/lead-followup",
-  },
-  {
-    id: "lead-6",
-    name: "مهدی علیزاده",
-    phone: "09191234567",
-    status: "انصراف",
-    statusType: "warning",
-    date: "یکشنبه ۳ مرداد",
-    time: "۱۴:۲۰",
-    chatCount: 2,
-    callCount: 1,
-    detailsUrl: "/account/dashboard/lead-followup",
-  },
-];
+export { MOCK_VIEW_AD_LEADS } from "./viewAdLeadMockData";

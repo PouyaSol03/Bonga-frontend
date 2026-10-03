@@ -1,9 +1,11 @@
 import { useState, type ReactNode } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
-import { useMyBadgesQuery } from "./api/account.hooks";
-import { useAgentDashboardQuery } from "../dashboard/api/dashboard.hooks";
+import {
+  useAgentBadgesQuery,
+  useAgentDashboardQuery,
+} from "../dashboard/api/dashboard.hooks";
 import { usePublicAgentsQuery } from "../agencies/api/agency.hooks";
-import type { BadgeItem } from "./api/account.service";
+import type { AgentBadge } from "../dashboard/api/dashboard.service";
 import { TopBar } from "../../shared/components/TopBar";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
@@ -17,6 +19,10 @@ import LinearActivity from "../../shared/icons/LinearActivity";
 import LinearLike from "../../shared/icons/LinearLike";
 import LinearCommentClock from "../../shared/icons/LinearCommentClock";
 import LinearTimeQuarter from "../../shared/icons/LinearTimeQuarter";
+import {
+  getConsultantRankingLevel,
+  formatRankingLevelTitle,
+} from "../dashboard/utils/rankingLevels";
 
 type Badge = {
   active: boolean;
@@ -36,9 +42,22 @@ type RankingPeriod = "هفته" | "ماه";
 
 const badgeRouteBySlug: Record<string, string> = {
   file: "/account/ranking/badges/file",
+  file_maker: "/account/ranking/badges/file",
   magnet: "/account/ranking/badges/magnet",
+  market_magnet: "/account/ranking/badges/magnet",
   response: "/account/ranking/badges/response",
   time: "/account/ranking/badges/time",
+  always_active: "/account/ranking/badges/time",
+};
+
+const badgeImageBySlug: Record<string, string> = {
+  file: "/figma/account/ranking-badge-detail-file.png",
+  file_maker: "/figma/account/ranking-badge-detail-file.png",
+  magnet: "/figma/account/ranking-badge-detail-magnet.png",
+  market_magnet: "/figma/account/ranking-badge-detail-magnet.png",
+  response: "/figma/account/ranking-badge-detail-response.png",
+  time: "/figma/account/ranking-badge-detail-time.png",
+  always_active: "/figma/account/ranking-badge-detail-time.png",
 };
 
 function formatOptionalNumber(value: number | null | undefined) {
@@ -47,19 +66,14 @@ function formatOptionalNumber(value: number | null | undefined) {
     : new Intl.NumberFormat("fa-IR").format(value);
 }
 
-function mapBadgeItemToBadge(item: BadgeItem): Badge {
+function mapBadgeItemToBadge(item: AgentBadge): Badge {
   const parsedProgress = Number(item.progress);
   const slug = typeof item.slug === "string" ? item.slug.trim().toLowerCase() : "";
 
   return {
-    active: item.active === true,
-    image:
-      typeof item.image === "string" && item.image.trim()
-        ? item.image
-        : typeof item.logo === "string" && item.logo.trim()
-          ? item.logo
-          : undefined,
-    name: typeof item.name === "string" && item.name.trim() ? item.name.trim() : "نشان",
+    active: item.earned === true,
+    image: badgeImageBySlug[slug],
+    name: typeof item.title === "string" && item.title.trim() ? item.title.trim() : "نشان",
     progress: Number.isFinite(parsedProgress)
       ? Math.max(0, Math.min(100, parsedProgress))
       : 0,
@@ -118,10 +132,26 @@ export function IndependentConsultantRankingPage() {
       />
 
       <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-surface-container px-4 py-4">
-        <LevelSummaryCard
-          levelTitle={ranking?.current.levelTitle || "—"}
-          score={formatOptionalNumber(ranking?.current.totalScore)}
-        />
+        {(() => {
+          const currentLevel = getConsultantRankingLevel({
+            score: ranking?.current.totalScore,
+            levelTitle: ranking?.current.levelTitle,
+            levelSlug: ranking?.current.levelSlug,
+          });
+          const displayLevelTitle = formatRankingLevelTitle({
+            isAgency: false,
+            score: ranking?.current.totalScore,
+            levelTitle: ranking?.current.levelTitle,
+            levelSlug: ranking?.current.levelSlug,
+          });
+          return (
+            <LevelSummaryCard
+              image={currentLevel.image}
+              levelTitle={displayLevelTitle}
+              score={formatOptionalNumber(ranking?.current.totalScore)}
+            />
+          );
+        })()}
         <MetricSummaryCard
           icon={<LinearRanking className="h-6 w-6 text-tertiary" />}
           iconClassName="bg-tertiary-container/30"
@@ -146,7 +176,15 @@ export function IndependentConsultantRankingPage() {
   );
 }
 
-function LevelSummaryCard({ levelTitle, score }: { levelTitle: string; score: string }) {
+function LevelSummaryCard({
+  image,
+  levelTitle,
+  score,
+}: {
+  image: string;
+  levelTitle: string;
+  score: string;
+}) {
   return (
     <RouteLink
       aria-label="سطح پیشرفت مشاور"
@@ -169,7 +207,7 @@ function LevelSummaryCard({ levelTitle, score }: { levelTitle: string; score: st
           </Typography>
         </div>
       </div>
-      <img alt="" className="h-12 w-12 shrink-0 object-contain" src="/figma/account/ranking-diamond.png" />
+      <img alt={levelTitle} className="h-12 w-12 shrink-0 object-contain" src={image} />
     </RouteLink>
   );
 }
@@ -206,7 +244,7 @@ function MetricSummaryCard({
 }
 
 function BadgesPanel() {
-  const { data: apiBadges = [], error, isError, isLoading, refetch } = useMyBadgesQuery();
+  const { data: apiBadges = [], error, isError, isLoading, refetch } = useAgentBadgesQuery();
   const visibleBadges = apiBadges.map(mapBadgeItemToBadge);
   const BadgesErrorState = getRequestErrorState(error);
 

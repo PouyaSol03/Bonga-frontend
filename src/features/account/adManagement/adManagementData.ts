@@ -125,7 +125,8 @@ export type AdManagementRouteState = {
   assignment?: AgencyAdvertiseAssignmentDto;
   assignmentId?: number | string;
   consultantId?: number | string;
-  publisherType?: "agency" | "consultant";
+  isAgencyPublisher?: boolean;
+  publisherType?: "agency" | "consultant" | "agent" | string;
   hasFreeAdTariff?: boolean;
   paymentFlow?: "agency-allocation" | "new-ad" | "upgrade";
   paymentStep?: "options" | "checkout";

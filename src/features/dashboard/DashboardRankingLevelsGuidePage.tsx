@@ -1,44 +1,21 @@
 import { useState } from "react";
-
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { Typography } from "../../shared/ui/Typography";
-
-type AgencyLevel = {
-  image: string;
-  points: string;
-  title: string;
-};
-
-const agencyLevels: AgencyLevel[] = [
-  {
-    image: "/vectors/agencyLevel/newbie.webp",
-    points: "۰-۴۹",
-    title: "آژانس تازه‌کار",
-  },
-  {
-    image: "/vectors/agencyLevel/active.webp",
-    points: "۵۰-۶۴",
-    title: "آژانس فعال",
-  },
-  {
-    image: "/vectors/agencyLevel/very_active.webp",
-    points: "۶۵-۷۹",
-    title: "آژانس پویا",
-  },
-  {
-    image: "/vectors/agencyLevel/top_one.webp",
-    points: "۸۰-۸۹",
-    title: "آژانس برتر منطقه",
-  },
-  {
-    image: "/vectors/agencyLevel/legendery.webp",
-    points: "۹۰-۱۰۰",
-    title: "آژانس افسانه‌ای",
-  },
-];
+import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
+import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT } from "../../shared/constants/roles.constants";
+import {
+  AGENCY_RANKING_LEVELS,
+  CONSULTANT_RANKING_LEVELS,
+  type RankingLevel,
+} from "./utils/rankingLevels";
 
 export function DashboardRankingLevelsGuidePage() {
+  const role = getActiveAuthRole(getStoredAuthSession());
+  const isConsultant = role === INDEPENDENT_CONSULTANT || role === REAL_ESTATE_CONSULTANT;
+  const levels = isConsultant ? CONSULTANT_RANKING_LEVELS : AGENCY_RANKING_LEVELS;
+  const pageTitle = isConsultant ? "سطح پیشرفت مشاور" : "سطح پیشرفت آژانس";
+
   return (
     <PageFrame
       className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
@@ -48,17 +25,17 @@ export function DashboardRankingLevelsGuidePage() {
         backTo="/account/dashboard/ranking"
         className="bg-surface-container"
         contentClassName="px-1"
-        title="سطح پیشرفت آژانس"
+        title={pageTitle}
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
         <div className="grid h-12 grid-cols-3 items-center border-b border-outline-var text-base font-normal leading-6 text-on-surface-var [direction:rtl]">
           <Typography as="span" variant="body" size="medium" weight="regular" className="pr-4">امتیاز</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="">نماد</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="pl-4">عنوان</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-center">نماد</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="pl-4 text-left">عنوان</Typography>
         </div>
 
-        {agencyLevels.map((level) => (
+        {levels.map((level) => (
           <AgencyLevelRow key={level.title} level={level} />
         ))}
       </main>
@@ -66,7 +43,7 @@ export function DashboardRankingLevelsGuidePage() {
   );
 }
 
-function AgencyLevelRow({ level }: { level: AgencyLevel }) {
+function AgencyLevelRow({ level }: { level: RankingLevel }) {
   return (
     <div className="grid h-[88px] grid-cols-3 items-center border-b border-outline-var text-sm leading-5 [direction:rtl] last:border-b-0">
       <strong className="pr-4 text-right text-sm font-semibold text-on-surface">
@@ -75,7 +52,7 @@ function AgencyLevelRow({ level }: { level: AgencyLevel }) {
 
       <LevelImage src={level.image} />
 
-      <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-on-surface">
+      <Typography as="span" variant="label" size="medium" weight="medium" className="pl-4 text-left text-sm font-medium text-on-surface [direction:rtl]">
         {level.title}
       </Typography>
     </div>

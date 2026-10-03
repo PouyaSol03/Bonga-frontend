@@ -131,7 +131,9 @@ export function AgencyOwnerContactBottomSheet({
           {editingField === "name" ? (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-on-surface-var">ویرایش نام مالک</span>
+                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium text-on-surface-var">
+                  ویرایش نام مالک
+                </Typography>
               </div>
               <input
                 autoFocus
@@ -141,7 +143,11 @@ export function AgencyOwnerContactBottomSheet({
                 type="text"
                 value={draftValue}
               />
-              {errorMessage ? <span className="text-xs text-error">{errorMessage}</span> : null}
+              {errorMessage ? (
+                <Typography as="span" variant="label" size="small" className="text-xs text-error">
+                  {errorMessage}
+                </Typography>
+              ) : null}
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
                   className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var hover:bg-surface-container"
@@ -199,7 +205,9 @@ export function AgencyOwnerContactBottomSheet({
           {editingField === "phone" ? (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-on-surface-var">ویرایش شماره همراه</span>
+                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium text-on-surface-var">
+                  ویرایش شماره همراه
+                </Typography>
               </div>
               <input
                 autoFocus
@@ -209,7 +217,11 @@ export function AgencyOwnerContactBottomSheet({
                 type="tel"
                 value={draftValue}
               />
-              {errorMessage ? <span className="text-xs text-error">{errorMessage}</span> : null}
+              {errorMessage ? (
+                <Typography as="span" variant="label" size="small" className="text-xs text-error">
+                  {errorMessage}
+                </Typography>
+              ) : null}
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
                   className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var hover:bg-surface-container"
@@ -270,7 +282,9 @@ export function AgencyOwnerContactBottomSheet({
           {editingField === "address" ? (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-on-surface-var">ویرایش نشانی دقیق</span>
+                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium text-on-surface-var">
+                  ویرایش نشانی دقیق
+                </Typography>
               </div>
               <textarea
                 autoFocus
@@ -280,7 +294,11 @@ export function AgencyOwnerContactBottomSheet({
                 rows={2}
                 value={draftValue}
               />
-              {errorMessage ? <span className="text-xs text-error">{errorMessage}</span> : null}
+              {errorMessage ? (
+                <Typography as="span" variant="label" size="small" className="text-xs text-error">
+                  {errorMessage}
+                </Typography>
+              ) : null}
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
                   className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var hover:bg-surface-container"

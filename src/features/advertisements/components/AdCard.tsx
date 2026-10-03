@@ -361,12 +361,12 @@ function AdCardBody({
       </Typography>
 
       <div className="mt-3 flex h-6 items-center justify-start gap-2">
-        {showBadges ? ad.badges.map((badge) => (
+        {showBadges && Array.isArray(ad.badges) ? ad.badges.map((badge) => (
           <Typography as="span" variant="label" size="small" weight="medium" className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs font-medium leading-4 ${badge === 'فوری' ? 'border-warning bg-warning-container text-warning' : 'border-tertiary bg-tertiary-container text-tertiary'}`} key={badge}>
             {badge}
           </Typography>
         )) : null}
-        {showBadges && ad.badges.length > 0 ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-outline-var" aria-hidden="true" /> : null}
+        {showBadges && Array.isArray(ad.badges) && ad.badges.length > 0 ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-outline-var" aria-hidden="true" /> : null}
         <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">{ad.timeAndLocation}</Typography>
       </div>
     </div>

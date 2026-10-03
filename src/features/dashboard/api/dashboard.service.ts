@@ -35,6 +35,23 @@ export type DashboardUsage = {
   totalAvailable: number;
 };
 
+export type DashboardUrgentActionItem = {
+  id: string;
+  count: number;
+  title: string;
+  description: string;
+  priority: "critical" | "high" | "medium";
+  priorityLabel: string;
+  to: string;
+};
+
+export type DashboardTaskItemPayload = {
+  id: string;
+  count: number;
+  label: string;
+  to: string;
+};
+
 export type DashboardOverview = {
   advertiseRegistrationProgress: Array<{
     count: number;
@@ -89,6 +106,8 @@ export type DashboardOverview = {
     publishedAdvertises: number;
     rejected: number;
   } | null;
+  urgentActions?: DashboardUrgentActionItem[];
+  tasks?: DashboardTaskItemPayload[];
 };
 
 export type AgencyDashboardCreditsSection = Pick<
@@ -139,6 +158,8 @@ type AgencyDashboardApiResponse = {
   ranking?: RawRecord;
   ranking_progress?: unknown[];
   status?: boolean;
+  urgent_actions?: unknown[];
+  tasks?: unknown[];
 };
 
 type AgentDashboardApiResponse = {
@@ -153,6 +174,8 @@ type AgentDashboardApiResponse = {
   usage_deltas?: RawRecord;
   wallet?: RawRecord;
   work_summary?: RawRecord;
+  urgent_actions?: unknown[];
+  tasks?: unknown[];
 };
 
 function asRecord(value: unknown): RawRecord {
@@ -176,6 +199,20 @@ function toNullableNumber(value: unknown) {
 function toText(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
+
+function toStringValue(value: unknown, fallback = ""): string {
+  if (value === null || value === undefined) return fallback;
+  const str = String(value).trim();
+  return str || fallback;
+}
+
+function toNumberOrUndefined(value: unknown): number | undefined {
+  if (value === null || value === undefined || value === "") return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+const normalizeBalanceDelta = normalizeDelta;
 
 function normalizeDelta(value: unknown): DashboardBalanceDelta {
   const delta = asRecord(value);
@@ -279,6 +316,44 @@ function normalizeBalanceDeltas(value: unknown) {
   };
 }
 
+function normalizeUrgentActions(value: unknown): DashboardUrgentActionItem[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.map((item, index) => {
+    const rec = asRecord(item);
+    const priority =
+      rec.priority === "critical" || rec.priority === "high" || rec.priority === "medium"
+        ? rec.priority
+        : "medium";
+
+    return {
+      id: String(rec.id ?? `urgent_${index}`),
+      count: Math.max(0, toNumber(rec.count)),
+      title: toText(rec.title) || "اقدام فوری",
+      description: toText(rec.description),
+      priority,
+      priorityLabel:
+        toText(rec.priority_label) ||
+        (priority === "critical" ? "خیلی بالا" : priority === "high" ? "بالا" : "متوسط"),
+      to: toText(rec.to) || "/account/dashboard",
+    };
+  });
+}
+
+function normalizeTasks(value: unknown): DashboardTaskItemPayload[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.map((item, index) => {
+    const rec = asRecord(item);
+    return {
+      id: String(rec.id ?? `task_${index}`),
+      count: Math.max(0, toNumber(rec.count)),
+      label: toText(rec.label) || "مورد",
+      to: toText(rec.to) || "/account/manage-ads",
+    };
+  });
+}
+
 function normalizeAgencyDashboard(
   response: AgencyDashboardApiResponse,
   requestedPeriod: DashboardPeriod,
@@ -355,6 +430,8 @@ function normalizeAgencyDashboard(
     specialUsage: null,
     walletCredit: null,
     workSummary: null,
+    urgentActions: normalizeUrgentActions(response.urgent_actions),
+    tasks: normalizeTasks(response.tasks),
   };
 }
 
@@ -422,6 +499,8 @@ function normalizeAgentDashboard(
             ),
             rejected: Math.max(0, toNumber(workSummary.rejected)),
           },
+    urgentActions: normalizeUrgentActions(response.urgent_actions),
+    tasks: normalizeTasks(response.tasks),
   };
 }
 
@@ -575,4 +654,599 @@ export async function getAgentDashboard(
     .json<AgentDashboardApiResponse>();
 
   return normalizeAgentDashboard(response, period);
+}
+
+export interface AgentBadge {
+  slug: string;
+  title: string;
+  level: number;
+  earned: boolean;
+  current_value: number;
+  next_target: number | null;
+  progress: number;
+  thresholds: number[];
+}
+
+export interface AgentBadgesApiResponse {
+  status: boolean;
+  badges: AgentBadge[];
+}
+
+export interface AgentBadgeDetailApiResponse {
+  status: boolean;
+  badge: AgentBadge;
+}
+
+export async function getAgentBadges(): Promise<AgentBadge[]> {
+  const response = await api.get("me/agent/badges").json<AgentBadgesApiResponse>();
+  return response.badges ?? [];
+}
+
+export async function getAgentBadge(slug: string): Promise<AgentBadge | null> {
+  const response = await api.get(`me/agent/badges/${slug}`).json<AgentBadgeDetailApiResponse>();
+  return response.badge ?? null;
+}
+
+export async function getAgentRanking(): Promise<unknown> {
+  return api.get("me/agent/ranking").json();
+}
+
+export async function getAgentRankingProgress(): Promise<unknown> {
+  return api.get("me/agent/ranking/progress").json();
+}
+
+export async function getAgentWorkSummary(): Promise<unknown> {
+  return api.get("me/agent/work-summary").json();
+}
+
+export type DashboardRolePersona = "agency" | "agent" | "agent_in_agency";
+
+export async function getDashboardOverviewByRole(
+  role: DashboardRolePersona,
+  period: DashboardPeriod = "30d",
+): Promise<DashboardOverview> {
+  try {
+    const response = await api
+      .get("dashboard/overview", {
+        searchParams: { period, role },
+      })
+      .json<AgencyDashboardApiResponse & AgentDashboardApiResponse>();
+
+    return role === "agency"
+      ? normalizeAgencyDashboard(response, period)
+      : normalizeAgentDashboard(response, period);
+  } catch {
+    if (role === "agency") {
+      return getAgencyDashboard(period);
+    }
+    return getAgentDashboard(period);
+  }
+}
+
+export async function getDashboardTasks(
+  role: DashboardRolePersona,
+): Promise<{ totalCount: number; items: DashboardTaskItemPayload[] }> {
+  try {
+    const res = await api
+      .get("dashboard/tasks", { searchParams: { role } })
+      .json<{ data?: { total_count?: number; items?: unknown[] } }>();
+    const items = normalizeTasks(res.data?.items);
+    return {
+      totalCount: toNumber(
+        res.data?.total_count,
+        items.reduce((acc, i) => acc + i.count, 0),
+      ),
+      items,
+    };
+  } catch {
+    return { totalCount: 0, items: [] };
+  }
+}
+
+export async function getDashboardUrgentActions(
+  role: DashboardRolePersona,
+): Promise<DashboardUrgentActionItem[]> {
+  try {
+    const res = await api
+      .get("dashboard/urgent-actions", { searchParams: { role } })
+      .json<{ data?: { items?: unknown[] } }>();
+    return normalizeUrgentActions(res.data?.items);
+  } catch {
+    return [];
+  }
+}
+
+export type DashboardRankingBadgeData = {
+  categoryLabel: string;
+  badgeTitle: string;
+  levelSlug: string;
+  currentScore: number;
+  nextLevelScore: number;
+  rank: number;
+  totalCompetitors: number;
+  changeFromLastMonth: number;
+  targetUrl: string;
+};
+
+export async function getDashboardRankingBadge(
+  role: DashboardRolePersona,
+): Promise<DashboardRankingBadgeData | null> {
+  try {
+    const res = await api
+      .get("dashboard/ranking-badge", { searchParams: { role } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    return {
+      categoryLabel: toStringValue(d.category_label, role === "agency" ? "سطح آژانس" : "سطح مشاور"),
+      badgeTitle: toStringValue(d.badge_title, "تازه‌کار"),
+      levelSlug: toStringValue(d.level_slug, "newbie"),
+      currentScore: toNumber(d.current_score, 0),
+      nextLevelScore: toNumber(d.next_level_score, 0),
+      rank: toNumber(d.rank, 0),
+      totalCompetitors: toNumber(d.total_competitors, 0),
+      changeFromLastMonth: toNumber(d.change_from_last_month, 0),
+      targetUrl: toStringValue(d.target_url, role === "agency" ? "/account/dashboard/ranking" : "/account/ranking"),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type DashboardCreditsData = {
+  balances: {
+    adCreditBalance: number;
+    renewCreditBalance: number;
+    specialCreditBalance: number;
+    panelDaysRemaining: number;
+    unassignedAdCreditBalance?: number;
+    walletBalance?: number;
+  };
+  balanceDeltas: {
+    adCreditUsed: DashboardBalanceDelta;
+    renewCreditUsed: DashboardBalanceDelta;
+    specialCreditUsed: DashboardBalanceDelta;
+  };
+};
+
+export async function getDashboardCredits(
+  role: DashboardRolePersona,
+): Promise<DashboardCreditsData | null> {
+  try {
+    const res = await api
+      .get("dashboard/credits", { searchParams: { role } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    const rawBalances = asRecord(d.balances);
+    const rawDeltas = asRecord(d.balance_deltas);
+    return {
+      balances: {
+        adCreditBalance: toNumber(rawBalances.ad_credit_balance, 0),
+        renewCreditBalance: toNumber(rawBalances.renew_credit_balance, 0),
+        specialCreditBalance: toNumber(rawBalances.special_credit_balance, 0),
+        panelDaysRemaining: toNumber(rawBalances.panel_days_remaining, 0),
+        unassignedAdCreditBalance: toNumberOrUndefined(rawBalances.unassigned_ad_credit_balance),
+        walletBalance: toNumberOrUndefined(rawBalances.wallet_balance),
+      },
+      balanceDeltas: {
+        adCreditUsed: normalizeBalanceDelta(rawDeltas.ad_credit_used),
+        renewCreditUsed: normalizeBalanceDelta(rawDeltas.renew_credit_used),
+        specialCreditUsed: normalizeBalanceDelta(rawDeltas.special_credit_used),
+      },
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type DashboardNotificationWidgetData = {
+  unreadCount: number;
+  latest: {
+    id: string;
+    title: string;
+    message: string;
+    createdAt: string;
+    isRead: boolean;
+  } | null;
+  items: Array<{
+    id: string;
+    title: string;
+    message: string;
+    createdAt: string;
+    isRead: boolean;
+  }>;
+};
+
+export async function getDashboardNotifications(
+  role: DashboardRolePersona,
+): Promise<DashboardNotificationWidgetData | null> {
+  try {
+    const res = await api
+      .get("dashboard/notifications", { searchParams: { role } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    const rawLatest = asRecord(d.latest);
+    const rawItems = Array.isArray(d.items) ? d.items : [];
+    return {
+      unreadCount: toNumber(d.unread_count, 0),
+      latest: d.latest
+        ? {
+            id: toStringValue(rawLatest.id),
+            title: toStringValue(rawLatest.title),
+            message: toStringValue(rawLatest.message),
+            createdAt: toStringValue(rawLatest.created_at),
+            isRead: Boolean(rawLatest.is_read),
+          }
+        : null,
+      items: rawItems.map((item) => {
+        const rec = asRecord(item);
+        return {
+          id: toStringValue(rec.id),
+          title: toStringValue(rec.title),
+          message: toStringValue(rec.message),
+          createdAt: toStringValue(rec.created_at),
+          isRead: Boolean(rec.is_read),
+        };
+      }),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type DashboardReportsTeaserData = {
+  totalViews: number;
+  viewsDeltaPercent: number;
+  sparklineData: number[];
+  publishedAdsCount: number;
+  conversionRate: number;
+};
+
+export async function getDashboardReportsTeaser(
+  role: DashboardRolePersona,
+  period = "30d",
+): Promise<DashboardReportsTeaserData | null> {
+  try {
+    const res = await api
+      .get("dashboard/reports-teaser", { searchParams: { role, period } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    return {
+      totalViews: toNumber(d.total_views, 0),
+      viewsDeltaPercent: toNumber(d.views_delta_percent, 0),
+      sparklineData: Array.isArray(d.sparkline_data) ? d.sparkline_data.map((n) => toNumber(n, 0)) : [],
+      publishedAdsCount: toNumber(d.published_ads_count, 0),
+      conversionRate: toNumber(d.conversion_rate, 0),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type DashboardRecentAdItem = {
+  id: string;
+  title: string;
+  coverImage?: string;
+  cityTitle?: string;
+  districtTitle?: string;
+  categoryTitle?: string;
+  dealType?: string;
+  depositAmount?: number;
+  rentAmount?: number;
+  status: string;
+  assignmentStatus?: string;
+  statusCode?: number;
+  viewsCount?: number;
+  publishedAt?: string;
+  confirmDate?: string;
+  expireDate?: string;
+};
+
+export async function getDashboardRecentAds(
+  role: DashboardRolePersona,
+  limit = 5,
+): Promise<DashboardRecentAdItem[]> {
+  try {
+    const res = await api
+      .get("dashboard/recent-ads", { searchParams: { role, limit } })
+      .json<{ data?: { items?: unknown[] } }>();
+    const items = Array.isArray(res.data?.items) ? res.data!.items : [];
+    return items.map((raw) => {
+      const rec = asRecord(raw);
+      return {
+        id: toStringValue(rec.id),
+        title: toStringValue(rec.title),
+        coverImage: rec.cover_image ? String(rec.cover_image) : undefined,
+        cityTitle: rec.city_title ? String(rec.city_title) : undefined,
+        districtTitle: rec.district_title ? String(rec.district_title) : undefined,
+        categoryTitle: rec.category_title ? String(rec.category_title) : undefined,
+        dealType: rec.deal_type ? String(rec.deal_type) : undefined,
+        depositAmount: toNumberOrUndefined(rec.deposit_amount),
+        rentAmount: toNumberOrUndefined(rec.rent_amount),
+        status: toStringValue(rec.status, "active"),
+        assignmentStatus: rec.assignment_status ? String(rec.assignment_status) : undefined,
+        statusCode: toNumberOrUndefined(rec.status_code),
+        viewsCount: toNumberOrUndefined(rec.views_count),
+        publishedAt: rec.published_at ? String(rec.published_at) : undefined,
+        confirmDate: rec.confirm_date ? String(rec.confirm_date) : undefined,
+        expireDate: rec.expire_date ? String(rec.expire_date) : undefined,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+// -------------------------------------------------------------
+// Reports & Analytics Endpoints (dashboard-reports-charts-api-contract.md)
+// -------------------------------------------------------------
+
+export type DashboardReportPublishedAdsData = {
+  total: number;
+  period: string;
+  periodLabel: string;
+  breakdown: Array<{
+    categoryId?: string | null;
+    type: string;
+    label: string;
+    count: number;
+    percent: number;
+  }>;
+};
+
+export async function getDashboardReportsPublishedAds(
+  role: DashboardRolePersona,
+  period = "month",
+): Promise<DashboardReportPublishedAdsData | null> {
+  try {
+    const res = await api
+      .get("dashboard/reports/published-ads", { searchParams: { role, period } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    const rawBreakdown = Array.isArray(d.breakdown) ? d.breakdown : [];
+    return {
+      total: toNumber(d.total, 0),
+      period: toStringValue(d.period, period),
+      periodLabel: toStringValue(d.period_label, period === "year" ? "امسال" : "این ماه"),
+      breakdown: rawBreakdown.map((item) => {
+        const rec = asRecord(item);
+        return {
+          categoryId: rec.category_id ? String(rec.category_id) : null,
+          type: toStringValue(rec.type),
+          label: toStringValue(rec.label),
+          count: toNumber(rec.count, 0),
+          percent: toNumber(rec.percent, 0),
+        };
+      }),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type DashboardReportViewsData = {
+  period: string;
+  totalViews: number;
+  deltaPercent: number;
+  trend: "up" | "down";
+  trendLabel: string;
+  items: Array<{ label: string; views: number }>;
+};
+
+export async function getDashboardReportsViews(
+  role: DashboardRolePersona,
+  period = "year",
+): Promise<DashboardReportViewsData | null> {
+  try {
+    const res = await api
+      .get("dashboard/reports/views", { searchParams: { role, period } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    const rawItems = Array.isArray(d.items) ? d.items : [];
+    return {
+      period: toStringValue(d.period, period),
+      totalViews: toNumber(d.total_views, 0),
+      deltaPercent: toNumber(d.delta_percent, 0),
+      trend: d.trend === "up" ? "up" : "down",
+      trendLabel: toStringValue(d.trend_label),
+      items: rawItems.map((item) => {
+        const rec = asRecord(item);
+        return {
+          label: toStringValue(rec.label),
+          views: toNumber(rec.views, 0),
+        };
+      }),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type DashboardReportConsultantsActivityData = {
+  period: string;
+  totalAds: number;
+  items: Array<{
+    consultantId: string;
+    name: string;
+    ads: number;
+    updates: number;
+    specials: number;
+  }>;
+};
+
+export async function getDashboardReportsConsultantsActivity(
+  period = "month",
+): Promise<DashboardReportConsultantsActivityData | null> {
+  try {
+    const res = await api
+      .get("dashboard/reports/consultants-activity", { searchParams: { role: "agency", period } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    const rawItems = Array.isArray(d.items) ? d.items : [];
+    return {
+      period: toStringValue(d.period, period),
+      totalAds: toNumber(d.total_ads, 0),
+      items: rawItems.map((item) => {
+        const rec = asRecord(item);
+        return {
+          consultantId: toStringValue(rec.consultant_id),
+          name: toStringValue(rec.name),
+          ads: toNumber(rec.ads, 0),
+          updates: toNumber(rec.updates, 0),
+          specials: toNumber(rec.specials, 0),
+        };
+      }),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type DashboardReportRegistrationProgressData = {
+  period: string;
+  totalCount: number;
+  deltaPercent: number;
+  trend: "up" | "down";
+  trendLabel: string;
+  items: Array<{ label: string; count: number }>;
+};
+
+export async function getDashboardReportsRegistrationProgress(
+  role: DashboardRolePersona,
+  period = "month",
+): Promise<DashboardReportRegistrationProgressData | null> {
+  try {
+    const res = await api
+      .get("dashboard/reports/registration-progress", { searchParams: { role, period } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    const rawItems = Array.isArray(d.items) ? d.items : [];
+    return {
+      period: toStringValue(d.period, period),
+      totalCount: toNumber(d.total_count, 0),
+      deltaPercent: toNumber(d.delta_percent, 0),
+      trend: d.trend === "up" ? "up" : "down",
+      trendLabel: toStringValue(d.trend_label),
+      items: rawItems.map((item) => {
+        const rec = asRecord(item);
+        return {
+          label: toStringValue(rec.label),
+          count: toNumber(rec.count, 0),
+        };
+      }),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type DashboardReportConversionFunnelStage = {
+  id: string;
+  label: string;
+  count: number;
+  percentage: number;
+  badgeText: string;
+};
+
+export type DashboardReportConversionFunnelData = {
+  period: string;
+  stages: DashboardReportConversionFunnelStage[];
+};
+
+export async function getDashboardReportsConversionFunnel(
+  role: DashboardRolePersona,
+  period = "30d",
+): Promise<DashboardReportConversionFunnelData | null> {
+  try {
+    const res = await api
+      .get("dashboard/reports/conversion-funnel", { searchParams: { role, period } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    const rawStages = Array.isArray(d.stages) ? d.stages : [];
+    return {
+      period: toStringValue(d.period, period),
+      stages: rawStages.map((st) => {
+        const rec = asRecord(st);
+        return {
+          id: toStringValue(rec.id),
+          label: toStringValue(rec.label),
+          count: toNumber(rec.count, 0),
+          percentage: toNumber(rec.percentage, 0),
+          badgeText: toStringValue(rec.badge_text, `${toNumber(rec.percentage, 0)}%`),
+        };
+      }),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type DashboardReportRankingScoreData = {
+  rank: number;
+  rankChangeLastMonth: number;
+  rankChangeDirection: "up" | "down";
+  score: number;
+  levelTitle: string;
+  levelSlug: string;
+  thresholdLabel: string;
+  pointsNeeded: number;
+  targetRank: number;
+  guideUrl: string;
+};
+
+export async function getDashboardReportsRankingScore(
+  role: DashboardRolePersona,
+): Promise<DashboardReportRankingScoreData | null> {
+  try {
+    const res = await api
+      .get("dashboard/reports/ranking-score", { searchParams: { role } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    return {
+      rank: toNumber(d.rank, 0),
+      rankChangeLastMonth: toNumber(d.rank_change_last_month, 0),
+      rankChangeDirection: d.rank_change_direction === "down" ? "down" : "up",
+      score: toNumber(d.score, 0),
+      levelTitle: toStringValue(d.level_title),
+      levelSlug: toStringValue(d.level_slug),
+      thresholdLabel: toStringValue(d.threshold_label),
+      pointsNeeded: toNumber(d.points_needed, 0),
+      targetRank: toNumber(d.target_rank, 0),
+      guideUrl: toStringValue(d.guide_url, role === "agency" ? "/account/dashboard/ranking" : "/account/ranking"),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export type DashboardReportsOverviewData = {
+  period: string;
+  publishedAds?: DashboardReportPublishedAdsData;
+  views?: DashboardReportViewsData;
+  consultantsActivity?: DashboardReportConsultantsActivityData;
+  registrationProgress?: DashboardReportRegistrationProgressData;
+  conversionFunnel?: DashboardReportConversionFunnelData;
+  rankingScore?: DashboardReportRankingScoreData;
+};
+
+export async function getDashboardReportsOverview(
+  role: DashboardRolePersona,
+  period = "month",
+): Promise<DashboardReportsOverviewData | null> {
+  try {
+    const res = await api
+      .get("dashboard/reports/overview", { searchParams: { role, period } })
+      .json<{ data?: RawRecord }>();
+    const d = res.data ?? {};
+    return {
+      period: toStringValue(d.period, period),
+      publishedAds: d.published_ads ? (d.published_ads as any) : undefined,
+      views: d.views ? (d.views as any) : undefined,
+      consultantsActivity: d.consultants_activity ? (d.consultants_activity as any) : undefined,
+      registrationProgress: d.registration_progress ? (d.registration_progress as any) : undefined,
+      conversionFunnel: d.conversion_funnel ? (d.conversion_funnel as any) : undefined,
+      rankingScore: d.ranking_score ? (d.ranking_score as any) : undefined,
+    };
+  } catch {
+    return null;
+  }
 }

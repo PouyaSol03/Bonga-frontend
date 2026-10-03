@@ -24,7 +24,17 @@ import { formatStopPublishReason } from "../advertisements/api/agency-advertise-
 import { useAgencyConsultantsQuery, useAgencyInfiniteQuery, usePublicAgencyDetailQuery } from "../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
-import { REAL_ESTATE_MANAGER, USER } from "../../shared/constants/roles.constants";
+import {
+  REAL_ESTATE_MANAGER,
+  REAL_ESTATE_CONSULTANT,
+  INDEPENDENT_CONSULTANT,
+  USER,
+} from "../../shared/constants/roles.constants";
+import {
+  ViewAdBusinessTabs,
+  type ViewAdBusinessTabKey,
+} from "../advertisements/view/components/ViewAdBusinessTabs";
+import { ViewAdLeadsSection } from "../advertisements/view/components/ViewAdLeadsSection";
 import "../advertisements/components/AdCard.css";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
@@ -214,7 +224,11 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     return null;
   }
 
-  if (activeRole === REAL_ESTATE_MANAGER) {
+  if (
+    activeRole === REAL_ESTATE_MANAGER ||
+    activeRole === REAL_ESTATE_CONSULTANT ||
+    activeRole === INDEPENDENT_CONSULTANT
+  ) {
     return (
       <RealEstateManagerAdStatePage
         ad={sourceAd}
@@ -607,6 +621,7 @@ function RealEstateManagerAdStatePage({
     }
     return publisherOptions[0];
   }, [publisherId, assignedConsultantId, publisherOptions, consultantsQuery.data?.data]);
+  const [businessTab, setBusinessTab] = useState<ViewAdBusinessTabKey>("management");
   const [isPublisherPickerOpen, setIsPublisherPickerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -756,46 +771,106 @@ function RealEstateManagerAdStatePage({
 
         <div className="h-2 bg-surface-container" aria-hidden="true" />
 
-        <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="مسئول آگهی">
-          <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-on-surface">مسئول آگهی (مشاور مسئول)</Typography>
-          <div className="mt-3">
-            <div className="flex items-center bg-surface rounded-xl p-3 justify-end gap-3 [direction:rtl]">
-              {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface-container text-outline"><LinearUserSolid className="h-6 w-6" /></div>}
-              <div className="flex-1 flex gap-1 flex-col justify-center text-right">
-                <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-on-surface-var">{publisher?.name ?? "مسئول آگهی مشخص نیست"}</Typography>
-                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-outline">
-                  {publisher ? (publisher.type === "agency" ? "مدیریت آژانس" : "مشاور مسئول") : "—"}
+        <ViewAdBusinessTabs
+          activeTab={businessTab}
+          adId={adId}
+          onTabChange={setBusinessTab}
+        />
+
+        {businessTab === "lead" ? (
+          <ViewAdLeadsSection />
+        ) : businessTab === "performance" ? (
+          <section className="bg-surface-container-lowest p-4 text-right [direction:rtl]">
+            <div className="flex items-center justify-between pb-3 border-b border-outline-variant">
+              <Typography as="h3" variant="title" size="medium" weight="semibold" className="text-on-surface">
+                آمار و عملکرد آگهی
+              </Typography>
+              <RouteLink
+                to={`/account/my-ads/${encodeURIComponent(String(adId))}/visit-statistics`}
+                className="text-xs font-semibold text-primary no-underline hover:underline"
+              >
+                گزارش تفصیلی
+              </RouteLink>
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-xl bg-surface-container p-3">
+                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs text-on-surface-variant block">
+                  بازدید کل
+                </Typography>
+                <Typography as="span" variant="title" size="medium" weight="semibold" className="mt-1 text-base text-on-surface block">
+                  {toPersianDigits((ad as any)?.view_count ?? (ad as any)?.views ?? 0)}
+                </Typography>
+              </div>
+              <div className="rounded-xl bg-surface-container p-3">
+                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs text-on-surface-variant block">
+                  تماس‌ها
+                </Typography>
+                <Typography as="span" variant="title" size="medium" weight="semibold" className="mt-1 text-base text-on-surface block">
+                  {toPersianDigits((ad as any)?.call_count ?? (ad as any)?.calls ?? 0)}
+                </Typography>
+              </div>
+              <div className="rounded-xl bg-surface-container p-3">
+                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs text-on-surface-variant block">
+                  نشان‌شده
+                </Typography>
+                <Typography as="span" variant="title" size="medium" weight="semibold" className="mt-1 text-base text-on-surface block">
+                  {toPersianDigits((ad as any)?.save_count ?? (ad as any)?.bookmarks ?? 0)}
                 </Typography>
               </div>
             </div>
-
-            <Button unstyled
-              className="mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium text-primary active:bg-primary-container"
-              onClick={() => setIsPublisherPickerOpen(true)}
-              type="button"
-            >
-              تغییر مشاور مسئول
-              <ChevronLeftIcon className="h-5 w-5" />
-            </Button>
-          </div>
-        </section>
-
-        <div className="h-2 bg-surface-container" aria-hidden="true" />
-
-        <section className="min-h-[244px] bg-surface-container-lowest" aria-label="عملیات آگهی">
-          {managerActions.map((action, index) => (
-            <div key={action.label}>
-              <StateAdAction
-                action={action}
-                ad={ad}
-                card={card}
-                deleteCompleteTo={backTo}
-                returnTo={backTo}
-              />
-              {index < managerActions.length - 1 ? <ActionDivider /> : null}
+            <div className="mt-4">
+              <RouteLink
+                to={`/account/my-ads/${encodeURIComponent(String(adId))}/visit-statistics`}
+                className="flex h-10 w-full items-center justify-center rounded-xl bg-primary/10 text-xs font-semibold text-primary no-underline transition hover:bg-primary/20"
+              >
+                مشاهده نمودارها و آمار کامل
+              </RouteLink>
             </div>
-          ))}
-        </section>
+          </section>
+        ) : (
+          <>
+            <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="مسئول آگهی">
+              <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-on-surface">مسئول آگهی (مشاور مسئول)</Typography>
+              <div className="mt-3">
+                <div className="flex items-center bg-surface rounded-xl p-3 justify-end gap-3 [direction:rtl]">
+                  {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface-container text-outline"><LinearUserSolid className="h-6 w-6" /></div>}
+                  <div className="flex-1 flex gap-1 flex-col justify-center text-right">
+                    <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-on-surface-var">{publisher?.name ?? "مسئول آگهی مشخص نیست"}</Typography>
+                    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-outline">
+                      {publisher ? (publisher.type === "agency" ? "مدیریت آژانس" : "مشاور مسئول") : "—"}
+                    </Typography>
+                  </div>
+                </div>
+
+                <Button unstyled
+                  className="mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium text-primary active:bg-primary-container"
+                  onClick={() => setIsPublisherPickerOpen(true)}
+                  type="button"
+                >
+                  تغییر مشاور مسئول
+                  <ChevronLeftIcon className="h-5 w-5" />
+                </Button>
+              </div>
+            </section>
+
+            <div className="h-2 bg-surface-container" aria-hidden="true" />
+
+            <section className="min-h-[244px] bg-surface-container-lowest" aria-label="عملیات آگهی">
+              {managerActions.map((action, index) => (
+                <div key={action.label}>
+                  <StateAdAction
+                    action={action}
+                    ad={ad}
+                    card={card}
+                    deleteCompleteTo={backTo}
+                    returnTo={backTo}
+                  />
+                  {index < managerActions.length - 1 ? <ActionDivider /> : null}
+                </div>
+              ))}
+            </section>
+          </>
+        )}
       </main>
 
       {isPublisherPickerOpen ? (
@@ -885,7 +960,7 @@ function getManagerActions(
     return [preview, edit, result, remove, upgrade, history];
   }
   if (status === "wait_for_stop" || status === "wait_for_deal_confirmation") {
-    return [preview, remove, history];
+    return [preview, edit, remove, history];
   }
   if (status === "wait_for_payment") {
     return [preview, edit, payment, remove, history];
@@ -894,12 +969,12 @@ function getManagerActions(
     return [preview, edit, payment, remove, history];
   }
   if (status === "pending") {
-    return [preview, remove, history];
+    return [preview, edit, remove, history];
   }
   if (status === "expired") {
     return [preview, result, remove, history];
   }
-  return [preview, history];
+  return [preview, edit, history];
 }
 
 function ManagerAdSummary({
@@ -1324,12 +1399,12 @@ function getStateActions(
 
   if (status === "published") {
     if (isAssigned) {
-      return [preview, stopPublish, callAgency, chatAgency, history];
+      return [preview, edit, stopPublish, callAgency, chatAgency, history];
     }
     return [preview, edit, remove, upgrade, stats, history];
   }
-  if (status === "wait_for_agency") return [preview, callAgency, chatAgency, history];
-  if (status === "wait_for_stop") return [preview, callAgency, chatAgency, history];
+  if (status === "wait_for_agency") return [preview, edit, callAgency, chatAgency, history];
+  if (status === "wait_for_stop") return [preview, edit, callAgency, chatAgency, history];
   if (status === "wait_for_deal_confirmation") return [preview, history];
   if (status === "wait_for_repost" || status === "rejected_by_agency") return [preview, remove, history];
   if (status === "archived") return [preview, remove];

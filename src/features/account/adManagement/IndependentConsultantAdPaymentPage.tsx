@@ -308,38 +308,47 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     hasAgencyAllocationCheckoutMarker(advertiseId);
   const isNewAdCheckout =
     routeState.paymentFlow === "new-ad" || hasNewAdCheckoutMarker(advertiseId);
-  const isConsultantAssignedCheckout =
-    activeRole === REAL_ESTATE_CONSULTANT &&
-    !isNewAdCheckout &&
-    !isAgencyAllocationCheckout;
+
+  const isAgencyCheckout =
+    activeRole === REAL_ESTATE_MANAGER ||
+    routeState.publisherType === "agency" ||
+    routeState.isAgencyPublisher === true ||
+    isAgencyAllocationCheckout;
+
+  const isConsultantCheckout =
+    !isAgencyCheckout &&
+    (activeRole === REAL_ESTATE_CONSULTANT ||
+      routeState.publisherType === "agent" ||
+      routeState.publisherType === "consultant");
+
+  const isConsultantAssignedCheckout = isConsultantCheckout;
   const usesAgencyCheckoutOptions =
     isBusinessRole ||
-    isAgencyAllocationCheckout ||
-    routeState.publisherType === "agency";
-  const combineCheckoutSteps = isBusinessRole;
+    isAgencyCheckout;
+  const combineCheckoutSteps = isBusinessRole || isAgencyCheckout;
   const personalCheckoutQuery = useAdvertisementCheckoutQuery(
     advertiseId,
-    !isAgencyAllocationCheckout && !isConsultantAssignedCheckout,
+    !isAgencyCheckout && !isConsultantCheckout,
   );
   const agencyCheckoutQuery = useAgencyAdvertisementCheckoutQuery(
     advertiseId,
-    isAgencyAllocationCheckout,
+    isAgencyCheckout,
   );
   const consultantCheckoutQuery = useConsultantAdvertisementCheckoutQuery(
     advertiseId,
-    isConsultantAssignedCheckout,
+    isConsultantCheckout,
   );
   const personalCheckoutMutation = useSubmitAdvertisementCheckoutMutation();
   const agencyCheckoutMutation = useSubmitAgencyAdvertisementCheckoutMutation();
   const consultantCheckoutMutation = useSubmitConsultantAdvertisementCheckoutMutation();
-  const checkoutQuery = isAgencyAllocationCheckout
+  const checkoutQuery = isAgencyCheckout
     ? agencyCheckoutQuery
-    : isConsultantAssignedCheckout
+    : isConsultantCheckout
       ? consultantCheckoutQuery
       : personalCheckoutQuery;
-  const checkoutPending = isAgencyAllocationCheckout
+  const checkoutPending = isAgencyCheckout
     ? agencyCheckoutMutation.isPending
-    : isConsultantAssignedCheckout
+    : isConsultantCheckout
       ? consultantCheckoutMutation.isPending
       : personalCheckoutMutation.isPending;
   const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
@@ -436,20 +445,31 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     };
   }, [checkout, rawWalletMethod, userWalletBalance]);
   const gatewayMethod = checkout ? getCheckoutMethod(checkout, "gateway") : undefined;
-  const byConsultantMethod = checkout
-    ? getCheckoutMethod(checkout, "by_consultant") ?? getCheckoutMethod(checkout, "consultant")
-    : undefined;
+  const targetConsultantId =
+    routeState.consultantId ||
+    (routeState.ad as Record<string, unknown> | undefined)?.consultant_id ||
+    (routeState.ad as Record<string, unknown> | undefined)?.assigned_consultant_id ||
+    (checkout as Record<string, unknown> | undefined)?.consultant_id;
+
   const showByConsultant = Boolean(
     combineCheckoutSteps &&
-    isAgencyAllocationCheckout &&
-    routeState.publisherType === "consultant" &&
-    routeState.consultantId,
+    isAgencyCheckout &&
+    (routeState.publisherType === "consultant" || Boolean(targetConsultantId)) &&
+    Boolean(targetConsultantId),
   );
+
+  const rawByConsultantMethod = checkout
+    ? getCheckoutMethod(checkout, "by_consultant") ?? getCheckoutMethod(checkout, "consultant")
+    : undefined;
+  const byConsultantMethod =
+    rawByConsultantMethod ??
+    (showByConsultant ? { method: "by_consultant", available: true } : undefined);
+
   const packageCreditMethod: AdvertisementCheckoutPaymentMethod | undefined = useMemo(() => {
     const fromCheckout = checkout
       ? getCheckoutMethod(
           checkout,
-          isAgencyAllocationCheckout ? "ad_credit" : "package_credit",
+          isAgencyCheckout ? "ad_credit" : "package_credit",
         ) ?? getCheckoutMethod(checkout, "ad_credit")
       : undefined;
 
@@ -716,13 +736,13 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       },
     };
 
-    if (isAgencyAllocationCheckout) {
+    if (isAgencyCheckout) {
       agencyCheckoutMutation.mutate(
         {
           advertiseId,
           consultantId:
-            paymentMethod === "by_consultant" && routeState.consultantId
-              ? String(routeState.consultantId)
+            paymentMethod === "by_consultant"
+              ? String(targetConsultantId || routeState.consultantId || "")
               : undefined,
           discount_code: appliedDiscount?.code,
           items: Array.from(new Set([...checkoutItems, ...extraItems])),
@@ -733,7 +753,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       return;
     }
 
-    if (isConsultantAssignedCheckout) {
+    if (isConsultantCheckout) {
       consultantCheckoutMutation.mutate(
         {
           advertiseId,

@@ -17,9 +17,14 @@ import { RadioIndicator } from "../../../shared/components/RadioIndicator";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import { pushRoute } from "../../../shared/navigation/navigation";
-import { getAdPaymentPath, getAdPreviewPath } from "../adManagement/adManagementData";
+import {
+  getAdEditPath,
+  getAdPaymentPath,
+  getAdPreviewPath,
+} from "../adManagement/adManagementData";
 
 import LinearPreview from "../../../shared/icons/LinearPreview";
+import LinearEdit2 from "../../../shared/icons/LinearEdit2";
 import LinearCancel from "../../../shared/icons/LinearCancel";
 import LinearClock from "../../../shared/icons/LinearClock";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
@@ -523,6 +528,26 @@ export function AgencyAssignedUserAdView({
             </div>
             <LinearArrowLeft1 className="h-6 w-6 text-outline" />
           </button>
+
+          {/* Action: ویرایش */}
+          {!isDeleted && (
+            <button
+              type="button"
+              onClick={() => {
+                if (!currentAdId) return;
+                pushRoute(getAdEditPath(currentAdId));
+              }}
+              className="flex h-14 w-full items-center justify-between text-right transition-colors active:bg-surface-container-low [direction:rtl]"
+            >
+              <div className="flex items-center gap-3">
+                <LinearEdit2 className="h-6 w-6 text-on-surface-var" />
+                <Typography variant="label" size="large" weight="medium" className="text-on-surface">
+                  ویرایش
+                </Typography>
+              </div>
+              <LinearArrowLeft1 className="h-6 w-6 text-outline" />
+            </button>
+          )}
 
           {/* Action 2 for Published: درخواست توقف انتشار (Navigates to separate page) */}
           {isPublished && (

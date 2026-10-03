@@ -35,13 +35,23 @@ import {
   ViewAdTopBar,
 } from "./viewAdComponents";
 import { ViewAdIcon } from "./ViewAdIcon";
+import LinearCall from "../../../shared/icons/LinearCall";
 import type { IconName, ViewAdDailyHotelRoom, ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
 import TonalInstagram from "../../../shared/icons/TonalInstagram";
 import TonalTelegram from "../../../shared/icons/TonalTelegram";
 import TonalWhatsapp from "../../../shared/icons/TonalWhatsapp";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
-import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
+import {
+  REAL_ESTATE_MANAGER,
+  REAL_ESTATE_CONSULTANT,
+  INDEPENDENT_CONSULTANT,
+} from "../../../shared/constants/roles.constants";
+import {
+  ViewAdBusinessTabs,
+  type ViewAdBusinessTabKey,
+} from "./components/ViewAdBusinessTabs";
+import { ViewAdLeadsSection } from "./components/ViewAdLeadsSection";
 import { pushRoute } from "../../../shared/navigation/navigation";
 import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
 import type { ChatThread } from "../../chat/api/chat.service";
@@ -61,7 +71,7 @@ import {
   type AdvertiserPreview,
   type AlbumMediaItem,
 } from "./viewAdDetails";
-import { isAgencyAuthRole, shouldUseAgencyAllocationPreview } from "./viewAdPreviewContext";
+import { shouldUseAgencyAllocationPreview } from "./viewAdPreviewContext";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "./ViewAdRouteStates";
 import { ViewAdAlbumPage } from "./pages/ViewAdAlbumPage";
 import { ViewAdFeedbackPage } from "./pages/ViewAdFeedbackPage";
@@ -1087,6 +1097,7 @@ function ViewAdContent({
   mediaItems,
   mapPosition,
   onOpenAlbum,
+  onOpenOwnerContactSheet,
   onRowAction,
   tour3dUrl,
 }: {
@@ -1099,9 +1110,17 @@ function ViewAdContent({
   mediaItems: AlbumMediaItem[];
   mapPosition: { latitude: number; longitude: number } | null;
   onOpenAlbum: (initialIndex?: number) => void;
+  onOpenOwnerContactSheet?: () => void;
   onRowAction: (label: string) => void;
   tour3dUrl: string;
 }) {
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const isBusinessUser =
+    activeRole === REAL_ESTATE_MANAGER ||
+    activeRole === REAL_ESTATE_CONSULTANT ||
+    activeRole === INDEPENDENT_CONSULTANT;
+  const [businessTab, setBusinessTab] = useState<ViewAdBusinessTabKey>("management");
+
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isDescriptionOverflowing, setIsDescriptionOverflowing] =
     useState(false);
@@ -1111,6 +1130,42 @@ function ViewAdContent({
     (item) => !(item.label.includes("رتبه") || item.icon === "star"),
   );
   const FACILITIES_COLLAPSED_MAX_ITEMS = 4; // show the first four facilities, then expand inline
+
+  const ownerName =
+    (typeof ad?.owner_contact_name === "string" && ad.owner_contact_name) ||
+    (typeof ad?.owner_name === "string" && ad.owner_name) ||
+    (typeof (ad as any)?.user_fullname === "string" && (ad as any).user_fullname) ||
+    (Array.isArray(ad?.features)
+      ? String(
+          ad.features.find(
+            (f: any) => f?.label === "owner_contact_name" || f?.label === "owner_name",
+          )?.value ?? "",
+        )
+      : "") ||
+    "";
+
+  const ownerPhone =
+    (typeof ad?.owner_contact_phone === "string" && ad.owner_contact_phone) ||
+    (typeof (ad as any)?.owner_phone === "string" && (ad as any).owner_phone) ||
+    (Array.isArray(ad?.features)
+      ? String(
+          ad.features.find((f: any) => f?.label === "owner_contact_phone")?.value ?? "",
+        )
+      : "") ||
+    "";
+
+  const ownerAddress =
+    (typeof ad?.owner_contact_address === "string" && ad.owner_contact_address) ||
+    (typeof ad?.owner_address === "string" && ad.owner_address) ||
+    (typeof (ad as any)?.user_address === "string" && (ad as any).user_address) ||
+    (Array.isArray(ad?.features)
+      ? String(
+          ad.features.find(
+            (f: any) => f?.label === "owner_contact_address" || f?.label === "owner_address",
+          )?.value ?? "",
+        )
+      : "") ||
+    "";
   const visibleFacilityCount = areFacilitiesExpanded
     ? details.features.length
     : FACILITIES_COLLAPSED_MAX_ITEMS;
@@ -1295,7 +1350,125 @@ function ViewAdContent({
         </>
       )}
 
-      {advertiserPreview ? <AdvertiserCard preview={advertiserPreview} /> : null}
+      {isPreview ? (
+        <DetailSection icon="profile" title="اطلاعات و تماس با مالک">
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between rounded-xl bg-surface-container-low px-4 py-3">
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-variant">
+                نام مالک
+              </Typography>
+              <Typography as="span" variant="body" size="medium" weight="medium" className="text-on-surface">
+                {ownerName || "ثبت نشده"}
+              </Typography>
+            </div>
+
+            <div className="flex items-center justify-between rounded-xl bg-surface-container-low px-4 py-3">
+              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-variant">
+                شماره تماس مالک
+              </Typography>
+              {ownerPhone ? (
+                <a
+                  href={`tel:${ownerPhone}`}
+                  className="flex items-center gap-1.5 font-mono text-primary font-medium hover:underline [direction:ltr]"
+                >
+                  <LinearCall className="h-4 w-4" />
+                  <span>{ownerPhone}</span>
+                </a>
+              ) : (
+                <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">
+                  ثبت نشده
+                </Typography>
+              )}
+            </div>
+
+            {ownerAddress ? (
+              <div className="rounded-xl bg-surface-container-low px-4 py-3">
+                <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-variant block mb-1">
+                  آدرس دقیق ملک
+                </Typography>
+                <Typography as="p" variant="body" size="medium" weight="regular" className="text-on-surface">
+                  {ownerAddress}
+                </Typography>
+              </div>
+            ) : null}
+
+            {onOpenOwnerContactSheet ? (
+              <div className="pt-1">
+                <Button
+                  unstyled
+                  type="button"
+                  onClick={onOpenOwnerContactSheet}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/40 bg-primary/5 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
+                >
+                  <span>ویرایش اطلاعات و تماس با مالک</span>
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        </DetailSection>
+      ) : null}
+
+      {isBusinessUser && (
+        <ViewAdBusinessTabs
+          activeTab={businessTab}
+          adId={adId}
+          onTabChange={setBusinessTab}
+        />
+      )}
+
+      {isBusinessUser && businessTab === "lead" ? (
+        <ViewAdLeadsSection />
+      ) : isBusinessUser && businessTab === "performance" ? (
+        <section className="border-t-8 border-surface-container bg-surface-container-lowest p-4 text-right [direction:rtl]">
+          <div className="flex items-center justify-between pb-3 border-b border-outline-variant">
+            <Typography as="h3" variant="title" size="medium" weight="semibold" className="text-on-surface">
+              آمار و عملکرد آگهی
+            </Typography>
+            <RouteLink
+              to={`/account/my-ads/${encodeURIComponent(String(adId))}/visit-statistics`}
+              className="text-xs font-semibold text-primary no-underline hover:underline"
+            >
+              گزارش تفصیلی
+            </RouteLink>
+          </div>
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-xl bg-surface-container p-3">
+              <Typography as="span" variant="label" size="small" weight="medium" className="text-xs text-on-surface-variant block">
+                بازدید کل
+              </Typography>
+              <Typography as="span" variant="title" size="medium" weight="semibold" className="mt-1 text-base text-on-surface block">
+                {toPersianDigits((ad as any)?.view_count ?? (ad as any)?.views ?? 0)}
+              </Typography>
+            </div>
+            <div className="rounded-xl bg-surface-container p-3">
+              <Typography as="span" variant="label" size="small" weight="medium" className="text-xs text-on-surface-variant block">
+                تماس‌ها
+              </Typography>
+              <Typography as="span" variant="title" size="medium" weight="semibold" className="mt-1 text-base text-on-surface block">
+                {toPersianDigits((ad as any)?.call_count ?? (ad as any)?.calls ?? 0)}
+              </Typography>
+            </div>
+            <div className="rounded-xl bg-surface-container p-3">
+              <Typography as="span" variant="label" size="small" weight="medium" className="text-xs text-on-surface-variant block">
+                نشان‌شده
+              </Typography>
+              <Typography as="span" variant="title" size="medium" weight="semibold" className="mt-1 text-base text-on-surface block">
+                {toPersianDigits((ad as any)?.save_count ?? (ad as any)?.bookmarks ?? 0)}
+              </Typography>
+            </div>
+          </div>
+          <div className="mt-4">
+            <RouteLink
+              to={`/account/my-ads/${encodeURIComponent(String(adId))}/visit-statistics`}
+              className="flex h-10 w-full items-center justify-center rounded-xl bg-primary/10 text-xs font-semibold text-primary no-underline transition hover:bg-primary/20"
+            >
+              مشاهده نمودارها و آمار کامل
+            </RouteLink>
+          </div>
+        </section>
+      ) : (
+        advertiserPreview ? <AdvertiserCard preview={advertiserPreview} /> : null
+      )}
 
       {visibleRows.length > 0 ? (
         <section className="border-t-8 border-surface-container bg-surface-container-lowest">
@@ -1557,13 +1730,7 @@ export function ViewAdPage() {
     : detailQuery;
   const useAgencyAllocationPreview =
     isPreview && (ad ? shouldUseAgencyAllocationPreview(ad) : shouldUseAgencyAllocationPreview());
-  const isAgencyRole = isAgencyAuthRole();
-  const isAdAssigned =
-    Boolean(ad?.is_assigned) ||
-    Boolean(ad?.isAssigned) ||
-    Boolean(ad?.assignment_status === "pending" || ad?.assignment_status === "accepted") ||
-    useAgencyAllocationPreview;
-  const showAgencyOwnerContact = isPreview && isAgencyRole && !isAdAssigned;
+  const showAgencyOwnerContact = isPreview && !useAgencyAllocationPreview;
 
   useEffect(() => {
     const bookmarkState = readAdvertisementBookmarkState(ad);
@@ -1993,6 +2160,7 @@ export function ViewAdPage() {
             setAlbumInitialIndex(initialIndex);
             setIsAlbumOpen(true);
           }}
+          onOpenOwnerContactSheet={() => setIsOwnerContactSheetOpen(true)}
           onRowAction={handleRowAction}
           tour3dUrl={resolvedTour3dUrl}
         />
@@ -2089,6 +2257,7 @@ export function ViewAdPage() {
             ownerContactAddress={
               (typeof ad?.owner_contact_address === "string" && ad.owner_contact_address) ||
               (typeof ad?.owner_address === "string" && ad.owner_address) ||
+              (typeof (ad as any)?.user_address === "string" && (ad as any).user_address) ||
               (Array.isArray(ad?.features)
                 ? String(
                     ad.features.find(
@@ -2101,6 +2270,7 @@ export function ViewAdPage() {
             ownerContactName={
               (typeof ad?.owner_contact_name === "string" && ad.owner_contact_name) ||
               (typeof ad?.owner_name === "string" && ad.owner_name) ||
+              (typeof (ad as any)?.user_fullname === "string" && (ad as any).user_fullname) ||
               (Array.isArray(ad?.features)
                 ? String(
                     ad.features.find(
@@ -2112,6 +2282,7 @@ export function ViewAdPage() {
             }
             ownerContactPhone={
               (typeof ad?.owner_contact_phone === "string" && ad.owner_contact_phone) ||
+              (typeof (ad as any)?.owner_phone === "string" && (ad as any).owner_phone) ||
               (Array.isArray(ad?.features)
                 ? String(
                     ad.features.find((f: any) => f?.label === "owner_contact_phone")?.value ?? ""

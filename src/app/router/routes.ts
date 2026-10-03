@@ -130,6 +130,10 @@ const DashboardPopularBadgePage = lazyNamed(() => import('../../features/dashboa
 const DashboardFastTeamBadgePage = lazyNamed(() => import('../../features/dashboard/DashboardBadgeDetailsPage'), 'DashboardFastTeamBadgePage')
 const DashboardRequestsPage = lazyNamed(() => import('../../features/dashboard/DashboardHomePage'), 'DashboardRequestsPage')
 const DashboardTeamPage = lazyNamed(() => import('../../features/dashboard/DashboardHomePage'), 'DashboardTeamPage')
+const DashboardUrgentActionsPage = lazyNamed(() => import('../../features/dashboard/DashboardUrgentActionsPage'), 'DashboardUrgentActionsPage')
+const DashboardLeadFollowupPage = lazyNamed(() => import('../../features/dashboard/DashboardLeadFollowupPage'), 'DashboardLeadFollowupPage')
+const DashboardInactiveConsultantsPage = lazyNamed(() => import('../../features/dashboard/DashboardInactiveConsultantsPage'), 'DashboardInactiveConsultantsPage')
+const DashboardExpiringAdsPage = lazyNamed(() => import('../../features/dashboard/DashboardExpiringAdsPage'), 'DashboardExpiringAdsPage')
 const SearchMapPage = lazyNamed(() => import('../../features/search/SearchMapPage'), 'SearchMapPage')
 const SearchMapFilterPage = lazyNamed(() => import('../../features/search/SearchMapFilterPage'), 'SearchMapFilterPage')
 const UserChatDetailPage = lazyNamed(() => import('../../features/chat/UserChatHomePage'), 'UserChatDetailPage')
@@ -655,6 +659,38 @@ export const routes: AppRoute[] = [
     path: `${DASHBOARD_PATH}/ranking/badges/fast-team`,
     title: 'جزئیات نشان',
     Component: DashboardFastTeamBadgePage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/urgent-actions`,
+    title: 'اقدامات فوری',
+    Component: DashboardUrgentActionsPage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/lead-followup`,
+    title: 'پیگیری سرنخ',
+    Component: DashboardLeadFollowupPage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/inactive-consultants`,
+    title: 'مشاور بدون فعالیت',
+    Component: DashboardInactiveConsultantsPage,
+    layout: 'dashboard',
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/expiring-ads`,
+    title: 'آگهی در آستانه انقضا',
+    Component: DashboardExpiringAdsPage,
     layout: 'dashboard',
     requiresAuth: true,
     requiresNonUser: true,

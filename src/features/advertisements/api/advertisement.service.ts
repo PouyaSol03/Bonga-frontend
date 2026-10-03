@@ -1292,21 +1292,46 @@ export async function updateOwnerContact({
   ownerContactPhone?: string;
   ownerContactAddress?: string;
 }) {
-  const payload = new FormData();
+  const jsonBody: Record<string, string> = {};
   if (ownerContactName !== undefined) {
-    payload.append("owner_contact_name", ownerContactName);
+    jsonBody.owner_name = ownerContactName;
+    jsonBody.owner_contact_name = ownerContactName;
   }
   if (ownerContactPhone !== undefined) {
-    payload.append("owner_contact_phone", ownerContactPhone);
+    jsonBody.owner_phone = ownerContactPhone;
+    jsonBody.owner_contact_phone = ownerContactPhone;
   }
   if (ownerContactAddress !== undefined) {
-    payload.append("owner_contact_address", ownerContactAddress);
+    jsonBody.owner_address = ownerContactAddress;
+    jsonBody.owner_contact_address = ownerContactAddress;
   }
 
-  return updateAdvertisement({
-    advertiseId,
-    payload,
-  });
+  try {
+    const response = await api
+      .patch(`me/advertise/${encodeURIComponent(advertiseId)}/owner-contact`, {
+        json: jsonBody,
+      })
+      .json<{ data?: AdvertisementItem; result?: AdvertisementItem; status?: boolean }>();
+
+    return (response?.data ?? response?.result ?? response) as AdvertisementItem;
+  } catch {
+    // Fallback: in case backend is running older version without dedicated PATCH
+    const payload = new FormData();
+    if (ownerContactName !== undefined) {
+      payload.append("owner_contact_name", ownerContactName);
+    }
+    if (ownerContactPhone !== undefined) {
+      payload.append("owner_contact_phone", ownerContactPhone);
+    }
+    if (ownerContactAddress !== undefined) {
+      payload.append("owner_contact_address", ownerContactAddress);
+    }
+
+    return updateAdvertisement({
+      advertiseId,
+      payload,
+    });
+  }
 }
 
 export async function deleteAdvertisement({

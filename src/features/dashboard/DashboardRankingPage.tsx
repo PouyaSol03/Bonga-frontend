@@ -8,7 +8,6 @@ import LinearLike from "../../shared/icons/LinearLike";
 import LinearPercenTeam from "../../shared/icons/LinearPercenTeam";
 import LinearRanking from "../../shared/icons/LinearRanking";
 import LinearStar from "../../shared/icons/LinearStar";
-import LinearStartup from "../../shared/icons/LinearStartup";
 import { TopBar } from "../../shared/components/TopBar";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import { Typography } from "../../shared/ui/Typography";
@@ -18,6 +17,7 @@ import { useAgencyDashboardQuery } from "./api/dashboard.hooks";
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT } from "../../shared/constants/roles.constants";
 import { IndependentConsultantRankingPage } from "../account/IndependentConsultantRankingPage";
+import { getAgencyRankingLevel, formatRankingLevelTitle } from "./utils/rankingLevels";
 import type { BadgeItem } from "../account/api/account.service";
 import type { DashboardRankingEntity } from "./api/dashboard.service";
 
@@ -127,6 +127,19 @@ function AgencyDashboardRankingPage() {
     },
   ];
 
+  const currentLevel = getAgencyRankingLevel({
+    score: ranking?.current.totalScore,
+    levelTitle: ranking?.current.levelTitle,
+    levelSlug: ranking?.current.levelSlug,
+  });
+
+  const displayLevelTitle = formatRankingLevelTitle({
+    isAgency: true,
+    score: ranking?.current.totalScore,
+    levelTitle: ranking?.current.levelTitle,
+    levelSlug: ranking?.current.levelSlug,
+  });
+
   return (
     <PageFrame
       className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
@@ -149,7 +162,8 @@ function AgencyDashboardRankingPage() {
 
       <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-surface-container px-4 pb-6 pt-4">
         <LevelSummaryCard
-          levelTitle={ranking?.current.levelTitle || ranking?.current.levelSlug || "—"}
+          image={currentLevel.image}
+          levelTitle={displayLevelTitle}
           score={formatOptionalNumber(ranking?.current.totalScore)}
         />
         <MetricSummaryCard
@@ -172,7 +186,15 @@ function AgencyDashboardRankingPage() {
   );
 }
 
-function LevelSummaryCard({ levelTitle, score }: { levelTitle: string; score: string }) {
+function LevelSummaryCard({
+  image,
+  levelTitle,
+  score,
+}: {
+  image: string;
+  levelTitle: string;
+  score: string;
+}) {
   return (
     <section
       aria-label="سطح پیشرفت آژانس"
@@ -192,16 +214,29 @@ function LevelSummaryCard({ levelTitle, score }: { levelTitle: string; score: st
           <Typography as="span" variant="label" size="medium" weight="semibold" className="font-semibold text-primary [direction:rtl]">{score}</Typography>
         </div>
       </div>
-      <AgencyPreviewVector />
+      <AgencyPreviewVector image={image} title={levelTitle} />
     </section>
   );
 }
 
-function AgencyPreviewVector() {
+function AgencyPreviewVector({ image, title }: { image: string; title: string }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError || !image) {
+    return (
+      <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-surface-container">
+        <LinearRanking className="h-6 w-6 text-on-surface-var" />
+      </Typography>
+    );
+  }
+
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular" className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-surface-container">
-      <LinearStartup className="h-9 w-9 text-on-surface-var" />
-    </Typography>
+    <img
+      alt={title}
+      className="h-12 w-12 shrink-0 object-contain"
+      onError={() => setHasError(true)}
+      src={image}
+    />
   );
 }
 

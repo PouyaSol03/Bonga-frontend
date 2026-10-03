@@ -33,6 +33,7 @@ import {
 } from "../advertisements/create/session";
 import { useCreateAgencyChatMutation } from "../chat/api/chat.hooks";
 import { useMyAdsInfiniteQuery, useMyAgencyProfileQuery } from "../account/api/account.hooks";
+import { formatRankingLevelTitle } from "./utils/rankingLevels";
 import {
   useAgencyConsultantsQuery,
   usePublicAgencyDetailQuery,
@@ -968,7 +969,7 @@ function AgencyHero({
         ) : null}
         {levelSlug ? (
           <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex min-h-7 items-center rounded-full bg-primary-container px-2.5 py-1 text-xs font-semibold text-primary">
-            سطح {levelSlug.replace(/[-_]/g, " ")}
+            {formatRankingLevelTitle({ isAgency: !isAgent, levelSlug })}
           </Typography>
         ) : null}
       </div>

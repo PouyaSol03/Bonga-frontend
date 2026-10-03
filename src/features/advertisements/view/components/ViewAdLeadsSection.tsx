@@ -42,8 +42,8 @@ export function ViewAdLeadsSection({
       className={`flex flex-col [direction:rtl] ${className}`}
     >
       {/* Filter Bar Container: white background */}
-      <div className="bg-surface-container-lowest px-4 pt-4 pb-4">
-        <div className="flex items-center justify-between gap-2 rounded-2xl border border-surface-container bg-surface-container-lowest p-4 shadow-[0_4px_16px_0_rgba(26,26,26,0.08)]">
+      <div className="bg-surface-container-lowest p-4">
+        <div className="flex items-center justify-between gap-2 rounded-2xl border border-surface-container bg-surface-container-lowest p-4">
           {LEAD_FILTERS.map((f) => (
             <Chip
               key={f.key}
@@ -57,8 +57,8 @@ export function ViewAdLeadsSection({
         </div>
       </div>
 
-      {/* Cards List: 16px gap on surface-container background */}
-      <div className="flex flex-col gap-4 bg-surface-container py-4">
+      {/* Cards List: no top gap from filters, 16px gap between cards */}
+      <div className="flex flex-col gap-4 bg-surface-container pb-4">
         {filteredLeads.map((lead) => (
           <ViewAdLeadCard key={lead.id} lead={lead} onChatClick={onChatClick} />
         ))}

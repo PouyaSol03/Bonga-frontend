@@ -249,7 +249,7 @@ function getResolvedPath() {
   const isOnboardingCitySelection =
     path === '/' && new URLSearchParams(window.location.search).get('city') === '1'
 
-  if (!hasCity) {
+  if (!hasCity && !isLoginFlowPath(path)) {
     if (path !== '/' || window.location.search || window.location.hash) {
       window.history.replaceState({}, '', '/')
     }

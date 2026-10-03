@@ -67,6 +67,10 @@ const AccountMyAdStatePage = lazyNamed(
   () => import('../../features/account/AccountMyAdStatePage'),
   'AccountMyAdStatePage',
 )
+const ViewAdLeadDetailsPage = lazyNamed(
+  () => import('../../features/advertisements/view/components/ViewAdLeadDetailsPage'),
+  'ViewAdLeadDetailsPage',
+)
 const AgencyStopPublishPage = lazyNamed(
   () => import('../../features/account/components/AgencyStopPublishPage'),
   'AgencyStopPublishPage',
@@ -368,6 +372,14 @@ function getRoute(path: string): AppRoute {
 
   if (/^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)) {
     return { path, title: 'مدیریت آگهی', Component: AccountMyAdStatePage, requiresAuth: true }
+  }
+
+  if (
+    /^\/account\/my-ads\/[^/]+\/lead-details\/?$/.test(path) ||
+    /^\/account\/my-ads\/lead-details\/?$/.test(path) ||
+    /^\/account\/dashboard\/lead-details\/?$/.test(path)
+  ) {
+    return { path, title: 'جزئیات سرنخ', Component: ViewAdLeadDetailsPage, requiresAuth: true }
   }
 
   if (/^\/account\/my-ads\/[^/]+\/payment-history\/?$/.test(path)) {

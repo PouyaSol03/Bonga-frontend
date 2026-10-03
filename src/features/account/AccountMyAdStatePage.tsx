@@ -778,7 +778,7 @@ function RealEstateManagerAdStatePage({
         />
 
         {businessTab === "lead" ? (
-          <ViewAdLeadsSection />
+          <ViewAdLeadsSection adId={adId} />
         ) : businessTab === "performance" ? (
           <section className="bg-surface-container-lowest p-4 text-right [direction:rtl]">
             <div className="flex items-center justify-between pb-3 border-b border-outline-variant">

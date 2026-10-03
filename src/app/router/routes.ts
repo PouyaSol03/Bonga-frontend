@@ -151,6 +151,7 @@ const AgencyNeighborhoodSelectionPage = lazyNamed(() => import('../../features/a
 const BusinessCreationPage = lazyNamed(() => import('../../features/account/routes/BusinessCreationPage'), 'BusinessCreationPage')
 const BusinessInfoPage = lazyNamed(() => import('../../features/account/routes/BusinessInfoPage'), 'BusinessInfoPage')
 const IndependentConsultantBusinessCreationPage = lazyNamed(() => import('../../features/account/routes/IndependentConsultantBusinessCreationPage'), 'IndependentConsultantBusinessCreationPage')
+const ViewAdLeadDetailsPage = lazyNamed(() => import('../../features/advertisements/view/components/ViewAdLeadDetailsPage'), 'ViewAdLeadDetailsPage')
 
 export const LOGIN_PATH = '/login/phone'
 export const DASHBOARD_PATH = '/account/dashboard'
@@ -678,6 +679,19 @@ export const routes: AppRoute[] = [
     layout: 'dashboard',
     requiresAuth: true,
     requiresNonUser: true,
+  },
+  {
+    path: `${DASHBOARD_PATH}/lead-details`,
+    title: 'جزئیات سرنخ',
+    Component: ViewAdLeadDetailsPage,
+    layout: 'dashboard',
+    requiresAuth: true,
+  },
+  {
+    path: '/account/my-ads/lead-details',
+    title: 'جزئیات سرنخ',
+    Component: ViewAdLeadDetailsPage,
+    requiresAuth: true,
   },
   {
     path: `${DASHBOARD_PATH}/inactive-consultants`,

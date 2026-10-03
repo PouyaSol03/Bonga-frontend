@@ -6,12 +6,12 @@ import {
   type ViewAdLeadItem,
   MOCK_VIEW_AD_LEADS,
 } from "./ViewAdLeadCard";
-import { ViewAdLeadDetailsBottomSheet } from "./ViewAdLeadDetailsBottomSheet";
 
 export type LeadFilterKey = "all" | "new" | "visit" | "followup" | "cancel";
 
 export interface ViewAdLeadsSectionProps {
   leads?: ViewAdLeadItem[];
+  adId?: string | number;
   onChatClick?: (lead: ViewAdLeadItem) => void;
   onDetailsClick?: (lead: ViewAdLeadItem) => void;
   className?: string;
@@ -27,18 +27,12 @@ const LEAD_FILTERS: { key: LeadFilterKey; label: string; statusMatch?: string }[
 
 export function ViewAdLeadsSection({
   leads = MOCK_VIEW_AD_LEADS,
+  adId,
   onChatClick,
   onDetailsClick,
   className = "",
 }: ViewAdLeadsSectionProps) {
   const [activeFilter, setActiveFilter] = useState<LeadFilterKey>("all");
-  const [selectedLeadForDetails, setSelectedLeadForDetails] =
-    useState<ViewAdLeadItem | null>(null);
-
-  const handleDetailsClick = (lead: ViewAdLeadItem) => {
-    setSelectedLeadForDetails(lead);
-    onDetailsClick?.(lead);
-  };
 
   const filteredLeads = leads.filter((lead) => {
     if (activeFilter === "all") return true;
@@ -73,8 +67,9 @@ export function ViewAdLeadsSection({
           <ViewAdLeadCard
             key={lead.id}
             lead={lead}
+            adId={adId}
             onChatClick={onChatClick}
-            onDetailsClick={handleDetailsClick}
+            onDetailsClick={onDetailsClick}
           />
         ))}
 
@@ -92,13 +87,6 @@ export function ViewAdLeadsSection({
           </div>
         )}
       </div>
-
-      {/* Lead Details BottomSheet matching Main Container.svg */}
-      <ViewAdLeadDetailsBottomSheet
-        isOpen={Boolean(selectedLeadForDetails)}
-        onClose={() => setSelectedLeadForDetails(null)}
-        lead={selectedLeadForDetails}
-      />
     </section>
   );
 }

@@ -23,6 +23,7 @@ export interface ViewAdLeadItem {
 
 export interface ViewAdLeadCardProps {
   lead: ViewAdLeadItem;
+  adId?: string | number;
   onChatClick?: (lead: ViewAdLeadItem) => void;
   onDetailsClick?: (lead: ViewAdLeadItem) => void;
   className?: string;
@@ -30,11 +31,14 @@ export interface ViewAdLeadCardProps {
 
 export function ViewAdLeadCard({
   lead,
+  adId,
   onChatClick,
   onDetailsClick,
   className = "",
 }: ViewAdLeadCardProps) {
-  const detailsHref = lead.detailsUrl || `/account/dashboard/lead-followup`;
+  const detailsHref = adId
+    ? `/account/my-ads/${encodeURIComponent(String(adId))}/lead-details?leadId=${encodeURIComponent(lead.id)}`
+    : lead.detailsUrl || `/account/my-ads/lead-details?leadId=${encodeURIComponent(lead.id)}`;
 
   return (
     <article
@@ -162,40 +166,23 @@ export function ViewAdLeadCard({
 
       {/* Bottom Action Bar: Call (left) + Chat (mid) + Details Button (right) */}
       <div className="flex items-center gap-2">
-        {onDetailsClick ? (
-          <button
-            type="button"
-            onClick={() => onDetailsClick(lead)}
-            className="flex-1 h-10 rounded-xl border border-primary text-primary flex items-center justify-center gap-1.5 text-xs font-semibold hover:bg-primary/5 transition active:scale-[0.99] cursor-pointer"
+        <RouteLink
+          to={detailsHref}
+          state={{ lead, adId }}
+          onClick={() => onDetailsClick?.(lead)}
+          className="flex-1 h-10 rounded-xl border border-primary text-primary flex items-center justify-center gap-1.5 text-xs font-semibold hover:bg-primary/5 transition no-underline active:scale-[0.99]"
+        >
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="semibold"
+            className="text-xs text-primary font-semibold"
           >
-            <Typography
-              as="span"
-              variant="label"
-              size="small"
-              weight="semibold"
-              className="text-xs text-primary font-semibold"
-            >
-              جزییات
-            </Typography>
-            <LinearArrowLeft1 className="h-4 w-4 text-primary" />
-          </button>
-        ) : (
-          <RouteLink
-            to={detailsHref}
-            className="flex-1 h-10 rounded-xl border border-primary text-primary flex items-center justify-center gap-1.5 text-xs font-semibold hover:bg-primary/5 transition no-underline active:scale-[0.99]"
-          >
-            <Typography
-              as="span"
-              variant="label"
-              size="small"
-              weight="semibold"
-              className="text-xs text-primary font-semibold"
-            >
-              جزییات
-            </Typography>
-            <LinearArrowLeft1 className="h-4 w-4 text-primary" />
-          </RouteLink>
-        )}
+            جزییات
+          </Typography>
+          <LinearArrowLeft1 className="h-4 w-4 text-primary" />
+        </RouteLink>
 
         <button
           type="button"

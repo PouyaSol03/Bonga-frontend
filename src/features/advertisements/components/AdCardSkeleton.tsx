@@ -13,7 +13,7 @@ export function AdCardSkeleton({
     return (
       <article
         aria-hidden="true"
-        className={`w-full max-w-[360px] mx-auto overflow-hidden rounded-[16px] bg-surface-container-lowest p-4 shadow-sm border border-outline-variant [direction:rtl] ${className}`}
+        className={`w-full overflow-hidden rounded-none bg-surface-container-lowest p-4 [direction:rtl] ${className}`}
       >
         {/* Header: Thumbnail + Content */}
         <div className="flex items-center gap-3 [direction:rtl]">
@@ -89,7 +89,7 @@ export function AdCardSkeleton({
     return (
       <article
         aria-hidden="true"
-        className={`w-full max-w-[360px] mx-auto overflow-hidden rounded-[16px] bg-surface-container-lowest shadow-[0_4px_16px_rgba(26,26,26,0.06)] border border-outline-variant [direction:rtl] ${className}`}
+        className={`w-full overflow-hidden rounded-none bg-surface-container-lowest [direction:rtl] ${className}`}
       >
         {/* Top allocation countdown badge */}
         <div className="mx-4 mt-4 h-9 rounded-xl animate-skeleton" />

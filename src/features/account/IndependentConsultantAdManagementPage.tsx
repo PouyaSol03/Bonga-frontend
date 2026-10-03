@@ -585,7 +585,7 @@ function AssignedConsultantAdCard({
 
   return (
     <article
-      className="overflow-hidden bg-surface-container-lowest shadow-[0_4px_16px_rgba(0,0,0,0.06)] [direction:rtl]"
+      className="w-full overflow-hidden rounded-none bg-surface-container-lowest [direction:rtl]"
       ref={loadMoreRef}
     >
       <div
@@ -607,6 +607,7 @@ function AssignedConsultantAdCard({
 
       <ConsultantAdCard
         ad={ad}
+        className="border-none shadow-none"
         showStatusBadge
         state={routeState}
         to={getAllocationReviewPath(ad.id)}

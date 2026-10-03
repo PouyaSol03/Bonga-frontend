@@ -29,7 +29,7 @@ export const ManagementAdCard: React.FC<ManagementAdCardProps> = ({
 }) => {
   return (
     <article
-      className={`w-full max-w-[360px] mx-auto overflow-hidden rounded-[16px] bg-surface-container-lowest p-4 shadow-sm border border-outline-variant [direction:rtl] ${className}`}
+      className={`w-full overflow-hidden rounded-none bg-surface-container-lowest p-4 [direction:rtl] ${className}`}
     >
       {/* Optional Top Meta (e.g. countdown for assigned ads) */}
       {headerMeta ? <div className="mb-3">{headerMeta}</div> : null}

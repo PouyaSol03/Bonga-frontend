@@ -1,7 +1,6 @@
 import { Typography } from "../../../shared/ui/Typography";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
-import { useNotificationsInfiniteQuery } from "../../notifications/api/notification.hooks";
 import type { NotificationItem } from "../../notifications/api/notification.service";
 import {
   getNotificationPath,
@@ -52,14 +51,10 @@ export function DashboardNotificationsCard({
   items,
   viewAllTo = "/notifications",
 }: DashboardNotificationsCardProps) {
-  const { data } = useNotificationsInfiniteQuery({ perPage: 3 });
-  const serverNotifications = data?.pages?.[0]?.data;
   const notificationList =
-    items && items.length > 0
+    Array.isArray(items) && items.length > 0
       ? items
-      : serverNotifications && serverNotifications.length > 0
-        ? serverNotifications.slice(0, 3)
-        : defaultNotifications;
+      : defaultNotifications;
 
   return (
     <section className="w-full rounded-[16px] bg-surface-container-lowest p-4 shadow-sm [direction:rtl]">

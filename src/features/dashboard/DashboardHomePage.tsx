@@ -12,11 +12,8 @@ import {
   REAL_ESTATE_MANAGER,
 } from "../../shared/constants/roles.constants";
 import { getApiErrorMessage } from "../../shared/api/api";
-import {
-  useAgentDashboardQuery,
-  useAgencyDashboardQuery,
-} from "./api/dashboard.hooks";
-import { useAgentEntitlementsQuery } from "../packages/api/package.hooks";
+import { useDashboardOverviewByRoleQuery } from "./api/dashboard.hooks";
+import type { DashboardRolePersona } from "./api/dashboard.service";
 
 export * from "./dashboardSubPages";
 
@@ -72,27 +69,16 @@ export function DashboardHomePage() {
     activeRole === REAL_ESTATE_CONSULTANT ||
     activeRole === INDEPENDENT_CONSULTANT;
 
-  const agentDashboardQuery = useAgentDashboardQuery({
-    enabled: isAgentRole,
+  const persona: DashboardRolePersona = isRealEstateManager
+    ? "agency"
+    : activeRole === REAL_ESTATE_CONSULTANT
+      ? "agent_in_agency"
+      : "agent";
+
+  const overviewQuery = useDashboardOverviewByRoleQuery(persona, {
+    enabled: isRealEstateManager || isAgentRole,
     period: "30d",
   });
-  const agencyDashboardQuery = useAgencyDashboardQuery({
-    enabled: isRealEstateManager,
-    period: "30d",
-  });
-  const agentEntitlementsQuery = useAgentEntitlementsQuery({
-    enabled: isAgentRole,
-  });
-  const agentDashboard =
-    isAgentRole && agentDashboardQuery.data && agentEntitlementsQuery.data
-      ? {
-          ...agentDashboardQuery.data,
-          balances: {
-            ...agentDashboardQuery.data.balances,
-            ...agentEntitlementsQuery.data,
-          },
-        }
-      : agentDashboardQuery.data;
 
   // Real estate manager receives the modern Agency Dashboard UI matching SVG
   if (isRealEstateManager) {
@@ -100,7 +86,7 @@ export function DashboardHomePage() {
       return (
         <DashboardReportsView
           role="REAL_ESTATE_MANAGER"
-          dashboard={agencyDashboardQuery.data}
+          dashboard={overviewQuery.data}
           onBack={handleCloseReports}
         />
       );
@@ -108,8 +94,8 @@ export function DashboardHomePage() {
     return (
       <DashboardView
         role="REAL_ESTATE_MANAGER"
-        dashboard={agencyDashboardQuery.data}
-        isLoading={agencyDashboardQuery.isLoading}
+        dashboard={overviewQuery.data}
+        isLoading={overviewQuery.isLoading}
         onViewReports={handleOpenReports}
       />
     );
@@ -126,7 +112,7 @@ export function DashboardHomePage() {
       return (
         <DashboardReportsView
           role={roleType}
-          dashboard={agentDashboard}
+          dashboard={overviewQuery.data}
           onBack={handleCloseReports}
         />
       );
@@ -134,8 +120,8 @@ export function DashboardHomePage() {
     return (
       <DashboardView
         role={roleType}
-        dashboard={agentDashboard}
-        isLoading={agentDashboardQuery.isLoading}
+        dashboard={overviewQuery.data}
+        isLoading={overviewQuery.isLoading}
         onViewReports={handleOpenReports}
       />
     );
@@ -143,18 +129,18 @@ export function DashboardHomePage() {
 
   return (
     <DashboardHomeOverview
-      dashboard={agentDashboard}
+      dashboard={overviewQuery.data}
       dashboardError={
-        agentDashboardQuery.isError
+        overviewQuery.isError
           ? getApiErrorMessage(
-              agentDashboardQuery.error,
+              overviewQuery.error,
               "دریافت اطلاعات داشبورد با خطا مواجه شد.",
             )
           : null
       }
       dashboardKind={isAgentRole ? "agent" : undefined}
-      isDashboardLoading={isAgentRole && agentDashboardQuery.isLoading}
-      useDashboardApi={isAgentRole}
+      isDashboardLoading={overviewQuery.isLoading}
+      useDashboardApi={isAgentRole || isRealEstateManager}
     />
   );
 }

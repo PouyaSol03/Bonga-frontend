@@ -41,7 +41,7 @@ export function DashboardTasksCard({
     { id: "others", count: 11, label: "سایر موارد", to: "/account/dashboard/requests" },
   ];
 
-  const taskList = items ?? defaultItems;
+  const taskList = Array.isArray(items) && items.length > 0 ? items : defaultItems;
 
   return (
     <section

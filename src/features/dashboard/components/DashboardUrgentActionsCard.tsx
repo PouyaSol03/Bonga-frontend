@@ -90,6 +90,8 @@ export function DashboardUrgentActionsCard({
   viewAllTo = "/account/dashboard/urgent-actions",
   title = "اقدامات فوری",
 }: DashboardUrgentActionsCardProps) {
+  const actionItems = Array.isArray(items) ? items : [];
+
   return (
     <section className="w-full rounded-[16px] bg-surface-container-lowest p-4 shadow-sm [direction:rtl]">
       {/* Header */}
@@ -103,7 +105,7 @@ export function DashboardUrgentActionsCard({
         >
           {title}
         </Typography>
-        {items.length > 0 && (
+        {actionItems.length > 0 && (
           <RouteLink
             className="flex items-center gap-1 text-primary hover:underline"
             to={viewAllTo}
@@ -123,7 +125,7 @@ export function DashboardUrgentActionsCard({
       </div>
 
       {/* Action items list or empty state */}
-      {!items || items.length === 0 ? (
+      {actionItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-6 text-center">
           <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-success-container/40 text-success">
             <LinearTick className="h-6 w-6" />
@@ -149,7 +151,7 @@ export function DashboardUrgentActionsCard({
         </div>
       ) : (
         <div className="flex flex-col gap-2.5">
-          {items.map((item) => {
+          {actionItems.map((item) => {
             const urgencyKey =
               item.urgency ??
               (item.priority === "critical"

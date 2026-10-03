@@ -50,6 +50,8 @@ export function DashboardCreditsCard({
   title = "اعتبارها",
   items = defaultCredits,
 }: DashboardCreditsCardProps) {
+  const creditList = Array.isArray(items) && items.length > 0 ? items : defaultCredits;
+
   return (
     <section className="w-full rounded-[16px] bg-surface-container-lowest shadow-sm [direction:rtl]">
       {/* Title */}
@@ -59,10 +61,10 @@ export function DashboardCreditsCard({
 
       {/* Columns with standalone vertical separators */}
       <div className="flex w-full items-center justify-between">
-        {items.map((col, idx) => {
+        {creditList.map((col, idx) => {
           const cfg = iconMap[col.type] ?? iconMap.ad;
           const Icon = cfg.icon;
-          const isNotLast = idx < items.length - 1;
+          const isNotLast = idx < creditList.length - 1;
 
           return (
             <div key={col.key} className="flex flex-1 items-center">

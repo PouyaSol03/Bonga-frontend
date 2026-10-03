@@ -23,7 +23,7 @@ export function DashboardRecentAdsCard({
   viewAllTo = "/account/manage-ads",
   title = "آخرین آگهی‌ها",
 }: DashboardRecentAdsCardProps) {
-  const adList = ads && ads.length > 0 ? ads : ad ? [ad] : [];
+  const adList = Array.isArray(ads) && ads.length > 0 ? ads : ad ? [ad] : [];
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 

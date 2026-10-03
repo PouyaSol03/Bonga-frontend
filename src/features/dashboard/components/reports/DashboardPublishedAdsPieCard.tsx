@@ -3,12 +3,14 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Typography } from "../../../../shared/ui/Typography";
 import { DashboardChartEmptyState } from "./DashboardChartEmptyState";
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
+import LinearTick from "../../../../shared/icons/LinearTick";
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 import type { DashboardRole } from "../DashboardQuickAccessGrid";
 
 export interface SliceData {
   name: string;
   value: number;
+  percentage?: number | null;
   color: string;
 }
 
@@ -17,6 +19,7 @@ export interface DashboardPublishedAdsPieCardProps {
   title?: string;
   totalCount?: number;
   data?: SliceData[];
+  period?: "month" | "year";
   periodLabel?: string;
   onPeriodChange?: (period: "month" | "year") => void;
 }
@@ -26,6 +29,7 @@ export function DashboardPublishedAdsPieCard({
   title,
   totalCount,
   data,
+  period,
   periodLabel,
   onPeriodChange,
 }: DashboardPublishedAdsPieCardProps) {
@@ -36,9 +40,13 @@ export function DashboardPublishedAdsPieCard({
   const displayTitle =
     title ?? (isManager ? "آگهی منتشر شده در آژانس" : "آگهی منتشر شده");
 
-  const effectivePeriod = periodLabel
-    ? periodLabel === "در سال" ? "year" : "month"
-    : selectedPeriod;
+  const effectivePeriod = period
+    ? period
+    : periodLabel
+      ? periodLabel.includes("سال")
+        ? "year"
+        : "month"
+      : selectedPeriod;
 
   const currentData = data && data.length > 0 ? data : [];
 
@@ -47,10 +55,10 @@ export function DashboardPublishedAdsPieCard({
       ? totalCount
       : currentData.reduce((acc, curr) => acc + (curr.value || 0), 0);
 
-  const handleSelectPeriod = (period: "month" | "year") => {
-    setSelectedPeriod(period);
+  const handleSelectPeriod = (nextPeriod: "month" | "year") => {
+    setSelectedPeriod(nextPeriod);
     setIsDropdownOpen(false);
-    onPeriodChange?.(period);
+    onPeriodChange?.(nextPeriod);
   };
 
   return (
@@ -87,24 +95,34 @@ export function DashboardPublishedAdsPieCard({
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute left-0 top-full mt-1 z-30 min-w-[90px] rounded-lg border border-outline-var bg-surface-container-lowest py-1 shadow-md">
+            <div className="absolute left-0 top-full mt-1 z-30 min-w-[110px] rounded-lg border border-outline-var bg-surface-container-lowest py-1 shadow-md">
               <button
-                className={`w-full px-3 py-1.5 text-right text-xs transition hover:bg-surface-container-low cursor-pointer border-none bg-transparent ${
-                  effectivePeriod === "month" ? "font-bold text-primary" : "text-on-surface-var"
+                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition hover:bg-surface-container-low cursor-pointer border-none ${
+                  effectivePeriod === "month"
+                    ? "font-bold text-primary bg-primary/5"
+                    : "text-on-surface-var bg-transparent"
                 }`}
                 onClick={() => handleSelectPeriod("month")}
                 type="button"
               >
-                در ماه
+                <span>در ماه</span>
+                {effectivePeriod === "month" && (
+                  <LinearTick className="h-3.5 w-3.5 text-primary" />
+                )}
               </button>
               <button
-                className={`w-full px-3 py-1.5 text-right text-xs transition hover:bg-surface-container-low cursor-pointer border-none bg-transparent ${
-                  effectivePeriod === "year" ? "font-bold text-primary" : "text-on-surface-var"
+                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition hover:bg-surface-container-low cursor-pointer border-none ${
+                  effectivePeriod === "year"
+                    ? "font-bold text-primary bg-primary/5"
+                    : "text-on-surface-var bg-transparent"
                 }`}
                 onClick={() => handleSelectPeriod("year")}
                 type="button"
               >
-                در سال
+                <span>در سال</span>
+                {effectivePeriod === "year" && (
+                  <LinearTick className="h-3.5 w-3.5 text-primary" />
+                )}
               </button>
             </div>
           )}
@@ -165,34 +183,44 @@ export function DashboardPublishedAdsPieCard({
 
           {/* Legend - Exact 3-column RTL layout */}
           <div className="mt-2 grid grid-cols-3 gap-2 pt-3 text-center">
-            {currentData.map((item) => (
-              <div key={item.name} className="flex flex-col items-center">
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
+            {currentData.map((item) => {
+              const percent = item.percentage != null
+                ? item.percentage
+                : currentTotal > 0
+                  ? Math.round((item.value / currentTotal) * 100)
+                  : null;
+
+              return (
+                <div key={item.name} className="flex flex-col items-center">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <Typography
+                      as="span"
+                      variant="label"
+                      size="small"
+                      weight="medium"
+                      className="text-on-surface-var text-[11px]"
+                    >
+                      {item.name}
+                    </Typography>
+                  </div>
                   <Typography
                     as="span"
-                    variant="label"
-                    size="small"
-                    weight="medium"
-                    className="text-on-surface-var text-[11px]"
+                    variant="title"
+                    size="medium"
+                    weight="semibold"
+                    className="mt-1 text-on-surface"
                   >
-                    {item.name}
+                    {percent !== null
+                      ? `${toPersianNumber(percent)}٪`
+                      : toPersianNumber(item.value)}
                   </Typography>
                 </div>
-                <Typography
-                  as="span"
-                  variant="title"
-                  size="medium"
-                  weight="semibold"
-                  className="mt-1 text-on-surface"
-                >
-                  {toPersianNumber(item.value)}٪
-                </Typography>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -13,6 +13,7 @@ import { DashboardChartEmptyState } from "./DashboardChartEmptyState";
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 import LinearArrowRight1 from "../../../../shared/icons/LinearArrowRight1";
+import LinearTick from "../../../../shared/icons/LinearTick";
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 
 export interface ConsultantDatum {
@@ -25,6 +26,7 @@ export interface ConsultantDatum {
 export interface DashboardConsultantsBarChartCardProps {
   data?: ConsultantDatum[];
   totalAds?: number;
+  period?: "month" | "year";
   periodLabel?: string;
   onPeriodChange?: (period: "month" | "year") => void;
 }
@@ -32,16 +34,23 @@ export interface DashboardConsultantsBarChartCardProps {
 export function DashboardConsultantsBarChartCard({
   data,
   totalAds,
+  period,
   periodLabel,
   onPeriodChange,
 }: DashboardConsultantsBarChartCardProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<"month" | "year">("month");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [startIndex, setStartIndex] = useState(0);
+  const chartScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const effectivePeriod = periodLabel
-    ? periodLabel === "در سال" ? "year" : "month"
-    : selectedPeriod;
+  const effectivePeriod = period
+    ? period
+    : periodLabel
+      ? periodLabel.includes("سال")
+        ? "year"
+        : "month"
+      : selectedPeriod;
 
   const dataset = data && data.length > 0 ? data : [];
 
@@ -50,24 +59,40 @@ export function DashboardConsultantsBarChartCard({
       ? totalAds
       : dataset.reduce((acc, curr) => acc + (curr.ads || 0), 0);
 
-  const windowSize = 5;
-  const maxStartIndex = Math.max(0, dataset.length - windowSize);
-  const visibleData = dataset.slice(startIndex, startIndex + windowSize);
-
-  const handleShiftLeft = () => {
-    setStartIndex((prev) => Math.max(0, prev - 1));
+  const checkScroll = () => {
+    const el = chartScrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
   };
 
-  const handleShiftRight = () => {
-    setStartIndex((prev) => Math.min(maxStartIndex, prev + 1));
+  useEffect(() => {
+    const el = chartScrollRef.current;
+    if (!el) return;
+    const timeout = setTimeout(checkScroll, 100);
+    return () => clearTimeout(timeout);
+  }, [dataset, effectivePeriod]);
+
+  const handleScrollSmooth = (direction: "prev" | "next") => {
+    const el = chartScrollRef.current;
+    if (!el) return;
+    const delta = direction === "next" ? 160 : -160;
+    el.scrollBy({ left: delta, behavior: "smooth" });
+    setTimeout(checkScroll, 300);
   };
 
-  const handleSelectPeriod = (period: "month" | "year") => {
-    setSelectedPeriod(period);
-    setStartIndex(0);
+  const handleSelectPeriod = (nextPeriod: "month" | "year") => {
+    setSelectedPeriod(nextPeriod);
     setIsDropdownOpen(false);
-    onPeriodChange?.(period);
+    onPeriodChange?.(nextPeriod);
+    if (chartScrollRef.current) {
+      chartScrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+    }
   };
+
+  const needsScroll = dataset.length > 4;
+  const itemWidth = 84;
+  const contentWidth = needsScroll ? Math.max(340, dataset.length * itemWidth) : "100%";
 
   return (
     <section className="w-full bg-surface-container-lowest p-4 [direction:rtl]">
@@ -103,24 +128,34 @@ export function DashboardConsultantsBarChartCard({
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute left-0 top-full mt-1 z-30 min-w-[90px] rounded-lg border border-outline-var bg-surface-container-lowest py-1 shadow-md">
+            <div className="absolute left-0 top-full mt-1 z-30 min-w-[110px] rounded-lg border border-outline-var bg-surface-container-lowest py-1 shadow-md">
               <button
-                className={`w-full px-3 py-1.5 text-right text-xs transition hover:bg-surface-container-low cursor-pointer border-none bg-transparent ${
-                  effectivePeriod === "month" ? "font-bold text-primary" : "text-on-surface-var"
+                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition hover:bg-surface-container-low cursor-pointer border-none ${
+                  effectivePeriod === "month"
+                    ? "font-bold text-primary bg-primary/5"
+                    : "text-on-surface-var bg-transparent"
                 }`}
                 onClick={() => handleSelectPeriod("month")}
                 type="button"
               >
-                در ماه
+                <span>در ماه</span>
+                {effectivePeriod === "month" && (
+                  <LinearTick className="h-3.5 w-3.5 text-primary" />
+                )}
               </button>
               <button
-                className={`w-full px-3 py-1.5 text-right text-xs transition hover:bg-surface-container-low cursor-pointer border-none bg-transparent ${
-                  effectivePeriod === "year" ? "font-bold text-primary" : "text-on-surface-var"
+                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition hover:bg-surface-container-low cursor-pointer border-none ${
+                  effectivePeriod === "year"
+                    ? "font-bold text-primary bg-primary/5"
+                    : "text-on-surface-var bg-transparent"
                 }`}
                 onClick={() => handleSelectPeriod("year")}
                 type="button"
               >
-                در سال
+                <span>در سال</span>
+                {effectivePeriod === "year" && (
+                  <LinearTick className="h-3.5 w-3.5 text-primary" />
+                )}
               </button>
             </div>
           )}
@@ -149,18 +184,18 @@ export function DashboardConsultantsBarChartCard({
         </Typography>
       </div>
 
-      {/* Shift arrows row - exact position matching DashboardViewsBarChartCard */}
-      {dataset.length > windowSize && (
+      {/* Smooth shift arrows row */}
+      {needsScroll && (
         <div className="mt-2 flex items-center justify-between px-1">
           <button
             aria-label="قبلی"
             className={`cursor-pointer border-none bg-transparent p-0 transition ${
-              startIndex > 0
+              canScrollLeft
                 ? "text-on-surface hover:text-primary active:scale-90"
                 : "text-outline-var opacity-20 cursor-not-allowed"
             }`}
-            disabled={startIndex === 0}
-            onClick={handleShiftLeft}
+            disabled={!canScrollLeft}
+            onClick={() => handleScrollSmooth("prev")}
             type="button"
           >
             <LinearArrowRight1 className="h-4 w-4" />
@@ -169,12 +204,12 @@ export function DashboardConsultantsBarChartCard({
           <button
             aria-label="بعدی"
             className={`cursor-pointer border-none bg-transparent p-0 transition ${
-              startIndex < maxStartIndex
+              canScrollRight
                 ? "text-on-surface hover:text-primary active:scale-90"
                 : "text-outline-var opacity-20 cursor-not-allowed"
             }`}
-            disabled={startIndex >= maxStartIndex}
-            onClick={handleShiftRight}
+            disabled={!canScrollRight}
+            onClick={() => handleScrollSmooth("next")}
             type="button"
           >
             <LinearArrowLeft1 className="h-4 w-4" />
@@ -183,60 +218,67 @@ export function DashboardConsultantsBarChartCard({
       )}
 
       {/* Grouped Bar Chart or Empty State */}
-      {visibleData.length === 0 ? (
+      {dataset.length === 0 ? (
         <DashboardChartEmptyState
           title="داده‌ای برای نمایش فعالیت مشاورین وجود ندارد"
           description="عملکرد مشاورین آژانس بر اساس ثبت آگهی، بروزرسانی و نشان ویژه در این بخش درج می‌شود."
         />
       ) : (
         <>
-          <div className="mt-4 h-56 w-full [direction:ltr]">
-            <ResponsiveContainer height="100%" width="100%">
-              <BarChart
-                barGap={4}
-                barCategoryGap={32}
-                data={visibleData}
-                margin={{ top: 10, right: 0, left: -25, bottom: 0 }}
-              >
-            <CartesianGrid stroke="#EBEBEB" strokeDasharray="3 3" vertical={false} />
-            <XAxis
-              axisLine={false}
-              dataKey="name"
-              tick={{ fontSize: 10, fill: "#808080" }}
-              tickLine={false}
-            />
-            <YAxis
-              axisLine={false}
-              domain={[0, 100]}
-              tick={{ fontSize: 9, fill: "#808080" }}
-              tickFormatter={(v) => toPersianNumber(v)}
-              tickLine={false}
-              ticks={[0, 20, 40, 60, 80, 100]}
-            />
-            <Tooltip
-              content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="rounded-[8px] bg-[#222222] p-2 text-xs text-white shadow-lg [direction:rtl]">
-                      <div className="font-bold border-b border-[#444444] pb-1 mb-1">{label}</div>
-                      {payload.map((item) => (
-                        <div key={item.name} className="flex items-center justify-between gap-3 py-0.5">
-                          <span style={{ color: item.color }}>{item.name}:</span>
-                          <span className="font-bold">{toPersianNumber(item.value)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Bar dataKey="ads" fill="#0048C4" maxBarSize={8} name="آگهی" radius={[2, 2, 0, 0]} />
-            <Bar dataKey="updates" fill="#11A366" maxBarSize={8} name="بروزرسانی" radius={[2, 2, 0, 0]} />
-            <Bar dataKey="specials" fill="#FFAA2C" maxBarSize={8} name="ویژه" radius={[2, 2, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+          <div
+            ref={chartScrollRef}
+            onScroll={checkScroll}
+            className="mt-4 h-56 w-full overflow-x-auto scroll-smooth scrollbar-none [direction:ltr]"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            <div style={{ width: contentWidth, height: "100%" }}>
+              <ResponsiveContainer height="100%" width="100%">
+                <BarChart
+                  barGap={4}
+                  barCategoryGap={32}
+                  data={dataset}
+                  margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
+                >
+                  <CartesianGrid stroke="#EBEBEB" strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    axisLine={false}
+                    dataKey="name"
+                    tick={{ fontSize: 10, fill: "#808080" }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    domain={[0, 100]}
+                    tick={{ fontSize: 9, fill: "#808080" }}
+                    tickFormatter={(v) => toPersianNumber(v)}
+                    tickLine={false}
+                    ticks={[0, 20, 40, 60, 80, 100]}
+                  />
+                  <Tooltip
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="rounded-[8px] bg-[#222222] p-2 text-xs text-white shadow-lg [direction:rtl]">
+                            <div className="font-bold border-b border-[#444444] pb-1 mb-1">{label}</div>
+                            {payload.map((item) => (
+                              <div key={item.name} className="flex items-center justify-between gap-3 py-0.5">
+                                <span style={{ color: item.color }}>{item.name}:</span>
+                                <span className="font-bold">{toPersianNumber(item.value)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="ads" fill="#0048C4" maxBarSize={8} name="آگهی" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="updates" fill="#11A366" maxBarSize={8} name="بروزرسانی" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="specials" fill="#FFAA2C" maxBarSize={8} name="ویژه" radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
 
       {/* Legend */}
       <div className="mt-3 flex items-center justify-center gap-6 border-t border-[#EBEBEB] pt-3">

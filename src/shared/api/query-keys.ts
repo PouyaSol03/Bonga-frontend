@@ -246,6 +246,31 @@ export const queryKeys = {
       [...queryKeys.dashboard.all, "agent", "ranking-progress"] as const,
     agentWorkSummary: () =>
       [...queryKeys.dashboard.all, "agent", "work-summary"] as const,
+    tasks: (role: string) => [...queryKeys.dashboard.all, "tasks", role] as const,
+    rankingBadge: (role: string) => [...queryKeys.dashboard.all, "ranking-badge", role] as const,
+    credits: (role: string) => [...queryKeys.dashboard.all, "credits", role] as const,
+    urgentActions: (role: string) => [...queryKeys.dashboard.all, "urgent-actions", role] as const,
+    notifications: (role: string) => [...queryKeys.dashboard.all, "notifications", role] as const,
+    reportsTeaser: (role: string, period?: string) =>
+      [...queryKeys.dashboard.all, "reports-teaser", role, period ?? "30d"] as const,
+    recentAds: (role: string, limit?: number) =>
+      [...queryKeys.dashboard.all, "recent-ads", role, limit ?? 5] as const,
+    overview: (role: string, period: string) =>
+      [...queryKeys.dashboard.all, "overview", role, period] as const,
+    reportsOverview: (role: string, period: string) =>
+      [...queryKeys.dashboard.all, "reports", "overview", role, period] as const,
+    reportsPublishedAds: (role: string, period: string) =>
+      [...queryKeys.dashboard.all, "reports", "published-ads", role, period] as const,
+    reportsViews: (role: string, period: string) =>
+      [...queryKeys.dashboard.all, "reports", "views", role, period] as const,
+    reportsConsultantsActivity: (period: string) =>
+      [...queryKeys.dashboard.all, "reports", "consultants-activity", period] as const,
+    reportsRegistrationProgress: (role: string, period: string) =>
+      [...queryKeys.dashboard.all, "reports", "registration-progress", role, period] as const,
+    reportsConversionFunnel: (role: string, period: string) =>
+      [...queryKeys.dashboard.all, "reports", "conversion-funnel", role, period] as const,
+    reportsRankingScore: (role: string) =>
+      [...queryKeys.dashboard.all, "reports", "ranking-score", role] as const,
   },
 
   account: {

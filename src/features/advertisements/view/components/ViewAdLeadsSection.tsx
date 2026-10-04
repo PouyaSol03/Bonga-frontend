@@ -11,7 +11,9 @@ export type LeadFilterKey = "all" | "new" | "visit" | "followup" | "cancel";
 
 export interface ViewAdLeadsSectionProps {
   leads?: ViewAdLeadItem[];
+  adId?: string | number;
   onChatClick?: (lead: ViewAdLeadItem) => void;
+  onDetailsClick?: (lead: ViewAdLeadItem) => void;
   className?: string;
 }
 
@@ -25,7 +27,9 @@ const LEAD_FILTERS: { key: LeadFilterKey; label: string; statusMatch?: string }[
 
 export function ViewAdLeadsSection({
   leads = MOCK_VIEW_AD_LEADS,
+  adId,
   onChatClick,
+  onDetailsClick,
   className = "",
 }: ViewAdLeadsSectionProps) {
   const [activeFilter, setActiveFilter] = useState<LeadFilterKey>("all");
@@ -39,17 +43,16 @@ export function ViewAdLeadsSection({
   return (
     <section
       aria-label="لیست سرنخ‌های آگهی"
-      className={`flex flex-col gap-4 bg-surface-container py-4 [direction:rtl] ${className}`}
+      className={`flex flex-col [direction:rtl] ${className}`}
     >
-      {/* Filter Bar Container matching Figma / Capture */}
-      <div className="px-4">
-        <div className="flex items-center justify-between gap-1.5 rounded-2xl border border-outline-variant/70 bg-surface-container-lowest p-2 shadow-xs">
+      <div className="bg-surface-container-lowest p-4">
+        <div className="flex items-center justify-between gap-2 rounded-2xl border border-surface-container bg-surface-container-lowest p-4">
           {LEAD_FILTERS.map((f) => (
             <Chip
               key={f.key}
               selected={activeFilter === f.key}
               onClick={() => setActiveFilter(f.key)}
-              className="flex-1 justify-center py-1.5 px-1 text-xs rounded-xl"
+              className="justify-center"
             >
               {f.label}
             </Chip>
@@ -57,10 +60,15 @@ export function ViewAdLeadsSection({
         </div>
       </div>
 
-      {/* Cards List: Full-bleed white cards separated by container gap */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 bg-surface-container pb-4">
         {filteredLeads.map((lead) => (
-          <ViewAdLeadCard key={lead.id} lead={lead} onChatClick={onChatClick} />
+          <ViewAdLeadCard
+            key={lead.id}
+            lead={lead}
+            adId={adId}
+            onChatClick={onChatClick}
+            onDetailsClick={onDetailsClick}
+          />
         ))}
 
         {filteredLeads.length === 0 && (

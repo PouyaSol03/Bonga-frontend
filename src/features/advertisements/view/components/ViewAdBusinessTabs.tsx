@@ -61,7 +61,7 @@ export function ViewAdBusinessTabs({
   return (
     <nav
       aria-label="تب‌های مدیریتی آگهی"
-      className={`relative w-full h-[72px] grid grid-cols-3 bg-surface-container-lowest border-b border-outline-variant/60 shadow-xs [direction:rtl] ${className}`}
+      className={`relative z-10 w-full h-[72px] grid grid-cols-3 bg-surface-container-lowest border-b border-outline-variant/60 shadow-[0_4px_16px_0_rgba(26,26,26,0.08)] [direction:rtl] ${className}`}
     >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.key;

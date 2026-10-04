@@ -34,6 +34,7 @@ import {
   ViewAdBusinessTabs,
   type ViewAdBusinessTabKey,
 } from "../advertisements/view/components/ViewAdBusinessTabs";
+import { ViewAdPerformanceSection } from "../advertisements/view/components/performance/ViewAdPerformanceSection";
 import { ViewAdLeadsSection } from "../advertisements/view/components/ViewAdLeadsSection";
 import "../advertisements/components/AdCard.css";
 
@@ -778,55 +779,9 @@ function RealEstateManagerAdStatePage({
         />
 
         {businessTab === "lead" ? (
-          <ViewAdLeadsSection />
+          <ViewAdLeadsSection adId={adId} />
         ) : businessTab === "performance" ? (
-          <section className="bg-surface-container-lowest p-4 text-right [direction:rtl]">
-            <div className="flex items-center justify-between pb-3 border-b border-outline-variant">
-              <Typography as="h3" variant="title" size="medium" weight="semibold" className="text-on-surface">
-                آمار و عملکرد آگهی
-              </Typography>
-              <RouteLink
-                to={`/account/my-ads/${encodeURIComponent(String(adId))}/visit-statistics`}
-                className="text-xs font-semibold text-primary no-underline hover:underline"
-              >
-                گزارش تفصیلی
-              </RouteLink>
-            </div>
-            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-xl bg-surface-container p-3">
-                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs text-on-surface-variant block">
-                  بازدید کل
-                </Typography>
-                <Typography as="span" variant="title" size="medium" weight="semibold" className="mt-1 text-base text-on-surface block">
-                  {toPersianDigits((ad as any)?.view_count ?? (ad as any)?.views ?? 0)}
-                </Typography>
-              </div>
-              <div className="rounded-xl bg-surface-container p-3">
-                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs text-on-surface-variant block">
-                  تماس‌ها
-                </Typography>
-                <Typography as="span" variant="title" size="medium" weight="semibold" className="mt-1 text-base text-on-surface block">
-                  {toPersianDigits((ad as any)?.call_count ?? (ad as any)?.calls ?? 0)}
-                </Typography>
-              </div>
-              <div className="rounded-xl bg-surface-container p-3">
-                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs text-on-surface-variant block">
-                  نشان‌شده
-                </Typography>
-                <Typography as="span" variant="title" size="medium" weight="semibold" className="mt-1 text-base text-on-surface block">
-                  {toPersianDigits((ad as any)?.save_count ?? (ad as any)?.bookmarks ?? 0)}
-                </Typography>
-              </div>
-            </div>
-            <div className="mt-4">
-              <RouteLink
-                to={`/account/my-ads/${encodeURIComponent(String(adId))}/visit-statistics`}
-                className="flex h-10 w-full items-center justify-center rounded-xl bg-primary/10 text-xs font-semibold text-primary no-underline transition hover:bg-primary/20"
-              >
-                مشاهده نمودارها و آمار کامل
-              </RouteLink>
-            </div>
-          </section>
+          <ViewAdPerformanceSection adId={adId} ad={ad as Record<string, unknown>} />
         ) : (
           <>
             <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="مسئول آگهی">

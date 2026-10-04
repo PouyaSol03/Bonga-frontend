@@ -11,6 +11,7 @@ import { ConsultantTabsNav } from "./consultant-info/ConsultantTabsNav";
 import { ConsultantInfoTab } from "./consultant-info/ConsultantInfoTab";
 import { ConsultantAdsTab } from "./consultant-info/ConsultantAdsTab";
 import { ConsultantPerformanceTab } from "./consultant-info/ConsultantPerformanceTab";
+import { ConsultantPerformanceChartsView } from "./consultant-info/ConsultantPerformanceChartsView";
 import {
   buildConsultantPieCards,
   sampleConsultantAds,
@@ -30,6 +31,7 @@ export function ConsultantInfoPage({
 
   const [activeTab, setActiveTab] = useState<TabKey>("info");
   const [performancePeriod, setPerformancePeriod] = useState<PeriodKey>("month");
+  const [showPerformanceCharts, setShowPerformanceCharts] = useState(false);
 
   const consultant: TeamConsultant = {
     ...routeConsultant,
@@ -60,6 +62,17 @@ export function ConsultantInfoPage({
   const isMonth = performancePeriod === "month";
   const consultantPieCards = buildConsultantPieCards(consultant, isMonth);
 
+  if (showPerformanceCharts) {
+    return (
+      <ConsultantPerformanceChartsView
+        cards={consultantPieCards}
+        period={performancePeriod}
+        onPeriodChange={setPerformancePeriod}
+        onBack={() => setShowPerformanceCharts(false)}
+      />
+    );
+  }
+
   return (
     <section
       className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface"
@@ -89,9 +102,7 @@ export function ConsultantInfoPage({
 
           {activeTab === "performance" && (
             <ConsultantPerformanceTab
-              cards={consultantPieCards}
-              onPeriodChange={setPerformancePeriod}
-              period={performancePeriod}
+              onViewCharts={() => setShowPerformanceCharts(true)}
             />
           )}
         </div>

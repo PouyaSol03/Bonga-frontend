@@ -11,3 +11,13 @@ export type ConsultantPieDatum = {
   title: string;
   value: number;
 };
+
+export type ActivityFilterType = "all" | "ad" | "followup" | "visit" | "response";
+
+export type ConsultantActivityItem = {
+  id: string;
+  type: ActivityFilterType;
+  title: string;
+  subtitle: string;
+  timeAgo: string;
+};

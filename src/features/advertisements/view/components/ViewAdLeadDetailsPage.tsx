@@ -12,6 +12,11 @@ import {
   ViewAdLeadActivitySection,
   type ActivityLogItem,
 } from "./ViewAdLeadActivitySection";
+import {
+  useSingleLeadDetailsQuery,
+  useLeadActivitiesQuery,
+  useUpdateLeadStageMutation,
+} from "../api/singleLeadApi";
 
 export interface ViewAdLeadDetailsPageProps {
   lead?: ViewAdLeadItem;
@@ -54,22 +59,51 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
   const leadIdQuery = readLeadIdFromUrl();
   const currentAdId = props?.adId ?? (routeState?.adId as string) ?? readAdIdFromPathname();
 
-  const resolvedLead: ViewAdLeadItem =
+  const fallbackLead: ViewAdLeadItem =
     props?.lead ??
     (routeState?.lead as ViewAdLeadItem) ??
     (leadIdQuery
       ? MOCK_VIEW_AD_LEADS.find((l) => l.id === leadIdQuery) ?? MOCK_VIEW_AD_LEADS[0]
       : MOCK_VIEW_AD_LEADS[0]);
 
+  const activeLeadId = leadIdQuery ?? fallbackLead.id;
+  const { data: leadDetails } = useSingleLeadDetailsQuery(currentAdId, activeLeadId);
+  const { data: liveActivities } = useLeadActivitiesQuery(currentAdId, activeLeadId);
+  const updateStageMutation = useUpdateLeadStageMutation(currentAdId, activeLeadId);
+
+  const resolvedLead: ViewAdLeadItem = {
+    ...fallbackLead,
+    ...(leadDetails
+      ? {
+          id: String(leadDetails.id),
+          name: leadDetails.client.name,
+          phone: leadDetails.client.phone,
+          status: (leadDetails.stage?.title as any) ?? fallbackLead.status,
+          date: leadDetails.appointment?.date_jalali ?? fallbackLead.date,
+          time: leadDetails.appointment?.time ?? fallbackLead.time,
+        }
+      : {}),
+  };
+
   const defaultBackPath = currentAdId
     ? `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`
     : "/account/my-ads";
   const backTo = props?.backTo ?? (routeState?.returnTo as string) ?? defaultBackPath;
 
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState(leadDetails?.notes ?? "");
   const [activities, setActivities] = useState<ActivityLogItem[]>(DEFAULT_ACTIVITIES);
 
+  const displayActivities: ActivityLogItem[] =
+    liveActivities && liveActivities.length > 0
+      ? liveActivities.map((act) => ({
+          id: act.id,
+          time: act.occurred_at,
+          description: act.title + (act.description ? `: ${act.description}` : ""),
+        }))
+      : activities;
+
   const handleVisitConfirmed = (date: string, time: string) => {
+    updateStageMutation.mutate("visited");
     const newLog: ActivityLogItem = {
       id: `act-${Date.now()}`,
       time: "هم‌اکنون",
@@ -99,7 +133,7 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
         <div className="h-4 bg-surface-container" />
         <ViewAdLeadNotesSection note={note} onChange={setNote} />
         <div className="h-4 bg-surface-container" />
-        <ViewAdLeadActivitySection activities={activities} />
+        <ViewAdLeadActivitySection activities={displayActivities} />
       </main>
     </PageFrame>
   );

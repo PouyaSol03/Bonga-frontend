@@ -1,567 +1,101 @@
-import { useEffect, useRef, useState } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Sector } from "recharts";
-
-import LinearRanking from "../../../../shared/icons/LinearRanking";
-import LinearStar from "../../../../shared/icons/LinearStar";
-import LinearStairs from "../../../../shared/icons/LinearStairs";
-import LinearStartup from "../../../../shared/icons/LinearStartup";
-import LinearTag from "../../../../shared/icons/LinearTag";
+import { useState } from "react";
 import { TopBar } from "../../../../shared/components/TopBar";
-import { ProgressLineChartCard } from "../home/DashboardHomeOverview";
-import { useAgencyConsultantQuery } from "../../../agencies/api/agency.hooks";
-import { useAgencyDashboardQuery } from "../../api/dashboard.hooks";
 import {
-  ChevronDownIcon,
-  ConsultantProfileSummary,
-  InfoStatRow,
   getRouteConsultant,
   getRouteConsultantId,
-  mapAgencyConsultantToTeamConsultant,
+  type TeamConsultant,
 } from "./ConsultantManagementPage";
-import { Typography } from "../../../../shared/ui/Typography";
-import { Button } from "../../../../shared/ui/Button";
+import { getConsultantRankingLevel } from "../../utils/rankingLevels";
+import { ConsultantProfileHeader } from "./consultant-info/ConsultantProfileHeader";
+import { ConsultantTabsNav } from "./consultant-info/ConsultantTabsNav";
+import { ConsultantInfoTab } from "./consultant-info/ConsultantInfoTab";
+import { ConsultantAdsTab } from "./consultant-info/ConsultantAdsTab";
+import { ConsultantPerformanceTab } from "./consultant-info/ConsultantPerformanceTab";
+import {
+  buildConsultantPieCards,
+  sampleConsultantAds,
+} from "./consultant-info/mockData";
+import type { PeriodKey, TabKey } from "./consultant-info/types";
 
-type ConsultantPieDatum = {
-  agencyPercent: number;
-  badge: string;
-  badgeClassName: string;
-  color: string;
-  lightColor: string;
-  subtitle: string;
-  title: string;
-  value: number;
-};
+export { ConsultantInfoPageSkeleton } from "./consultant-info/ConsultantInfoSkeleton";
 
-function createConsultantPieDatum({
-  badgeClassName,
-  color,
-  consultantValue,
-  lightColor,
-  title,
-  total,
+export function ConsultantInfoPage({
+  consultantOverride,
 }: {
-  badgeClassName: string;
-  color: string;
-  consultantValue: number;
-  lightColor: string;
-  title: string;
-  total: number | undefined;
-}): ConsultantPieDatum {
-  const hasTotal = typeof total === "number";
-  const safeTotal = hasTotal ? Math.max(0, total) : 0;
-  const safeValue = Math.max(0, consultantValue);
-  const consultantPercent = safeTotal > 0
-    ? Math.min(100, Math.round((safeValue / safeTotal) * 100))
-    : 0;
-  const formatter = new Intl.NumberFormat("fa-IR");
-
-  return {
-    agencyPercent: safeTotal > 0 ? 100 - consultantPercent : 0,
-    badge: hasTotal ? formatter.format(safeValue) : "—",
-    badgeClassName,
-    color,
-    lightColor,
-    subtitle: hasTotal
-      ? `مورد از ${formatter.format(safeTotal)} مورد ثبت شده`
-      : "داده‌ای از سرور دریافت نشده است",
-    title,
-    value: consultantPercent,
-  };
-}
-export function ConsultantInfoPage() {
-  const routeConsultant = getRouteConsultant();
+  consultantOverride?: TeamConsultant;
+} = {}) {
+  const routeConsultant = consultantOverride ?? getRouteConsultant();
   const consultantId =
     routeConsultant.agentId ?? getRouteConsultantId() ?? routeConsultant.id;
-  const consultantQuery = useAgencyConsultantQuery({ agentId: consultantId });
-  const agencyDashboardQuery = useAgencyDashboardQuery();
 
-  if (consultantQuery.isLoading) {
-    return <ConsultantInfoPageSkeleton />;
-  }
+  const [activeTab, setActiveTab] = useState<TabKey>("info");
+  const [performancePeriod, setPerformancePeriod] = useState<PeriodKey>("month");
 
-  const consultant = consultantQuery.data
-    ? mapAgencyConsultantToTeamConsultant(consultantQuery.data)
-    : routeConsultant;
-  const formatValue = (value: number | undefined) =>
-    value === undefined
-      ? "—"
-      : new Intl.NumberFormat("fa-IR").format(value);
-  const agencyDashboard = agencyDashboardQuery.data;
-  const periodActivity = consultantQuery.data?.periodActivity;
-  const dashboardConsultantActivity = agencyDashboard?.consultantActivity.find(
-    (activity) =>
-      String(activity.userId) === String(consultant.userId ?? consultant.id),
-  );
-  const totalRenewals = agencyDashboard
-    ? agencyDashboard.consultantActivity.reduce((sum, activity) => sum + activity.renewCount, 0)
-    : undefined;
-  const totalSpecials = agencyDashboard
-    ? agencyDashboard.consultantActivity.reduce((sum, activity) => sum + activity.specialCount, 0)
-    : undefined;
-  const consultantPieCards: ConsultantPieDatum[] = [
-    createConsultantPieDatum({
-      badgeClassName: "bg-primary-container text-primary",
-      color: "var(--primary)",
-      consultantValue:
-        periodActivity?.publishedAdvertises ??
-        dashboardConsultantActivity?.advertiseCount ??
-        consultant.scores.ads,
-      lightColor: "var(--primary-container)",
-      title: "آگهی منتشر شده در آژانس",
-      total: agencyDashboard?.publishedAdvertises.total,
-    }),
-    createConsultantPieDatum({
-      badgeClassName: "bg-tertiary-container text-tertiary",
-      color: "var(--tertiary)",
-      consultantValue:
-        periodActivity?.renewUsed ??
-        dashboardConsultantActivity?.renewCount ??
-        consultant.scores.steps,
-      lightColor: "var(--tertiary-container)",
-      title: "بروزرسانی منتشر شده در آژانس",
-      total: totalRenewals,
-    }),
-    createConsultantPieDatum({
-      badgeClassName: "bg-warning-container text-warning",
-      color: "var(--warning)",
-      consultantValue:
-        periodActivity?.specialUsed ??
-        dashboardConsultantActivity?.specialCount ??
-        consultant.scores.rocket,
-      lightColor: "var(--warning-container)",
-      title: "ویژه منتشر شده در آژانس",
-      total: totalSpecials,
-    }),
-  ];
+  const consultant: TeamConsultant = {
+    ...routeConsultant,
+    name:
+      routeConsultant.name && routeConsultant.name !== "—"
+        ? routeConsultant.name
+        : "حسین رفیعی",
+    phone: routeConsultant.phone || "09156984578",
+    rankingScore: routeConsultant.rankingScore ?? 85,
+    adQuota: routeConsultant.adQuota ?? 34,
+    renewQuota: routeConsultant.renewQuota ?? 21,
+    specialQuota: routeConsultant.specialQuota ?? 11,
+    scores: {
+      ads: routeConsultant.scores?.ads ?? 51,
+      steps: routeConsultant.scores?.steps ?? 21,
+      rocket: routeConsultant.scores?.rocket ?? 11,
+    },
+  };
 
-  return (
-    <section
-      className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface"
-      dir="rtl"
-    >
-      <TopBar
-        backTo="/account/dashboard/team"
-        centerClassName="px-0"
-        reserveStartSpace
-        title="اطلاعات مشاور"
-        titleClassName="text-center text-sm font-semibold leading-5"
-      />
-
-      <main className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
-        <ConsultantProfileSummary consultant={consultant} />
-
-        <section className="mt-5 grid gap-4">
-          <article className="flex flex-col gap-12 rounded-2xl bg-surface-container-lowest px-4 py-7">
-            <InfoStatRow label="آگهی‌های فعال" value={formatValue(consultant.scores.ads)} />
-            <InfoStatRow label="درخواست فعال" value="—" />
-          </article>
-
-          <article className="flex flex-col gap-8 rounded-2xl bg-surface-container-lowest px-4 py-5">
-            <InfoStatRow
-              icon={<LinearStar className="h-6 w-6" />}
-              label="امتیاز"
-              value={formatValue(consultant.rankingScore)}
-            />
-            <InfoStatRow
-              icon={<LinearRanking className="h-6 w-6" />}
-              label="رتبه"
-              value={formatValue(consultantQuery.data?.metrics.rank)}
-            />
-          </article>
-
-          <article className="flex flex-col gap-4 rounded-2xl bg-surface-container-lowest px-4 py-5">
-            <InfoStatRow
-              icon={<LinearTag className="h-6 w-6" />}
-              iconClassName="bg-primary-container text-primary w-12 h-12"
-              labelClassName="text-sm font-medium text-on-surface-var"
-              label="مانده اعتبار آگهی"
-              value={formatValue(consultant.adQuota)}
-            />
-            <InfoStatRow
-              icon={<LinearStairs className="h-5 w-5" />}
-              iconClassName="bg-tertiary-container text-tertiary w-12 h-12"
-              labelClassName="text-sm font-medium text-on-surface-var"
-              label="مانده بروزرسانی"
-              value={formatValue(consultant.renewQuota)}
-            />
-            <InfoStatRow
-              icon={<LinearStartup className="h-5 w-5" />}
-              iconClassName="bg-warning-container text-warning w-12 h-12"
-              labelClassName="text-sm font-medium text-on-surface-var"
-              label="مانده ویژه"
-              value={formatValue(consultant.specialQuota)}
-            />
-          </article>
-
-          {consultantPieCards.map((card, index) => (
-            <ConsultantPieCard card={card} key={card.title} showTooltip={index === 0} />
-          ))}
-
-          <ProgressLineChartCard
-            data={periodActivity?.advertiseRegistrationProgress ?? []}
-            title="نمودار پیشرفت ثبت آگهی"
-            valueSuffix=" آگهی"
-          />
-        </section>
-      </main>
-    </section>
-  );
-}
-
-function ConsultantInfoSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-surface-container-high ${className}`} />;
-}
-
-function ConsultantInfoPageSkeleton() {
-  return (
-    <section
-      aria-busy="true"
-      aria-label="در حال دریافت اطلاعات مشاور"
-      className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface"
-      dir="rtl"
-      role="status"
-    >
-      <TopBar
-        backTo="/account/dashboard/team"
-        centerClassName="px-0"
-        reserveStartSpace
-        title="اطلاعات مشاور"
-        titleClassName="text-center text-sm font-semibold leading-5"
-      />
-
-      <main className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
-        <article className="mt-4 rounded-2xl bg-surface-container-lowest p-4">
-          <div className="flex items-center gap-4">
-            <ConsultantInfoSkeletonBlock className="h-16 w-16 shrink-0 rounded-full" />
-            <div className="min-w-0 flex-1 space-y-3">
-              <ConsultantInfoSkeletonBlock className="ml-auto h-5 w-32" />
-              <ConsultantInfoSkeletonBlock className="ml-auto h-4 w-24" />
-            </div>
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            <ConsultantInfoSkeletonBlock className="h-10 w-full rounded-xl" />
-            <ConsultantInfoSkeletonBlock className="h-10 w-full rounded-xl" />
-          </div>
-        </article>
-
-        <section className="mt-5 grid gap-4">
-          <ConsultantInfoRowsSkeleton rows={2} />
-          <ConsultantInfoRowsSkeleton rows={2} />
-          <ConsultantInfoRowsSkeleton rows={3} />
-
-          {Array.from({ length: 3 }, (_, index) => (
-            <article className="rounded-2xl bg-surface-container-lowest p-4" key={index}>
-              <div className="flex items-center justify-between">
-                <ConsultantInfoSkeletonBlock className="h-5 w-40" />
-                <ConsultantInfoSkeletonBlock className="h-7 w-16" />
-              </div>
-              <div className="mt-3 flex items-center gap-2">
-                <ConsultantInfoSkeletonBlock className="h-6 w-12" />
-                <ConsultantInfoSkeletonBlock className="h-4 w-36" />
-              </div>
-              <ConsultantInfoSkeletonBlock className="mx-auto mt-7 h-[180px] w-[180px] rounded-full" />
-              <div className="mt-8 grid grid-cols-2 gap-8">
-                <ConsultantInfoSkeletonBlock className="h-12 w-full" />
-                <ConsultantInfoSkeletonBlock className="h-12 w-full" />
-              </div>
-            </article>
-          ))}
-
-          <article className="rounded-2xl bg-surface-container-lowest p-4">
-            <ConsultantInfoSkeletonBlock className="ml-auto h-5 w-40" />
-            <ConsultantInfoSkeletonBlock className="mt-7 h-[220px] w-full" />
-          </article>
-        </section>
-      </main>
-
-      <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">در حال دریافت اطلاعات مشاور...</Typography>
-    </section>
-  );
-}
-
-function ConsultantInfoRowsSkeleton({ rows }: { rows: number }) {
-  return (
-    <article className="rounded-2xl bg-surface-container-lowest px-4 py-5">
-      <div className="grid gap-8">
-        {Array.from({ length: rows }, (_, index) => (
-          <div className="flex items-center justify-between" key={index}>
-            <div className="flex items-center gap-3">
-              <ConsultantInfoSkeletonBlock className="h-10 w-10 shrink-0 rounded-xl" />
-              <ConsultantInfoSkeletonBlock className="h-4 w-28" />
-            </div>
-            <ConsultantInfoSkeletonBlock className="h-5 w-10" />
-          </div>
-        ))}
-      </div>
-    </article>
-  );
-}
-
-function ConsultantPieCard({
-  card,
-  showTooltip,
-}: {
-  card: ConsultantPieDatum;
-  showTooltip?: boolean;
-}) {
-  const hasChartData = card.value + card.agencyPercent > 0;
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(
-    showTooltip && hasChartData ? 1 : null,
-  );
-  const pieContainerRef = useRef<HTMLDivElement | null>(null);
-  const data = [
-    { color: card.lightColor, name: "آژانس", value: card.agencyPercent },
-    { color: card.color, name: "مشاور", value: card.value },
-  ];
-  const selectedEntry = selectedIndex === null ? null : data[selectedIndex];
-  const selectedGeometry =
-    selectedIndex === null || !hasChartData
-      ? null
-      : getPieSelectionGeometry(data, selectedIndex);
-
-  useEffect(() => {
-    if (selectedIndex === null) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      const container = pieContainerRef.current;
-
-      if (!container?.contains(event.target as Node)) {
-        setSelectedIndex(null);
-        return;
-      }
-
-      const rect = container.getBoundingClientRect();
-      const scaleX = pieChartSize / rect.width;
-      const scaleY = pieChartSize / rect.height;
-      const pointerX = (event.clientX - rect.left) * scaleX;
-      const pointerY = (event.clientY - rect.top) * scaleY;
-      const distanceFromCenter = Math.hypot(pointerX - pieCenter, pointerY - pieCenter);
-
-      if (distanceFromCenter > pieOuterRadius + pieSelectedOffset + 12) {
-        setSelectedIndex(null);
-      }
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [selectedIndex]);
-
-  return (
-    <article className="rounded-2xl bg-surface-container-lowest p-4">
-      <div className="mb-7 grid gap-3">
-        <div className="flex items-center justify-between">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">
-            {card.title}
-          </Typography>
-          <Button unstyled className="flex h-7 items-center gap-1 rounded-lg bg-transparent px-2 py-1 text-xs font-medium text-on-surface" type="button">
-            در ماه
-            <ChevronDownIcon className="h-4 w-4 text-on-surface-var" />
-          </Button>
-        </div>
-        <div className="flex items-center justify-start gap-2">
-          <Typography as="span" variant="label" size="large" weight="semibold" className={`rounded px-2 py-0.5 text-base font-semibold ${card.badgeClassName}`}>
-            {card.badge}
-          </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-outline">
-            {card.subtitle}
-          </Typography>
-        </div>
-      </div>
-
-      <div ref={pieContainerRef} className="relative mx-auto h-[220px] max-w-[220px]" dir="ltr">
-        {selectedEntry && selectedGeometry ? (
-          <>
-            <svg
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 z-10 h-full w-full overflow-visible"
-              viewBox={`0 0 ${pieChartSize} ${pieChartSize}`}
-            >
-              <line
-                x1={selectedGeometry.lineStartX}
-                y1={selectedGeometry.lineStartY}
-                x2={selectedGeometry.lineEndX}
-                y2={selectedGeometry.lineEndY}
-                stroke="var(--on-surface)"
-                strokeLinecap="round"
-                strokeWidth="1.6"
-              />
-              <circle
-                cx={selectedGeometry.dotX}
-                cy={selectedGeometry.dotY}
-                fill="var(--on-surface)"
-                r="7"
-              />
-            </svg>
-            <div
-              className="absolute z-20 grid place-items-center rounded-lg bg-inverse-surface text-center text-xs font-semibold leading-4 text-inverse-on-surface shadow-md"
-              style={{
-                height: pieTooltipHeight,
-                left: selectedGeometry.tooltipLeft,
-                top: selectedGeometry.tooltipTop,
-                width: pieTooltipWidth,
-              }}
-            >
-              <Typography as="span" variant="body" size="medium" weight="regular">
-                {selectedEntry.name}
-                <br />
-                {selectedEntry.value}٪
-              </Typography>
-            </div>
-          </>
-        ) : null}
-        <ResponsiveContainer height="100%" width="100%">
-          <PieChart className="outline-none [&_*:focus]:outline-none" tabIndex={-1}>
-            <Pie
-              data={data}
-              dataKey="value"
-              isAnimationActive={false}
-              nameKey="name"
-              outerRadius={pieOuterRadius}
-              startAngle={90}
-              endAngle={-270}
-              stroke="none"
-            >
-              {data.map((entry, index) => (
-                <Cell
-                  className="cursor-pointer outline-none"
-                  fill={selectedIndex === index ? "transparent" : entry.color}
-                  key={entry.name}
-                  onClick={() => setSelectedIndex(index)}
-                />
-              ))}
-            </Pie>
-            {selectedIndex !== null && data[selectedIndex] && hasChartData ? (
-              <PulledPieSlice
-                color={data[selectedIndex].color}
-                data={data}
-                selectedIndex={selectedIndex}
-              />
-            ) : null}
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div className="mt-8 grid grid-cols-2 gap-8 text-center">
-        <PieLegendItem color={card.color} label="مشاور" value={`${card.value}٪`} />
-        <PieLegendItem color={card.lightColor} label="آژانس" value={`${card.agencyPercent}٪`} />
-      </div>
-    </article>
-  );
-}
-
-type PieSelectionDatum = {
-  value: number;
-};
-
-const pieChartSize = 220;
-const pieCenter = pieChartSize / 2;
-const pieOuterRadius = 74;
-const pieSelectedOffset = 9;
-const pieTooltipWidth = 76;
-const pieTooltipHeight = 48;
-const pieTooltipGap = 28;
-const pieTooltipLineOverlap = 6;
-
-function getPieSelectionGeometry(data: PieSelectionDatum[], selectedIndex: number) {
-  const total = data.reduce((sum, item) => sum + item.value, 0);
-  if (total <= 0) return null;
-  const precedingValue = data
-    .slice(0, selectedIndex)
-    .reduce((sum, item) => sum + item.value, 0);
-  const selectedValue = data[selectedIndex]?.value ?? 0;
-  
-  const startAngle = 90 - (precedingValue / total) * 360;
-  const midAngle = startAngle - (selectedValue / total) * 180;
-  const radians = (Math.PI / 180) * midAngle;
-  
-  const selectedCenterX = pieCenter + pieSelectedOffset * Math.cos(radians);
-  const selectedCenterY = pieCenter - pieSelectedOffset * Math.sin(radians);
-  
-  const pointAt = (radius: number) => ({
-    x: selectedCenterX + radius * Math.cos(radians),
-    y: selectedCenterY - radius * Math.sin(radians),
+  const rankingLevel = getConsultantRankingLevel({
+    score: consultant.rankingScore ?? 85,
+    levelTitle:
+      (consultant as unknown as { levelTitle?: string }).levelTitle ?? "مشاور منتخب",
+    levelSlug:
+      (consultant as unknown as { levelSlug?: string }).levelSlug ?? "selected_agent",
   });
 
-  const dot = pointAt(38); // Dot stays deep inside the slice
-  const isLeft = dot.x < pieCenter;
-  const isTop = dot.y < pieCenter;
-
-  const tooltipLeft = isLeft
-    ? dot.x - pieTooltipWidth - pieTooltipGap
-    : dot.x + pieTooltipGap;
-  const tooltipTop = isTop
-    ? dot.y - pieTooltipHeight - pieTooltipGap
-    : dot.y + pieTooltipGap;
-
-  const lineEndX = isLeft
-    ? tooltipLeft + pieTooltipWidth - pieTooltipLineOverlap
-    : tooltipLeft + pieTooltipLineOverlap;
-  const lineEndY = isTop
-    ? tooltipTop + pieTooltipHeight - pieTooltipLineOverlap
-    : tooltipTop + pieTooltipLineOverlap;
-
-  return {
-    dotX: dot.x,
-    dotY: dot.y,
-    endAngle: startAngle - (selectedValue / total) * 360,
-    lineStartX: dot.x,
-    lineStartY: dot.y,
-    lineEndX,
-    lineEndY,
-    midAngle,
-    startAngle,
-    tooltipLeft,
-    tooltipTop,
-  };
-}
-
-function PulledPieSlice({
-  color,
-  data,
-  selectedIndex,
-}: {
-  color: string;
-  data: PieSelectionDatum[];
-  selectedIndex: number;
-}) {
-  const geometry = getPieSelectionGeometry(data, selectedIndex);
-  if (!geometry) return null;
-  const radians = (Math.PI / 180) * geometry.midAngle;
-  const cx = pieCenter + pieSelectedOffset * Math.cos(radians);
-  const cy = pieCenter - pieSelectedOffset * Math.sin(radians);
+  const isMonth = performancePeriod === "month";
+  const consultantPieCards = buildConsultantPieCards(consultant, isMonth);
 
   return (
-    <Sector
-      cx={cx}
-      cy={cy}
-      endAngle={geometry.endAngle}
-      fill={color}
-      innerRadius={0}
-      outerRadius={pieOuterRadius}
-      stroke="none"
-      startAngle={geometry.startAngle}
-    />
-  );
-}
+    <section
+      className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface"
+      dir="rtl"
+    >
+      <TopBar
+        backTo="/account/dashboard/team"
+        centerClassName="px-0"
+        reserveStartSpace
+        title="اطلاعات مشاور"
+        titleClassName="text-center text-sm font-semibold leading-5"
+      />
 
-function PieLegendItem({
-  color,
-  label,
-  value,
-}: {
-  color: string;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="grid justify-items-center gap-1">
-      <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex items-center gap-1.5 text-sm font-medium leading-5 text-on-surface-var">
-        <Typography as="span" variant="body" size="medium" weight="regular" className="h-3 w-3 rounded-full" style={{ backgroundColor: color }} />
-        {label}
-      </Typography>
-      <strong className="text-base font-semibold leading-6 text-on-surface">
-        {value}
-      </strong>
-    </div>
+      <main className="min-h-0 flex-1 overflow-y-auto">
+        <ConsultantProfileHeader consultant={consultant} consultantId={consultantId} />
+
+        <ConsultantTabsNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+        <div className="space-y-2.5 bg-surface-container-low pb-8">
+          {activeTab === "info" && (
+            <ConsultantInfoTab consultant={consultant} rankingLevel={rankingLevel} />
+          )}
+
+          {activeTab === "ads" && (
+            <ConsultantAdsTab ads={sampleConsultantAds} />
+          )}
+
+          {activeTab === "performance" && (
+            <ConsultantPerformanceTab
+              cards={consultantPieCards}
+              onPeriodChange={setPerformancePeriod}
+              period={performancePeriod}
+            />
+          )}
+        </div>
+      </main>
+    </section>
   );
 }

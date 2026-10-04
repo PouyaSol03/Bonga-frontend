@@ -54,6 +54,7 @@ export function NotificationsPage() {
     markAllUnread,
     notifications,
     notificationsQuery,
+    observeNotificationNode,
     openNotification,
     refreshNotifications,
     removeFilter,
@@ -116,7 +117,14 @@ export function NotificationsPage() {
             return (
               <div
                 key={String(notification.id)}
-                ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
+                ref={(node) => {
+                  if (shouldAttachLoadMoreRef) loadMoreSentinelRef(node);
+                  observeNotificationNode(
+                    node,
+                    String(notification.id),
+                    notification.is_read,
+                  );
+                }}
               >
                 <SwipeableNotificationCard
                   agencyRequestDecision={

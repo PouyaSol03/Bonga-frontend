@@ -84,14 +84,6 @@ type PreferencesResponse =
     }
   | NotificationPreference[];
 
-type NotificationResponse =
-  | {
-      data?: NotificationItem;
-      notification?: NotificationItem;
-      status?: boolean;
-    }
-  | NotificationItem;
-
 function normalizeNotification(notification: NotificationItem) {
   const id =
     typeof notification.id === "string"
@@ -116,18 +108,6 @@ function readNotifications(response: NotificationsResponse) {
   }
 
   return [];
-}
-
-function readNotification(response: NotificationResponse) {
-  if ("notification" in response && response.notification) {
-    return normalizeNotification(response.notification as NotificationItem);
-  }
-
-  if ("data" in response && response.data) {
-    return normalizeNotification(response.data as NotificationItem);
-  }
-
-  return normalizeNotification(response as NotificationItem);
 }
 
 function readPreferences(response: PreferencesResponse) {
@@ -224,12 +204,33 @@ export async function updateNotificationPreference({
   return response as NotificationPreference;
 }
 
-export async function markNotificationRead(notificationId: string) {
-  const response = await api
-    .patch(`notifications/${notificationId}/read`)
-    .json<NotificationResponse>();
+export type MarkNotificationsReadResponse = {
+  affected?: number;
+  status?: boolean;
+};
 
-  return readNotification(response);
+export async function markNotificationsAsRead(
+  notificationIds: (number | string)[] | number | string,
+): Promise<MarkNotificationsReadResponse> {
+  const ids = Array.isArray(notificationIds)
+    ? notificationIds.map(String).filter(Boolean).join(",")
+    : String(notificationIds);
+
+  if (!ids) {
+    return { affected: 0, status: true };
+  }
+
+  return api
+    .post("notifications/read", {
+      json: {
+        notifications_ids: ids,
+      },
+    })
+    .json<MarkNotificationsReadResponse>();
+}
+
+export async function markNotificationRead(notificationId: string) {
+  return markNotificationsAsRead(notificationId);
 }
 
 export function markAllNotificationsRead(category?: NotificationCategory) {

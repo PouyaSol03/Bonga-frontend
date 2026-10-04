@@ -9,6 +9,7 @@ import {
   getNotifications,
   markAllNotificationsRead,
   markNotificationRead,
+  markNotificationsAsRead,
   updateNotificationPreference,
   type NotificationCategory,
   type NotificationListFilters,
@@ -75,6 +76,38 @@ export function useNotificationPreferencesQuery() {
 function invalidateNotifications() {
   void queryClient.invalidateQueries({
     queryKey: queryKeys.notifications.all,
+  });
+}
+
+export function markNotificationsReadInCache(
+  notificationIds: (number | string)[],
+) {
+  const idSet = new Set(notificationIds.map(String));
+  queryClient.setQueriesData<InfiniteData<NotificationsPageResult, number>>(
+    { queryKey: [...queryKeys.notifications.all, "list"] },
+    (current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        pages: current.pages.map((page) => ({
+          ...page,
+          data: page.data.map((item) =>
+            idSet.has(String(item.id)) ? { ...item, is_read: true } : item,
+          ),
+        })),
+      };
+    },
+  );
+}
+
+export function useMarkNotificationsReadMutation() {
+  return useMutation({
+    mutationFn: markNotificationsAsRead,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [...queryKeys.notifications.all, "unread-count"],
+      });
+    },
   });
 }
 

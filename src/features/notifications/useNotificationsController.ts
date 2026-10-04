@@ -14,6 +14,7 @@ import { useAgencyConsultantRequestDecisionMutation } from "../agencies/api/agen
 import { notificationFilterOptions, notificationsPerPage } from "./types";
 import { useNotificationRealtimeSocket } from "./useNotificationRealtimeSocket";
 import { useNotificationActions } from "./useNotificationActions";
+import { useNotificationInViewReader } from "./useNotificationInViewReader";
 
 function mergeNotifications(
   realtimeNotifications: NotificationItem[],
@@ -145,11 +146,14 @@ export function useNotificationsController() {
     setRealtimeNotifications,
   });
 
+  const { observeNotificationNode } = useNotificationInViewReader({
+    setRealtimeNotifications,
+  });
+
   const toggleFilter = (id: NotificationCategory) => {
     setSelectedFilterIds((current) => {
       const next = new Set(current);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   };
@@ -172,6 +176,7 @@ export function useNotificationsController() {
     markAllUnread,
     notifications,
     notificationsQuery,
+    observeNotificationNode,
     removeFilter,
     selectedFilterIds,
     selectedFilters,

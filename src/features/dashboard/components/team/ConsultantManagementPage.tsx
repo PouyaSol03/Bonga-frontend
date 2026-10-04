@@ -5,9 +5,6 @@ import LinearDelete from "../../../../shared/icons/LinearDelete";
 import LinearEdit2 from "../../../../shared/icons/LinearEdit2";
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
 import LinearSearch from "../../../../shared/icons/LinearSearch";
-import LinearStairs from "../../../../shared/icons/LinearStairs";
-import LinearStartup from "../../../../shared/icons/LinearStartup";
-import LinearTag from "../../../../shared/icons/LinearTag";
 import LinearUserAdd from "../../../../shared/icons/LinearUserAdd";
 import LinearUserSolid from "../../../../shared/icons/LinearUserSolid";
 import { RadioIndicator } from "../../../../shared/components/RadioIndicator";
@@ -32,7 +29,7 @@ import { Typography } from "../../../../shared/ui/Typography";
 import { useAgencyDashboardQuery } from "../../api/dashboard.hooks";
 import { Button } from "../../../../shared/ui/Button";
 import { TextField } from "../../../../shared/ui/TextField";
-import { toPersianNumber } from "../../../../shared/lib/numberUtils";
+import { toEnglishDigits, toPersianNumber } from "../../../../shared/lib/numberUtils";
 
 type ConsultantStatus = "active" | "pending";
 
@@ -114,7 +111,7 @@ export const managerAccessItems = [
   { id: "support", label: "پشتیبانی" },
 ];
 
-const consultantTeamPaths = {
+export const consultantTeamPaths = {
   edit: "/account/dashboard/team/edit",
   info: "/account/dashboard/team/info",
   remove: "/account/dashboard/team/remove",
@@ -815,7 +812,16 @@ function TeamFilterButton({
   );
 }
 
-function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
+export function formatPhoneNumber(phone?: string) {
+  if (!phone) return "";
+  const enDigits = toEnglishDigits(phone).replace(/\D/g, "");
+  if (enDigits.length === 11 && enDigits.startsWith("09")) {
+    return toPersianNumber(`${enDigits.slice(0, 4)} ${enDigits.slice(4, 7)} ${enDigits.slice(7)}`);
+  }
+  return toPersianNumber(phone);
+}
+
+export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
   const isPending = consultant.status === "pending";
   const cancelRequestMutation = useCancelAgencyConsultantRequestMutation();
   const [cancelError, setCancelError] = useState("");
@@ -834,15 +840,24 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
     });
   };
 
+  const actionTargetId = consultant.agentId ?? consultant.id;
+
   return (
-    <article className="bg-surface-container-lowest px-4 pb-4 pt-5">
+    <article className="w-full bg-surface-container-lowest p-4 [direction:rtl]">
       {isPending && (
         <div className="mb-4">
           <div className="flex items-center justify-between">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="rounded-lg bg-warning-container/30 px-4 py-2 text-warning">
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="rounded-lg bg-warning-container/30 px-4 py-2 text-warning"
+            >
               در انتظار تایید انتشار
             </Typography>
-            <Button unstyled
+            <Button
+              unstyled
               className="inline-flex items-center gap-2 rounded-lg bg-surface-container-lowest px-1 !text-sm font-medium text-on-error-container disabled:opacity-50"
               disabled={!consultant.agentId || cancelRequestMutation.isPending}
               onClick={cancelRequest}
@@ -853,100 +868,115 @@ function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             </Button>
           </div>
           {cancelError ? (
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs text-on-error-container">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="m-0 mt-2 text-xs text-on-error-container"
+            >
               {cancelError}
             </Typography>
           ) : null}
         </div>
       )}
 
-      <div className="flex items-center gap-2">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-on-surface">
-          {consultant.name}
-        </Typography>
-        <Typography as="span" variant="body" size="small" weight="medium" className="rounded-lg px-2 py-0.5 text-xs text-outline bg-surface-container font-medium">
-          {consultant.roleLabel || "مشاور"}
-        </Typography>
+      <div className="flex items-center gap-4">
+        <ConsultantAvatar consultant={consultant} sizeClassName="h-14 w-14" />
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
+          <Typography
+            as="h2"
+            variant="label"
+            size="large"
+            weight="semibold"
+            className="m-0 truncate text-on-surface"
+          >
+            {consultant.name}
+          </Typography>
+          <div className="flex items-center gap-2 text-on-surface-var">
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-outline"
+            >
+              {consultant.roleLabel || "مشاور"}
+            </Typography>
+            {consultant.phone ? (
+              <>
+                <span className="h-5 w-px bg-outline-var" />
+                <Typography
+                  as="span"
+                  dir="ltr"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="text-outline [direction:ltr]"
+                >
+                  {formatPhoneNumber(consultant.phone)}
+                </Typography>
+              </>
+            ) : null}
+          </div>
+        </div>
       </div>
 
       {!isPending && (
-        <>
-          <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-            <ConsultantStat
-              tone="blue"
-              icon={<LinearTag className="h-6 w-6" />}
-              value={consultant.adQuota ?? 0}
-            />
-            <ConsultantStat
-              tone="green"
-              icon={<LinearStairs className="h-5 w-5" />}
-              value={consultant.renewQuota ?? 0}
-            />
-            <ConsultantStat
-              tone="orange"
-              icon={<LinearStartup className="h-5 w-5" />}
-              value={consultant.specialQuota ?? 0}
-            />
-          </div>
-
-          <div className="mt-4 grid h-10 py-2 grid-cols-3 overflow-hidden rounded-lg bg-surface-container text-xs font-medium text-on-surface-var">
-            <RouteLink
-              className="flex justify-center items-center gap-2 border-l border-outline-var"
-              state={{ consultant }}
-              to={`${consultantTeamPaths.info}/${consultant.agentId ?? consultant.id}`}
+        <div className="mt-6 flex h-10 items-center overflow-hidden rounded-[10px] bg-surface-container">
+          <RouteLink
+            className="flex h-full flex-1 items-center justify-center gap-1.5"
+            state={{ consultant }}
+            to={`${consultantTeamPaths.info}/${actionTargetId}`}
+          >
+            <LinearInfoCircle className="h-5 w-5 text-on-surface-var" />
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-on-surface"
             >
-              <LinearInfoCircle className="w-5 h-5" />
               اطلاعات
-            </RouteLink>
-            <RouteLink
-              className="flex justify-center items-center gap-2 border-l border-outline-var"
-              state={{ consultant }}
-              to={`${consultantTeamPaths.edit}/${consultant.agentId ?? consultant.id}`}
+            </Typography>
+          </RouteLink>
+          <span className="h-6 w-px bg-outline-var" />
+          <RouteLink
+            className="flex h-full flex-1 items-center justify-center gap-1.5"
+            state={{ consultant }}
+            to={`${consultantTeamPaths.edit}/${actionTargetId}`}
+          >
+            <LinearEdit2 className="h-5 w-5 text-on-surface-var" />
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-on-surface"
             >
-              <LinearEdit2 className="w-5 h-5" />
               ویرایش
-            </RouteLink>
-            <RouteLink
-              className="flex justify-center items-center gap-2"
-              state={{ consultant }}
-              to={`${consultantTeamPaths.remove}/${consultant.agentId ?? consultant.id}`}
+            </Typography>
+          </RouteLink>
+          <span className="h-6 w-px bg-outline-var" />
+          <RouteLink
+            className="flex h-full flex-1 items-center justify-center gap-1.5"
+            state={{ consultant }}
+            to={`${consultantTeamPaths.remove}/${actionTargetId}`}
+          >
+            <LinearDelete className="h-5 w-5 text-on-surface-var" />
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-on-surface"
             >
-              <LinearDelete className="w-5 h-5" />
               حذف
-            </RouteLink>
-          </div>
-        </>
+            </Typography>
+          </RouteLink>
+        </div>
       )}
     </article>
-  );
-}
-
-function ConsultantStat({
-  icon,
-  tone,
-  value,
-}: {
-  icon: ReactNode;
-  tone: "blue" | "green" | "orange";
-  value: number;
-}) {
-  const toneClassNames = {
-    blue: "bg-primary-container text-primary",
-    green: "bg-tertiary-container/30 text-tertiary",
-    orange: "bg-warning-container/30 text-warning",
-  };
-
-  return (
-    <div className="grid justify-items-center gap-2">
-      <Typography as="span" variant="body" size="medium" weight="regular"
-        className={`grid h-10 w-10 place-items-center rounded-xl ${toneClassNames[tone]}`}
-      >
-        {icon}
-      </Typography>
-      <Typography as="span" variant="label" size="medium" weight="semibold" className="text-sm font-semibold leading-5 text-on-surface">
-        {toPersianNumber(value)}
-      </Typography>
-    </div>
   );
 }
 

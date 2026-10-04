@@ -133,7 +133,7 @@ export function AdCard({
   variant = 'standard',
   onDeleteIncomplete,
 }: AdCardProps) {
-  const hasSecondaryPrice = Boolean(ad.priceLabelSecondary && ad.priceSecondary)
+  const hasSecondaryPrice = Boolean(ad.priceSecondary && ad.priceSecondary.trim() !== '')
   const linkState = getAdNavigationState(to, state)
 
   if (variant === 'mapPreview') {
@@ -157,18 +157,12 @@ export function AdCard({
           title={ad.title}
         />
 
-        <div className="mt-2 flex min-h-5 items-baseline justify-start [direction:rtl]">
-          <strong className="truncate text-base font-semibold leading-6 text-primary">
-            {resolveAdCategory(ad) === 'project-partnership'
-              ? `درصد مشارکت: ${ad.builderShare ? (ad.builderShare.includes('٪') || ad.builderShare.includes('%') ? ad.builderShare : `${ad.builderShare}٪`) : (ad.pricePrimary && ad.pricePrimary !== 'توافقی' ? ad.pricePrimary : 'توافقی')}`
-              : resolveAdCategory(ad) === 'project-presale'
-                ? (ad.priceSecondary
-                    ? `قیمت متری: ${ad.pricePrimary} تا ${ad.priceSecondary}`
-                    : `قیمت متری: ${ad.pricePrimary}`)
-                : isDailyRentCategory(resolveAdCategory(ad)) && ad.priceSecondary
-                  ? `${ad.pricePrimary} تا ${ad.priceSecondary}`
-                  : ad.pricePrimary}
-          </strong>
+        <div className="mt-2 flex min-h-6 items-center justify-start [direction:rtl]">
+          <AdCardPriceRow
+            ad={ad}
+            category={resolveAdCategory(ad)}
+            hasSecondaryPrice={hasSecondaryPrice}
+          />
         </div>
 
         <PropertyRow className="mt-1.5 min-h-6 flex-wrap gap-3 text-[13px]" ad={ad} />

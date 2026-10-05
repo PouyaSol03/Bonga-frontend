@@ -1,12 +1,9 @@
 import { useMemo, useState } from "react";
-
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
-import LinearBuilding3 from "../../../../shared/icons/LinearBuilding3";
 import LinearDanger from "../../../../shared/icons/LinearDanger";
-import LinearSearch from "../../../../shared/icons/LinearSearch";
-import { SelectionCheckIndicator } from "../../../../shared/components/SelectionCheckIndicator";
 import { TopBar } from "../../../../shared/components/TopBar";
-import { SearchEmptyState } from "../../../../shared/components/SearchEmptyState";
+import { Typography } from "../../../../shared/ui/Typography";
+import { Button } from "../../../../shared/ui/Button";
 import { useMyAgencyProfileQuery } from "../../../account/api/account.hooks";
 import {
   useAgencyConsultantQuery,
@@ -14,19 +11,16 @@ import {
   useDeactivateAgencyConsultantMutation,
 } from "../../../agencies/api/agency.hooks";
 import {
-  ConsultantAvatar,
   ConsultantProfilePill,
-  type TeamConsultant,
   getRouteConsultant,
   getRouteConsultantId,
   mapAgencyConsultantToTeamConsultant,
 } from "./ConsultantManagementPage";
-import { Typography } from "../../../../shared/ui/Typography";
-import { Button } from "../../../../shared/ui/Button";
-
-type ReplacementTarget =
-  | { id: "agency"; kind: "agency"; name: string; subtitle: string }
-  | { id: string; kind: "consultant"; consultant: TeamConsultant };
+import {
+  getReplacementLabel,
+  ReplacementPicker,
+  type ReplacementTarget,
+} from "./remove-consultant/ConsultantRemoveReplacementPicker";
 
 export function ConsultantRemovePage() {
   const routeConsultant = getRouteConsultant();
@@ -108,7 +102,8 @@ export function ConsultantRemovePage() {
           <label className="block text-right text-base font-semibold leading-6 text-on-surface">
             انتخاب مشاور جایگزین <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
           </label>
-          <Button unstyled
+          <Button
+            unstyled
             className="mt-3 flex h-14 w-full items-center justify-between rounded-xl border border-outline bg-surface-container-lowest px-4 text-sm font-medium leading-5 text-on-surface"
             onClick={() => setIsReplacementPickerOpen(true)}
             type="button"
@@ -189,182 +184,4 @@ export function ConsultantRemovePage() {
       ) : null}
     </section>
   );
-}
-
-function ReplacementPicker({
-  agencyTarget,
-  consultants,
-  currentConsultant,
-  onClose,
-  onConfirm,
-  selectedTarget,
-}: {
-  agencyTarget: ReplacementTarget;
-  consultants: TeamConsultant[];
-  currentConsultant: TeamConsultant;
-  onClose: () => void;
-  onConfirm: (target: ReplacementTarget) => void;
-  selectedTarget: ReplacementTarget | null;
-}) {
-  const [searchValue, setSearchValue] = useState("");
-  const [draftTarget, setDraftTarget] =
-    useState<ReplacementTarget | null>(selectedTarget);
-  const normalizedSearch = searchValue.trim();
-  const currentAgentId = currentConsultant.agentId ?? currentConsultant.id;
-  const currentUserId = currentConsultant.userId;
-  const replacementTargets = useMemo<ReplacementTarget[]>(() => {
-    const consultantTargets = consultants
-      .filter(
-        (item) =>
-          item.status === "active" &&
-          item.id !== currentAgentId &&
-          (currentAgentId === undefined || item.agentId !== currentAgentId) &&
-          (currentUserId === undefined || item.userId !== currentUserId),
-      )
-      .map<ReplacementTarget>((item) => ({
-        id: `consultant-${item.agentId ?? item.id}`,
-        kind: "consultant",
-        consultant: item,
-      }));
-
-    return [agencyTarget, ...consultantTargets];
-  }, [agencyTarget, consultants, currentAgentId, currentUserId]);
-  const visibleTargets = useMemo(() => {
-    if (!normalizedSearch) return replacementTargets;
-
-    return replacementTargets.filter((target) =>
-      getReplacementSearchText(target).includes(normalizedSearch),
-    );
-  }, [normalizedSearch, replacementTargets]);
-
-  return (
-    <section
-      aria-label="انتخاب مشاور جایگزین"
-      aria-modal="true"
-      className="fixed inset-y-0 left-1/2 z-[1100] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-surface-container text-on-surface"
-      dir="rtl"
-      role="dialog"
-    >
-      <TopBar
-        placement="inline"
-        centerClassName="px-0"
-        onBack={onClose}
-        reserveStartSpace
-        title="انتخاب مشاور"
-        titleClassName="text-center text-sm font-semibold leading-5"
-      />
-
-      <main className="min-h-0 flex-1 overflow-y-auto pb-24">
-        <div className="bg-surface-container-lowest px-4 pb-5 pt-3">
-          <label className="flex h-12 items-center gap-2 rounded-lg border border-outline-var bg-surface-container-lowest px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
-            <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-on-surface outline-none placeholder:text-outline"
-              onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="جستجوی مشاور"
-              type="search"
-              value={searchValue}
-            />
-            <LinearSearch className="h-5 w-5 shrink-0 text-on-surface-var" />
-          </label>
-        </div>
-
-        <section className="bg-surface-container-lowest px-4 py-4">
-          <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-xs font-semibold leading-5 text-on-surface">
-            نتیجه جستجو
-          </Typography>
-
-          {visibleTargets.length > 0 ? (
-            <div className="mt-3 space-y-2">
-              {visibleTargets.map((target) => {
-                const isSelected = draftTarget?.id === target.id;
-
-                return (
-                  <ReplacementOption
-                    isSelected={isSelected}
-                    key={target.id}
-                    onSelect={() => setDraftTarget(target)}
-                    target={target}
-                  />
-                );
-              })}
-            </div>
-          ) : normalizedSearch ? (
-            <SearchEmptyState compact />
-          ) : (
-            <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 w-full px-2 py-8 text-center text-sm font-medium leading-6 text-outline">
-              مشاور دیگری برای جایگزینی وجود ندارد.
-            </Typography>
-          )}
-        </section>
-      </main>
-
-      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
-        <Button
-          fullWidth
-          disabled={!draftTarget}
-          size="x-medium"
-          variant="primary"
-          onClick={() => {
-            if (draftTarget) onConfirm(draftTarget);
-          }}
-          type="button"
-        >
-          تایید
-        </Button>
-      </div>
-    </section>
-  );
-}
-
-function ReplacementOption({
-  isSelected,
-  onSelect,
-  target,
-}: {
-  isSelected: boolean;
-  onSelect: () => void;
-  target: ReplacementTarget;
-}) {
-  return (
-    <Button unstyled
-      aria-pressed={isSelected}
-      className={`flex h-[76px] w-full items-center gap-3 rounded-xl border px-3 text-right transition ${
-        isSelected ? "border-primary bg-primary-container" : "border-outline-var bg-surface-container-lowest"
-      }`}
-      onClick={onSelect}
-      type="button"
-    >
-      <div className="flex min-w-0 flex-1 gap-x-2">
-        {target.kind === "agency" ? (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary-container text-primary">
-            <LinearBuilding3 className="h-6 w-6" />
-          </Typography>
-        ) : (
-          <ConsultantAvatar consultant={target.consultant} sizeClassName="h-11 w-11" />
-        )}
-        <div className="flex min-w-0 flex-col justify-center">
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="block truncate text-sm font-semibold text-on-surface">
-            {getReplacementLabel(target)}
-          </Typography>
-          <Typography as="span" variant="label" size="small" weight="medium" className="block truncate text-xs font-medium text-outline">
-            {target.kind === "agency" ? target.subtitle : target.consultant.phone}
-          </Typography>
-        </div>
-      </div>
-      <SelectionCheckIndicator
-        checked={isSelected}
-        className="!h-4.5 !w-4.5 rounded-sm"
-      />
-    </Button>
-  );
-}
-
-function getReplacementLabel(target: ReplacementTarget) {
-  return target.kind === "agency" ? target.name : target.consultant.name;
-}
-
-function getReplacementSearchText(target: ReplacementTarget) {
-  return target.kind === "agency"
-    ? `${target.name} ${target.subtitle}`
-    : `${target.consultant.name} ${target.consultant.phone}`;
 }

@@ -22,7 +22,7 @@
     --error-container: var(--error-950);
     --on-error-container: var(--error-100);
 
-    --warning: var(--warning-100);
+    --warning: var(--warning-400);
     --on-warning: #FFFFFF;
     --warning-container: var(--warning-950);
     --on-warning-container: var(--warning-100);

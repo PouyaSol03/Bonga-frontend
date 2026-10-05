@@ -1,150 +1,24 @@
-import { useEffect, useState } from "react";
-
-import { SelectionCheckIndicator } from "../../../../shared/components/SelectionCheckIndicator";
 import { TopBar } from "../../../../shared/components/TopBar";
+import { useAgencyConsultantQuery } from "../../../agencies/api/agency.hooks";
+import { useAgencyDashboardQuery } from "../../api/dashboard.hooks";
 import {
-  useAgencyConsultantQuery,
-  useUpdateAgencyConsultantMutation,
-} from "../../../agencies/api/agency.hooks";
-import type { AgencyConsultantPermissions } from "../../../agencies/api/agency.service";
-import {
-  AddConsultantRoleOption,
-  ConsultantProfilePill,
-  QuotaStepper,
   getRouteConsultant,
   getRouteConsultantId,
-  managerAccessItems,
   mapAgencyConsultantToTeamConsultant,
-  type AccessRole,
 } from "./ConsultantManagementPage";
-import { Typography } from "../../../../shared/ui/Typography";
-import { Button } from "../../../../shared/ui/Button";
-import { useAgencyDashboardQuery } from "../../api/dashboard.hooks";
-
-function getAgencyConsultantAccessRole(
-  consultant: ReturnType<typeof mapAgencyConsultantToTeamConsultant>,
-): AccessRole {
-  return consultant.roleId === 2 ||
-    ["مدیر", "مدیر آژانس"].includes(consultant.roleLabel?.trim() ?? "")
-    ? "manager"
-    : "consultant";
-}
-
-function getManagerAccessFromPermissions(
-  permissions?: AgencyConsultantPermissions,
-) {
-  if (!permissions) return [];
-
-  return managerAccessItems
-    .filter((item) => {
-      switch (item.id) {
-        case "ads":
-          return permissions.manage_advertises;
-        case "consultants":
-          return permissions.manage_consultants;
-        case "requests":
-          return permissions.manage_requests;
-        case "payments":
-          return permissions.manage_credits;
-        case "support":
-          return permissions.support;
-        default:
-          return false;
-      }
-    })
-    .map((item) => item.id);
-}
-
-function buildManagerPermissions(
-  accessRole: AccessRole,
-  managerAccess: string[],
-): AgencyConsultantPermissions | Record<string, never> {
-  if (accessRole === "consultant") return {};
-
-  return {
-    manage_advertises: managerAccess.includes("ads"),
-    manage_consultants: managerAccess.includes("consultants"),
-    manage_credits: managerAccess.includes("payments"),
-    manage_requests: managerAccess.includes("requests"),
-    support: managerAccess.includes("support"),
-  };
-}
+import { ConsultantEditForm } from "./edit-consultant/ConsultantEditForm";
 
 export function ConsultantEditPage() {
   const routeConsultant = getRouteConsultant();
   const consultantId =
     routeConsultant.agentId ?? getRouteConsultantId() ?? routeConsultant.id;
   const consultantQuery = useAgencyConsultantQuery({ agentId: consultantId });
-  const updateConsultantMutation = useUpdateAgencyConsultantMutation();
   const agencyDashboardQuery = useAgencyDashboardQuery();
   const agencyBalances = agencyDashboardQuery.data?.balances;
-  const formatRemaining = (value: number | undefined) =>
-    value === undefined ? "—" : new Intl.NumberFormat("fa-IR").format(value);
+
   const consultant = consultantQuery.data
     ? mapAgencyConsultantToTeamConsultant(consultantQuery.data)
     : routeConsultant;
-  const [accessRole, setAccessRole] = useState<AccessRole>(() =>
-    getAgencyConsultantAccessRole(routeConsultant),
-  );
-  const [managerAccess, setManagerAccess] = useState<string[]>(() =>
-    getManagerAccessFromPermissions(routeConsultant.permissions),
-  );
-  const [adQuota, setAdQuota] = useState(routeConsultant.adQuota ?? 0);
-  const [updateQuota, setUpdateQuota] = useState(routeConsultant.renewQuota ?? 0);
-  const [specialQuota, setSpecialQuota] = useState(
-    routeConsultant.specialQuota ?? 0,
-  );
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const initialAdQuota = consultantQuery.data?.adQuota ?? routeConsultant.adQuota ?? 0;
-  const initialRenewQuota = consultantQuery.data?.renewQuota ?? routeConsultant.renewQuota ?? 0;
-  const initialSpecialQuota = consultantQuery.data?.specialQuota ?? routeConsultant.specialQuota ?? 0;
-
-  const maxAdQuota =
-    initialAdQuota +
-    (agencyBalances?.unassignedAdCreditBalance ??
-      agencyBalances?.adCreditBalance ??
-      0);
-  const maxRenewQuota =
-    initialRenewQuota +
-    (agencyBalances?.unassignedRenewCreditBalance ??
-      agencyBalances?.renewCreditBalance ??
-      0);
-  const maxSpecialQuota =
-    initialSpecialQuota +
-    (agencyBalances?.unassignedSpecialCreditBalance ??
-      agencyBalances?.specialCreditBalance ??
-      0);
-
-  const currentAgencyAdRemaining = Math.max(0, maxAdQuota - adQuota);
-  const currentAgencyRenewRemaining = Math.max(0, maxRenewQuota - updateQuota);
-  const currentAgencySpecialRemaining = Math.max(0, maxSpecialQuota - specialQuota);
-
-  const isManager = accessRole === "manager";
-
-  useEffect(() => {
-    if (!consultantQuery.data) return;
-
-    setAccessRole(
-      getAgencyConsultantAccessRole(
-        mapAgencyConsultantToTeamConsultant(consultantQuery.data),
-      ),
-    );
-    setManagerAccess(
-      getManagerAccessFromPermissions(consultantQuery.data.permissions),
-    );
-    setAdQuota(consultantQuery.data.adQuota);
-    setUpdateQuota(consultantQuery.data.renewQuota);
-    setSpecialQuota(consultantQuery.data.specialQuota);
-  }, [consultantQuery.data]);
-
-  function toggleManagerAccess(id: string) {
-    setManagerAccess((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id],
-    );
-  }
 
   return (
     <section
@@ -159,136 +33,12 @@ export function ConsultantEditPage() {
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto px-4 pb-24">
-        <ConsultantProfilePill consultant={consultant} />
-
-        <section className="mt-5">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-on-surface">
-            انتخاب سمت
-          </Typography>
-
-          <div className="mt-4 grid" role="radiogroup" aria-label="انتخاب سمت">
-            <AddConsultantRoleOption
-              checked={accessRole === "consultant"}
-              label="مشاور"
-              onClick={() => setAccessRole("consultant")}
-            />
-            <AddConsultantRoleOption
-              checked={accessRole === "manager"}
-              label="مدیر"
-              onClick={() => setAccessRole("manager")}
-            />
-          </div>
-
-          <div className="mt-5 grid grid-cols-2 gap-x-7 gap-y-5">
-            {managerAccessItems.map((item) => {
-              const checked = managerAccess.includes(item.id) && isManager;
-
-              return (
-                <Button unstyled
-                  aria-pressed={checked}
-                  className={`flex items-center gap-2 text-right text-sm font-medium leading-5 ${
-                    isManager ? "text-on-surface-var" : "text-outline"
-                  }`}
-                  disabled={!isManager}
-                  key={item.id}
-                  onClick={() => toggleManagerAccess(item.id)}
-                  type="button"
-                >
-                  <SelectionCheckIndicator className="h-[18px] w-[18px] rounded-sm" checked={checked} />
-                  <Typography as="span" variant="body" size="medium" weight="regular">{item.label}</Typography>
-                </Button>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="mt-4 grid gap-4">
-          <QuotaStepper
-            label="سهمیه آگهی"
-            max={maxAdQuota}
-            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(currentAgencyAdRemaining)}`} 
-            remainingClassName="text-primary"
-            setValue={(val) => {
-              setErrorMessage("");
-              setAdQuota(val);
-            }}
-            value={adQuota}
-          />
-          <QuotaStepper
-            label="سهمیه بروزرسانی"
-            max={maxRenewQuota}
-            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(currentAgencyRenewRemaining)}`} 
-            remainingClassName="text-tertiary"
-            setValue={(val) => {
-              setErrorMessage("");
-              setUpdateQuota(val);
-            }}
-            value={updateQuota}
-          />
-          <QuotaStepper
-            label="سهمیه ویژه"
-            max={maxSpecialQuota}
-            remaining={`باقیمانده سهمیه آژانس: ${formatRemaining(currentAgencySpecialRemaining)}`} 
-            remainingClassName="text-warning"
-            setValue={(val) => {
-              setErrorMessage("");
-              setSpecialQuota(val);
-            }}
-            value={specialQuota}
-          />
-        </section>
-
-        {errorMessage ? (
-          <div className="mt-4 rounded-xl border border-error/20 bg-error/10 p-3 text-center text-xs font-medium text-error">
-            {errorMessage}
-          </div>
-        ) : null}
-      </main>
-
-      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
-        <Button
-          fullWidth
-          loading={updateConsultantMutation.isPending}
-          disabled={consultantQuery.isPending}
-          size="md"
-          variant="primary"
-          onClick={() => {
-            if (adQuota > maxAdQuota) {
-              setErrorMessage("سهمیه آگهی بیشتر از سهمیه موجود آژانس است.");
-              return;
-            }
-            if (updateQuota > maxRenewQuota) {
-              setErrorMessage("سهمیه بروزرسانی بیشتر از سهمیه موجود آژانس است.");
-              return;
-            }
-            if (specialQuota > maxSpecialQuota) {
-              setErrorMessage("سهمیه ویژه بیشتر از سهمیه موجود آژانس است.");
-              return;
-            }
-            setErrorMessage("");
-            updateConsultantMutation.mutate(
-              {
-                adQuota,
-                agentId: consultantId,
-                permissions: buildManagerPermissions(accessRole, managerAccess),
-                renewQuota: updateQuota,
-                role: accessRole,
-                specialQuota,
-              },
-              {
-                onSuccess: () => {
-                  window.history.pushState({}, "", "/account/dashboard/team");
-                  window.dispatchEvent(new PopStateEvent("popstate"));
-                },
-              },
-            );
-          }}
-          type="button"
-        >
-          اعمال تغییرات
-        </Button>
-      </div>
+      <ConsultantEditForm
+        key={consultant.id}
+        agencyBalances={agencyBalances}
+        consultant={consultant}
+        consultantId={consultantId}
+      />
     </section>
   );
 }

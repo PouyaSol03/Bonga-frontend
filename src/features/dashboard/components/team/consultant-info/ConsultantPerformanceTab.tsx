@@ -1,11 +1,13 @@
 import { ConsultantPerformanceSummary } from "./ConsultantPerformanceSummary";
 
 interface ConsultantPerformanceTabProps {
+  agentId?: number | string;
   onViewCharts: () => void;
 }
 
 export function ConsultantPerformanceTab({
+  agentId,
   onViewCharts,
 }: ConsultantPerformanceTabProps) {
-  return <ConsultantPerformanceSummary onViewCharts={onViewCharts} />;
+  return <ConsultantPerformanceSummary agentId={agentId} onViewCharts={onViewCharts} />;
 }

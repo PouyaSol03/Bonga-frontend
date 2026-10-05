@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Sector } from "recharts";
 import { Typography } from "../../../../../shared/ui/Typography";
-import { ChevronDownIcon } from "../ConsultantManagementPage";
+import { toPersianNumber } from "../../../../../shared/lib/numberUtils";
+import { ChevronDownIcon } from "../ConsultantCardWidgets";
 import {
   getPieSelectionGeometry,
   pieCenter,
@@ -58,19 +59,22 @@ export function ConsultantPieCard({
   period = "month",
   onPeriodChange,
   showTooltip,
+  isLoading = false,
 }: {
   card: ConsultantPieDatum;
   period?: PeriodKey;
   onPeriodChange?: (period: PeriodKey) => void;
   showTooltip?: boolean;
+  isLoading?: boolean;
 }) {
-  const hasChartData = card.value + card.agencyPercent > 0;
+  const data = [
+    { color: card.agencyColorVar, name: "آژانس", value: card.agencyValue },
+    { color: card.consultantColorVar, name: "مشاور", value: card.consultantValue },
+  ];
+
+  const hasChartData = data.some((d) => d.value > 0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(showTooltip && hasChartData ? 1 : null);
   const pieContainerRef = useRef<HTMLDivElement | null>(null);
-  const data = [
-    { color: card.lightColor, name: "آژانس", value: card.agencyPercent },
-    { color: card.color, name: "مشاور", value: card.value },
-  ];
   const selectedEntry = selectedIndex === null ? null : data[selectedIndex];
   const selectedGeometry = selectedIndex === null || !hasChartData ? null : getPieSelectionGeometry(data, selectedIndex);
 
@@ -114,48 +118,84 @@ export function ConsultantPieCard({
           </label>
         </div>
         <div className="flex items-center justify-start gap-2">
-          <Typography as="span" variant="label" size="large" weight="semibold" className={`rounded px-2 py-0.5 text-base font-semibold ${card.badgeClassName}`}>
-            {card.badge}
-          </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-outline">
-            {card.subtitle}
-          </Typography>
+          {card.badge ? (
+            <Typography
+              as="span"
+              variant="label"
+              size="large"
+              weight="semibold"
+              className="rounded px-2 py-0.5 text-base font-semibold"
+              style={{
+                backgroundColor: card.badgeBgColorVar,
+                color: card.badgeColorVar,
+              }}
+            >
+              {card.badge}
+            </Typography>
+          ) : null}
+          {card.subtitle ? (
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-outline">
+              {card.subtitle}
+            </Typography>
+          ) : null}
         </div>
       </div>
 
-      <div ref={pieContainerRef} className="relative mx-auto h-[220px] max-w-[220px]" dir="ltr">
-        {selectedEntry && selectedGeometry ? (
-          <>
-            <svg aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 h-full w-full overflow-visible" viewBox={`0 0 ${pieChartSize} ${pieChartSize}`}>
-              <line x1={selectedGeometry.lineStartX} y1={selectedGeometry.lineStartY} x2={selectedGeometry.lineEndX} y2={selectedGeometry.lineEndY} stroke="var(--on-surface)" strokeLinecap="round" strokeWidth="1.6" />
-              <circle cx={selectedGeometry.dotX} cy={selectedGeometry.dotY} fill="var(--on-surface)" r="7" />
-            </svg>
-            <div className="absolute z-20 grid place-items-center rounded-lg bg-inverse-surface text-center text-xs font-semibold leading-4 text-inverse-on-surface shadow-md" style={{ height: pieTooltipHeight, left: selectedGeometry.tooltipLeft, top: selectedGeometry.tooltipTop, width: pieTooltipWidth }}>
-              <Typography as="span" variant="body" size="medium" weight="regular">
-                {selectedEntry.name}
-                <br />
-                {selectedEntry.value}٪
-              </Typography>
-            </div>
-          </>
-        ) : null}
-        <ResponsiveContainer height="100%" width="100%">
-          <PieChart className="outline-none [&_*:focus]:outline-none" tabIndex={-1}>
-            <Pie data={data} dataKey="value" isAnimationActive={false} nameKey="name" outerRadius={pieOuterRadius} startAngle={90} endAngle={-270} stroke="none">
-              {data.map((entry, index) => (
-                <Cell className="cursor-pointer outline-none" fill={selectedIndex === index ? "transparent" : entry.color} key={entry.name} onClick={() => setSelectedIndex(index)} />
-              ))}
-            </Pie>
-            {selectedIndex !== null && data[selectedIndex] && hasChartData ? (
-              <PulledPieSlice color={data[selectedIndex].color} data={data} selectedIndex={selectedIndex} />
-            ) : null}
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
+      {isLoading ? (
+        <div className="flex h-[220px] w-full items-center justify-center">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      ) : hasChartData ? (
+        <div ref={pieContainerRef} className="relative mx-auto h-[220px] max-w-[220px]" dir="ltr">
+          {selectedEntry && selectedGeometry ? (
+            <>
+              <svg aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 h-full w-full overflow-visible" viewBox={`0 0 ${pieChartSize} ${pieChartSize}`}>
+                <line x1={selectedGeometry.lineStartX} y1={selectedGeometry.lineStartY} x2={selectedGeometry.lineEndX} y2={selectedGeometry.lineEndY} stroke="var(--neutral-100)" strokeLinecap="round" strokeWidth="1.6" />
+                <circle cx={selectedGeometry.dotX} cy={selectedGeometry.dotY} fill="var(--neutral-100)" r="7" />
+              </svg>
+              <div
+                className="absolute z-20 grid place-items-center rounded-lg text-center text-xs font-semibold leading-4 shadow-md"
+                style={{
+                  backgroundColor: "var(--neutral-300)",
+                  color: "var(--surface-container-lowest)",
+                  height: pieTooltipHeight,
+                  left: selectedGeometry.tooltipLeft,
+                  top: selectedGeometry.tooltipTop,
+                  width: pieTooltipWidth,
+                }}
+              >
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  {selectedEntry.name}
+                  <br />
+                  {toPersianNumber(selectedEntry.value)}٪
+                </Typography>
+              </div>
+            </>
+          ) : null}
+          <ResponsiveContainer height="100%" width="100%">
+            <PieChart className="outline-none [&_*:focus]:outline-none" tabIndex={-1}>
+              <Pie data={data} dataKey="value" isAnimationActive={false} nameKey="name" outerRadius={pieOuterRadius} startAngle={90} endAngle={-270} stroke="none">
+                {data.map((entry, index) => (
+                  <Cell className="cursor-pointer outline-none" fill={selectedIndex === index ? "transparent" : entry.color} key={entry.name} onClick={() => setSelectedIndex(index)} />
+                ))}
+              </Pie>
+              {selectedIndex !== null && data[selectedIndex] && hasChartData ? (
+                <PulledPieSlice color={data[selectedIndex].color} data={data} selectedIndex={selectedIndex} />
+              ) : null}
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <div className="flex h-[220px] w-full flex-col items-center justify-center text-center">
+          <Typography as="span" variant="body" size="small" weight="medium" className="text-outline">
+            داده‌ای برای این بازه ثبت نشده است.
+          </Typography>
+        </div>
+      )}
 
-      <div className="mt-8 grid grid-cols-2 gap-8 text-center">
-        <PieLegendItem color={card.color} label="مشاور" value={`${card.value}٪`} />
-        <PieLegendItem color={card.lightColor} label="آژانس" value={`${card.agencyPercent}٪`} />
+      <div className="mt-8 grid grid-cols-2 gap-8 text-center" dir="rtl">
+        <PieLegendItem color={card.consultantColorVar} label="مشاور" value={`${toPersianNumber(card.consultantValue)}٪`} />
+        <PieLegendItem color={card.agencyColorVar} label="آژانس" value={`${toPersianNumber(card.agencyValue)}٪`} />
       </div>
     </article>
   );

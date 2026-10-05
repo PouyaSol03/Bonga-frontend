@@ -1,5 +1,9 @@
 import { api, getApiAssetUrl, publicApi } from "../../../shared/api/api";
-import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
+import {
+  mapAdvertisementToAdCard,
+  type AdvertisementItem,
+} from "../../advertisements/api/advertisement.service";
+import type { AdCardData } from "../../advertisements/components/AdCard";
 
 export type AgencySort = "score" | "rank" | "newest" | "oldest";
 
@@ -96,11 +100,17 @@ export type AgencyConsultantRequestDecisionPayload = {
 };
 
 export type AgencyConsultantMetrics = {
+  activeAds?: number;
+  activeRequest?: number;
+  calls?: number | null;
   publishedAdvertises: number;
   rank?: number;
   rankingScore: number;
+  recentAds?: number;
   renewUsed: number;
   specialUsed: number;
+  unavailableMetrics?: string[];
+  views?: number;
 };
 
 export type AgencyConsultantPeriodActivity = {
@@ -113,16 +123,24 @@ export type AgencyConsultantPeriodActivity = {
 
 export type AgencyConsultantDto = {
   adQuota: number;
+  agencyName?: string;
   agentId?: number;
-  requestId?: number;
   avatar?: string;
   isActive: boolean;
+  joinedDate?: string;
   metrics: AgencyConsultantMetrics;
   mobile: string;
   name: string;
   permissions: AgencyConsultantPermissions;
   periodActivity?: AgencyConsultantPeriodActivity;
+  ranking?: {
+    levelSlug: string;
+    levelTitle: string;
+    rank?: number | null;
+    score: number;
+  };
   renewQuota: number;
+  requestId?: number;
   role: string;
   roleId: number;
   specialQuota: number;
@@ -205,24 +223,36 @@ type PublicAgentsApiResponse = {
 
 type AgencyConsultantApiItem = {
   _id?: unknown;
+  active_ads?: unknown;
   ad_quota?: unknown;
   agency_membership?: unknown;
+  agency_name?: unknown;
+  agencyName?: unknown;
   agent_id?: unknown;
   avatar?: unknown;
+  calls?: unknown;
   first_name?: unknown;
   full_name?: unknown;
   id?: unknown;
   is_active?: unknown;
+  joined_date?: unknown;
+  joinedDate?: unknown;
   last_name?: unknown;
   member?: unknown;
   membership?: unknown;
   membership_state?: unknown;
   metrics?: {
+    active_ads?: unknown;
+    calls?: unknown;
     published_advertises?: unknown;
     rank?: unknown;
     ranking_score?: unknown;
+    recent_ads?: unknown;
     renew_used?: unknown;
     special_used?: unknown;
+    unavailable_metrics?: unknown;
+    views?: unknown;
+    [key: string]: unknown;
   };
   mobile?: unknown;
   name?: unknown;
@@ -230,13 +260,24 @@ type AgencyConsultantApiItem = {
   period_activity?: unknown;
   phonenumber?: unknown;
   quotas?: unknown;
+  ranking?: {
+    level_slug?: unknown;
+    level_title?: unknown;
+    rank?: unknown;
+    score?: unknown;
+    [key: string]: unknown;
+  };
+  recent_ads?: unknown;
   renew_quota?: unknown;
   role?: unknown;
   role_id?: unknown;
   request_id?: unknown;
   special_quota?: unknown;
+  unavailable_metrics?: unknown;
   user?: unknown;
   user_id?: unknown;
+  views?: unknown;
+  [key: string]: unknown;
 };
 
 type AgencyConsultantsApiResponse = {
@@ -387,7 +428,7 @@ function normalizeAgencyConsultant(
   const user = asRecord(item.user);
   const quotas = asRecord(item.quotas ?? membership.quotas);
   const agentId = toNumber(item.agent_id ?? item.id ?? item._id, Number.NaN);
-  const userId = toNumber(item.user_id ?? user.id ?? user._id, Number.NaN);
+  const userId = toNumber(item.user_id ?? user.id ?? user._id ?? agentId, Number.NaN);
   const name = firstText(
     item.name,
     item.full_name,
@@ -398,6 +439,44 @@ function normalizeAgencyConsultant(
       : undefined,
   );
   const isActiveValue = item.is_active ?? membership.is_active;
+  const metrics = asRecord(item.metrics);
+  const ranking = asRecord(item.ranking);
+  const unavailableMetrics = Array.isArray(item.unavailable_metrics)
+    ? (item.unavailable_metrics as string[])
+    : Array.isArray(metrics.unavailable_metrics)
+      ? (metrics.unavailable_metrics as string[])
+      : undefined;
+
+  const levelSlug = firstText(
+    ranking.level_slug,
+    ranking.levelSlug,
+    item.level_slug,
+    item.levelSlug,
+    "selected_agent",
+  );
+  const levelTitle = firstText(
+    ranking.level_title,
+    ranking.levelTitle,
+    item.level_title,
+    item.levelTitle,
+    "مشاور منتخب",
+  );
+  const rank = toOptionalNumber(ranking.rank ?? metrics.rank ?? item.rank);
+  const score = Math.max(
+    0,
+    toNumber(ranking.score ?? metrics.ranking_score ?? item.ranking_score ?? item.score),
+  );
+
+  const rankingObj =
+    Object.keys(ranking).length > 0 || item.level_slug || item.level_title || rank !== undefined || score > 0
+      ? {
+          levelSlug,
+          levelTitle,
+          rank,
+          score,
+        }
+      : undefined;
+
   const periodActivity = asRecord(item.period_activity);
   const rawRegistrationProgress = Array.isArray(
     periodActivity.advertise_registration_progress,
@@ -417,24 +496,38 @@ function normalizeAgencyConsultant(
           quotas.ad_quota,
       ),
     ),
+    agencyName: firstText(item.agency_name, item.agencyName),
     agentId: Number.isFinite(agentId) ? agentId : undefined,
     avatar: toAssetUrl(item.avatar ?? user.avatar),
     isActive: normalizePermissionFlag(isActiveValue),
+    joinedDate: firstText(item.joined_date, item.joinedDate),
     metrics: {
+      activeAds: toOptionalNumber(item.active_ads ?? metrics.active_ads ?? metrics.published_advertises),
+      activeRequest: toOptionalNumber(
+        metrics.active_request ??
+          metrics.active_requests ??
+          item.active_request ??
+          item.active_requests,
+      ),
+      calls: item.calls !== undefined ? (item.calls === null ? null : toNumber(item.calls)) : metrics.calls !== undefined ? (metrics.calls === null ? null : toNumber(metrics.calls)) : null,
       publishedAdvertises: Math.max(
         0,
-        toNumber(item.metrics?.published_advertises),
+        toNumber(metrics.published_advertises ?? item.active_ads),
       ),
-      rank: toOptionalNumber(item.metrics?.rank),
-      rankingScore: Math.max(0, toNumber(item.metrics?.ranking_score)),
-      renewUsed: Math.max(0, toNumber(item.metrics?.renew_used)),
-      specialUsed: Math.max(0, toNumber(item.metrics?.special_used)),
+      rank: toOptionalNumber(metrics.rank ?? ranking.rank ?? item.rank),
+      rankingScore: Math.max(0, toNumber(metrics.ranking_score ?? ranking.score ?? item.ranking_score ?? item.score)),
+      recentAds: toOptionalNumber(item.recent_ads ?? metrics.recent_ads),
+      renewUsed: Math.max(0, toNumber(metrics.renew_used)),
+      specialUsed: Math.max(0, toNumber(metrics.special_used)),
+      unavailableMetrics,
+      views: toOptionalNumber(item.views ?? metrics.views),
     },
     mobile: firstText(item.mobile, item.phonenumber, user.mobile, user.phonenumber),
     name,
     permissions: normalizeAgencyConsultantPermissions(
       item.permissions ?? membership.permissions,
     ),
+    ranking: rankingObj,
     periodActivity:
       Object.keys(periodActivity).length > 0
         ? {
@@ -1048,5 +1141,373 @@ export async function getPublicAgentDetail(
   }
 
   return agent;
+}
+
+export type ConsultantAdvertisementsParams = {
+  agentId: number | string;
+  page?: number;
+  perPage?: number;
+  status?: "active" | "expired" | "all";
+};
+
+export type ConsultantAdvertisementsPage = {
+  data: AdCardData[];
+  page: number;
+  perPage: number;
+  total: number;
+};
+
+export type ConsultantActivityItemDto = {
+  created_at: string;
+  id: string;
+  subtitle: string;
+  title: string;
+  type: string;
+};
+
+export type ConsultantActivitiesParams = {
+  agentId: number | string;
+  page?: number;
+  perPage?: number;
+  period?: "week" | "month" | "year";
+  type?: "all" | "ad" | "response" | "visit" | "followup";
+};
+
+export type ConsultantActivityStatsDto = {
+  period: string;
+  source?: string;
+  stats: {
+    ad: number;
+    followup: number | null;
+    response: number | null;
+    visit: number | null;
+  };
+  unavailableMetrics: string[];
+  visit_semantics?: string;
+};
+
+export type ConsultantActivityFeedDto = {
+  activities: ConsultantActivityItemDto[];
+  page: number;
+  perPage: number;
+  period: string;
+  source?: string;
+  total: number;
+  visit_semantics?: string;
+};
+
+export type ConsultantActivitiesDto = {
+  activities: ConsultantActivityItemDto[];
+  page: number;
+  perPage: number;
+  period: string;
+  stats: {
+    ad: number;
+    followup: number | null;
+    response: number | null;
+    visit: number | null;
+  };
+  total: number;
+  unavailableMetrics: string[];
+};
+
+export type ConsultantPerformanceChartSlice = {
+  color: string;
+  label: string;
+  percentage: number;
+  value: number;
+};
+
+export type ConsultantPerformanceDistribution = {
+  key: string;
+  slices: ConsultantPerformanceChartSlice[];
+  title: string;
+  total: number;
+};
+
+export type ConsultantPerformanceChartsDto = {
+  distributions: ConsultantPerformanceDistribution[];
+  period: "month" | "year";
+  progress: { label: string; value: number }[];
+};
+
+export async function getMyAgencyConsultantAdvertisements({
+  agentId,
+  page = 1,
+  perPage = 15,
+  status = "active",
+}: ConsultantAdvertisementsParams): Promise<ConsultantAdvertisementsPage> {
+  const response = await api
+    .get(`me/agency/consultants/${encodeURIComponent(String(agentId))}/advertisements`, {
+      searchParams: {
+        page,
+        per_page: perPage,
+        status,
+      },
+    })
+    .json<{
+      data?: (AdvertisementItem | Record<string, unknown>)[];
+      page?: number;
+      per_page?: number;
+      total?: number;
+    }>();
+
+  const rawList = Array.isArray(response.data) ? response.data : [];
+  const data = rawList.map((item, index) =>
+    mapAdvertisementToAdCard(item as AdvertisementItem, index),
+  );
+
+  return {
+    data,
+    page: Math.max(1, toNumber(response.page, page)),
+    perPage: Math.max(1, toNumber(response.per_page, perPage)),
+    total: Math.max(0, toNumber(response.total, data.length)),
+  };
+}
+
+export async function getMyAgencyConsultantActivityStats({
+  agentId,
+  period = "week",
+}: {
+  agentId: number | string;
+  period?: "week" | "month" | "year";
+}): Promise<ConsultantActivityStatsDto> {
+  const response = await api
+    .get(
+      `me/agency/consultants/${encodeURIComponent(String(agentId))}/performance/activity-stats`,
+      {
+        searchParams: { period },
+      },
+    )
+    .json<{
+      period?: string;
+      source?: string;
+      stats?: {
+        ad?: number;
+        followup?: number | null;
+        response?: number | null;
+        visit?: number | null;
+      };
+      status?: boolean;
+      unavailable_metrics?: string[];
+      visit_semantics?: string;
+    }>();
+
+  const stats = response.stats ?? {};
+  return {
+    period: response.period ?? period,
+    source: response.source,
+    stats: {
+      ad: Math.max(0, toNumber(stats.ad, 0)),
+      followup: stats.followup !== undefined ? stats.followup : null,
+      response: stats.response !== undefined ? stats.response : null,
+      visit: stats.visit !== undefined ? stats.visit : null,
+    },
+    unavailableMetrics: Array.isArray(response.unavailable_metrics)
+      ? response.unavailable_metrics
+      : [],
+    visit_semantics: response.visit_semantics,
+  };
+}
+
+export async function getMyAgencyConsultantActivityFeed({
+  agentId,
+  page = 1,
+  perPage = 20,
+  period = "week",
+  type = "all",
+}: ConsultantActivitiesParams): Promise<ConsultantActivityFeedDto> {
+  const response = await api
+    .get(
+      `me/agency/consultants/${encodeURIComponent(String(agentId))}/performance/activity-feed`,
+      {
+        searchParams: {
+          page,
+          per_page: perPage,
+          period,
+          type,
+        },
+      },
+    )
+    .json<{
+      activities?: ConsultantActivityItemDto[];
+      page?: number;
+      per_page?: number;
+      period?: string;
+      source?: string;
+      status?: boolean;
+      total?: number;
+      visit_semantics?: string;
+    }>();
+
+  return {
+    activities: Array.isArray(response.activities) ? response.activities : [],
+    page: Math.max(1, toNumber(response.page, page)),
+    perPage: Math.max(1, toNumber(response.per_page, perPage)),
+    period: response.period ?? period,
+    source: response.source,
+    total: Math.max(0, toNumber(response.total, 0)),
+    visit_semantics: response.visit_semantics,
+  };
+}
+
+export async function getMyAgencyConsultantActivities({
+  agentId,
+  page = 1,
+  perPage = 20,
+  period = "week",
+  type = "all",
+}: ConsultantActivitiesParams): Promise<ConsultantActivitiesDto> {
+  const [stats, feed] = await Promise.all([
+    getMyAgencyConsultantActivityStats({ agentId, period }),
+    getMyAgencyConsultantActivityFeed({ agentId, page, perPage, period, type }),
+  ]);
+
+  return {
+    activities: feed.activities,
+    page: feed.page,
+    perPage: feed.perPage,
+    period: feed.period,
+    stats: stats.stats,
+    total: feed.total,
+    unavailableMetrics: stats.unavailableMetrics,
+  };
+}
+
+export async function getMyAgencyConsultantCharts({
+  agentId,
+  period = "month",
+}: {
+  agentId: number | string;
+  period?: "month" | "year";
+}): Promise<ConsultantPerformanceChartsDto> {
+  const response = await api
+    .get(
+      `me/agency/consultants/${encodeURIComponent(String(agentId))}/performance/charts`,
+      {
+        searchParams: {
+          period,
+        },
+      },
+    )
+    .json<{
+      distributions?: ConsultantPerformanceDistribution[];
+      period?: "month" | "year";
+      progress?: { label: string; value: number }[];
+    }>();
+
+  return {
+    distributions: Array.isArray(response.distributions) ? response.distributions : [],
+    period: response.period ?? period,
+    progress: Array.isArray(response.progress) ? response.progress : [],
+  };
+}
+
+export type ConsultantMetricParams = {
+  agentId: number | string;
+  period?: "week" | "month" | "year";
+  from?: string;
+  to?: string;
+};
+
+export type ConsultantMetricSlice = {
+  color?: string;
+  key: "agent" | "rest_of_agency" | string;
+  label: string;
+  percentage: number;
+  value: number;
+};
+
+export type ConsultantMetricData = {
+  agent_count: number;
+  agent_id?: number;
+  count: number;
+  count_semantics?: string;
+  metric?: string;
+  period?: string;
+  period_end?: string;
+  period_start?: string;
+  slices: ConsultantMetricSlice[];
+  title?: string;
+  total_count: number;
+};
+
+const emptyMetricData: ConsultantMetricData = {
+  agent_count: 0,
+  count: 0,
+  slices: [],
+  total_count: 0,
+};
+
+export async function getMyAgencyConsultantPublishedAdsMetric({
+  agentId,
+  period = "month",
+  from,
+  to,
+}: ConsultantMetricParams): Promise<ConsultantMetricData> {
+  const searchParams: Record<string, string> = {};
+  if (from && to) {
+    searchParams.from = from;
+    searchParams.to = to;
+  } else if (period) {
+    searchParams.period = period;
+  }
+
+  const response = await api
+    .get(
+      `me/agency/consultants/${encodeURIComponent(String(agentId))}/metrics/published-ads`,
+      { searchParams },
+    )
+    .json<{ status?: boolean; data?: ConsultantMetricData }>();
+
+  return response.data ?? emptyMetricData;
+}
+
+export async function getMyAgencyConsultantRenewalUsageMetric({
+  agentId,
+  period = "month",
+  from,
+  to,
+}: ConsultantMetricParams): Promise<ConsultantMetricData> {
+  const searchParams: Record<string, string> = {};
+  if (from && to) {
+    searchParams.from = from;
+    searchParams.to = to;
+  } else if (period) {
+    searchParams.period = period;
+  }
+
+  const response = await api
+    .get(
+      `me/agency/consultants/${encodeURIComponent(String(agentId))}/metrics/renewal-usage`,
+      { searchParams },
+    )
+    .json<{ status?: boolean; data?: ConsultantMetricData }>();
+
+  return response.data ?? emptyMetricData;
+}
+
+export async function getMyAgencyConsultantSpecialUsageMetric({
+  agentId,
+  period = "month",
+  from,
+  to,
+}: ConsultantMetricParams): Promise<ConsultantMetricData> {
+  const searchParams: Record<string, string> = {};
+  if (from && to) {
+    searchParams.from = from;
+    searchParams.to = to;
+  } else if (period) {
+    searchParams.period = period;
+  }
+
+  const response = await api
+    .get(
+      `me/agency/consultants/${encodeURIComponent(String(agentId))}/metrics/special-usage`,
+      { searchParams },
+    )
+    .json<{ status?: boolean; data?: ConsultantMetricData }>();
+
+  return response.data ?? emptyMetricData;
 }
 

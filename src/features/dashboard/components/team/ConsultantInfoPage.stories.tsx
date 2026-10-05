@@ -36,7 +36,7 @@ type Story = StoryObj<typeof ConsultantInfoPage>;
 export const DefaultInfoPage: Story = {
   name: "صفحه اطلاعات مشاور (مطابق طرح SVG فیگما)",
   render: () => (
-    <div className="min-h-screen bg-[#F0F0F0] py-4">
+    <div className="min-h-screen bg-surface-container py-4">
       <ConsultantInfoPage consultantOverride={sampleConsultant} />
     </div>
   ),

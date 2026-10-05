@@ -48,6 +48,104 @@ export const queryKeys = {
         filters.page,
         filters.perPage,
       ] as const,
+    consultantAdvertisements: (
+      agentId: number | string,
+      filters?: { page?: number; perPage?: number; status?: string },
+    ) =>
+      [
+        ...queryKeys.agencies.all,
+        "consultant-ads",
+        String(agentId),
+        filters?.page ?? 1,
+        filters?.perPage ?? 15,
+        filters?.status ?? "active",
+      ] as const,
+    consultantActivities: (
+      agentId: number | string,
+      filters?: {
+        page?: number;
+        perPage?: number;
+        period?: string;
+        type?: string;
+      },
+    ) =>
+      [
+        ...queryKeys.agencies.all,
+        "consultant-activities",
+        String(agentId),
+        filters?.period ?? "week",
+        filters?.type ?? "all",
+        filters?.page ?? 1,
+        filters?.perPage ?? 20,
+      ] as const,
+    consultantActivityStats: (agentId: number | string, period?: string) =>
+      [
+        ...queryKeys.agencies.all,
+        "consultant-activity-stats",
+        String(agentId),
+        period ?? "week",
+      ] as const,
+    consultantActivityFeed: (
+      agentId: number | string,
+      filters?: {
+        page?: number;
+        perPage?: number;
+        period?: string;
+        type?: string;
+      },
+    ) =>
+      [
+        ...queryKeys.agencies.all,
+        "consultant-activity-feed",
+        String(agentId),
+        filters?.period ?? "week",
+        filters?.type ?? "all",
+        filters?.page ?? 1,
+        filters?.perPage ?? 20,
+      ] as const,
+    consultantCharts: (agentId: number | string, period?: string) =>
+      [
+        ...queryKeys.agencies.all,
+        "consultant-charts",
+        String(agentId),
+        period ?? "month",
+      ] as const,
+    consultantMetricPublishedAds: (
+      agentId: number | string,
+      params?: { period?: string; from?: string; to?: string },
+    ) =>
+      [
+        ...queryKeys.agencies.all,
+        "consultant-metric-published-ads",
+        String(agentId),
+        params?.period ?? "month",
+        params?.from ?? "",
+        params?.to ?? "",
+      ] as const,
+    consultantMetricRenewalUsage: (
+      agentId: number | string,
+      params?: { period?: string; from?: string; to?: string },
+    ) =>
+      [
+        ...queryKeys.agencies.all,
+        "consultant-metric-renewal-usage",
+        String(agentId),
+        params?.period ?? "month",
+        params?.from ?? "",
+        params?.to ?? "",
+      ] as const,
+    consultantMetricSpecialUsage: (
+      agentId: number | string,
+      params?: { period?: string; from?: string; to?: string },
+    ) =>
+      [
+        ...queryKeys.agencies.all,
+        "consultant-metric-special-usage",
+        String(agentId),
+        params?.period ?? "month",
+        params?.from ?? "",
+        params?.to ?? "",
+      ] as const,
     trusted: () => [...queryKeys.agencies.all, "trusted"] as const,
     publicAgents: (filters: {
       agencyId?: number | string;

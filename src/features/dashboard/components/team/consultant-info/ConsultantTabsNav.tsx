@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import LinearInfoCircle from "../../../../../shared/icons/LinearInfoCircle";
 import LinearAd from "../../../../../shared/icons/LinearAd";
 import LinearAnalystic from "../../../../../shared/icons/LinearAnalystic";
@@ -26,7 +27,7 @@ export function ConsultantTabsNav({
             key={id}
             type="button"
             onClick={() => onTabChange(id)}
-            className={`relative flex flex-1 flex-col items-center justify-center gap-1 transition ${
+            className={`relative flex flex-1 flex-col items-center justify-center gap-1 transition-colors duration-200 ${
               isActive ? "text-primary" : "text-outline hover:text-on-surface"
             }`}
           >
@@ -41,7 +42,11 @@ export function ConsultantTabsNav({
               {label}
             </Typography>
             {isActive && (
-              <span className="absolute bottom-0 inset-x-0 h-0.5 bg-primary" />
+              <motion.span
+                layoutId="consultant-tabs-active-indicator"
+                className="absolute bottom-0 inset-x-0 h-0.5 bg-primary"
+                transition={{ type: "spring", stiffness: 450, damping: 35 }}
+              />
             )}
           </button>
         );

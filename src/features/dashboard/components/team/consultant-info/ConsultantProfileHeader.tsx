@@ -39,22 +39,22 @@ export function ConsultantProfileHeader({
     <div className="w-full bg-surface-container-lowest px-4 pt-3 pb-4">
       {isInactive && (
         <div className="mb-2 flex justify-end">
-          <span className="inline-flex items-center rounded-lg bg-[#DD2B1E]/8 px-3 py-1 text-xs font-medium text-[#EE3623]">
+          <span className="inline-flex items-center rounded-lg bg-error/8 px-3 py-1 text-xs font-medium text-error">
             ۷ روز بدون فعالیت
           </span>
         </div>
       )}
 
-      <div className="relative flex w-full items-center justify-between">
+      <div className="relative flex w-full items-center justify-between border border-surface-container p-4 rounded-2xl">
         <div className="flex min-w-0 items-center gap-3">
           <ConsultantAvatar consultant={consultant} sizeClassName="h-14 w-14 shrink-0 rounded-full" />
           <div className="min-w-0">
-            <Typography as="h1" variant="label" size="large" weight="semibold" className="truncate text-on-surface">
+            <Typography as="h1" variant="label" size="large" weight="medium" className="text-on-surface">
               {consultant.name}
             </Typography>
             <div className="mt-1 flex items-center gap-2">
               <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">
-                مشاور
+                {consultant.roleLabel || "مشاور"}
               </Typography>
               {consultant.phone ? (
                 <>
@@ -80,9 +80,9 @@ export function ConsultantProfileHeader({
             type="button"
             aria-label="گزینه‌های مشاور"
             onClick={() => setMenuOpen(!menuOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-var transition hover:bg-surface-container"
+            className="flex h-10 w-10 items-center justify-center left-0 top-0 rounded-full text-on-surface-var"
           >
-            <LinearMoreVertical className="h-5 w-5" />
+            <LinearMoreVertical className="h-6 w-6" />
           </button>
 
           {menuOpen && (

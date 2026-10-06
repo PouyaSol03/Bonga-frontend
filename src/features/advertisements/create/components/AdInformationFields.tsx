@@ -184,16 +184,18 @@ function AgencyContactFields({
 }
 
 function AgencyPublisherFields({
+  canChangePublisher = true,
   isConsultant = false,
   logoUrl,
   name,
   onChangePublisher,
   subtitle = "مالک",
 }: {
+  canChangePublisher?: boolean;
   isConsultant?: boolean;
   logoUrl?: string;
   name: string;
-  onChangePublisher: () => void;
+  onChangePublisher?: () => void;
   subtitle?: string;
 }) {
   return (
@@ -245,17 +247,19 @@ function AgencyPublisherFields({
         </div>
       </div>
 
-      <Button
-        className="mt-4 w-full"
-        fullWidth
-        onClick={onChangePublisher}
-        size="medium"
-        trailingIcon={<LinearArrowLeft1 aria-hidden="true" className="h-5 w-5" />}
-        type="button"
-        variant="secondary"
-      >
-        تغییر منتشر کننده
-      </Button>
+      {canChangePublisher && onChangePublisher ? (
+        <Button
+          className="mt-4 w-full"
+          fullWidth
+          onClick={onChangePublisher}
+          size="medium"
+          trailingIcon={<LinearArrowLeft1 aria-hidden="true" className="h-5 w-5" />}
+          type="button"
+          variant="secondary"
+        >
+          تغییر منتشر کننده
+        </Button>
+      ) : null}
     </div>
   );
 }
@@ -300,6 +304,7 @@ export function AdInformationFields({
   agencyPublisherLogoUrl,
   agencyPublisherName,
   agencyPublisherSubtitle,
+  canChangePublisher = true,
   errors,
   label,
   mobile,
@@ -318,6 +323,7 @@ export function AdInformationFields({
   agencyPublisherLogoUrl?: string;
   agencyPublisherName?: string;
   agencyPublisherSubtitle?: string;
+  canChangePublisher?: boolean;
   errors: NewAdFieldErrors;
   isAssigned?: boolean;
   isProfessionalPublisher?: boolean;
@@ -344,6 +350,7 @@ export function AdInformationFields({
     <div className="space-y-4">
       {showPublisherCard ? (
         <AgencyPublisherFields
+          canChangePublisher={canChangePublisher}
           isConsultant={agencyPublisherIsConsultant}
           logoUrl={agencyPublisherLogoUrl}
           name={agencyPublisherName || values.publisherName || "آژانس"}

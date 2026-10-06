@@ -13,7 +13,6 @@ import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { usePublisherOptions } from "../advertisements/api/publisher-options.hooks";
 import {
   useCreatePropertyRequestMutation,
-  usePropertyRequestsQuery,
 } from "../property-requests/api/property-request.hooks";
 import {
   useSavedSearchesQuery,
@@ -1057,9 +1056,6 @@ export function SearchMapPage() {
   const requestSenderOptions = usePublisherOptions(pendingSearchRequest !== null);
   const createPropertyRequestMutation = useCreatePropertyRequestMutation();
   const isAuthenticated = Boolean(getStoredAuthSession());
-  const propertyRequestsQuery = usePropertyRequestsQuery(1, 10, {
-    enabled: isAuthenticated,
-  });
   const requestResultsPath =
     getPropertyRequestScope().ownerType === "agency"
       ? "/account/dashboard/requests?tab=results"
@@ -1498,17 +1494,6 @@ export function SearchMapPage() {
       return;
     }
 
-    const activeCount =
-      propertyRequestsQuery.data?.total ??
-      propertyRequestsQuery.data?.data?.length ??
-      0;
-    if (activeCount >= 3) {
-      showNotice(
-        "شما حداکثر می‌توانید ۳ درخواست فعال داشته باشید. برای ثبت درخواست جدید، لطفاً یکی از درخواست‌های قبلی را لغو نمایید.",
-      );
-      return;
-    }
-
     const params = getSearchParams();
     const requestFilters: Record<string, string> = {};
     params.forEach((value, key) => {
@@ -1522,27 +1507,23 @@ export function SearchMapPage() {
     };
 
     setPendingSearchRequest(request);
-  }, [currentSearchQuery, isAuthenticated, propertyRequestsQuery.data, showNotice]);
+  }, [currentSearchQuery, isAuthenticated]);
 
-  const handleConfirmSearchRequest = useCallback((_senderId: string) => {
+  const handleConfirmSearchRequest = useCallback((senderId: string) => {
     if (!pendingSearchRequest || createPropertyRequestMutation.isPending) return;
 
-    const activeCount =
-      propertyRequestsQuery.data?.total ??
-      propertyRequestsQuery.data?.data?.length ??
-      0;
-    if (activeCount >= 3) {
-      showNotice(
-        "شما حداکثر می‌توانید ۳ درخواست فعال داشته باشید. برای ثبت درخواست جدید، لطفاً یکی از درخواست‌های قبلی را لغو نمایید.",
-      );
-      setPendingSearchRequest(null);
-      return;
-    }
+    const owner_type =
+      senderId === "personal"
+        ? "user"
+        : senderId === "independent-consultant"
+          ? "agent"
+          : "agency";
 
     createPropertyRequestMutation.mutate(
       {
         filters: pendingSearchRequest.filters,
         name: pendingSearchRequest.title,
+        owner_type,
       },
       {
         onError: (error) => {
@@ -1558,7 +1539,7 @@ export function SearchMapPage() {
         },
       },
     );
-  }, [createPropertyRequestMutation, pendingSearchRequest, propertyRequestsQuery.data, showNotice]);
+  }, [createPropertyRequestMutation, pendingSearchRequest, showNotice]);
 
   const locateUser = useCallback(() => {
     if (isLocating) return;

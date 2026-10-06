@@ -64,7 +64,7 @@ export function usePublisherOptions(enabled = true) {
       });
     }
 
-    if (canPublishAsAgency || canPublishAsAgencyConsultant) {
+    if (canPublishAsAgency && !canPublishAsAgencyConsultant) {
       options.push({
         id: "agency-manager",
         title: agencyName || "آژانس",
@@ -72,7 +72,7 @@ export function usePublisherOptions(enabled = true) {
           ? `انتشار به نام آژانس ${agencyName}`
           : "انتشار به نام آژانس",
         icon: "agency",
-        senderRole: canPublishAsAgency ? "real_estate_manager" : "real_estate_consultant",
+        senderRole: "real_estate_manager",
       });
     }
 
@@ -81,7 +81,7 @@ export function usePublisherOptions(enabled = true) {
         id: "agency-consultant",
         title: "مشاور آژانس",
         description: agencyName
-          ? `انتشار به عنوان مشاور ${agencyName}`
+          ? `انتشار به عنوان مشاور آژانس ${agencyName}`
           : "انتشار به عنوان مشاور آژانس",
         icon: "building",
         senderRole: "real_estate_consultant",

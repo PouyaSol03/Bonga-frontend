@@ -19,21 +19,21 @@ function trimTrailingSlashes(value: string) {
 }
 
 function normalizeApiBaseUrl(value: string) {
-  const normalizedValue = trimTrailingSlashes(value);
-
-  if (!normalizedValue) return "";
-  if (/\/api$/i.test(normalizedValue)) return normalizedValue;
-
-  return `${normalizedValue}/api`;
+  return trimTrailingSlashes(value);
 }
 
 function normalizeWebSocketBaseUrl(value: string) {
-  return trimTrailingSlashes(value).replace(/\/api$/i, "");
+  return trimTrailingSlashes(value).replace(/\/(?:api(?:\/v\d+)?)?$/i, "");
 }
 
 const configuredApiBaseUrl = import.meta.env?.VITE_API_BASE_URL ?? "";
+const configuredApiBaseUrlV2 =
+  import.meta.env?.VITE_API_BASE_URL_V2 ??
+  (configuredApiBaseUrl ? configuredApiBaseUrl.replace(/\/v1\/?$/i, "/v2") : "");
 
 export const baseUrl = normalizeApiBaseUrl(configuredApiBaseUrl);
+export const baseUrlV2 = normalizeApiBaseUrl(configuredApiBaseUrlV2);
+export const baseUrl_v2 = baseUrlV2;
 
 export const websocketBaseUrl = normalizeWebSocketBaseUrl(
   import.meta.env?.VITE_WEBSOCKET_BASE_URL ?? configuredApiBaseUrl,
@@ -314,12 +314,129 @@ const apiOptions: Options = {
   retry: 0,
 };
 
+export type V2RoleSegment =
+  | "agency"
+  | "independent-consultant"
+  | "personal"
+  | "agency-consultant";
+
+export function getV2RoleSegment(role?: string | null): V2RoleSegment {
+  switch (role) {
+    case "agency":
+    case "real_estate_manager":
+      return "agency";
+    case "independent-consultant":
+    case "independent_consultant":
+      return "independent-consultant";
+    case "agency-consultant":
+    case "real_estate_consultant":
+      return "agency-consultant";
+    case "personal":
+    case "user":
+    default:
+      return "personal";
+  }
+}
+
+export function getActiveV2Role(): V2RoleSegment {
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  return getV2RoleSegment(activeRole);
+}
+
+export function resolveV2Url(inputUrl: string): string {
+  const base = baseUrlV2;
+  if (!base) return inputUrl;
+
+  try {
+    const fallbackOrigin =
+      typeof window !== "undefined" && window.location?.origin
+        ? window.location.origin
+        : "http://localhost";
+    const parsedBase = new URL(base, fallbackOrigin);
+    const currentUrl = new URL(inputUrl, parsedBase.origin);
+
+    const basePath = parsedBase.pathname.replace(/\/+$/, "");
+    let endpoint = currentUrl.pathname;
+    if (endpoint.startsWith(basePath)) {
+      endpoint = endpoint.slice(basePath.length);
+    }
+    endpoint = endpoint.replace(/^\/+/, "");
+
+    const v2Roles: V2RoleSegment[] = [
+      "agency",
+      "independent-consultant",
+      "personal",
+      "agency-consultant",
+    ];
+
+    const hasRole = v2Roles.some(
+      (r) => endpoint === r || endpoint.startsWith(`${r}/`),
+    );
+
+    const role = hasRole ? "" : getActiveV2Role();
+    const finalEndpoint = hasRole
+      ? endpoint
+      : endpoint
+        ? `${role}/${endpoint}`
+        : role;
+    const finalPath = `${basePath}/${finalEndpoint}`.replace(/\/+/g, "/");
+
+    return `${currentUrl.origin}${finalPath}${currentUrl.search}`;
+  } catch {
+    return inputUrl;
+  }
+}
+
+const apiOptionsV2: Options = {
+  ...apiOptions,
+  prefix: baseUrlV2 || "/",
+  hooks: {
+    ...apiOptions.hooks,
+    beforeRequest: [
+      ({ request, options }) => {
+        // v2 does not send user-type
+        request.headers.delete("user-type");
+
+        if (options.context?.authenticated !== false) {
+          const accessToken = getStoredAccessToken();
+          if (accessToken) {
+            request.headers.set("Authorization", `Bearer ${accessToken}`);
+          }
+        }
+
+        const resolvedUrl = resolveV2Url(request.url);
+        if (resolvedUrl !== request.url) {
+          return new Request(resolvedUrl, request);
+        }
+      },
+    ],
+  },
+};
+
 export const api = ky.create(apiOptions);
+export const apiV1 = api;
+export const clientV1 = api;
+
+export const apiV2 = ky.create(apiOptionsV2);
+export const clientV2 = apiV2;
+
 export const publicApi = api.extend({
   context: {
     authenticated: false,
   },
 });
+
+export const publicApiV2 = apiV2.extend({
+  context: {
+    authenticated: false,
+  },
+});
+
+export const client = {
+  v1: apiV1,
+  v2: apiV2,
+};
 
 export function getApiErrorMessage(error: unknown, fallback: string) {
   return error instanceof ApiError ? error.message : fallback;

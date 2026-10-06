@@ -46,6 +46,7 @@ export type PropertySearchRequest = {
 export type PropertyRequestCreateInput = {
   filters: PropertyRequestApiFilter[] | Record<string, string>;
   name: string;
+  owner_type?: PropertyRequestOwnerType | "agent";
 };
 
 export type PropertyRequestCreateResult = {
@@ -376,6 +377,7 @@ export async function createPropertyRequest(
   input: PropertyRequestCreateInput,
 ): Promise<PropertyRequestCreateResult> {
   const scope = getPropertyRequestScope();
+  const ownerType = input.owner_type ?? scope.ownerType;
   const filters = (Array.isArray(input.filters)
     ? input.filters
     : buildPropertyRequestFilters(input.filters)
@@ -385,7 +387,7 @@ export async function createPropertyRequest(
       json: {
         filters,
         name: input.name.trim() || "درخواست ملک مشابه",
-        owner_type: scope.ownerType,
+        owner_type: ownerType,
       },
     })
     .json<unknown>();
@@ -397,7 +399,7 @@ export async function createPropertyRequest(
   const request = normalizePropertyRequest(
     record?.request ?? payload?.request ?? record?.data,
     0,
-    scope.ownerType,
+    ownerType === "agency" ? "agency" : "user",
   );
   if (!request) {
     throw new ApiError(500, "اطلاعات درخواست ثبت‌شده از سرور دریافت نشد.");

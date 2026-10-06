@@ -237,6 +237,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
         backState={backState}
         backTo={backTo}
         card={card}
+        role={activeRole}
         statusInfo={statusInfo}
       />
     );
@@ -557,6 +558,7 @@ function RealEstateManagerAdStatePage({
   backState,
   backTo,
   card,
+  role,
   statusInfo,
 }: {
   ad?: Record<string, unknown>;
@@ -564,10 +566,20 @@ function RealEstateManagerAdStatePage({
   backState?: unknown;
   backTo: string;
   card: AdCardData;
+  role?: string | null;
   statusInfo: ReturnType<typeof getMyAdStatusInfo>;
 }) {
-  const agencyQuery = useMyAgencyProfileQuery();
-  const consultantsQuery = useAgencyConsultantsQuery({ page: 1, perPage: 100 });
+  const currentRole = role ?? getActiveAuthRole(getStoredAuthSession());
+  const isIndependentConsultant =
+    currentRole === INDEPENDENT_CONSULTANT ||
+    currentRole === "independent-consultant";
+
+  const agencyQuery = useMyAgencyProfileQuery({ enabled: !isIndependentConsultant });
+  const consultantsQuery = useAgencyConsultantsQuery({
+    enabled: !isIndependentConsultant,
+    page: 1,
+    perPage: 100,
+  });
   const publisherOptions = useMemo<ManagerPublisher[]>(() => {
     const options: ManagerPublisher[] = [];
     const agency = agencyQuery.data;
@@ -784,31 +796,35 @@ function RealEstateManagerAdStatePage({
           <ViewAdPerformanceSection adId={adId} ad={ad as Record<string, unknown>} />
         ) : (
           <>
-            <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="مسئول آگهی">
-              <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-on-surface">مسئول آگهی (مشاور مسئول)</Typography>
-              <div className="mt-3">
-                <div className="flex items-center bg-surface rounded-xl p-3 justify-end gap-3 [direction:rtl]">
-                  {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface-container text-outline"><LinearUserSolid className="h-6 w-6" /></div>}
-                  <div className="flex-1 flex gap-1 flex-col justify-center text-right">
-                    <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-on-surface-var">{publisher?.name ?? "مسئول آگهی مشخص نیست"}</Typography>
-                    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-outline">
-                      {publisher ? (publisher.type === "agency" ? "مدیریت آژانس" : "مشاور مسئول") : "—"}
-                    </Typography>
+            {!isIndependentConsultant ? (
+              <>
+                <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="مسئول آگهی">
+                  <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-on-surface">مسئول آگهی (مشاور مسئول)</Typography>
+                  <div className="mt-3">
+                    <div className="flex items-center bg-surface rounded-xl p-3 justify-end gap-3 [direction:rtl]">
+                      {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface-container text-outline"><LinearUserSolid className="h-6 w-6" /></div>}
+                      <div className="flex-1 flex gap-1 flex-col justify-center text-right">
+                        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-on-surface-var">{publisher?.name ?? "مسئول آگهی مشخص نیست"}</Typography>
+                        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-outline">
+                          {publisher ? (publisher.type === "agency" ? "مدیریت آژانس" : "مشاور مسئول") : "—"}
+                        </Typography>
+                      </div>
+                    </div>
+
+                    <Button unstyled
+                      className="mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium text-primary active:bg-primary-container"
+                      onClick={() => setIsPublisherPickerOpen(true)}
+                      type="button"
+                    >
+                      تغییر مشاور مسئول
+                      <ChevronLeftIcon className="h-5 w-5" />
+                    </Button>
                   </div>
-                </div>
+                </section>
 
-                <Button unstyled
-                  className="mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium text-primary active:bg-primary-container"
-                  onClick={() => setIsPublisherPickerOpen(true)}
-                  type="button"
-                >
-                  تغییر مشاور مسئول
-                  <ChevronLeftIcon className="h-5 w-5" />
-                </Button>
-              </div>
-            </section>
-
-            <div className="h-2 bg-surface-container" aria-hidden="true" />
+                <div className="h-2 bg-surface-container" aria-hidden="true" />
+              </>
+            ) : null}
 
             <section className="min-h-[244px] bg-surface-container-lowest" aria-label="عملیات آگهی">
               {managerActions.map((action, index) => (
@@ -828,7 +844,7 @@ function RealEstateManagerAdStatePage({
         )}
       </main>
 
-      {isPublisherPickerOpen ? (
+      {isPublisherPickerOpen && !isIndependentConsultant ? (
         <ManagerPublisherPickerPage
           onClose={() => setIsPublisherPickerOpen(false)}
           onConfirm={async (nextPublisher) => {

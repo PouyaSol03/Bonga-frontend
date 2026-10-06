@@ -237,11 +237,12 @@ function IndependentConsultantAccountPage({
 }) {
   const activeRole = getActiveAuthRole(authSession);
   const isManagerRole = activeRole === REAL_ESTATE_MANAGER;
+  const isConsultantRole = activeRole === REAL_ESTATE_CONSULTANT;
   const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({
-    enabled: Boolean(authSession) && !isManagerRole,
+    enabled: Boolean(authSession),
   });
   const { data: agencyProfile, isLoading: isAgencyProfileLoading } = useMyAgencyProfileQuery({
-    enabled: Boolean(authSession) && isManagerRole,
+    enabled: Boolean(authSession) && (isManagerRole || isConsultantRole),
   });
   const {
     closeLogoutConfirm,
@@ -366,12 +367,23 @@ function getBusinessAccountHeader(
   }
 
   if (role === REAL_ESTATE_CONSULTANT) {
+    const consultantAccount = profile?.accounts?.find(
+      (acc) =>
+        acc.context === "agency-consultant" ||
+        acc.role_slug === "real_estate_consultant" ||
+        (acc.type === "agent" && Boolean(acc.agency_id || acc.agency)),
+    );
+    const agencyTitle =
+      consultantAccount?.agency?.name?.trim() ||
+      agencyProfile?.name?.trim() ||
+      agencyName;
+
     return {
       ariaLabel: "اطلاعات مشاور آژانس",
       color: accountHeader.color,
       imageSrc: accountHeader.avatarUrl,
-      name: accountHeader.label,
-      subtitle: agencyProfile?.name?.trim() ? `مشاور آژانس ${agencyName}` : "مشاور آژانس",
+      name: consultantAccount?.name || accountHeader.label,
+      subtitle: agencyTitle ? `مشاور آژانس ${agencyTitle}` : "مشاور آژانس",
     };
   }
 
@@ -391,6 +403,7 @@ function getBusinessAccountActions(
   const membership = agencyProfile?.membership;
   const session = getStoredAuthSession();
   const isManager = role === REAL_ESTATE_MANAGER;
+  const isAgentInAgency = role === REAL_ESTATE_CONSULTANT;
   const isManagerWithPermissions =
     isManager &&
     ((membership && (membership.role === "manager" || membership.role_id === 2)) ||
@@ -436,17 +449,30 @@ function getBusinessAccountActions(
     return managerActions;
   }
 
-  if (role === REAL_ESTATE_CONSULTANT) {
-    return [
+  if (isAgentInAgency) {
+    const permissions = membership?.permissions ?? session?.managerPermissions ?? {};
+    const actions: AccountAction[] = [
       { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
       { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
       { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agent` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
+      { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
+    ];
+
+    if (permissions.manage_consultants) {
+      actions.push({ icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` });
+    }
+    if (permissions.manage_credits) {
+      actions.push({ icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` });
+    }
+
+    actions.push(
       { icon: "wallet", label: "کیف پول", to: "/account/wallet" },
-      { icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` },
       { icon: "message", label: "پیام‌ها", to: "/chat" },
       { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
-    ];
+    );
+
+    return actions;
   }
 
   if (role === INDEPENDENT_CONSULTANT) {
@@ -477,6 +503,54 @@ function getAccountSwitchActions(
   const actions: AccountAction[] = [];
   const profileName = getProfileDisplayName(profile) || "کاربر شناسا";
   const agencyName = getAgencyDisplayName(agencyProfile);
+
+  // If backend returns `accounts`, build actions directly with accurate agency context and labels
+  if (Array.isArray(profile?.accounts) && profile.accounts.length > 0) {
+    for (const acc of profile.accounts) {
+      if (acc.context === "personal" || acc.role_slug === "user" || acc.type === "user") {
+        actions.push({
+          activeRole: USER,
+          icon: "user",
+          label: acc.name || profileName,
+          to: "/account",
+        });
+      } else if (acc.context === "agency" || acc.role_slug === "real_estate_manager" || acc.type === "agency") {
+        actions.push({
+          activeRole: REAL_ESTATE_MANAGER,
+          icon: "agency",
+          label: acc.name || agencyName,
+          to: "/account",
+        });
+      } else if (
+        acc.context === "agency-consultant" ||
+        acc.role_slug === "real_estate_consultant" ||
+        (acc.type === "agent" && Boolean(acc.agency_id || acc.agency))
+      ) {
+        const agencyTitle = acc.agency?.name?.trim() || agencyProfile?.name?.trim() || agencyName;
+        const consultantLabel = agencyTitle ? `مشاور آژانس ${agencyTitle}` : "مشاور آژانس";
+
+        actions.push({
+          activeRole: REAL_ESTATE_CONSULTANT,
+          icon: "building",
+          label: consultantLabel,
+          to: "/account",
+        });
+      } else if (
+        acc.context === "independent-consultant" ||
+        acc.role_slug === "independent_consultant" ||
+        (acc.type === "agent" && !acc.agency_id && !acc.agency)
+      ) {
+        actions.push({
+          activeRole: INDEPENDENT_CONSULTANT,
+          icon: "user",
+          label: "مشاور مستقل",
+          to: "/account",
+        });
+      }
+    }
+
+    return actions.filter((action) => action.activeRole !== activeRole);
+  }
 
   if (authSession.roles.some((role) => role.slug === USER)) {
     actions.push({
@@ -563,9 +637,14 @@ function StandardAccountPage({
   const hasManagerRole = Boolean(
     authSession?.roles.some((role) => role.slug === REAL_ESTATE_MANAGER),
   );
+  const hasConsultantRole = Boolean(
+    authSession?.roles.some((role) => role.slug === REAL_ESTATE_CONSULTANT),
+  );
   const activeRole = getActiveAuthRole(authSession);
   const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({ enabled: isLoggedIn });
-  const { data: agencyProfile, isLoading: isAgencyProfileLoading } = useMyAgencyProfileQuery({ enabled: isLoggedIn && hasManagerRole });
+  const { data: agencyProfile, isLoading: isAgencyProfileLoading } = useMyAgencyProfileQuery({
+    enabled: isLoggedIn && (hasManagerRole || hasConsultantRole),
+  });
   const {
     closeLogoutConfirm,
     confirmLogout,

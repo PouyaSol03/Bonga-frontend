@@ -22,7 +22,7 @@ import {
   useSaveAdvertiseDraftMutation,
 } from "../api/advertisement.hooks";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
-import { REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
+import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import { handleValidationFailure, scrollToFirstError } from "./validationScroll";
@@ -1012,6 +1012,15 @@ export function NewAdFlowPage() {
   );
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const isAgencyRole = activeRole === REAL_ESTATE_MANAGER;
+  const isAgencyConsultantUser =
+    activeRole === REAL_ESTATE_CONSULTANT ||
+    routeParams.publisherType === "agent" ||
+    routeParams.publisherType === "consultant";
+  const isIndependentUser = activeRole === INDEPENDENT_CONSULTANT;
+  const canChangePublisher =
+    !isIndependentUser &&
+    !isAgencyConsultantUser &&
+    (isAgencyRole || routeParams.publisherType === "agency");
 
   const editAdQuery = useQuery<AdvertisementItem, Error>({
     enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),
@@ -1681,7 +1690,7 @@ export function NewAdFlowPage() {
             selectedAgencyId={methods.watch("agencyId")}
             submitDisabled={createAdvertisement.isPending || submitLockRef.current}
           />
-        ) : step === "publisherSelection" ? (
+        ) : step === "publisherSelection" && canChangePublisher ? (
           <PublisherSelectionStep
             onBack={() => setStep("media")}
             onConfirm={confirmPublisher}
@@ -1693,7 +1702,7 @@ export function NewAdFlowPage() {
             isAssigned={isAssigned}
             label={label}
             onBack={goToDetails}
-            onChangePublisher={() => setStep("publisherSelection")}
+            onChangePublisher={canChangePublisher ? () => setStep("publisherSelection") : undefined}
             onClearError={clearFieldError}
             onSubmit={handleMediaPrimary}
             submitDisabled={

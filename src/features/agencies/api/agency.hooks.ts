@@ -49,15 +49,19 @@ export function useAgencyConsultantsQuery({
   enabled = true,
   page = 1,
   perPage = 100,
+  query,
+  status = "all",
 }: {
   enabled?: boolean;
   page?: number;
   perPage?: number;
+  query?: string;
+  status?: "active" | "pending" | "all";
 } = {}) {
   return useQuery({
     enabled,
-    queryFn: () => getMyAgencyConsultants({ page, perPage }),
-    queryKey: queryKeys.agencies.consultants({ page, perPage }),
+    queryFn: () => getMyAgencyConsultants({ page, perPage, query, status }),
+    queryKey: queryKeys.agencies.consultants({ page, perPage, query, status }),
   });
 }
 

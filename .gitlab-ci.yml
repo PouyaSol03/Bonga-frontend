@@ -9,7 +9,13 @@ variables:
   IMAGE_TAG: "$LOCAL_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
   DEPLOY_TAG: "$LOCAL_REGISTRY_IMAGE:main"
   DEPLOY_DIR: "/srv/containers/Bonga"
-  VITE_API_BASE_URL: "https://bonga.exirfirm.com"
+
+  VITE_API_BASE_URL: "https://bonga.exirfirm.com/api/v1"
+  VITE_API_BASE_URL_V2: "https://bonga.exirfirm.com/api/v2"
+  VITE_WEBSOCKET_BASE_URL: "https://bonga.exirfirm.com"
+  VITE_SITE_URL: "https://bonga.exirfirm.com"
+  SEO_API_BASE_URL: "https://bonga.exirfirm.com/"
+  SEO_SITE_URL: "https://bonga.exirfirm.com/"
 
 verify:
   stage: verify
@@ -30,12 +36,26 @@ build_image:
     - exirmain
   needs:
     - verify
+
   before_script:
     - printf '%s' "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$LOCAL_REGISTRY"
+
   script:
-    - docker build --provenance=false --build-arg VITE_API_BASE_URL="$VITE_API_BASE_URL" -t "$IMAGE_TAG" -t "$DEPLOY_TAG" .
+    - |
+      docker build \
+        --provenance=false \
+        --build-arg VITE_API_BASE_URL="$VITE_API_BASE_URL" \
+        --build-arg VITE_API_BASE_URL_V2="$VITE_API_BASE_URL_V2" \
+        --build-arg VITE_WEBSOCKET_BASE_URL="$VITE_WEBSOCKET_BASE_URL" \
+        --build-arg VITE_SITE_URL="$VITE_SITE_URL" \
+        --build-arg SEO_API_BASE_URL="$SEO_API_BASE_URL" \
+        --build-arg SEO_SITE_URL="$SEO_SITE_URL" \
+        -t "$IMAGE_TAG" \
+        -t "$DEPLOY_TAG" \
+        .
     - docker push "$IMAGE_TAG"
     - docker push "$DEPLOY_TAG"
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
@@ -46,22 +66,37 @@ deploy_production:
     - exirmain
   needs:
     - build_image
+
   resource_group: bonga-production
+
   environment:
     name: production
+
   before_script:
     - apk add --no-cache util-linux
     - printf '%s' "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$LOCAL_REGISTRY"
+
   script:
     - export FRONTEND_IMAGE="$IMAGE_TAG"
     - |
       flock "$DEPLOY_DIR/.deploy.lock" sh -eu -c '
         cd "$DEPLOY_DIR"
-        test -f docker-compose.yml
-        docker compose -f docker-compose.yml -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" config --quiet
-        docker compose -f docker-compose.yml -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" pull frontend
-        docker compose -f docker-compose.yml -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" up -d --no-deps --no-build frontend
-        docker compose -f docker-compose.yml -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" ps frontend
+
+        docker compose \
+          -f docker-compose.yml \
+          -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" \
+          pull frontend
+
+        docker compose \
+          -f docker-compose.yml \
+          -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" \
+          up -d --no-deps --no-build frontend
+
+        docker compose \
+          -f docker-compose.yml \
+          -f "$CI_PROJECT_DIR/docker-compose.deploy.yml" \
+          ps frontend
       '
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'

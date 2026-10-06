@@ -1,4 +1,4 @@
-import { api, getApiAssetUrl, publicApi } from "../../../shared/api/api";
+import { api, apiV2, getApiAssetUrl, publicApi } from "../../../shared/api/api";
 import {
   mapAdvertisementToAdCard,
   type AdvertisementItem,
@@ -157,6 +157,8 @@ export type AgencyConsultantsPage = {
 export type AgencyConsultantsParams = {
   page?: number;
   perPage?: number;
+  query?: string;
+  status?: "active" | "pending" | "all";
 };
 
 export type UpdateAgencyConsultantPayload = AgencyConsultantSettingsPayload & {
@@ -892,13 +894,23 @@ export async function cancelMyAgencyConsultantRequest(agentId: number | string) 
 export async function getMyAgencyConsultants({
   page = 1,
   perPage = 100,
+  query,
+  status = "all",
 }: AgencyConsultantsParams = {}): Promise<AgencyConsultantsPage> {
-  const response = await api
-    .get("me/agency/consultants", {
-      searchParams: {
-        page,
-        per_page: perPage,
-      },
+  const searchParams: Record<string, string | number> = {
+    page,
+    per_page: perPage,
+  };
+  if (query?.trim()) {
+    searchParams.query = query.trim();
+  }
+  if (status) {
+    searchParams.status = status;
+  }
+
+  const response = await apiV2
+    .get("agency/consultants", {
+      searchParams,
     })
     .json<AgencyConsultantsApiResponse>();
   const data = (response.data ?? [])
@@ -916,8 +928,8 @@ export async function getMyAgencyConsultants({
 export async function getMyAgencyConsultant(
   agentId: number | string,
 ): Promise<AgencyConsultantDto> {
-  const response = await api
-    .get(`me/agency/consultants/${encodeURIComponent(String(agentId))}`)
+  const response = await apiV2
+    .get(`agency/consultants/${encodeURIComponent(String(agentId))}`)
     .json<AgencyConsultantDetailApiResponse>();
   const source = response.consultant ?? response.data ?? response;
   const consultant = normalizeAgencyConsultant({

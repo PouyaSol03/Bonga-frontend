@@ -25,14 +25,21 @@ import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckI
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
-  useMyProfileQuery,
+  useConsultantProfileQuery,
+  useUpdateConsultantProfileMutation,
   useUpdateMyProfileMutation,
 } from "../account/api/account.hooks";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
-import type { UserProfile } from "../account/api/account.service";
-import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../locations/api/neighborhood.service";
+import type {
+  UpdateConsultantProfilePayload,
+} from "../account/api/account.service";
+import {
+  getNeighborhoodHierarchyDescription,
+  getNeighborhoodInfo,
+  type NeighborhoodDto,
+} from "../locations/api/neighborhood.service";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 
@@ -80,57 +87,13 @@ function toSelectedNeighborhood(neighborhood: NeighborhoodDto): SelectedNeighbor
   };
 }
 
-function getProfileNeighborhoodIds(profile?: UserProfile) {
-  if (!profile) return [];
-
-  const rawValues = Array.isArray(profile.neighborhood_ids)
-    ? profile.neighborhood_ids
-    : profile.neighborhood_ids
-      ? [profile.neighborhood_ids]
-      : profile.neighborhood_id
-        ? [profile.neighborhood_id]
-        : [];
-
-  return Array.from(
-    new Set(
-      rawValues
-        .flatMap((value) => String(value).split(","))
-        .map((value) => value.trim())
-        .filter(Boolean),
-    ),
-  );
-}
-
-function readNestedText(value: unknown, key: string) {
-  if (!value || typeof value !== "object") return "";
-
-  const candidate = (value as Record<string, unknown>)[key];
-  return typeof candidate === "string" ? candidate : "";
-}
-
-function readSocialValue(
-  profile: UserProfile | undefined,
-  key: "instagram" | "telegram" | "whatsapp",
-) {
-  if (!profile) return "";
-
-  const directValue = profile[key];
-  if (typeof directValue === "string" && directValue.trim()) return directValue;
-
-  for (const source of [profile.social, profile.contact_social, profile.contacts]) {
-    const value = readNestedText(source, key);
-    if (value.trim()) return value;
-  }
-
-  return "";
-}
-
 export function AgentProfilePage() {
   const desktop = isDesktopDashboard();
   const selectedCity = readStoredSelectedCity();
-  const profileQuery = useMyProfileQuery();
-  const updateProfileMutation = useUpdateMyProfileMutation();
-  const cityId = selectedCity?.id ?? profileQuery.data?.city_id ?? "";
+  const profileQuery = useConsultantProfileQuery();
+  const updateProfileMutation = useUpdateConsultantProfileMutation();
+  const updateMyProfileMutation = useUpdateMyProfileMutation();
+  const cityId = selectedCity?.id ?? "";
   const neighborhoodsQuery = useNeighborhoodListQuery({
     cityId,
     enabled: Boolean(cityId),
@@ -148,6 +111,7 @@ export function AgentProfilePage() {
   );
   const initializedProfileIdRef = useRef<string | null>(null);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [telegram, setTelegram] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -181,6 +145,7 @@ export function AgentProfilePage() {
   useEffect(() => {
     if (!profileQuery.isError) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setToast({
       message: getApiErrorMessage(
         profileQuery.error,
@@ -193,22 +158,34 @@ export function AgentProfilePage() {
 
   useEffect(() => {
     const profile = profileQuery.data;
-    if (!profile) return;
+    if (!profile?.data) return;
 
-    const profileId = String(profile.id ?? profile._id ?? profile.mobile ?? "current-user");
+    const user = profile.data.user;
+    const consultant = profile.data.consultant;
+
+    const profileId = String(
+      consultant?.id ?? user?.id ?? user?.mobile ?? consultant?.phone ?? "current-consultant",
+    );
     if (initializedProfileIdRef.current === profileId) return;
     initializedProfileIdRef.current = profileId;
 
-    setName([profile.name, profile.family].filter(Boolean).join(" ").trim());
-    setPhone(profile.phone ?? profile.mobile ?? "");
-    setTelegram(readSocialValue(profile, "telegram"));
-    setWhatsapp(readSocialValue(profile, "whatsapp"));
-    setInstagram(readSocialValue(profile, "instagram"));
+    const fullName = [user?.name, user?.family].filter(Boolean).join(" ").trim();
+    setName(fullName || (typeof user?.name === "string" ? user.name : ""));
+    setEmail(typeof user?.email === "string" ? user.email : "");
+    setPhone(consultant?.phone ?? user?.mobile ?? "");
+    setTelegram(consultant?.telegram ?? "");
+    setWhatsapp(consultant?.whatsapp ?? "");
+    setInstagram(consultant?.instagram ?? "");
     setAvatarFile(null);
     setAvatarPreviewUrl(null);
-    setAvatarUrl(profile.avatar ? getApiAssetUrl(profile.avatar) : null);
+    setAvatarUrl(user?.avatar ? getApiAssetUrl(user.avatar) : null);
+
+    const rawNeighborhoodIds = Array.isArray(consultant?.neighborhood_ids)
+      ? consultant.neighborhood_ids.map(String).filter(Boolean)
+      : [];
+
     setSelectedActivityAreas(
-      getProfileNeighborhoodIds(profile).map((id) => ({
+      rawNeighborhoodIds.map((id) => ({
         id,
         name: neighborhoodNameById.get(id) ?? id,
       })),
@@ -216,8 +193,32 @@ export function AgentProfilePage() {
   }, [neighborhoodNameById, profileQuery.data]);
 
   useEffect(() => {
+    if (!selectedActivityAreas.length) return;
+
+    selectedActivityAreas.forEach((area) => {
+      if (area.name === area.id) {
+        const found = neighborhoodNameById.get(area.id);
+        if (found) {
+          setSelectedActivityAreas((current) =>
+            current.map((item) => (item.id === area.id ? { ...item, name: found } : item)),
+          );
+        } else {
+          void getNeighborhoodInfo(area.id).then((info) => {
+            if (info?.name) {
+              setSelectedActivityAreas((current) =>
+                current.map((item) => (item.id === area.id ? { ...item, name: info.name } : item)),
+              );
+            }
+          });
+        }
+      }
+    });
+  }, [neighborhoodNameById, selectedActivityAreas]);
+
+  useEffect(() => {
     if (!neighborhoods.length) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedActivityAreas((current) =>
       current.map((area) => ({
         ...area,
@@ -268,15 +269,27 @@ export function AgentProfilePage() {
     try {
       const profileName = splitProfileName(trimmedName);
 
-      await updateProfileMutation.mutateAsync({
-        avatar: avatarFile,
-        ...profileName,
-        instagram: normalizeOptionalText(instagram),
-        neighborhood_ids: selectedActivityAreas.map((area) => area.id),
+      const payload: UpdateConsultantProfilePayload = {
+        name: profileName.name,
+        family: profileName.family,
+        email: normalizeOptionalText(email),
         phone: normalizeOptionalText(phone),
         telegram: normalizeOptionalText(telegram),
         whatsapp: normalizeOptionalText(whatsapp),
-      });
+        instagram: normalizeOptionalText(instagram),
+        neighborhood_ids: selectedActivityAreas
+          .map((area) => Number(area.id))
+          .filter((id) => !Number.isNaN(id)),
+      };
+
+      await updateProfileMutation.mutateAsync(payload);
+
+      if (avatarFile) {
+        await updateMyProfileMutation.mutateAsync({
+          avatar: avatarFile,
+        });
+      }
+
       showToast("اطلاعات مشاور ذخیره شد.");
     } catch (error) {
       showToast(
@@ -294,15 +307,17 @@ export function AgentProfilePage() {
       avatarPreviewUrl={avatarPreviewUrl}
       avatarUrl={avatarUrl}
       desktop={desktop}
+      email={email}
       instagram={instagram}
       isLoading={profileQuery.isLoading}
-      isSaving={updateProfileMutation.isPending}
+      isSaving={updateProfileMutation.isPending || updateMyProfileMutation.isPending}
       name={name}
       nameError={nameError}
       onActivityAreaRemove={(id) =>
         setSelectedActivityAreas((current) => current.filter((area) => area.id !== id))
       }
       onAvatarChange={handleAvatarChange}
+      onEmailChange={setEmail}
       onInstagramChange={setInstagram}
       onNameChange={setName}
       onOpenActivityAreaPicker={() => setIsNeighborhoodPickerOpen(true)}
@@ -357,6 +372,7 @@ function AgentProfileForm({
   avatarPreviewUrl,
   avatarUrl,
   desktop,
+  email,
   instagram,
   isLoading,
   isSaving,
@@ -364,6 +380,7 @@ function AgentProfileForm({
   nameError,
   onActivityAreaRemove,
   onAvatarChange,
+  onEmailChange,
   onInstagramChange,
   onNameChange,
   onOpenActivityAreaPicker,
@@ -380,6 +397,7 @@ function AgentProfileForm({
   avatarPreviewUrl: string | null;
   avatarUrl: string | null;
   desktop: boolean;
+  email: string;
   instagram: string;
   isLoading: boolean;
   isSaving: boolean;
@@ -387,6 +405,7 @@ function AgentProfileForm({
   nameError: string | null;
   onActivityAreaRemove: (id: string) => void;
   onAvatarChange: (file: File | null) => void;
+  onEmailChange: (value: string) => void;
   onInstagramChange: (value: string) => void;
   onNameChange: (value: string) => void;
   onOpenActivityAreaPicker: () => void;
@@ -430,6 +449,7 @@ function AgentProfileForm({
           <DesktopSectionTitle title="اطلاعات تماس" />
           <div className="mt-7 grid grid-cols-1 gap-7 lg:grid-cols-2">
             <DesktopField label="شماره تماس" onChange={onPhoneChange} placeholder="شماره تماس" value={phone} />
+            <DesktopField label="ایمیل" onChange={onEmailChange} placeholder="ایمیل" value={email} />
           </div>
 
           <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-7 text-right text-base font-semibold leading-6 text-on-surface">
@@ -491,6 +511,7 @@ function AgentProfileForm({
         <Section title="اطلاعات تماس">
           <div className="mt-4 grid gap-3">
             <Field onChange={onPhoneChange} placeholder="شماره تماس" value={phone} />
+            <Field onChange={onEmailChange} placeholder="ایمیل" value={email} />
           </div>
           <Separator />
           <div className="grid gap-3">
@@ -666,6 +687,7 @@ function NeighborhoodSelectionSheet({
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!isOpen) setQuery("");
   }, [isOpen]);
 

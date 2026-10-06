@@ -29,7 +29,11 @@ function normalizeWebSocketBaseUrl(value: string) {
 const configuredApiBaseUrl = import.meta.env?.VITE_API_BASE_URL ?? "";
 const configuredApiBaseUrlV2 =
   import.meta.env?.VITE_API_BASE_URL_V2 ??
-  (configuredApiBaseUrl ? configuredApiBaseUrl.replace(/\/v1\/?$/i, "/v2") : "");
+  (configuredApiBaseUrl
+    ? /\/v1\/?$/i.test(configuredApiBaseUrl)
+      ? configuredApiBaseUrl.replace(/\/v1\/?$/i, "/v2")
+      : `${configuredApiBaseUrl.replace(/\/+$/, "")}/v2`
+    : "/api/v2");
 
 export const baseUrl = normalizeApiBaseUrl(configuredApiBaseUrl);
 export const baseUrlV2 = normalizeApiBaseUrl(configuredApiBaseUrlV2);
@@ -345,7 +349,7 @@ export function getActiveV2Role(): V2RoleSegment {
 }
 
 export function resolveV2Url(inputUrl: string): string {
-  const base = baseUrlV2;
+  const base = baseUrlV2 || "/api/v2";
   if (!base) return inputUrl;
 
   try {
@@ -390,7 +394,7 @@ export function resolveV2Url(inputUrl: string): string {
 
 const apiOptionsV2: Options = {
   ...apiOptions,
-  prefix: baseUrlV2 || "/",
+  prefix: baseUrlV2 || "/api/v2",
   hooks: {
     ...apiOptions.hooks,
     beforeRequest: [

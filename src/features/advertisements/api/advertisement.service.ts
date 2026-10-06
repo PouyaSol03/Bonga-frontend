@@ -1,4 +1,6 @@
-import { ApiError, api, baseUrl, publicApi } from "../../../shared/api/api";
+import { v7 as uuidv7 } from "uuid";
+import { ApiError, api, baseUrl, getApiUserType, publicApi } from "../../../shared/api/api";
+import { getStoredAccessToken } from "../../../shared/auth/auth-storage";
 import { formatCardPrice } from "../../../shared/lib/MoneyHandler";
 import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
 import { getAdvertisementImageUrls } from "../utils/advertisement-images";
@@ -1695,4 +1697,46 @@ export async function removeAgencyAdvertisement(
 
   return response;
 }
+
+export type AdvertisementEngagementEventType = "impression" | "call";
+
+export interface AdvertisementEngagementPayload {
+  event_type: AdvertisementEngagementEventType;
+  idempotency_key: string;
+}
+
+export async function reportAdvertisementEngagement(
+  adId: string | number,
+  eventType: AdvertisementEngagementEventType,
+): Promise<void> {
+  const cleanId = String(adId).trim();
+  if (!cleanId || !/^[1-9]\d*$/.test(cleanId)) return;
+
+  try {
+    const accessToken = getStoredAccessToken();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "user-type": getApiUserType(),
+    };
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+
+    const apiRoot = baseUrl || "/api";
+    const endpoint = `${apiRoot}/advertisements/${encodeURIComponent(cleanId)}/engagement`;
+
+    await fetch(endpoint, {
+      method: "POST",
+      headers,
+      keepalive: true,
+      body: JSON.stringify({
+        event_type: eventType,
+        idempotency_key: uuidv7(),
+      }),
+    });
+  } catch {
+    // Telemetry errors must never disrupt user experience.
+  }
+}
+
 

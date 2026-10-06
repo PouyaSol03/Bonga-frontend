@@ -909,7 +909,7 @@ export async function getMyAgencyConsultants({
   }
 
   const response = await apiV2
-    .get("agency/consultants", {
+    .get("consultants", {
       searchParams,
     })
     .json<AgencyConsultantsApiResponse>();
@@ -925,11 +925,19 @@ export async function getMyAgencyConsultants({
   };
 }
 
+function agencyConsultantPath(
+  agentId: number | string,
+  subPath?: string,
+): string {
+  const base = `consultants/${encodeURIComponent(String(agentId))}`;
+  return subPath ? `${base}/${subPath}` : base;
+}
+
 export async function getMyAgencyConsultant(
   agentId: number | string,
 ): Promise<AgencyConsultantDto> {
   const response = await apiV2
-    .get(`agency/consultants/${encodeURIComponent(String(agentId))}`)
+    .get(agencyConsultantPath(agentId))
     .json<AgencyConsultantDetailApiResponse>();
   const source = response.consultant ?? response.data ?? response;
   const consultant = normalizeAgencyConsultant({
@@ -1250,7 +1258,7 @@ export async function getMyAgencyConsultantAdvertisements({
   status = "active",
 }: ConsultantAdvertisementsParams): Promise<ConsultantAdvertisementsPage> {
   const response = await apiV2
-    .get(`agency/consultants/${encodeURIComponent(String(agentId))}/advertisements`, {
+    .get(agencyConsultantPath(agentId, "advertisements"), {
       searchParams: {
         page,
         per_page: perPage,
@@ -1285,12 +1293,9 @@ export async function getMyAgencyConsultantActivityStats({
   period?: "week" | "month" | "year";
 }): Promise<ConsultantActivityStatsDto> {
   const response = await apiV2
-    .get(
-      `agency/consultants/${encodeURIComponent(String(agentId))}/performance/activity-stats`,
-      {
-        searchParams: { period },
-      },
-    )
+    .get(agencyConsultantPath(agentId, "performance/activity-stats"), {
+      searchParams: { period },
+    })
     .json<{
       period?: string;
       source?: string;
@@ -1330,17 +1335,14 @@ export async function getMyAgencyConsultantActivityFeed({
   type = "all",
 }: ConsultantActivitiesParams): Promise<ConsultantActivityFeedDto> {
   const response = await apiV2
-    .get(
-      `agency/consultants/${encodeURIComponent(String(agentId))}/performance/activity-feed`,
-      {
-        searchParams: {
-          page,
-          per_page: perPage,
-          period,
-          type,
-        },
+    .get(agencyConsultantPath(agentId, "performance/activity-feed"), {
+      searchParams: {
+        page,
+        per_page: perPage,
+        period,
+        type,
       },
-    )
+    })
     .json<{
       activities?: ConsultantActivityItemDto[];
       page?: number;
@@ -1371,17 +1373,14 @@ export async function getMyAgencyConsultantActivities({
   type = "all",
 }: ConsultantActivitiesParams): Promise<ConsultantActivitiesDto> {
   const response = await apiV2
-    .get(
-      `agency/consultants/${encodeURIComponent(String(agentId))}/performance/activities`,
-      {
-        searchParams: {
-          page,
-          per_page: perPage,
-          period,
-          type,
-        },
+    .get(agencyConsultantPath(agentId, "performance/activities"), {
+      searchParams: {
+        page,
+        per_page: perPage,
+        period,
+        type,
       },
-    )
+    })
     .json<{
       activities?: ConsultantActivityItemDto[];
       page?: number;
@@ -1422,17 +1421,14 @@ export async function getMyAgencyConsultantCharts({
   period = "month",
 }: {
   agentId: number | string;
-  period?: "month" | "year";
+  period?: "week" | "month" | "year";
 }): Promise<ConsultantPerformanceChartsDto> {
   const response = await apiV2
-    .get(
-      `agency/consultants/${encodeURIComponent(String(agentId))}/performance/charts`,
-      {
-        searchParams: {
-          period,
-        },
+    .get(agencyConsultantPath(agentId, "performance/charts"), {
+      searchParams: {
+        period,
       },
-    )
+    })
     .json<{
       distributions?: ConsultantPerformanceDistribution[];
       period?: "month" | "year";
@@ -1441,7 +1437,7 @@ export async function getMyAgencyConsultantCharts({
 
   return {
     distributions: Array.isArray(response.distributions) ? response.distributions : [],
-    period: response.period ?? period,
+    period: response.period ?? (period === "week" ? "month" : period),
     progress: Array.isArray(response.progress) ? response.progress : [],
   };
 }
@@ -1482,12 +1478,15 @@ const emptyMetricData: ConsultantMetricData = {
   total_count: 0,
 };
 
-export async function getMyAgencyConsultantPublishedAdsMetric({
-  agentId,
-  period = "month",
-  from,
-  to,
-}: ConsultantMetricParams): Promise<ConsultantMetricData> {
+export type ConsultantMetricType =
+  | "published-ads"
+  | "renewal-usage"
+  | "special-usage";
+
+export async function getMyAgencyConsultantMetric(
+  metric: ConsultantMetricType,
+  { agentId, period = "month", from, to }: ConsultantMetricParams,
+): Promise<ConsultantMetricData> {
   const searchParams: Record<string, string> = {};
   if (from && to) {
     searchParams.from = from;
@@ -1497,60 +1496,21 @@ export async function getMyAgencyConsultantPublishedAdsMetric({
   }
 
   const response = await apiV2
-    .get(
-      `agency/consultants/${encodeURIComponent(String(agentId))}/metrics/published-ads`,
-      { searchParams },
-    )
+    .get(agencyConsultantPath(agentId, `metrics/${metric}`), { searchParams })
     .json<{ status?: boolean; data?: ConsultantMetricData }>();
 
   return response.data ?? emptyMetricData;
 }
 
-export async function getMyAgencyConsultantRenewalUsageMetric({
-  agentId,
-  period = "month",
-  from,
-  to,
-}: ConsultantMetricParams): Promise<ConsultantMetricData> {
-  const searchParams: Record<string, string> = {};
-  if (from && to) {
-    searchParams.from = from;
-    searchParams.to = to;
-  } else if (period) {
-    searchParams.period = period;
-  }
-
-  const response = await apiV2
-    .get(
-      `agency/consultants/${encodeURIComponent(String(agentId))}/metrics/renewal-usage`,
-      { searchParams },
-    )
-    .json<{ status?: boolean; data?: ConsultantMetricData }>();
-
-  return response.data ?? emptyMetricData;
+export function getMyAgencyConsultantPublishedAdsMetric(params: ConsultantMetricParams) {
+  return getMyAgencyConsultantMetric("published-ads", params);
 }
 
-export async function getMyAgencyConsultantSpecialUsageMetric({
-  agentId,
-  period = "month",
-  from,
-  to,
-}: ConsultantMetricParams): Promise<ConsultantMetricData> {
-  const searchParams: Record<string, string> = {};
-  if (from && to) {
-    searchParams.from = from;
-    searchParams.to = to;
-  } else if (period) {
-    searchParams.period = period;
-  }
+export function getMyAgencyConsultantRenewalUsageMetric(params: ConsultantMetricParams) {
+  return getMyAgencyConsultantMetric("renewal-usage", params);
+}
 
-  const response = await apiV2
-    .get(
-      `agency/consultants/${encodeURIComponent(String(agentId))}/metrics/special-usage`,
-      { searchParams },
-    )
-    .json<{ status?: boolean; data?: ConsultantMetricData }>();
-
-  return response.data ?? emptyMetricData;
+export function getMyAgencyConsultantSpecialUsageMetric(params: ConsultantMetricParams) {
+  return getMyAgencyConsultantMetric("special-usage", params);
 }
 

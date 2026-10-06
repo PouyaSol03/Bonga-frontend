@@ -647,6 +647,62 @@ export async function updateMyAgencyProfile(payload: UpdateMyAgencyProfilePayloa
   return unwrapMyAgencyProfile(response);
 }
 
+export interface ConsultantProfileUser {
+  id?: number | string;
+  name?: string | null;
+  family?: string | null;
+  email?: string | null;
+  mobile?: string | null;
+  avatar?: string | null;
+}
+
+export interface ConsultantProfileDetail {
+  id?: number | string;
+  phone?: string | null;
+  telegram?: string | null;
+  whatsapp?: string | null;
+  instagram?: string | null;
+  neighborhood_ids?: Array<string | number> | null;
+  profile_complete?: boolean;
+}
+
+export interface ConsultantProfileResponse {
+  status?: boolean;
+  data: {
+    user?: ConsultantProfileUser;
+    consultant?: ConsultantProfileDetail;
+  };
+}
+
+export interface UpdateConsultantProfilePayload {
+  name?: string | null;
+  family?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  telegram?: string | null;
+  whatsapp?: string | null;
+  instagram?: string | null;
+  neighborhood_ids?: number[] | null;
+}
+
+export async function getConsultantProfile(): Promise<ConsultantProfileResponse> {
+  const response = await apiV2
+    .get("independent-consultant/profile")
+    .json<ConsultantProfileResponse>();
+
+  return response;
+}
+
+export async function updateConsultantProfile(
+  payload: UpdateConsultantProfilePayload,
+): Promise<unknown> {
+  return await apiV2
+    .patch("independent-consultant/profile", {
+      json: payload,
+    })
+    .json<unknown>();
+}
+
 export async function getWallet(): Promise<WalletResult> {
   const response = await api.get("me/wallet").json<ApiDataResponse<WalletResult> | WalletResult>();
   const record = response as Record<string, unknown>;

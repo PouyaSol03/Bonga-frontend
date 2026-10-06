@@ -17,6 +17,7 @@ import {
   deleteMyBusiness,
   getAccountCreditHistory,
   getAdvertiseBadges,
+  getConsultantProfile,
   getMyAds,
   getMyAgencyProfile,
   getMyBadges,
@@ -27,6 +28,7 @@ import {
   saveAdvertiseNote,
   toggleAdvertiseBadge,
   updateAdvertiseNote,
+  updateConsultantProfile,
   updateMyAgencyProfile,
   updateMyProfile,
   verifyPaymentCallback,
@@ -80,6 +82,28 @@ export function useUpdateMyAgencyProfileMutation() {
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.agencyProfile(),
+      });
+    },
+  });
+}
+
+export function useConsultantProfileQuery({ enabled = true }: { enabled?: boolean } = {}) {
+  return useQuery({
+    enabled,
+    queryFn: getConsultantProfile,
+    queryKey: queryKeys.account.consultantProfile(),
+  });
+}
+
+export function useUpdateConsultantProfileMutation() {
+  return useMutation({
+    mutationFn: updateConsultantProfile,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.consultantProfile(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.profile(),
       });
     },
   });

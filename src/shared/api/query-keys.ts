@@ -375,6 +375,7 @@ export const queryKeys = {
     all: ["account"] as const,
     profile: () => [...queryKeys.account.all, "profile"] as const,
     agencyProfile: () => [...queryKeys.account.all, "agency-profile"] as const,
+    consultantProfile: () => [...queryKeys.account.all, "consultant-profile"] as const,
     badges: () => [...queryKeys.account.all, "badges"] as const,
     bookmarksRoot: () => [...queryKeys.account.all, "bookmarks"] as const,
     bookmarks: (filters: { perPage: number }) =>

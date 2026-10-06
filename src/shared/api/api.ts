@@ -110,7 +110,7 @@ function isCrmOrAdminContext(request?: Request): boolean {
   return false;
 }
 
-function getApiUserType(request?: Request): ApiUserType {
+export function getApiUserType(request?: Request): ApiUserType {
   const activeRole = getActiveAuthRole(getStoredAuthSession());
 
   // The frontend uses `super-admin` internally, while the backend header

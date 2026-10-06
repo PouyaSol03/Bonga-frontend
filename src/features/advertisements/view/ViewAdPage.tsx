@@ -23,9 +23,10 @@ import {
 import { useSaveAdvertiseNoteMutation, useToggleAdvertiseBadgeMutation } from "../../account/api/account.hooks";
 import { useCreateAdvertiseChatMutation } from "../../chat/api/chat.hooks";
 import { usePublicAgencyDetailQuery } from "../../agencies/api/agency.hooks";
-import type {
-  AdvertiseFeedbackPayload,
-  AdvertisementItem,
+import {
+  reportAdvertisementEngagement,
+  type AdvertiseFeedbackPayload,
+  type AdvertisementItem,
 } from "../api/advertisement.service";
 import {
   AccommodationRatingBanner,
@@ -42,17 +43,7 @@ import TonalInstagram from "../../../shared/icons/TonalInstagram";
 import TonalTelegram from "../../../shared/icons/TonalTelegram";
 import TonalWhatsapp from "../../../shared/icons/TonalWhatsapp";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
-import {
-  REAL_ESTATE_MANAGER,
-  REAL_ESTATE_CONSULTANT,
-  INDEPENDENT_CONSULTANT,
-} from "../../../shared/constants/roles.constants";
-import {
-  ViewAdBusinessTabs,
-  type ViewAdBusinessTabKey,
-} from "./components/ViewAdBusinessTabs";
-import { ViewAdPerformanceSection } from "./components/performance/ViewAdPerformanceSection";
-import { ViewAdLeadsSection } from "./components/ViewAdLeadsSection";
+import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
 import { pushRoute } from "../../../shared/navigation/navigation";
 import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
 import type { ChatThread } from "../../chat/api/chat.service";
@@ -1115,13 +1106,6 @@ function ViewAdContent({
   onRowAction: (label: string) => void;
   tour3dUrl: string;
 }) {
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
-  const isBusinessUser =
-    activeRole === REAL_ESTATE_MANAGER ||
-    activeRole === REAL_ESTATE_CONSULTANT ||
-    activeRole === INDEPENDENT_CONSULTANT;
-  const [businessTab, setBusinessTab] = useState<ViewAdBusinessTabKey>("management");
-
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isDescriptionOverflowing, setIsDescriptionOverflowing] =
     useState(false);
@@ -1409,21 +1393,7 @@ function ViewAdContent({
         </DetailSection>
       ) : null}
 
-      {isBusinessUser && (
-        <ViewAdBusinessTabs
-          activeTab={businessTab}
-          adId={adId}
-          onTabChange={setBusinessTab}
-        />
-      )}
-
-      {isBusinessUser && businessTab === "lead" ? (
-        <ViewAdLeadsSection adId={adId} />
-      ) : isBusinessUser && businessTab === "performance" ? (
-        <ViewAdPerformanceSection adId={adId} ad={ad as Record<string, unknown>} />
-      ) : (
-        advertiserPreview ? <AdvertiserCard preview={advertiserPreview} /> : null
-      )}
+      {advertiserPreview ? <AdvertiserCard preview={advertiserPreview} /> : null}
 
       {visibleRows.length > 0 ? (
         <section className="border-t-8 border-surface-container bg-surface-container-lowest">
@@ -1686,6 +1656,27 @@ export function ViewAdPage() {
   const useAgencyAllocationPreview =
     isPreview && (ad ? shouldUseAgencyAllocationPreview(ad) : shouldUseAgencyAllocationPreview());
   const showAgencyOwnerContact = isPreview && !useAgencyAllocationPreview;
+  const reportedImpressionAdIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (isPreview || isLoading || isError || !ad?.id) return;
+    const currentAdId = String(ad.id).trim();
+    if (!/^[1-9]\d*$/.test(currentAdId)) return;
+    if (reportedImpressionAdIdRef.current === currentAdId) return;
+
+    reportedImpressionAdIdRef.current = currentAdId;
+    void reportAdvertisementEngagement(currentAdId, "impression");
+  }, [isPreview, isLoading, isError, ad?.id]);
+
+  const handleOpenContactInfo = (type: "contact" | "agency" | "owner") => {
+    const targetAdId = ad?.id ? String(ad.id).trim() : (adId ? String(adId).trim() : "");
+    if (targetAdId && /^[1-9]\d*$/.test(targetAdId)) {
+      void reportAdvertisementEngagement(targetAdId, "call");
+    }
+    if (type === "contact") setIsContactSheetOpen(true);
+    if (type === "agency") setIsAgencyContactSheetOpen(true);
+    if (type === "owner") setIsOwnerContactSheetOpen(true);
+  };
 
   useEffect(() => {
     const bookmarkState = readAdvertisementBookmarkState(ad);
@@ -2115,7 +2106,7 @@ export function ViewAdPage() {
             setAlbumInitialIndex(initialIndex);
             setIsAlbumOpen(true);
           }}
-          onOpenOwnerContactSheet={() => setIsOwnerContactSheetOpen(true)}
+          onOpenOwnerContactSheet={() => handleOpenContactInfo("owner")}
           onRowAction={handleRowAction}
           tour3dUrl={resolvedTour3dUrl}
         />
@@ -2128,7 +2119,7 @@ export function ViewAdPage() {
               <Button
                 unstyled
                 className="flex-1 rounded-[10px] bg-primary py-2.5 text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
-                onClick={() => setIsAgencyContactSheetOpen(true)}
+                onClick={() => handleOpenContactInfo("agency")}
                 type="button"
               >
                 تماس با کاربر
@@ -2152,7 +2143,7 @@ export function ViewAdPage() {
             <Button
               unstyled
               className="h-10 w-full rounded-[12px] bg-primary text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
-              onClick={() => setIsOwnerContactSheetOpen(true)}
+              onClick={() => handleOpenContactInfo("owner")}
               type="button"
             >
               تماس با مالک
@@ -2166,7 +2157,7 @@ export function ViewAdPage() {
               {hasContactSheetData ? (
                 <Button unstyled
                   className=" rounded-[10px] bg-primary py-2.5 flex-1 text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
-                  onClick={() => setIsContactSheetOpen(true)}
+                  onClick={() => handleOpenContactInfo("contact")}
                   type="button"
                 >
                   {contactInfo.phone ? "تماس با مشاور" : "راه‌های تماس"}

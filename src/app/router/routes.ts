@@ -196,7 +196,7 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
     return false
   }
 
-  if (activeRole === REAL_ESTATE_MANAGER && session.managerPermissions) {
+  if ((activeRole === REAL_ESTATE_MANAGER || activeRole === REAL_ESTATE_CONSULTANT) && session.managerPermissions) {
     const permissions = session.managerPermissions;
     if (route.path.startsWith(`${DASHBOARD_PATH}/team`) && !permissions.manage_consultants) {
       return false;
@@ -214,6 +214,19 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
       !permissions.manage_advertises
     ) {
       return false;
+    }
+  }
+
+  if (activeRole === REAL_ESTATE_CONSULTANT) {
+    const permissions = session.managerPermissions ?? {};
+    if (route.path.startsWith(`${DASHBOARD_PATH}/team`) && permissions.manage_consultants) {
+      return true;
+    }
+    if (route.path.startsWith(`${DASHBOARD_PATH}/requests`)) {
+      return true;
+    }
+    if (route.path.startsWith(`${DASHBOARD_PATH}/payments`) && permissions.manage_credits) {
+      return true;
     }
   }
 

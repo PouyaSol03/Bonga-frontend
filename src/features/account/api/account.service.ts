@@ -1,4 +1,4 @@
-import { ApiError, api, getApiAssetUrl } from "../../../shared/api/api";
+import { ApiError, api, apiV2, getApiAssetUrl } from "../../../shared/api/api";
 import {
   authRoleSlugs,
   getStoredAuthSession,
@@ -10,8 +10,24 @@ import type { ApiDataResponse, ApiListResponse } from "../../../shared/api/respo
 import { unwrapList } from "../../../shared/api/response";
 import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
 
+export type ProfileAccountItem = {
+  context?: "personal" | "agency" | "independent-consultant" | "agency-consultant" | string;
+  type?: "user" | "agency" | "agent" | string;
+  role_slug?: string;
+  id?: number | string;
+  _id?: number | string;
+  name?: string | null;
+  status?: number | string;
+  agency_id?: number | string | null;
+  agency?: {
+    id?: number | string;
+    name?: string | null;
+  } | null;
+};
+
 export type UserProfile = {
   _id?: string;
+  accounts?: ProfileAccountItem[];
   agency_id?: string | number | null;
   agency_status?: number | string | null;
   authorized?: number;
@@ -60,32 +76,65 @@ function syncStoredRolesFromProfile(response: unknown, profile: UserProfile) {
   const responseUser = responseRecord.user as Record<string, unknown> | undefined;
   const responseData = responseRecord.data as Record<string, unknown> | undefined;
   const candidates = [
+    responseRecord.accounts,
     responseRecord.roles,
     responseRecord.role_slugs,
     responseUser?.roles,
     responseUser?.role_slugs,
     responseData?.roles,
     responseData?.role_slugs,
+    profile.accounts,
     profile.roles,
     profile.role_slugs,
   ];
+
+  const rolesFromAccounts: AuthRole[] = [];
+  if (Array.isArray(profile.accounts)) {
+    profile.accounts.forEach((acc, index) => {
+      let slug: AuthRoleSlug | null = null;
+      if (acc.context === "personal" || acc.role_slug === "user" || acc.type === "user") {
+        slug = "user";
+      } else if (acc.context === "agency" || acc.role_slug === "real_estate_manager" || acc.type === "agency") {
+        slug = "real_estate_manager";
+      } else if (acc.context === "agency-consultant" || (acc.role_slug === "real_estate_consultant") || (acc.type === "agent" && Boolean(acc.agency_id || acc.agency))) {
+        slug = "real_estate_consultant";
+      } else if (acc.context === "independent-consultant" || acc.role_slug === "independent_consultant" || (acc.type === "agent" && !acc.agency_id && !acc.agency)) {
+        slug = "independent_consultant";
+      }
+
+      if (slug && !rolesFromAccounts.some((r) => r.slug === slug)) {
+        rolesFromAccounts.push({
+          id: String(acc.id ?? acc._id ?? index + 1),
+          name: acc.name || slug,
+          slug,
+        });
+      }
+    });
+  }
+
   const rawRoles = candidates.find(Array.isArray);
-  if (!Array.isArray(rawRoles)) return;
+  const roles: AuthRole[] = rolesFromAccounts.length > 0 ? rolesFromAccounts : [];
 
-  const roles = rawRoles
-    .map((role, index): AuthRole | null => {
-      const record = role && typeof role === "object" ? role as Record<string, unknown> : null;
-      const slug = normalizeProfileRoleSlug(typeof role === "string" ? role : record?.slug ?? record?.name);
-      if (!slug) return null;
+  if (roles.length === 0 && Array.isArray(rawRoles)) {
+    rawRoles
+      .map((role, index): AuthRole | null => {
+        const record = role && typeof role === "object" ? role as Record<string, unknown> : null;
+        const slug = normalizeProfileRoleSlug(typeof role === "string" ? role : record?.slug ?? record?.name);
+        if (!slug) return null;
 
-      return {
-        id: String(record?.id ?? record?._id ?? index + 1),
-        name: String(record?.name ?? slug),
-        slug,
-      };
-    })
-    .filter((role): role is AuthRole => role !== null)
-    .filter((role, index, items) => items.findIndex((item) => item.slug === role.slug) === index);
+        return {
+          id: String(record?.id ?? record?._id ?? index + 1),
+          name: String(record?.name ?? slug),
+          slug,
+        };
+      })
+      .filter((role): role is AuthRole => role !== null)
+      .forEach((role) => {
+        if (!roles.some((r) => r.slug === role.slug)) {
+          roles.push(role);
+        }
+      });
+  }
 
   if (!roles.length) return;
 
@@ -387,7 +436,7 @@ type MyAdsResponse =
 export async function getMyProfile() {
   const response = await api
     .get("me/show")
-    .json<ApiDataResponse<UserProfile> | { status?: boolean; user?: UserProfile } | UserProfile>();
+    .json<ApiDataResponse<UserProfile> | { status?: boolean; user?: UserProfile; accounts?: ProfileAccountItem[] } | UserProfile>();
   const record = response as Record<string, unknown>;
 
   const profile = record.user && typeof record.user === "object"
@@ -395,6 +444,10 @@ export async function getMyProfile() {
     : record.data && typeof record.data === "object"
       ? record.data as UserProfile
       : response as UserProfile;
+
+  if (Array.isArray(record.accounts)) {
+    profile.accounts = record.accounts as ProfileAccountItem[];
+  }
 
   syncStoredRolesFromProfile(response, profile);
   return profile;
@@ -829,18 +882,25 @@ export async function getMyAds({
   const searchParams: Record<string, string | number> = { page, per_page: perPage };
   if (type && type !== "all") searchParams.type = type;
 
-  const response = await api
-    .get("me/myAds", { searchParams })
+  const response = await apiV2
+    .get("advertise", { searchParams })
     .json<MyAdsResponse>();
   const record = Array.isArray(response) ? {} : (response as Record<string, unknown>);
   const data = Array.isArray(response)
     ? response
     : Array.isArray(record.advertises)
       ? (record.advertises as AdvertisementItem[])
-      : unwrapList(response as ApiListResponse<AdvertisementItem>);
+      : Array.isArray(record.data)
+        ? (record.data as AdvertisementItem[])
+        : unwrapList(response as ApiListResponse<AdvertisementItem>);
   const currentPage = typeof record.page === "number" ? record.page : page;
   const resolvedPerPage = typeof record.per_page === "number" ? record.per_page : perPage;
-  const total = typeof record.total === "number" ? record.total : data.length;
+  const total =
+    typeof record.total === "number"
+      ? record.total
+      : typeof record.count === "number"
+        ? record.count
+        : data.length;
 
   return {
     data,

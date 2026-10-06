@@ -38,7 +38,7 @@ export function MediaStep({
   isAssigned?: boolean;
   label: string;
   onBack: () => void;
-  onChangePublisher: () => void;
+  onChangePublisher?: () => void;
   onClearError?: (key: NewAdFieldErrorKey) => void;
   onSubmit: () => void;
   submitDisabled?: boolean;
@@ -84,6 +84,16 @@ export function MediaStep({
   const isAgencyConsultant =
     Boolean(values.consultantId) || activeRole === "real_estate_consultant";
   const agencyPublisherIsConsultant = isIndependent || isAgencyConsultant;
+
+  const isIndependentUser = activeRole === "independent_consultant";
+  const isAgencyConsultantUser =
+    activeRole === "real_estate_consultant" ||
+    publisherType === "agent" ||
+    publisherType === "consultant";
+  const canChangePublisher =
+    !isIndependentUser &&
+    !isAgencyConsultantUser &&
+    isAgencyPublisher;
 
   const agencyPublisherName = agencyPublisherIsConsultant
     ? selectedConsultant?.name?.trim() ||
@@ -260,12 +270,13 @@ export function MediaStep({
             agencyPublisherName={agencyPublisherName}
             agencyPublisherSubtitle={agencyPublisherSubtitle}
             allowAssignmentChoice={allowAssignmentChoice}
+            canChangePublisher={canChangePublisher}
             errors={errors}
             isAssigned={isAssigned}
             isProfessionalPublisher={isProfessionalPublisher}
             label={label}
             mobile={profileMobile || values.phoneNumber}
-            onChangePublisher={onChangePublisher}
+            onChangePublisher={canChangePublisher ? onChangePublisher : undefined}
             onSelectAgency={selectAgency}
             onSelectPersonal={selectPersonal}
             onSetField={setField}

@@ -1,7 +1,7 @@
 export const queryKeys = {
   propertyRequests: {
     all: ["property-requests"] as const,
-    list: (ownerType: "agency" | "user", page: number, perPage: number) =>
+    list: (ownerType: string, page: number, perPage: number) =>
       [
         ...queryKeys.propertyRequests.all,
         "list",
@@ -10,7 +10,7 @@ export const queryKeys = {
         perPage,
       ] as const,
     matches: (
-      ownerType: "agency" | "user",
+      ownerType: string,
       requestId: string,
       page: number,
       perPage: number,

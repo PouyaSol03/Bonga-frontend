@@ -374,9 +374,17 @@ export function resolveV2Url(inputUrl: string): string {
       "agency-consultant",
     ];
 
-    const hasRole = v2Roles.some(
-      (r) => endpoint === r || endpoint.startsWith(`${r}/`),
-    );
+    const isGlobalEndpoint =
+      endpoint === "me" ||
+      endpoint.startsWith("me/") ||
+      endpoint === "auth" ||
+      endpoint.startsWith("auth/") ||
+      endpoint === "public" ||
+      endpoint.startsWith("public/");
+
+    const hasRole =
+      isGlobalEndpoint ||
+      v2Roles.some((r) => endpoint === r || endpoint.startsWith(`${r}/`));
 
     const role = hasRole ? "" : getActiveV2Role();
     const finalEndpoint = hasRole

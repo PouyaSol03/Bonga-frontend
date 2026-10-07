@@ -164,16 +164,17 @@ const rowContainerKeys = [
 export type CrmPackageKind = "panel_subscription" | "credit_bundle";
 
 export type CrmPackagePayload = {
+  id?: string;
   slug: string;
   kind: CrmPackageKind;
   title: string;
-  real_price: number | null;
-  discount_percent: number | null;
-  duration_days: number | null;
-  ad_credit: number | null;
-  special_credit: number | null;
-  renew_credit: number | null;
-  sort_order: number | null;
+  real_price: number;
+  discount_percent: number;
+  duration_days: number;
+  ad_credit: number;
+  special_credit: number;
+  renew_credit: number;
+  sort_order: number;
   is_active: boolean;
 };
 
@@ -566,24 +567,24 @@ export async function getCrmPackage(id: string) {
   );
 }
 
-export function saveCrmPackage(id: string | null, payload: CrmPackagePayload) {
-  const request = id
-    ? api.patch(`panel/packages/${encodeURIComponent(id)}`, { json: payload })
-    : api.post("panel/packages", { json: payload });
-  return request.json<unknown>();
+export async function updateCrmPackage(id: string, payload: CrmPackagePayload) {
+  return unwrapRecord(
+    await api
+      .patch(`panel/packages/${encodeURIComponent(id)}`, { json: payload })
+      .json<unknown>(),
+    ["package", "data", "result"],
+  );
+}
+
+export async function createCrmPackage(payload: CrmPackagePayload) {
+  return unwrapRecord(
+    await api.post("panel/packages", { json: payload }).json<unknown>(),
+    ["package", "data", "result"],
+  );
 }
 
 export function deleteCrmPackage(id: string) {
   return api.delete(`panel/packages/${encodeURIComponent(id)}`).json<unknown>();
-}
-
-export async function updateCrmPackageStatus(id: string, isActive: boolean) {
-  return unwrapRecord(
-    await api.patch(`panel/packages/${encodeURIComponent(id)}/status`, {
-      json: { is_active: isActive },
-    }).json<unknown>(),
-    ["package", "data", "result"],
-  );
 }
 
 export async function listCrmCheckoutProducts() {

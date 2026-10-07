@@ -19,7 +19,20 @@ function trimTrailingSlashes(value: string) {
 }
 
 function normalizeApiBaseUrl(value: string) {
-  return trimTrailingSlashes(value);
+  const trimmed = trimTrailingSlashes(value);
+  if (import.meta.env?.DEV && trimmed) {
+    try {
+      if (/^https?:\/\//i.test(trimmed)) {
+        const url = new URL(trimmed);
+        if (!url.hostname.includes("bonga.exirfirm.com")) {
+          return trimTrailingSlashes(url.pathname);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return trimmed;
 }
 
 function normalizeWebSocketBaseUrl(value: string) {

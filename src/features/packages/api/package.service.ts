@@ -1,67 +1,15 @@
-import { ApiError, api, publicApi } from "../../../shared/api/api";
-import {
-  getActiveAuthRole,
-  getStoredAuthSession,
-} from "../../../shared/auth/auth-storage";
-import {
-  INDEPENDENT_CONSULTANT,
-  REAL_ESTATE_CONSULTANT,
-  REAL_ESTATE_MANAGER,
-} from "../../../shared/constants/roles.constants";
+import { ApiError, apiV2, getActiveV2Role, publicApi } from "../../../shared/api/api";
+import type {
+  PackageItem,
+  PackagePaymentPayload,
+  PackagePaymentResult,
+  PackagePaymentScope,
+  PackageQueryParams,
+  PackagesApiResponse,
+} from "./package-types";
 
-export type PackageKind = "panel_subscription" | "credit_bundle";
-
-export type PackageItem = {
-  ad_credit: number;
-  created_at: string;
-  discount_percent: number;
-  duration_days: number;
-  final_price: number;
-  id: string;
-  is_active: boolean;
-  kind: PackageKind;
-  real_price: number;
-  renew_credit: number;
-  slug: string;
-  sort_order: number;
-  special_credit: number;
-  title: string;
-  updated_at: string;
-};
-
-type PackagesResponse = {
-  list?: PackageItem[];
-  status?: boolean;
-};
-
-export async function getPackages() {
-  const response = await publicApi.get("public/package").json<PackagesResponse>();
-
-  return Array.isArray(response.list)
-    ? response.list
-        .filter((item) => item.is_active)
-        .sort((first, second) => first.sort_order - second.sort_order)
-    : [];
-}
-
-export type PackagePaymentType = 0 | 1;
-export type PackagePaymentScope = "agency" | "agent";
-
-export type PackagePaymentPayload = {
-  packageId: string;
-  paymentType: PackagePaymentType;
-  scope?: PackagePaymentScope;
-  discountCode?: string;
-};
-
-export type PackagePaymentResult = {
-  authority?: string;
-  paid?: boolean;
-  paymentId?: number | string;
-  paymentType: PackagePaymentType;
-  paymentUrl?: string;
-  scope: PackagePaymentScope;
-};
+export * from "./package-types";
+export * from "./package-entitlement.service";
 
 type ApiRecord = Record<string, unknown>;
 
@@ -71,96 +19,104 @@ function asRecord(value: unknown): ApiRecord | null {
     : null;
 }
 
-function getPackagePaymentScope(): PackagePaymentScope {
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
-
-  if (activeRole === REAL_ESTATE_MANAGER) return "agency";
-
-  if (
-    activeRole === REAL_ESTATE_CONSULTANT ||
-    activeRole === INDEPENDENT_CONSULTANT
-  ) {
-    return "agent";
+export function resolvePackageRoleSegment(
+  role?: string,
+  scope?: PackagePaymentScope,
+): string {
+  if (role?.trim()) return role.trim();
+  if (scope === "agency") return "agency";
+  if (scope === "agent" || scope === "independent-consultant") {
+    return "independent-consultant";
   }
-
-  throw new ApiError(403, "خرید بسته برای نقش فعال شما در دسترس نیست.");
+  return getActiveV2Role();
 }
 
-function getPaymentResponseRecord(response: ApiRecord) {
-  return asRecord(response.data) ?? response;
+export function buildPackageEndpoint(
+  packageId?: string | number,
+  subPath?: string,
+  role?: string,
+  scope?: PackagePaymentScope,
+): string {
+  const rolePrefix = role || scope ? resolvePackageRoleSegment(role, scope) : "";
+  const base = rolePrefix ? `${rolePrefix}/packages` : "packages";
+  if (packageId === undefined) return base;
+  const withId = `${base}/${encodeURIComponent(String(packageId))}`;
+  return subPath ? `${withId}/${subPath}` : withId;
 }
 
-function readPackagePaymentUrl(response: ApiRecord) {
-  const data = getPaymentResponseRecord(response);
-  const value =
-    data.payment_url ??
-    response.payment_url ??
-    data.url ??
-    response.url;
+export async function getPackages({
+  role,
+  scope,
+}: PackageQueryParams = {}): Promise<PackageItem[]> {
+  const endpoint = buildPackageEndpoint(undefined, undefined, role, scope);
+  try {
+    const response = await apiV2.get(endpoint).json<PackagesApiResponse>();
+    const list = Array.isArray(response.list) ? response.list : [];
+    return list
+      .filter((item) => item.is_active)
+      .sort((a, b) => a.sort_order - b.sort_order);
+  } catch (err) {
+    if (role || scope) throw err;
+    const fallbackResponse = await publicApi.get("public/package").json<PackagesApiResponse>();
+    const fallbackList = Array.isArray(fallbackResponse.list) ? fallbackResponse.list : [];
+    return fallbackList
+      .filter((item) => item.is_active)
+      .sort((a, b) => a.sort_order - b.sort_order);
+  }
+}
 
+function readPackagePaymentUrl(response: ApiRecord): string | null {
+  const data = asRecord(response.data) ?? response;
+  const value = data.payment_url ?? response.payment_url ?? data.url ?? response.url;
   if (typeof value !== "string" || !value.trim()) return null;
-
   try {
     const url = new URL(value);
-
-    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
-
-    return url.toString();
+    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
   } catch {
     return null;
   }
 }
 
-function readOptionalString(response: ApiRecord, key: string) {
-  const data = getPaymentResponseRecord(response);
+function readOptionalString(response: ApiRecord, key: string): string | undefined {
+  const data = asRecord(response.data) ?? response;
   const value = data[key] ?? response[key];
-
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
-function readOptionalId(response: ApiRecord, key: string) {
-  const data = getPaymentResponseRecord(response);
+function readOptionalId(response: ApiRecord, key: string): number | string | undefined {
+  const data = asRecord(response.data) ?? response;
   const value = data[key] ?? response[key];
-
-  return typeof value === "number" || typeof value === "string"
-    ? value
-    : undefined;
+  return typeof value === "number" || typeof value === "string" ? value : undefined;
 }
 
 export async function payPackage({
   discountCode,
   packageId,
   paymentType,
-  scope = getPackagePaymentScope(),
+  role,
+  scope,
 }: PackagePaymentPayload): Promise<PackagePaymentResult> {
   const normalizedPackageId = String(packageId ?? "").trim();
-
   if (!normalizedPackageId) {
     throw new ApiError(400, "شناسه بسته معتبر نیست.");
   }
 
-  const searchParams: Record<string, string | number> = {
-    payment_type: paymentType,
-  };
-  const body: Record<string, string | number> = {
-    payment_type: paymentType,
-  };
-  if (discountCode && discountCode.trim()) {
-    searchParams.discount_code = discountCode.trim();
+  const endpoint = buildPackageEndpoint(normalizedPackageId, "pay", role, scope);
+  const body: Record<string, string | number> = { payment_type: paymentType };
+  const searchParams: Record<string, string | number> = { payment_type: paymentType };
+  if (discountCode?.trim()) {
     body.discount_code = discountCode.trim();
+    searchParams.discount_code = discountCode.trim();
   }
 
-  const rawResponse = await api
-    .post(
-      `me/${scope}/packages/${encodeURIComponent(normalizedPackageId)}/pay`,
-      {
-        json: body,
-        searchParams,
-      },
-    )
+  const rawResponse = await apiV2
+    .post(endpoint, {
+      json: body,
+      searchParams,
+    })
     .json<unknown>();
   const response = asRecord(rawResponse) ?? {};
-  const responseData = getPaymentResponseRecord(response);
+  const responseData = asRecord(response.data) ?? response;
 
   if (response.status === false || responseData.status === false) {
     throw new ApiError(400, "ایجاد درخواست پرداخت بسته با خطا مواجه شد.");
@@ -173,207 +129,32 @@ export async function payPackage({
     throw new ApiError(500, "آدرس درگاه پرداخت از سرور دریافت نشد.");
   }
 
+  const resolvedScope = (scope ?? (resolvePackageRoleSegment(role, scope) === "agency" ? "agency" : "independent-consultant")) as PackagePaymentScope;
+
   return {
     authority: readOptionalString(response, "authority"),
     paid,
     paymentId: readOptionalId(response, "payment_id"),
     paymentType,
     paymentUrl: paymentUrl ?? undefined,
-    scope,
+    scope: resolvedScope,
   };
 }
 
 export function payAgencyPackage(
-  packageId: string,
-  paymentType: PackagePaymentType = 0,
+  packageId: string | number,
+  paymentType: PackagePaymentPayload["paymentType"] = 0,
   discountCode?: string,
 ) {
   return payPackage({ discountCode, packageId, paymentType, scope: "agency" });
 }
 
 export function payAgentPackage(
-  packageId: string,
-  paymentType: PackagePaymentType = 0,
+  packageId: string | number,
+  paymentType: PackagePaymentPayload["paymentType"] = 0,
   discountCode?: string,
 ) {
-  return payPackage({ discountCode, packageId, paymentType, scope: "agent" });
+  return payPackage({ discountCode, packageId, paymentType, scope: "independent-consultant" });
 }
 
-export type AgentEntitlements = {
-  adCreditBalance: number;
-  panelDaysRemaining: number;
-  panelExpiresAt: string | null;
-  renewCreditBalance: number;
-  specialCreditBalance: number;
-};
 
-export type AgentEntitlementLedgerItem = ApiRecord;
-
-export type AgentEntitlementLedgerPage = {
-  data: AgentEntitlementLedgerItem[];
-  hasNextPage: boolean;
-  page: number;
-  perPage: number;
-  total: number;
-};
-
-function toNumber(value: unknown, fallback = 0) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-function toNullableText(value: unknown) {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
-
-function unwrapDataRecord(value: unknown) {
-  const root = asRecord(value) ?? {};
-  return asRecord(root.data) ?? root;
-}
-
-export async function getAgentEntitlements(): Promise<AgentEntitlements> {
-  const response = await api.get("me/agent/entitlements").json<unknown>();
-  const root = unwrapDataRecord(response);
-  const data =
-    asRecord(root.entitlement) ?? asRecord(root.balances) ?? root;
-  const expectedFields = [
-    "ad_credit_balance",
-    "adCreditBalance",
-    "panel_days_remaining",
-    "panelDaysRemaining",
-    "panel_expires_at",
-    "panelExpiresAt",
-    "renew_credit_balance",
-    "renewCreditBalance",
-    "special_credit_balance",
-    "specialCreditBalance",
-  ];
-
-  if (!expectedFields.some((key) => Object.prototype.hasOwnProperty.call(data, key))) {
-    throw new ApiError(500, "ساختار اعتبار مشاور از سرور قابل تشخیص نیست.");
-  }
-
-  return {
-    adCreditBalance: Math.max(
-      0,
-      toNumber(
-        data.ad_credit_balance ?? data.adCreditBalance ?? data.ad_credit,
-      ),
-    ),
-    panelDaysRemaining: Math.max(
-      0,
-      toNumber(
-        data.panel_days_remaining ?? data.panelDaysRemaining ?? data.panel_days,
-      ),
-    ),
-    panelExpiresAt: toNullableText(
-      data.panel_expires_at ?? data.panelExpiresAt ?? data.expires_at,
-    ),
-    renewCreditBalance: Math.max(
-      0,
-      toNumber(
-        data.renew_credit_balance ??
-          data.renewCreditBalance ??
-          data.renew_credit,
-      ),
-    ),
-    specialCreditBalance: Math.max(
-      0,
-      toNumber(
-        data.special_credit_balance ??
-          data.specialCreditBalance ??
-          data.special_credit,
-      ),
-    ),
-  };
-}
-
-function readLedgerItems(value: unknown): AgentEntitlementLedgerItem[] {
-  if (Array.isArray(value)) {
-    return value.filter((item): item is ApiRecord => asRecord(item) !== null);
-  }
-
-  const record = asRecord(value);
-  if (!record) return [];
-
-  for (const key of ["items", "list", "ledger", "history", "result"]) {
-    if (Array.isArray(record[key])) return readLedgerItems(record[key]);
-  }
-
-  return readLedgerItems(record.data);
-}
-
-function readPaginationNumber(
-  records: Array<ApiRecord | null>,
-  keys: string[],
-) {
-  for (const record of records) {
-    if (!record) continue;
-
-    for (const key of keys) {
-      const rawValue = record[key];
-
-      if (rawValue === null || rawValue === undefined || rawValue === "") {
-        continue;
-      }
-
-      const value = Number(rawValue);
-      if (Number.isFinite(value)) return value;
-    }
-  }
-
-  return undefined;
-}
-
-export async function getAgentEntitlementLedger({
-  page = 1,
-  perPage = 20,
-}: {
-  page?: number;
-  perPage?: number;
-} = {}): Promise<AgentEntitlementLedgerPage> {
-  const response = await api
-    .get("me/agent/entitlements/ledger", {
-      searchParams: { page, per_page: perPage },
-    })
-    .json<unknown>();
-  const root = asRecord(response);
-  const dataRecord = asRecord(root?.data);
-  const meta =
-    asRecord(root?.meta) ??
-    asRecord(root?.pagination) ??
-    asRecord(dataRecord?.meta) ??
-    asRecord(dataRecord?.pagination);
-  const data = readLedgerItems(response);
-  const currentPage =
-    readPaginationNumber(
-      [meta, dataRecord, root],
-      ["current_page", "page"],
-    ) ?? page;
-  const resolvedPerPage =
-    readPaginationNumber(
-      [meta, dataRecord, root],
-      ["per_page", "perPage"],
-    ) ?? perPage;
-  const reportedTotal = readPaginationNumber(
-    [meta, dataRecord, root],
-    ["total"],
-  );
-  const lastPage = readPaginationNumber(
-    [meta, dataRecord, root],
-    ["last_page", "lastPage", "total_pages"],
-  );
-
-  return {
-    data,
-    hasNextPage:
-      lastPage !== undefined
-        ? currentPage < lastPage
-        : reportedTotal !== undefined
-          ? currentPage * resolvedPerPage < reportedTotal
-          : data.length >= resolvedPerPage,
-    page: currentPage,
-    perPage: resolvedPerPage,
-    total: reportedTotal ?? data.length,
-  };
-}

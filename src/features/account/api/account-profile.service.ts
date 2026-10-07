@@ -173,8 +173,32 @@ export function syncStoredRolesFromProfile(
   });
 }
 
+export function getContextMeShowEndpoint(role?: string | null): string {
+  const session = getStoredAuthSession();
+  const activeRole = role ?? session?.activeRole ?? session?.role;
+  switch (activeRole) {
+    case "real_estate_consultant":
+    case "agency-consultant":
+      return "agency-consultant/me/show";
+    case "real_estate_manager":
+    case "agency":
+      return "agency/me/show";
+    case "independent_consultant":
+    case "independent-consultant":
+      return "independent-consultant/me/show";
+    case "super-admin":
+    case "superadmin":
+      return "superadmin/me/show";
+    case "user":
+    case "personal":
+    default:
+      return "personal/me/show";
+  }
+}
+
 export async function getMyProfile(): Promise<UserProfile> {
-  const response = await apiV2.get("me/show").json<UserProfileV2Response | UserProfile>();
+  const endpoint = getContextMeShowEndpoint();
+  const response = await apiV2.get(endpoint).json<UserProfileV2Response | UserProfile>();
   const record = response as Record<string, unknown>;
 
   const profile: UserProfile =

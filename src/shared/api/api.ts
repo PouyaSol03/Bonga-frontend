@@ -335,7 +335,8 @@ export type V2RoleSegment =
   | "agency"
   | "independent-consultant"
   | "personal"
-  | "agency-consultant";
+  | "agency-consultant"
+  | "superadmin";
 
 export function getV2RoleSegment(role?: string | null): V2RoleSegment {
   switch (role) {
@@ -348,6 +349,9 @@ export function getV2RoleSegment(role?: string | null): V2RoleSegment {
     case "agency-consultant":
     case "real_estate_consultant":
       return "agency-consultant";
+    case "superadmin":
+    case "super-admin":
+      return "superadmin";
     case "personal":
     case "user":
     default:
@@ -385,11 +389,10 @@ export function resolveV2Url(inputUrl: string): string {
       "independent-consultant",
       "personal",
       "agency-consultant",
+      "superadmin",
     ];
 
     const isGlobalEndpoint =
-      endpoint === "me" ||
-      endpoint.startsWith("me/") ||
       endpoint === "auth" ||
       endpoint.startsWith("auth/") ||
       endpoint === "public" ||

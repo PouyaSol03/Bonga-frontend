@@ -87,5 +87,11 @@ export default defineConfig({
   server: {
     host: true,
     allowedHosts: ['bonga.exirfirm.com'],
+    proxy: {
+      '/api': {
+        target: 'http://192.168.1.106:3000',
+        changeOrigin: true,
+      },
+    },
   },
 })

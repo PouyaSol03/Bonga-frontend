@@ -11,7 +11,10 @@ import {
   readPaginationRecord,
   readText,
 } from "./property-request-normalizer";
-import { resolvePropertyRequestScope } from "./property-request-endpoint";
+import {
+  resolvePropertyRequestOwnerType,
+  resolvePropertyRequestScope,
+} from "./property-request-endpoint";
 import type {
   PropertyRequestCreateInput,
   PropertyRequestCreateResult,
@@ -45,9 +48,8 @@ export async function createPropertyRequest(
     : buildPropertyRequestFilters(input.filters)
   ).filter((f) => !ignoredRequestFilterFields.has(f.field));
 
-  const endpoint = scope.apiVersion === "v2" ? scope.basePath : "me/requests";
-  const response = await getClient(scope)
-    .post(endpoint, {
+  const response = await api
+    .post("me/requests", {
       json: {
         filters,
         name: input.name.trim() || "درخواست ملک مشابه",
@@ -112,9 +114,10 @@ export async function getPropertyRequests(page = 1, perPage = 20): Promise<Prope
 }
 
 export async function renamePropertyRequest(requestId: string, name: string) {
-  const scope = resolvePropertyRequestScope();
-  const response = await getClient(scope)
-    .patch(`${scope.basePath}/${encodeURIComponent(requestId)}`, { json: { name: name.trim() } })
+  const ownerType = resolvePropertyRequestOwnerType();
+  const v1Path = ownerType === "agency" ? "agency/requests" : "me/requests";
+  const response = await api
+    .patch(`${v1Path}/${encodeURIComponent(requestId)}`, { json: { name: name.trim() } })
     .json<unknown>();
 
   const record = asRecord(response);
@@ -123,14 +126,15 @@ export async function renamePropertyRequest(requestId: string, name: string) {
   return normalizePropertyRequest(
     record?.request ?? asRecord(record?.data)?.request ?? record?.data,
     0,
-    scope.ownerType,
+    ownerType,
   );
 }
 
 export async function deletePropertyRequest(requestId: string) {
-  const scope = resolvePropertyRequestScope();
-  const response = await getClient(scope)
-    .delete(`${scope.basePath}/${encodeURIComponent(requestId)}`)
+  const ownerType = resolvePropertyRequestOwnerType();
+  const v1Path = ownerType === "agency" ? "agency/requests" : "me/requests";
+  const response = await api
+    .delete(`${v1Path}/${encodeURIComponent(requestId)}`)
     .json<unknown>();
 
   const record = asRecord(response);

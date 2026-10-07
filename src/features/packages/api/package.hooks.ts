@@ -10,12 +10,14 @@ import {
   payAgentPackage,
   payPackage,
   type PackagePaymentPayload,
+  type PackageQueryParams,
 } from "./package.service";
 
-export function usePackagesQuery() {
+export function usePackagesQuery(params?: PackageQueryParams) {
+  const scopeKey = params?.role ?? params?.scope;
   return useQuery({
-    queryFn: getPackages,
-    queryKey: queryKeys.packages.list(),
+    queryFn: () => getPackages(params),
+    queryKey: queryKeys.packages.list(scopeKey),
   });
 }
 

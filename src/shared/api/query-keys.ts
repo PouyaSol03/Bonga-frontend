@@ -393,7 +393,10 @@ export const queryKeys = {
 
   packages: {
     all: ["packages"] as const,
-    list: () => [...queryKeys.packages.all, "list"] as const,
+    list: (scope?: string) =>
+      scope
+        ? ([...queryKeys.packages.all, "list", scope] as const)
+        : ([...queryKeys.packages.all, "list"] as const),
     agentEntitlements: () =>
       [...queryKeys.packages.all, "agent-entitlements"] as const,
     agentEntitlementLedgerRoot: () =>

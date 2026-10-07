@@ -196,7 +196,26 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
     return false
   }
 
-  if ((activeRole === REAL_ESTATE_MANAGER || activeRole === REAL_ESTATE_CONSULTANT) && session.managerPermissions) {
+  if (activeRole === REAL_ESTATE_CONSULTANT) {
+    if (
+      route.path === '/account/manage-ads' ||
+      route.path.startsWith('/account/ad-management') ||
+      route.path === `${DASHBOARD_PATH}/ads` ||
+      route.path.startsWith(`${DASHBOARD_PATH}/requests`)
+    ) {
+      return true;
+    }
+
+    const permissions = session.managerPermissions ?? {};
+    if (route.path.startsWith(`${DASHBOARD_PATH}/team`) && permissions.manage_consultants) {
+      return true;
+    }
+    if (route.path.startsWith(`${DASHBOARD_PATH}/payments`) && permissions.manage_credits) {
+      return true;
+    }
+  }
+
+  if (activeRole === REAL_ESTATE_MANAGER && session.managerPermissions) {
     const permissions = session.managerPermissions;
     if (route.path.startsWith(`${DASHBOARD_PATH}/team`) && !permissions.manage_consultants) {
       return false;
@@ -207,26 +226,8 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
     if (route.path.startsWith(`${DASHBOARD_PATH}/payments`) && !permissions.manage_credits) {
       return false;
     }
-    if (
-      (route.path === '/account/manage-ads' ||
-        route.path.startsWith('/account/ad-management') ||
-        route.path === `${DASHBOARD_PATH}/ads`) &&
-      !permissions.manage_advertises
-    ) {
+    if (route.path === `${DASHBOARD_PATH}/ads` && !permissions.manage_advertises) {
       return false;
-    }
-  }
-
-  if (activeRole === REAL_ESTATE_CONSULTANT) {
-    const permissions = session.managerPermissions ?? {};
-    if (route.path.startsWith(`${DASHBOARD_PATH}/team`) && permissions.manage_consultants) {
-      return true;
-    }
-    if (route.path.startsWith(`${DASHBOARD_PATH}/requests`)) {
-      return true;
-    }
-    if (route.path.startsWith(`${DASHBOARD_PATH}/payments`) && permissions.manage_credits) {
-      return true;
     }
   }
 

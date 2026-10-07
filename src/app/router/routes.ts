@@ -198,6 +198,7 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
 
   if (activeRole === REAL_ESTATE_CONSULTANT) {
     if (
+      route.path === '/manage-ads' ||
       route.path === '/account/manage-ads' ||
       route.path.startsWith('/account/ad-management') ||
       route.path === `${DASHBOARD_PATH}/ads` ||
@@ -902,6 +903,13 @@ export const routes: AppRoute[] = [
   },
   {
     path: '/account/manage-ads',
+    title: 'مدیریت آگهی‌ها',
+    Component: IndependentConsultantAdManagementPage,
+    authority: DASHBOARD_ROLES,
+    requiresAuth: true,
+  },
+  {
+    path: '/manage-ads',
     title: 'مدیریت آگهی‌ها',
     Component: IndependentConsultantAdManagementPage,
     authority: DASHBOARD_ROLES,

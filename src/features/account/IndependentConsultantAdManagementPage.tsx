@@ -347,11 +347,6 @@ export function IndependentConsultantAdManagementPage() {
     }
   }, [assignedTab, assignmentsQuery.isError, assignmentsQuery.error]);
 
-  if ((!assignedTab && adsQuery.isError && isForbiddenApiError(adsQuery.error)) ||
-      (assignedTab && assignmentsQuery.isError && isForbiddenApiError(assignmentsQuery.error))) {
-    return null;
-  }
-
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"

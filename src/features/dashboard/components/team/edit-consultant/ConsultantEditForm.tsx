@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { pushRoute } from "../../../../../shared/navigation/navigation";
 import { Button } from "../../../../../shared/ui/Button";
 import { ConsultantProfilePill } from "../ConsultantCardWidgets";
 import type { TeamConsultant, AccessRole } from "../teamTypes";
@@ -93,8 +94,7 @@ export function ConsultantEditForm({
       },
       {
         onSuccess: () => {
-          window.history.pushState({}, "", "/account/dashboard/team");
-          window.dispatchEvent(new PopStateEvent("popstate"));
+          pushRoute("/account/dashboard/team");
         },
       },
     );

@@ -48,12 +48,20 @@ export const queryKeys = {
     all: ["agencies"] as const,
     consultant: (userId: number | string) =>
       [...queryKeys.agencies.all, "my-consultant", ...contextKey(), String(userId)] as const,
-    consultants: (filters: { page: number; perPage: number }) =>
+    consultants: (filters?: {
+      page?: number;
+      perPage?: number;
+      query?: string;
+      status?: string;
+    }) =>
       [
         ...queryKeys.agencies.all,
-        "my-consultants", ...contextKey(),
-        filters.page,
-        filters.perPage,
+        "my-consultants",
+        ...contextKey(),
+        filters?.page ?? 1,
+        filters?.perPage ?? 100,
+        filters?.query ?? "",
+        filters?.status ?? "all",
       ] as const,
     consultantAdvertisements: (
       agentId: number | string,

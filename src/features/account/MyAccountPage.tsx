@@ -19,10 +19,12 @@ import {
   getActiveAuthRole,
   getStoredAuthSession,
   setStoredActiveRole,
+  setStoredAuthSession,
   setStoredManagerPermissions,
   storeLoginRedirectPath,
   type AuthRoleSlug,
   type AuthSession,
+  type ManagerPermissions,
 } from "../../shared/auth/auth-storage";
 import {
   INDEPENDENT_CONSULTANT,
@@ -513,6 +515,12 @@ function getAccountSwitchActions(
           icon: "user",
           label: acc.name || profileName,
           to: "/account",
+          onClick: () => {
+            const current = getStoredAuthSession();
+            if (current?.managerPermissions) {
+              setStoredAuthSession({ ...current, managerPermissions: undefined });
+            }
+          },
         });
       } else if (acc.context === "agency" || acc.role_slug === "real_estate_manager" || acc.type === "agency") {
         actions.push({
@@ -520,6 +528,12 @@ function getAccountSwitchActions(
           icon: "agency",
           label: acc.name || agencyName,
           to: "/account",
+          onClick: () => {
+            const current = getStoredAuthSession();
+            if (current?.managerPermissions) {
+              setStoredAuthSession({ ...current, managerPermissions: undefined });
+            }
+          },
         });
       } else if (
         acc.context === "agency-consultant" ||
@@ -534,6 +548,16 @@ function getAccountSwitchActions(
           icon: "building",
           label: consultantLabel,
           to: "/account",
+          onClick: () => {
+            const current = getStoredAuthSession();
+            if (current) {
+              setStoredAuthSession({
+                ...current,
+                activeRole: REAL_ESTATE_CONSULTANT,
+                managerPermissions: (acc.permissions as ManagerPermissions) ?? undefined,
+              });
+            }
+          },
         });
       } else if (
         acc.context === "independent-consultant" ||
@@ -545,6 +569,12 @@ function getAccountSwitchActions(
           icon: "user",
           label: "مشاور مستقل",
           to: "/account",
+          onClick: () => {
+            const current = getStoredAuthSession();
+            if (current?.managerPermissions) {
+              setStoredAuthSession({ ...current, managerPermissions: undefined });
+            }
+          },
         });
       }
     }

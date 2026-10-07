@@ -139,12 +139,29 @@ export function syncStoredRolesFromProfile(
     ? (session.activeRole as AuthRoleSlug)
     : roles.find((role) => role.slug === "user")?.slug ?? roles[0]!.slug;
 
+  const consultantContext = Array.isArray(accountsToScan)
+    ? (accountsToScan.find((item) => {
+        const acc = item as ProfileAccountItem;
+        return (
+          acc.context === "agency-consultant" ||
+          acc.role_slug === "real_estate_consultant" ||
+          (acc.type === "agent" && Boolean(acc.agency_id || acc.agency))
+        );
+      }) as ProfileAccountItem | undefined)
+    : undefined;
+
+  const managerPermissions =
+    activeRole === "real_estate_consultant"
+      ? (consultantContext?.permissions as Record<string, boolean> | undefined)
+      : undefined;
+
   setStoredAuthSession({
     ...session,
     activeRole,
     accountType: activeRole,
     role: activeRole,
     roles,
+    managerPermissions,
   });
 }
 

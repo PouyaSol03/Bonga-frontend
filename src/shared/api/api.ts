@@ -19,7 +19,20 @@ function trimTrailingSlashes(value: string) {
 }
 
 function normalizeApiBaseUrl(value: string) {
-  return trimTrailingSlashes(value);
+  const trimmed = trimTrailingSlashes(value);
+  if (import.meta.env?.DEV && trimmed) {
+    try {
+      if (/^https?:\/\//i.test(trimmed)) {
+        const url = new URL(trimmed);
+        if (!url.hostname.includes("bonga.exirfirm.com")) {
+          return trimTrailingSlashes(url.pathname);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return trimmed;
 }
 
 function normalizeWebSocketBaseUrl(value: string) {
@@ -406,7 +419,7 @@ const apiOptionsV2: Options = {
   hooks: {
     ...apiOptions.hooks,
     beforeRequest: [
-      ({ request, options }) => {
+      async ({ request, options }) => {
         // v2 does not send user-type
         request.headers.delete("user-type");
 
@@ -419,7 +432,24 @@ const apiOptionsV2: Options = {
 
         const resolvedUrl = resolveV2Url(request.url);
         if (resolvedUrl !== request.url) {
-          return new Request(resolvedUrl, request);
+          const hasBody = !["GET", "HEAD"].includes(request.method);
+          const body =
+            hasBody && request.body
+              ? await request.clone().arrayBuffer()
+              : undefined;
+          return new Request(resolvedUrl, {
+            body,
+            cache: request.cache,
+            credentials: request.credentials,
+            headers: request.headers,
+            integrity: request.integrity,
+            keepalive: request.keepalive,
+            method: request.method,
+            mode: request.mode,
+            referrer: request.referrer,
+            referrerPolicy: request.referrerPolicy,
+            signal: request.signal,
+          });
         }
       },
     ],

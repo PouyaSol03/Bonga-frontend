@@ -1,10 +1,22 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const rawApiUrl = env.VITE_API_BASE_URL || env.VITE_API_BASE_URL_V2 || ''
+  let proxyTarget = 'http://192.168.1.106:3000'
+  if (rawApiUrl) {
+    try {
+      proxyTarget = new URL(rawApiUrl).origin
+    } catch {
+      // keep fallback
+    }
+  }
+
+  return {
   plugins: [
     react(),
     tailwindcss(),
@@ -87,5 +99,12 @@ export default defineConfig({
   server: {
     host: true,
     allowedHosts: ['bonga.exirfirm.com'],
+    proxy: {
+      '/api': {
+        target: proxyTarget,
+        changeOrigin: true,
+      },
+    },
   },
+  }
 })

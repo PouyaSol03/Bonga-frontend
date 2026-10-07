@@ -55,7 +55,7 @@ export function getRouteConsultantId() {
   )?.[1];
   const parsedId = Number(routeConsultantId);
 
-  return Number.isFinite(parsedId) ? parsedId : undefined;
+  return Number.isFinite(parsedId) && parsedId > 0 ? parsedId : undefined;
 }
 
 export function getRouteConsultant(): TeamConsultant {

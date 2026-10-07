@@ -192,8 +192,14 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
 
   const activeRole = normalizeAuthRoleSlug(session.activeRole ?? session.role)
 
-  if (route.requiresNonUser && !DASHBOARD_ROLES.some((role) => role === activeRole)) {
-    return false
+  const sessionRoles = getSessionRoleSlugs(session);
+
+  if (
+    route.requiresNonUser &&
+    route.path !== '/account/dashboard' &&
+    !sessionRoles.some((role) => DASHBOARD_ROLES.includes(role as any))
+  ) {
+    return false;
   }
 
   if (

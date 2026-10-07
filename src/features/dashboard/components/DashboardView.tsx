@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { DashboardTasksCard, type DashboardTaskItem } from "./DashboardTasksCard";
 import { DashboardQuickAccessGrid, type DashboardRole } from "./DashboardQuickAccessGrid";
 import { DashboardBadgeBanner } from "./DashboardBadgeBanner";
@@ -8,6 +8,8 @@ import { DashboardNotificationsCard } from "./DashboardNotificationsCard";
 import { DashboardReportsTeaserCard } from "./DashboardReportsTeaserCard";
 import { DashboardRecentAdsCard } from "./DashboardRecentAdsCard";
 import { DashboardSkeleton } from "./DashboardSkeleton";
+import { replaceRoute } from "../../../shared/navigation/navigation";
+import { isForbiddenApiError } from "../../../shared/api/api";
 import type { DashboardOverview, DashboardRolePersona } from "../api/dashboard.service";
 import {
   useDashboardTasksQuery,
@@ -65,6 +67,29 @@ export function DashboardView({
   const notificationsQuery = useDashboardNotificationsQuery(persona);
   const reportsTeaserQuery = useDashboardReportsTeaserQuery(persona);
   const recentAdsApiQuery = useDashboardRecentAdsQuery(persona, 5);
+
+  useEffect(() => {
+    const errors = [
+      tasksQuery.error,
+      urgentActionsQuery.error,
+      rankingBadgeQuery.error,
+      creditsQuery.error,
+      notificationsQuery.error,
+      reportsTeaserQuery.error,
+      recentAdsApiQuery.error,
+    ];
+    if (errors.some(isForbiddenApiError)) {
+      replaceRoute("/403", undefined, { rememberCurrent: false });
+    }
+  }, [
+    tasksQuery.error,
+    urgentActionsQuery.error,
+    rankingBadgeQuery.error,
+    creditsQuery.error,
+    notificationsQuery.error,
+    reportsTeaserQuery.error,
+    recentAdsApiQuery.error,
+  ]);
 
   const recentAds = useMemo(() => {
     if (Array.isArray(recentAdsApiQuery.data) && recentAdsApiQuery.data.length > 0) {

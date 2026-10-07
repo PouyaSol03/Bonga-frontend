@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
-import { DashboardHomeOverview } from "./components/home/DashboardHomeOverview";
 import { DashboardView, DashboardReportsView } from "./components";
 import {
   authSessionChangedEventName,
   getActiveAuthRole,
   getStoredAuthSession,
+  type AuthRoleSlug,
 } from "../../shared/auth/auth-storage";
 import {
+  DASHBOARD_ROLES,
   INDEPENDENT_CONSULTANT,
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
 } from "../../shared/constants/roles.constants";
-import { getApiErrorMessage } from "../../shared/api/api";
+import { isForbiddenApiError } from "../../shared/api/api";
+import { replaceRoute } from "../../shared/navigation/navigation";
+import { getSessionRoleSlugs } from "../../app/router/routes";
 import { useDashboardOverviewByRoleQuery } from "./api/dashboard.hooks";
 import type { DashboardRolePersona } from "./api/dashboard.service";
+import type { DashboardRole } from "./components/DashboardQuickAccessGrid";
 
 export * from "./dashboardSubPages";
 
@@ -64,83 +68,60 @@ export function DashboardHomePage() {
     setIsReportsView(false);
   };
 
-  const isRealEstateManager = activeRole === REAL_ESTATE_MANAGER;
-  const isAgentRole =
-    activeRole === REAL_ESTATE_CONSULTANT ||
-    activeRole === INDEPENDENT_CONSULTANT;
+  const session = getStoredAuthSession();
+  const sessionRoles = getSessionRoleSlugs(session);
+
+  const effectiveRole =
+    activeRole && DASHBOARD_ROLES.includes(activeRole as any)
+      ? activeRole
+      : (sessionRoles.find((r) => DASHBOARD_ROLES.includes(r as any)) as AuthRoleSlug) ??
+        activeRole ??
+        "user";
+
+  const isRealEstateManager = effectiveRole === REAL_ESTATE_MANAGER;
+  const isIndependent = effectiveRole === INDEPENDENT_CONSULTANT;
 
   const persona: DashboardRolePersona = isRealEstateManager
     ? "agency"
-    : activeRole === REAL_ESTATE_CONSULTANT
-      ? "agent_in_agency"
-      : "agent";
+    : isIndependent
+      ? "agent"
+      : effectiveRole === REAL_ESTATE_CONSULTANT
+        ? "agent_in_agency"
+        : (effectiveRole as any);
+
+  const roleType: DashboardRole = isRealEstateManager
+    ? "REAL_ESTATE_MANAGER"
+    : isIndependent
+      ? "INDEPENDENT_CONSULTANT"
+      : "REAL_ESTATE_CONSULTANT";
 
   const overviewQuery = useDashboardOverviewByRoleQuery(persona, {
-    enabled: isRealEstateManager || isAgentRole,
+    enabled: Boolean(session),
     period: "30d",
   });
 
-  // Real estate manager receives the modern Agency Dashboard UI matching SVG
-  if (isRealEstateManager) {
-    if (isReportsView) {
-      return (
-        <DashboardReportsView
-          role="REAL_ESTATE_MANAGER"
-          dashboard={overviewQuery.data}
-          onBack={handleCloseReports}
-        />
-      );
+  useEffect(() => {
+    if (overviewQuery.isError && isForbiddenApiError(overviewQuery.error)) {
+      replaceRoute("/403", undefined, { rememberCurrent: false });
     }
-    return (
-      <DashboardView
-        role="REAL_ESTATE_MANAGER"
-        dashboard={overviewQuery.data}
-        isLoading={overviewQuery.isLoading}
-        onViewReports={handleOpenReports}
-      />
-    );
-  }
+  }, [overviewQuery.isError, overviewQuery.error]);
 
-  // Real estate consultants (in-agency and independent) receive the modern Agent Dashboard UI
-  if (isAgentRole) {
-    const roleType =
-      activeRole === INDEPENDENT_CONSULTANT
-        ? "INDEPENDENT_CONSULTANT"
-        : "REAL_ESTATE_CONSULTANT";
-
-    if (isReportsView) {
-      return (
-        <DashboardReportsView
-          role={roleType}
-          dashboard={overviewQuery.data}
-          onBack={handleCloseReports}
-        />
-      );
-    }
+  if (isReportsView) {
     return (
-      <DashboardView
+      <DashboardReportsView
         role={roleType}
         dashboard={overviewQuery.data}
-        isLoading={overviewQuery.isLoading}
-        onViewReports={handleOpenReports}
+        onBack={handleCloseReports}
       />
     );
   }
 
   return (
-    <DashboardHomeOverview
+    <DashboardView
+      role={roleType}
       dashboard={overviewQuery.data}
-      dashboardError={
-        overviewQuery.isError
-          ? getApiErrorMessage(
-              overviewQuery.error,
-              "دریافت اطلاعات داشبورد با خطا مواجه شد.",
-            )
-          : null
-      }
-      dashboardKind={isAgentRole ? "agent" : undefined}
-      isDashboardLoading={overviewQuery.isLoading}
-      useDashboardApi={isAgentRole || isRealEstateManager}
+      isLoading={overviewQuery.isLoading}
+      onViewReports={handleOpenReports}
     />
   );
 }

@@ -1,4 +1,5 @@
 import { apiV2, getV2RoleSegment, type V2RoleSegment } from "../../../shared/api/api";
+import { getStoredAuthSession, getActiveAuthRole } from "../../../shared/auth/auth-storage";
 
 export type DashboardPeriod = "month" | "year" | "7d" | "30d" | "90d";
 export type DashboardKind = "agency" | "agent";
@@ -505,8 +506,25 @@ function normalizeAgentDashboard(
 }
 
 function toV2Context(role?: DashboardRolePersona | string | null): V2RoleSegment {
-  if (role === "agency") return "agency";
-  if (role === "agent" || role === "agent_in_agency") return "agency-consultant";
+  if (role === "agency" || role === "real_estate_manager") return "agency";
+  if (
+    role === "agent" ||
+    role === "agent_in_agency" ||
+    role === "agency-consultant" ||
+    role === "real_estate_consultant"
+  ) {
+    const session = getStoredAuthSession();
+    const active = session ? getActiveAuthRole(session) : null;
+    if (active === "independent_consultant") {
+      return "independent-consultant";
+    }
+    return "agency-consultant";
+  }
+  if (role === "independent-consultant" || role === "independent_consultant") {
+    return "independent-consultant";
+  }
+  if (role === "superadmin" || role === "super-admin") return "superadmin";
+  if (role === "personal" || role === "user") return "personal";
   return getV2RoleSegment(role);
 }
 

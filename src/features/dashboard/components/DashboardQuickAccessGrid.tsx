@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import { Typography } from "../../../shared/ui/Typography";
+import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import LinearTag from "../../../shared/icons/LinearTag";
 import LinearEditUser from "../../../shared/icons/LinearEditUser";
 import LinearDocument from "../../../shared/icons/LinearDocument";
@@ -49,10 +50,22 @@ export interface DashboardQuickAccessGridProps {
 export function DashboardQuickAccessGrid({
   role = "REAL_ESTATE_MANAGER",
 }: DashboardQuickAccessGridProps) {
+  const session = getStoredAuthSession();
+  const permissions = session?.managerPermissions;
   const isIndependent = role === "INDEPENDENT_CONSULTANT";
-  const actions = isIndependent
-    ? allActions.filter((a) => !a.hideForIndependent)
-    : allActions;
+  const isConsultant = role === "REAL_ESTATE_CONSULTANT";
+
+  const actions = allActions.filter((a) => {
+    if (isIndependent) {
+      return !a.hideForIndependent;
+    }
+    if (isConsultant) {
+      if (a.id === "consultants") return Boolean(permissions?.manage_consultants);
+      if (a.id === "credits") return Boolean(permissions?.manage_credits);
+      return true;
+    }
+    return true;
+  });
 
   return (
     <div className="flex w-full items-center gap-4 [direction:rtl]">

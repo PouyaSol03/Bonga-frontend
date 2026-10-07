@@ -215,11 +215,11 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
   }
 
   if (activeRole === REAL_ESTATE_CONSULTANT) {
+    const permissions = session.managerPermissions ?? {};
     if (route.path.startsWith(`${DASHBOARD_PATH}/requests`)) {
-      return true;
+      return Boolean(permissions.manage_requests);
     }
 
-    const permissions = session.managerPermissions ?? {};
     if (route.path.startsWith(`${DASHBOARD_PATH}/team`) && permissions.manage_consultants) {
       return true;
     }

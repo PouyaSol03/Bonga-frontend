@@ -491,6 +491,17 @@ export function isUnauthorizedApiError(error: unknown) {
   return false;
 }
 
+export function isForbiddenApiError(error: unknown) {
+  if (error instanceof ApiError) return error.status === 403;
+  if (error instanceof HTTPError) return error.response.status === 403;
+  if (Boolean(error) && typeof error === "object") {
+    const err = error as { status?: number; response?: { status?: number } };
+    return err.status === 403 || err.response?.status === 403;
+  }
+
+  return false;
+}
+
 
 export function getApiErrorCode(error: unknown) {
   return error instanceof ApiError ? error.code : undefined;

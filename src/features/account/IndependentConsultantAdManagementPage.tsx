@@ -3,7 +3,8 @@ import "../advertisements/components/AdCard.css";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { useActiveAuthRole } from "../../shared/auth/use-active-auth-role";
-import { pushRoute } from "../../shared/navigation/navigation";
+import { pushRoute, replaceRoute } from "../../shared/navigation/navigation";
+import { isForbiddenApiError } from "../../shared/api/api";
 import { AccessDeniedState } from "../../shared/components/ErrorState";
 import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
 import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
@@ -333,6 +334,23 @@ export function IndependentConsultantAdManagementPage() {
   };
 
   useEffect(() => () => observerRef.current?.disconnect(), []);
+
+  useEffect(() => {
+    if (adsQuery.isError && isForbiddenApiError(adsQuery.error)) {
+      replaceRoute("/403", undefined, { rememberCurrent: false });
+    }
+  }, [adsQuery.isError, adsQuery.error]);
+
+  useEffect(() => {
+    if (assignedTab && assignmentsQuery.isError && isForbiddenApiError(assignmentsQuery.error)) {
+      replaceRoute("/403", undefined, { rememberCurrent: false });
+    }
+  }, [assignedTab, assignmentsQuery.isError, assignmentsQuery.error]);
+
+  if ((!assignedTab && adsQuery.isError && isForbiddenApiError(adsQuery.error)) ||
+      (assignedTab && assignmentsQuery.isError && isForbiddenApiError(assignmentsQuery.error))) {
+    return null;
+  }
 
   return (
     <PageFrame

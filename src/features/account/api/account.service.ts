@@ -1,155 +1,20 @@
 import { ApiError, api, apiV2, getApiAssetUrl } from "../../../shared/api/api";
-import {
-  authRoleSlugs,
-  getStoredAuthSession,
-  setStoredAuthSession,
-  type AuthRole,
-  type AuthRoleSlug,
-} from "../../../shared/auth/auth-storage";
 import type { ApiDataResponse, ApiListResponse } from "../../../shared/api/response";
 import { unwrapList } from "../../../shared/api/response";
 import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
 
-export type ProfileAccountItem = {
-  context?: "personal" | "agency" | "independent-consultant" | "agency-consultant" | string;
-  type?: "user" | "agency" | "agent" | string;
-  role_slug?: string;
-  id?: number | string;
-  _id?: number | string;
-  name?: string | null;
-  status?: number | string;
-  agency_id?: number | string | null;
-  agency?: {
-    id?: number | string;
-    name?: string | null;
-  } | null;
-};
+export type {
+  ProfileAccountItem,
+  ProfileContextItem,
+  UserProfile,
+  UserProfileV2Response,
+} from "./account-profile.types";
+export {
+  getMyProfile,
+  syncStoredRolesFromProfile,
+} from "./account-profile.service";
 
-export type UserProfile = {
-  _id?: string;
-  accounts?: ProfileAccountItem[];
-  agency_id?: string | number | null;
-  agency_status?: number | string | null;
-  authorized?: number;
-  authorize_date?: string | null;
-  avatar?: string | null;
-  city_id?: string | null;
-  contact_social?: Record<string, unknown> | null;
-  contacts?: Record<string, unknown> | null;
-  email?: string | null;
-  family?: string | null;
-  id?: string | number;
-  instagram?: string | null;
-  mobile?: string;
-  name?: string | null;
-  nationalnumber?: string | null;
-  neighborhood_id?: string | null;
-  neighborhood_ids?: string[] | string | null;
-  phone?: string;
-  role?: string;
-  roles?: Array<AuthRole | string | Record<string, unknown>>;
-  role_slugs?: string[];
-  social?: Record<string, unknown> | null;
-  telegram?: string | null;
-  whatsapp?: string | null;
-};
-
-function normalizeProfileRoleSlug(value: unknown): AuthRoleSlug | null {
-  if (typeof value !== "string") return null;
-
-  const normalized = value.trim().toLowerCase().replace(/_/g, "-");
-  if (
-    normalized === "superadmin" ||
-    normalized === "super admin" ||
-    normalized === "super-admin"
-  ) return "super-admin";
-
-  const slug = value.trim().toLowerCase().replace(/-/g, "_") as AuthRoleSlug;
-  return authRoleSlugs.includes(slug) ? slug : null;
-}
-
-function syncStoredRolesFromProfile(response: unknown, profile: UserProfile) {
-  const session = getStoredAuthSession();
-  if (!session) return;
-
-  const responseRecord = response as Record<string, unknown>;
-  const responseUser = responseRecord.user as Record<string, unknown> | undefined;
-  const responseData = responseRecord.data as Record<string, unknown> | undefined;
-  const candidates = [
-    responseRecord.accounts,
-    responseRecord.roles,
-    responseRecord.role_slugs,
-    responseUser?.roles,
-    responseUser?.role_slugs,
-    responseData?.roles,
-    responseData?.role_slugs,
-    profile.accounts,
-    profile.roles,
-    profile.role_slugs,
-  ];
-
-  const rolesFromAccounts: AuthRole[] = [];
-  if (Array.isArray(profile.accounts)) {
-    profile.accounts.forEach((acc, index) => {
-      let slug: AuthRoleSlug | null = null;
-      if (acc.context === "personal" || acc.role_slug === "user" || acc.type === "user") {
-        slug = "user";
-      } else if (acc.context === "agency" || acc.role_slug === "real_estate_manager" || acc.type === "agency") {
-        slug = "real_estate_manager";
-      } else if (acc.context === "agency-consultant" || (acc.role_slug === "real_estate_consultant") || (acc.type === "agent" && Boolean(acc.agency_id || acc.agency))) {
-        slug = "real_estate_consultant";
-      } else if (acc.context === "independent-consultant" || acc.role_slug === "independent_consultant" || (acc.type === "agent" && !acc.agency_id && !acc.agency)) {
-        slug = "independent_consultant";
-      }
-
-      if (slug && !rolesFromAccounts.some((r) => r.slug === slug)) {
-        rolesFromAccounts.push({
-          id: String(acc.id ?? acc._id ?? index + 1),
-          name: acc.name || slug,
-          slug,
-        });
-      }
-    });
-  }
-
-  const rawRoles = candidates.find(Array.isArray);
-  const roles: AuthRole[] = rolesFromAccounts.length > 0 ? rolesFromAccounts : [];
-
-  if (roles.length === 0 && Array.isArray(rawRoles)) {
-    rawRoles
-      .map((role, index): AuthRole | null => {
-        const record = role && typeof role === "object" ? role as Record<string, unknown> : null;
-        const slug = normalizeProfileRoleSlug(typeof role === "string" ? role : record?.slug ?? record?.name);
-        if (!slug) return null;
-
-        return {
-          id: String(record?.id ?? record?._id ?? index + 1),
-          name: String(record?.name ?? slug),
-          slug,
-        };
-      })
-      .filter((role): role is AuthRole => role !== null)
-      .forEach((role) => {
-        if (!roles.some((r) => r.slug === role.slug)) {
-          roles.push(role);
-        }
-      });
-  }
-
-  if (!roles.length) return;
-
-  const activeRole: AuthRoleSlug = roles.some((role) => role.slug === session.activeRole)
-    ? session.activeRole as AuthRoleSlug
-    : roles.find((role) => role.slug === "user")?.slug ?? roles[0]!.slug;
-
-  setStoredAuthSession({
-    ...session,
-    activeRole,
-    accountType: activeRole,
-    role: activeRole,
-    roles,
-  });
-}
+import type { UserProfile } from "./account-profile.types";
 
 export function isUserIdentityVerified(profile?: UserProfile | null) {
   const authorizedValue = profile?.authorized;
@@ -432,26 +297,6 @@ type MyAdsResponse =
       status?: boolean;
       total?: number;
     };
-
-export async function getMyProfile() {
-  const response = await api
-    .get("me/show")
-    .json<ApiDataResponse<UserProfile> | { status?: boolean; user?: UserProfile; accounts?: ProfileAccountItem[] } | UserProfile>();
-  const record = response as Record<string, unknown>;
-
-  const profile = record.user && typeof record.user === "object"
-    ? record.user as UserProfile
-    : record.data && typeof record.data === "object"
-      ? record.data as UserProfile
-      : response as UserProfile;
-
-  if (Array.isArray(record.accounts)) {
-    profile.accounts = record.accounts as ProfileAccountItem[];
-  }
-
-  syncStoredRolesFromProfile(response, profile);
-  return profile;
-}
 
 export function updateMyProfile(payload: UpdateProfilePayload) {
   const { avatar, neighborhood_ids, ...profileFields } = payload;

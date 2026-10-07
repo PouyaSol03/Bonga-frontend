@@ -11,15 +11,24 @@ import {
   getActiveAuthRole,
   getStoredAuthSession,
 } from "../../shared/auth/auth-storage";
-import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
+import {
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+} from "../../shared/constants/roles.constants";
 import { RequestManagementView } from "../property-requests/RequestManagementView";
 
 export function DashboardRequestsPage() {
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const canManageRequests = Boolean(session?.managerPermissions?.manage_requests);
+  const showReceivedTab =
+    activeRole === REAL_ESTATE_MANAGER ||
+    (activeRole === REAL_ESTATE_CONSULTANT && canManageRequests);
+
   return (
     <RequestManagementView
       backTo="/account/dashboard"
-      showReceivedTab={activeRole === REAL_ESTATE_MANAGER}
+      showReceivedTab={showReceivedTab}
     />
   );
 }

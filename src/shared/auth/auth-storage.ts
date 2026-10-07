@@ -37,6 +37,31 @@ export function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {
     return "super-admin";
   }
 
+  if (
+    normalized === "agency-consultant" ||
+    normalized === "agency_consultant" ||
+    normalized === "real_estate_consultant" ||
+    normalized === "consultant" ||
+    normalized === "agent"
+  ) {
+    return "real_estate_consultant";
+  }
+
+  if (
+    normalized === "agency" ||
+    normalized === "real_estate_manager" ||
+    normalized === "manager"
+  ) {
+    return "real_estate_manager";
+  }
+
+  if (
+    normalized === "independent-consultant" ||
+    normalized === "independent_consultant"
+  ) {
+    return "independent_consultant";
+  }
+
   const underscored = normalized.replace(/-/g, "_");
 
   if (authRoleSlugs.includes(underscored as AuthRoleSlug)) {

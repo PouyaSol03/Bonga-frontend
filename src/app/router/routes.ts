@@ -196,14 +196,20 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
     return false
   }
 
+  if (
+    route.path === '/manage-ads' ||
+    route.path === '/account/manage-ads' ||
+    route.path.startsWith('/account/ad-management') ||
+    route.path === `${DASHBOARD_PATH}/ads`
+  ) {
+    if (session.managerPermissions?.manage_advertises === false) {
+      return false;
+    }
+    return true;
+  }
+
   if (activeRole === REAL_ESTATE_CONSULTANT) {
-    if (
-      route.path === '/manage-ads' ||
-      route.path === '/account/manage-ads' ||
-      route.path.startsWith('/account/ad-management') ||
-      route.path === `${DASHBOARD_PATH}/ads` ||
-      route.path.startsWith(`${DASHBOARD_PATH}/requests`)
-    ) {
+    if (route.path.startsWith(`${DASHBOARD_PATH}/requests`)) {
       return true;
     }
 
@@ -225,9 +231,6 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
       return false;
     }
     if (route.path.startsWith(`${DASHBOARD_PATH}/payments`) && !permissions.manage_credits) {
-      return false;
-    }
-    if (route.path === `${DASHBOARD_PATH}/ads` && !permissions.manage_advertises) {
       return false;
     }
   }

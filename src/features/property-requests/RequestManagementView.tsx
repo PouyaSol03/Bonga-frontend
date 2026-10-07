@@ -13,6 +13,14 @@ import { BottomSheet } from "../../shared/components/BottomSheet";
 import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { RequestFilterBottomSheet } from "./RequestFilterBottomSheet";
+import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
+import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
+import {
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+  USER,
+} from "../../shared/constants/roles.constants";
 import {
   useDeletePropertyRequestMutation,
   usePropertyRequestsQuery,
@@ -163,8 +171,18 @@ export function RequestManagementView({
   showReceivedTab = false,
   variant = "default",
 }: RequestManagementViewProps) {
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const canManageRequests = Boolean(session?.managerPermissions?.manage_requests);
+  const effectiveShowReceivedTab =
+    showReceivedTab ||
+    activeRole === REAL_ESTATE_MANAGER ||
+    (activeRole === REAL_ESTATE_CONSULTANT && canManageRequests);
+  const isPersonal = !activeRole || activeRole === USER;
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+
   const [activeTab, setActiveTab] = useState<RequestManagementTab>(() =>
-    getInitialRequestTab(showReceivedTab),
+    getInitialRequestTab(effectiveShowReceivedTab),
   );
   const [filters, setFilters] = useState<Record<RequestManagementTab, RequestFilterId>>({
     received: "all",
@@ -210,8 +228,15 @@ export function RequestManagementView({
   const [resultStatuses, setResultStatuses] = useState<
     Record<string, PropertyRequestResultsStatus>
   >({});
-  const tabs = useMemo(() => getTabs(showReceivedTab), [showReceivedTab]);
+  const tabs = useMemo(() => getTabs(effectiveShowReceivedTab), [effectiveShowReceivedTab]);
   const activeFilterId = filters[activeTab];
+  const activeFilterTitle = useMemo(() => {
+    if (activeFilterId === "all") return "همه درخواست‌ها";
+    return (
+      requests.find((request) => request.id === activeFilterId)?.title ||
+      "همه درخواست‌ها"
+    );
+  }, [activeFilterId, requests]);
   const editingRequest =
     requests.find((request) => request.id === editingRequestId) ?? null;
   const filteredRequests = useMemo(
@@ -467,51 +492,87 @@ export function RequestManagementView({
           />
 
           {activeTab === "results" && requests.length > 0 ? (
-            <HorizontalFilterBar
-              ariaLabel="فیلتر نتایج بر اساس درخواست"
-              className="border-t border-outline-var bg-surface-container-lowest py-2"
-            >
-              <Button
-                unstyled
-                className={`inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
-                  activeFilterId === "all"
-                    ? "border-primary bg-primary/16 text-primary"
-                    : "border-outline-var bg-surface-container-lowest text-on-surface hover:bg-surface-container"
-                }`}
-                onClick={() => selectFilter("all")}
-                type="button"
+            isPersonal ? (
+              <HorizontalFilterBar
+                ariaLabel="فیلتر نتایج بر اساس درخواست"
+                className="border-t border-outline-var bg-surface-container-lowest py-2"
               >
-                <Typography as="span" variant="label" size="medium" weight="medium">
-                  همه
-                </Typography>
-              </Button>
-              {requests.map((request) => {
-                const isSelected = activeFilterId === request.id;
-                return (
-                  <Button
-                    unstyled
-                    key={request.id}
-                    className={`inline-flex shrink-0 cursor-pointer items-center justify-center max-w-[200px] rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
-                      isSelected
-                        ? "border-primary bg-primary/16 text-primary"
-                        : "border-outline-var bg-surface-container-lowest text-on-surface hover:bg-surface-container"
-                    }`}
-                    onClick={() => selectFilter(request.id)}
-                    type="button"
-                  >
-                    <Typography
-                      as="span"
-                      variant="label"
-                      size="medium"
-                      weight="medium"
-                      className="truncate"
+                <Button
+                  unstyled
+                  className={`inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
+                    activeFilterId === "all"
+                      ? "border-primary bg-primary/16 text-primary"
+                      : "border-outline-var bg-surface-container-lowest text-on-surface hover:bg-surface-container"
+                  }`}
+                  onClick={() => selectFilter("all")}
+                  type="button"
+                >
+                  <Typography as="span" variant="label" size="medium" weight="medium">
+                    همه
+                  </Typography>
+                </Button>
+                {requests.map((request) => {
+                  const isSelected = activeFilterId === request.id;
+                  return (
+                    <Button
+                      unstyled
+                      key={request.id}
+                      className={`inline-flex shrink-0 cursor-pointer items-center justify-center max-w-[200px] rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
+                        isSelected
+                          ? "border-primary bg-primary/16 text-primary"
+                          : "border-outline-var bg-surface-container-lowest text-on-surface hover:bg-surface-container"
+                      }`}
+                      onClick={() => selectFilter(request.id)}
+                      type="button"
                     >
-                      {request.title}
-                    </Typography>
-                  </Button>
-                );
-              })}
-            </HorizontalFilterBar>
+                      <Typography
+                        as="span"
+                        variant="label"
+                        size="medium"
+                        weight="medium"
+                        className="truncate"
+                      >
+                        {request.title}
+                      </Typography>
+                    </Button>
+                  );
+                })}
+              </HorizontalFilterBar>
+            ) : (
+              <div className="flex items-center justify-between border-t border-outline-var bg-surface-container-lowest px-4 py-2.5 [direction:rtl]">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Typography
+                    as="span"
+                    variant="label"
+                    size="medium"
+                    weight="medium"
+                    className="shrink-0 text-outline"
+                  >
+                    فیلتر درخواست:
+                  </Typography>
+                  <Typography
+                    as="span"
+                    variant="label"
+                    size="medium"
+                    weight="semibold"
+                    className="text-primary truncate max-w-[200px]"
+                  >
+                    {activeFilterTitle}
+                  </Typography>
+                </div>
+                <Button
+                  unstyled
+                  onClick={() => setIsFilterSheetOpen(true)}
+                  className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[10px] border border-outline-var bg-surface-container-low px-3 py-1.5 text-xs font-medium text-on-surface hover:bg-surface-container transition active:scale-95"
+                  type="button"
+                >
+                  <LinearArrowDown1 className="h-4 w-4 text-outline" />
+                  <Typography as="span" variant="label" size="small" weight="medium">
+                    تغییر فیلتر
+                  </Typography>
+                </Button>
+              </div>
+            )
           ) : null}
         </div>
 
@@ -644,6 +705,14 @@ export function RequestManagementView({
         onConfirm={confirmEdit}
         onValueChange={setEditTitle}
         value={editTitle}
+      />
+
+      <RequestFilterBottomSheet
+        isOpen={isFilterSheetOpen}
+        onClose={() => setIsFilterSheetOpen(false)}
+        onSelect={(filterId) => selectFilter(filterId)}
+        requests={requests}
+        selectedId={activeFilterId}
       />
 
     </PageFrame>

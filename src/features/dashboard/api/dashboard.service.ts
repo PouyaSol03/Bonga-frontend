@@ -1,4 +1,4 @@
-import { api } from "../../../shared/api/api";
+import { apiV2, getV2RoleSegment, type V2RoleSegment } from "../../../shared/api/api";
 
 export type DashboardPeriod = "month" | "year" | "7d" | "30d" | "90d";
 export type DashboardKind = "agency" | "agent";
@@ -504,12 +504,18 @@ function normalizeAgentDashboard(
   };
 }
 
+function toV2Context(role?: DashboardRolePersona | string | null): V2RoleSegment {
+  if (role === "agency") return "agency";
+  if (role === "agent" || role === "agent_in_agency") return "agency-consultant";
+  return getV2RoleSegment(role);
+}
+
 async function getAgencyDashboardSection(
   path: string,
   period: DashboardPeriod,
 ) {
-  return api
-    .get(path, {
+  return apiV2
+    .get(`agency/dashboard/${path}`, {
       searchParams: { period },
     })
     .json<AgencyDashboardApiResponse>();
@@ -519,7 +525,7 @@ export async function getAgencyDashboardCredits(
   period: DashboardPeriod = "month",
 ): Promise<AgencyDashboardCreditsSection> {
   const response = await getAgencyDashboardSection(
-    "me/agency/dashboard/credits",
+    "credits",
     period,
   );
   const normalized = normalizeAgencyDashboard(response, period);
@@ -535,7 +541,7 @@ export async function getAgencyDashboardConsultantActivity(
   period: DashboardPeriod = "month",
 ): Promise<AgencyDashboardConsultantActivitySection> {
   const response = await getAgencyDashboardSection(
-    "me/agency/dashboard/consultant-activity",
+    "consultant-activity",
     period,
   );
   const normalized = normalizeAgencyDashboard(response, period);
@@ -550,7 +556,7 @@ export async function getAgencyDashboardPublishedAdvertises(
   period: DashboardPeriod = "month",
 ): Promise<AgencyDashboardPublishedAdvertisesSection> {
   const response = await getAgencyDashboardSection(
-    "me/agency/dashboard/published-advertises",
+    "published-advertises",
     period,
   );
   const normalized = normalizeAgencyDashboard(response, period);
@@ -565,7 +571,7 @@ export async function getAgencyDashboardAdvertiseRegistrationProgress(
   period: DashboardPeriod = "month",
 ): Promise<AgencyDashboardAdvertiseRegistrationProgressSection> {
   const response = await getAgencyDashboardSection(
-    "me/agency/dashboard/advertise-registration-progress",
+    "advertise-registration-progress",
     period,
   );
   const normalized = normalizeAgencyDashboard(response, period);
@@ -580,7 +586,7 @@ export async function getAgencyDashboardRankingProgress(
   period: DashboardPeriod = "month",
 ): Promise<AgencyDashboardRankingProgressSection> {
   const response = await getAgencyDashboardSection(
-    "me/agency/dashboard/ranking-progress",
+    "ranking-progress",
     period,
   );
   const normalized = normalizeAgencyDashboard(response, period);
@@ -592,8 +598,8 @@ export async function getAgencyDashboardRankingProgress(
 }
 
 export async function getAgencyDashboardRanking(): Promise<AgencyDashboardRankingSection> {
-  const response = await api
-    .get("me/agency/dashboard/ranking")
+  const response = await apiV2
+    .get("agency/dashboard/ranking")
     .json<AgencyDashboardApiResponse>();
   const normalized = normalizeAgencyDashboard(response, "month");
 
@@ -635,8 +641,8 @@ export function mergeAgencyDashboardSections(
 export async function getAgencyDashboard(
   period: DashboardPeriod = "30d",
 ): Promise<DashboardOverview> {
-  const response = await api
-    .get("me/agency/dashboard", {
+  const response = await apiV2
+    .get("agency/dashboard/overview", {
       searchParams: { period },
     })
     .json<AgencyDashboardApiResponse>();
@@ -647,8 +653,9 @@ export async function getAgencyDashboard(
 export async function getAgentDashboard(
   period: DashboardPeriod = "30d",
 ): Promise<DashboardOverview> {
-  const response = await api
-    .get("me/agent/dashboard", {
+  const context = toV2Context("agent");
+  const response = await apiV2
+    .get(`${context}/dashboard/overview`, {
       searchParams: { period },
     })
     .json<AgentDashboardApiResponse>();
@@ -678,25 +685,30 @@ export interface AgentBadgeDetailApiResponse {
 }
 
 export async function getAgentBadges(): Promise<AgentBadge[]> {
-  const response = await api.get("me/agent/badges").json<AgentBadgesApiResponse>();
+  const context = toV2Context("agent");
+  const response = await apiV2.get(`${context}/dashboard/badges`).json<AgentBadgesApiResponse>();
   return response.badges ?? [];
 }
 
 export async function getAgentBadge(slug: string): Promise<AgentBadge | null> {
-  const response = await api.get(`me/agent/badges/${slug}`).json<AgentBadgeDetailApiResponse>();
+  const context = toV2Context("agent");
+  const response = await apiV2.get(`${context}/dashboard/badges/${slug}`).json<AgentBadgeDetailApiResponse>();
   return response.badge ?? null;
 }
 
 export async function getAgentRanking(): Promise<unknown> {
-  return api.get("me/agent/ranking").json();
+  const context = toV2Context("agent");
+  return apiV2.get(`${context}/dashboard/ranking`).json();
 }
 
 export async function getAgentRankingProgress(): Promise<unknown> {
-  return api.get("me/agent/ranking/progress").json();
+  const context = toV2Context("agent");
+  return apiV2.get(`${context}/dashboard/ranking-progress`).json();
 }
 
 export async function getAgentWorkSummary(): Promise<unknown> {
-  return api.get("me/agent/work-summary").json();
+  const context = toV2Context("agent");
+  return apiV2.get(`${context}/dashboard/work-summary`).json();
 }
 
 export type DashboardRolePersona = "agency" | "agent" | "agent_in_agency";
@@ -705,10 +717,11 @@ export async function getDashboardOverviewByRole(
   role: DashboardRolePersona,
   period: DashboardPeriod = "30d",
 ): Promise<DashboardOverview> {
+  const context = toV2Context(role);
   try {
-    const response = await api
-      .get("dashboard/overview", {
-        searchParams: { period, role },
+    const response = await apiV2
+      .get(`${context}/dashboard/overview`, {
+        searchParams: { period },
       })
       .json<AgencyDashboardApiResponse & AgentDashboardApiResponse>();
 
@@ -726,9 +739,10 @@ export async function getDashboardOverviewByRole(
 export async function getDashboardTasks(
   role: DashboardRolePersona,
 ): Promise<{ totalCount: number; items: DashboardTaskItemPayload[] }> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/tasks", { searchParams: { role } })
+    const res = await apiV2
+      .get(`${context}/dashboard/tasks`)
       .json<{ data?: { total_count?: number; items?: unknown[] } }>();
     const items = normalizeTasks(res.data?.items);
     return {
@@ -746,9 +760,10 @@ export async function getDashboardTasks(
 export async function getDashboardUrgentActions(
   role: DashboardRolePersona,
 ): Promise<DashboardUrgentActionItem[]> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/urgent-actions", { searchParams: { role } })
+    const res = await apiV2
+      .get(`${context}/dashboard/urgent-actions`)
       .json<{ data?: { items?: unknown[] } }>();
     return normalizeUrgentActions(res.data?.items);
   } catch {
@@ -771,9 +786,10 @@ export type DashboardRankingBadgeData = {
 export async function getDashboardRankingBadge(
   role: DashboardRolePersona,
 ): Promise<DashboardRankingBadgeData | null> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/ranking-badge", { searchParams: { role } })
+    const res = await apiV2
+      .get(`${context}/dashboard/ranking-badge`)
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     return {
@@ -811,9 +827,10 @@ export type DashboardCreditsData = {
 export async function getDashboardCredits(
   role: DashboardRolePersona,
 ): Promise<DashboardCreditsData | null> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/credits", { searchParams: { role } })
+    const res = await apiV2
+      .get(`${context}/dashboard/credits`)
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     const rawBalances = asRecord(d.balances);
@@ -859,9 +876,10 @@ export type DashboardNotificationWidgetData = {
 export async function getDashboardNotifications(
   role: DashboardRolePersona,
 ): Promise<DashboardNotificationWidgetData | null> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/notifications", { searchParams: { role } })
+    const res = await apiV2
+      .get(`${context}/dashboard/notifications`)
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     const rawLatest = asRecord(d.latest);
@@ -905,9 +923,10 @@ export async function getDashboardReportsTeaser(
   role: DashboardRolePersona,
   period = "30d",
 ): Promise<DashboardReportsTeaserData | null> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/reports-teaser", { searchParams: { role, period } })
+    const res = await apiV2
+      .get(`${context}/dashboard/reports-teaser`, { searchParams: { period } })
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     return {
@@ -945,9 +964,10 @@ export async function getDashboardRecentAds(
   role: DashboardRolePersona,
   limit = 5,
 ): Promise<DashboardRecentAdItem[]> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/recent-ads", { searchParams: { role, limit } })
+    const res = await apiV2
+      .get(`${context}/dashboard/recent-ads`, { searchParams: { limit } })
       .json<{ data?: { items?: unknown[] } }>();
     const items = Array.isArray(res.data?.items) ? res.data!.items : [];
     return items.map((raw) => {
@@ -997,9 +1017,10 @@ export async function getDashboardReportsPublishedAds(
   role: DashboardRolePersona,
   period = "month",
 ): Promise<DashboardReportPublishedAdsData | null> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/reports/published-ads", { searchParams: { role, period } })
+    const res = await apiV2
+      .get(`${context}/dashboard/reports/published-ads`, { searchParams: { period } })
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     const rawBreakdown = Array.isArray(d.breakdown) ? d.breakdown : [];
@@ -1036,9 +1057,10 @@ export async function getDashboardReportsViews(
   role: DashboardRolePersona,
   period = "year",
 ): Promise<DashboardReportViewsData | null> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/reports/views", { searchParams: { role, period } })
+    const res = await apiV2
+      .get(`${context}/dashboard/reports/views`, { searchParams: { period } })
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     const rawItems = Array.isArray(d.items) ? d.items : [];
@@ -1077,8 +1099,8 @@ export async function getDashboardReportsConsultantsActivity(
   period = "month",
 ): Promise<DashboardReportConsultantsActivityData | null> {
   try {
-    const res = await api
-      .get("dashboard/reports/consultants-activity", { searchParams: { role: "agency", period } })
+    const res = await apiV2
+      .get("agency/dashboard/reports/consultants-activity", { searchParams: { period } })
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     const rawItems = Array.isArray(d.items) ? d.items : [];
@@ -1114,9 +1136,10 @@ export async function getDashboardReportsRegistrationProgress(
   role: DashboardRolePersona,
   period = "month",
 ): Promise<DashboardReportRegistrationProgressData | null> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/reports/registration-progress", { searchParams: { role, period } })
+    const res = await apiV2
+      .get(`${context}/dashboard/reports/registration-progress`, { searchParams: { period } })
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     const rawItems = Array.isArray(d.items) ? d.items : [];
@@ -1156,9 +1179,10 @@ export async function getDashboardReportsConversionFunnel(
   role: DashboardRolePersona,
   period = "30d",
 ): Promise<DashboardReportConversionFunnelData | null> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/reports/conversion-funnel", { searchParams: { role, period } })
+    const res = await apiV2
+      .get(`${context}/dashboard/reports/conversion-funnel`, { searchParams: { period } })
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     const rawStages = Array.isArray(d.stages) ? d.stages : [];
@@ -1196,9 +1220,10 @@ export type DashboardReportRankingScoreData = {
 export async function getDashboardReportsRankingScore(
   role: DashboardRolePersona,
 ): Promise<DashboardReportRankingScoreData | null> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/reports/ranking-score", { searchParams: { role } })
+    const res = await apiV2
+      .get(`${context}/dashboard/reports/ranking-score`)
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     return {
@@ -1232,9 +1257,10 @@ export async function getDashboardReportsOverview(
   role: DashboardRolePersona,
   period = "month",
 ): Promise<DashboardReportsOverviewData | null> {
+  const context = toV2Context(role);
   try {
-    const res = await api
-      .get("dashboard/reports/overview", { searchParams: { role, period } })
+    const res = await apiV2
+      .get(`${context}/dashboard/reports/overview`, { searchParams: { period } })
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     return {

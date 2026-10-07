@@ -18,8 +18,14 @@ export function useAgencyConsultantQuery({
   agentId?: number | string;
   enabled?: boolean;
 }) {
+  const numericId = Number(agentId);
+  const isValidId =
+    agentId !== undefined &&
+    String(agentId).trim().length > 0 &&
+    (!Number.isFinite(numericId) || numericId > 0);
+
   return useQuery({
-    enabled: enabled && agentId !== undefined && String(agentId).trim().length > 0,
+    enabled: enabled && isValidId,
     queryFn: () => getMyAgencyConsultant(agentId as number | string),
     queryKey: queryKeys.agencies.consultant(agentId ?? ""),
   });

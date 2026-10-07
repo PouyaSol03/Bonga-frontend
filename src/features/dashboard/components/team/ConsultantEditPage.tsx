@@ -11,8 +11,13 @@ import { ConsultantEditForm } from "./edit-consultant/ConsultantEditForm";
 export function ConsultantEditPage() {
   const routeConsultant = getRouteConsultant();
   const consultantId =
-    routeConsultant.agentId ?? getRouteConsultantId() ?? routeConsultant.id;
-  const consultantQuery = useAgencyConsultantQuery({ agentId: consultantId });
+    routeConsultant.agentId ??
+    getRouteConsultantId() ??
+    (Number(routeConsultant.id) > 0 ? routeConsultant.id : undefined);
+  const consultantQuery = useAgencyConsultantQuery({
+    agentId: consultantId,
+    enabled: Boolean(consultantId),
+  });
   const agencyDashboardQuery = useAgencyDashboardQuery();
   const agencyBalances = agencyDashboardQuery.data?.balances;
 
@@ -37,7 +42,7 @@ export function ConsultantEditPage() {
         key={consultant.id}
         agencyBalances={agencyBalances}
         consultant={consultant}
-        consultantId={consultantId}
+        consultantId={consultantId ?? routeConsultant.id}
       />
     </section>
   );

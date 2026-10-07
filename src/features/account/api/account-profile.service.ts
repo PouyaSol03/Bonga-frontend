@@ -150,10 +150,12 @@ export function syncStoredRolesFromProfile(
       }) as ProfileAccountItem | undefined)
     : undefined;
 
-  const managerPermissions =
-    activeRole === "real_estate_consultant"
-      ? (consultantContext?.permissions as Record<string, boolean> | undefined)
-      : undefined;
+  const selectedContext = activeRole === "real_estate_manager"
+    ? accountsToScan?.find(item => (item as ProfileAccountItem).context === "agency") as ProfileAccountItem | undefined
+    : consultantContext;
+  const managerPermissions = ["real_estate_consultant", "real_estate_manager"].includes(activeRole)
+    ? selectedContext?.permissions
+    : undefined;
 
   setStoredAuthSession({
     ...session,
@@ -162,6 +164,12 @@ export function syncStoredRolesFromProfile(
     role: activeRole,
     roles,
     managerPermissions,
+    contextIdentity: String(selectedContext?.agency?.id ?? selectedContext?.id ?? ""),
+    contextPermissions: Object.fromEntries((accountsToScan ?? []).map(item => {
+      const acc = item as ProfileAccountItem;
+      const role = acc.context === "agency" ? "real_estate_manager" : acc.context === "agency-consultant" ? "real_estate_consultant" : "user";
+      return [role, acc.permissions];
+    })),
   });
 }
 
@@ -176,7 +184,7 @@ export async function getMyProfile(): Promise<UserProfile> {
         ? { ...(record.data as UserProfile) }
         : { ...(response as UserProfile) };
 
-  const rawAccounts = record.accounts ?? record.contexts;
+  const rawAccounts = record.accounts ?? record.contexts ?? (record.context ? [record.context] : undefined);
   if (Array.isArray(rawAccounts)) {
     profile.accounts = rawAccounts as ProfileAccountItem[];
   }

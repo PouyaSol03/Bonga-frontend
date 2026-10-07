@@ -1,4 +1,4 @@
-import { api, getApiAssetUrl, publicApi } from "../../../shared/api/api";
+import { api, apiV2, getApiAssetUrl, publicApi } from "../../../shared/api/api";
 import {
   mapAdvertisementToAdCard,
   type AdvertisementItem,
@@ -852,12 +852,12 @@ export async function addMyAgencyConsultant({
   role,
   specialQuota,
 }: AddAgencyConsultantPayload) {
-  return api.post("me/agency/consultants", {
+  return apiV2.post("consultants", {
     context: { allowNonJsonResponse: true },
     headers: { Accept: "*/*" },
     json: {
       ad_quota: Math.max(0, Math.trunc(adQuota)),
-      agent_id: Number.isFinite(Number(agentId)) ? Number(agentId) : agentId,
+      consultant_id: Number.isFinite(Number(agentId)) ? Number(agentId) : agentId,
       permissions,
       renew_quota: Math.max(0, Math.trunc(renewQuota)),
       role,
@@ -880,8 +880,8 @@ export async function respondToAgencyConsultantRequest({
 }
 
 export async function cancelMyAgencyConsultantRequest(agentId: number | string) {
-  return api.delete(
-    `me/agency/consultants/${encodeURIComponent(String(agentId))}/request`,
+  return apiV2.delete(
+    `consultants/${encodeURIComponent(String(agentId))}/request`,
     {
       context: { allowNonJsonResponse: true },
       headers: { Accept: "*/*" },
@@ -893,8 +893,8 @@ export async function getMyAgencyConsultants({
   page = 1,
   perPage = 100,
 }: AgencyConsultantsParams = {}): Promise<AgencyConsultantsPage> {
-  const response = await api
-    .get("me/agency/consultants", {
+  const response = await apiV2
+    .get("consultants", {
       searchParams: {
         page,
         per_page: perPage,
@@ -916,8 +916,8 @@ export async function getMyAgencyConsultants({
 export async function getMyAgencyConsultant(
   agentId: number | string,
 ): Promise<AgencyConsultantDto> {
-  const response = await api
-    .get(`me/agency/consultants/${encodeURIComponent(String(agentId))}`)
+  const response = await apiV2
+    .get(`consultants/${encodeURIComponent(String(agentId))}`)
     .json<AgencyConsultantDetailApiResponse>();
   const source = response.consultant ?? response.data ?? response;
   const consultant = normalizeAgencyConsultant({
@@ -951,8 +951,8 @@ export async function updateMyAgencyConsultant({
   role,
   specialQuota,
 }: UpdateAgencyConsultantPayload) {
-  return api.patch(
-    `me/agency/consultants/${encodeURIComponent(String(agentId))}`,
+  return apiV2.patch(
+    `consultants/${encodeURIComponent(String(agentId))}`,
     {
       context: { allowNonJsonResponse: true },
       headers: { Accept: "*/*" },
@@ -982,8 +982,8 @@ export async function deactivateMyAgencyConsultant({
             : transferUserId,
         };
 
-  return api.delete(
-    `me/agency/consultants/${encodeURIComponent(String(agentId))}`,
+  return apiV2.delete(
+    `consultants/${encodeURIComponent(String(agentId))}`,
     {
       context: { allowNonJsonResponse: true },
       headers: { Accept: "*/*" },
@@ -1237,8 +1237,8 @@ export async function getMyAgencyConsultantAdvertisements({
   perPage = 15,
   status = "active",
 }: ConsultantAdvertisementsParams): Promise<ConsultantAdvertisementsPage> {
-  const response = await api
-    .get(`me/agency/consultants/${encodeURIComponent(String(agentId))}/advertisements`, {
+  const response = await apiV2
+    .get(`consultants/${encodeURIComponent(String(agentId))}/advertisements`, {
       searchParams: {
         page,
         per_page: perPage,
@@ -1272,9 +1272,9 @@ export async function getMyAgencyConsultantActivityStats({
   agentId: number | string;
   period?: "week" | "month" | "year";
 }): Promise<ConsultantActivityStatsDto> {
-  const response = await api
+  const response = await apiV2
     .get(
-      `me/agency/consultants/${encodeURIComponent(String(agentId))}/performance/activity-stats`,
+      `consultants/${encodeURIComponent(String(agentId))}/performance/activity-stats`,
       {
         searchParams: { period },
       },
@@ -1317,9 +1317,9 @@ export async function getMyAgencyConsultantActivityFeed({
   period = "week",
   type = "all",
 }: ConsultantActivitiesParams): Promise<ConsultantActivityFeedDto> {
-  const response = await api
+  const response = await apiV2
     .get(
-      `me/agency/consultants/${encodeURIComponent(String(agentId))}/performance/activity-feed`,
+      `consultants/${encodeURIComponent(String(agentId))}/performance/activity-feed`,
       {
         searchParams: {
           page,
@@ -1381,9 +1381,9 @@ export async function getMyAgencyConsultantCharts({
   agentId: number | string;
   period?: "month" | "year";
 }): Promise<ConsultantPerformanceChartsDto> {
-  const response = await api
+  const response = await apiV2
     .get(
-      `me/agency/consultants/${encodeURIComponent(String(agentId))}/performance/charts`,
+      `consultants/${encodeURIComponent(String(agentId))}/performance/charts`,
       {
         searchParams: {
           period,
@@ -1453,9 +1453,9 @@ export async function getMyAgencyConsultantPublishedAdsMetric({
     searchParams.period = period;
   }
 
-  const response = await api
+  const response = await apiV2
     .get(
-      `me/agency/consultants/${encodeURIComponent(String(agentId))}/metrics/published-ads`,
+      `consultants/${encodeURIComponent(String(agentId))}/metrics/published-ads`,
       { searchParams },
     )
     .json<{ status?: boolean; data?: ConsultantMetricData }>();
@@ -1477,9 +1477,9 @@ export async function getMyAgencyConsultantRenewalUsageMetric({
     searchParams.period = period;
   }
 
-  const response = await api
+  const response = await apiV2
     .get(
-      `me/agency/consultants/${encodeURIComponent(String(agentId))}/metrics/renewal-usage`,
+      `consultants/${encodeURIComponent(String(agentId))}/metrics/renewal-usage`,
       { searchParams },
     )
     .json<{ status?: boolean; data?: ConsultantMetricData }>();
@@ -1501,9 +1501,9 @@ export async function getMyAgencyConsultantSpecialUsageMetric({
     searchParams.period = period;
   }
 
-  const response = await api
+  const response = await apiV2
     .get(
-      `me/agency/consultants/${encodeURIComponent(String(agentId))}/metrics/special-usage`,
+      `consultants/${encodeURIComponent(String(agentId))}/metrics/special-usage`,
       { searchParams },
     )
     .json<{ status?: boolean; data?: ConsultantMetricData }>();

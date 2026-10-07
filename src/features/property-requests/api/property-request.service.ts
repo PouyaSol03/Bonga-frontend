@@ -48,12 +48,12 @@ export async function createPropertyRequest(
     : buildPropertyRequestFilters(input.filters)
   ).filter((f) => !ignoredRequestFilterFields.has(f.field));
 
-  const response = await api
-    .post("me/requests", {
+  const response = await getClient(scope)
+    .post(scope.apiVersion === "v2" ? scope.basePath : "me/requests", {
       json: {
         filters,
         name: input.name.trim() || "درخواست ملک مشابه",
-        owner_type: input.owner_type ?? scope.ownerType,
+        ...(scope.apiVersion === "v1" ? {owner_type: input.owner_type ?? scope.ownerType} : {}),
       },
     })
     .json<unknown>();
@@ -115,9 +115,9 @@ export async function getPropertyRequests(page = 1, perPage = 20): Promise<Prope
 
 export async function renamePropertyRequest(requestId: string, name: string) {
   const ownerType = resolvePropertyRequestOwnerType();
-  const v1Path = ownerType === "agency" ? "agency/requests" : "me/requests";
-  const response = await api
-    .patch(`${v1Path}/${encodeURIComponent(requestId)}`, { json: { name: name.trim() } })
+  const scope = resolvePropertyRequestScope();
+  const response = await getClient(scope)
+    .patch(`${scope.basePath}/${encodeURIComponent(requestId)}`, { json: { name: name.trim() } })
     .json<unknown>();
 
   const record = asRecord(response);
@@ -131,10 +131,9 @@ export async function renamePropertyRequest(requestId: string, name: string) {
 }
 
 export async function deletePropertyRequest(requestId: string) {
-  const ownerType = resolvePropertyRequestOwnerType();
-  const v1Path = ownerType === "agency" ? "agency/requests" : "me/requests";
-  const response = await api
-    .delete(`${v1Path}/${encodeURIComponent(requestId)}`)
+  const scope = resolvePropertyRequestScope();
+  const response = await getClient(scope)
+    .delete(`${scope.basePath}/${encodeURIComponent(requestId)}`)
     .json<unknown>();
 
   const record = asRecord(response);

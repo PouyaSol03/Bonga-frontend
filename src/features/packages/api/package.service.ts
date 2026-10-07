@@ -1,4 +1,4 @@
-import { ApiError, apiV2, getActiveV2Role, publicApi } from "../../../shared/api/api";
+import { ApiError, apiV2, getActiveV2Role } from "../../../shared/api/api";
 import type {
   PackageItem,
   PackagePaymentPayload,
@@ -24,7 +24,7 @@ export function resolvePackageRoleSegment(
   scope?: PackagePaymentScope,
 ): string {
   if (role?.trim()) return role.trim();
-  if (scope === "agency") return "agency";
+  if (scope === "agency") return getActiveV2Role() === "agency-consultant" ? "agency-consultant" : "agency";
   if (scope === "agent" || scope === "independent-consultant") {
     return "independent-consultant";
   }
@@ -49,20 +49,9 @@ export async function getPackages({
   scope,
 }: PackageQueryParams = {}): Promise<PackageItem[]> {
   const endpoint = buildPackageEndpoint(undefined, undefined, role, scope);
-  try {
-    const response = await apiV2.get(endpoint).json<PackagesApiResponse>();
-    const list = Array.isArray(response.list) ? response.list : [];
-    return list
-      .filter((item) => item.is_active)
-      .sort((a, b) => a.sort_order - b.sort_order);
-  } catch (err) {
-    if (role || scope) throw err;
-    const fallbackResponse = await publicApi.get("public/package").json<PackagesApiResponse>();
-    const fallbackList = Array.isArray(fallbackResponse.list) ? fallbackResponse.list : [];
-    return fallbackList
-      .filter((item) => item.is_active)
-      .sort((a, b) => a.sort_order - b.sort_order);
-  }
+  const response = await apiV2.get(endpoint).json<PackagesApiResponse>();
+  const list = Array.isArray(response.list) ? response.list : [];
+  return list.filter(item => item.is_active).sort((a,b)=>a.sort_order-b.sort_order);
 }
 
 function readPackagePaymentUrl(response: ApiRecord): string | null {
@@ -129,7 +118,7 @@ export async function payPackage({
     throw new ApiError(500, "آدرس درگاه پرداخت از سرور دریافت نشد.");
   }
 
-  const resolvedScope = (scope ?? (resolvePackageRoleSegment(role, scope) === "agency" ? "agency" : "independent-consultant")) as PackagePaymentScope;
+  const resolvedScope = (scope ?? (["agency", "agency-consultant"].includes(resolvePackageRoleSegment(role, scope)) ? "agency" : "independent-consultant")) as PackagePaymentScope;
 
   return {
     authority: readOptionalString(response, "authority"),

@@ -205,9 +205,12 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null) {
   if (
     route.path === '/manage-ads' ||
     route.path === '/account/manage-ads' ||
-    route.path.startsWith('/account/ad-management') ||
-    route.path === `${DASHBOARD_PATH}/ads`
+    route.path.startsWith('/account/ad-management')
   ) {
+    return true;
+  }
+
+  if (route.path === `${DASHBOARD_PATH}/ads`) {
     if (session.managerPermissions?.manage_advertises === false) {
       return false;
     }
@@ -818,7 +821,7 @@ export const routes: AppRoute[] = [
     path: `${DASHBOARD_PATH}/team/info`,
     title: 'اطلاعات مشاور',
     Component: DashboardConsultantInfoPage,
-    authority: ['real_estate_manager'],
+    authority: ['real_estate_manager', 'real_estate_consultant'],
     layout: 'dashboard',
     placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,
@@ -828,7 +831,7 @@ export const routes: AppRoute[] = [
     path: `${DASHBOARD_PATH}/team/edit`,
     title: 'ویرایش اطلاعات',
     Component: DashboardConsultantEditPage,
-    authority: ['real_estate_manager'],
+    authority: ['real_estate_manager', 'real_estate_consultant'],
     layout: 'dashboard',
     placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,
@@ -838,7 +841,7 @@ export const routes: AppRoute[] = [
     path: `${DASHBOARD_PATH}/team/remove`,
     title: 'حذف مشاور',
     Component: DashboardConsultantRemovePage,
-    authority: ['real_estate_manager'],
+    authority: ['real_estate_manager', 'real_estate_consultant'],
     layout: 'dashboard',
     placeholderNote: dashboardHomePlaceholderNote,
     requiresAuth: true,

@@ -413,11 +413,10 @@ function getBusinessAccountActions(
 
   if (isManagerWithPermissions) {
     const permissions = membership?.permissions ?? session?.managerPermissions ?? {};
-    const actions: AccountAction[] = [];
+    const actions: AccountAction[] = [
+      { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
+    ];
 
-    if (permissions.manage_advertises) {
-      actions.push({ icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH });
-    }
     if (permissions.manage_consultants) {
       actions.push({ icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` });
     }
@@ -450,9 +449,6 @@ function getBusinessAccountActions(
   if (role === REAL_ESTATE_MANAGER) {
     const permissions = membership?.permissions ?? session?.managerPermissions ?? {};
     let filtered = managerActions;
-    if (permissions.manage_advertises === false) {
-      filtered = filtered.filter((a) => a.to !== MANAGE_ADS_PATH);
-    }
     if (permissions.manage_requests === false) {
       filtered = filtered.filter((a) => a.to !== `${DASHBOARD_PATH}/requests`);
     }
@@ -471,11 +467,8 @@ function getBusinessAccountActions(
       { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
       { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
       { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agent` },
+      { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
     ];
-
-    if (permissions.manage_advertises !== false) {
-      actions.push({ icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH });
-    }
 
     if (permissions.manage_requests) {
       actions.push({ icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` });

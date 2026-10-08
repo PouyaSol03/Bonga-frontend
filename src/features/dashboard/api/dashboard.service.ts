@@ -1,7 +1,13 @@
 import { apiV2, getV2RoleSegment, type V2RoleSegment } from "../../../shared/api/api";
 import { getStoredAuthSession, getActiveAuthRole } from "../../../shared/auth/auth-storage";
 
-export type DashboardPeriod = "month" | "year" | "7d" | "30d" | "90d";
+export type DashboardPeriod = "week" | "month" | "year" | "7d" | "30d" | "90d";
+
+export function toV2OverviewPeriod(period: DashboardPeriod): "week" | "month" | "year" {
+  if (period === "7d" || period === "week") return "week";
+  if (period === "year") return "year";
+  return "month";
+}
 export type DashboardKind = "agency" | "agent";
 
 export type DashboardBalanceDelta = {
@@ -659,9 +665,10 @@ export function mergeAgencyDashboardSections(
 export async function getAgencyDashboard(
   period: DashboardPeriod = "month",
 ): Promise<DashboardOverview> {
+  const v2Period = toV2OverviewPeriod(period);
   const response = await apiV2
     .get("agency/dashboard/overview", {
-      searchParams: { period },
+      searchParams: { period: v2Period },
     })
     .json<AgencyDashboardApiResponse>();
 
@@ -672,9 +679,10 @@ export async function getAgentDashboard(
   period: DashboardPeriod = "month",
 ): Promise<DashboardOverview> {
   const context = toV2Context("agent");
+  const v2Period = toV2OverviewPeriod(period);
   const response = await apiV2
     .get(`${context}/dashboard/overview`, {
-      searchParams: { period },
+      searchParams: { period: v2Period },
     })
     .json<AgentDashboardApiResponse>();
 
@@ -736,10 +744,11 @@ export async function getDashboardOverviewByRole(
   period: DashboardPeriod = "month",
 ): Promise<DashboardOverview> {
   const context = toV2Context(role);
+  const v2Period = toV2OverviewPeriod(period);
   try {
     const response = await apiV2
       .get(`${context}/dashboard/overview`, {
-        searchParams: { period },
+        searchParams: { period: v2Period },
       })
       .json<AgencyDashboardApiResponse & AgentDashboardApiResponse>();
 

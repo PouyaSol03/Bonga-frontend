@@ -76,8 +76,8 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
     ...(leadDetails
       ? {
           id: String(leadDetails.id),
-          name: leadDetails.client.name,
-          phone: leadDetails.client.phone,
+          name: leadDetails.client?.name ?? fallbackLead.name,
+          phone: leadDetails.client?.phone ?? fallbackLead.phone,
           status: (leadDetails.stage?.title as any) ?? fallbackLead.status,
           date: leadDetails.appointment?.date_jalali ?? fallbackLead.date,
           time: leadDetails.appointment?.time ?? fallbackLead.time,

@@ -1,4 +1,14 @@
 import { api } from "../../../shared/api/api";
+import {
+  confirmV2DealResult,
+  getV2ArchiveEligibility,
+  getV2DealResultEligibility,
+  getV2History,
+  getV2ReRegisterEligibility,
+  reRegisterV2,
+  restoreV2Archive,
+  submitV2DealResult,
+} from "./v2";
 import type { AdvertisementItem } from "./advertisement.service";
 
 export type AgencyAdvertiseAssignmentStatus =
@@ -283,16 +293,12 @@ export async function cancelUserAdvertiseAssignment(advertiseId: string | number
     .json();
 }
 
-export async function restoreArchivedAdvertise(advertiseId: string | number) {
-  return api
-    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/assignment/restore`)
-    .json();
+export async function restoreArchivedAdvertise(advertiseId: string | number, note?: string) {
+  return restoreV2Archive(advertiseId, note);
 }
 
-export async function republishAdAsPersonal(advertiseId: string | number) {
-  return api
-    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/assignment/republish-personal`)
-    .json();
+export async function republishAdAsPersonal(advertiseId: string | number, note?: string) {
+  return reRegisterV2(advertiseId, note);
 }
 
 export async function reassignAdToAgency({
@@ -404,28 +410,41 @@ export async function rejectAgencyStopRequest(
 
 export type SubmitDealResultPayload = {
   advertiseId: string | number;
-  result: "successful" | "failed" | "unresponsive";
+  result: "successful" | "failed" | "unresponsive" | string;
   description?: string;
+  client_name?: string;
+  client_phone?: string;
+  contract_price?: string;
+  commission_amount?: string;
+  request_id?: number;
+  assignment_id?: number;
 };
 
 export async function submitAdvertiseDealResult({
   advertiseId,
   result,
   description,
+  client_name,
+  client_phone,
+  contract_price,
+  commission_amount,
+  request_id,
+  assignment_id,
 }: SubmitDealResultPayload) {
-  return api
-    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/result`, {
-      json: { result, description },
-    })
-    .json();
+  return submitV2DealResult(advertiseId, {
+    result,
+    description,
+    client_name,
+    client_phone,
+    contract_price,
+    commission_amount,
+    request_id,
+    assignment_id,
+  });
 }
 
 export async function confirmUserDealResult(advertiseId: string | number, confirmed: boolean) {
-  return api
-    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/result/confirm`, {
-      json: { confirmed },
-    })
-    .json();
+  return confirmV2DealResult(advertiseId, confirmed);
 }
 
 export type AdvertisementHistoryItem = {
@@ -484,10 +503,8 @@ export async function getAdvertisementHistory(
   advertiseId: string | number,
 ): Promise<AdvertisementHistoryItem[]> {
   try {
-    const res = await api
-      .get(`history/${encodeURIComponent(String(advertiseId))}`)
-      .json<AdvertisementHistoryResponse>();
-    return Array.isArray(res?.data) ? res.data : [];
+    const res = await getV2History(advertiseId);
+    return Array.isArray(res?.data) ? (res.data as AdvertisementHistoryItem[]) : [];
   } catch {
     return [];
   }
@@ -497,10 +514,7 @@ export async function getAdvertisementReRegisterStatus(
   advertiseId: string | number,
 ): Promise<AdvertisementReRegisterStatusResponse> {
   try {
-    const res = await api
-      .get(`re_register_ad/${encodeURIComponent(String(advertiseId))}`)
-      .json<AdvertisementReRegisterStatusResponse>();
-    return res;
+    return await getV2ReRegisterEligibility(advertiseId);
   } catch {
     return { status: false };
   }
@@ -510,10 +524,7 @@ export async function getAdvertisementSubmitResultStatus(
   advertiseId: string | number,
 ): Promise<AdvertisementSubmitResultStatusResponse> {
   try {
-    const res = await api
-      .get(`submit_ad_result/${encodeURIComponent(String(advertiseId))}`)
-      .json<AdvertisementSubmitResultStatusResponse>();
-    return res;
+    return await getV2DealResultEligibility(advertiseId);
   } catch {
     return { status: false };
   }
@@ -523,10 +534,7 @@ export async function getAdvertisementArchiveStatus(
   advertiseId: string | number,
 ): Promise<AdvertisementArchiveStatusResponse> {
   try {
-    const res = await api
-      .get(`archive/${encodeURIComponent(String(advertiseId))}`)
-      .json<AdvertisementArchiveStatusResponse>();
-    return res;
+    return await getV2ArchiveEligibility(advertiseId);
   } catch {
     return { status: false };
   }

@@ -531,5 +531,17 @@ export function getApiAssetUrl(path: string) {
     return "";
   }
 
+  if (normalizedPath.startsWith("http://") || normalizedPath.startsWith("https://")) {
+    return normalizedPath;
+  }
+
+  const backendOrigin = (import.meta as any).env?.VITE_API_URL
+    ? String((import.meta as any).env.VITE_API_URL).replace(/\/api.*$/, "").replace(/\/+$/, "")
+    : "";
+
+  if (backendOrigin && normalizedPath.startsWith("/")) {
+    return `${backendOrigin}${normalizedPath}`;
+  }
+
   return normalizedPath;
 }

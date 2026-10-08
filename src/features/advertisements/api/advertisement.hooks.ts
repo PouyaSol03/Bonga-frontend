@@ -202,16 +202,18 @@ export function useUpdateAdvertisementMutation() {
 }
 
 export function useAdvertisementCheckoutQuery(advertiseId: string | null, enabled = true) {
+  const activeRole = useActiveAuthRole();
   return useQuery({
     enabled: Boolean(advertiseId) && enabled,
     queryFn: () => getAdvertisementCheckout(advertiseId ?? ""),
-    queryKey: queryKeys.advertisements.checkout(advertiseId ?? ""),
+    queryKey: [...queryKeys.advertisements.checkout(advertiseId ?? ""), activeRole],
     // Cache disabled globally in src/api/query-client.ts.
     // staleTime: 0,
   });
 }
 
 export function useSubmitAdvertisementCheckoutMutation() {
+  const activeRole = useActiveAuthRole();
   return useMutation({
     mutationFn: submitAdvertisementCheckout,
     onSuccess: (
@@ -219,7 +221,7 @@ export function useSubmitAdvertisementCheckoutMutation() {
       variables: SubmitAdvertisementCheckoutPayload,
     ) => {
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.advertisements.checkout(variables.advertiseId),
+        queryKey: [...queryKeys.advertisements.checkout(variables.advertiseId), activeRole],
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.myAdsRoot(),
@@ -229,22 +231,25 @@ export function useSubmitAdvertisementCheckoutMutation() {
 }
 
 export function useAgencyAdvertisementCheckoutQuery(advertiseId: string | null, enabled = true) {
+  const activeRole = useActiveAuthRole();
   return useQuery({
     enabled: Boolean(advertiseId) && enabled,
     queryFn: () => getAgencyAdvertisementCheckout(advertiseId ?? ""),
-    queryKey: queryKeys.advertisements.agencyCheckout(advertiseId ?? ""),
+    queryKey: [...queryKeys.advertisements.agencyCheckout(advertiseId ?? ""), activeRole],
   });
 }
 
 export function useConsultantAdvertisementCheckoutQuery(advertiseId: string | null, enabled = true) {
+  const activeRole = useActiveAuthRole();
   return useQuery({
     enabled: Boolean(advertiseId) && enabled,
     queryFn: () => getConsultantAdvertisementCheckout(advertiseId ?? ""),
-    queryKey: queryKeys.advertisements.consultantCheckout(advertiseId ?? ""),
+    queryKey: [...queryKeys.advertisements.consultantCheckout(advertiseId ?? ""), activeRole],
   });
 }
 
 export function useSubmitConsultantAdvertisementCheckoutMutation() {
+  const activeRole = useActiveAuthRole();
   return useMutation({
     mutationFn: submitConsultantAdvertisementCheckout,
     onSuccess: (
@@ -252,7 +257,7 @@ export function useSubmitConsultantAdvertisementCheckoutMutation() {
       variables: SubmitAdvertisementCheckoutPayload,
     ) => {
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.advertisements.consultantCheckout(variables.advertiseId),
+        queryKey: [...queryKeys.advertisements.consultantCheckout(variables.advertiseId), activeRole],
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.myAdsRoot(),
@@ -262,6 +267,7 @@ export function useSubmitConsultantAdvertisementCheckoutMutation() {
 }
 
 export function useSubmitAgencyAdvertisementCheckoutMutation() {
+  const activeRole = useActiveAuthRole();
   return useMutation({
     mutationFn: submitAgencyAdvertisementCheckout,
     onSuccess: (
@@ -269,7 +275,7 @@ export function useSubmitAgencyAdvertisementCheckoutMutation() {
       variables: SubmitAgencyAdvertisementCheckoutPayload,
     ) => {
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.advertisements.agencyCheckout(variables.advertiseId),
+        queryKey: [...queryKeys.advertisements.agencyCheckout(variables.advertiseId), activeRole],
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.myAdsRoot(),

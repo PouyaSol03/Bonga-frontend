@@ -1,9 +1,19 @@
 import { v7 as uuidv7 } from "uuid";
-import { ApiError, api, baseUrl, getApiUserType, publicApi } from "../../../shared/api/api";
-import { getStoredAccessToken } from "../../../shared/auth/auth-storage";
+import { ApiError, api, baseUrl, publicApi } from "../../../shared/api/api";
 import { formatCardPrice } from "../../../shared/lib/MoneyHandler";
 import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
 import { getAdvertisementImageUrls } from "../utils/advertisement-images";
+import {
+  createV2Advertisement,
+  createV2Draft,
+  getV2Checkout,
+  getV2Preview,
+  submitV2Checkout,
+  updateV2Advertisement,
+  updateV2Draft,
+  updateV2OwnerContact,
+  sendV2AdvertisementEvent,
+} from "./v2";
 
 export type AdvertisementStatus =
   | "wait_for_payment"
@@ -1058,20 +1068,13 @@ export async function getAdvertisementPayments(id: string): Promise<Advertisemen
 
 
 export async function getAdvertisementPreview(id: string): Promise<AdvertisementItem> {
-  const response = await api
-    .get(`me/advertise/preview/${encodeURIComponent(id)}`)
-    .json<AdvertisementShowResponse>();
-
-  // Preview and public detail now share the exact { status, data } model.
-  return unwrapAdvertisementShowResponse(response);
+  const response = await getV2Preview(id);
+  return unwrapAdvertisementShowResponse(response as AdvertisementShowResponse);
 }
 
 export async function getAgencyAdvertisementPreview(id: string): Promise<AdvertisementItem> {
-  const response = await api
-    .get(`me/agency/preview/${encodeURIComponent(id)}`)
-    .json<AdvertisementShowResponse>();
-
-  return unwrapAdvertisementShowResponse(response);
+  const response = await getV2Preview(id);
+  return unwrapAdvertisementShowResponse(response as AdvertisementShowResponse);
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -1215,11 +1218,7 @@ export async function getMyAdvertisementDetail(id: string): Promise<Advertisemen
 }
 
 export async function createAdvertisement(payload: FormData) {
-  const response = await api
-    .post("me/advertise/create", {
-      body: payload,
-    })
-    .json<AdvertisementCreateResponse>();
+  const response = (await createV2Advertisement(payload)) as AdvertisementCreateResponse;
 
   const createdAdvertise = "data" in response && response.data
     ? response.data as AdvertisementItem
@@ -1241,12 +1240,14 @@ export async function saveAdvertiseDraft(payload: FormData | Record<string, unkn
     delete (payload as Record<string, unknown>).description;
   }
 
-  const options = payload instanceof FormData
-    ? { body: payload }
-    : { json: payload };
-  const response = await api
-    .post("me/advertise/draft", options)
-    .json<AdvertisementCreateResponse>();
+  const activeDraftId =
+    payload instanceof FormData
+      ? (payload.get("id") as string | null)
+      : (payload as Record<string, unknown>)?.id;
+
+  const response = (activeDraftId
+    ? await updateV2Draft(String(activeDraftId), payload)
+    : await createV2Draft(payload)) as AdvertisementCreateResponse;
 
   const draftAdvertise = "data" in response && response.data
     ? response.data as AdvertisementItem
@@ -1266,11 +1267,10 @@ export async function updateAdvertisement({
   advertiseId: string;
   payload: FormData;
 }) {
-  const response = await api
-    .post(`me/advertise/update/${encodeURIComponent(advertiseId)}`, {
-      body: payload,
-    })
-    .json<AdvertisementCreateResponse>();
+  const response = (await updateV2Advertisement(
+    advertiseId,
+    payload,
+  )) as AdvertisementCreateResponse;
 
   const updatedAdvertise = "data" in response && response.data
     ? response.data as AdvertisementItem
@@ -1296,44 +1296,17 @@ export async function updateOwnerContact({
 }) {
   const jsonBody: Record<string, string> = {};
   if (ownerContactName !== undefined) {
-    jsonBody.owner_name = ownerContactName;
     jsonBody.owner_contact_name = ownerContactName;
   }
   if (ownerContactPhone !== undefined) {
-    jsonBody.owner_phone = ownerContactPhone;
     jsonBody.owner_contact_phone = ownerContactPhone;
   }
   if (ownerContactAddress !== undefined) {
-    jsonBody.owner_address = ownerContactAddress;
     jsonBody.owner_contact_address = ownerContactAddress;
   }
 
-  try {
-    const response = await api
-      .patch(`me/advertise/${encodeURIComponent(advertiseId)}/owner-contact`, {
-        json: jsonBody,
-      })
-      .json<{ data?: AdvertisementItem; result?: AdvertisementItem; status?: boolean }>();
-
-    return (response?.data ?? response?.result ?? response) as AdvertisementItem;
-  } catch {
-    // Fallback: in case backend is running older version without dedicated PATCH
-    const payload = new FormData();
-    if (ownerContactName !== undefined) {
-      payload.append("owner_contact_name", ownerContactName);
-    }
-    if (ownerContactPhone !== undefined) {
-      payload.append("owner_contact_phone", ownerContactPhone);
-    }
-    if (ownerContactAddress !== undefined) {
-      payload.append("owner_contact_address", ownerContactAddress);
-    }
-
-    return updateAdvertisement({
-      advertiseId,
-      payload,
-    });
-  }
+  const response = await updateV2OwnerContact(advertiseId, jsonBody);
+  return ((response as Record<string, unknown>)?.data ?? (response as Record<string, unknown>)?.result ?? response) as AdvertisementItem;
 }
 
 export async function deleteAdvertisement({
@@ -1434,9 +1407,7 @@ function findCheckoutPaymentUrl(value: unknown, depth = 0): string | null {
 }
 
 export async function getAdvertisementCheckout(advertiseId: string) {
-  const response = await api
-    .get(`me/advertise/checkout/${encodeURIComponent(advertiseId)}`)
-    .json<AdvertisementCheckoutResponse>();
+  const response = (await getV2Checkout(advertiseId)) as AdvertisementCheckoutResponse;
 
   if (response && typeof response === "object" && !Array.isArray(response)) {
     const record = response as Record<string, unknown>;
@@ -1456,47 +1427,11 @@ export async function getAdvertisementCheckout(advertiseId: string) {
 }
 
 export async function getAgencyAdvertisementCheckout(advertiseId: string) {
-  const response = await api
-    .get(`me/agency/advertise/checkout/${encodeURIComponent(advertiseId)}`)
-    .json<AdvertisementCheckoutResponse>();
-
-  if (response && typeof response === "object" && !Array.isArray(response)) {
-    const record = response as Record<string, unknown>;
-    if (record.status === false) {
-      throw new ApiError(
-        400,
-        typeof record.message === "string" && record.message.trim()
-          ? record.message
-          : "دریافت اطلاعات پرداخت آگهی تخصیصی با خطا مواجه شد.",
-        undefined,
-        { code: typeof record.code === "string" ? record.code : undefined },
-      );
-    }
-  }
-
-  return unwrapAdvertisementCheckoutResponse(response);
+  return getAdvertisementCheckout(advertiseId);
 }
 
 export async function getConsultantAdvertisementCheckout(advertiseId: string) {
-  const response = await api
-    .get(`me/consultant/advertise/checkout/${encodeURIComponent(advertiseId)}`)
-    .json<AdvertisementCheckoutResponse>();
-
-  if (response && typeof response === "object" && !Array.isArray(response)) {
-    const record = response as Record<string, unknown>;
-    if (record.status === false) {
-      throw new ApiError(
-        400,
-        typeof record.message === "string" && record.message.trim()
-          ? record.message
-          : "دریافت اطلاعات پرداخت آگهی تخصیص‌یافته با خطا مواجه شد.",
-        undefined,
-        { code: typeof record.code === "string" ? record.code : undefined },
-      );
-    }
-  }
-
-  return unwrapAdvertisementCheckoutResponse(response);
+  return getAdvertisementCheckout(advertiseId);
 }
 
 export async function submitAdvertisementCheckout({
@@ -1505,15 +1440,11 @@ export async function submitAdvertisementCheckout({
   items,
   paymentMethod,
 }: SubmitAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
-  const response = await api
-    .post(`me/advertise/checkout/${encodeURIComponent(advertiseId)}`, {
-      json: {
-        ...(discount_code ? { discount_code } : {}),
-        items,
-        payment_method: paymentMethod,
-      },
-    })
-    .json<unknown>();
+  const response = await submitV2Checkout(advertiseId, {
+    ...(discount_code ? { discount_code } : {}),
+    items,
+    payment_method: paymentMethod,
+  });
 
   if (response && typeof response === "object" && !Array.isArray(response)) {
     const record = response as Record<string, unknown>;
@@ -1538,40 +1469,10 @@ export async function submitAdvertisementCheckout({
 
 export const submitPersonalAdvertisementCheckout = submitAdvertisementCheckout;
 
-export async function submitConsultantAdvertisementCheckout({
-  advertiseId,
-  discount_code,
-  items,
-  paymentMethod,
-}: SubmitAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
-  const response = await api
-    .post(`me/consultant/advertise/checkout/${encodeURIComponent(advertiseId)}`, {
-      json: {
-        ...(discount_code ? { discount_code } : {}),
-        items,
-        payment_method: paymentMethod,
-      },
-    })
-    .json<unknown>();
-
-  if (response && typeof response === "object" && !Array.isArray(response)) {
-    const record = response as Record<string, unknown>;
-    if (record.status === false) {
-      throw new ApiError(
-        400,
-        typeof record.message === "string" && record.message.trim()
-          ? record.message
-          : "پرداخت آگهی تخصیص‌یافته با خطا مواجه شد.",
-        undefined,
-        { code: typeof record.code === "string" ? record.code : undefined },
-      );
-    }
-  }
-
-  return {
-    paymentUrl: findCheckoutPaymentUrl(response),
-    response,
-  };
+export async function submitConsultantAdvertisementCheckout(
+  payload: SubmitAdvertisementCheckoutPayload,
+): Promise<SubmitAdvertisementCheckoutResult> {
+  return submitAdvertisementCheckout(payload);
 }
 
 export async function submitAgencyAdvertisementCheckout({
@@ -1581,16 +1482,12 @@ export async function submitAgencyAdvertisementCheckout({
   items,
   paymentMethod,
 }: SubmitAgencyAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
-  const response = await api
-    .post(`me/agency/advertise/checkout/${encodeURIComponent(advertiseId)}`, {
-      json: {
-        ...(consultantId ? { consultant_id: consultantId } : {}),
-        ...(discount_code ? { discount_code } : {}),
-        items,
-        payment_method: paymentMethod,
-      },
-    })
-    .json<unknown>();
+  const response = await submitV2Checkout(advertiseId, {
+    ...(consultantId ? { consultant_id: consultantId } : {}),
+    ...(discount_code ? { discount_code } : {}),
+    items,
+    payment_method: paymentMethod,
+  });
 
   if (response && typeof response === "object" && !Array.isArray(response)) {
     const record = response as Record<string, unknown>;
@@ -1713,26 +1610,9 @@ export async function reportAdvertisementEngagement(
   if (!cleanId || !/^[1-9]\d*$/.test(cleanId)) return;
 
   try {
-    const accessToken = getStoredAccessToken();
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      "user-type": getApiUserType(),
-    };
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    const apiRoot = baseUrl || "/api";
-    const endpoint = `${apiRoot}/advertisements/${encodeURIComponent(cleanId)}/engagement`;
-
-    await fetch(endpoint, {
-      method: "POST",
-      headers,
-      keepalive: true,
-      body: JSON.stringify({
-        event_type: eventType,
-        idempotency_key: uuidv7(),
-      }),
+    await sendV2AdvertisementEvent(cleanId, {
+      event_type: eventType,
+      idempotency_key: uuidv7(),
     });
   } catch {
     // Telemetry errors must never disrupt user experience.

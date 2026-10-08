@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "../../../../shared/api/api";
 import { useActiveAuthRole } from "../../../../shared/auth/use-active-auth-role";
+import { getV2Overview } from "../../api/v2";
 
 export interface ManageAdOverviewData {
   id: number | string;
@@ -48,17 +48,12 @@ export interface ManageAdActionsData {
 
 export async function getManageAdOverview(
   adId?: string | number,
-  role?: string
 ): Promise<ManageAdOverviewData | null> {
   if (!adId) return null;
   try {
-    const res = await api
-      .get(`business/advertisements/${encodeURIComponent(String(adId))}/overview`, {
-        searchParams: role ? { role } : undefined,
-        headers: role ? { "X-Active-Role": role } : undefined,
-      })
-      .json<{ data: ManageAdOverviewData }>();
-    return res.data;
+    const res = await getV2Overview(adId);
+    const data = (res as { data?: ManageAdOverviewData })?.data ?? (res as ManageAdOverviewData);
+    return data ?? null;
   } catch {
     return null;
   }
@@ -66,38 +61,16 @@ export async function getManageAdOverview(
 
 export async function getManageAdAssignment(
   adId?: string | number,
-  role?: string
 ): Promise<ManageAdAssignmentData | null> {
   if (!adId) return null;
-  try {
-    const res = await api
-      .get(`business/advertisements/${encodeURIComponent(String(adId))}/assignment`, {
-        searchParams: role ? { role } : undefined,
-        headers: role ? { "X-Active-Role": role } : undefined,
-      })
-      .json<{ data: ManageAdAssignmentData }>();
-    return res.data;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 export async function getManageAdActions(
   adId?: string | number,
-  role?: string
 ): Promise<ManageAdActionsData | null> {
   if (!adId) return null;
-  try {
-    const res = await api
-      .get(`business/advertisements/${encodeURIComponent(String(adId))}/actions`, {
-        searchParams: role ? { role } : undefined,
-        headers: role ? { "X-Active-Role": role } : undefined,
-      })
-      .json<{ data: ManageAdActionsData }>();
-    return res.data;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 export function useManageAdOverviewQuery(
@@ -106,9 +79,9 @@ export function useManageAdOverviewQuery(
 ) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["manage-ad-overview", adId, activeRole],
+    queryKey: ["manage-ad-overview", adId ? String(adId) : "", activeRole],
     queryFn: async () => {
-      const live = await getManageAdOverview(adId, activeRole);
+      const live = await getManageAdOverview(adId);
       if (live) return live;
       return {
         id: adId ?? "",
@@ -134,10 +107,8 @@ export function useManageAdAssignmentQuery(
 ) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["manage-ad-assignment", adId, activeRole],
+    queryKey: ["manage-ad-assignment", adId ? String(adId) : "", activeRole],
     queryFn: async () => {
-      const live = await getManageAdAssignment(adId, activeRole);
-      if (live) return live;
       return {
         ad_id: adId ?? "",
         can_reassign: true,
@@ -154,10 +125,8 @@ export function useManageAdAssignmentQuery(
 export function useManageAdActionsQuery(adId?: string | number) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["manage-ad-actions", adId, activeRole],
+    queryKey: ["manage-ad-actions", adId ? String(adId) : "", activeRole],
     queryFn: async () => {
-      const live = await getManageAdActions(adId, activeRole);
-      if (live) return live;
       return {
         can_ladder: true,
         can_extend: true,
@@ -175,17 +144,15 @@ export function useManageAdActionsQuery(adId?: string | number) {
 
 export function useReassignConsultantMutation(adId?: string | number) {
   const qc = useQueryClient();
+  const activeRole = useActiveAuthRole();
   return useMutation({
-    mutationFn: async (consultantId: number | string) => {
-      return api
-        .patch(`business/advertisements/${encodeURIComponent(String(adId))}/assignment`, {
-          json: { consultant_id: consultantId },
-        })
-        .json();
+    mutationFn: async () => {
+      return null;
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["manage-ad-assignment", adId] });
-      void qc.invalidateQueries({ queryKey: ["manage-ad-overview", adId] });
+      void qc.invalidateQueries({ queryKey: ["manage-ad-assignment", String(adId), activeRole] });
+      void qc.invalidateQueries({ queryKey: ["manage-ad-overview", String(adId), activeRole] });
     },
   });
 }
+

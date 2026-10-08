@@ -70,18 +70,6 @@ export function ConsultantEditForm({
   };
 
   const handleSubmit = () => {
-    if (adQuota > maxAdQuota) {
-      setErrorMessage("سهمیه آگهی بیشتر از سهمیه موجود آژانس است.");
-      return;
-    }
-    if (updateQuota > maxRenewQuota) {
-      setErrorMessage("سهمیه بروزرسانی بیشتر از سهمیه موجود آژانس است.");
-      return;
-    }
-    if (specialQuota > maxSpecialQuota) {
-      setErrorMessage("سهمیه ویژه بیشتر از سهمیه موجود آژانس است.");
-      return;
-    }
     setErrorMessage("");
     updateConsultantMutation.mutate(
       {
@@ -95,6 +83,9 @@ export function ConsultantEditForm({
       {
         onSuccess: () => {
           pushRoute("/account/dashboard/team");
+        },
+        onError: (err: any) => {
+          setErrorMessage(err?.message || "خطا در اعمال تغییرات");
         },
       },
     );

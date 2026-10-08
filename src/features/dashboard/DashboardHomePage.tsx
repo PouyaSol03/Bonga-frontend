@@ -97,7 +97,7 @@ export function DashboardHomePage() {
 
   const overviewQuery = useDashboardOverviewByRoleQuery(persona, {
     enabled: Boolean(session),
-    period: "30d",
+    period: "month",
   });
 
   useEffect(() => {

@@ -657,7 +657,7 @@ export function mergeAgencyDashboardSections(
 }
 
 export async function getAgencyDashboard(
-  period: DashboardPeriod = "30d",
+  period: DashboardPeriod = "month",
 ): Promise<DashboardOverview> {
   const response = await apiV2
     .get("agency/dashboard/overview", {
@@ -669,7 +669,7 @@ export async function getAgencyDashboard(
 }
 
 export async function getAgentDashboard(
-  period: DashboardPeriod = "30d",
+  period: DashboardPeriod = "month",
 ): Promise<DashboardOverview> {
   const context = toV2Context("agent");
   const response = await apiV2
@@ -733,7 +733,7 @@ export type DashboardRolePersona = "agency" | "agent" | "agent_in_agency";
 
 export async function getDashboardOverviewByRole(
   role: DashboardRolePersona,
-  period: DashboardPeriod = "30d",
+  period: DashboardPeriod = "month",
 ): Promise<DashboardOverview> {
   const context = toV2Context(role);
   try {
@@ -939,7 +939,7 @@ export type DashboardReportsTeaserData = {
 
 export async function getDashboardReportsTeaser(
   role: DashboardRolePersona,
-  period = "30d",
+  period = "month",
 ): Promise<DashboardReportsTeaserData | null> {
   const context = toV2Context(role);
   try {
@@ -1195,7 +1195,7 @@ export type DashboardReportConversionFunnelData = {
 
 export async function getDashboardReportsConversionFunnel(
   role: DashboardRolePersona,
-  period = "30d",
+  period = "month",
 ): Promise<DashboardReportConversionFunnelData | null> {
   const context = toV2Context(role);
   try {

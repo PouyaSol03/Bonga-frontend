@@ -41,7 +41,7 @@ type DashboardQueryOptions = {
 
 export function useAgencyDashboardQuery({
   enabled = true,
-  period = "30d",
+  period = "month",
 }: DashboardQueryOptions = {}) {
   return useQuery({
     enabled,
@@ -128,7 +128,7 @@ export function useAgencyDashboardRankingQuery({
 
 export function useAgentDashboardQuery({
   enabled = true,
-  period = "30d",
+  period = "month",
 }: DashboardQueryOptions = {}) {
   return useQuery({
     enabled,
@@ -185,7 +185,7 @@ export function useAgentWorkSummaryQuery({ enabled = true }: { enabled?: boolean
 
 export function useDashboardOverviewByRoleQuery(
   role: DashboardRolePersona,
-  { enabled = true, period = "30d" }: DashboardQueryOptions = {},
+  { enabled = true, period = "month" }: DashboardQueryOptions = {},
 ) {
   return useQuery({
     enabled,
@@ -257,7 +257,7 @@ export function useDashboardNotificationsQuery(
 
 export function useDashboardReportsTeaserQuery(
   role: DashboardRolePersona,
-  period = "30d",
+  period = "month",
   { enabled = true }: { enabled?: boolean } = {},
 ) {
   return useQuery({
@@ -350,7 +350,7 @@ export function useDashboardReportsRegistrationProgressQuery(
 
 export function useDashboardReportsConversionFunnelQuery(
   role: DashboardRolePersona,
-  period = "30d",
+  period = "month",
   { enabled = true }: { enabled?: boolean } = {},
 ) {
   return useQuery({

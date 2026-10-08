@@ -304,7 +304,7 @@ export function DashboardView({
           onViewReports={onViewReports}
           subtitle={
             reportsTeaserQuery.data?.totalViews
-              ? `${toPersianNumber(reportsTeaserQuery.data.totalViews)} بازدید در ۳۰ روز اخیر`
+              ? `${toPersianNumber(reportsTeaserQuery.data.totalViews)} بازدید در این ماه`
               : "تحلیل عملکرد آگهی‌ها و مشاورین"
           }
         />

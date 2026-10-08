@@ -365,7 +365,7 @@ export const queryKeys = {
     urgentActions: (role: string) => [...queryKeys.dashboard.all, "urgent-actions", role] as const,
     notifications: (role: string) => [...queryKeys.dashboard.all, "notifications", role] as const,
     reportsTeaser: (role: string, period?: string) =>
-      [...queryKeys.dashboard.all, "reports-teaser", role, period ?? "30d"] as const,
+      [...queryKeys.dashboard.all, "reports-teaser", role, period ?? "month"] as const,
     recentAds: (role: string, limit?: number) =>
       [...queryKeys.dashboard.all, "recent-ads", role, limit ?? 5] as const,
     overview: (role: string, period: string) =>

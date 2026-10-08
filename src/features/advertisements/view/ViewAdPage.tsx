@@ -1573,18 +1573,21 @@ export function ViewAdPage() {
 
   useEffect(() => {
     if (isPreview || isLoading || isError || !ad?.id) return;
+    if (!isPublishedAdvertisement(ad)) return;
     const currentAdId = String(ad.id).trim();
     if (!/^[1-9]\d*$/.test(currentAdId)) return;
     if (reportedImpressionAdIdRef.current === currentAdId) return;
 
     reportedImpressionAdIdRef.current = currentAdId;
     void reportAdvertisementEngagement(currentAdId, "impression");
-  }, [isPreview, isLoading, isError, ad?.id]);
+  }, [isPreview, isLoading, isError, ad]);
 
   const handleOpenContactInfo = (type: "contact" | "agency" | "owner") => {
-    const targetAdId = ad?.id ? String(ad.id).trim() : (adId ? String(adId).trim() : "");
-    if (targetAdId && /^[1-9]\d*$/.test(targetAdId)) {
-      void reportAdvertisementEngagement(targetAdId, "call");
+    if (!isPreview && isPublishedAdvertisement(ad)) {
+      const targetAdId = ad?.id ? String(ad.id).trim() : (adId ? String(adId).trim() : "");
+      if (targetAdId && /^[1-9]\d*$/.test(targetAdId)) {
+        void reportAdvertisementEngagement(targetAdId, "call");
+      }
     }
     if (type === "contact") setIsContactSheetOpen(true);
     if (type === "agency") setIsAgencyContactSheetOpen(true);

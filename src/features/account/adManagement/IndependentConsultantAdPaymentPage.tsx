@@ -43,6 +43,7 @@ import LinearStairs from "../../../shared/icons/LinearStairs";
 import LinearStartup from "../../../shared/icons/LinearStartup";
 import LinearRefresh from "../../../shared/icons/LinearRefresh";
 import {
+  adManagementPaths,
   clearAgencyAllocationCheckout,
   clearNewAdCheckout,
   getAdManagementRouteState,
@@ -279,6 +280,8 @@ function getFreeQuotaRemaining(
 
 export function IndependentConsultantAdPaymentPage() {
   const advertiseId = readCheckoutAdvertiseId();
+  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const fallbackBackTo = activeRole === USER ? "/account/my-ads" : adManagementPaths.root;
 
   if (advertiseId) {
     return <AdvertisementCheckoutFlow advertiseId={advertiseId} />;
@@ -286,7 +289,7 @@ export function IndependentConsultantAdPaymentPage() {
 
   return (
     <CheckoutStatusPage
-      backTo="/account/my-ads"
+      backTo={fallbackBackTo}
       message="شناسه آگهی برای دریافت تعرفه از سرور موجود نیست."
       title="هزینه ثبت آگهی"
     />
@@ -296,6 +299,7 @@ export function IndependentConsultantAdPaymentPage() {
 function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const routeState = getAdManagementRouteState();
   const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const adsHomePath = activeRole === USER ? "/account/my-ads" : adManagementPaths.root;
   const isBusinessRole =
     activeRole !== USER &&
     Boolean(
@@ -393,7 +397,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       card: routeState.card ?? routeState.ad,
       consultantId: routeState.consultantId,
       publisherType: routeState.publisherType,
-      returnTo: "/account/my-ads",
+      returnTo: adsHomePath,
       showPaymentSuccess: true,
       status: isNewAdCheckout ? "pending" : "published",
       tab: "status" as const,
@@ -564,7 +568,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     if (getApiErrorCode(checkoutQuery.error) !== "AD_WAITING_FOR_AGENCY") return;
 
     navigateTo(stateAdPath, {
-      returnTo: "/account/my-ads",
+      returnTo: adsHomePath,
       status: "wait_for_agency",
       tab: "status",
     }, true);
@@ -694,7 +698,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       onError: (error: unknown) => {
         if (getApiErrorCode(error) === "AD_WAITING_FOR_AGENCY") {
           navigateTo(stateAdPath, {
-            returnTo: "/account/my-ads",
+            returnTo: adsHomePath,
             status: "wait_for_agency",
             tab: "status",
           }, true);
@@ -714,7 +718,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         }
 
         if (paymentMethod === "by_consultant") {
-          navigateTo("/account/my-ads", { tab: "status" }, true);
+          navigateTo(adsHomePath, { tab: "status" }, true);
           return;
         }
 
@@ -791,11 +795,11 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     : isConsultantAssignedCheckout
       ? "/account/ad-management/allocation"
       : isNewAdCheckout
-        ? "/account/my-ads"
+        ? adsHomePath
         : "/new-ad";
 
   const leaveNewAdPayment = () => {
-    navigateTo("/account/my-ads", { tab: "status" }, true);
+    navigateTo(adsHomePath, { tab: "status" }, true);
   };
 
   if (checkoutQuery.isLoading) {

@@ -87,6 +87,7 @@ type MyAdRouteState = {
   card?: AdCardData;
   status?: MyAdStatusKey | string;
   tab?: string;
+  activeBusinessTab?: ViewAdBusinessTabKey;
   editReturnTo?: string;
   isEditMode?: boolean;
   returnTo?: string;
@@ -121,6 +122,7 @@ export type AccountMyAdStatePageProps = {
   ad?: Record<string, unknown>;
   card?: AdCardData;
   status?: MyAdStatusKey | string;
+  activeBusinessTab?: ViewAdBusinessTabKey;
   role?: string;
   backTo?: string;
   onBack?: () => void;
@@ -221,7 +223,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     return <MyAdStateSkeleton backState={backState} backTo={backTo} />;
   }
 
-  // "remove the single page state ad for نیمه کاره it won't exist anymore at all"
+  // Draft ads do not have a state page
   if (statusInfo.key === "incomplete" || statusInfo.key === "incomplete_deleted") {
     return null;
   }
@@ -233,6 +235,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   ) {
     return (
       <RealEstateManagerAdStatePage
+        activeBusinessTab={props?.activeBusinessTab ?? routeState.activeBusinessTab}
         ad={sourceAd}
         adId={adId ?? String(card.id)}
         backState={backState}
@@ -315,7 +318,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     window.location.href = `/chat?${chatQuery.toString()}`;
   };
 
-  // Exact UI for Agency Assigned Ads (docs_UI) from User Perspective
+  // State view for assigned ads
   if (isAssigned) {
     return (
       <PageFrame
@@ -554,6 +557,7 @@ type ManagerPublisher = {
 };
 
 function RealEstateManagerAdStatePage({
+  activeBusinessTab,
   ad,
   adId,
   backState,
@@ -562,6 +566,7 @@ function RealEstateManagerAdStatePage({
   role,
   statusInfo,
 }: {
+  activeBusinessTab?: ViewAdBusinessTabKey;
   ad?: Record<string, unknown>;
   adId: string;
   backState?: unknown;
@@ -653,7 +658,14 @@ function RealEstateManagerAdStatePage({
     }
     return publisherOptions[0];
   }, [publisherId, publisherType, resolvedAgencyId, assignedConsultantId, publisherOptions, consultantsQuery.data?.data]);
-  const [businessTab, setBusinessTab] = useState<ViewAdBusinessTabKey>("management");
+  const [businessTab, setBusinessTab] = useState<ViewAdBusinessTabKey>(() => {
+    const queryTab = new URLSearchParams(window.location.search).get("businessTab") ||
+      new URLSearchParams(window.location.search).get("tab");
+    if (queryTab === "performance" || queryTab === "lead" || queryTab === "management") {
+      return queryTab;
+    }
+    return activeBusinessTab ?? "management";
+  });
   const [isPublisherPickerOpen, setIsPublisherPickerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -878,7 +890,7 @@ function RealEstateManagerAdStatePage({
           onClose={() => setIsPublisherPickerOpen(false)}
           onConfirm={async (nextPublisher) => {
             const nextConsultantId = nextPublisher.type === "consultant"
-              ? nextPublisher.id.replace("consultant:", "")
+              ? Number(nextPublisher.id.replace("consultant:", ""))
               : null;
             try {
               await changeConsultantMutation.mutateAsync({
@@ -1124,7 +1136,9 @@ function readRouteState(): MyAdRouteState {
 }
 
 function readAdIdFromPath() {
-  const match = window.location.pathname.match(/^\/account\/my-ads\/([^/]+)\/state-ad\/?$/);
+  const match = window.location.pathname.match(
+    /^\/(?:account\/my-ads|account\/manage-ads|manage-ads)\/([^/]+)\/state-ads?\/?$/,
+  );
 
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }
@@ -1140,14 +1154,14 @@ function StateAdSummary({
 
   return (
     <div className="mt-4 flex h-[80px] items-center gap-3 rounded-2xl border border-surface-container-high bg-surface-container-low px-4 [direction:rtl]">
-      {/* Image first: renders on the RIGHT in RTL */}
+      {/* Ad image */}
       <div
         aria-hidden="true"
         className={`ad-card__image ${card.imageClassName} h-[52px] w-[70px] shrink-0 rounded-lg bg-cover bg-center`}
         style={card.imageUrl ? { backgroundImage: `url(${card.imageUrl})` } : { backgroundColor: "#E0E0E0" }}
       />
 
-      {/* Info text second: renders to the LEFT of the image in RTL */}
+      {/* Ad info */}
       <div className="min-w-0 flex-1 text-right">
         <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-5 text-on-surface-var">
           {subtitle}

@@ -1,7 +1,7 @@
 import React from "react";
 import LinearViewOn from "../../../../shared/icons/LinearViewOn";
 import LinearCall from "../../../../shared/icons/LinearCall";
-import LinearBubbleChat from "../../../../shared/icons/LinearBubbleChat";
+import LinearChat from "../../../../shared/icons/LinearChat";
 import { LinearDocumentSearch } from "../../../../shared/icons/LinearDocumentSearch";
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -65,7 +65,7 @@ export const ManagementAdMetrics: React.FC<Props> = ({ metrics, sourceAd }) => {
     { icon: <LinearViewOn className="h-6 w-6 text-on-surface-var" />, label: "بازدید", value: views },
     { icon: <LinearDocumentSearch className="h-6 w-6 text-on-surface-var" />, label: "نمایش", value: impressions },
     { icon: <LinearCall className="h-6 w-6 text-on-surface-var" />, label: "تماس", value: calls },
-    { icon: <LinearBubbleChat className="h-6 w-6 text-on-surface-var" />, label: "چت", value: chats },
+    { icon: <LinearChat className="h-6 w-6 text-on-surface-var" />, label: "چت", value: chats },
   ];
 
   return (

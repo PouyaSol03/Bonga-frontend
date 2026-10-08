@@ -70,6 +70,7 @@ import { PublisherSelectionStep } from "./steps/PublisherSelectionStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
 import type { ChipItem, FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, ProjectDetailItem, UploadedMediaFile } from "./types";
 import { buildNewAdFormData, buildPayload, canonicalizeMediaPath, clearNewAdDraftStorage, getAdvertiseFormCode, getDefaultValues, getEditAdRouteState, getParams, navigateTo, trimFormValues, useRequireAuth } from "./utils";
+import { buildEditPatchFormData } from "./edit-patch";
 import { getNewAdFlowSession, saveNewAdFlowSession, shouldPreserveNewAdDraft } from "./session";
 import { validateNewAd, validateNewAdDetails } from "./validation";
 export { NewAdLocationPage } from "./NewAdLocationPage";
@@ -1013,6 +1014,14 @@ export function NewAdFlowPage() {
     };
   });
   const editDataAppliedRef = useRef<string | null>(null);
+  const initialEditValuesRef = useRef<NewAdFormValues | null>(
+    isEditMode && editAdState.ad
+      ? mapAdvertisementToEditValues(
+          editAdState.ad,
+          getDefaultValues({ ...editAdState, isEditMode: true }),
+        )
+      : null,
+  );
   const submitLockRef = useRef(false);
   const [step, setStep] = useState<FlowStep>(
     () => restoredSessionRef.current?.step ?? "details",
@@ -1058,7 +1067,8 @@ export function NewAdFlowPage() {
     enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),
     queryFn: async () => {
       const id = String(editAdId);
-      return (await getV2Edit(id)) as AdvertisementItem;
+      const res = (await getV2Edit(id)) as any;
+      return (res?.data ?? res) as AdvertisementItem;
     },
     queryKey: ["advertisement", "edit-fields", editAdId, activeRole],
   });
@@ -1117,6 +1127,14 @@ export function NewAdFlowPage() {
 
     const routeChanged = syncEditRouteParams(editAdData);
 
+    const editDefaults = getDefaultValues({
+      ...editAdState,
+      ad: editAdData,
+      isEditMode: true,
+    });
+    const baselineEditValues = mapAdvertisementToEditValues(editAdData, editDefaults);
+    initialEditValuesRef.current = baselineEditValues;
+
     if (shouldPreserveNewAdDraft(window.history.state) && restoredSessionRef.current?.values) {
       editDataAppliedRef.current = appliedKey;
       if (routeChanged) {
@@ -1125,13 +1143,7 @@ export function NewAdFlowPage() {
       return undefined;
     }
 
-    const editDefaults = getDefaultValues({
-      ...editAdState,
-      ad: editAdData,
-      isEditMode: true,
-    });
-
-    methods.reset(mapAdvertisementToEditValues(editAdData, editDefaults));
+    methods.reset(baselineEditValues);
     editDataAppliedRef.current = appliedKey;
 
     if (routeChanged) {
@@ -1358,11 +1370,43 @@ export function NewAdFlowPage() {
         return;
       }
 
+      const baseline =
+        initialEditValuesRef.current ??
+        getDefaultValues({ ...editAdState, isEditMode: true });
+
+      const patchResult = buildEditPatchFormData(values, baseline, {
+        categoryId,
+        dynamicFieldKeys: advertiseFormQuery.data.fields.map((field) => field.key),
+        formCode: resolvedFormCode,
+      });
+
+      if (!patchResult.hasChanges) {
+        clearNewAdDraftStorage();
+        const currentAd = editAdData ?? editAdState.ad;
+        const currentCard = currentAd ? mapAdvertisementToAdCard(currentAd, 0) : undefined;
+        const statusInfo = currentAd ? getMyAdStatusInfo(currentAd) : { key: "status" };
+        const targetPath =
+          statusInfo.key === "pending"
+            ? getAdStatePath(editAdId)
+            : editAdState.editReturnTo ?? adManagementPaths.published;
+        const separator = targetPath.includes("?") ? "&" : "?";
+
+        navigateTo(`${targetPath}${separator}updated=1`, {
+          ad: currentAd,
+          card: currentCard,
+          isEditMode: true,
+          returnTo: editAdState.returnTo,
+          status: statusInfo.key,
+          tab: editAdState.tab ?? "status",
+        });
+        return;
+      }
+
       setFieldErrors({});
       setSubmitError("");
       submitLockRef.current = true;
       updateAdvertisement.mutate(
-        { advertiseId: editAdId, payload: formData },
+        { advertiseId: editAdId, payload: patchResult.formData },
         {
           onError: (error) => {
             setSubmitError(getApiErrorMessage(error, "ویرایش آگهی با خطا مواجه شد."));

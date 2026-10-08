@@ -82,19 +82,38 @@ export function AgencyOwnerContactBottomSheet({
       }
     }
 
+    const nextName = editingField === "name" ? trimmed : name;
+    const nextPhone = editingField === "phone" ? toEnglishDigits(trimmed) : phone;
+    const nextAddress = editingField === "address" ? trimmed : address;
+
+    const payload: {
+      ownerContactAddress?: string;
+      ownerContactName?: string;
+      ownerContactPhone?: string;
+    } = {};
+
+    if (editingField === "name" && nextName !== name) {
+      payload.ownerContactName = nextName;
+    }
+    if (editingField === "phone" && nextPhone !== phone) {
+      payload.ownerContactPhone = nextPhone;
+    }
+    if (editingField === "address" && nextAddress !== address) {
+      payload.ownerContactAddress = nextAddress;
+    }
+
+    if (Object.keys(payload).length === 0) {
+      setEditingField(null);
+      return;
+    }
+
     setIsSaving(true);
     setErrorMessage(null);
 
     try {
-      const nextName = editingField === "name" ? trimmed : name;
-      const nextPhone = editingField === "phone" ? toEnglishDigits(trimmed) : phone;
-      const nextAddress = editingField === "address" ? trimmed : address;
-
       await updateOwnerContact({
         advertiseId: adId,
-        ownerContactAddress: nextAddress,
-        ownerContactName: nextName,
-        ownerContactPhone: nextPhone,
+        ...payload,
       });
 
       if (editingField === "name") setName(nextName);

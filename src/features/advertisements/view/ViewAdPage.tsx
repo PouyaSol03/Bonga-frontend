@@ -36,7 +36,6 @@ import {
   ViewAdTopBar,
 } from "./viewAdComponents";
 import { ViewAdIcon } from "./ViewAdIcon";
-import LinearCall from "../../../shared/icons/LinearCall";
 import type { IconName, ViewAdDailyHotelRoom, ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
 import TonalInstagram from "../../../shared/icons/TonalInstagram";
@@ -139,6 +138,7 @@ import {
   RENT_CONVERSION_RENT_PER_UNIT,
 } from "../create/rentPriceConversion";
 import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
+import LinearImage from "../../../shared/icons/LinearImage";
 
 function AdvertisementPriceBlock({ details }: { details: ViewAdDetails }) {
   const showSlider = details.rentConvertible && (details.rentMortgagePriceRaw ?? 0) > 0;
@@ -668,15 +668,23 @@ function GalleryHero({
               ) : (
                 <Button unstyled
                   aria-label="باز کردن آلبوم تصاویر"
-                  className="block w-full"
+                  className="relative block w-full bg-surface-container"
                   onClick={() => onOpenAlbum(index)}
                   type="button"
                 >
                   <img
                     alt=""
                     className="aspect-[328/219] w-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      const fallback = e.currentTarget.parentElement?.querySelector(".gallery-fallback-icon");
+                      if (fallback) fallback.classList.remove("hidden");
+                    }}
                     src={item.src}
                   />
+                  <div className="gallery-fallback-icon hidden grid aspect-[328/219] w-full place-items-center text-outline">
+                    <LinearImage className="h-12 w-12" />
+                  </div>
                 </Button>
               )}
             </SwiperSlide>
@@ -1089,7 +1097,6 @@ function ViewAdContent({
   mediaItems,
   mapPosition,
   onOpenAlbum,
-  onOpenOwnerContactSheet,
   onRowAction,
   tour3dUrl,
 }: {
@@ -1102,7 +1109,6 @@ function ViewAdContent({
   mediaItems: AlbumMediaItem[];
   mapPosition: { latitude: number; longitude: number } | null;
   onOpenAlbum: (initialIndex?: number) => void;
-  onOpenOwnerContactSheet?: () => void;
   onRowAction: (label: string) => void;
   tour3dUrl: string;
 }) {
@@ -1116,41 +1122,6 @@ function ViewAdContent({
   );
   const FACILITIES_COLLAPSED_MAX_ITEMS = 4; // show the first four facilities, then expand inline
 
-  const ownerName =
-    (typeof ad?.owner_contact_name === "string" && ad.owner_contact_name) ||
-    (typeof ad?.owner_name === "string" && ad.owner_name) ||
-    (typeof (ad as any)?.user_fullname === "string" && (ad as any).user_fullname) ||
-    (Array.isArray(ad?.features)
-      ? String(
-          ad.features.find(
-            (f: any) => f?.label === "owner_contact_name" || f?.label === "owner_name",
-          )?.value ?? "",
-        )
-      : "") ||
-    "";
-
-  const ownerPhone =
-    (typeof ad?.owner_contact_phone === "string" && ad.owner_contact_phone) ||
-    (typeof (ad as any)?.owner_phone === "string" && (ad as any).owner_phone) ||
-    (Array.isArray(ad?.features)
-      ? String(
-          ad.features.find((f: any) => f?.label === "owner_contact_phone")?.value ?? "",
-        )
-      : "") ||
-    "";
-
-  const ownerAddress =
-    (typeof ad?.owner_contact_address === "string" && ad.owner_contact_address) ||
-    (typeof ad?.owner_address === "string" && ad.owner_address) ||
-    (typeof (ad as any)?.user_address === "string" && (ad as any).user_address) ||
-    (Array.isArray(ad?.features)
-      ? String(
-          ad.features.find(
-            (f: any) => f?.label === "owner_contact_address" || f?.label === "owner_address",
-          )?.value ?? "",
-        )
-      : "") ||
-    "";
   const visibleFacilityCount = areFacilitiesExpanded
     ? details.features.length
     : FACILITIES_COLLAPSED_MAX_ITEMS;
@@ -1334,64 +1305,6 @@ function ViewAdContent({
           </DetailSection>
         </>
       )}
-
-      {isPreview ? (
-        <DetailSection icon="profile" title="اطلاعات و تماس با مالک">
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center justify-between rounded-xl bg-surface-container-low px-4 py-3">
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-variant">
-                نام مالک
-              </Typography>
-              <Typography as="span" variant="body" size="medium" weight="medium" className="text-on-surface">
-                {ownerName || "ثبت نشده"}
-              </Typography>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl bg-surface-container-low px-4 py-3">
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-variant">
-                شماره تماس مالک
-              </Typography>
-              {ownerPhone ? (
-                <a
-                  href={`tel:${ownerPhone}`}
-                  className="flex items-center gap-1.5 font-mono text-primary font-medium hover:underline [direction:ltr]"
-                >
-                  <LinearCall className="h-4 w-4" />
-                  <span>{ownerPhone}</span>
-                </a>
-              ) : (
-                <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">
-                  ثبت نشده
-                </Typography>
-              )}
-            </div>
-
-            {ownerAddress ? (
-              <div className="rounded-xl bg-surface-container-low px-4 py-3">
-                <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-variant block mb-1">
-                  آدرس دقیق ملک
-                </Typography>
-                <Typography as="p" variant="body" size="medium" weight="regular" className="text-on-surface">
-                  {ownerAddress}
-                </Typography>
-              </div>
-            ) : null}
-
-            {onOpenOwnerContactSheet ? (
-              <div className="pt-1">
-                <Button
-                  unstyled
-                  type="button"
-                  onClick={onOpenOwnerContactSheet}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/40 bg-primary/5 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
-                >
-                  <span>ویرایش اطلاعات و تماس با مالک</span>
-                </Button>
-              </div>
-            ) : null}
-          </div>
-        </DetailSection>
-      ) : null}
 
       {advertiserPreview ? <AdvertiserCard preview={advertiserPreview} /> : null}
 
@@ -2106,7 +2019,6 @@ export function ViewAdPage() {
             setAlbumInitialIndex(initialIndex);
             setIsAlbumOpen(true);
           }}
-          onOpenOwnerContactSheet={() => handleOpenContactInfo("owner")}
           onRowAction={handleRowAction}
           tour3dUrl={resolvedTour3dUrl}
         />

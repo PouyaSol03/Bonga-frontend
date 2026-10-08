@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { getApiErrorMessage } from "../../shared/api/api";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
@@ -610,16 +611,31 @@ function RealEstateManagerAdStatePage({
   const changeConsultantMutation = useChangeAgencyAdvertiseConsultantMutation();
   const approveStopMutation = useApproveAgencyStopRequestMutation();
   const rejectStopMutation = useRejectAgencyStopRequestMutation();
-  const rawConsultantId = ad?.assigned_consultant_id ?? ad?.assignedConsultantId ?? ad?.consultant_id ?? ad?.consultantId;
+  const publisherType = String(ad?.publisher_type ?? ad?.owner_type ?? "").toLowerCase();
+  const publisherAgentId = ad?.publisher_agent_id ?? ad?.assigned_consultant_id ?? ad?.assignedConsultantId ?? ad?.consultant_id ?? ad?.consultantId;
+  const publisherAgencyId = ad?.publisher_agency_id ?? ad?.agency_id ?? ad?.agencyId;
+  const rawConsultantId = publisherType === "agency" ? undefined : publisherAgentId;
   const assignedConsultantId = typeof rawConsultantId === "object" ? readEntityId(rawConsultantId) : (rawConsultantId ? String(rawConsultantId) : undefined);
+  const resolvedAgencyId = typeof publisherAgencyId === "object" ? readEntityId(publisherAgencyId) : (publisherAgencyId ? String(publisherAgencyId) : undefined);
+
   const [publisherId, setPublisherId] = useState(() => {
+    if (publisherType === "agency" && resolvedAgencyId) return `agency:${resolvedAgencyId}`;
     if (assignedConsultantId) return `consultant:${assignedConsultantId}`;
+    if (publisherType === "agency") return publisherOptions.find((o) => o.type === "agency")?.id ?? "";
     return "";
   });
   const publisher = useMemo(() => {
     if (publisherId) {
       const found = publisherOptions.find((option) => option.id === publisherId);
       if (found) return found;
+    }
+    if (publisherType === "agency") {
+      if (resolvedAgencyId) {
+        const agencyOption = publisherOptions.find((option) => option.id === `agency:${resolvedAgencyId}`);
+        if (agencyOption) return agencyOption;
+      }
+      const agencyFallback = publisherOptions.find((option) => option.type === "agency");
+      if (agencyFallback) return agencyFallback;
     }
     if (assignedConsultantId) {
       const consultant = (consultantsQuery.data?.data ?? []).find(
@@ -629,11 +645,14 @@ function RealEstateManagerAdStatePage({
       );
       if (consultant) {
         const id = consultant.agentId ?? consultant.userId;
-        return publisherOptions.find((option) => option.id === `consultant:${id}`);
+        const opt = publisherOptions.find((option) => option.id === `consultant:${id}`);
+        if (opt) return opt;
       }
+      const directOpt = publisherOptions.find((option) => option.id === `consultant:${assignedConsultantId}`);
+      if (directOpt) return directOpt;
     }
     return publisherOptions[0];
-  }, [publisherId, assignedConsultantId, publisherOptions, consultantsQuery.data?.data]);
+  }, [publisherId, publisherType, resolvedAgencyId, assignedConsultantId, publisherOptions, consultantsQuery.data?.data]);
   const [businessTab, setBusinessTab] = useState<ViewAdBusinessTabKey>("management");
   const [isPublisherPickerOpen, setIsPublisherPickerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -684,7 +703,7 @@ function RealEstateManagerAdStatePage({
         title="مدیریت آگهی"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-4">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
         <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label={card.title}>
           <div className="flex justify-start">
             <Typography as="span" variant="label" size="medium" weight="medium" className={`inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium leading-5 ${statusInfo.badgeClassName}`}>
@@ -790,58 +809,68 @@ function RealEstateManagerAdStatePage({
           onTabChange={setBusinessTab}
         />
 
-        {businessTab === "lead" ? (
-          <ViewAdLeadsSection adId={adId} />
-        ) : businessTab === "performance" ? (
-          <ViewAdPerformanceSection adId={adId} ad={ad as Record<string, unknown>} />
-        ) : (
-          <>
-            {!isIndependentConsultant ? (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={businessTab}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+          >
+            {businessTab === "lead" ? (
+              <ViewAdLeadsSection adId={adId} />
+            ) : businessTab === "performance" ? (
+              <ViewAdPerformanceSection adId={adId} ad={ad as Record<string, unknown>} />
+            ) : (
               <>
-                <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="مسئول آگهی">
-                  <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-on-surface">مسئول آگهی (مشاور مسئول)</Typography>
-                  <div className="mt-3">
-                    <div className="flex items-center bg-surface rounded-xl p-3 justify-end gap-3 [direction:rtl]">
-                      {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface-container text-outline"><LinearUserSolid className="h-6 w-6" /></div>}
-                      <div className="flex-1 flex gap-1 flex-col justify-center text-right">
-                        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-on-surface-var">{publisher?.name ?? "مسئول آگهی مشخص نیست"}</Typography>
-                        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-outline">
-                          {publisher ? (publisher.type === "agency" ? "مدیریت آژانس" : "مشاور مسئول") : "—"}
-                        </Typography>
+                {!isIndependentConsultant ? (
+                  <>
+                    <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="مسئول آگهی">
+                      <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-on-surface">مسئول آگهی (مشاور مسئول)</Typography>
+                      <div className="mt-3">
+                        <div className="flex items-center bg-surface rounded-xl p-3 justify-end gap-3 [direction:rtl]">
+                          {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface-container text-outline"><LinearUserSolid className="h-6 w-6" /></div>}
+                          <div className="flex-1 flex gap-1 flex-col justify-center text-right">
+                            <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-on-surface-var">{publisher?.name ?? "مسئول آگهی مشخص نیست"}</Typography>
+                            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-outline">
+                              {publisher ? (publisher.type === "agency" ? "مدیریت آژانس" : "مشاور مسئول") : "—"}
+                            </Typography>
+                          </div>
+                        </div>
+
+                        <Button unstyled
+                          className="mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium text-primary active:bg-primary-container"
+                          onClick={() => setIsPublisherPickerOpen(true)}
+                          type="button"
+                        >
+                          تغییر مشاور مسئول
+                          <ChevronLeftIcon className="h-5 w-5" />
+                        </Button>
                       </div>
+                    </section>
+
+                    <div className="h-2 bg-surface-container" aria-hidden="true" />
+                  </>
+                ) : null}
+
+                <section className="min-h-[244px] bg-surface-container-lowest" aria-label="عملیات آگهی">
+                  {managerActions.map((action, index) => (
+                    <div key={action.label}>
+                      <StateAdAction
+                        action={action}
+                        ad={ad}
+                        card={card}
+                        deleteCompleteTo={backTo}
+                        returnTo={backTo}
+                      />
+                      {index < managerActions.length - 1 ? <ActionDivider /> : null}
                     </div>
-
-                    <Button unstyled
-                      className="mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium text-primary active:bg-primary-container"
-                      onClick={() => setIsPublisherPickerOpen(true)}
-                      type="button"
-                    >
-                      تغییر مشاور مسئول
-                      <ChevronLeftIcon className="h-5 w-5" />
-                    </Button>
-                  </div>
+                  ))}
                 </section>
-
-                <div className="h-2 bg-surface-container" aria-hidden="true" />
               </>
-            ) : null}
-
-            <section className="min-h-[244px] bg-surface-container-lowest" aria-label="عملیات آگهی">
-              {managerActions.map((action, index) => (
-                <div key={action.label}>
-                  <StateAdAction
-                    action={action}
-                    ad={ad}
-                    card={card}
-                    deleteCompleteTo={backTo}
-                    returnTo={backTo}
-                  />
-                  {index < managerActions.length - 1 ? <ActionDivider /> : null}
-                </div>
-              ))}
-            </section>
-          </>
-        )}
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {isPublisherPickerOpen && !isIndependentConsultant ? (

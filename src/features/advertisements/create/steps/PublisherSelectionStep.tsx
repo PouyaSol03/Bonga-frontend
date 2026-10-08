@@ -66,15 +66,16 @@ export function PublisherSelectionStep({
       if (consultant) return consultant;
     }
 
+    if (publisherName.trim()) {
+      const matchedByName = options.find((option) => option.name === publisherName.trim());
+      if (matchedByName) return matchedByName;
+    }
+
     const agency = options.find((option) => option.type === "agency");
     if (agency) return agency;
 
-    if (publisherName.trim()) {
-      return options.find((option) => option.name === publisherName.trim());
-    }
-
     return options[0];
-  }, [consultantId, options, publisherName]);
+  }, [consultantId, options, publisherName, consultantsQuery.data?.data]);
 
   return (
     <AgencyPublisherPickerPage

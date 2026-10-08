@@ -25,12 +25,30 @@ export function ViewAdPerformanceKpiCards({
   sourceAd,
   className = "",
 }: ViewAdPerformanceKpiCardsProps) {
-  const { data: summary } = useAdPerformanceSummaryQuery(adId, sourceAd);
+  const { data: summary, isLoading } = useAdPerformanceSummaryQuery(adId, sourceAd);
 
-  const viewsVal = toPersianNumber(views ?? summary?.views_count ?? 20365);
-  const impressionsVal = toPersianNumber(impressions ?? summary?.search_impressions_count ?? 2450);
-  const callsVal = toPersianNumber(calls ?? summary?.calls_count ?? 79);
-  const chatsVal = toPersianNumber(chats ?? summary?.chats_count ?? 54);
+  if (isLoading) {
+    return (
+      <section
+        aria-label="شاخص‌های عملکرد آگهی"
+        className={`w-full bg-surface-container-lowest p-4 [direction:rtl] ${className}`}
+      >
+        <div className="grid grid-cols-4 gap-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="flex h-[107px] min-w-0 animate-pulse flex-col items-center justify-center rounded-2xl bg-surface-container p-3"
+            />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  const viewsVal = toPersianNumber(views ?? summary?.views_count ?? 0);
+  const impressionsVal = toPersianNumber(impressions ?? summary?.search_impressions_count ?? 0);
+  const callsVal = toPersianNumber(calls ?? summary?.calls_count ?? 0);
+  const chatsVal = toPersianNumber(chats ?? summary?.chats_count ?? 0);
 
   const cards = [
     { icon: <LinearViewOn className="h-6 w-6 text-on-surface-var" />, label: "بازدید", value: viewsVal },

@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../../../../shared/api/api";
 import { useActiveAuthRole } from "../../../../shared/auth/use-active-auth-role";
+import { getV2AdvertisementPerformance } from "../../api/v2";
 import {
-  PERFORMANCE_METRICS,
   DEFAULT_PERFORMANCE_DAYS,
   type PerformanceMetricKey,
   type PerformanceDayData,
@@ -19,6 +18,23 @@ export interface AdPerformanceSummaryData {
   chats_growth_percent?: number;
 }
 
+export interface AdPerformanceFunnelStage {
+  id: string;
+  label: string;
+  count: number;
+  value: string;
+  percentage: number;
+  badge_color?: string;
+  is_final?: boolean;
+}
+
+export interface AdPerformanceFunnelData {
+  status?: boolean;
+  available?: boolean;
+  title?: string;
+  stages?: AdPerformanceFunnelStage[];
+}
+
 export interface AdPerformanceChartsData {
   metric: PerformanceMetricKey;
   week_label: string;
@@ -28,17 +44,15 @@ export interface AdPerformanceChartsData {
 
 export async function getAdPerformanceSummary(
   adId?: string | number,
-  role?: string
 ): Promise<AdPerformanceSummaryData | null> {
   if (!adId) return null;
   try {
-    const res = await api
-      .get(`business/advertisements/${encodeURIComponent(String(adId))}/performance/summary`, {
-        searchParams: role ? { role } : undefined,
-        headers: role ? { "X-Active-Role": role } : undefined,
-      })
-      .json<{ data: AdPerformanceSummaryData }>();
-    return res.data;
+    const res = await getV2AdvertisementPerformance<{ data?: AdPerformanceSummaryData } | AdPerformanceSummaryData>(
+      adId,
+      "summary",
+    );
+    if (!res) return null;
+    return "data" in res && res.data ? res.data : (res as AdPerformanceSummaryData);
   } catch {
     return null;
   }
@@ -48,20 +62,16 @@ export async function getAdPerformanceCharts(
   adId?: string | number,
   metric: PerformanceMetricKey = "views",
   weekOffset = 0,
-  role?: string
 ): Promise<AdPerformanceChartsData | null> {
   if (!adId) return null;
   try {
-    const res = await api
-      .get(
-        `business/advertisements/${encodeURIComponent(String(adId))}/performance/charts`,
-        {
-          searchParams: { metric, week_offset: weekOffset, ...(role ? { role } : {}) },
-          headers: role ? { "X-Active-Role": role } : undefined,
-        }
-      )
-      .json<{ data: AdPerformanceChartsData }>();
-    return res.data;
+    const res = await getV2AdvertisementPerformance<{ data?: AdPerformanceChartsData } | AdPerformanceChartsData>(
+      adId,
+      "charts",
+      { metric, week_offset: weekOffset },
+    );
+    if (!res) return null;
+    return "data" in res && res.data ? res.data : (res as AdPerformanceChartsData);
   } catch {
     return null;
   }
@@ -69,21 +79,47 @@ export async function getAdPerformanceCharts(
 
 export function useAdPerformanceSummaryQuery(
   adId?: string | number,
-  fallbackAd?: Record<string, unknown>
+  fallbackAd?: Record<string, unknown>,
 ) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["ad-performance-summary", adId, activeRole],
+    queryKey: ["ad-performance-summary", adId ? String(adId) : "", activeRole],
     queryFn: async () => {
-      const live = await getAdPerformanceSummary(adId, activeRole);
+      const live = await getAdPerformanceSummary(adId);
       if (live) return live;
       return {
-        views_count: Number(fallbackAd?.view_count ?? fallbackAd?.views ?? 20365),
-        search_impressions_count: 2450,
-        calls_count: Number(fallbackAd?.call_count ?? fallbackAd?.calls ?? 79),
-        chats_count: 54,
+        views_count: Number(fallbackAd?.view_count ?? fallbackAd?.views ?? 0),
+        search_impressions_count: Number(fallbackAd?.search_impressions_count ?? 0),
+        calls_count: Number(fallbackAd?.call_count ?? fallbackAd?.calls ?? 0),
+        chats_count: Number(fallbackAd?.chats_count ?? 0),
       };
     },
+    enabled: Boolean(adId),
+    staleTime: 60_000,
+  });
+}
+
+export async function getAdPerformanceFunnel(
+  adId?: string | number,
+): Promise<AdPerformanceFunnelData | null> {
+  if (!adId) return null;
+  try {
+    const res = await getV2AdvertisementPerformance<{ data?: AdPerformanceFunnelData } | AdPerformanceFunnelData>(
+      adId,
+      "conversion-funnel",
+    );
+    if (!res) return null;
+    return "data" in res && res.data ? res.data : (res as AdPerformanceFunnelData);
+  } catch {
+    return null;
+  }
+}
+
+export function useAdPerformanceFunnelQuery(adId?: string | number) {
+  const activeRole = useActiveAuthRole();
+  return useQuery({
+    queryKey: ["ad-performance-funnel", adId ? String(adId) : "", activeRole],
+    queryFn: () => getAdPerformanceFunnel(adId),
     enabled: Boolean(adId),
     staleTime: 60_000,
   });
@@ -92,22 +128,23 @@ export function useAdPerformanceSummaryQuery(
 export function useAdPerformanceChartsQuery(
   adId?: string | number,
   metric: PerformanceMetricKey = "views",
-  weekOffset = 0
+  weekOffset = 0,
 ) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["ad-performance-charts", adId, metric, weekOffset, activeRole],
+    queryKey: ["ad-performance-charts", adId ? String(adId) : "", metric, weekOffset, activeRole],
     queryFn: async () => {
-      const live = await getAdPerformanceCharts(adId, metric, weekOffset, activeRole);
+      const live = await getAdPerformanceCharts(adId, metric, weekOffset);
       if (live) return live;
-      const targetMetric = PERFORMANCE_METRICS.find((m) => m.key === metric) ?? PERFORMANCE_METRICS[0];
       return {
         metric,
-        week_label: "هفته دوم تیر",
-        total_metric_value: Number(targetMetric.defaultTotal.replace(/[^0-9]/g, "")) || 20365,
-        days: DEFAULT_PERFORMANCE_DAYS,
+        week_label: "این هفته",
+        total_metric_value: 0,
+        days: DEFAULT_PERFORMANCE_DAYS.map((d) => ({ ...d, value: 0 })),
       };
     },
     staleTime: 60_000,
+    placeholderData: (previousData) => previousData,
   });
 }
+

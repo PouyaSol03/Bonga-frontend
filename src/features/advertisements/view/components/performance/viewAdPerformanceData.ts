@@ -1,8 +1,11 @@
-export type PerformanceMetricKey = "views" | "searchDisplays" | "chats" | "calls";
+export type PerformanceMetricKey = "views" | "search_impressions" | "chats" | "calls";
 
 export interface PerformanceDayData {
-  date: string;
+  date?: string;
+  full_name?: string;
   value: number;
+  percentage?: number;
+  is_active?: boolean;
 }
 
 export interface MetricConfig {
@@ -19,36 +22,36 @@ export const PERFORMANCE_METRICS: MetricConfig[] = [
   {
     key: "views",
     chipLabel: "بازدید",
-    chartTitle: "بازدید از آگهی",
+    chartTitle: "بازدید آگهی",
     summaryLabel: "بازدید کل:",
-    defaultTotal: "۲۰,۳۶۵",
-    infoTitle: "بازدید از آگهی",
-    infoDesc: "تعداد دفعاتی که کاربران وارد صفحه آگهی شده‌اند و جزئیات آن را دیده‌اند.",
+    defaultTotal: "۰",
+    infoTitle: "بازدید آگهی",
+    infoDesc: "تعداد کل دفعاتی که کاربران صفحه این آگهی را باز کرده‌اند.",
   },
   {
-    key: "searchDisplays",
+    key: "search_impressions",
     chipLabel: "نمایش در جستجو",
-    chartTitle: "نمایش در صفحه جستجو",
+    chartTitle: "نمایش در جستجو",
     summaryLabel: "نمایش کل:",
-    defaultTotal: "۲,۴۵۰",
+    defaultTotal: "۰",
     infoTitle: "نمایش در صفحه جستجو",
-    infoDesc: "تعداد دفعاتی که آگهی شما در نتایج جستجو به کاربران نمایش داده شده است.",
+    infoDesc: "تعداد دفعاتی که آگهی شما در نتایج جستجوی کاربران نشان داده شده است.",
   },
   {
     key: "chats",
-    chipLabel: "چت‌ها",
-    chartTitle: "گفتگوها (چت‌ها)",
-    summaryLabel: "چت کل:",
-    defaultTotal: "۱۸",
-    infoTitle: "گفتگوها (چت‌ها)",
-    infoDesc: "تعداد گفتگوهایی که کاربران از طریق بخش چت برای این آگهی شروع کرده‌اند.",
+    chipLabel: "گفتگو",
+    chartTitle: "گفتگوی کاربران",
+    summaryLabel: "گفتگوی کل:",
+    defaultTotal: "۰",
+    infoTitle: "گفتگو",
+    infoDesc: "تعداد چت‌ها و گفتگوهای شروع شده برای این آگهی.",
   },
   {
     key: "calls",
-    chipLabel: "تماس",
+    chipLabel: "اقدام به تماس",
     chartTitle: "اقدام به تماس",
     summaryLabel: "تماس کل:",
-    defaultTotal: "۱۴",
+    defaultTotal: "۰",
     infoTitle: "اقدام به تماس",
     infoDesc: "تعداد دفعاتی که کاربران از داخل آگهی برای تماس با شما اقدام کرده‌اند.",
   },

@@ -413,11 +413,10 @@ function getBusinessAccountActions(
 
   if (isManagerWithPermissions) {
     const permissions = membership?.permissions ?? session?.managerPermissions ?? {};
-    const actions: AccountAction[] = [];
+    const actions: AccountAction[] = [
+      { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
+    ];
 
-    if (permissions.manage_advertises) {
-      actions.push({ icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH });
-    }
     if (permissions.manage_consultants) {
       actions.push({ icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` });
     }
@@ -448,7 +447,18 @@ function getBusinessAccountActions(
   ];
 
   if (role === REAL_ESTATE_MANAGER) {
-    return managerActions;
+    const permissions = membership?.permissions ?? session?.managerPermissions ?? {};
+    let filtered = managerActions;
+    if (permissions.manage_requests === false) {
+      filtered = filtered.filter((a) => a.to !== `${DASHBOARD_PATH}/requests`);
+    }
+    if (permissions.manage_consultants === false) {
+      filtered = filtered.filter((a) => a.to !== `${DASHBOARD_PATH}/team`);
+    }
+    if (permissions.manage_credits === false) {
+      filtered = filtered.filter((a) => a.to !== `${DASHBOARD_PATH}/payments`);
+    }
+    return filtered;
   }
 
   if (isAgentInAgency) {
@@ -458,8 +468,11 @@ function getBusinessAccountActions(
       { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
       { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agent` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
-      { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
     ];
+
+    if (permissions.manage_requests) {
+      actions.push({ icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` });
+    }
 
     if (permissions.manage_consultants) {
       actions.push({ icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` });

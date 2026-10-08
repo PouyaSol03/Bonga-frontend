@@ -37,6 +37,31 @@ export function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {
     return "super-admin";
   }
 
+  if (
+    normalized === "agency-consultant" ||
+    normalized === "agency_consultant" ||
+    normalized === "real_estate_consultant" ||
+    normalized === "consultant" ||
+    normalized === "agent"
+  ) {
+    return "real_estate_consultant";
+  }
+
+  if (
+    normalized === "agency" ||
+    normalized === "real_estate_manager" ||
+    normalized === "manager"
+  ) {
+    return "real_estate_manager";
+  }
+
+  if (
+    normalized === "independent-consultant" ||
+    normalized === "independent_consultant"
+  ) {
+    return "independent_consultant";
+  }
+
   const underscored = normalized.replace(/-/g, "_");
 
   if (authRoleSlugs.includes(underscored as AuthRoleSlug)) {
@@ -55,6 +80,8 @@ export type ManagerPermissions = {
 };
 
 export type AuthSession = {
+  contextIdentity?: string;
+  contextPermissions?: Partial<Record<AuthRoleSlug, ManagerPermissions>>;
   accessToken: string;
   accountType: string;
   activeRole?: AuthRoleSlug;
@@ -102,6 +129,8 @@ export function setStoredAuthSession(session: AuthSession) {
     roles,
     userId: session.userId ? String(session.userId) : undefined,
     managerPermissions: session.managerPermissions,
+    contextIdentity: session.contextIdentity,
+    contextPermissions: session.contextPermissions,
   };
 
   window.localStorage.setItem(authSessionKey, JSON.stringify(normalizedSession));
@@ -176,6 +205,8 @@ export function getStoredAuthSession() {
       roles,
       userId: parsed.userId ? String(parsed.userId) : undefined,
       managerPermissions: parsed.managerPermissions,
+      contextIdentity: parsed.contextIdentity,
+      contextPermissions: parsed.contextPermissions,
     };
 
     if (JSON.stringify(parsed) !== JSON.stringify(session)) {
@@ -209,6 +240,8 @@ export function setStoredActiveRole(activeRole: AuthRoleSlug) {
     ...session,
     activeRole,
     roles,
+    managerPermissions: session.contextPermissions?.[activeRole],
+    contextIdentity: undefined,
   });
 }
 

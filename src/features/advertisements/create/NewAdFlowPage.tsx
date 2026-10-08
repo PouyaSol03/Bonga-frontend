@@ -6,12 +6,11 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage, getApiFieldError } from "../../../shared/api/api";
 import { backRoute } from "../../../shared/navigation/navigation";
 import {
-  getAdvertisementPreview,
-  getAgencyAdvertisementPreview,
   mapAdvertisementToAdCard,
   type AdvertisementFeature,
   type AdvertisementItem,
 } from "../api/advertisement.service";
+import { getV2Edit } from "../api/v2";
 import { getCategoryList, type CategoryItem } from "../../categories/api/category.service";
 import type { PublicAgencyDto } from "../../agencies/api/agency.service";
 import { getCrmAdvertise, getCrmRecordId, saveCrmAdvertise, type CrmAdvertisePayload, type CrmRecord } from "../../crm/api/crm.service";
@@ -71,6 +70,7 @@ import { PublisherSelectionStep } from "./steps/PublisherSelectionStep";
 import { MoreFeaturesStep } from "./steps/MoreFeaturesStep";
 import type { ChipItem, FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, ProjectDetailItem, UploadedMediaFile } from "./types";
 import { buildNewAdFormData, buildPayload, canonicalizeMediaPath, clearNewAdDraftStorage, getAdvertiseFormCode, getDefaultValues, getEditAdRouteState, getParams, navigateTo, trimFormValues, useRequireAuth } from "./utils";
+import { buildEditPatchFormData } from "./edit-patch";
 import { getNewAdFlowSession, saveNewAdFlowSession, shouldPreserveNewAdDraft } from "./session";
 import { validateNewAd, validateNewAdDetails } from "./validation";
 export { NewAdLocationPage } from "./NewAdLocationPage";
@@ -122,12 +122,21 @@ function getEditAdId(routeState: ReturnType<typeof getEditAdRouteState>) {
 function getAdvertisementFeatures(ad: AdvertisementItem | Record<string, unknown> | undefined) {
   if (!ad || !Array.isArray(ad.features)) return [];
 
-  return ad.features.filter(
-    (feature): feature is EditableAdvertisementFeature =>
-      Boolean(feature) &&
-      typeof feature === "object" &&
-      typeof feature.label === "string",
-  );
+  return ad.features.flatMap((feature) => {
+    if (!feature || typeof feature !== "object") return [];
+    const item = feature as Record<string, unknown>;
+    const label = (typeof item.label === "string" && item.label.trim()) ||
+      (typeof item.key === "string" && item.key.trim()) ||
+      (typeof item.name === "string" && item.name.trim()) ||
+      "";
+    if (!label) return [];
+
+    return [{
+      key: typeof item.key === "string" ? item.key : undefined,
+      label,
+      value: item.value,
+    } satisfies EditableAdvertisementFeature];
+  });
 }
 
 function isCrmAdvertiseSource() {
@@ -374,7 +383,7 @@ function readNestedText(source: Record<string, unknown>, keys: string[]): string
 function readFeatureValue(features: AdvertisementFeature[], labels: string[]): unknown {
   const normalizedLabels = labels.map(normalizeLookupText);
   const feature = features.find((item) => {
-    const lookupValues = [item.key, item.label]
+    const lookupValues = [item.key, item.label, (item as any).name]
       .map(normalizeLookupText)
       .filter(Boolean);
 
@@ -518,6 +527,21 @@ function readSocialValue(ad: AdvertisementItem, key: "telegram" | "whatsapp"): s
 }
 
 function readPublisherName(ad: AdvertisementItem, features: AdvertisementFeature[]): string {
+  const publisherType = normalizeLookupText(ad.publisher_type ?? ad.owner_type);
+  if (publisherType === "agent") {
+    const agent = ad.agent && typeof ad.agent === "object" ? (ad.agent as Record<string, unknown>) : null;
+    const consultant = ad.consultant && typeof ad.consultant === "object" ? (ad.consultant as Record<string, unknown>) : null;
+    const ownerProfile = ad.owner_profile && typeof ad.owner_profile === "object" ? (ad.owner_profile as Record<string, unknown>) : null;
+    const name = readText(agent?.name ?? consultant?.name ?? ownerProfile?.name);
+    if (name) return name;
+  }
+
+  if (publisherType === "agency") {
+    const agency = ad.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>) : null;
+    const name = readText(agency?.name);
+    if (name) return name;
+  }
+
   return readTextValue(ad, features, ["publisher", "publisher_name", "agency"], [
     "publisher",
     "publisherName",
@@ -739,7 +763,7 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("meterage", readFirstValue(ad, features, ["area", "meterage"], ["area", "meterage"]), numericInputText);
   setText("landArea", readFirstValue(ad, features, ["land_area"], ["land_area", "landArea"]), numericInputText);
   setText("buildingArea", readFirstValue(ad, features, ["building_area"], ["building_area", "buildingArea"]), numericInputText);
-  setText("floor", readFirstValue(ad, features, ["floor"], ["floor"]), selectText);
+  setText("floor", readFirstValue(ad, features, ["floor", "unit_floor", "apartment_floor"], ["floor", "unit_floor", "apartment_floor"]), selectText);
   setText("rooms", readFirstValue(ad, features, ["rooms"], ["rooms"]), selectText);
   setText("age", readFirstValue(ad, features, ["building_age"], ["building_age", "age", "year"]), ageText);
   setText("density", readFirstValue(ad, features, ["density"], ["density"]));
@@ -837,7 +861,16 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("title", readFirstValue(ad, features, ["title"], ["title", "label", "name"]));
   setText("description", readFirstValue(ad, features, ["description"], ["description", "short_description", "body"]));
   setText("publisherName", readPublisherName(ad, features));
-  setText("agencyId", readTextValue(ad, features, ["agency_id", "agencyId"], ["agency_id", "agencyId"]));
+  setText("agencyId", readTextValue(ad, features, ["agency_id", "agencyId", "publisher_agency_id"], ["agency_id", "agencyId", "publisher_agency_id"]));
+  const resolvedConsultantId = readFirstValue(
+    ad,
+    features,
+    ["publisher_agent_id", "assigned_consultant_id", "consultant_id"],
+    ["publisher_agent_id", "assigned_consultant_id", "assignedConsultantId", "consultant_id", "consultantId"],
+  );
+  if (resolvedConsultantId) {
+    next.consultantId = String(typeof resolvedConsultantId === "object" ? (resolvedConsultantId as any)?.id : resolvedConsultantId);
+  }
   setText("ownerPhone", readTextValue(ad, features, ["owner_contact_phone"], ["owner_contact_phone"]));
   setText("ownerFullName", readTextValue(ad, features, ["owner_contact_name", "owner_name"], ["owner_contact_name", "owner_name"]));
   setText("ownerExactAddress", readTextValue(ad, features, ["owner_contact_address", "owner_address"], ["owner_contact_address", "owner_address"]));
@@ -981,6 +1014,14 @@ export function NewAdFlowPage() {
     };
   });
   const editDataAppliedRef = useRef<string | null>(null);
+  const initialEditValuesRef = useRef<NewAdFormValues | null>(
+    isEditMode && editAdState.ad
+      ? mapAdvertisementToEditValues(
+          editAdState.ad,
+          getDefaultValues({ ...editAdState, isEditMode: true }),
+        )
+      : null,
+  );
   const submitLockRef = useRef(false);
   const [step, setStep] = useState<FlowStep>(
     () => restoredSessionRef.current?.step ?? "details",
@@ -1026,16 +1067,10 @@ export function NewAdFlowPage() {
     enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),
     queryFn: async () => {
       const id = String(editAdId);
-      if (isAgencyRole) {
-        try {
-          return await getAgencyAdvertisementPreview(id);
-        } catch {
-          return await getAdvertisementPreview(id);
-        }
-      }
-      return await getAdvertisementPreview(id);
+      const res = (await getV2Edit(id)) as any;
+      return (res?.data ?? res) as AdvertisementItem;
     },
-    queryKey: ["advertisement", "edit-preview", editAdId, activeRole],
+    queryKey: ["advertisement", "edit-fields", editAdId, activeRole],
   });
   const crmEditAdQuery = useQuery({
     enabled: Boolean(isCrmEditMode && editAdId),
@@ -1092,6 +1127,14 @@ export function NewAdFlowPage() {
 
     const routeChanged = syncEditRouteParams(editAdData);
 
+    const editDefaults = getDefaultValues({
+      ...editAdState,
+      ad: editAdData,
+      isEditMode: true,
+    });
+    const baselineEditValues = mapAdvertisementToEditValues(editAdData, editDefaults);
+    initialEditValuesRef.current = baselineEditValues;
+
     if (shouldPreserveNewAdDraft(window.history.state) && restoredSessionRef.current?.values) {
       editDataAppliedRef.current = appliedKey;
       if (routeChanged) {
@@ -1100,13 +1143,7 @@ export function NewAdFlowPage() {
       return undefined;
     }
 
-    const editDefaults = getDefaultValues({
-      ...editAdState,
-      ad: editAdData,
-      isEditMode: true,
-    });
-
-    methods.reset(mapAdvertisementToEditValues(editAdData, editDefaults));
+    methods.reset(baselineEditValues);
     editDataAppliedRef.current = appliedKey;
 
     if (routeChanged) {
@@ -1333,11 +1370,43 @@ export function NewAdFlowPage() {
         return;
       }
 
+      const baseline =
+        initialEditValuesRef.current ??
+        getDefaultValues({ ...editAdState, isEditMode: true });
+
+      const patchResult = buildEditPatchFormData(values, baseline, {
+        categoryId,
+        dynamicFieldKeys: advertiseFormQuery.data.fields.map((field) => field.key),
+        formCode: resolvedFormCode,
+      });
+
+      if (!patchResult.hasChanges) {
+        clearNewAdDraftStorage();
+        const currentAd = editAdData ?? editAdState.ad;
+        const currentCard = currentAd ? mapAdvertisementToAdCard(currentAd, 0) : undefined;
+        const statusInfo = currentAd ? getMyAdStatusInfo(currentAd) : { key: "status" };
+        const targetPath =
+          statusInfo.key === "pending"
+            ? getAdStatePath(editAdId)
+            : editAdState.editReturnTo ?? adManagementPaths.published;
+        const separator = targetPath.includes("?") ? "&" : "?";
+
+        navigateTo(`${targetPath}${separator}updated=1`, {
+          ad: currentAd,
+          card: currentCard,
+          isEditMode: true,
+          returnTo: editAdState.returnTo,
+          status: statusInfo.key,
+          tab: editAdState.tab ?? "status",
+        });
+        return;
+      }
+
       setFieldErrors({});
       setSubmitError("");
       submitLockRef.current = true;
       updateAdvertisement.mutate(
-        { advertiseId: editAdId, payload: formData },
+        { advertiseId: editAdId, payload: patchResult.formData },
         {
           onError: (error) => {
             setSubmitError(getApiErrorMessage(error, "ویرایش آگهی با خطا مواجه شد."));

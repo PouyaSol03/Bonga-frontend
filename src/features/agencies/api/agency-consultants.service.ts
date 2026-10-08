@@ -10,7 +10,8 @@ import type {
   DeactivateAgencyConsultantPayload,
   UpdateAgencyConsultantPayload,
 } from "./agency-consultants-types";
-import { normalizeAgencyConsultant, toNumber } from "./agency.service";
+import { normalizeAgencyConsultant } from "./agency-consultants-normalizer";
+import { toNumber } from "./agency-helpers";
 
 export function agencyConsultantPath(agentId: number | string, subPath?: string): string {
   const base = `consultants/${encodeURIComponent(String(agentId))}`;

@@ -22,7 +22,7 @@ export function ViewAdPerformanceSection({
       <div className="h-4 bg-surface-container" />
       <ViewAdPerformanceProgressCharts adId={adId} />
       <div className="h-4 bg-surface-container" />
-      <ViewAdPerformanceFunnelCard />
+      <ViewAdPerformanceFunnelCard adId={adId} />
     </section>
   );
 }

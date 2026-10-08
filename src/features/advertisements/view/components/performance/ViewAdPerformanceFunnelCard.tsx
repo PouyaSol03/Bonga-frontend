@@ -2,6 +2,7 @@ import {
   DashboardConversionFunnelCard,
   type FunnelStage,
 } from "../../../../dashboard/components/reports/DashboardConversionFunnelCard";
+import { useAdPerformanceFunnelQuery } from "../../api/adPerformanceApi";
 
 const PERFORMANCE_FUNNEL_STAGES: FunnelStage[] = [
   {
@@ -86,17 +87,61 @@ const PERFORMANCE_FUNNEL_STAGES: FunnelStage[] = [
   },
 ];
 
+export function ViewAdPerformanceFunnelCardSkeleton() {
+  return (
+    <div className="w-full rounded-2xl border border-surface-container bg-surface-container-lowest p-4 shadow-2xs">
+      <div className="h-6 w-36 animate-pulse rounded bg-surface-container" />
+      <div className="mt-4 flex flex-col gap-3">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="h-9 w-full animate-pulse rounded-lg bg-surface-container" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ViewAdPerformanceFunnelCard({
-  stages = PERFORMANCE_FUNNEL_STAGES,
+  adId,
+  stages,
   isLoading = false,
 }: {
+  adId?: string | number;
   stages?: FunnelStage[];
   isLoading?: boolean;
 }) {
+  const { data: serverFunnel, isLoading: isQueryLoading } = useAdPerformanceFunnelQuery(adId);
+
+  if (isLoading || (isQueryLoading && !serverFunnel)) {
+    return <ViewAdPerformanceFunnelCardSkeleton />;
+  }
+
+  const resolvedStages: FunnelStage[] = stages
+    ? stages
+    : serverFunnel?.stages && serverFunnel.stages.length > 0
+      ? serverFunnel.stages.map((s, index) => {
+          const fallback = PERFORMANCE_FUNNEL_STAGES[index] ?? PERFORMANCE_FUNNEL_STAGES[0];
+          return {
+            id: s.id,
+            label: s.label,
+            badgeText: `${s.percentage}%`,
+            percentage: s.percentage,
+            badgeColor: s.badge_color ?? fallback.badgeColor,
+            value: s.value,
+            pathD: fallback.pathD,
+            viewBox: fallback.viewBox,
+            width: fallback.width,
+            height: fallback.height,
+            isCheckmark: Boolean(s.is_final),
+            checkmarkPath: fallback.checkmarkPath,
+            isValueGreen: Boolean(s.is_final),
+          };
+        })
+      : PERFORMANCE_FUNNEL_STAGES;
+
   return (
     <DashboardConversionFunnelCard
-      stages={stages}
-      isLoading={isLoading}
+      stages={resolvedStages}
+      isLoading={isLoading || isQueryLoading}
     />
   );
 }

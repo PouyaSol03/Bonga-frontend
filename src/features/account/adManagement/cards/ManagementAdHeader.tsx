@@ -76,7 +76,6 @@ export const ManagementAdHeader: React.FC<Props> = ({
 
   return (
     <div className="flex items-center gap-3 [direction:rtl]">
-      {/* Thumbnail */}
       <div className="relative h-20 w-[120px] shrink-0 overflow-hidden rounded-[8px] bg-surface-container">
         {ad.imageUrl ? (
           <img
@@ -84,6 +83,16 @@ export const ManagementAdHeader: React.FC<Props> = ({
             className="h-full w-full object-cover"
             loading="lazy"
             src={ad.imageUrl}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              const parent = e.currentTarget.parentElement;
+              if (parent && !parent.querySelector(".fallback-svg")) {
+                const fallback = document.createElement("div");
+                fallback.className = "flex h-full w-full items-center justify-center text-on-surface-var fallback-svg";
+                fallback.innerHTML = `<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`;
+                parent.appendChild(fallback);
+              }
+            }}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-on-surface-var">
@@ -92,9 +101,7 @@ export const ManagementAdHeader: React.FC<Props> = ({
         )}
       </div>
 
-      {/* Content */}
       <div className="flex h-20 flex-1 min-w-0 flex-col justify-between py-0.5">
-        {/* Row 1: Status Badge */}
         {showStatusBadge ? (
           <div className="flex justify-start">
             <ManagementAdStatusBadge
@@ -105,7 +112,6 @@ export const ManagementAdHeader: React.FC<Props> = ({
           </div>
         ) : <div />}
 
-        {/* Row 2: Title */}
         <div className="min-w-0">
           {to ? (
             <RouteLink className="block min-w-0 no-underline" state={state} to={to}>
@@ -116,7 +122,6 @@ export const ManagementAdHeader: React.FC<Props> = ({
           )}
         </div>
 
-        {/* Row 3: Subtitle: Name | Role */}
         <div className="flex items-center gap-1.5 text-xs text-on-surface-var">
           <Typography
             as="span"

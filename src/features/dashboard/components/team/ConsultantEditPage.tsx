@@ -6,6 +6,7 @@ import {
   getRouteConsultantId,
   mapAgencyConsultantToTeamConsultant,
 } from "./ConsultantManagementPage";
+import { ConsultantInfoPageSkeleton } from "./consultant-info/ConsultantInfoSkeleton";
 import { ConsultantEditForm } from "./edit-consultant/ConsultantEditForm";
 
 export function ConsultantEditPage() {
@@ -20,6 +21,11 @@ export function ConsultantEditPage() {
   });
   const agencyDashboardQuery = useAgencyDashboardQuery();
   const agencyBalances = agencyDashboardQuery.data?.balances;
+
+  const isInitialRouteConsultant = !routeConsultant.name || routeConsultant.name === "—";
+  if (consultantQuery.isLoading && !consultantQuery.data && isInitialRouteConsultant) {
+    return <ConsultantInfoPageSkeleton />;
+  }
 
   const consultant = consultantQuery.data
     ? mapAgencyConsultantToTeamConsultant(consultantQuery.data)
@@ -39,7 +45,7 @@ export function ConsultantEditPage() {
       />
 
       <ConsultantEditForm
-        key={consultant.id}
+        key={`${consultant.id}-${consultantQuery.data ? "loaded" : "initial"}`}
         agencyBalances={agencyBalances}
         consultant={consultant}
         consultantId={consultantId ?? routeConsultant.id}

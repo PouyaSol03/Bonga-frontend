@@ -17,7 +17,7 @@ import type {
   ConsultantPerformanceChartsDto,
 } from "./agency-consultants-types";
 import { agencyConsultantPath } from "./agency-consultants.service";
-import { toNumber } from "./agency.service";
+import { toNumber } from "./agency-helpers";
 
 const emptyMetricData: ConsultantMetricData = {
   agent_count: 0,

@@ -60,8 +60,10 @@ export function DashboardQuickAccessGrid({
       return !a.hideForIndependent;
     }
     if (isConsultant) {
+      if (a.id === "ads") return permissions?.manage_advertises !== false;
       if (a.id === "consultants") return Boolean(permissions?.manage_consultants);
       if (a.id === "credits") return Boolean(permissions?.manage_credits);
+      if (a.id === "requests") return Boolean(permissions?.manage_requests);
       return true;
     }
     return true;

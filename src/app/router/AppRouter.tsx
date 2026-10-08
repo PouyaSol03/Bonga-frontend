@@ -370,7 +370,11 @@ function getRoute(path: string): AppRoute {
     }
   }
 
-  if (/^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)) {
+  if (
+    /^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path) ||
+    /^\/manage-ads\/[^/]+\/state-ads?\/?$/.test(path) ||
+    /^\/account\/manage-ads\/[^/]+\/state-ads?\/?$/.test(path)
+  ) {
     return { path, title: 'مدیریت آگهی', Component: AccountMyAdStatePage, requiresAuth: true }
   }
 

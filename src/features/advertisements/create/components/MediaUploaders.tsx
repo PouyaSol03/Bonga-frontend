@@ -6,6 +6,7 @@ import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
 import { shouldPreserveNewAdDraft } from "../session";
 import LinearCancelCircle from "../../../../shared/icons/LinearCancelCircle";
+import LinearImage from "../../../../shared/icons/LinearImage";
 
 export const allowedPhotoTypes = ["image/jpeg", "image/png", "image/webp"];
 export const allowedPhotoExtensions = ["jpg", "jpeg", "png", "webp"];
@@ -187,14 +188,23 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
         {photos.map((photo, index) => (
           <div
-            className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[12px]"
+            className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[12px] bg-surface-container"
             key={photo.id}
           >
             <img
               alt={`عکس آگهی ${index + 1}`}
               className="h-full w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                const fallback = e.currentTarget.parentElement?.querySelector(".photo-fallback-icon");
+                if (fallback) fallback.classList.remove("hidden");
+              }}
               src={photo.previewUrl}
             />
+
+            <div className="photo-fallback-icon hidden grid h-full w-full place-items-center text-outline">
+              <LinearImage className="h-8 w-8" />
+            </div>
 
             <Button unstyled
               aria-label="حذف عکس"

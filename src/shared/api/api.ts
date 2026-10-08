@@ -335,7 +335,8 @@ export type V2RoleSegment =
   | "agency"
   | "independent-consultant"
   | "personal"
-  | "agency-consultant";
+  | "agency-consultant"
+  | "superadmin";
 
 export function getV2RoleSegment(role?: string | null): V2RoleSegment {
   switch (role) {
@@ -348,6 +349,9 @@ export function getV2RoleSegment(role?: string | null): V2RoleSegment {
     case "agency-consultant":
     case "real_estate_consultant":
       return "agency-consultant";
+    case "superadmin":
+    case "super-admin":
+      return "superadmin";
     case "personal":
     case "user":
     default:
@@ -385,11 +389,10 @@ export function resolveV2Url(inputUrl: string): string {
       "independent-consultant",
       "personal",
       "agency-consultant",
+      "superadmin",
     ];
 
     const isGlobalEndpoint =
-      endpoint === "me" ||
-      endpoint.startsWith("me/") ||
       endpoint === "auth" ||
       endpoint.startsWith("auth/") ||
       endpoint === "public" ||
@@ -491,6 +494,17 @@ export function isUnauthorizedApiError(error: unknown) {
   return false;
 }
 
+export function isForbiddenApiError(error: unknown) {
+  if (error instanceof ApiError) return error.status === 403;
+  if (error instanceof HTTPError) return error.response.status === 403;
+  if (Boolean(error) && typeof error === "object") {
+    const err = error as { status?: number; response?: { status?: number } };
+    return err.status === 403 || err.response?.status === 403;
+  }
+
+  return false;
+}
+
 
 export function getApiErrorCode(error: unknown) {
   return error instanceof ApiError ? error.code : undefined;
@@ -515,6 +529,18 @@ export function getApiAssetUrl(path: string) {
 
   if (!normalizedPath || normalizedPath.toLowerCase().includes("data:image/")) {
     return "";
+  }
+
+  if (normalizedPath.startsWith("http://") || normalizedPath.startsWith("https://")) {
+    return normalizedPath;
+  }
+
+  const backendOrigin = (import.meta as any).env?.VITE_API_URL
+    ? String((import.meta as any).env.VITE_API_URL).replace(/\/api.*$/, "").replace(/\/+$/, "")
+    : "";
+
+  if (backendOrigin && normalizedPath.startsWith("/")) {
+    return `${backendOrigin}${normalizedPath}`;
   }
 
   return normalizedPath;

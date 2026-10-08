@@ -373,7 +373,20 @@ export type AdvertisementFeatureMap = Record<string, unknown>;
 function getResolvedAdvertisementFeatures(
   ad: AdvertisementItem,
 ): NonNullable<AdvertisementItem["features"]> {
-  const resolved = Array.isArray(ad.features) ? [...ad.features] : [];
+  const rawFeatures = Array.isArray(ad.features) ? ad.features : [];
+  const resolved = rawFeatures.map((item) => {
+    if (!item || typeof item !== "object") return item;
+    const it = item as Record<string, unknown>;
+    const label = (typeof it.label === "string" && it.label.trim()) ||
+      (typeof it.key === "string" && it.key.trim()) ||
+      (typeof it.name === "string" && it.name.trim()) ||
+      "";
+    return {
+      ...it,
+      label,
+      value: it.value,
+    };
+  });
   const labels = new Set(
     resolved
       .map((item) => (typeof item.label === "string" ? item.label : ""))
@@ -391,6 +404,7 @@ function getResolvedAdvertisementFeatures(
   // detail UI does not silently lose data that the API did return.
   addRootValue("form_code", ad.form_code);
   addRootValue("area", ad.area);
+  addRootValue("floor", ad.floor ?? (ad as any).unit_floor);
   addRootValue("rooms", ad.rooms);
   addRootValue("building_age", ad.building_age ?? ad.year);
 
@@ -474,7 +488,7 @@ function getResolvedAdvertisementFeatures(
   const hasLoanPresent = isFilledValue(loanAmountVal) || isFilledValue(loanInstallmentVal);
   if (hasLoanPresent) {
     const existingIndex = resolved.findIndex(
-      (item) => item.label === "has_loan" || item.key === "has_loan",
+      (item) => item.label === "has_loan" || (item as any).key === "has_loan",
     );
     if (existingIndex >= 0) {
       resolved[existingIndex] = { ...resolved[existingIndex], value: true };
@@ -499,7 +513,12 @@ function getFeatureValue(
   features: NonNullable<AdvertisementItem["features"]>,
   label: string,
 ) {
-  return features.find((feature) => feature.label === label)?.value;
+  const target = label.toLowerCase().trim();
+  return features.find((feature) => {
+    const l = String(feature.label ?? "").toLowerCase().trim();
+    const k = String((feature as any).key ?? "").toLowerCase().trim();
+    return l === target || k === target;
+  })?.value;
 }
 
 type PropertyPreviewField = {
@@ -1329,7 +1348,7 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
     const agency = ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency)
       ? ad.agency
       : null;
-    const id = agency?.id;
+    const id = agency?.id ?? ad.publisher_agency_id;
 
     if (id === undefined || id === null) return null;
 
@@ -1356,7 +1375,7 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
     const agent = ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent)
       ? ad.agent
       : null;
-    const id = agent?.id;
+    const id = agent?.id ?? ad.publisher_agent_id;
 
     if (id === undefined || id === null) return null;
 

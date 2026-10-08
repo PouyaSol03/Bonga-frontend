@@ -3,9 +3,13 @@ import {
   BottomSheetActionList,
   type BottomSheetAction,
 } from "../../shared/components/BottomSheet";
+import { ChoiceIndicator } from "../../shared/ui/Choice";
+import { Button } from "../../shared/ui/Button";
+import { Typography } from "../../shared/ui/Typography";
 import type { PropertySearchRequest } from "./api/property-request.service";
 
 export interface RequestFilterBottomSheetProps {
+  agencyStyle?: boolean;
   isOpen: boolean;
   onClose: () => void;
   onSelect: (filterId: string) => void;
@@ -14,6 +18,7 @@ export interface RequestFilterBottomSheetProps {
 }
 
 export function RequestFilterBottomSheet({
+  agencyStyle = false,
   isOpen,
   onClose,
   onSelect,
@@ -21,7 +26,7 @@ export function RequestFilterBottomSheet({
   selectedId,
 }: RequestFilterBottomSheetProps) {
   const items: BottomSheetAction[] = [
-    { id: "all", title: "همه درخواست‌ها" },
+    { id: "all", title: agencyStyle ? "همه" : "همه درخواست‌ها" },
     ...requests.map((req) => ({
       id: req.id,
       title: req.title || "درخواست بدون عنوان",
@@ -43,9 +48,29 @@ export function RequestFilterBottomSheet({
       onClose={onClose}
       showHandle
       showHeader
-      showHeaderDivider
-      title="فیلتر بر اساس درخواست"
+      showHeaderDivider={!agencyStyle}
+      className={agencyStyle ? "rounded-t-3xl" : ""}
+      title={agencyStyle ? "انتخاب درخواست" : "فیلتر بر اساس درخواست"}
     >
+      {agencyStyle ? (
+        <div className="pt-5" role="group" aria-label="انتخاب درخواست">
+          {items.map((item) => (
+            <Button
+              unstyled
+              key={item.id}
+              aria-pressed={item.id === selectedId}
+              className="flex min-h-16 w-full items-center justify-between gap-4 px-4 text-right text-on-surface [direction:rtl] focus-visible:outline-2 focus-visible:outline-primary"
+              onClick={() => handleSelect(item)}
+              type="button"
+            >
+              <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 break-words">
+                {item.title}
+              </Typography>
+              <ChoiceIndicator checked={item.id === selectedId} type="radio" className="shadow-none [&>span]:h-[7px] [&>span]:w-[7px]" />
+            </Button>
+          ))}
+        </div>
+      ) : (
       <BottomSheetActionList
         isOpen={isOpen}
         items={items}
@@ -53,6 +78,7 @@ export function RequestFilterBottomSheet({
         selectedId={selectedId}
         showCheckIcon
       />
+      )}
     </BottomSheet>
   );
 }

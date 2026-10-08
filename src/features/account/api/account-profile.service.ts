@@ -150,10 +150,12 @@ export function syncStoredRolesFromProfile(
       }) as ProfileAccountItem | undefined)
     : undefined;
 
-  const managerPermissions =
-    activeRole === "real_estate_consultant"
-      ? (consultantContext?.permissions as Record<string, boolean> | undefined)
-      : undefined;
+  const selectedContext = activeRole === "real_estate_manager"
+    ? accountsToScan?.find(item => (item as ProfileAccountItem).context === "agency") as ProfileAccountItem | undefined
+    : consultantContext;
+  const managerPermissions = ["real_estate_consultant", "real_estate_manager"].includes(activeRole)
+    ? selectedContext?.permissions
+    : undefined;
 
   setStoredAuthSession({
     ...session,
@@ -162,11 +164,41 @@ export function syncStoredRolesFromProfile(
     role: activeRole,
     roles,
     managerPermissions,
+    contextIdentity: String(selectedContext?.agency?.id ?? selectedContext?.id ?? ""),
+    contextPermissions: Object.fromEntries((accountsToScan ?? []).map(item => {
+      const acc = item as ProfileAccountItem;
+      const role = acc.context === "agency" ? "real_estate_manager" : acc.context === "agency-consultant" ? "real_estate_consultant" : "user";
+      return [role, acc.permissions];
+    })),
   });
 }
 
+export function getContextMeShowEndpoint(role?: string | null): string {
+  const session = getStoredAuthSession();
+  const activeRole = role ?? session?.activeRole ?? session?.role;
+  switch (activeRole) {
+    case "real_estate_consultant":
+    case "agency-consultant":
+      return "agency-consultant/me/show";
+    case "real_estate_manager":
+    case "agency":
+      return "agency/me/show";
+    case "independent_consultant":
+    case "independent-consultant":
+      return "independent-consultant/me/show";
+    case "super-admin":
+    case "superadmin":
+      return "superadmin/me/show";
+    case "user":
+    case "personal":
+    default:
+      return "personal/me/show";
+  }
+}
+
 export async function getMyProfile(): Promise<UserProfile> {
-  const response = await apiV2.get("me/show").json<UserProfileV2Response | UserProfile>();
+  const endpoint = getContextMeShowEndpoint();
+  const response = await apiV2.get(endpoint).json<UserProfileV2Response | UserProfile>();
   const record = response as Record<string, unknown>;
 
   const profile: UserProfile =
@@ -176,7 +208,7 @@ export async function getMyProfile(): Promise<UserProfile> {
         ? { ...(record.data as UserProfile) }
         : { ...(response as UserProfile) };
 
-  const rawAccounts = record.accounts ?? record.contexts;
+  const rawAccounts = record.accounts ?? record.contexts ?? (record.context ? [record.context] : undefined);
   if (Array.isArray(rawAccounts)) {
     profile.accounts = rawAccounts as ProfileAccountItem[];
   }

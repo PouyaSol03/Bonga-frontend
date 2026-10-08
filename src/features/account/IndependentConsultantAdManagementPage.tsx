@@ -3,6 +3,9 @@ import "../advertisements/components/AdCard.css";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { useActiveAuthRole } from "../../shared/auth/use-active-auth-role";
+import { pushRoute, replaceRoute } from "../../shared/navigation/navigation";
+import { isForbiddenApiError } from "../../shared/api/api";
+import { AccessDeniedState } from "../../shared/components/ErrorState";
 import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
 import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
 import LinearTimeQuarter from "../../shared/icons/LinearTimeQuarter";
@@ -332,6 +335,18 @@ export function IndependentConsultantAdManagementPage() {
 
   useEffect(() => () => observerRef.current?.disconnect(), []);
 
+  useEffect(() => {
+    if (adsQuery.isError && isForbiddenApiError(adsQuery.error)) {
+      replaceRoute("/403", undefined, { rememberCurrent: false });
+    }
+  }, [adsQuery.isError, adsQuery.error]);
+
+  useEffect(() => {
+    if (assignedTab && assignmentsQuery.isError && isForbiddenApiError(assignmentsQuery.error)) {
+      replaceRoute("/403", undefined, { rememberCurrent: false });
+    }
+  }, [assignedTab, assignmentsQuery.isError, assignmentsQuery.error]);
+
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
@@ -465,7 +480,9 @@ export function IndependentConsultantAdManagementPage() {
               </>
             ) : assignmentsQuery.isError ? (
               <AssignmentStatusMessage>
-                دریافت آگهی‌های تخصیصی با خطا مواجه شد.
+                {(assignmentsQuery.error as { status?: number })?.status === 403
+                  ? "شما دسترسی لازم برای مشاهده آگهی‌های تخصیصی آژانس را ندارید."
+                  : "دریافت آگهی‌های تخصیصی با خطا مواجه شد."}
                 <Button unstyled
                   className="mt-3 block w-full font-semibold text-primary"
                   onClick={() => void assignmentsQuery.refetch()}
@@ -497,17 +514,23 @@ export function IndependentConsultantAdManagementPage() {
               ))}
             </>
           ) : adsQuery.isError ? (
-            <AssignmentStatusMessage>
-              دریافت آگهی‌ها با خطا مواجه شد.
-              <Button
-                unstyled
-                className="mt-3 block w-full font-semibold text-primary"
-                onClick={() => void adsQuery.refetch()}
-                type="button"
-              >
-                تلاش دوباره
-              </Button>
-            </AssignmentStatusMessage>
+            (adsQuery.error as { status?: number })?.status === 403 ? (
+              <div className="flex flex-1 items-center justify-center py-10">
+                <AccessDeniedState onBack={() => pushRoute("/account")} />
+              </div>
+            ) : (
+              <AssignmentStatusMessage>
+                دریافت آگهی‌ها با خطا مواجه شد.
+                <Button
+                  unstyled
+                  className="mt-3 block w-full font-semibold text-primary"
+                  onClick={() => void adsQuery.refetch()}
+                  type="button"
+                >
+                  تلاش دوباره
+                </Button>
+              </AssignmentStatusMessage>
+            )
           ) : activeAdvertisements.length > 0 ? (
             activeAdvertisements.map(({ card, sourceAd, statusInfo }, index) => {
               const isIncomplete = statusInfo.key === "incomplete";

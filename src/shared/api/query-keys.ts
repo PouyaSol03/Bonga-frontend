@@ -1,3 +1,8 @@
+import { getStoredAuthSession } from "../auth/auth-storage";
+const contextKey = () => {
+  const session = getStoredAuthSession();
+  return [session?.userId ?? "", session?.activeRole ?? "", session?.contextIdentity ?? ""];
+};
 export const queryKeys = {
   propertyRequests: {
     all: ["property-requests"] as const,
@@ -5,6 +10,7 @@ export const queryKeys = {
       [
         ...queryKeys.propertyRequests.all,
         "list",
+        ...contextKey(),
         ownerType,
         page,
         perPage,
@@ -18,6 +24,7 @@ export const queryKeys = {
       [
         ...queryKeys.propertyRequests.all,
         "matches",
+        ...contextKey(),
         ownerType,
         requestId,
         page,
@@ -40,7 +47,7 @@ export const queryKeys = {
   agencies: {
     all: ["agencies"] as const,
     consultant: (userId: number | string) =>
-      [...queryKeys.agencies.all, "my-consultant", String(userId)] as const,
+      [...queryKeys.agencies.all, "my-consultant", ...contextKey(), String(userId)] as const,
     consultants: (filters?: {
       page?: number;
       perPage?: number;
@@ -50,6 +57,7 @@ export const queryKeys = {
       [
         ...queryKeys.agencies.all,
         "my-consultants",
+        ...contextKey(),
         filters?.page ?? 1,
         filters?.perPage ?? 100,
         filters?.query ?? "",
@@ -61,7 +69,7 @@ export const queryKeys = {
     ) =>
       [
         ...queryKeys.agencies.all,
-        "consultant-ads",
+        "consultant-ads", ...contextKey(),
         String(agentId),
         filters?.page ?? 1,
         filters?.perPage ?? 15,
@@ -78,7 +86,7 @@ export const queryKeys = {
     ) =>
       [
         ...queryKeys.agencies.all,
-        "consultant-activities",
+        "consultant-activities", ...contextKey(),
         String(agentId),
         filters?.period ?? "week",
         filters?.type ?? "all",
@@ -88,7 +96,7 @@ export const queryKeys = {
     consultantActivityStats: (agentId: number | string, period?: string) =>
       [
         ...queryKeys.agencies.all,
-        "consultant-activity-stats",
+        "consultant-activity-stats", ...contextKey(),
         String(agentId),
         period ?? "week",
       ] as const,
@@ -103,7 +111,7 @@ export const queryKeys = {
     ) =>
       [
         ...queryKeys.agencies.all,
-        "consultant-activity-feed",
+        "consultant-activity-feed", ...contextKey(),
         String(agentId),
         filters?.period ?? "week",
         filters?.type ?? "all",
@@ -113,7 +121,7 @@ export const queryKeys = {
     consultantCharts: (agentId: number | string, period?: string) =>
       [
         ...queryKeys.agencies.all,
-        "consultant-charts",
+        "consultant-charts", ...contextKey(),
         String(agentId),
         period ?? "month",
       ] as const,
@@ -123,7 +131,7 @@ export const queryKeys = {
     ) =>
       [
         ...queryKeys.agencies.all,
-        "consultant-metric-published-ads",
+        "consultant-metric-published-ads", ...contextKey(),
         String(agentId),
         params?.period ?? "month",
         params?.from ?? "",
@@ -135,7 +143,7 @@ export const queryKeys = {
     ) =>
       [
         ...queryKeys.agencies.all,
-        "consultant-metric-renewal-usage",
+        "consultant-metric-renewal-usage", ...contextKey(),
         String(agentId),
         params?.period ?? "month",
         params?.from ?? "",
@@ -147,7 +155,7 @@ export const queryKeys = {
     ) =>
       [
         ...queryKeys.agencies.all,
-        "consultant-metric-special-usage",
+        "consultant-metric-special-usage", ...contextKey(),
         String(agentId),
         params?.period ?? "month",
         params?.from ?? "",
@@ -357,7 +365,7 @@ export const queryKeys = {
     urgentActions: (role: string) => [...queryKeys.dashboard.all, "urgent-actions", role] as const,
     notifications: (role: string) => [...queryKeys.dashboard.all, "notifications", role] as const,
     reportsTeaser: (role: string, period?: string) =>
-      [...queryKeys.dashboard.all, "reports-teaser", role, period ?? "30d"] as const,
+      [...queryKeys.dashboard.all, "reports-teaser", role, period ?? "month"] as const,
     recentAds: (role: string, limit?: number) =>
       [...queryKeys.dashboard.all, "recent-ads", role, limit ?? 5] as const,
     overview: (role: string, period: string) =>
@@ -402,8 +410,8 @@ export const queryKeys = {
     all: ["packages"] as const,
     list: (scope?: string) =>
       scope
-        ? ([...queryKeys.packages.all, "list", scope] as const)
-        : ([...queryKeys.packages.all, "list"] as const),
+        ? ([...queryKeys.packages.all, "list", ...contextKey(), scope] as const)
+        : ([...queryKeys.packages.all, "list", ...contextKey()] as const),
     agentEntitlements: () =>
       [...queryKeys.packages.all, "agent-entitlements"] as const,
     agentEntitlementLedgerRoot: () =>

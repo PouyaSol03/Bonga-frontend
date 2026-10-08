@@ -282,7 +282,7 @@ function readText(...values: unknown[]) {
   return "";
 }
 
-function pickFirstNumber(value: string) {
+export function pickFirstNumber(value: string) {
   const match = value.match(/[۰-۹٠-٩0-9]+/);
 
   return match?.[0] ?? "";
@@ -431,7 +431,8 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
     consultantId: readText(ad.consultant_id, ad.consultantId, ad.assigned_consultant_id),
     registrantType: publisherName ? "agency" : "personal",
     rentPrice,
-    rooms: pickFirstNumber(readText(card.rooms, ad.rooms)),
+    rooms: pickFirstNumber(readText(card.rooms, ad.rooms, getFeature("rooms"))),
+    floor: readText((card as any).floor, (ad as any).floor, getFeature("floor"), getFeature("unit_floor"), getFeature("apartment_floor")),
     title,
     loanEnabled: hasLoan,
     loanAmount: loanAmount ? priceTextToNumberString(loanAmount) : "",
@@ -528,17 +529,17 @@ export function normalizeNumberInput(value: unknown) {
   return normalizeDigits(value).replace(/[^\d,]/g, "");
 }
 
-function toNumber(value: unknown) {
+export function toNumber(value: unknown) {
   const normalized = normalizeDigits(value).replace(/,/g, "");
   const number = Number(normalized);
   return Number.isFinite(number) && normalized ? number : null;
 }
 
-function toUnitsPerFloorNumber(value: string) {
+export function toUnitsPerFloorNumber(value: string) {
   return parseUnitsPerFloor(value);
 }
 
-function labels(items: ChipItem[], ids: string[]) {
+export function labels(items: ChipItem[], ids: string[]) {
   return items.filter((item) => ids.includes(item.id)).map((item) => item.label);
 }
 
@@ -569,7 +570,7 @@ function addFeature(features: NewAdFeature[], key: string, value: unknown) {
   });
 }
 
-function buildProjectDetailFeatures(values: NewAdFormValues) {
+export function buildProjectDetailFeatures(values: NewAdFormValues) {
   return values.projectDetails
     .map((item) => ({
       meterage: toNumber(item.meterage || item.minMeterage || ""),
@@ -582,7 +583,7 @@ function buildProjectDetailFeatures(values: NewAdFormValues) {
     );
 }
 
-function buildDailyHotelRoomFeatures(values: NewAdFormValues) {
+export function buildDailyHotelRoomFeatures(values: NewAdFormValues) {
   return values.dailyHotelRooms
     .map((room) => ({
       room_type: room.id,
@@ -597,7 +598,7 @@ function buildDailyHotelRoomFeatures(values: NewAdFormValues) {
     .filter((room) => Object.values(room).some((value) => hasFeatureValue(value)));
 }
 
-function getHeatingItemsForListing(transaction: string, category: string) {
+export function getHeatingItemsForListing(transaction: string, category: string) {
   if (transaction === "project" && category === "project-presale") return projectHeatingItems;
   if (transaction === "sale" && category === "apartment") return saleApartmentHeatingItems;
   if (transaction === "sale" && category === "villa-house") return saleVillaHouseHeatingItems;
@@ -611,7 +612,7 @@ function getHeatingItemsForListing(transaction: string, category: string) {
   return heatingItems;
 }
 
-function getFacilityItemsForListing(transaction: string, category: string) {
+export function getFacilityItemsForListing(transaction: string, category: string) {
   if (transaction === "project" && category === "project-presale") return projectFacilityItems;
   if (transaction === "sale" && category === "apartment") return saleApartmentFacilityItems;
   if (transaction === "sale" && category === "villa-house") return saleVillaHouseFacilityItems;
@@ -635,7 +636,7 @@ function getFacilityItemsForListing(transaction: string, category: string) {
     : facilityItems;
 }
 
-function getPriceValue(values: NewAdFormValues, transaction: string, category: string) {
+export function getPriceValue(values: NewAdFormValues, transaction: string, category: string) {
   if (transaction === "rent" && category.startsWith("daily-")) return toNumber(values.minPrice);
   if (transaction === "rent") return toNumber(values.rentPrice);
   if (transaction === "project") return toNumber(values.minPrice);
@@ -666,7 +667,7 @@ export function getAdvertiseFormCode(transaction: string, category: string) {
   return formCodes[`${transaction}:${category}`] ?? [transaction, category].filter(Boolean).join("-");
 }
 
-function getStoredNewAdLocationNumber(key: string) {
+export function getStoredNewAdLocationNumber(key: string) {
   const value = window.localStorage.getItem(key);
   const number = value ? Number(value) : Number.NaN;
 
@@ -1049,9 +1050,11 @@ export function buildNewAdFormData(
     appendBaseValue("consultant_id", cleanValues.consultantId.trim());
     appendBaseValue("assigned_consultant_id", cleanValues.consultantId.trim());
   }
-  appendBaseValue("owner_phone", cleanValues.phoneNumber);
-  appendBaseValue("owner_name", cleanValues.ownerFullName);
-  appendBaseValue("owner_address", cleanValues.ownerExactAddress);
+  if (!options.isEdit) {
+    appendBaseValue("owner_phone", cleanValues.phoneNumber);
+    appendBaseValue("owner_name", cleanValues.ownerFullName);
+    appendBaseValue("owner_address", cleanValues.ownerExactAddress);
+  }
   if (cleanValues.ownerPhone) {
     appendBaseValue("owner_contact_phone", cleanValues.ownerPhone);
   }

@@ -99,6 +99,65 @@ export type DeactivateAgencyConsultantPayload = {
   transferUserId?: number | string;
 };
 
+export type AgencyConsultantApiItem = {
+  _id?: unknown;
+  active_ads?: unknown;
+  ad_quota?: unknown;
+  agency_membership?: unknown;
+  agency_name?: unknown;
+  agencyName?: unknown;
+  agent_id?: unknown;
+  avatar?: unknown;
+  calls?: unknown;
+  first_name?: unknown;
+  full_name?: unknown;
+  id?: unknown;
+  is_active?: unknown;
+  joined_date?: unknown;
+  joinedDate?: unknown;
+  last_name?: unknown;
+  member?: unknown;
+  membership?: unknown;
+  membership_state?: unknown;
+  metrics?: {
+    active_ads?: unknown;
+    calls?: unknown;
+    published_advertises?: unknown;
+    rank?: unknown;
+    ranking_score?: unknown;
+    recent_ads?: unknown;
+    renew_used?: unknown;
+    special_used?: unknown;
+    unavailable_metrics?: unknown;
+    views?: unknown;
+    [key: string]: unknown;
+  };
+  mobile?: unknown;
+  name?: unknown;
+  permissions?: unknown;
+  period_activity?: unknown;
+  phonenumber?: unknown;
+  quotas?: unknown;
+  ranking?: {
+    level_slug?: unknown;
+    level_title?: unknown;
+    rank?: unknown;
+    score?: unknown;
+    [key: string]: unknown;
+  };
+  recent_ads?: unknown;
+  renew_quota?: unknown;
+  role?: unknown;
+  role_id?: unknown;
+  request_id?: unknown;
+  special_quota?: unknown;
+  unavailable_metrics?: unknown;
+  user?: unknown;
+  user_id?: unknown;
+  views?: unknown;
+  [key: string]: unknown;
+};
+
 export type AgencyConsultantsApiResponse = {
   data?: Record<string, unknown>[];
   page?: number;

@@ -538,7 +538,24 @@ export function RequestManagementView({
                   );
                 })}
               </HorizontalFilterBar>
-            ) : (
+            ) : activeRole === REAL_ESTATE_MANAGER ? (
+                <div className="bg-surface-container-lowest px-4 py-2 shadow-[0_4px_16px_rgba(26,26,26,0.08)]">
+                  <Button
+                    unstyled
+                    aria-label="انتخاب درخواست"
+                    aria-haspopup="dialog"
+                    aria-expanded={isFilterSheetOpen}
+                    onClick={() => setIsFilterSheetOpen(true)}
+                    className="flex h-10 w-full items-center justify-between gap-3 rounded-xl border border-outline-var px-3 text-on-surface [direction:rtl] focus-visible:outline-2 focus-visible:outline-primary"
+                    type="button"
+                  >
+                    <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate">
+                      {activeFilterId === "all" ? "همه" : activeFilterTitle}
+                    </Typography>
+                    <LinearArrowDown1 aria-hidden="true" className="h-6 w-6 shrink-0 text-on-surface-var opacity-40" />
+                  </Button>
+                </div>
+              ) : (
               <div className="flex items-center justify-between border-t border-outline-var bg-surface-container-lowest px-4 py-2.5 [direction:rtl]">
                 <div className="flex items-center gap-2 min-w-0">
                   <Typography
@@ -708,6 +725,7 @@ export function RequestManagementView({
       />
 
       <RequestFilterBottomSheet
+        agencyStyle={activeRole === REAL_ESTATE_MANAGER}
         isOpen={isFilterSheetOpen}
         onClose={() => setIsFilterSheetOpen(false)}
         onSelect={(filterId) => selectFilter(filterId)}

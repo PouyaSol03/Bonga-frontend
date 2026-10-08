@@ -41,7 +41,7 @@ export function DashboardReportsView({
   const [viewsPeriod, setViewsPeriod] = useState<"month" | "year">("year");
   const [consultantsPeriod, setConsultantsPeriod] = useState<"month" | "year">("month");
   const [regPeriod, setRegPeriod] = useState<"month" | "year">("month");
-  const [funnelPeriod] = useState<string>("30d");
+  const [funnelPeriod] = useState<string>("month");
 
   // Call the official reports & analytics endpoints
   const publishedAdsQuery = useDashboardReportsPublishedAdsQuery(persona, publishedPeriod);

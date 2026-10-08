@@ -24,6 +24,7 @@ export const ManagementAdCard: React.FC<ManagementAdCardProps> = ({
   onPreviewClick,
   onEditClick,
   onAnalyticsClick,
+  onDeleteIncomplete,
   className = "",
   headerMeta,
 }) => {
@@ -64,12 +65,14 @@ export const ManagementAdCard: React.FC<ManagementAdCardProps> = ({
         deskTo={deskTo}
         editTo={editTo}
         onAnalyticsClick={onAnalyticsClick}
+        onDeleteIncomplete={onDeleteIncomplete}
         onDeskClick={onDeskClick}
         onEditClick={onEditClick}
         onPreviewClick={onPreviewClick}
         previewTo={previewTo}
         sourceAd={sourceAd}
         state={state}
+        statusKey={statusKey}
         to={to}
       />
     </article>

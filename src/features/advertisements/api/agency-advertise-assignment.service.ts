@@ -260,6 +260,10 @@ export async function rejectAgencyAdvertiseAssignment({
   return rawAssignment ? normalizeAssignment(rawAssignment as AssignmentApiItem) : null;
 }
 
+import {
+  changeV2AdvertiseConsultant,
+} from "./v2/advertisement-v2-lifecycle.service";
+
 export type ChangeAgencyAdvertiseConsultantPayload = {
   advertiseId: string | number;
   consultantId: string | number | null;
@@ -269,20 +273,15 @@ export async function changeAgencyAdvertiseConsultant({
   advertiseId,
   consultantId,
 }: ChangeAgencyAdvertiseConsultantPayload): Promise<unknown> {
-  const response = await api
-    .post(
-      `me/agency/advertise/assignments/advertise/${encodeURIComponent(String(advertiseId))}/change-consultant`,
-      {
-        json: {
-          consultant_id: consultantId !== null && consultantId !== undefined && String(consultantId).trim() !== ""
-            ? String(consultantId).trim()
-            : null,
-        },
-      },
-    )
-    .json();
+  const numericConsultantId =
+    consultantId !== null &&
+    consultantId !== undefined &&
+    String(consultantId).trim() !== "" &&
+    !Number.isNaN(Number(consultantId))
+      ? Number(consultantId)
+      : null;
 
-  return response;
+  return changeV2AdvertiseConsultant(advertiseId, numericConsultantId);
 }
 
 export async function cancelUserAdvertiseAssignment(advertiseId: string | number, reason?: string) {

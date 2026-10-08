@@ -73,3 +73,18 @@ export const updateV2Advertisement = (id: string | number, body: FormData | Reco
 
 export const updateV2OwnerContact = (id: string | number, payload: AdvertisementV2OwnerContact) =>
   apiV2.patch(`advertise/${enc(id)}/owner-contact`, { json: payload }).json();
+
+export const getV2AdvertisementPayments = (id: string | number) =>
+  apiV2.get(`advertise/${enc(id)}/payments`).json<{ status?: boolean; payments?: unknown[] } | unknown[]>();
+
+export const changeV2AdvertiseConsultant = (
+  id: string | number,
+  consultantId: number | null,
+) =>
+  apiV2
+    .patch(`advertise/${enc(id)}/consultant`, {
+      json: {
+        consultant_id: consultantId !== null && !Number.isNaN(Number(consultantId)) ? Number(consultantId) : null,
+      },
+    })
+    .json();

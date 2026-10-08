@@ -8,6 +8,7 @@ import {
   createV2Draft,
   getV2Checkout,
   getV2Preview,
+  getV2AdvertisementPayments,
   submitV2Checkout,
   updateV2Advertisement,
   updateV2Draft,
@@ -1046,24 +1047,41 @@ export async function getAdvertisementDailyViews(id: string): Promise<Advertisem
 }
 
 export async function getAdvertisementPayments(id: string): Promise<AdvertisementPayment[]> {
-  const response = await api
-    .get(`me/advertise/payments/${encodeURIComponent(id)}`)
-    .json<unknown>();
+  try {
+    const response = await getV2AdvertisementPayments(id);
+    if (Array.isArray(response)) return response as AdvertisementPayment[];
+    if (!response || typeof response !== "object") return [];
 
-  if (Array.isArray(response)) return response as AdvertisementPayment[];
-  if (!response || typeof response !== "object") return [];
+    const record = response as Record<string, unknown>;
+    if (Array.isArray(record.payments)) return record.payments as AdvertisementPayment[];
 
-  const record = response as Record<string, unknown>;
-  if (Array.isArray(record.payments)) return record.payments as AdvertisementPayment[];
+    const data = record.data;
+    if (Array.isArray(data)) return data as AdvertisementPayment[];
+    if (data && typeof data === "object") {
+      const nested = data as Record<string, unknown>;
+      if (Array.isArray(nested.payments)) return nested.payments as AdvertisementPayment[];
+    }
+    return [];
+  } catch {
+    const response = await api
+      .get(`me/advertise/payments/${encodeURIComponent(id)}`)
+      .json<unknown>();
 
-  const data = record.data;
-  if (Array.isArray(data)) return data as AdvertisementPayment[];
-  if (data && typeof data === "object") {
-    const nested = data as Record<string, unknown>;
-    if (Array.isArray(nested.payments)) return nested.payments as AdvertisementPayment[];
+    if (Array.isArray(response)) return response as AdvertisementPayment[];
+    if (!response || typeof response !== "object") return [];
+
+    const record = response as Record<string, unknown>;
+    if (Array.isArray(record.payments)) return record.payments as AdvertisementPayment[];
+
+    const data = record.data;
+    if (Array.isArray(data)) return data as AdvertisementPayment[];
+    if (data && typeof data === "object") {
+      const nested = data as Record<string, unknown>;
+      if (Array.isArray(nested.payments)) return nested.payments as AdvertisementPayment[];
+    }
+
+    return [];
   }
-
-  return [];
 }
 
 

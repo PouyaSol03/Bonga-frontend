@@ -19,7 +19,8 @@ import {
   neighborhoodIdKey,
   subNeighborhoodIdKey,
 } from "./data";
-import { clearNewAdDraftStorage, navigateTo, useRequireAuth } from "./utils";
+import { clearNewAdDraftStorage, useRequireAuth } from "./utils";
+import { replaceRoute } from "../../../shared/navigation/navigation";
 import { preserveNewAdDraftStateKey, updateNewAdFlowSessionLocation } from "./session";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -546,6 +547,22 @@ export function NewAdLocationPage() {
     }
   };
 
+  const handleBack = () => {
+    const currentState =
+      typeof window !== "undefined" &&
+      window.history.state &&
+      typeof window.history.state === "object"
+        ? window.history.state
+        : {};
+    replaceRoute(
+      `/new-ad/details${window.location.search || `?label=${encodeURIComponent(label)}`}`,
+      {
+        ...currentState,
+        [preserveNewAdDraftStateKey]: true,
+      },
+    );
+  };
+
   const moveToBrowserLocation = () => {
     void getBrowserLocation().then((location) => {
       updateMapCenter({
@@ -559,7 +576,7 @@ export function NewAdLocationPage() {
   return (
     <NewAdDesktopLayoutContext.Provider value={isCrmSource}>
     <PageFrame className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]" variant="flush">
-      <Header title="موقعیت آگهی" />
+      <Header onBack={handleBack} title="موقعیت آگهی" />
       <main className="relative min-h-0 flex-1 overflow-hidden bg-surface-container">
         <MapContainer
           attributionControl={false}
@@ -729,7 +746,7 @@ export function NewAdLocationPage() {
                 typeof window.history.state === "object"
                   ? window.history.state
                   : {};
-              navigateTo(
+              replaceRoute(
                 `/new-ad/details${window.location.search || `?label=${encodeURIComponent(label)}`}`,
                 {
                   ...currentState,

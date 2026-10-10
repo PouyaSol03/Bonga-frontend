@@ -1711,7 +1711,15 @@ export function NewAdFlowPage() {
             {step !== "agencySelection" && step !== "publisherSelection" ? (
               <Header
                 title={headerTitle}
-                onBack={step === "moreFeatures" || step === "projectDetails" ? goToDetails : isCrmEditMode ? leaveCrmEditor : undefined}
+                onBack={
+                  step === "moreFeatures" || step === "projectDetails"
+                    ? goToDetails
+                    : isCrmEditMode
+                      ? leaveCrmEditor
+                      : step === "details"
+                        ? () => navigateTo(`/new-ad/category${window.location.search}`)
+                        : undefined
+                }
               />
             ) : null}
 

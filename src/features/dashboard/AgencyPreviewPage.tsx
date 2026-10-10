@@ -745,9 +745,11 @@ export function AgencyPreviewPage() {
               <AgencyInfoTab
                 aboutUs={entityAbout}
                 activityAreas={activityAreas}
+                agencyId={entityId}
                 agencyName={entityName}
                 agentAgency={isAgentPreview ? publicAgent?.agency : undefined}
                 entityLabel={entityLabel}
+                isAgent={isAgentPreview}
                 workingHours={workingHours}
               />
             )}
@@ -1036,16 +1038,20 @@ function AgencySegmentedTabs({
 function AgencyInfoTab({
   aboutUs,
   activityAreas,
+  agencyId = "",
   agencyName,
   agentAgency,
   entityLabel = "آژانس",
+  isAgent = false,
   workingHours = "",
 }: {
   aboutUs: string;
   activityAreas: string[];
+  agencyId?: string;
   agencyName: string;
   agentAgency?: PublicAgentAgencySummary;
   entityLabel?: string;
+  isAgent?: boolean;
   workingHours?: string;
 }) {
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
@@ -1108,7 +1114,25 @@ function AgencyInfoTab({
         </section>
       ) : null}
 
-      <AgencyActionRow icon={<LinearAdd className="h-6 w-6 text-on-surface-var" />} title="ثبت آگهی رایگان" />
+      {!isAgent ? (
+        <AgencyActionRow
+          icon={<LinearAdd className="h-6 w-6 text-on-surface-var" />}
+          onClick={() => {
+            const targetAgencyId = agencyId || getPublicPreviewId();
+            const params = new URLSearchParams({
+              registrantType: "agency",
+            });
+            if (targetAgencyId) {
+              params.set("agencyId", targetAgencyId);
+            }
+            if (agencyName) {
+              params.set("agencyName", agencyName);
+            }
+            navigateTo(`/new-ad/category?${params.toString()}`);
+          }}
+          title="ثبت آگهی رایگان"
+        />
+      ) : null}
       <AgencyActionRow icon={<LinearAddToList className="h-6 w-6 text-on-surface-var" />} title="ثبت بازخورد" />
 
       <section className="bg-surface-container-lowest p-4 text-center">
@@ -1134,9 +1158,22 @@ function AgencyInfoTab({
   );
 }
 
-function AgencyActionRow({ icon, title }: { icon: ReactNode; title: string }) {
+function AgencyActionRow({
+  icon,
+  onClick,
+  title,
+}: {
+  icon: ReactNode;
+  onClick?: () => void;
+  title: string;
+}) {
   return (
-    <Button unstyled className="flex w-full items-center gap-3 bg-surface-container-lowest p-4 text-right" type="button">
+    <Button
+      unstyled
+      className="flex w-full items-center gap-3 bg-surface-container-lowest p-4 text-right"
+      onClick={onClick}
+      type="button"
+    >
       <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 place-items-center text-on-surface-var">{icon}</Typography>
       <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 flex-1 text-on-surface">{title}</Typography>
       <LinearArrowLeft1 className="h-6 w-6 text-on-surface-var" />

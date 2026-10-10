@@ -3506,7 +3506,7 @@ function DetailInfoRowCard({
 }) {
   return (
     <div>
-      <div className="flex items-center justify-start h-9 my-4 text-right [direction:rtl]">
+      <div className={`flex items-center justify-start ${Array.isArray(item.value) ? "min-h-9" : "h-9"} my-4 text-right [direction:rtl]`}>
         {item.iconSrc ? (
           <ColorableSvgIcon className="h-6 w-6 shrink-0 text-on-surface-var" src={item.iconSrc} />
         ) : null}

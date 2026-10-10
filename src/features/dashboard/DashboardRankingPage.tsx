@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import LinearClockAlarm from "../../shared/icons/LinearClockAlarm";
 import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
@@ -7,6 +7,8 @@ import LinearPercenTeam from "../../shared/icons/LinearPercenTeam";
 import LinearRanking from "../../shared/icons/LinearRanking";
 import LinearStar from "../../shared/icons/LinearStar";
 import { TopBar } from "../../shared/components/TopBar";
+import { Toast, type ToastItem } from "../../shared/components/Toast";
+import { getApiErrorMessage } from "../../shared/api/api";
 import {
   useV2RankingSummaryQuery,
   useV2RankingLeaderboardQuery,
@@ -45,6 +47,31 @@ function AgencyDashboardRankingPage() {
   const v2SummaryQuery = useV2RankingSummaryQuery(period === "هفته" ? "week" : "month");
   const v2LeaderboardQuery = useV2RankingLeaderboardQuery(10);
   useV2RankingProgressQuery("12m");
+  const [toast, setToast] = useState<ToastItem | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 3500);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  useEffect(() => {
+    if (v2SummaryQuery.isError) {
+      setToast({
+        variant: "error",
+        message: getApiErrorMessage(
+          v2SummaryQuery.error,
+          "دریافت اطلاعات رتبه‌بندی با خطا مواجه شد.",
+        ),
+        title: "خطا",
+      });
+    } else if (v2SummaryQuery.isSuccess && v2SummaryQuery.data?.message) {
+      setToast({
+        variant: "info",
+        message: v2SummaryQuery.data.message,
+      });
+    }
+  }, [v2SummaryQuery.error, v2SummaryQuery.isError, v2SummaryQuery.isSuccess, v2SummaryQuery.data?.message]);
 
   const v2Summary = v2SummaryQuery.data?.data;
   const workSummary = v2Summary?.workSummary;
@@ -157,6 +184,7 @@ function AgencyDashboardRankingPage() {
           isLoading={v2LeaderboardQuery.isLoading || v2SummaryQuery.isLoading}
         />
       </main>
+      <Toast onDismiss={() => setToast(null)} toast={toast} />
     </PageFrame>
   );
 }

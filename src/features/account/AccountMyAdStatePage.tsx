@@ -20,8 +20,14 @@ import {
   useRestoreArchivedAdMutation,
   useAdvertisementArchiveStatusQuery,
   useAdvertisementReRegisterStatusQuery,
+  useAdvertisementSubmitResultStatusQuery,
 } from "../advertisements/api/agency-advertise-assignment.hooks";
-import { formatStopPublishReason } from "../advertisements/api/agency-advertise-assignment.service";
+import {
+  formatStopPublishReason,
+  type AdvertisementArchiveStatusResponse,
+  type AdvertisementReRegisterStatusResponse,
+  type AdvertisementSubmitResultStatusResponse,
+} from "../advertisements/api/agency-advertise-assignment.service";
 import { useAgencyConsultantsQuery, useAgencyInfiniteQuery, usePublicAgencyDetailQuery } from "../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
@@ -79,6 +85,7 @@ import LinearCancel from "../../shared/icons/LinearCancel";
 
 import {
   AgencyAssignedUserAdView,
+  formatExpireDuration,
   type AgencyAssignedDeletedVariant,
 } from "./components/AgencyAssignedUserAdView";
 
@@ -199,6 +206,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const currentAdId = adId ?? (card ? String(card.id) : undefined);
   const reRegisterStatusQuery = useAdvertisementReRegisterStatusQuery(currentAdId);
   const archiveStatusQuery = useAdvertisementArchiveStatusQuery(currentAdId);
+  const submitResultStatusQuery = useAdvertisementSubmitResultStatusQuery(currentAdId);
 
   const agencyId = readText(
     sourceAd?.assigned_agency_id ??
@@ -393,15 +401,23 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
               onCancelAssignment={() => setIsCancelAssignmentModalOpen(true)}
             />
           ) : null}
-          {statusInfo.key === "wait_for_repost" && reRegisterStatusQuery.data?.status !== false ? (
+          {statusInfo.key === "wait_for_repost" &&
+          (reRegisterStatusQuery.data !== undefined
+            ? Boolean(reRegisterStatusQuery.data?.data?.status ?? reRegisterStatusQuery.data?.status)
+            : false) ? (
             <WaitForRepostNotice
               ad={sourceAd}
+              reRegisterData={reRegisterStatusQuery.data}
               onRepost={() => setIsRepostChoiceModalOpen(true)}
             />
           ) : null}
-          {statusInfo.key === "archived" && archiveStatusQuery.data?.status !== false ? (
+          {statusInfo.key === "archived" &&
+          (archiveStatusQuery.data !== undefined
+            ? Boolean(archiveStatusQuery.data?.data?.status ?? archiveStatusQuery.data?.status)
+            : false) ? (
             <ArchivedNotice
               ad={sourceAd}
+              archiveData={archiveStatusQuery.data}
               isPending={restoreArchivedMutation.isPending}
               onRestore={async () => {
                 if (adId) {
@@ -428,9 +444,13 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
               }}
             />
           ) : null}
-          {statusInfo.key === "wait_for_deal_confirmation" ? (
+          {statusInfo.key === "wait_for_deal_confirmation" &&
+          (submitResultStatusQuery.data !== undefined
+            ? Boolean(submitResultStatusQuery.data?.data?.status ?? submitResultStatusQuery.data?.status)
+            : false) ? (
             <WaitForDealConfirmationNotice
               ad={sourceAd}
+              submitResultData={submitResultStatusQuery.data}
               isPending={confirmDealResultMutation.isPending}
               onConfirm={async (confirmed: boolean) => {
                 if (adId) {
@@ -1586,18 +1606,28 @@ function WaitForAgencyNotice({
 
 function WaitForRepostNotice({
   ad,
+  reRegisterData,
   onRepost,
 }: {
   ad?: Record<string, unknown>;
+  reRegisterData?: AdvertisementReRegisterStatusResponse;
   onRepost: () => void;
 }) {
-  const repostRemaining = readDeadlineRemaining(
+  const fallbackRemaining = readDeadlineRemaining(
     ad?.delete_reason && typeof ad.delete_reason === "object"
       ? (ad.delete_reason as Record<string, unknown>).repost_deadline
       : undefined,
     7,
     ad?.updated_at ?? ad?.updatedAt
   );
+  const repostRemaining =
+    reRegisterData?.expire || reRegisterData?.expires_at || reRegisterData?.reason
+      ? formatExpireDuration(
+          reRegisterData.expire,
+          reRegisterData.expires_at,
+          reRegisterData.reason || fallbackRemaining,
+        )
+      : fallbackRemaining;
 
   return (
     <div className="mt-4 rounded-2xl border border-warning bg-warning-container p-4 text-right">
@@ -1633,20 +1663,30 @@ function WaitForRepostNotice({
 
 function ArchivedNotice({
   ad,
+  archiveData,
   isPending,
   onRestore,
 }: {
   ad?: Record<string, unknown>;
+  archiveData?: AdvertisementArchiveStatusResponse;
   isPending: boolean;
   onRestore: () => void;
 }) {
-  const archiveRemaining = readDeadlineRemaining(
+  const fallbackRemaining = readDeadlineRemaining(
     ad?.delete_reason && typeof ad.delete_reason === "object"
       ? (ad.delete_reason as Record<string, unknown>).archive_deadline
       : undefined,
     30,
     ad?.updated_at ?? ad?.updatedAt
   );
+  const archiveRemaining =
+    archiveData?.expire || archiveData?.expires_at || archiveData?.reason
+      ? formatExpireDuration(
+          archiveData.expire,
+          archiveData.expires_at,
+          archiveData.reason || fallbackRemaining,
+        )
+      : fallbackRemaining;
 
   return (
     <div className="mt-4 rounded-2xl border border-outline-var bg-surface p-4 text-right">
@@ -1760,13 +1800,25 @@ function WaitForStopNotice({
 
 function WaitForDealConfirmationNotice({
   ad: _ad,
+  submitResultData,
   isPending,
   onConfirm,
 }: {
   ad?: Record<string, unknown>;
+  submitResultData?: AdvertisementSubmitResultStatusResponse;
   isPending: boolean;
   onConfirm: (confirmed: boolean) => void;
 }) {
+  const agencyName = submitResultData?.agency?.name ?? "آژانس";
+  const deadlineText =
+    submitResultData?.expire || submitResultData?.expires_at || submitResultData?.reason
+      ? formatExpireDuration(
+          submitResultData.expire,
+          submitResultData.expires_at,
+          submitResultData.reason || "مهلت پاسخ: ۳ روز",
+        )
+      : "مهلت پاسخ: ۳ روز";
+
   return (
     <div className="mt-4 rounded-2xl border-2 border-primary bg-primary-container/20 p-4 text-right shadow-sm">
       <div className="flex items-center gap-2 text-primary">
@@ -1777,7 +1829,7 @@ function WaitForDealConfirmationNotice({
       </div>
 
       <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
-        آژانس وضعیت این آگهی را «معامله انجام شده» ثبت کرده است. لطفا جهت تایید نهایی و پایان فرایند، نتیجه را مشخص نمایید (مهلت پاسخ: ۳ روز).
+        {agencyName} وضعیت این آگهی را «معامله انجام شده» ثبت کرده است. لطفا جهت تایید نهایی و پایان فرایند، نتیجه را مشخص نمایید ({deadlineText}).
       </Typography>
 
       <div className="mt-4 flex gap-2">

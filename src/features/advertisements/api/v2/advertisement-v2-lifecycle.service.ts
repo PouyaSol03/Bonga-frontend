@@ -33,7 +33,7 @@ export const submitV2DealResult = (id: string | number, payload: AdvertisementV2
   apiV2.post(`advertise/${enc(id)}/result`, { json: payload }).json();
 
 export const confirmV2DealResult = (id: string | number, confirmed: boolean) =>
-  apiV2.post(`advertise/${enc(id)}/result/confirm`, { json: { confirmed } }).json();
+  apiV2.post(`personal/advertise/${enc(id)}/result/confirm`, { json: { confirmed } }).json();
 
 // Checkout
 export const getV2Checkout = (id: string | number) =>

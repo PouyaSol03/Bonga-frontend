@@ -468,6 +468,8 @@ export type AdvertisementReRegisterStatusResponse = {
   expires_at?: string | null;
   expire?: AdvertisementExpireInfo;
   reason?: string;
+  available?: boolean;
+  data?: AdvertisementReRegisterStatusResponse;
 };
 
 export type AdvertisementSubmitResultStatusResponse = {
@@ -475,6 +477,7 @@ export type AdvertisementSubmitResultStatusResponse = {
   expires_at?: string | null;
   expire?: AdvertisementExpireInfo;
   reason?: string;
+  available?: boolean;
   submit_request?: boolean;
   submitted_by?: string;
   agency?: {
@@ -489,6 +492,9 @@ export type AdvertisementSubmitResultStatusResponse = {
     result?: string;
     description?: string;
   } | null;
+  agency_result?: unknown;
+  user_result?: unknown;
+  data?: AdvertisementSubmitResultStatusResponse;
 };
 
 export type AdvertisementArchiveStatusResponse = {
@@ -496,7 +502,32 @@ export type AdvertisementArchiveStatusResponse = {
   expires_at?: string | null;
   expire?: AdvertisementExpireInfo;
   reason?: string;
+  available?: boolean;
+  data?: AdvertisementArchiveStatusResponse;
 };
+
+function unwrapEligibilityResponse<T extends { status: boolean }>(res: unknown): T {
+  if (res && typeof res === "object") {
+    const raw = res as Record<string, unknown>;
+    const data =
+      raw.data && typeof raw.data === "object"
+        ? (raw.data as Record<string, unknown>)
+        : raw;
+    const status =
+      typeof data.status === "boolean"
+        ? data.status
+        : typeof raw.status === "boolean"
+          ? raw.status
+          : false;
+
+    return {
+      ...data,
+      status,
+      data,
+    } as unknown as T;
+  }
+  return { status: false } as unknown as T;
+}
 
 export async function getAdvertisementHistory(
   advertiseId: string | number,
@@ -513,7 +544,8 @@ export async function getAdvertisementReRegisterStatus(
   advertiseId: string | number,
 ): Promise<AdvertisementReRegisterStatusResponse> {
   try {
-    return await getV2ReRegisterEligibility(advertiseId);
+    const res = await getV2ReRegisterEligibility(advertiseId);
+    return unwrapEligibilityResponse<AdvertisementReRegisterStatusResponse>(res);
   } catch {
     return { status: false };
   }
@@ -523,7 +555,8 @@ export async function getAdvertisementSubmitResultStatus(
   advertiseId: string | number,
 ): Promise<AdvertisementSubmitResultStatusResponse> {
   try {
-    return await getV2DealResultEligibility(advertiseId);
+    const res = await getV2DealResultEligibility(advertiseId);
+    return unwrapEligibilityResponse<AdvertisementSubmitResultStatusResponse>(res);
   } catch {
     return { status: false };
   }
@@ -533,7 +566,8 @@ export async function getAdvertisementArchiveStatus(
   advertiseId: string | number,
 ): Promise<AdvertisementArchiveStatusResponse> {
   try {
-    return await getV2ArchiveEligibility(advertiseId);
+    const res = await getV2ArchiveEligibility(advertiseId);
+    return unwrapEligibilityResponse<AdvertisementArchiveStatusResponse>(res);
   } catch {
     return { status: false };
   }

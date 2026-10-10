@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useMouseDragScroll } from "../hooks/useMouseDragScroll";
 
 type HorizontalFilterBarProps = {
   ariaLabel: string;
@@ -20,8 +21,11 @@ export function HorizontalFilterBar({
   className = "",
   contentClassName = "",
 }: HorizontalFilterBarProps) {
+  const scrollRef = useMouseDragScroll<HTMLElement>();
+
   return (
     <section
+      ref={scrollRef}
       aria-label={ariaLabel}
       className={`shrink-0 overflow-x-auto overscroll-x-contain px-4 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
       dir="rtl"

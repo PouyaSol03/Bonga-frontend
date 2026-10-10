@@ -6,6 +6,7 @@ import { AdCard } from "../../advertisements/components/AdCard";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import LinearAnalytics from "../../../shared/icons/LinearAnalytics";
+import { useMouseDragScroll } from "../../../shared/hooks/useMouseDragScroll";
 
 const MAX_POPULAR_ADS = 10;
 
@@ -47,6 +48,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const settleTimerRef = useRef<number | null>(null);
+  useMouseDragScroll(scrollerRef);
 
   const advertisementsQuery = useTopViewedAdvertisementsQuery();
 

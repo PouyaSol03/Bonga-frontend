@@ -1961,6 +1961,7 @@ export function ViewAdPage() {
       },
       {
         onError: (reportError) => {
+          setIsViolationReportOpen(false);
           if (isUnauthorizedApiError(reportError)) {
             requireAuthorization("ارسال گزارش تخلف");
             return;
@@ -1974,7 +1975,7 @@ export function ViewAdPage() {
         },
         onSuccess: () => {
           setIsViolationReportOpen(false);
-          showToast("گزارش تخلف ارسال شد");
+          showToast("گزارش تخلف با موفقیت ثبت شد", "موفق", "success");
         },
       },
     );

@@ -859,7 +859,7 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("loanInstallment", rawLoanInstallment, numericInputText);
   setText("virtualTourLink", readFirstValue(ad, features, ["virtual_tour_link", "virtual_tour", "tour_3d", "tour3d"], ["virtual_tour_link", "virtualTourLink"]));
   setText("title", readFirstValue(ad, features, ["title"], ["title", "label", "name"]));
-  setText("description", readFirstValue(ad, features, ["description"], ["description", "short_description", "body"]));
+  next.description = readText(ad.description);
   setText("publisherName", readPublisherName(ad, features));
   setText("agencyId", readTextValue(ad, features, ["agency_id", "agencyId", "publisher_agency_id"], ["agency_id", "agencyId", "publisher_agency_id"]));
   const resolvedConsultantId = readFirstValue(

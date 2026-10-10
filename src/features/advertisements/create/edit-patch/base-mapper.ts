@@ -38,11 +38,6 @@ export function mapChangedBaseFields(
     appender.appendBase("virtual_tour_link", clean.hasVirtualTour ? clean.virtualTourLink.trim() : "");
   }
 
-  if (changed.has("registrantType")) {
-    appender.appendBase("owner_type", clean.registrantType);
-    appender.appendDynamic("advertiser_type", clean.registrantType === "personal" ? "شخصی" : "مشاور املاک");
-  }
-
   if (changed.has("agencyId")) {
     appender.appendBase("agency_id", clean.registrantType === "agency" ? clean.agencyId.trim() : "");
   }
@@ -50,7 +45,6 @@ export function mapChangedBaseFields(
   if (changed.has("consultantId")) {
     const cId = clean.consultantId ? clean.consultantId.trim() : "";
     appender.appendBase("consultant_id", cId);
-    appender.appendBase("assigned_consultant_id", cId);
   }
 
   // Edit Mode Policy: NEVER send owner_name; send owner_contact_name like owner_contact_phone

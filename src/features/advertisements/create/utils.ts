@@ -416,7 +416,7 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
   return {
     age: readText(card.year, ad.age, ad.building_age),
     chatEnabled: true,
-    description: readText(ad.description, ad.body) || [title, card.timeAndLocation].filter(Boolean).join("\n"),
+    description: readText(ad.description),
     location,
     meterage: pickFirstNumber(readText(card.area, ad.area, ad.meterage)),
     mortgagePrice,
@@ -836,7 +836,6 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "has_image", values.photos.length > 0);
   addFeature(features, "has_video", values.hasVideo);
   addFeature(features, "has_virtual_tour", values.hasVirtualTour);
-  addFeature(features, "advertiser_type", values.registrantType);
   addFeature(features, "publisher", values.registrantType === "agency" ? values.publisherName : "");
   addFeature(features, "agency_id", values.registrantType === "agency" ? values.agencyId : "");
   addFeature(features, "consultant_id", values.consultantId ? values.consultantId : "");
@@ -914,12 +913,6 @@ export function buildNewAdFormData(
     cleanValues.chatEnabled ? "chat" : null,
     cleanValues.phoneEnabled ? "phone" : null,
   ].filter((value): value is string => Boolean(value));
-  const advertiserType =
-    cleanValues.registrantType === "personal"
-      ? "شخصی"
-      : cleanValues.registrantType === "agency"
-        ? "مشاور املاک"
-        : "";
   const formData = new FormData();
   const dynamicFieldKeys = new Set(options.dynamicFieldKeys ?? []);
 
@@ -1038,17 +1031,12 @@ export function buildNewAdFormData(
     "virtual_tour_link",
     cleanValues.hasVirtualTour ? cleanValues.virtualTourLink.trim() : "",
   );
-  appendBaseValue("owner_type", cleanValues.registrantType);
-  if (params.publisherType) {
-    appendBaseValue("publisher_type", params.publisherType);
-  }
   appendBaseValue(
     "agency_id",
     cleanValues.registrantType === "agency" ? cleanValues.agencyId.trim() : "",
   );
   if (cleanValues.consultantId) {
     appendBaseValue("consultant_id", cleanValues.consultantId.trim());
-    appendBaseValue("assigned_consultant_id", cleanValues.consultantId.trim());
   }
   if (!options.isEdit) {
     appendBaseValue("owner_phone", cleanValues.phoneNumber);
@@ -1222,7 +1210,6 @@ export function buildNewAdFormData(
       ? values.constructionLicense === "دارد"
       : values.constructionPermit,
   );
-  appendDynamicValue("advertiser_type", advertiserType);
   appendDynamicValue("has_image", values.photos.length > 0);
   appendDynamicValue("has_video", Boolean(values.video));
 
@@ -1277,6 +1264,9 @@ export function buildNewAdFormData(
   }
 
   if (options.isDraft) {
+    for (const key of ["images", "existing_images", "contact_type", "contact_type[]"]) {
+      formData.delete(key);
+    }
     formData.delete("label");
     formData.delete("description");
   }

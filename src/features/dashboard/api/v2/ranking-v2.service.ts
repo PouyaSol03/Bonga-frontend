@@ -3,6 +3,8 @@ import type { DashboardRankingEntity } from "../dashboard.service";
 
 export interface V2RankingSummary {
   current?: {
+    agency_id?: string | number;
+    agent_id?: string | number;
     totalScore?: number;
     total_score?: number;
     levelTitle?: string;
@@ -11,8 +13,11 @@ export interface V2RankingSummary {
     level_slug?: string;
     rank?: number | null;
     raw_metrics?: {
-      registered_ads?: number | null;
       published_ads?: number | null;
+      active_consultants?: number | null;
+      updated_ads?: number | null;
+      special_ads?: number | null;
+      registered_ads?: number | null;
       pending_review_ads?: number | null;
       rejected_ads?: number | null;
       [key: string]: number | null | undefined;
@@ -103,10 +108,63 @@ export function normalizeV2RankingSummary(response: unknown): V2RankingSummary {
     return item?.available === false ? null : rankingCount(item?.count);
   };
 
+  const publishedAds = rankingCount(
+    rawMetrics.published_ads ??
+    rawMetrics.publishedAds ??
+    work.published_advertises ??
+    work.publishedAdvertises ??
+    reports.published_ads_count
+  );
+
+  const activeConsultants = rankingCount(
+    rawMetrics.active_consultants ??
+    rawMetrics.activeConsultants ??
+    work.active_consultants ??
+    work.activeConsultants
+  );
+
+  const updatedAds = rankingCount(
+    rawMetrics.updated_ads ??
+    rawMetrics.updatedAds ??
+    rawMetrics.renewed_advertises ??
+    rawMetrics.renewedAdvertises ??
+    work.renewed_advertises ??
+    work.renewedAdvertises
+  );
+
+  const specialAds = rankingCount(
+    rawMetrics.special_ads ??
+    rawMetrics.specialAds ??
+    work.special_advertises ??
+    work.specialAdvertises
+  );
+
+  const registeredAds = rankingCount(
+    rawMetrics.registered_ads ??
+    rawMetrics.registeredAds ??
+    work.created_advertises ??
+    work.createdAdvertises
+  );
+
+  const pendingReviewAds = rankingCount(
+    rawMetrics.pending_review_ads ??
+    rawMetrics.pendingReviewAds ??
+    work.pending_review ??
+    work.pendingReview
+  ) ?? taskCount("pending_review");
+
+  const rejectedAds = rankingCount(
+    rawMetrics.rejected_ads ??
+    rawMetrics.rejectedAds ??
+    work.rejected
+  ) ?? taskCount("rejected");
+
   return {
     ...ranking as V2RankingSummary,
     current: {
       ...current,
+      agency_id: current.agency_id as string | number | undefined,
+      agent_id: current.agent_id as string | number | undefined,
       totalScore: rankingCount(current.total_score ?? current.totalScore ?? current.current_score) ?? 0,
       total_score: rankingCount(current.total_score ?? current.totalScore ?? current.current_score) ?? 0,
       levelTitle: typeof (current.level_title ?? current.levelTitle ?? current.badge_title) === "string"
@@ -119,21 +177,24 @@ export function normalizeV2RankingSummary(response: unknown): V2RankingSummary {
         ? String(current.level_slug ?? current.levelSlug) : undefined,
       rank: rankingCount(ranking.rank ?? current.rank),
       raw_metrics: {
-        registered_ads: rankingCount(rawMetrics.registered_ads ?? rawMetrics.registeredAds) ?? 0,
-        published_ads: rankingCount(rawMetrics.published_ads ?? rawMetrics.publishedAds) ?? 0,
-        pending_review_ads: rankingCount(rawMetrics.pending_review_ads ?? rawMetrics.pendingReviewAds) ?? 0,
-        rejected_ads: rankingCount(rawMetrics.rejected_ads ?? rawMetrics.rejectedAds) ?? 0,
+        published_ads: publishedAds,
+        active_consultants: activeConsultants,
+        updated_ads: updatedAds,
+        special_ads: specialAds,
+        registered_ads: registeredAds ?? 0,
+        pending_review_ads: pendingReviewAds ?? 0,
+        rejected_ads: rejectedAds ?? 0,
       },
     },
     rank: rankingCount(ranking.rank ?? current.rank),
     workSummary: {
-      publishedAdvertises: rankingCount(work.published_advertises ?? work.publishedAdvertises ?? reports.published_ads_count ?? rawMetrics.published_ads ?? rawMetrics.publishedAds),
-      createdAdvertises: rankingCount(work.created_advertises ?? work.createdAdvertises ?? rawMetrics.registered_ads ?? rawMetrics.registeredAds),
-      pendingReview: rankingCount(work.pending_review ?? work.pendingReview ?? rawMetrics.pending_review_ads ?? rawMetrics.pendingReviewAds) ?? taskCount("pending_review"),
-      rejected: rankingCount(work.rejected ?? rawMetrics.rejected_ads ?? rawMetrics.rejectedAds) ?? taskCount("rejected"),
-      activeConsultants: rankingCount(work.active_consultants ?? work.activeConsultants),
-      renewedAdvertises: rankingCount(work.renewed_advertises ?? work.renewedAdvertises),
-      specialAdvertises: rankingCount(work.special_advertises ?? work.specialAdvertises),
+      publishedAdvertises: publishedAds,
+      createdAdvertises: registeredAds,
+      pendingReview: pendingReviewAds,
+      rejected: rejectedAds,
+      activeConsultants,
+      renewedAdvertises: updatedAds,
+      specialAdvertises: specialAds,
     },
   };
 }

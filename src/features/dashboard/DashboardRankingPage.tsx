@@ -112,30 +112,32 @@ function AgencyDashboardRankingPage() {
       })
     : (v2Summary?.topEntities ?? []);
 
+  const rawMetrics = v2Summary?.current?.raw_metrics;
+
   const indicators: AgencyIndicator[] = [
     {
       Icon: LinearClockAlarm,
       id: "published-ads",
       label: "آگهی‌های منتشرشده",
-      value: formatOptionalNumber(workSummary?.publishedAdvertises),
+      value: formatOptionalNumber(rawMetrics?.published_ads ?? workSummary?.publishedAdvertises),
     },
     {
       Icon: LinearPercenTeam,
       id: "active-consultants",
       label: "مشاوران دارای فعالیت",
-      value: formatOptionalNumber(workSummary?.activeConsultants),
+      value: formatOptionalNumber(rawMetrics?.active_consultants ?? workSummary?.activeConsultants),
     },
     {
       Icon: LinearLike,
       id: "renewed-ads",
       label: "بروزرسانی آگهی‌ها",
-      value: formatOptionalNumber(workSummary?.renewedAdvertises),
+      value: formatOptionalNumber(rawMetrics?.updated_ads ?? workSummary?.renewedAdvertises),
     },
     {
       Icon: LinearPercenTeam,
       id: "special-ads",
       label: "آگهی‌های ویژه",
-      value: formatOptionalNumber(workSummary?.specialAdvertises),
+      value: formatOptionalNumber(rawMetrics?.special_ads ?? workSummary?.specialAdvertises),
     },
   ];
 

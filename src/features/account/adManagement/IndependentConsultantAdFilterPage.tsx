@@ -37,12 +37,10 @@ import LinearArrowDown1 from "../../../shared/icons/LinearArrowDown1";
 const neighborhoodSearchDebounceMs = 250;
 
 const statusOptions = [
-  "منتشر شده",
-  "منقضی شده",
-  "حذف شده",
-  "در انتظار پرداخت",
-  "معامله موفق",
-  "معامله ناموفق",
+  "در انتظار",
+  "فعال",
+  "غیر فعال",
+  "نیمه کاره",
 ];
 
 const emptyFilters: AdManagementFilters = {

@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { pushRoute } from "../../../shared/navigation/navigation";
 import { getApiErrorMessage } from "../../../shared/api/api";
+import { useToast } from "../../../shared/hooks/useToast";
 import {
   useAgencyAdvertiseAssignmentsInfiniteQuery,
   useRejectAgencyAdvertiseAssignmentMutation,
@@ -45,7 +46,8 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
   const [selectedReason, setSelectedReason] = useState<RejectReason | null>(
     props?.initialReason ?? null,
   );
-  const [, setErrorMessage] = useState("");
+  const { showToast } = useToast();
+  const showError = (message: string) => showToast(message, "خطا", "error");
   const rejectAssignmentMutation = useRejectAgencyAdvertiseAssignmentMutation();
   const shouldResolveAssignment = !routeState.assignmentId && !routeState.assignment?.id;
   const assignmentsQuery = useAgencyAdvertiseAssignmentsInfiniteQuery({
@@ -82,16 +84,15 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
     if (rejectAssignmentMutation.isPending) return;
 
     if (!selectedReason) {
-      setErrorMessage("لطفاً دلیل عدم تأیید آگهی را انتخاب کنید.");
+      showError("لطفاً دلیل عدم تأیید آگهی را انتخاب کنید.");
       return;
     }
 
     if (assignmentId === undefined || assignmentId === null || assignmentId === "") {
-      setErrorMessage("شناسه درخواست تخصیص برای رد آگهی موجود نیست.");
+      showError("شناسه درخواست تخصیص برای رد آگهی موجود نیست.");
       return;
     }
 
-    setErrorMessage("");
     rejectAssignmentMutation.mutate(
       {
         assignmentId,
@@ -99,7 +100,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
       },
       {
         onError: (error) => {
-          setErrorMessage(
+          showError(
             getApiErrorMessage(error, "رد درخواست ثبت آگهی با خطا مواجه شد."),
           );
         },
@@ -189,7 +190,6 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
                     name="agency-assignment-reject-reason"
                     onChange={() => {
                       setSelectedReason(reason);
-                      setErrorMessage("");
                     }}
                     type="radio"
                     value={reason}

@@ -132,7 +132,7 @@ export function AgencyUserContactBottomSheet({
           <>
             <div className="flex h-14 items-center justify-between [direction:ltr]">
               <a
-                className="text-left text-base font-semibold leading-6 text-on-surface no-underline hover:text-primary [direction:ltr]"
+                className="text-left text-base font-semibold leading-6 text-on-surface no-underline [direction:ltr]"
                 href={`tel:${phoneHref}`}
                 tabIndex={isOpen ? 0 : -1}
               >
@@ -157,7 +157,7 @@ export function AgencyUserContactBottomSheet({
           <>
             <div className="flex h-14 items-center justify-between [direction:ltr]">
               <a
-                className="text-left text-base font-semibold leading-6 text-on-surface no-underline hover:text-primary [direction:ltr]"
+                className="text-left text-base font-semibold leading-6 text-on-surface no-underline [direction:ltr]"
                 href={`sms:${smsHref}`}
                 tabIndex={isOpen ? 0 : -1}
               >
@@ -207,7 +207,7 @@ export function AgencyUserContactBottomSheet({
               {socialLinks.map((item) => (
                 <a
                   aria-label={item.ariaLabel}
-                  className="transition-transform hover:scale-105 active:scale-95"
+                  className="transition-transform active:scale-95"
                   href={item.url}
                   key={item.type}
                   rel="noreferrer"

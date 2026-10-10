@@ -1989,7 +1989,7 @@ function AgencyReassignBottomSheet({
                   className={`flex w-full items-center justify-between gap-3 rounded-xl p-3 text-right transition-colors border ${
                     isSelected
                       ? "border-primary bg-primary/5"
-                      : "border-outline-var/40 bg-surface hover:bg-surface-container"
+                      : "border-outline-var/40 bg-surface"
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -2082,7 +2082,7 @@ function StopPublishModal({
           {STOP_PUBLISH_REASONS.map((option) => (
             <label
               key={option.id}
-              className="flex items-center justify-between rounded-xl border border-outline-var p-3 cursor-pointer hover:bg-surface-container"
+              className="flex items-center justify-between rounded-xl border border-outline-var p-3 cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
                 <input

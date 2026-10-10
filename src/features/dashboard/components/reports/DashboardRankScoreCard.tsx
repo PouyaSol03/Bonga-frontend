@@ -86,7 +86,7 @@ export function DashboardRankScoreCard({
           {displayTitle}
         </Typography>
         <RouteLink
-          className="flex items-center gap-1 text-primary hover:underline"
+          className="flex items-center gap-1 text-primary"
           to={badgesTo}
         >
           <Typography

@@ -64,7 +64,7 @@ export function DashboardRecentAdsCard({
         <Typography as="h2" variant="title" size="small" weight="semibold" className="text-on-surface">
           {title}
         </Typography>
-        <RouteLink className="flex items-center gap-1 text-primary hover:underline" to={viewAllTo}>
+        <RouteLink className="flex items-center gap-1 text-primary" to={viewAllTo}>
           <Typography as="span" variant="label" size="small" weight="medium" className="text-primary">
             مشاهده همه
           </Typography>
@@ -116,7 +116,7 @@ export function DashboardRecentAdsCard({
                   className={`h-1.5 rounded-full transition-all duration-300 border-none p-0 cursor-pointer ${
                     idx === activeIndex
                       ? "w-4 bg-on-surface"
-                      : "w-1.5 bg-surface-container-highest hover:bg-outline"
+                      : "w-1.5 bg-surface-container-highest"
                   }`}
                 />
               ))}

@@ -1600,7 +1600,7 @@ export function ApiPaymentCheckoutView({
               <button
                 type="button"
                 onClick={onRemoveDiscount}
-                className="cursor-pointer text-xs font-semibold text-error hover:underline"
+                className="cursor-pointer text-xs font-semibold text-error"
               >
                 حذف کد
               </button>
@@ -1609,7 +1609,7 @@ export function ApiPaymentCheckoutView({
             <div className="flex items-center gap-2 [direction:ltr]">
               <Button
                 unstyled
-                className="h-12 shrink-0 rounded-xl bg-primary px-5 text-sm font-semibold leading-5 text-on-primary shadow-xs transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-outline"
+                className="h-12 shrink-0 rounded-xl bg-primary px-5 text-sm font-semibold leading-5 text-on-primary shadow-xs transition-colors disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-outline"
                 disabled={discountLoading || !discountInput.trim() || !onApplyDiscount}
                 onClick={onApplyDiscount}
                 type="button"
@@ -1662,7 +1662,7 @@ export function ApiPaymentCheckoutView({
 
       <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-sm">
         <Button unstyled
-          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!selectedMethodAvailable || pending}
           onClick={onSubmit}
           type="button"
@@ -1783,7 +1783,7 @@ function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
     <div>
       <div className="flex h-[56px] items-center justify-between rounded-xl border border-[#FFE8CC] bg-[#FFF8EE] px-4 [direction:ltr]">
         <Button unstyled
-          className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#00966D] hover:bg-[#00825E] px-3.5 py-2 text-xs font-semibold leading-5 text-white shadow-xs transition-colors disabled:opacity-60"
+          className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#00966D] px-3.5 py-2 text-xs font-semibold leading-5 text-white shadow-xs transition-colors disabled:opacity-60"
           disabled={chargeWalletMutation.isPending}
           onClick={chargeWallet}
           type="button"

@@ -24,7 +24,7 @@ export function DashboardExpiringAdCard({ ad }: DashboardExpiringAdCardProps) {
   return (
     <RouteLink
       to={targetLink}
-      className="flex flex-col justify-between rounded-[12px] bg-surface-container-lowest p-4 border border-outline-variant transition-transform active:scale-[0.99] hover:border-outline [direction:rtl]"
+      className="flex flex-col justify-between rounded-[12px] bg-surface-container-lowest p-4 border border-outline-variant transition-transform active:scale-[0.99] [direction:rtl]"
     >
       {/* Top row: Image + Title + Subtitle + Arrow */}
       <div className="flex items-center justify-between gap-3">

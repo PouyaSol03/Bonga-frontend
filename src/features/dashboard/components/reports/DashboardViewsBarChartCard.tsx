@@ -111,7 +111,7 @@ export function DashboardViewsBarChartCard({
         {/* Period Dropdown - Without border */}
         <div className="relative">
           <button
-            className="flex items-center gap-1 rounded-lg px-2 py-1 text-on-surface transition hover:bg-surface-container-low active:scale-95 cursor-pointer border-none bg-transparent"
+            className="flex items-center gap-1 rounded-lg px-2 py-1 text-on-surface transition active:scale-95 cursor-pointer border-none bg-transparent"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             type="button"
           >
@@ -130,7 +130,7 @@ export function DashboardViewsBarChartCard({
           {isDropdownOpen && (
             <div className="absolute left-0 top-full mt-1 z-30 min-w-[110px] rounded-lg border border-outline-var bg-surface-container-lowest py-1 shadow-md">
               <button
-                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition hover:bg-surface-container-low cursor-pointer border-none ${
+                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition cursor-pointer border-none ${
                   effectivePeriod === "year"
                     ? "font-bold text-primary bg-primary/5"
                     : "text-on-surface-var bg-transparent"
@@ -144,7 +144,7 @@ export function DashboardViewsBarChartCard({
                 )}
               </button>
               <button
-                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition hover:bg-surface-container-low cursor-pointer border-none ${
+                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition cursor-pointer border-none ${
                   effectivePeriod === "month"
                     ? "font-bold text-primary bg-primary/5"
                     : "text-on-surface-var bg-transparent"
@@ -198,7 +198,7 @@ export function DashboardViewsBarChartCard({
             aria-label="ماه قبل"
             className={`cursor-pointer border-none bg-transparent p-0 transition ${
               canScrollLeft
-                ? "text-on-surface hover:text-primary active:scale-90"
+                ? "text-on-surface active:scale-90"
                 : "text-outline-var opacity-20 cursor-not-allowed"
             }`}
             disabled={!canScrollLeft}
@@ -212,7 +212,7 @@ export function DashboardViewsBarChartCard({
             aria-label="ماه بعد"
             className={`cursor-pointer border-none bg-transparent p-0 transition ${
               canScrollRight
-                ? "text-on-surface hover:text-primary active:scale-90"
+                ? "text-on-surface active:scale-90"
                 : "text-outline-var opacity-20 cursor-not-allowed"
             }`}
             disabled={!canScrollRight}

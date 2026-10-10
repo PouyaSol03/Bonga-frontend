@@ -1280,7 +1280,7 @@ function AgencyReassignBottomSheet({
                 <div
                   key={id}
                   onClick={() => setSelectedAgencyId(id)}
-                  className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${isSelected ? "border-primary bg-primary-container/30" : "border-outline-var/30 hover:bg-surface-container-low"
+                  className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${isSelected ? "border-primary bg-primary-container/30" : "border-outline-var/30"
                     }`}
                 >
                   <div className="flex items-center gap-3">

@@ -175,7 +175,7 @@ export function PackagePaymentMethodSheet({
               <button
                 type="button"
                 onClick={handleRemoveDiscount}
-                className="cursor-pointer text-xs font-medium text-error hover:underline"
+                className="cursor-pointer text-xs font-medium text-error"
               >
                 حذف کد
               </button>
@@ -318,7 +318,7 @@ function PaymentMethodRow({
       className={`flex min-h-[72px] w-full items-center justify-between gap-3 px-4 py-3 text-right [direction:ltr] transition ${
         disabled
           ? "cursor-not-allowed opacity-50 bg-surface-container/30"
-          : "cursor-pointer hover:bg-surface-container/20"
+          : "cursor-pointer"
       }`}
       onClick={disabled ? undefined : onClick}
       type="button"

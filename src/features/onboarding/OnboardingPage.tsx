@@ -347,7 +347,6 @@ export function OnboardingPage() {
                       : "h-2 cursor-pointer rounded-full border-0 bg-primary-container p-0 outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
                   }
                   animate={{ width: isActive ? 24 : 8 }}
-                  whileHover={shouldReduceMotion ? undefined : { scale: 1.12 }}
                   whileTap={shouldReduceMotion ? undefined : { scale: 0.92 }}
                   transition={{ duration: shouldReduceMotion ? 0.01 : 0.2 }}
                   key={index}

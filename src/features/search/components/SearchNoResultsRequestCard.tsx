@@ -72,7 +72,7 @@ export function SearchNoResultsRequestCard({
         </label>
 
         <Button unstyled
-          className="mt-8 inline-flex h-10 w-full items-center justify-center rounded-xl border border-primary bg-primary-container text-sm font-semibold text-primary transition hover:opacity-90 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+          className="mt-8 inline-flex h-10 w-full items-center justify-center rounded-xl border border-primary bg-primary-container text-sm font-semibold text-primary transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
           type="submit"
         >
           ثبت درخواست

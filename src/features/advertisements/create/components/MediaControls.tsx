@@ -21,7 +21,7 @@ export function RadioCard({
     <Button unstyled
       aria-pressed={checked}
       className={`w-full rounded-[12px] border px-4 py-3.5 text-right transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.99] [direction:ltr] ${
-        checked ? "border-primary bg-primary-container/20 shadow-sm" : "border-outline-var hover:border-outline hover:bg-surface-container-low"
+        checked ? "border-primary bg-primary-container/20 shadow-sm" : "border-outline-var"
       }`}
       onClick={onClick}
       type="button"

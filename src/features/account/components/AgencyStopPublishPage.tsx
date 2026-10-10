@@ -91,7 +91,7 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
               <label
                 key={option.id}
                 onClick={() => setSelectedReason(option.id)}
-                className="flex cursor-pointer items-center justify-between rounded-xl py-2 px-1 hover:bg-surface-container-low transition-colors"
+                className="flex cursor-pointer items-center justify-between rounded-xl py-2 px-1 transition-colors"
               >
                 <Typography variant="body" size="large" weight="regular" className="text-on-surface">
                   {option.label}

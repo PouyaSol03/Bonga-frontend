@@ -811,7 +811,7 @@ function DashboardPeriodControl({
   }
 
   return (
-    <label className="relative flex h-7 items-center rounded-lg bg-transparent transition hover:bg-surface-container-high">
+    <label className="relative flex h-7 items-center rounded-lg bg-transparent transition">
       <select
         aria-label="بازه زمانی داشبورد آژانس"
         className="h-7 cursor-pointer appearance-none rounded-lg bg-transparent py-1 pl-7 pr-2 text-xs font-medium text-on-surface outline-none"
@@ -1311,7 +1311,7 @@ function ConsultantActivityCard({
       <div className="mb-4 flex items-center justify-between px-1">
         <Button unstyled
           aria-label="قبلی"
-          className="grid h-8 w-8 place-items-center rounded-full text-on-surface-var transition hover:bg-surface-container-high"
+          className="grid h-8 w-8 place-items-center rounded-full text-on-surface-var transition"
           onClick={() => scrollConsultantChart("previous")}
           type="button"
         >
@@ -1321,7 +1321,7 @@ function ConsultantActivityCard({
         </Button>
         <Button unstyled
           aria-label="بعدی"
-          className="grid h-8 w-8 place-items-center rounded-full text-on-surface-var transition hover:bg-surface-container-high"
+          className="grid h-8 w-8 place-items-center rounded-full text-on-surface-var transition"
           onClick={() => scrollConsultantChart("next")}
           type="button"
         >

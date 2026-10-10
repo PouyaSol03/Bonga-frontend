@@ -70,7 +70,7 @@ function BaseErrorState({
                     className="
             inline-flex h-10 min-w-[124px] items-center justify-center gap-2 rounded-[10px]
             bg-primary px-5 text-[14px] font-medium text-on-primary
-            transition hover:opacity-90
+            transition
             disabled:cursor-not-allowed disabled:opacity-60
           "
                 >
@@ -202,7 +202,7 @@ export function AccessDeniedState({ onBack }: { onBack: () => void }) {
                 </Typography>
 
                 <Button unstyled
-                    className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-primary px-4 text-sm font-medium text-on-primary transition hover:opacity-90"
+                    className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-primary px-4 text-sm font-medium text-on-primary transition"
                     onClick={onBack}
                     type="button"
                 >

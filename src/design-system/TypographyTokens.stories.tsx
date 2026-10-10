@@ -35,7 +35,7 @@ function TypographyRow({
   sampleText = "خرید و اجاره آپارتمان در تهران با قیمت مناسب",
 }: TypographyRowProps) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-[#e5e5e5] bg-white p-4 shadow-sm transition hover:border-[#0048c4]">
+    <div className="flex flex-col gap-2 rounded-xl border border-[#e5e5e5] bg-white p-4 shadow-sm transition">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#f0f0f0] pb-2 text-xs text-[#666666]">
         <span className="font-bold text-[#0048c4]">{name}</span>
         <div className="flex items-center gap-4">

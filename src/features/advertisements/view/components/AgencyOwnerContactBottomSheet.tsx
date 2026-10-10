@@ -169,7 +169,7 @@ export function AgencyOwnerContactBottomSheet({
               ) : null}
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
-                  className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var hover:bg-surface-container"
+                  className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var"
                   disabled={isSaving}
                   onClick={handleCancelEdit}
                   type="button"
@@ -177,7 +177,7 @@ export function AgencyOwnerContactBottomSheet({
                   انصراف
                 </button>
                 <button
-                  className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-on-primary hover:bg-primary/90 disabled:opacity-50"
+                  className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-on-primary disabled:opacity-50"
                   disabled={isSaving}
                   onClick={handleSaveEdit}
                   type="button"
@@ -197,7 +197,7 @@ export function AgencyOwnerContactBottomSheet({
               <div className="flex items-center gap-2 [direction:ltr]">
                 <button
                   aria-label="ویرایش نام مالک"
-                  className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#E9EAEE] text-[#2E2D3E] transition-colors hover:bg-[#DCDFE5]"
+                  className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#E9EAEE] text-[#2E2D3E] transition-colors"
                   onClick={() => handleStartEdit("name")}
                   type="button"
                 >
@@ -243,7 +243,7 @@ export function AgencyOwnerContactBottomSheet({
               ) : null}
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
-                  className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var hover:bg-surface-container"
+                  className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var"
                   disabled={isSaving}
                   onClick={handleCancelEdit}
                   type="button"
@@ -251,7 +251,7 @@ export function AgencyOwnerContactBottomSheet({
                   انصراف
                 </button>
                 <button
-                  className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-on-primary hover:bg-primary/90 disabled:opacity-50"
+                  className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-on-primary disabled:opacity-50"
                   disabled={isSaving}
                   onClick={handleSaveEdit}
                   type="button"
@@ -271,7 +271,7 @@ export function AgencyOwnerContactBottomSheet({
               <div className="flex items-center gap-2 [direction:ltr]">
                 <button
                   aria-label="ویرایش شماره همراه"
-                  className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#E9EAEE] text-[#2E2D3E] transition-colors hover:bg-[#DCDFE5]"
+                  className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#E9EAEE] text-[#2E2D3E] transition-colors"
                   onClick={() => handleStartEdit("phone")}
                   type="button"
                 >
@@ -279,7 +279,7 @@ export function AgencyOwnerContactBottomSheet({
                 </button>
                 {phone.trim() ? (
                   <a
-                    className="text-sm font-semibold text-on-surface no-underline hover:text-primary"
+                    className="text-sm font-semibold text-on-surface no-underline"
                     href={`tel:${phoneHref}`}
                   >
                     {phoneDisplay}
@@ -320,7 +320,7 @@ export function AgencyOwnerContactBottomSheet({
               ) : null}
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
-                  className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var hover:bg-surface-container"
+                  className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var"
                   disabled={isSaving}
                   onClick={handleCancelEdit}
                   type="button"
@@ -328,7 +328,7 @@ export function AgencyOwnerContactBottomSheet({
                   انصراف
                 </button>
                 <button
-                  className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-on-primary hover:bg-primary/90 disabled:opacity-50"
+                  className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-on-primary disabled:opacity-50"
                   disabled={isSaving}
                   onClick={handleSaveEdit}
                   type="button"
@@ -348,7 +348,7 @@ export function AgencyOwnerContactBottomSheet({
                 </div>
                 <button
                   aria-label="ویرایش نشانی دقیق"
-                  className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#E9EAEE] text-[#2E2D3E] transition-colors hover:bg-[#DCDFE5]"
+                  className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#E9EAEE] text-[#2E2D3E] transition-colors"
                   onClick={() => handleStartEdit("address")}
                   type="button"
                 >

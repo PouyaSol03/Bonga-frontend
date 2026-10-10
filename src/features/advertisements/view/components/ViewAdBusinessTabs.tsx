@@ -75,7 +75,7 @@ export function ViewAdBusinessTabs({
             className={`relative flex flex-col items-center justify-center gap-1.5 h-full w-full bg-transparent border-none cursor-pointer transition select-none ${
               isActive
                 ? "text-primary"
-                : "text-on-surface-var/70 hover:text-on-surface hover:opacity-100"
+                : "text-on-surface-var/70"
             }`}
           >
             <IconComponent

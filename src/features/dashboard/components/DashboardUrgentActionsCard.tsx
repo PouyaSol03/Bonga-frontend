@@ -107,7 +107,7 @@ export function DashboardUrgentActionsCard({
         </Typography>
         {actionItems.length > 0 && (
           <RouteLink
-            className="flex items-center gap-1 text-primary hover:underline"
+            className="flex items-center gap-1 text-primary"
             to={viewAllTo}
           >
             <Typography
@@ -164,7 +164,7 @@ export function DashboardUrgentActionsCard({
               <RouteLink
                 key={item.id}
                 to={item.to || "#"}
-                className={`flex items-center justify-between rounded-[12px] border ${style.border} ${style.bg} p-2.5 transition hover:opacity-90 active:scale-[0.99] no-underline`}
+                className={`flex items-center justify-between rounded-[12px] border ${style.border} ${style.bg} p-2.5 transition active:scale-[0.99] no-underline`}
               >
                 <div className="flex items-center gap-3">
                   {/* Number Badge */}

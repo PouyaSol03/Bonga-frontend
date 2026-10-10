@@ -98,7 +98,7 @@ export function ViewAdPerformanceProgressCharts({
             </Typography>
             <button
               aria-label={`توضیحات ${activeMetric.chartTitle}`}
-              className="grid h-5 w-5 place-items-center rounded-full text-on-surface-var hover:text-on-surface cursor-pointer"
+              className="grid h-5 w-5 place-items-center rounded-full text-on-surface-var cursor-pointer"
               onClick={() => setIsOpen(true)}
               type="button"
             ><LinearInfoCircle className="h-4 w-4" /></button>

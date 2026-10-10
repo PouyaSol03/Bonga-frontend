@@ -963,28 +963,33 @@ export async function getDashboardNotifications(
       .json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     const rawLatest = asRecord(d.latest);
+    const latest = d.latest && rawLatest.id
+      ? {
+          id: toStringValue(rawLatest.id),
+          title: toStringValue(rawLatest.title),
+          message: toStringValue(rawLatest.message),
+          createdAt: toStringValue(rawLatest.created_at),
+          isRead: Boolean(rawLatest.is_read),
+        }
+      : null;
     const rawItems = Array.isArray(d.items) ? d.items : [];
+    const items = rawItems.map((item) => {
+      const rec = asRecord(item);
+      return {
+        id: toStringValue(rec.id),
+        title: toStringValue(rec.title),
+        message: toStringValue(rec.message),
+        createdAt: toStringValue(rec.created_at),
+        isRead: Boolean(rec.is_read),
+      };
+    });
+    if (items.length === 0 && latest) {
+      items.push(latest);
+    }
     return {
       unreadCount: toNumber(d.unread_count, 0),
-      latest: d.latest
-        ? {
-            id: toStringValue(rawLatest.id),
-            title: toStringValue(rawLatest.title),
-            message: toStringValue(rawLatest.message),
-            createdAt: toStringValue(rawLatest.created_at),
-            isRead: Boolean(rawLatest.is_read),
-          }
-        : null,
-      items: rawItems.map((item) => {
-        const rec = asRecord(item);
-        return {
-          id: toStringValue(rec.id),
-          title: toStringValue(rec.title),
-          message: toStringValue(rec.message),
-          createdAt: toStringValue(rec.created_at),
-          isRead: Boolean(rec.is_read),
-        };
-      }),
+      latest,
+      items,
     };
   } catch {
     return null;

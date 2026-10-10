@@ -174,7 +174,7 @@ export function HomePage() {
   const [hasLoadedCityScreen, setHasLoadedCityScreen] = useState(false);
   const [selectedCity, setSelectedCity] = useState(getStoredCity);
   const { data: apiCities } = useCitySearchQuery({ enabled: true, q: "" });
-  const shouldHideCitySelector = apiCities !== undefined && apiCities.length <= 1;
+  const canSelectCity = Boolean(apiCities && apiCities.length > 1);
   const { requestToken, permission, isSupported } = useFcm();
 
   const quickActions = defaultQuickActions;
@@ -325,7 +325,7 @@ export function HomePage() {
               ) : null}
             </Button>
 
-            {!shouldHideCitySelector ? (
+            {canSelectCity ? (
               <Button unstyled
                 className="flex items-center justify-center gap-1 rounded-[10px] border border-primary px-2 py-2.5 h-10 text-sm font-medium leading-5! text-primary transition-all duration-200 ease-out active:scale-95"
                 type="button"

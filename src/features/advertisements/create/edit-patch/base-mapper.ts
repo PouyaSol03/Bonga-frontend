@@ -49,17 +49,19 @@ export function mapChangedBaseFields(
     appender.appendBase("consultant_id", cId);
   }
 
+  const omitContacts = shouldOmitOwnerNameOnAssignment(clean);
+
   // Edit Mode Policy: NEVER send owner_name; send owner_contact_name like owner_contact_phone
-  if (changed.has("ownerFullName") && !shouldOmitOwnerNameOnAssignment(clean)) {
+  if (changed.has("ownerFullName") && !omitContacts) {
     appender.appendBase("owner_contact_name", clean.ownerFullName);
   }
-  if (changed.has("ownerPhone")) {
+  if (changed.has("ownerPhone") && !omitContacts) {
     appender.appendBase("owner_contact_phone", clean.ownerPhone);
   }
-  if (changed.has("ownerExactAddress")) {
+  if (changed.has("ownerExactAddress") && !omitContacts) {
     appender.appendBase("owner_contact_address", clean.ownerExactAddress);
   }
-  if (changed.has("phoneNumber")) {
+  if (changed.has("phoneNumber") && !omitContacts) {
     appender.appendBase("owner_phone", clean.phoneNumber);
   }
 

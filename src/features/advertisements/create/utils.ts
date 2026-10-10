@@ -476,9 +476,21 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
         location: preserveDraft ? (window.localStorage.getItem(locationKey) ?? "") : "",
       };
 
+  const queryParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const queryAgencyId = queryParams?.get("agencyId") || queryParams?.get("agency_id") || "";
+  const queryAgencyName = queryParams?.get("agencyName") || queryParams?.get("publisherName") || "";
+
   return {
     ...baseValues,
-    registrantType: selectedRegistrantType || baseValues.registrantType,
+    registrantType: editDefaults
+      ? baseValues.registrantType
+      : (queryAgencyId ? "agency" : (selectedRegistrantType || baseValues.registrantType)),
+    agencyId: editDefaults
+      ? baseValues.agencyId
+      : (queryAgencyId || baseValues.agencyId),
+    publisherName: editDefaults
+      ? baseValues.publisherName
+      : (queryAgencyName || baseValues.publisherName),
     hasVideo: false,
     photos: [],
     video: null,
@@ -859,7 +871,7 @@ export function buildPayload(values: NewAdFormValues) {
     addFeature(features, "builder_share", toNumber(values.builderSharePercent));
   }
 
-  const omitOwnerName = shouldOmitOwnerNameOnAssignment(values);
+  const omitContacts = shouldOmitOwnerContactsOnAssignment(values);
 
   return {
     transaction: params.transaction,
@@ -874,12 +886,12 @@ export function buildPayload(values: NewAdFormValues) {
       values.chatEnabled ? "chat" : null,
       values.phoneEnabled ? "phone" : null,
     ].filter(Boolean),
-    owner_phone: values.phoneNumber || null,
-    owner_name: omitOwnerName ? null : (values.ownerFullName || null),
-    owner_address: values.ownerExactAddress || null,
-    owner_contact_name: omitOwnerName ? null : (values.ownerFullName || null),
-    owner_contact_phone: values.ownerPhone || null,
-    owner_contact_address: values.ownerExactAddress || null,
+    owner_phone: omitContacts ? null : (values.phoneNumber || null),
+    owner_name: omitContacts ? null : (values.ownerFullName || null),
+    owner_address: omitContacts ? null : (values.ownerExactAddress || null),
+    owner_contact_name: omitContacts ? null : (values.ownerFullName || null),
+    owner_contact_phone: omitContacts ? null : (values.ownerPhone || null),
+    owner_contact_address: omitContacts ? null : (values.ownerExactAddress || null),
     social: {
       telegram: values.telegram || null,
       whatsapp: values.whatsapp || null,
@@ -887,11 +899,13 @@ export function buildPayload(values: NewAdFormValues) {
   };
 }
 
-export function shouldOmitOwnerNameOnAssignment(values: { registrantType?: string }): boolean {
+export function shouldOmitOwnerContactsOnAssignment(values: { registrantType?: string; agencyId?: string }): boolean {
   const isPersonalActiveAccount = getActiveV2Role() === "personal";
-  const isAssigningToAgency = values.registrantType === "agency";
+  const isAssigningToAgency = values.registrantType === "agency" || Boolean(values.agencyId?.trim());
   return isPersonalActiveAccount && isAssigningToAgency;
 }
+
+export const shouldOmitOwnerNameOnAssignment = shouldOmitOwnerContactsOnAssignment;
 
 export function shouldSendConsultantAssignment(values: NewAdFormValues): boolean {
   const context = new URLSearchParams(window.location.search).get("context") ?? getActiveV2Role();
@@ -1054,21 +1068,19 @@ export function buildNewAdFormData(
   if (cleanValues.consultantId && shouldSendConsultantAssignment(cleanValues)) {
     appendBaseValue("consultant_id", cleanValues.consultantId.trim());
   }
-  const omitOwnerName = shouldOmitOwnerNameOnAssignment(cleanValues);
-  if (!options.isEdit) {
-    appendBaseValue("owner_phone", cleanValues.phoneNumber);
-    if (!omitOwnerName) {
-      appendBaseValue("owner_name", cleanValues.ownerFullName);
-    }
-    appendBaseValue("owner_address", cleanValues.ownerExactAddress);
+  const omitContacts = shouldOmitOwnerContactsOnAssignment(cleanValues);
+  if (!options.isEdit && !omitContacts) {
+    if (cleanValues.phoneNumber) appendBaseValue("owner_phone", cleanValues.phoneNumber);
+    if (cleanValues.ownerFullName) appendBaseValue("owner_name", cleanValues.ownerFullName);
+    if (cleanValues.ownerExactAddress) appendBaseValue("owner_address", cleanValues.ownerExactAddress);
   }
-  if (cleanValues.ownerPhone) {
+  if (cleanValues.ownerPhone && !omitContacts) {
     appendBaseValue("owner_contact_phone", cleanValues.ownerPhone);
   }
-  if (cleanValues.ownerFullName && !omitOwnerName) {
+  if (cleanValues.ownerFullName && !omitContacts) {
     appendBaseValue("owner_contact_name", cleanValues.ownerFullName);
   }
-  if (cleanValues.ownerExactAddress) {
+  if (cleanValues.ownerExactAddress && !omitContacts) {
     appendBaseValue("owner_contact_address", cleanValues.ownerExactAddress);
   }
   appendBaseValue("telegram", cleanValues.telegram);

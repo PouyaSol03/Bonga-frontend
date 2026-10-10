@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { getApiErrorCode, getApiErrorMessage } from "../../../shared/api/api";
+import { getActiveV2Role, getApiErrorCode, getApiErrorMessage } from "../../../shared/api/api";
 import {
   getActiveAuthRole,
   getStoredAuthSession,
@@ -297,7 +297,18 @@ export function IndependentConsultantAdPaymentPage() {
 
 function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const routeState = getAdManagementRouteState();
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const authSession = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(authSession);
+  const activeV2Role = getActiveV2Role();
+  const managerPermissions =
+    authSession?.contextPermissions?.real_estate_consultant ??
+    authSession?.managerPermissions;
+  const hasAdManagementPermission =
+    Boolean(managerPermissions?.manage_advertises ?? managerPermissions?.ad_management);
+  const isAgencyConsultantWithAdManagement =
+    (activeRole === REAL_ESTATE_CONSULTANT || activeV2Role === "agency-consultant") &&
+    hasAdManagementPermission;
+
   const adsHomePath = activeRole === USER ? "/account/my-ads" : adManagementPaths.root;
   const isBusinessRole =
     activeRole !== USER &&
@@ -314,6 +325,8 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
 
   const isAgencyCheckout =
     activeRole === REAL_ESTATE_MANAGER ||
+    activeV2Role === "agency" ||
+    isAgencyConsultantWithAdManagement ||
     routeState.publisherType === "agency" ||
     routeState.isAgencyPublisher === true ||
     isAgencyAllocationCheckout;
@@ -438,16 +451,32 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     };
   }, [checkout, rawWalletMethod, userWalletBalance]);
   const gatewayMethod = checkout ? getCheckoutMethod(checkout, "gateway") : undefined;
+  const checkoutRecord = checkout as Record<string, unknown> | undefined;
+  const contextRecord = checkoutRecord?.context as Record<string, unknown> | undefined;
   const targetConsultantId =
     routeState.consultantId ||
     (routeState.ad as Record<string, unknown> | undefined)?.consultant_id ||
     (routeState.ad as Record<string, unknown> | undefined)?.assigned_consultant_id ||
-    (checkout as Record<string, unknown> | undefined)?.consultant_id;
+    (routeState.ad as Record<string, unknown> | undefined)?.assignedConsultantId ||
+    (routeState.ad as Record<string, unknown> | undefined)?.publisher_agent_id ||
+    checkoutRecord?.consultant_id ||
+    checkoutRecord?.assigned_consultant_id ||
+    checkoutRecord?.agent_id ||
+    contextRecord?.consultant_id ||
+    contextRecord?.assigned_consultant_id ||
+    contextRecord?.agent_id ||
+    (typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("consultant_id") ||
+        new URLSearchParams(window.location.search).get("consultantId")
+      : null);
+
+  const canSendToConsultant =
+    activeRole === REAL_ESTATE_MANAGER ||
+    activeV2Role === "agency" ||
+    isAgencyConsultantWithAdManagement;
 
   const showByConsultant = Boolean(
-    combineCheckoutSteps &&
-    isAgencyCheckout &&
-    (routeState.publisherType === "consultant" || Boolean(targetConsultantId)) &&
+    canSendToConsultant &&
     Boolean(targetConsultantId),
   );
 

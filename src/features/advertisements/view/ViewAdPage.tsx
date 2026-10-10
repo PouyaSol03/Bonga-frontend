@@ -2085,7 +2085,7 @@ export function ViewAdPage() {
                   onClick={openAdvertiseChat}
                   type="button"
                 >
-                  <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium!">{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</Typography>
+                  <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium! [direction:rtl]">{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</Typography>
                   <ViewAdIcon className="h-5! w-5!" name="chat" />
                 </Button>
               ) : null}

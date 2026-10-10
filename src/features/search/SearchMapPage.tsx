@@ -1499,6 +1499,11 @@ export function SearchMapPage() {
     }
 
     const params = getSearchParams();
+    if (getActiveFilterCount(params) === 0) {
+      showNotice("برای ثبت درخواست، ابتدا باید فیلترهای مورد نظر خود را انتخاب کنید.");
+      return;
+    }
+
     const requestFilters: Record<string, string> = {};
     params.forEach((value, key) => {
       requestFilters[key] = value;
@@ -1511,7 +1516,7 @@ export function SearchMapPage() {
     };
 
     setPendingSearchRequest(request);
-  }, [currentSearchQuery, isAuthenticated]);
+  }, [currentSearchQuery, isAuthenticated, showNotice]);
 
   const handleConfirmSearchRequest = useCallback((senderId: string) => {
     if (!pendingSearchRequest || createPropertyRequestMutation.isPending) return;
@@ -1814,6 +1819,7 @@ export function SearchMapPage() {
 
       {showCurrentEmptyState ? (
         <SearchNoResultsView
+          hasFilters={getActiveFilterCount(getSearchParamsFromSnapshot(currentSearch)) > 0}
           mode={isFullListOpen ? "list" : "map"}
           onRequestSubmit={handleEmptyRequestSubmit}
           onToggleMode={() => changeViewMode(isFullListOpen ? "map" : "list")}

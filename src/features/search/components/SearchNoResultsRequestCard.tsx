@@ -6,12 +6,14 @@ import { Button } from "../../../shared/ui/Button";
 
 type SearchNoResultsRequestCardProps = {
   className?: string;
+  hasFilters?: boolean;
   onSubmit?: (title: string) => void;
   showEmptyHeader?: boolean;
 };
 
 export function SearchNoResultsRequestCard({
   className = "",
+  hasFilters = true,
   onSubmit,
   showEmptyHeader = true,
 }: SearchNoResultsRequestCardProps) {
@@ -19,6 +21,7 @@ export function SearchNoResultsRequestCard({
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!hasFilters) return;
     onSubmit?.(title.trim());
   };
 
@@ -72,10 +75,15 @@ export function SearchNoResultsRequestCard({
         </label>
 
         <Button unstyled
-          className="mt-8 inline-flex h-10 w-full items-center justify-center rounded-xl border border-primary bg-primary-container text-sm font-semibold text-primary transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+          disabled={!hasFilters}
+          className={`mt-8 inline-flex h-10 w-full items-center justify-center rounded-xl border text-sm font-semibold transition ${
+            !hasFilters
+              ? "border-outline-var bg-surface-container text-outline opacity-60 cursor-not-allowed"
+              : "border-primary bg-primary-container text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+          }`}
           type="submit"
         >
-          ثبت درخواست
+          {hasFilters ? "ثبت درخواست" : "ابتدا فیلترها را انتخاب کنید"}
         </Button>
       </div>
     </form>

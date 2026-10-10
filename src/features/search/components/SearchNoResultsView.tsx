@@ -5,12 +5,14 @@ import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 
 type SearchNoResultsViewProps = {
+  hasFilters?: boolean;
   mode: "map" | "list";
   onRequestSubmit: (title: string) => void;
   onToggleMode: () => void;
 };
 
 export function SearchNoResultsView({
+  hasFilters = true,
   mode,
   onRequestSubmit,
   onToggleMode,
@@ -24,7 +26,7 @@ export function SearchNoResultsView({
         className="absolute inset-x-0 bottom-0 top-[56px] z-[450] min-h-0 overflow-y-auto overscroll-contain bg-surface-container px-4 pb-24 pt-4"
         dir="rtl"
       >
-        <SearchNoResultsRequestCard onSubmit={onRequestSubmit} />
+        <SearchNoResultsRequestCard hasFilters={hasFilters} onSubmit={onRequestSubmit} />
       </main>
 
       <Button unstyled

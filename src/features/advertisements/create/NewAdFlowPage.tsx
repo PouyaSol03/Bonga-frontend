@@ -1161,6 +1161,15 @@ export function NewAdFlowPage() {
   }, [editAdError, editAdIsError, isEditMode]);
 
   useEffect(() => {
+    if (!advertiseFormQuery.error) return;
+
+    setSubmitError(getApiErrorMessage(
+      advertiseFormQuery.error,
+      isEditMode ? "دریافت ساختار فرم ویرایش آگهی با خطا مواجه شد." : "دریافت ساختار فرم ثبت آگهی با خطا مواجه شد.",
+    ));
+  }, [advertiseFormQuery.error, isEditMode]);
+
+  useEffect(() => {
     const confirmedLocation = window.localStorage.getItem(locationKey)?.trim();
     if (confirmedLocation && methods.getValues("location") !== confirmedLocation) {
       methods.setValue("location", confirmedLocation, { shouldDirty: true });

@@ -23,22 +23,22 @@ const toastStyles: Record<
   { background: string; border: string; text: string }
 > = {
   success: {
-    background: "bg-tertiary-container/40",
+    background: "bg-tertiary-container",
     border: "border-tertiary",
     text: "text-tertiary",
   },
   error: {
-    background: "bg-error-container/40",
+    background: "bg-error-container",
     border: "border-error",
     text: "text-error",
   },
   info: {
-    background: "bg-primary-container/40",
+    background: "bg-primary-container",
     border: "border-primary",
     text: "text-primary",
   },
   warning: {
-    background: "bg-warning-container/40",
+    background: "bg-warning-container",
     border: "border-warning",
     text: "text-warning",
   },

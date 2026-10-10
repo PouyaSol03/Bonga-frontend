@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { TransientNotice } from "../../shared/components/TransientNotice";
+import { useToast } from "../../shared/hooks/useToast";
 import { getApiErrorMessage } from "../../shared/api/api";
 import { storePaymentReturnTarget } from "../../shared/utils/payment-return";
 import { TopBar } from "../../shared/components/TopBar";
@@ -356,6 +357,7 @@ function DashboardPaymentMobilePage({
   const [activeTab, setActiveTab] = useState<MobilePaymentTab>(initialPaymentTab);
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const { showToast } = useToast();
   const walletQuery = useWalletQuery();
   const packagePaymentMutation = usePackagePaymentMutation();
   const showGift = activeTab === "panel";
@@ -425,13 +427,15 @@ function DashboardPaymentMobilePage({
       { discountCode, packageId: String(selectedPackage.id), paymentType },
       {
         onError: (requestError) => {
-          showNotice(
+          showToast(
             getApiErrorMessage(
               requestError,
               paymentType === 1
                 ? "پرداخت بسته از کیف پول با خطا مواجه شد."
                 : "اتصال به درگاه پرداخت با خطا مواجه شد.",
             ),
+            "خطا",
+            "error",
           );
         },
         onSuccess: ({ paymentUrl }) => {
@@ -560,7 +564,7 @@ function DashboardPaymentDesktopPage({
   packages: PackageItem[];
   refetch: () => void;
 }) {
-  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const { showToast } = useToast();
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const walletQuery = useWalletQuery();
   const packagePaymentMutation = usePackagePaymentMutation();
@@ -592,7 +596,6 @@ function DashboardPaymentDesktopPage({
   function handlePay(packageId: string | number) {
     if (packagePaymentMutation.isPending) return;
     const strId = String(packageId);
-    setPaymentError(null);
     window.history.pushState(
       { ...window.history.state, paymentPackageId: strId },
       "",
@@ -619,13 +622,15 @@ function DashboardPaymentDesktopPage({
       { discountCode, packageId: String(selectedPackage.id), paymentType },
       {
         onError: (requestError) => {
-          setPaymentError(
+          showToast(
             getApiErrorMessage(
               requestError,
               paymentType === 1
                 ? "پرداخت بسته از کیف پول با خطا مواجه شد."
                 : "اتصال به درگاه پرداخت با خطا مواجه شد.",
             ),
+            "خطا",
+            "error",
           );
         },
         onSuccess: ({ paymentUrl }) => {
@@ -644,7 +649,6 @@ function DashboardPaymentDesktopPage({
           } else {
             setSelectedPackageId(null);
           }
-          setPaymentError(null);
         },
       },
     );
@@ -669,14 +673,12 @@ function DashboardPaymentDesktopPage({
           }
           walletLoading={walletQuery.isLoading}
         />
-        {paymentError ? <TransientNotice message={paymentError} /> : null}
       </div>
     );
   }
 
   return (
     <div dir="rtl" className="rounded-xl bg-surface-container-lowest p-6">
-      {paymentError ? <TransientNotice message={paymentError} /> : null}
 
       <div className="mb-6 flex items-center justify-between border-b border-dashed border-outline-var pb-5">
         <div className="flex items-center gap-2">

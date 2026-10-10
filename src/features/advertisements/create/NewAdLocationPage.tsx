@@ -586,8 +586,8 @@ export function NewAdLocationPage() {
             <Polygon
               interactive={false}
               pathOptions={{
-                color: "var(--primary)",
-                fillColor: "var(--primary)",
+                color: "#0048C4",
+                fillColor: "#0048C4",
                 fillOpacity: 0.18,
                 opacity: 0.9,
                 weight: 2,

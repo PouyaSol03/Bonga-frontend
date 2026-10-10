@@ -1,11 +1,9 @@
 import { useState, type ReactNode } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
-import {
-  useAgentBadgesQuery,
-  useAgentDashboardQuery,
-} from "../dashboard/api/dashboard.hooks";
+import { useV2RankingBadgesQuery, useV2RankingSummaryQuery } from "../dashboard/api/v2/ranking-v2.hooks";
 import { usePublicAgentsQuery } from "../agencies/api/agency.hooks";
 import type { AgentBadge } from "../dashboard/api/dashboard.service";
+import type { V2RankingBadge } from "../dashboard/api/v2/ranking-v2.service";
 import { TopBar } from "../../shared/components/TopBar";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
@@ -66,14 +64,17 @@ function formatOptionalNumber(value: number | null | undefined) {
     : new Intl.NumberFormat("fa-IR").format(value);
 }
 
-function mapBadgeItemToBadge(item: AgentBadge): Badge {
-  const parsedProgress = Number(item.progress);
+function mapBadgeItemToBadge(item: AgentBadge | V2RankingBadge): Badge {
+  const parsedProgress = Number((item as any).progress ?? (item as any).progress_value ?? 0);
   const slug = typeof item.slug === "string" ? item.slug.trim().toLowerCase() : "";
+  const isEarned = (item as any).earned === true || (item as any).is_earned === true || (item as any).status === "earned";
 
   return {
-    active: item.earned === true,
-    image: badgeImageBySlug[slug],
-    name: typeof item.title === "string" && item.title.trim() ? item.title.trim() : "نشان",
+    active: isEarned,
+    image: (item as any).image || (item as any).src || badgeImageBySlug[slug],
+    name: typeof item.title === "string" && item.title.trim()
+      ? item.title.trim()
+      : ((item as any).name || (item as any).label || "نشان"),
     progress: Number.isFinite(parsedProgress)
       ? Math.max(0, Math.min(100, parsedProgress))
       : 0,
@@ -83,12 +84,9 @@ function mapBadgeItemToBadge(item: AgentBadge): Badge {
 
 export function IndependentConsultantRankingPage() {
   const [period, setPeriod] = useState<RankingPeriod>("ماه");
-  const dashboardQuery = useAgentDashboardQuery({
-    period: period === "هفته" ? "7d" : "30d",
-  });
-  const dashboard = dashboardQuery.data;
-  const ranking = dashboard?.ranking;
-  const workSummary = dashboard?.workSummary;
+  const rankingQuery = useV2RankingSummaryQuery(period === "هفته" ? "week" : "month");
+  const ranking = rankingQuery.data?.data;
+  const workSummary = ranking?.workSummary;
   const indicators: RankIndicator[] = [
     {
       icon: <LinearActivity className="h-6 w-6" />,
@@ -134,21 +132,21 @@ export function IndependentConsultantRankingPage() {
       <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-surface-container px-4 py-4">
         {(() => {
           const currentLevel = getConsultantRankingLevel({
-            score: ranking?.current.totalScore,
-            levelTitle: ranking?.current.levelTitle,
-            levelSlug: ranking?.current.levelSlug,
+            score: ranking?.current?.totalScore,
+            levelTitle: ranking?.current?.levelTitle,
+            levelSlug: ranking?.current?.levelSlug,
           });
           const displayLevelTitle = formatRankingLevelTitle({
             isAgency: false,
-            score: ranking?.current.totalScore,
-            levelTitle: ranking?.current.levelTitle,
-            levelSlug: ranking?.current.levelSlug,
+            score: ranking?.current?.totalScore,
+            levelTitle: ranking?.current?.levelTitle,
+            levelSlug: ranking?.current?.levelSlug,
           });
           return (
             <LevelSummaryCard
               image={currentLevel.image}
               levelTitle={displayLevelTitle}
-              score={formatOptionalNumber(ranking?.current.totalScore)}
+              score={formatOptionalNumber(ranking?.current?.totalScore)}
             />
           );
         })()}
@@ -156,13 +154,13 @@ export function IndependentConsultantRankingPage() {
           icon={<LinearRanking className="h-6 w-6 text-tertiary" />}
           iconClassName="bg-tertiary-container/30"
           label="رتبه مشاور"
-          value={formatOptionalNumber(ranking?.rank ?? ranking?.current.rank)}
+          value={formatOptionalNumber(ranking?.rank ?? ranking?.current?.rank)}
         />
         <MetricSummaryCard
           icon={<LinearStar className="h-6 w-6 text-warning" />}
           iconClassName="bg-warning-container/30"
           label="امتیاز مشاور"
-          value={formatOptionalNumber(ranking?.current.totalScore)}
+          value={formatOptionalNumber(ranking?.current?.totalScore)}
         />
         <BadgesPanel />
         <RankingIndicatorsPanel
@@ -244,8 +242,9 @@ function MetricSummaryCard({
 }
 
 function BadgesPanel() {
-  const { data: apiBadges = [], error, isError, isLoading, refetch } = useAgentBadgesQuery();
-  const visibleBadges = apiBadges.map(mapBadgeItemToBadge);
+  const { data, error, isError, isLoading, refetch } = useV2RankingBadgesQuery();
+  const rawBadges = data?.badges ?? data?.data ?? (Array.isArray(data) ? data : []);
+  const visibleBadges = rawBadges.map(mapBadgeItemToBadge);
   const BadgesErrorState = getRequestErrorState(error);
 
   return (

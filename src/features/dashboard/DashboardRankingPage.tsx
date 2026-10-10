@@ -7,7 +7,6 @@ import LinearPercenTeam from "../../shared/icons/LinearPercenTeam";
 import LinearRanking from "../../shared/icons/LinearRanking";
 import LinearStar from "../../shared/icons/LinearStar";
 import { TopBar } from "../../shared/components/TopBar";
-import { useAgencyDashboardQuery } from "./api/dashboard.hooks";
 import {
   useV2RankingSummaryQuery,
   useV2RankingLeaderboardQuery,
@@ -43,19 +42,16 @@ export function DashboardRankingPage() {
 
 function AgencyDashboardRankingPage() {
   const [period, setPeriod] = useState<RankingPeriod>("ماه");
-  const dashboardQuery = useAgencyDashboardQuery({ period: period === "هفته" ? "week" : "month" });
-  const v2SummaryQuery = useV2RankingSummaryQuery();
+  const v2SummaryQuery = useV2RankingSummaryQuery(period === "هفته" ? "week" : "month");
   const v2LeaderboardQuery = useV2RankingLeaderboardQuery(10);
   useV2RankingProgressQuery("12m");
 
-  const dashboard = dashboardQuery.data;
-  const consultantActivity = dashboard?.consultantActivity ?? [];
-
-  const v2Summary = v2SummaryQuery.data?.ranking ?? v2SummaryQuery.data?.data;
-  const currentTotalScore = v2Summary?.current?.total_score ?? v2Summary?.current?.totalScore ?? dashboard?.ranking?.current.totalScore;
-  const currentRank = v2Summary?.rank ?? v2Summary?.current?.rank ?? dashboard?.ranking?.rank ?? dashboard?.ranking?.current.rank;
-  const currentLevelSlug = v2Summary?.current?.level_slug ?? v2Summary?.current?.levelSlug ?? dashboard?.ranking?.current.levelSlug;
-  const currentLevelTitle = v2Summary?.current?.level_title ?? v2Summary?.current?.levelTitle ?? dashboard?.ranking?.current.levelTitle;
+  const v2Summary = v2SummaryQuery.data?.data;
+  const workSummary = v2Summary?.workSummary;
+  const currentTotalScore = v2Summary?.current?.total_score ?? v2Summary?.current?.totalScore;
+  const currentRank = v2Summary?.rank ?? v2Summary?.current?.rank;
+  const currentLevelSlug = v2Summary?.current?.level_slug ?? v2Summary?.current?.levelSlug;
+  const currentLevelTitle = v2Summary?.current?.level_title ?? v2Summary?.current?.levelTitle;
 
   const currentLevel = getAgencyRankingLevel({
     score: currentTotalScore,
@@ -87,36 +83,32 @@ function AgencyDashboardRankingPage() {
           totalScore: score,
         };
       })
-    : (dashboard?.ranking?.topEntities ?? []);
+    : (v2Summary?.topEntities ?? []);
 
   const indicators: AgencyIndicator[] = [
     {
       Icon: LinearClockAlarm,
       id: "published-ads",
       label: "آگهی‌های منتشرشده",
-      value: formatOptionalNumber(dashboard?.publishedAdvertises.total),
+      value: formatOptionalNumber(workSummary?.publishedAdvertises),
     },
     {
       Icon: LinearPercenTeam,
       id: "active-consultants",
       label: "مشاوران دارای فعالیت",
-      value: dashboard ? formatOptionalNumber(consultantActivity.length) : "—",
+      value: formatOptionalNumber(workSummary?.activeConsultants),
     },
     {
       Icon: LinearLike,
       id: "renewed-ads",
       label: "بروزرسانی آگهی‌ها",
-      value: dashboard
-        ? formatOptionalNumber(consultantActivity.reduce((sum, item) => sum + item.renewCount, 0))
-        : "—",
+      value: formatOptionalNumber(workSummary?.renewedAdvertises),
     },
     {
       Icon: LinearPercenTeam,
       id: "special-ads",
       label: "آگهی‌های ویژه",
-      value: dashboard
-        ? formatOptionalNumber(consultantActivity.reduce((sum, item) => sum + item.specialCount, 0))
-        : "—",
+      value: formatOptionalNumber(workSummary?.specialAdvertises),
     },
   ];
 
@@ -162,7 +154,7 @@ function AgencyDashboardRankingPage() {
         <RankingIndicatorsPanel indicators={indicators} period={period} setPeriod={setPeriod} />
         <TopAgenciesPanel
           agencies={leaderboard}
-          isLoading={v2LeaderboardQuery.isLoading || dashboardQuery.isLoading}
+          isLoading={v2LeaderboardQuery.isLoading || v2SummaryQuery.isLoading}
         />
       </main>
     </PageFrame>

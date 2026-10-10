@@ -8,16 +8,16 @@ import {
 
 export const rankingV2QueryKeys = {
   all: ["ranking-v2"] as const,
-  summary: () => [...rankingV2QueryKeys.all, "summary"] as const,
+  summary: (period: "week" | "month") => [...rankingV2QueryKeys.all, "summary", period] as const,
   leaderboard: (limit: number) => [...rankingV2QueryKeys.all, "leaderboard", limit] as const,
   progress: (period: string) => [...rankingV2QueryKeys.all, "progress", period] as const,
   badges: () => [...rankingV2QueryKeys.all, "badges"] as const,
 };
 
-export function useV2RankingSummaryQuery() {
+export function useV2RankingSummaryQuery(period: "week" | "month" = "month") {
   return useQuery({
-    queryKey: rankingV2QueryKeys.summary(),
-    queryFn: getV2RankingSummary,
+    queryKey: rankingV2QueryKeys.summary(period),
+    queryFn: () => getV2RankingSummary(period),
   });
 }
 

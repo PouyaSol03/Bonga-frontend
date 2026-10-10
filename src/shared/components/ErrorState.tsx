@@ -94,32 +94,16 @@ type ErrorStateProps = {
     className?: string;
 };
 
+/**
+ * Only a device that is actually offline counts as "no connection". Server
+ * errors, cancelled or aborted requests, timeouts, unreachable servers and
+ * unknown failures all mean the server could not answer, so they show the
+ * server error state instead.
+ */
 export function isNoConnectionError(error: unknown) {
     if (error instanceof ApiError) return false;
 
-    if (typeof navigator !== "undefined" && navigator.onLine === false) {
-        return true;
-    }
-
-    if (error instanceof DOMException && error.name === "AbortError") {
-        return true;
-    }
-
-    if (error instanceof Error) {
-        const name = error.name.toLowerCase();
-        const message = error.message.toLowerCase();
-
-        return (
-            name.includes("abort") ||
-            name.includes("cancel") ||
-            message.includes("abort") ||
-            message.includes("cancel") ||
-            message.includes("failed to fetch") ||
-            message.includes("network")
-        );
-    }
-
-    return true;
+    return typeof navigator !== "undefined" && navigator.onLine === false;
 }
 
 export function getRequestErrorState(

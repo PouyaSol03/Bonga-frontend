@@ -398,11 +398,17 @@ export function resolveV2Url(inputUrl: string): string {
       endpoint === "public" ||
       endpoint.startsWith("public/");
 
+    const isShowEndpoint = /(?:^|\/)show(?:\/|$)/.test(endpoint);
+    if (!isGlobalEndpoint && !isShowEndpoint && /^superadmin(?:\/|$)/.test(endpoint)) {
+      endpoint = endpoint.replace(/^superadmin(?=\/|$)/, "personal");
+    }
+
     const hasRole =
       isGlobalEndpoint ||
       v2Roles.some((r) => endpoint === r || endpoint.startsWith(`${r}/`));
 
-    const role = hasRole ? "" : getActiveV2Role();
+    const activeRole = hasRole ? "" : getActiveV2Role();
+    const role = activeRole === "superadmin" && !isShowEndpoint ? "personal" : activeRole;
     const finalEndpoint = hasRole
       ? endpoint
       : endpoint

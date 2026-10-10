@@ -72,6 +72,7 @@ export function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {
 }
 
 export type ManagerPermissions = {
+  ad_management?: boolean;
   manage_advertises?: boolean;
   manage_consultants?: boolean;
   manage_credits?: boolean;

@@ -11,6 +11,7 @@ import { ColorableSvgIcon } from "../../../shared/components/ColorableSvgIcon";
 import { AdLocationMap } from "../components/AdLocationMap";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import { PageFrame } from "../../../shared/layout/PageFrame";
+import { Toast } from "../../../shared/components/Toast";
 import { getApiErrorMessage, isUnauthorizedApiError } from "../../../shared/api/api";
 import {
   useAgencyAdvertisementPreviewQuery,
@@ -1984,6 +1985,7 @@ export function ViewAdPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
+      <Toast onDismiss={() => setToast(null)} toast={toast} />
       <SEO
         title={details.title || details.headline || "آگهی املاک"}
         description={details.description}

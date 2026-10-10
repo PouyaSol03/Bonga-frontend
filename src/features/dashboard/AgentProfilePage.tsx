@@ -22,6 +22,7 @@ import TonalWhatsapp from "../../shared/icons/TonalWhatsapp";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { FormChoiceChip } from "../../shared/form/FormControls";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
+import { Toast } from "../../shared/components/Toast";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
@@ -333,6 +334,7 @@ export function AgentProfilePage() {
 
   return (
     <>
+      <Toast onDismiss={() => setToast(null)} toast={toast} />
       {desktop ? (
         <div className="min-h-full rounded-xl bg-surface-container-lowest px-6 pb-12 pt-6 text-on-surface [direction:rtl]">
           {formContent}

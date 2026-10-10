@@ -1502,22 +1502,25 @@ export function ApiPaymentCheckoutView({
         toSafeNumber(walletMethod?.required),
         Math.max(payableAmount, 0),
       );
-  const walletDeficit = Math.max(
-    toSafeNumber(walletMethod?.shortage),
-    walletRequired - walletBalance,
-    0,
-  );
+  const walletDeficit = appliedDiscount
+    ? Math.max(walletRequired - walletBalance, 0)
+    : Math.max(
+        toSafeNumber(walletMethod?.shortage),
+        walletRequired - walletBalance,
+        0,
+      );
   // A wallet with insufficient credit is still a valid payment choice: keep it
   // selectable so the shortage and the wallet-charge action are visible.
   const walletSupported = Boolean(walletMethod);
-  const walletSufficient = walletDeficit <= 0;
+  const walletSufficient = is100PercentDiscount || walletDeficit <= 0;
   const gatewayAvailable =
     !is100PercentDiscount &&
     gatewayMethod?.available !== false &&
     Boolean(gatewayMethod);
-  const selectedMethodAvailable =
-    method === "wallet"
-      ? walletSupported && walletSufficient
+  const selectedMethodAvailable = is100PercentDiscount
+    ? true
+    : method === "wallet"
+      ? (walletSupported || payableAmount === 0) && walletSufficient
       : gatewayAvailable;
   const discount = Math.max(totalPrice - payableAmount, 0);
 
@@ -1661,7 +1664,9 @@ export function ApiPaymentCheckoutView({
         >
           {pending
             ? "در حال پردازش پرداخت..."
-            : `${submitLabelPrefix} - ${formatShortPayment(payableAmount)}`}
+            : is100PercentDiscount
+              ? "تأیید و ثبت رایگان"
+              : `${submitLabelPrefix} - ${formatShortPayment(payableAmount)}`}
         </Button>
       </footer>
     </PageFrame>

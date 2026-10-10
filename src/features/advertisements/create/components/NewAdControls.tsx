@@ -15,6 +15,7 @@ import { TextField } from "../../../../shared/ui/TextField";
 import { FeaturesIcons } from "../../components/FeaturesIcons";
 import { TopBar } from "../../../../shared/components/TopBar";
 import { normalizeNumberInput, navigateTo } from "../utils";
+import { canGoBackInApp } from "../../../../shared/navigation/navigation";
 import { preserveNewAdDraftStateKey } from "../session";
 import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
@@ -40,7 +41,7 @@ export function Header({
       return;
     }
 
-    if (window.history.length > 1) {
+    if (canGoBackInApp()) {
       window.history.back();
     } else {
       navigateTo("/new-ad/category");

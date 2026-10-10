@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
 import LinearDanger from "../../../../shared/icons/LinearDanger";
 import { TopBar } from "../../../../shared/components/TopBar";
+import { canGoBackInApp, replaceRoute } from "../../../../shared/navigation/navigation";
 import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
 import { useMyAgencyProfileQuery } from "../../../account/api/account.hooks";
@@ -121,7 +122,14 @@ export function ConsultantRemovePage() {
       <div className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-4 bg-surface-container-lowest px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
         <Button
           fullWidth
-          onClick={() => window.history.back()}
+          onClick={() => {
+            if (canGoBackInApp()) {
+              window.history.back();
+              return;
+            }
+
+            replaceRoute("/account/dashboard/team", undefined, { rememberCurrent: false });
+          }}
           size="x-medium"
           type="button"
           variant="secondary"

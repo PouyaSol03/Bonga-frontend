@@ -1,6 +1,19 @@
 const BONGA_ROUTE_CHANGE_EVENT = "bonga:route-change";
 
+// Set on every history entry the app pushes. An entry carrying it was pushed
+// from another in-app entry, so history.back() stays inside the app. The first
+// entry of a session (typed URL, external link, new tab) never has it.
+const BONGA_IN_APP_ENTRY_KEY = "__bongaInAppEntry";
+
 let isHistoryNavigationPatched = false;
+
+function withInAppEntryMarker(data: unknown, isInAppEntry: boolean) {
+  if (data != null && !isRecord(data)) return data;
+
+  const { [BONGA_IN_APP_ENTRY_KEY]: _marker, ...state } = data ?? {};
+
+  return isInAppEntry ? { ...state, [BONGA_IN_APP_ENTRY_KEY]: true } : state;
+}
 
 function dispatchRouteChange() {
   window.dispatchEvent(new Event(BONGA_ROUTE_CHANGE_EVENT));
@@ -22,12 +35,13 @@ export function installHistoryNavigationBridge() {
   const nativeReplaceState = window.history.replaceState.bind(window.history);
 
   window.history.pushState = (data, unused, url) => {
-    nativePushState(data, unused, url);
+    nativePushState(withInAppEntryMarker(data, true), unused, url);
     dispatchRouteChange();
   };
 
   window.history.replaceState = (data, unused, url) => {
-    nativeReplaceState(data, unused, url);
+    // Replacing keeps the entries before this one, so keep this entry's marker.
+    nativeReplaceState(withInAppEntryMarker(data, canGoBackInApp()), unused, url);
     dispatchRouteChange();
   };
 }
@@ -53,10 +67,22 @@ function stripNavigationMeta(state: unknown) {
   const {
     [BONGA_BACK_TO_KEY]: _backTo,
     [BONGA_BACK_STATE_KEY]: _backState,
+    [BONGA_IN_APP_ENTRY_KEY]: _inAppEntry,
     ...cleanState
   } = state;
 
   return cleanState;
+}
+
+/**
+ * Whether the previous history entry belongs to this app, so history.back()
+ * returns to an app page. history.length cannot answer this: it also counts
+ * forward entries and pages from other sites.
+ */
+export function canGoBackInApp() {
+  const state = window.history.state;
+
+  return isRecord(state) && state[BONGA_IN_APP_ENTRY_KEY] === true;
 }
 
 export function isSafeAppPath(path: unknown): path is string {
@@ -164,10 +190,11 @@ export function backRoute(fallbackPath: string, fallbackState?: unknown) {
 }
 
 /**
- * Navigate back if browser history exists, otherwise navigate to fallback path.
+ * Navigate back if the previous entry is an app page, otherwise navigate to
+ * fallback path.
  */
 export function goBackOrNavigate(fallbackPath: string) {
-  if (typeof window !== "undefined" && window.history.length > 1) {
+  if (typeof window !== "undefined" && canGoBackInApp()) {
     window.history.back();
     return;
   }

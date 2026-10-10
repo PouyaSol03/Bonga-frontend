@@ -5,6 +5,7 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../shared/auth/auth-storage";
 import { TopBar } from "../../../shared/components/TopBar";
 import { clearNewAdDraftStorage } from "./utils";
+import { canGoBackInApp } from "../../../shared/navigation/navigation";
 import { shouldPreserveNewAdDraft } from "./session";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -158,7 +159,7 @@ function getInitialRegistrantType(): RegistrantType {
 
 function PageHeader({ title }: { title: string }) {
   const handleBack = () => {
-    if (window.history.length > 1) {
+    if (canGoBackInApp()) {
       window.history.back();
       return;
     }

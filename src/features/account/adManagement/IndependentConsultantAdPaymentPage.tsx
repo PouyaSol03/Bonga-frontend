@@ -33,7 +33,6 @@ import {
 } from "../../crm/api/crm-discount.service";
 import { PaymentOptionIcon } from "./AdManagementIcons";
 import { formatTariffToman } from "./AdTariffOptionsView";
-import { useAgencyDashboardCreditsQuery } from "../../dashboard/api/dashboard.hooks";
 import { useAgentEntitlementsQuery } from "../../packages/api/package.hooks";
 import LinearAdd from "../../../shared/icons/LinearAdd";
 import LinearChartUp from "../../../shared/icons/LinearChartUp";
@@ -365,30 +364,20 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const [discountError, setDiscountError] = useState<string | null>(null);
   const stateAdPath = getAdStatePath(advertiseId);
 
-  const agencyCreditsQuery = useAgencyDashboardCreditsQuery({
-    enabled: activeRole === REAL_ESTATE_MANAGER,
-  });
-  const agentEntitlementsQuery = useAgentEntitlementsQuery({
-    enabled: isBusinessRole && activeRole !== REAL_ESTATE_MANAGER,
-  });
-
+  const agentEntitlementsQuery = useAgentEntitlementsQuery({ enabled: isBusinessRole });
   const fetchedCreditBalances = useMemo(() => {
-    const rawAd =
-      agencyCreditsQuery.data?.balances?.adCreditBalance ??
-      agentEntitlementsQuery.data?.adCreditBalance;
-    const rawSpecial =
-      agencyCreditsQuery.data?.balances?.specialCreditBalance ??
-      agentEntitlementsQuery.data?.specialCreditBalance;
-    const rawRenew =
-      agencyCreditsQuery.data?.balances?.renewCreditBalance ??
-      agentEntitlementsQuery.data?.renewCreditBalance;
-
+    const checkoutData = checkoutQuery.data;
+    const checkoutMethod = checkoutData
+      ? getCheckoutMethod(checkoutData, isAgencyCheckout ? "ad_credit" : "package_credit") ??
+        getCheckoutMethod(checkoutData, "ad_credit")
+      : undefined;
+    const fallback = getCreditBalances(checkoutMethod);
     return {
-      ad_credit: rawAd !== undefined ? rawAd : 34,
-      special_credit: rawSpecial !== undefined ? rawSpecial : 19,
-      renew_credit: rawRenew !== undefined ? rawRenew : 0,
+      ad_credit: agentEntitlementsQuery.data?.adCreditBalance ?? fallback.ad_credit,
+      special_credit: agentEntitlementsQuery.data?.specialCreditBalance ?? fallback.special_credit,
+      renew_credit: agentEntitlementsQuery.data?.renewCreditBalance ?? fallback.renew_credit,
     };
-  }, [agencyCreditsQuery.data, agentEntitlementsQuery.data]);
+  }, [agentEntitlementsQuery.data, checkoutQuery.data, isAgencyCheckout]);
   const publishState = useMemo(
     () => ({
       ad: routeState.ad,
@@ -480,12 +469,13 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     if (fromCheckout) {
       return {
         ...fromCheckout,
-        balance: fromCheckout.balance ?? fetchedCreditBalances.ad_credit,
+        balance: fetchedCreditBalances.ad_credit,
+        remaining: fetchedCreditBalances.ad_credit,
         balances: {
+          ...fromCheckout.balances,
           ad_credit: fetchedCreditBalances.ad_credit,
           renew_credit: fetchedCreditBalances.renew_credit,
           special_credit: fetchedCreditBalances.special_credit,
-          ...fromCheckout.balances,
         },
       };
     }
@@ -802,7 +792,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     navigateTo(adsHomePath, { tab: "status" }, true);
   };
 
-  if (checkoutQuery.isLoading) {
+  if (checkoutQuery.isLoading || (isBusinessRole && agentEntitlementsQuery.isLoading)) {
     return (
       <CheckoutStatusPage
         backTo={checkoutBackTo}
@@ -813,15 +803,18 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     );
   }
 
-  if (checkoutQuery.isError || !checkout) {
+  if (checkoutQuery.isError || (isBusinessRole && agentEntitlementsQuery.isError) || !checkout) {
     return (
       <CheckoutStatusPage
         backTo={checkoutBackTo}
         message={getApiErrorMessage(
-          checkoutQuery.error,
-          "دریافت اطلاعات پرداخت آگهی با خطا مواجه شد.",
+          checkoutQuery.error ?? agentEntitlementsQuery.error,
+          "دریافت اطلاعات پرداخت و اعتبارها با خطا مواجه شد.",
         )}
-        onRetry={() => void checkoutQuery.refetch()}
+        onRetry={() => {
+          void checkoutQuery.refetch();
+          if (isBusinessRole) void agentEntitlementsQuery.refetch();
+        }}
         title="هزینه ثبت آگهی"
       />
     );
@@ -933,7 +926,6 @@ function AgencyCombinedCheckoutView({
   creditBalances: propCreditBalances,
   creditMethod,
   creditPaymentMethod,
-  creditRemaining,
   creditShortage,
   gatewayMethod,
   method,
@@ -1085,7 +1077,7 @@ function AgencyCombinedCheckoutView({
           : "انتشار آگهی"
         : `پرداخت و انتشار - ${formatShortPayment(selectedPayableAmount)}`;
 
-  const adCreditCount = creditBalances.ad_credit || creditRemaining;
+  const adCreditCount = creditBalances.ad_credit;
   const creditBalanceLabel = `مانده: ${new Intl.NumberFormat("fa-IR").format(adCreditCount)} اعتبار`;
 
   return (
@@ -1429,17 +1421,17 @@ function DisabledUpgradeOptionsSection({
               {enabled && option.id === "refresh" ? (
                 <div className="mt-3 flex w-full items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
                   <LinearStairs className="h-4 w-4 shrink-0" />
-                  <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.ad_credit ?? 23)}</span>
+                  <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.ad_credit ?? 0)}</span>
                 </div>
               ) : enabled && option.id === "special" ? (
                 <div className="mt-3 flex w-full items-center gap-2 rounded-lg bg-[#FFF8E6] px-3 py-2 text-right text-xs font-medium text-[#FF8A00]">
                   <LinearStartup className="h-4 w-4 shrink-0" />
-                  <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.special_credit ?? 19)}</span>
+                  <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.special_credit ?? 0)}</span>
                 </div>
               ) : enabled && option.id === "renew" ? (
                 <div className="mt-3 flex w-full items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
                   <LinearRefresh className="h-4 w-4 shrink-0" />
-                  <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.renew_credit ?? 15)}</span>
+                  <span>اعتبار باقیمانده: {new Intl.NumberFormat("fa-IR").format(creditBalances?.renew_credit ?? 0)}</span>
                 </div>
               ) : null}
 

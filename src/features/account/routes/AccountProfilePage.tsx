@@ -35,7 +35,7 @@ export function AccountProfilePage() {
 
   return (
     <AccountPageShell title="مشخصات من">
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-white pb-24">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-24">
         {isLoading ? <AccountProfileSkeleton /> : null}
         {isError ? (
           <AccountRetryState

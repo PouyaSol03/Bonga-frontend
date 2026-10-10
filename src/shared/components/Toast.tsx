@@ -56,7 +56,7 @@ export function Toast({ onDismiss, toast }: ToastProps) {
         <motion.div
           animate={{ opacity: 1, y: 0 }}
           aria-live={variant === "error" ? "assertive" : "polite"}
-          className="pointer-events-none fixed inset-x-0 top-4 z-[200] flex justify-center px-4"
+          className="pointer-events-none fixed inset-x-0 top-4 z-[3000] flex justify-center px-4"
           exit={{ opacity: 0, y: -24 }}
           initial={{ opacity: 0, y: -36 }}
           key={`${variant}:${toast.title ?? ""}:${toast.message}`}

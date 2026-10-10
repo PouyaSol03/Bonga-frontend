@@ -23,7 +23,10 @@ export function ConsultantEditPage() {
   const agencyBalances = agencyDashboardQuery.data?.balances;
 
   const isInitialRouteConsultant = !routeConsultant.name || routeConsultant.name === "—";
-  if (consultantQuery.isLoading && !consultantQuery.data && isInitialRouteConsultant) {
+  if (
+    (consultantQuery.isLoading && !consultantQuery.data && isInitialRouteConsultant) ||
+    (agencyDashboardQuery.isLoading && !agencyBalances)
+  ) {
     return <ConsultantInfoPageSkeleton />;
   }
 

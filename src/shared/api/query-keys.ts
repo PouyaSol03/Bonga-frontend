@@ -412,12 +412,12 @@ export const queryKeys = {
       scope
         ? ([...queryKeys.packages.all, "list", ...contextKey(), scope] as const)
         : ([...queryKeys.packages.all, "list", ...contextKey()] as const),
-    agentEntitlements: () =>
-      [...queryKeys.packages.all, "agent-entitlements"] as const,
-    agentEntitlementLedgerRoot: () =>
-      [...queryKeys.packages.all, "agent-entitlement-ledger"] as const,
-    agentEntitlementLedger: (page: number, perPage: number) =>
-      [...queryKeys.packages.agentEntitlementLedgerRoot(), page, perPage] as const,
+    agentEntitlements: (context?: string) =>
+      [...queryKeys.packages.all, "agent-entitlements", ...(context ? [context] : [])] as const,
+    agentEntitlementLedgerRoot: (context?: string) =>
+      [...queryKeys.packages.all, "agent-entitlement-ledger", ...(context ? [context] : [])] as const,
+    agentEntitlementLedger: (page: number, perPage: number, context?: string) =>
+      [...queryKeys.packages.agentEntitlementLedgerRoot(context), page, perPage] as const,
   },
 
   chats: {

@@ -13,7 +13,6 @@ import {
   updateV2Advertisement,
   updateV2Draft,
   updateV2OwnerContact,
-  sendV2AdvertisementEvent,
 } from "./v2";
 
 export type AdvertisementStatus =
@@ -1047,43 +1046,9 @@ export async function getAdvertisementDailyViews(id: string): Promise<Advertisem
 }
 
 export async function getAdvertisementPayments(id: string): Promise<AdvertisementPayment[]> {
-  try {
-    const response = await getV2AdvertisementPayments(id);
-    if (Array.isArray(response)) return response as AdvertisementPayment[];
-    if (!response || typeof response !== "object") return [];
-
-    const record = response as Record<string, unknown>;
-    if (Array.isArray(record.payments)) return record.payments as AdvertisementPayment[];
-
-    const data = record.data;
-    if (Array.isArray(data)) return data as AdvertisementPayment[];
-    if (data && typeof data === "object") {
-      const nested = data as Record<string, unknown>;
-      if (Array.isArray(nested.payments)) return nested.payments as AdvertisementPayment[];
-    }
-    return [];
-  } catch {
-    const response = await api
-      .get(`me/advertise/payments/${encodeURIComponent(id)}`)
-      .json<unknown>();
-
-    if (Array.isArray(response)) return response as AdvertisementPayment[];
-    if (!response || typeof response !== "object") return [];
-
-    const record = response as Record<string, unknown>;
-    if (Array.isArray(record.payments)) return record.payments as AdvertisementPayment[];
-
-    const data = record.data;
-    if (Array.isArray(data)) return data as AdvertisementPayment[];
-    if (data && typeof data === "object") {
-      const nested = data as Record<string, unknown>;
-      if (Array.isArray(nested.payments)) return nested.payments as AdvertisementPayment[];
-    }
-
-    return [];
-  }
+  const response = await getV2AdvertisementPayments(id);
+  return response.data;
 }
-
 
 export async function getAdvertisementPreview(id: string): Promise<AdvertisementItem> {
   const response = await getV2Preview(id);
@@ -1249,22 +1214,40 @@ export async function createAdvertisement(payload: FormData) {
   return createdAdvertise;
 }
 
-export async function saveAdvertiseDraft(payload: FormData | Record<string, unknown>) {
+export async function saveAdvertiseDraft(
+  arg:
+    | FormData
+    | Record<string, unknown>
+    | { payload: FormData | Record<string, unknown>; draftId?: string | number | null },
+) {
+  let payload: FormData | Record<string, unknown>;
+  let draftId: string | number | null | undefined;
+
+  if (arg && !(arg instanceof FormData) && "payload" in arg) {
+    payload = (arg as { payload: FormData | Record<string, unknown> }).payload;
+    draftId = (arg as { draftId?: string | number | null }).draftId;
+  } else {
+    payload = arg as FormData | Record<string, unknown>;
+  }
+
   if (payload instanceof FormData) {
     payload.delete("label");
     payload.delete("description");
+    if (!draftId) {
+      draftId = (payload.get("id") as string | null) ?? undefined;
+    }
+    payload.delete("id");
   } else if (payload && typeof payload === "object") {
     delete (payload as Record<string, unknown>).label;
     delete (payload as Record<string, unknown>).description;
+    if (!draftId) {
+      draftId = ((payload as Record<string, unknown>).id as string | number | null) ?? undefined;
+    }
+    delete (payload as Record<string, unknown>).id;
   }
 
-  const activeDraftId =
-    payload instanceof FormData
-      ? (payload.get("id") as string | null)
-      : (payload as Record<string, unknown>)?.id;
-
-  const response = (activeDraftId
-    ? await updateV2Draft(String(activeDraftId), payload)
+  const response = (draftId
+    ? await updateV2Draft(String(draftId), payload)
     : await createV2Draft(payload)) as AdvertisementCreateResponse;
 
   const draftAdvertise = "data" in response && response.data
@@ -1628,9 +1611,11 @@ export async function reportAdvertisementEngagement(
   if (!cleanId || !/^[1-9]\d*$/.test(cleanId)) return;
 
   try {
-    await sendV2AdvertisementEvent(cleanId, {
-      event_type: eventType,
-      idempotency_key: uuidv7(),
+    await api.post(`advertisements/${encodeURIComponent(cleanId)}/engagement`, {
+      json: {
+        event_type: eventType,
+        idempotency_key: uuidv7(),
+      },
     });
   } catch {
     // Telemetry errors must never disrupt user experience.

@@ -375,6 +375,7 @@ export type NewAdFormValues = {
   publisherName: string;
   agencyId: string;
   consultantId: string;
+  consultantAssignmentSelected?: boolean;
   chatEnabled: boolean;
   phoneEnabled: boolean;
   phoneNumber: string;

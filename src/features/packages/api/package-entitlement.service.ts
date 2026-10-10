@@ -1,4 +1,4 @@
-import { ApiError, api } from "../../../shared/api/api";
+import { ApiError, apiV2, getActiveV2Role, type V2RoleSegment } from "../../../shared/api/api";
 import type {
   AgentEntitlements,
   AgentEntitlementLedgerItem,
@@ -27,11 +27,12 @@ function unwrapDataRecord(value: unknown): ApiRecord {
   return asRecord(root.data) ?? root;
 }
 
-export async function getAgentEntitlements(): Promise<AgentEntitlements> {
-  const response = await api.get("me/agent/entitlements").json<unknown>();
+export async function getAgentEntitlements(context: V2RoleSegment = getActiveV2Role()): Promise<AgentEntitlements> {
+  const response = await apiV2.get(`${context}/entitlements`).json<unknown>();
   const root = unwrapDataRecord(response);
   const data = asRecord(root.entitlement) ?? asRecord(root.balances) ?? root;
   const expectedFields = [
+    "ad_credit", "renew_credit", "special_credit", "panel_days", "expires_at",
     "ad_credit_balance",
     "adCreditBalance",
     "panel_days_remaining",
@@ -45,7 +46,7 @@ export async function getAgentEntitlements(): Promise<AgentEntitlements> {
   ];
 
   if (!expectedFields.some((key) => Object.prototype.hasOwnProperty.call(data, key))) {
-    throw new ApiError(500, "ساختار اعتبار مشاور از سرور قابل تشخیص نیست.");
+    throw new ApiError(500, "ساختار اعتبار از سرور قابل تشخیص نیست.");
   }
 
   return {
@@ -86,12 +87,14 @@ function readPaginationNumber(records: Array<ApiRecord | null>, keys: string[]):
 export async function getAgentEntitlementLedger({
   page = 1,
   perPage = 20,
+  context = getActiveV2Role(),
 }: {
   page?: number;
   perPage?: number;
+  context?: V2RoleSegment;
 } = {}): Promise<AgentEntitlementLedgerPage> {
-  const response = await api
-    .get("me/agent/entitlements/ledger", {
+  const response = await apiV2
+    .get(`${context}/entitlements/ledger`, {
       searchParams: { page, per_page: perPage },
     })
     .json<unknown>();

@@ -859,16 +859,17 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   setText("loanInstallment", rawLoanInstallment, numericInputText);
   setText("virtualTourLink", readFirstValue(ad, features, ["virtual_tour_link", "virtual_tour", "tour_3d", "tour3d"], ["virtual_tour_link", "virtualTourLink"]));
   setText("title", readFirstValue(ad, features, ["title"], ["title", "label", "name"]));
-  setText("description", readFirstValue(ad, features, ["description"], ["description", "short_description", "body"]));
+  next.description = readText(ad.description);
   setText("publisherName", readPublisherName(ad, features));
   setText("agencyId", readTextValue(ad, features, ["agency_id", "agencyId", "publisher_agency_id"], ["agency_id", "agencyId", "publisher_agency_id"]));
   const resolvedConsultantId = readFirstValue(
     ad,
     features,
-    ["publisher_agent_id", "assigned_consultant_id", "consultant_id"],
-    ["publisher_agent_id", "assigned_consultant_id", "assignedConsultantId", "consultant_id", "consultantId"],
+    ["assigned_consultant_id", "consultant_id"],
+    ["assigned_consultant_id", "assignedConsultantId", "consultant_id", "consultantId"],
   );
   if (resolvedConsultantId) {
+    next.consultantAssignmentSelected = false;
     next.consultantId = String(typeof resolvedConsultantId === "object" ? (resolvedConsultantId as any)?.id : resolvedConsultantId);
   }
   setText("ownerPhone", readTextValue(ad, features, ["owner_contact_phone"], ["owner_contact_phone"]));
@@ -1602,6 +1603,7 @@ export function NewAdFlowPage() {
   };
 
   const confirmPublisher = (publisher: { id: string; name: string; type: "agency" | "consultant" }) => {
+    methods.setValue("consultantAssignmentSelected", publisher.type === "consultant", { shouldDirty: true });
     methods.setValue("registrantType", "personal", { shouldDirty: true });
     methods.setValue("agencyId", "", { shouldDirty: true });
     methods.setValue("publisherName", publisher.name, { shouldDirty: true });

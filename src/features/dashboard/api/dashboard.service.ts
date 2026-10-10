@@ -160,10 +160,12 @@ type AgencyDashboardApiResponse = {
   balance_deltas?: RawRecord;
   balances?: RawRecord;
   consultant_activity?: unknown[];
+  data?: RawRecord;
   period?: unknown;
   published_advertises?: RawRecord;
   ranking?: RawRecord;
   ranking_progress?: unknown[];
+  sections?: RawRecord;
   status?: boolean;
   urgent_actions?: unknown[];
   tasks?: unknown[];
@@ -171,11 +173,13 @@ type AgencyDashboardApiResponse = {
 
 type AgentDashboardApiResponse = {
   advertise_registration_progress?: unknown[];
+  data?: RawRecord;
   entitlement?: RawRecord;
   period?: unknown;
   published_advertises?: RawRecord;
   ranking?: RawRecord;
   renew_usage?: RawRecord;
+  sections?: RawRecord;
   special_usage?: RawRecord;
   status?: boolean;
   usage_deltas?: RawRecord;
@@ -365,21 +369,57 @@ function normalizeAgencyDashboard(
   response: AgencyDashboardApiResponse,
   requestedPeriod: DashboardPeriod,
 ): DashboardOverview {
-  const ranking = asRecord(response.ranking);
-  const currentRanking = normalizeRankingEntity(ranking.current);
-  const resolvedRank = toNullableNumber(ranking.rank);
-  const rawTopEntities = Array.isArray(ranking.top_agencies)
-    ? ranking.top_agencies
+  const payload = asRecord(response.data ?? response);
+  const sections = asRecord(payload.sections ?? response.sections);
+  const creditsSection = asRecord(sections.credits);
+  const rankingBadgeSection = asRecord(sections["ranking-badge"] ?? sections.ranking_badge);
+  const consultantActivitySection = asRecord(sections["consultant-activity"] ?? sections.consultant_activity);
+  const reportsTeaserSection = asRecord(sections["reports-teaser"] ?? sections.reports_teaser);
+  const registrationProgressSection = asRecord(
+    sections["registration-progress"] ??
+      sections.registration_progress ??
+      sections["advertise-registration-progress"] ??
+      sections.advertise_registration_progress,
+  );
+  const rankingProgressSection = asRecord(sections["ranking-progress"] ?? sections.ranking_progress);
+  const tasksSection = asRecord(sections.tasks);
+  const urgentActionsSection = asRecord(sections["urgent-actions"] ?? sections.urgent_actions);
+
+  const rawRanking = asRecord(rankingBadgeSection.ranking ?? payload.ranking ?? response.ranking);
+  const currentRanking = normalizeRankingEntity(
+    rawRanking.current ?? (rankingBadgeSection.badge_title ? rankingBadgeSection : undefined),
+  );
+  const resolvedRank = toNullableNumber(rawRanking.rank ?? rankingBadgeSection.rank);
+  const rawTopEntities = Array.isArray(rawRanking.top_agencies)
+    ? rawRanking.top_agencies
     : [];
-  const rawConsultantActivity = Array.isArray(response.consultant_activity)
-    ? response.consultant_activity
+  const rawConsultantActivityCandidate =
+    consultantActivitySection.items ??
+    payload.consultant_activity ??
+    response.consultant_activity;
+  const rawConsultantActivity: unknown[] = Array.isArray(rawConsultantActivityCandidate)
+    ? rawConsultantActivityCandidate
     : [];
-  const rawAdvertiseProgress = Array.isArray(response.advertise_registration_progress)
-    ? response.advertise_registration_progress
+  const rawAdvertiseProgressCandidate =
+    registrationProgressSection.items ??
+    payload.advertise_registration_progress ??
+    response.advertise_registration_progress;
+  const rawAdvertiseProgress: unknown[] = Array.isArray(rawAdvertiseProgressCandidate)
+    ? rawAdvertiseProgressCandidate
     : [];
-  const rawRankingProgress = Array.isArray(response.ranking_progress)
-    ? response.ranking_progress
+  const rawRankingProgressCandidate =
+    rankingProgressSection.items ??
+    payload.ranking_progress ??
+    response.ranking_progress;
+  const rawRankingProgress: unknown[] = Array.isArray(rawRankingProgressCandidate)
+    ? rawRankingProgressCandidate
     : [];
+
+  const rawBalances = creditsSection.balances ?? payload.balances ?? response.balances;
+  const rawBalanceDeltas = creditsSection.balance_deltas ?? payload.balance_deltas ?? response.balance_deltas;
+  const rawPublishedAdvertises = reportsTeaserSection.published_ads_count !== undefined
+    ? reportsTeaserSection
+    : payload.published_advertises ?? response.published_advertises;
 
   return {
     advertiseRegistrationProgress: rawAdvertiseProgress.map((item) => {
@@ -390,8 +430,8 @@ function normalizeAgencyDashboard(
         month: toText(progress.month) || toText(progress.bucket),
       };
     }),
-    balanceDeltas: normalizeBalanceDeltas(response.balance_deltas),
-    balances: normalizeBalances(response.balances),
+    balanceDeltas: normalizeBalanceDeltas(rawBalanceDeltas),
+    balances: normalizeBalances(rawBalances),
     consultantActivity: rawConsultantActivity.map((item) => {
       const activity = asRecord(item);
 
@@ -406,9 +446,9 @@ function normalizeAgencyDashboard(
       };
     }),
     kind: "agency",
-    period: toText(response.period) || String(requestedPeriod),
+    period: toText(payload.period ?? response.period) || String(requestedPeriod),
     publishedAdvertises: normalizePublishedAdvertises(
-      response.published_advertises,
+      rawPublishedAdvertises,
     ),
     rankingProgress: rawRankingProgress
       .map((item) => {
@@ -437,8 +477,8 @@ function normalizeAgencyDashboard(
     specialUsage: null,
     walletCredit: null,
     workSummary: null,
-    urgentActions: normalizeUrgentActions(response.urgent_actions),
-    tasks: normalizeTasks(response.tasks),
+    urgentActions: normalizeUrgentActions(urgentActionsSection.items ?? payload.urgent_actions ?? response.urgent_actions),
+    tasks: normalizeTasks(tasksSection.items ?? payload.tasks ?? response.tasks),
   };
 }
 
@@ -446,16 +486,23 @@ function normalizeAgentDashboard(
   response: AgentDashboardApiResponse,
   requestedPeriod: DashboardPeriod,
 ): DashboardOverview {
-  const ranking = asRecord(response.ranking);
+  const payload = asRecord(response.data ?? response);
+  const sections = asRecord(payload.sections ?? response.sections);
+  const creditsSection = asRecord(sections.credits);
+  const rankingBadgeSection = asRecord(sections["ranking-badge"] ?? sections.ranking);
+  const rawRanking = asRecord(rankingBadgeSection.ranking ?? payload.ranking ?? response.ranking);
   const currentRanking = normalizeRankingEntity(
-    ranking.current,
-    toNullableNumber(ranking.rank),
+    rawRanking.current ?? (rankingBadgeSection.badge_title ? rankingBadgeSection : undefined),
+    toNullableNumber(rawRanking.rank ?? rankingBadgeSection.rank),
   );
-  const rawProgress = Array.isArray(response.advertise_registration_progress)
-    ? response.advertise_registration_progress
+  const rawProgressCandidate =
+    payload.advertise_registration_progress ??
+    response.advertise_registration_progress;
+  const rawProgress: unknown[] = Array.isArray(rawProgressCandidate)
+    ? rawProgressCandidate
     : [];
-  const wallet = asRecord(response.wallet);
-  const workSummary = asRecord(response.work_summary);
+  const wallet = asRecord(payload.wallet ?? response.wallet);
+  const workSummary = asRecord(payload.work_summary ?? response.work_summary);
 
   return {
     advertiseRegistrationProgress: rawProgress.map((item) => {
@@ -466,8 +513,8 @@ function normalizeAgentDashboard(
         month: toText(progress.month),
       };
     }),
-    balanceDeltas: normalizeBalanceDeltas(response.usage_deltas),
-    balances: normalizeBalances(response.entitlement),
+    balanceDeltas: normalizeBalanceDeltas(creditsSection.balance_deltas ?? payload.usage_deltas ?? response.usage_deltas),
+    balances: normalizeBalances(creditsSection.balances ?? payload.entitlement ?? response.entitlement),
     consultantActivity: [],
     kind: "agent",
     period: toText(response.period) || String(requestedPeriod),
@@ -477,9 +524,9 @@ function normalizeAgentDashboard(
     ranking: {
       current: {
         ...currentRanking,
-        rank: toNullableNumber(ranking.rank) ?? currentRanking.rank,
+        rank: toNullableNumber(rawRanking.rank ?? rankingBadgeSection.rank) ?? currentRanking.rank,
       },
-      rank: toNullableNumber(ranking.rank),
+      rank: toNullableNumber(rawRanking.rank ?? rankingBadgeSection.rank),
       topEntities: [],
     },
     rankingProgress: [],
@@ -702,24 +749,26 @@ export interface AgentBadge {
 
 export interface AgentBadgesApiResponse {
   status: boolean;
-  badges: AgentBadge[];
+  badges?: AgentBadge[];
+  data?: AgentBadge[];
 }
 
 export interface AgentBadgeDetailApiResponse {
   status: boolean;
-  badge: AgentBadge;
+  badge?: AgentBadge;
+  data?: AgentBadge;
 }
 
 export async function getAgentBadges(): Promise<AgentBadge[]> {
   const context = toV2Context("agent");
-  const response = await apiV2.get(`${context}/dashboard/badges`).json<AgentBadgesApiResponse>();
-  return response.badges ?? [];
+  const response = await apiV2.get(`${context}/ranking/badges`).json<AgentBadgesApiResponse>();
+  return response.data ?? response.badges ?? [];
 }
 
 export async function getAgentBadge(slug: string): Promise<AgentBadge | null> {
   const context = toV2Context("agent");
-  const response = await apiV2.get(`${context}/dashboard/badges/${slug}`).json<AgentBadgeDetailApiResponse>();
-  return response.badge ?? null;
+  const response = await apiV2.get(`${context}/ranking/badges/${encodeURIComponent(slug)}`).json<AgentBadgeDetailApiResponse>();
+  return response.data ?? response.badge ?? null;
 }
 
 export async function getAgentRanking(): Promise<unknown> {
@@ -842,6 +891,8 @@ export type DashboardCreditsData = {
     specialCreditBalance: number;
     panelDaysRemaining: number;
     unassignedAdCreditBalance?: number;
+    unassignedRenewCreditBalance?: number;
+    unassignedSpecialCreditBalance?: number;
     walletBalance?: number;
   };
   balanceDeltas: {
@@ -869,6 +920,8 @@ export async function getDashboardCredits(
         specialCreditBalance: toNumber(rawBalances.special_credit_balance, 0),
         panelDaysRemaining: toNumber(rawBalances.panel_days_remaining, 0),
         unassignedAdCreditBalance: toNumberOrUndefined(rawBalances.unassigned_ad_credit_balance),
+        unassignedRenewCreditBalance: toNumberOrUndefined(rawBalances.unassigned_renew_credit_balance),
+        unassignedSpecialCreditBalance: toNumberOrUndefined(rawBalances.unassigned_special_credit_balance),
         walletBalance: toNumberOrUndefined(rawBalances.wallet_balance),
       },
       balanceDeltas: {

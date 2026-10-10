@@ -200,6 +200,20 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const reRegisterStatusQuery = useAdvertisementReRegisterStatusQuery(currentAdId);
   const archiveStatusQuery = useAdvertisementArchiveStatusQuery(currentAdId);
 
+  const agencyId = readText(
+    sourceAd?.assigned_agency_id ??
+    sourceAd?.assignedAgencyId ??
+    sourceAd?.agency_id ??
+    sourceAd?.agencyId ??
+    sourceAd?.publisher_agency_id ??
+    (sourceAd?.agency && typeof sourceAd.agency === "object" ? (sourceAd.agency as Record<string, unknown>).id : undefined)
+  );
+
+  const agencyDetailQuery = usePublicAgencyDetailQuery({
+    id: agencyId,
+    enabled: Boolean(agencyId),
+  });
+
   const isAssigned = statusInfo.key !== "wait_for_payment" && Boolean(
     props?.isAssigned ??
     routeState.isAssigned ??
@@ -246,20 +260,6 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
       />
     );
   }
-
-  const agencyId = readText(
-    sourceAd?.assigned_agency_id ??
-    sourceAd?.assignedAgencyId ??
-    sourceAd?.agency_id ??
-    sourceAd?.agencyId ??
-    sourceAd?.publisher_agency_id ??
-    (sourceAd?.agency && typeof sourceAd.agency === "object" ? (sourceAd.agency as Record<string, unknown>).id : undefined)
-  );
-
-  const agencyDetailQuery = usePublicAgencyDetailQuery({
-    id: agencyId,
-    enabled: Boolean(agencyId),
-  });
 
   const agencyData = agencyDetailQuery.data as Record<string, unknown> | undefined;
   const agencyObj = agencyData?.agency && typeof agencyData.agency === "object" ? (agencyData.agency as Record<string, unknown>) : undefined;

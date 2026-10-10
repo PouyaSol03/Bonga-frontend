@@ -81,7 +81,7 @@ export function DashboardReportsTeaserCard({
 
         {/* Action Button with Typography */}
         <button
-          className="flex h-9 items-center justify-center rounded-[10px] bg-primary-container px-4 transition hover:opacity-90 active:scale-95 cursor-pointer border-none"
+          className="flex h-9 items-center justify-center rounded-[10px] bg-primary-container px-4 transition active:scale-95 cursor-pointer border-none"
           onClick={onViewReports}
           type="button"
         >

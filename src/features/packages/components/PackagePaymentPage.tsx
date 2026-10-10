@@ -173,7 +173,7 @@ function ApiWalletDeficitBox({
       <div className="flex h-[56px] items-center justify-between rounded-xl border border-[#FFE8CC] bg-[#FFF8EE] px-4 [direction:ltr]">
         <Button
           unstyled
-          className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#00966D] hover:bg-[#00825E] px-3.5 py-2 text-xs font-semibold leading-5 text-white shadow-xs transition-colors disabled:opacity-60"
+          className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#00966D] px-3.5 py-2 text-xs font-semibold leading-5 text-white shadow-xs transition-colors disabled:opacity-60"
           disabled={isCharging}
           onClick={onCharge}
           type="button"
@@ -438,7 +438,7 @@ export function PackagePaymentPage({
               <button
                 type="button"
                 onClick={handleRemoveDiscount}
-                className="cursor-pointer text-xs font-semibold text-error hover:underline"
+                className="cursor-pointer text-xs font-semibold text-error"
               >
                 حذف کد
               </button>
@@ -447,7 +447,7 @@ export function PackagePaymentPage({
             <div className="flex items-center gap-2 [direction:ltr]">
               <Button
                 unstyled
-                className="h-12 shrink-0 rounded-xl bg-primary px-5 text-sm font-semibold leading-5 text-on-primary shadow-xs transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-outline"
+                className="h-12 shrink-0 rounded-xl bg-primary px-5 text-sm font-semibold leading-5 text-on-primary shadow-xs transition-colors disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-outline"
                 disabled={discountLoading || !discountInput.trim()}
                 onClick={handleApplyDiscount}
                 type="button"
@@ -546,7 +546,7 @@ export function PackagePaymentPage({
           return (
             <Button
               unstyled
-              className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               disabled={
                 isButtonBusy ||
                 (paymentType === 0 && isGatewayDisabled) ||

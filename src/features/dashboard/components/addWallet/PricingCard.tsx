@@ -64,7 +64,6 @@ export default function PricingCard({
       className="
         group flex w-full flex-col rounded-xl border border-primary
         bg-surface-container-lowest px-5 py-6 transition-all duration-200
-        hover:bg-primary-container/20
       "
     >
       <Typography as="h3" variant="title" size="medium" weight="semibold" className="mb-6 text-right text-lg font-bold text-primary">
@@ -117,7 +116,6 @@ export default function PricingCard({
           mt-auto h-11 w-full rounded-lg border border-primary
           bg-surface-container-lowest text-sm font-semibold text-primary
           transition-all duration-200
-          group-hover:bg-primary group-hover:text-on-primary
         "
       >
         پرداخت

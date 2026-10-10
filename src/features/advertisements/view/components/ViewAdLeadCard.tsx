@@ -158,7 +158,7 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
           to={detailsHref}
           state={{ lead, adId }}
           onClick={() => onDetailsClick?.(lead)}
-          className="flex-1 h-10 rounded-xl border border-primary text-primary flex items-center justify-center gap-1.5 text-xs font-semibold hover:bg-primary/5 transition no-underline active:scale-[0.99]"
+          className="flex-1 h-10 rounded-xl border border-primary text-primary flex items-center justify-center gap-1.5 text-xs font-semibold transition no-underline active:scale-[0.99]"
         >
           <Typography
             as="span"

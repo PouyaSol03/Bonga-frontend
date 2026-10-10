@@ -63,14 +63,14 @@ export const ManagementAdActions: React.FC<Props> = ({
       : { ad: sourceAd, card: ad, statisticsAd: ad, activeBusinessTab: "performance" as const };
 
   const iconBtnClass =
-    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-transparent text-on-surface transition hover:bg-surface-container active:scale-95 no-underline cursor-pointer border-none";
+    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-transparent text-on-surface transition active:scale-95 no-underline cursor-pointer border-none";
 
   return (
     <div className="flex items-center justify-between pt-4 [direction:rtl]">
       {/* Main button: ad workspace */}
       {onDeskClick ? (
         <button
-          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-primary px-4 text-xs font-semibold text-on-primary shadow-sm transition hover:bg-primary/90 active:scale-95 cursor-pointer border-none"
+          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-primary px-4 text-xs font-semibold text-on-primary shadow-sm transition active:scale-95 cursor-pointer border-none"
           onClick={onDeskClick}
           type="button"
         >
@@ -87,7 +87,7 @@ export const ManagementAdActions: React.FC<Props> = ({
         </button>
       ) : (
         <RouteLink
-          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-primary px-4 text-xs font-semibold text-on-primary shadow-sm transition hover:bg-primary/90 active:scale-95 no-underline"
+          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-primary px-4 text-xs font-semibold text-on-primary shadow-sm transition active:scale-95 no-underline"
           state={deskState}
           to={effectiveDeskPath}
         >

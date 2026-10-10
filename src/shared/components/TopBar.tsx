@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { getStoredBackTarget, replaceRoute } from "../navigation/navigation";
+import { canGoBackInApp, getStoredBackTarget, replaceRoute } from "../navigation/navigation";
 import { RouteLink } from "../navigation/RouteLink";
 import LinearArrowLeft2 from "../icons/LinearArrowLeft2";
 import LinearArrowRight2 from "../icons/LinearArrowRight2";
@@ -152,7 +152,7 @@ function TopBarBackButton({
           return;
         }
 
-        if (window.history.length > 1) {
+        if (canGoBackInApp()) {
           window.history.back();
           return;
         }

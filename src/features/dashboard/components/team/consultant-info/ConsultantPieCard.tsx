@@ -104,7 +104,7 @@ export function ConsultantPieCard({
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">
             {card.title}
           </Typography>
-          <label className="relative flex h-7 items-center rounded-lg bg-transparent transition hover:bg-surface-container-high">
+          <label className="relative flex h-7 items-center rounded-lg bg-transparent transition">
             <select
               aria-label={`بازه زمانی ${card.title}`}
               className="h-7 cursor-pointer appearance-none rounded-lg bg-transparent py-1 pl-7 pr-2 text-xs font-medium text-on-surface outline-none"

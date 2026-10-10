@@ -44,7 +44,7 @@ export const InteractiveRadioGroup: Story = {
         {options.map((opt) => (
           <label
             key={opt.id}
-            className="flex items-start gap-3 p-3 rounded-lg border border-outline-var cursor-pointer hover:border-primary transition-all duration-200 ease-out active:scale-[0.99] select-none"
+            className="flex items-start gap-3 p-3 rounded-lg border border-outline-var cursor-pointer transition-all duration-200 ease-out active:scale-[0.99] select-none"
             onClick={() => setSelected(opt.id)}
           >
             <ChoiceIndicator checked={selected === opt.id} type="radio" className="mt-0.5" />
@@ -83,7 +83,7 @@ export const InteractiveCheckboxes: Story = {
           {items.map((item) => (
             <label
               key={item.id}
-              className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer hover:bg-surface-container-high transition-all duration-200 ease-out active:scale-[0.98] select-none"
+              className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer transition-all duration-200 ease-out active:scale-[0.98] select-none"
               onClick={() => toggle(item.id)}
             >
               <ChoiceIndicator checked={checkedItems.includes(item.id)} type="checkbox" />

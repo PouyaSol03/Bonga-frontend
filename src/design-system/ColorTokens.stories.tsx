@@ -24,7 +24,7 @@ type ColorSwatchProps = {
 
 function ColorSwatch({ name, cssVar, hex, description, isDarkText = false }: ColorSwatchProps) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-sm transition hover:shadow-md">
+    <div className="flex flex-col overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-sm transition">
       <div
         className="flex h-20 w-full items-end justify-between p-3 font-mono text-xs font-bold"
         style={{

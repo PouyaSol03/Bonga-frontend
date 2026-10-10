@@ -25,7 +25,7 @@ export function DashboardBadgeBanner({
 }: DashboardBadgeBannerProps) {
   return (
     <RouteLink
-      className="flex h-[64px] items-center justify-between rounded-[16px] bg-surface-container-lowest px-4 shadow-sm transition hover:bg-surface-container-low active:scale-[0.99] no-underline [direction:rtl]"
+      className="flex h-[64px] items-center justify-between rounded-[16px] bg-surface-container-lowest px-4 shadow-sm transition active:scale-[0.99] no-underline [direction:rtl]"
       to={to}
     >
       <div className="flex items-center gap-3">

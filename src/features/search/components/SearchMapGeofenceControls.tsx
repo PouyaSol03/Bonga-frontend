@@ -48,7 +48,7 @@ export function SearchMapGeofenceControls({
       <footer className="pointer-events-auto absolute inset-x-0 bottom-0 h-16 border-t border-outline-var bg-surface-container px-4 py-3 shadow-[0_-2px_10px_rgba(26,26,26,0.06)]">
         <div className="grid h-10 grid-cols-2 gap-4">
           <Button unstyled
-            className="h-10 rounded-[10px] border border-primary bg-surface-container-lowest px-4 text-sm font-medium leading-5 text-primary transition-colors hover:bg-primary-container/20 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+            className="h-10 rounded-[10px] border border-primary bg-surface-container-lowest px-4 text-sm font-medium leading-5 text-primary transition-colors focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25"
             type="button"
             onClick={onDelete}
           >

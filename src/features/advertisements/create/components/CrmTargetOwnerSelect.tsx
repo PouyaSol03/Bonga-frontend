@@ -83,7 +83,7 @@ export function CrmTargetOwnerSelect({
               return (
                 <li
                   key={id}
-                  className="cursor-pointer border-b border-outline-var last:border-0 px-4 py-3 text-sm transition-colors hover:bg-surface-container-high"
+                  className="cursor-pointer border-b border-outline-var last:border-0 px-4 py-3 text-sm transition-colors"
                   onMouseDown={(e) => {
                     e.preventDefault(); // Prevent blur
                     onChange(id);

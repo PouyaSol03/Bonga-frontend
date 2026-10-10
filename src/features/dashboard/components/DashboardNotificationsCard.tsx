@@ -70,7 +70,7 @@ export function DashboardNotificationsCard({
           آخرین اعلان‌ها
         </Typography>
         <RouteLink
-          className="flex items-center gap-1 text-primary hover:underline"
+          className="flex items-center gap-1 text-primary"
           to={viewAllTo}
         >
           <Typography
@@ -102,7 +102,7 @@ export function DashboardNotificationsCard({
           return (
             <article
               key={String(item.id ?? idx)}
-              className={`flex flex-col py-3.5 cursor-pointer transition-colors hover:bg-surface-container-low/40 rounded-lg px-2 -mx-2 ${
+              className={`flex flex-col py-3.5 cursor-pointer transition-colors rounded-lg px-2 -mx-2 ${
                 !isLast ? "border-b border-surface-container-high" : ""
               }`}
               onClick={handleOpen}

@@ -128,7 +128,7 @@ export function DashboardLeadFollowupCard({ item }: DashboardLeadFollowupCardPro
         {/* Action Button: سرنخ آگهی < */}
         <RouteLink
           to={targetLink}
-          className="flex items-center gap-1.5 rounded-[10px] border border-[#0048C4] px-3.5 py-2 text-xs font-medium text-[#0048C4] transition-colors hover:bg-[#0048C4]/5 active:bg-[#0048C4]/10"
+          className="flex items-center gap-1.5 rounded-[10px] border border-[#0048C4] px-3.5 py-2 text-xs font-medium text-[#0048C4] transition-colors active:bg-[#0048C4]/10"
         >
           <Typography
             as="span"

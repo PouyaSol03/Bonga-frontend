@@ -29,7 +29,7 @@ export function SearchMapResultsSummary({
 
       {hasGeofence ? (
         <Button unstyled
-          className="pointer-events-auto flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2 leading-5 text-on-primary shadow-[0_5px_16px_rgba(0,72,196,0.24)] transition-colors hover:opacity-90 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25 min-[400px]:gap-2 min-[400px]:px-5 min-[400px]:text-sm"
+          className="pointer-events-auto flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2 leading-5 text-on-primary shadow-[0_5px_16px_rgba(0,72,196,0.24)] transition-colors focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25 min-[400px]:gap-2 min-[400px]:px-5 min-[400px]:text-sm"
           type="button"
           onClick={onRemoveGeofence}
         >

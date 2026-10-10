@@ -2027,7 +2027,7 @@ function ChatParticipantAvailabilityCard({
     >
       <div className="flex h-5 items-center gap-2 text-sm font-medium leading-5 text-primary">
         <LinearSupport aria-hidden="true" className="h-5 w-5" />
-        <Typography as="h2" variant="headline" size="large" className="m-0">ساعت پاسخگویی آژانس</Typography>
+        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0">ساعت پاسخگویی آژانس</Typography>
       </div>
 
       <div className="mt-2 space-y-2 [direction:rtl]">

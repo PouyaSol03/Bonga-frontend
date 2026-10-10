@@ -131,7 +131,7 @@ export function PropertyRequestResults({
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-error/10 px-3 py-3 text-sm text-error">
           <Typography as="span" variant="body" size="medium" weight="regular">بررسی نتیجه این درخواست با خطا مواجه شد.</Typography>
           <Button unstyled
-            className="inline-flex h-8 items-center gap-1 rounded-lg border border-error/30 bg-surface-container-lowest px-2 text-xs font-semibold text-error transition hover:bg-error/5"
+            className="inline-flex h-8 items-center gap-1 rounded-lg border border-error/30 bg-surface-container-lowest px-2 text-xs font-semibold text-error transition"
             onClick={() => void query.refetch()}
             type="button"
           >

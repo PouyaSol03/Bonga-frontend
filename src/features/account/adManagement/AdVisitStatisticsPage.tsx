@@ -315,7 +315,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
           {chart.title}
           <Button unstyled
             aria-label={`توضیحات ${chart.title}`}
-            className="grid h-4 w-4 place-items-center rounded-full text-on-surface-var transition-colors hover:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/20"
+            className="grid h-4 w-4 place-items-center rounded-full text-on-surface-var transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/20"
             onClick={() => setIsInfoSheetOpen(true)}
             type="button"
           >

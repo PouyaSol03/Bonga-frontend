@@ -45,7 +45,7 @@ export function ConsultantPeriodDropdown({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex cursor-pointer items-center gap-1 rounded-lg border-none bg-transparent px-2 py-1 text-xs text-on-surface-var transition hover:bg-surface-container-low active:scale-95"
+        className="flex cursor-pointer items-center gap-1 rounded-lg border-none bg-transparent px-2 py-1 text-xs text-on-surface-var transition active:scale-95"
       >
         <Typography variant="label" size="small" weight="medium" className="text-on-surface-var text-xs">
           {currentLabel}
@@ -65,7 +65,7 @@ export function ConsultantPeriodDropdown({
                   onSelectPeriod(option.key);
                   setIsOpen(false);
                 }}
-                className={`flex w-full cursor-pointer items-center justify-between border-none px-3 py-2 text-right text-xs transition hover:bg-surface-container-low ${
+                className={`flex w-full cursor-pointer items-center justify-between border-none px-3 py-2 text-right text-xs transition ${
                   isSelected
                     ? "bg-primary/5 font-bold text-primary"
                     : "bg-transparent text-on-surface-var"

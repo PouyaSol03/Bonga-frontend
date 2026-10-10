@@ -68,7 +68,7 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
         <div className="mt-8 space-y-4">
           <label
             onClick={() => setSelectedResult("success")}
-            className="flex cursor-pointer items-center justify-between rounded-xl py-3 px-2 hover:bg-surface-container-low transition-colors"
+            className="flex cursor-pointer items-center justify-between rounded-xl py-3 px-2 transition-colors"
           >
             <div className="flex items-center gap-3">
               <LinearLike className="h-5 w-5 text-on-surface" />
@@ -79,7 +79,7 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
 
           <label
             onClick={() => setSelectedResult("unsuccessful")}
-            className="flex cursor-pointer items-center justify-between rounded-xl py-3 px-2 hover:bg-surface-container-low transition-colors"
+            className="flex cursor-pointer items-center justify-between rounded-xl py-3 px-2 transition-colors"
           >
             <div className="flex items-center gap-3">
               <LinearDislike className="h-5 w-5 text-on-surface" />

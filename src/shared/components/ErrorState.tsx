@@ -70,7 +70,7 @@ function BaseErrorState({
                     className="
             inline-flex h-10 min-w-[124px] items-center justify-center gap-2 rounded-[10px]
             bg-primary px-5 text-[14px] font-medium text-on-primary
-            transition hover:opacity-90
+            transition
             disabled:cursor-not-allowed disabled:opacity-60
           "
                 >
@@ -94,32 +94,16 @@ type ErrorStateProps = {
     className?: string;
 };
 
+/**
+ * Only a device that is actually offline counts as "no connection". Server
+ * errors, cancelled or aborted requests, timeouts, unreachable servers and
+ * unknown failures all mean the server could not answer, so they show the
+ * server error state instead.
+ */
 export function isNoConnectionError(error: unknown) {
     if (error instanceof ApiError) return false;
 
-    if (typeof navigator !== "undefined" && navigator.onLine === false) {
-        return true;
-    }
-
-    if (error instanceof DOMException && error.name === "AbortError") {
-        return true;
-    }
-
-    if (error instanceof Error) {
-        const name = error.name.toLowerCase();
-        const message = error.message.toLowerCase();
-
-        return (
-            name.includes("abort") ||
-            name.includes("cancel") ||
-            message.includes("abort") ||
-            message.includes("cancel") ||
-            message.includes("failed to fetch") ||
-            message.includes("network")
-        );
-    }
-
-    return true;
+    return typeof navigator !== "undefined" && navigator.onLine === false;
 }
 
 export function getRequestErrorState(
@@ -218,7 +202,7 @@ export function AccessDeniedState({ onBack }: { onBack: () => void }) {
                 </Typography>
 
                 <Button unstyled
-                    className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-primary px-4 text-sm font-medium text-on-primary transition hover:opacity-90"
+                    className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-primary px-4 text-sm font-medium text-on-primary transition"
                     onClick={onBack}
                     type="button"
                 >

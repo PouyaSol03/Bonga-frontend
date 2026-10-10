@@ -70,7 +70,7 @@ export function DashboardAdsPage() {
               return (
                 <Button unstyled
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative h-10 whitespace-nowrap border-0 bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-primary" : "text-on-surface-var hover:text-on-surface"
+                  className={`relative h-10 whitespace-nowrap border-0 bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-primary" : "text-on-surface-var"
                     }`}
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -89,7 +89,7 @@ export function DashboardAdsPage() {
         <div className="mt-9 flex items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             <Button unstyled
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-sm font-semibold text-on-surface transition hover:border-primary hover:text-primary"
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-sm font-semibold text-on-surface transition"
               type="button"
             >
               <FilterIcon className="h-5 w-5" />
@@ -110,7 +110,7 @@ export function DashboardAdsPage() {
 
           <div className="flex items-center gap-4">
             <RouteLink
-              className="inline-flex h-10 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-on-surface no-underline transition hover:bg-surface-container-high"
+              className="inline-flex h-10 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-on-surface no-underline transition"
               to="/account/ad-management/statistics"
             >
               <AnalyticsIcon className="h-5 w-5 text-on-surface-var" />

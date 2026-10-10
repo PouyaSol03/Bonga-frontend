@@ -502,7 +502,7 @@ export function RequestManagementView({
                   className={`inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
                     activeFilterId === "all"
                       ? "border-primary bg-primary/16 text-primary"
-                      : "border-outline-var bg-surface-container-lowest text-on-surface hover:bg-surface-container"
+                      : "border-outline-var bg-surface-container-lowest text-on-surface"
                   }`}
                   onClick={() => selectFilter("all")}
                   type="button"
@@ -520,7 +520,7 @@ export function RequestManagementView({
                       className={`inline-flex shrink-0 cursor-pointer items-center justify-center max-w-[200px] rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
                         isSelected
                           ? "border-primary bg-primary/16 text-primary"
-                          : "border-outline-var bg-surface-container-lowest text-on-surface hover:bg-surface-container"
+                          : "border-outline-var bg-surface-container-lowest text-on-surface"
                       }`}
                       onClick={() => selectFilter(request.id)}
                       type="button"
@@ -580,7 +580,7 @@ export function RequestManagementView({
                 <Button
                   unstyled
                   onClick={() => setIsFilterSheetOpen(true)}
-                  className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[10px] border border-outline-var bg-surface-container-low px-3 py-1.5 text-xs font-medium text-on-surface hover:bg-surface-container transition active:scale-95"
+                  className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[10px] border border-outline-var bg-surface-container-low px-3 py-1.5 text-xs font-medium text-on-surface transition active:scale-95"
                   type="button"
                 >
                   <LinearArrowDown1 className="h-4 w-4 text-outline" />
@@ -783,7 +783,7 @@ function RequestTabs({
               } ${
                 isActive
                   ? "text-primary font-semibold"
-                  : "text-on-surface-var hover:bg-surface-container/50"
+                  : "text-on-surface-var"
               }`}
               key={tab.id}
               onClick={() => onChange(tab.id)}

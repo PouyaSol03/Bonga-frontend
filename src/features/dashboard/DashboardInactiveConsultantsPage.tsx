@@ -85,7 +85,7 @@ export function DashboardInactiveConsultantsPage() {
               <button
                 type="button"
                 onClick={() => setShowNotice(false)}
-                className="text-[#0048C4] hover:opacity-75 transition-opacity p-0.5"
+                className="text-[#0048C4] transition-opacity p-0.5"
                 aria-label="بستن پیام"
               >
                 <svg
@@ -143,7 +143,7 @@ export function DashboardInactiveConsultantsPage() {
             <RouteLink
               key={consultant.id}
               to={`/account/dashboard/team`}
-              className="flex h-[88px] items-center justify-between rounded-[16px] border border-[#F0F0F0] bg-white p-4 shadow-2xs transition-transform active:scale-[0.99] hover:border-gray-300"
+              className="flex h-[88px] items-center justify-between rounded-[16px] border border-[#F0F0F0] bg-white p-4 shadow-2xs transition-transform active:scale-[0.99]"
             >
               {/* Right: Avatar + Name + Inactive Badge */}
               <div className="flex items-center gap-3">

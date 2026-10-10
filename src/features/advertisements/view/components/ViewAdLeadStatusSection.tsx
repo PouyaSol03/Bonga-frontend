@@ -101,7 +101,7 @@ export function ViewAdLeadStatusSection({
               <button
                 type="button"
                 onClick={() => setIsDatePickerOpen(true)}
-                className="p-1 text-on-surface-var hover:text-on-surface transition cursor-pointer"
+                className="p-1 text-on-surface-var transition cursor-pointer"
                 title="انتخاب از تقویم"
               >
                 <LinearCalendar className="h-5 w-5" />

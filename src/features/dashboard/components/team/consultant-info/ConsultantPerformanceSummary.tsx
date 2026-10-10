@@ -96,7 +96,7 @@ export function ConsultantPerformanceSummary({
           <button
             type="button"
             onClick={onViewCharts}
-            className="cursor-pointer rounded-xl bg-primary/10 px-4 py-2.5 text-xs font-semibold text-primary transition hover:bg-primary/15 active:scale-98"
+            className="cursor-pointer rounded-xl bg-primary/10 px-4 py-2.5 text-xs font-semibold text-primary transition active:scale-98"
           >
             مشاهده نمودارها
           </button>

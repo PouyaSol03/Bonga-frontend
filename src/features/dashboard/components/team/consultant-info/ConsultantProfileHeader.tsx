@@ -90,7 +90,7 @@ export function ConsultantProfileHeader({
               <RouteLink
                 to={`${consultantTeamPaths.edit}/${consultantId}`}
                 state={{ consultant }}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface hover:bg-surface-container"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface"
                 onClick={() => setMenuOpen(false)}
               >
                 <LinearEdit2 className="h-4 w-4 text-on-surface-var" />
@@ -99,7 +99,7 @@ export function ConsultantProfileHeader({
               <RouteLink
                 to={`${consultantTeamPaths.remove}/${consultantId}`}
                 state={{ consultant }}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-error hover:bg-surface-container"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-error"
                 onClick={() => setMenuOpen(false)}
               >
                 <LinearDelete className="h-4 w-4 text-error" />

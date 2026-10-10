@@ -314,6 +314,10 @@ function getInitialSearchMode(): SearchMapMode {
   return getSearchParams().get("view") === "list" ? "list" : "map";
 }
 
+// Marks search entries pushed on top of another search entry (filter page),
+// whose copied back target is no longer the previous history entry.
+const SEARCH_FILTER_ENTRY_KEY = "__bongaSearchFilterEntry";
+
 function writeSearchParams(params: URLSearchParams, options: { replace?: boolean } = {}) {
   const queryString = params.toString();
   const nextUrl = queryString ? `/search?${queryString}` : "/search";
@@ -1306,7 +1310,7 @@ export function SearchMapPage() {
     }
 
     window.history.pushState(
-      window.history.state ?? {},
+      { ...(window.history.state ?? {}), [SEARCH_FILTER_ENTRY_KEY]: true },
       "",
       buildFilterPageUrl(chip),
     );
@@ -1629,6 +1633,18 @@ export function SearchMapPage() {
     const storedBackTarget = getStoredBackTarget();
 
     if (storedBackTarget && !storedBackTarget.backTo.startsWith("/search")) {
+      // Search was pushed directly from backTo, so the previous history entry
+      // is that page: go back instead of replacing, otherwise a duplicate
+      // entry stays behind and the old ad page remains reachable via forward.
+      const isFilterEntry = Boolean(
+        (window.history.state as Record<string, unknown> | null)?.[SEARCH_FILTER_ENTRY_KEY],
+      );
+
+      if (!isFilterEntry && window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+
       replaceRoute(
         storedBackTarget.backTo,
         storedBackTarget.backState,
@@ -1637,7 +1653,13 @@ export function SearchMapPage() {
       return;
     }
 
-    if (window.history.length > 1) {
+    // Only step back through history when search was opened from another
+    // search entry. When search was opened directly (typed URL, refresh, new
+    // tab), the previous browser entry is not part of this flow and may be an
+    // unrelated page such as an old ad, so return to home instead.
+    // history.length cannot be used for this check: it also counts forward
+    // entries.
+    if (storedBackTarget && window.history.length > 1) {
       window.history.back();
       return;
     }

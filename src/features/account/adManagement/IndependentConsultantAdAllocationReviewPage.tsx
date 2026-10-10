@@ -466,7 +466,7 @@ function PublisherOptionCard({
             ) : null}
 
             <Button unstyled
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/5 active:bg-primary/10 [direction:rtl]"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary py-2.5 text-sm font-semibold text-primary transition-colors active:bg-primary/10 [direction:rtl]"
               onClick={onAssignConsultant}
               type="button"
             >

@@ -50,7 +50,7 @@ export function FormSegmentedControl<T extends string>({
             className={`relative flex min-w-0 flex-1 items-center justify-center border-outline text-base font-medium leading-6 transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 ${
               showDividers && index < options.length - 1 ? "border-l" : ""
             } ${
-              selected ? "text-primary font-semibold" : "text-on-surface-var hover:bg-surface-container/50"
+              selected ? "text-primary font-semibold" : "text-on-surface-var"
             }`}
             key={option.value}
             onClick={() => onChange(option.value)}

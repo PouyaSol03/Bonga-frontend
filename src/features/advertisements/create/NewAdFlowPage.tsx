@@ -1721,7 +1721,7 @@ export function NewAdFlowPage() {
                 <button
                   type="button"
                   onClick={() => setSubmitError("")}
-                  className="mr-2 text-xs font-bold text-error hover:opacity-75"
+                  className="mr-2 text-xs font-bold text-error"
                 >
                   ✕
                 </button>

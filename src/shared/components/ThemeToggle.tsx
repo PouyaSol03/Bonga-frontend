@@ -68,7 +68,7 @@ export function ThemeToggleRow() {
               className={`rounded-md px-3 py-1 text-xs font-semibold transition-all ${
                 isSelected
                   ? "bg-surface-container-lowest text-primary shadow-sm"
-                  : "text-on-surface-var hover:text-on-surface"
+                  : "text-on-surface-var"
               }`}
               type="button"
             >

@@ -28,7 +28,7 @@ export function ConsultantTabsNav({
             type="button"
             onClick={() => onTabChange(id)}
             className={`relative flex flex-1 flex-col items-center justify-center gap-1 transition-colors duration-200 ${
-              isActive ? "text-primary" : "text-outline hover:text-on-surface"
+              isActive ? "text-primary" : "text-outline"
             }`}
           >
             <Icon className="h-5 w-5" />

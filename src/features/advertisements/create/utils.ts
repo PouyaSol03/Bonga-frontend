@@ -859,6 +859,8 @@ export function buildPayload(values: NewAdFormValues) {
     addFeature(features, "builder_share", toNumber(values.builderSharePercent));
   }
 
+  const omitOwnerName = shouldOmitOwnerNameOnAssignment(values);
+
   return {
     transaction: params.transaction,
     category: params.category,
@@ -873,9 +875,9 @@ export function buildPayload(values: NewAdFormValues) {
       values.phoneEnabled ? "phone" : null,
     ].filter(Boolean),
     owner_phone: values.phoneNumber || null,
-    owner_name: values.ownerFullName || null,
+    owner_name: omitOwnerName ? null : (values.ownerFullName || null),
     owner_address: values.ownerExactAddress || null,
-    owner_contact_name: values.ownerFullName || null,
+    owner_contact_name: omitOwnerName ? null : (values.ownerFullName || null),
     owner_contact_phone: values.ownerPhone || null,
     owner_contact_address: values.ownerExactAddress || null,
     social: {
@@ -883,6 +885,12 @@ export function buildPayload(values: NewAdFormValues) {
       whatsapp: values.whatsapp || null,
     },
   };
+}
+
+export function shouldOmitOwnerNameOnAssignment(values: { registrantType?: string }): boolean {
+  const isPersonalActiveAccount = getActiveV2Role() === "personal";
+  const isAssigningToAgency = values.registrantType === "agency";
+  return isPersonalActiveAccount && isAssigningToAgency;
 }
 
 export function shouldSendConsultantAssignment(values: NewAdFormValues): boolean {
@@ -1046,15 +1054,18 @@ export function buildNewAdFormData(
   if (cleanValues.consultantId && shouldSendConsultantAssignment(cleanValues)) {
     appendBaseValue("consultant_id", cleanValues.consultantId.trim());
   }
+  const omitOwnerName = shouldOmitOwnerNameOnAssignment(cleanValues);
   if (!options.isEdit) {
     appendBaseValue("owner_phone", cleanValues.phoneNumber);
-    appendBaseValue("owner_name", cleanValues.ownerFullName);
+    if (!omitOwnerName) {
+      appendBaseValue("owner_name", cleanValues.ownerFullName);
+    }
     appendBaseValue("owner_address", cleanValues.ownerExactAddress);
   }
   if (cleanValues.ownerPhone) {
     appendBaseValue("owner_contact_phone", cleanValues.ownerPhone);
   }
-  if (cleanValues.ownerFullName) {
+  if (cleanValues.ownerFullName && !omitOwnerName) {
     appendBaseValue("owner_contact_name", cleanValues.ownerFullName);
   }
   if (cleanValues.ownerExactAddress) {

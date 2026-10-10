@@ -13,6 +13,7 @@ import {
   mediaSource,
   trimFormValues,
   shouldSendConsultantAssignment,
+  shouldOmitOwnerNameOnAssignment,
 } from "../utils";
 
 export function mapChangedBaseFields(
@@ -49,7 +50,7 @@ export function mapChangedBaseFields(
   }
 
   // Edit Mode Policy: NEVER send owner_name; send owner_contact_name like owner_contact_phone
-  if (changed.has("ownerFullName")) {
+  if (changed.has("ownerFullName") && !shouldOmitOwnerNameOnAssignment(clean)) {
     appender.appendBase("owner_contact_name", clean.ownerFullName);
   }
   if (changed.has("ownerPhone")) {

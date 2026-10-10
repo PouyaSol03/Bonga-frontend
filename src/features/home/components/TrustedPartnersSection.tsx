@@ -8,6 +8,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import LinearMedalFirst from "../../../shared/icons/LinearMedalFirst";
 
 import { toPersianNumber } from "../../../shared/lib/numberUtils";
+import { useMouseDragScroll } from "../../../shared/hooks/useMouseDragScroll";
 
 function TrustedBadgeIcon() {
   return (
@@ -24,6 +25,7 @@ export function TrustedPartnersSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const settleTimerRef = useRef<number | null>(null);
+  useMouseDragScroll(scrollerRef);
   const agenciesQuery = useTrustedAgenciesQuery();
 
   const partners = useMemo(

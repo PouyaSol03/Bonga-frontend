@@ -5,7 +5,6 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../shared/auth/auth-storage";
 import { TopBar } from "../../../shared/components/TopBar";
 import { clearNewAdDraftStorage } from "./utils";
-import { canGoBackInApp } from "../../../shared/navigation/navigation";
 import { shouldPreserveNewAdDraft } from "./session";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -159,11 +158,6 @@ function getInitialRegistrantType(): RegistrantType {
 
 function PageHeader({ title }: { title: string }) {
   const handleBack = () => {
-    if (canGoBackInApp()) {
-      window.history.back();
-      return;
-    }
-
     navigateTo("/home");
   };
 
@@ -399,7 +393,18 @@ export function NewAdCategoryPage() {
             params.set("registrantType", registrantType);
           }
 
-          const publisherType = new URLSearchParams(window.location.search).get("publisherType");
+          const currentSearch = new URLSearchParams(window.location.search);
+          const agencyId = currentSearch.get("agencyId") || currentSearch.get("agency_id");
+          if (agencyId) {
+            params.set("agencyId", agencyId);
+          }
+
+          const agencyName = currentSearch.get("agencyName");
+          if (agencyName) {
+            params.set("agencyName", agencyName);
+          }
+
+          const publisherType = currentSearch.get("publisherType");
           if (publisherType) {
             params.set("publisherType", publisherType);
           }

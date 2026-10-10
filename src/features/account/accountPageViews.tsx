@@ -54,11 +54,10 @@ const simCardOwnershipReasons: Array<{
 
 const adFilters: Array<{ label: string; type: MyAdsType }> = [
   { label: "همه", type: "all" },
-  { label: "فعال", type: "active" },
   { label: "در انتظار", type: "pending" },
-  { label: "در انتظار پرداخت", type: "wait_for_payment" },
-  { label: "نیمه کاره", type: "incomplete" },
+  { label: "فعال", type: "active" },
   { label: "غیر فعال", type: "deactive" },
+  { label: "نیمه کاره", type: "incomplete" },
 ];
 
 export function AccountProfileForm({
@@ -279,16 +278,50 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
   } = useMyAdsInfiniteQuery({
     type: activeFilter.type,
   });
-  const ads = useMemo(
-    () =>
+  const ads = useMemo(() => {
+    const rawAds =
       adsPages?.pages.flatMap((page, pageIndex) =>
         page.data.map((ad, adIndex) => ({
           ad,
           card: mapAdvertisementToAdCard(ad, pageIndex * page.perPage + adIndex),
         })),
-      ) ?? [],
-    [adsPages],
-  );
+      ) ?? [];
+
+    if (!activeFilter || activeFilter.type === "all") {
+      return rawAds;
+    }
+
+    return rawAds.filter(({ ad }) => {
+      const statusKey = getMyAdStatusInfo(ad).key;
+      if (activeFilter.type === "pending") {
+        return (
+          statusKey === "pending" ||
+          statusKey === "wait_for_payment" ||
+          statusKey === "wait_for_agency" ||
+          statusKey === "wait_for_repost" ||
+          statusKey === "wait_for_stop" ||
+          statusKey === "wait_for_deal_confirmation"
+        );
+      }
+      if (activeFilter.type === "active") {
+        return statusKey === "published" || statusKey === "deal_success";
+      }
+      if (activeFilter.type === "deactive") {
+        return (
+          statusKey === "expired" ||
+          statusKey === "deleted" ||
+          statusKey === "deal_unsuccessful" ||
+          statusKey === "rejected_by_agency" ||
+          statusKey === "archived" ||
+          statusKey === "incomplete_deleted"
+        );
+      }
+      if (activeFilter.type === "incomplete") {
+        return statusKey === "incomplete";
+      }
+      return true;
+    });
+  }, [adsPages, activeFilter]);
   const loadMoreTriggerIndex = Math.max(ads.length - 3, 0);
   const loadMoreSentinelRef = useCallback(
     (node: HTMLDivElement | null) => {

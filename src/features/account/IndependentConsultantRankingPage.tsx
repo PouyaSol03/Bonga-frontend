@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { useV2RankingBadgesQuery, useV2RankingSummaryQuery } from "../dashboard/api/v2/ranking-v2.hooks";
 import { usePublicAgentsQuery } from "../agencies/api/agency.hooks";
@@ -7,6 +7,8 @@ import type { V2RankingBadge } from "../dashboard/api/v2/ranking-v2.service";
 import { TopBar } from "../../shared/components/TopBar";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { Toast, type ToastItem } from "../../shared/components/Toast";
+import { getApiErrorMessage } from "../../shared/api/api";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
@@ -87,6 +89,32 @@ export function IndependentConsultantRankingPage() {
   const rankingQuery = useV2RankingSummaryQuery(period === "هفته" ? "week" : "month");
   const ranking = rankingQuery.data?.data;
   const workSummary = ranking?.workSummary;
+  const [toast, setToast] = useState<ToastItem | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 3500);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  useEffect(() => {
+    if (rankingQuery.isError) {
+      setToast({
+        variant: "error",
+        message: getApiErrorMessage(
+          rankingQuery.error,
+          "دریافت اطلاعات رتبه‌بندی با خطا مواجه شد.",
+        ),
+        title: "خطا",
+      });
+    } else if (rankingQuery.isSuccess && rankingQuery.data?.message) {
+      setToast({
+        variant: "info",
+        message: rankingQuery.data.message,
+      });
+    }
+  }, [rankingQuery.error, rankingQuery.isError, rankingQuery.isSuccess, rankingQuery.data?.message]);
+
   const indicators: RankIndicator[] = [
     {
       icon: <LinearActivity className="h-6 w-6" />,
@@ -170,6 +198,7 @@ export function IndependentConsultantRankingPage() {
         />
         <TopConsultantsPanel />
       </main>
+      <Toast onDismiss={() => setToast(null)} toast={toast} />
     </PageFrame>
   );
 }

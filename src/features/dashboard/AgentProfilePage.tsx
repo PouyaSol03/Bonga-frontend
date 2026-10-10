@@ -43,8 +43,12 @@ import {
 } from "../locations/api/neighborhood.service";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import {
+  validateImageDimensions,
+  MAX_PROFILE_IMAGE_BYTES,
+  MAX_PROFILE_IMAGE_DIMENSION,
+} from "../../shared/utils/image-validation";
 
-const profileImageMaxBytes = 1024 * 1024;
 const profileImageMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
 const neighborhoodSearchDebounceMs = 250;
 
@@ -234,7 +238,7 @@ export function AgentProfilePage() {
     variant: "error" | "success" | "info" | "warning" = "success",
   ) => setToast({ message, title, variant });
 
-  const handleAvatarChange = (file: File | null) => {
+  const handleAvatarChange = async (file: File | null) => {
     if (!file) return;
 
     if (!profileImageMimeTypes.has(file.type)) {
@@ -242,8 +246,18 @@ export function AgentProfilePage() {
       return;
     }
 
-    if (file.size > profileImageMaxBytes) {
+    if (file.size > MAX_PROFILE_IMAGE_BYTES) {
       showToast("حجم تصویر نباید بیشتر از 1MB باشد.", "خطا", "error");
+      return;
+    }
+
+    const { valid } = await validateImageDimensions(
+      file,
+      MAX_PROFILE_IMAGE_DIMENSION,
+      MAX_PROFILE_IMAGE_DIMENSION,
+    );
+    if (!valid) {
+      showToast("ابعاد تصویر نباید بیشتر از ۱۰۰۰ در ۱۰۰۰ پیکسل باشد.", "خطا", "error");
       return;
     }
 

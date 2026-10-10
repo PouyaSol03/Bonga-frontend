@@ -128,22 +128,23 @@ export function DashboardView({
   }, [recentAdsApiQuery.data]);
 
   const notificationItems = useMemo(() => {
-    if (
-      notificationsQuery.data?.items &&
-      Array.isArray(notificationsQuery.data.items) &&
-      notificationsQuery.data.items.length > 0
-    ) {
-      return notificationsQuery.data.items.map((item) => ({
-        id: item.id,
-        title: item.title,
-        description: item.message,
-        created_at: item.createdAt,
-        is_read: item.isRead,
-        category: "systems" as const,
-      }));
-    }
-    return undefined;
-  }, [notificationsQuery.data?.items]);
+    const notifs = notificationsQuery.data;
+    if (!notifs) return undefined;
+    const list =
+      notifs.items && notifs.items.length > 0
+        ? notifs.items
+        : notifs.latest
+          ? [notifs.latest]
+          : [];
+    return list.map((item) => ({
+      id: item.id,
+      title: item.title,
+      description: item.message,
+      created_at: item.createdAt,
+      is_read: item.isRead,
+      category: "systems" as const,
+    }));
+  }, [notificationsQuery.data]);
 
   const taskItems: DashboardTaskItem[] | undefined =
     tasksQuery.data?.items && tasksQuery.data.items.length > 0

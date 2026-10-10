@@ -1,5 +1,5 @@
 import { v7 as uuidv7 } from "uuid";
-import { ApiError, api, baseUrl, publicApi } from "../../../shared/api/api";
+import { ApiError, api, apiV2, baseUrl, publicApi } from "../../../shared/api/api";
 import { formatCardPrice } from "../../../shared/lib/MoneyHandler";
 import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
 import { getAdvertisementImageUrls } from "../utils/advertisement-images";
@@ -1428,7 +1428,25 @@ export async function getAdvertisementCheckout(advertiseId: string) {
 }
 
 export async function getAgencyAdvertisementCheckout(advertiseId: string) {
-  return getAdvertisementCheckout(advertiseId);
+  const response = (await apiV2
+    .get(`agency/advertise/${encodeURIComponent(advertiseId)}/checkout`)
+    .json()) as AdvertisementCheckoutResponse;
+
+  if (response && typeof response === "object" && !Array.isArray(response)) {
+    const record = response as Record<string, unknown>;
+    if (record.status === false) {
+      throw new ApiError(
+        400,
+        typeof record.message === "string" && record.message.trim()
+          ? record.message
+          : "دریافت اطلاعات پرداخت آگهی با خطا مواجه شد.",
+        undefined,
+        { code: typeof record.code === "string" ? record.code : undefined },
+      );
+    }
+  }
+
+  return unwrapAdvertisementCheckoutResponse(response);
 }
 
 export async function getConsultantAdvertisementCheckout(advertiseId: string) {
@@ -1483,12 +1501,36 @@ export async function submitAgencyAdvertisementCheckout({
   items,
   paymentMethod,
 }: SubmitAgencyAdvertisementCheckoutPayload): Promise<SubmitAdvertisementCheckoutResult> {
-  const response = await submitV2Checkout(advertiseId, {
-    ...(consultantId ? { consultant_id: consultantId } : {}),
-    ...(discount_code ? { discount_code } : {}),
-    items,
-    payment_method: paymentMethod,
-  });
+  const numericConsultantId =
+    consultantId !== undefined &&
+    consultantId !== null &&
+    String(consultantId).trim() !== "" &&
+    !Number.isNaN(Number(consultantId))
+      ? Number(consultantId)
+      : undefined;
+
+  let response: unknown;
+  if (paymentMethod === "by_consultant") {
+    response = await apiV2
+      .post(`agency/advertise/${encodeURIComponent(advertiseId)}/checkout`, {
+        json: {
+          payment_method: "by_consultant",
+          ...(numericConsultantId !== undefined ? { consultant_id: numericConsultantId } : {}),
+        },
+      })
+      .json();
+  } else {
+    response = await apiV2
+      .post(`agency/advertise/${encodeURIComponent(advertiseId)}/checkout`, {
+        json: {
+          ...(numericConsultantId !== undefined ? { consultant_id: numericConsultantId } : {}),
+          ...(discount_code ? { discount_code } : {}),
+          items,
+          payment_method: paymentMethod,
+        },
+      })
+      .json();
+  }
 
   if (response && typeof response === "object" && !Array.isArray(response)) {
     const record = response as Record<string, unknown>;

@@ -100,8 +100,8 @@ function formatHistoryDate(dateStr?: string): string {
   }
 }
 
-function formatExpireDuration(
-  expire?: { hours?: number; minutes?: number },
+export function formatExpireDuration(
+  expire?: { hours?: number; minutes?: number; total_minutes?: number },
   expiresAt?: string | null,
   fallbackReason?: string,
 ): string {
@@ -371,17 +371,17 @@ export function AgencyAssignedUserAdView({
 
   const showRepostSection =
     reRegisterStatusQuery.data !== undefined
-      ? Boolean(reRegisterStatusQuery.data.status)
+      ? Boolean(reRegisterStatusQuery.data?.data?.status ?? reRegisterStatusQuery.data?.status)
       : isWaitForRepost;
 
   const showArchiveSection =
     archiveStatusQuery.data !== undefined
-      ? Boolean(archiveStatusQuery.data.status)
+      ? Boolean(archiveStatusQuery.data?.data?.status ?? archiveStatusQuery.data?.status)
       : isArchived;
 
   const showSubmitResultSection =
     submitResultStatusQuery.data !== undefined
-      ? Boolean(submitResultStatusQuery.data.status)
+      ? Boolean(submitResultStatusQuery.data?.data?.status ?? submitResultStatusQuery.data?.status)
       : ((isDeleted || isWaitForDeal) && effectiveDeletedVariant === "deal_confirmation");
 
   const handlePreview = () => {

@@ -549,8 +549,8 @@ export function PackagePaymentPage({
               className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               disabled={
                 isButtonBusy ||
-                (paymentType === 0 && isGatewayDisabled) ||
-                (paymentType === 1 && !walletSupported)
+                (!isFree && paymentType === 0 && isGatewayDisabled) ||
+                (!isFree && paymentType === 1 && (!walletSupported || walletDeficit > 0))
               }
               onClick={handleButtonClick}
               type="button"

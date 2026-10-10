@@ -149,12 +149,58 @@ function getFilterPropertyTypes(filters: AdManagementFilters) {
       : [];
 }
 
+function matchesStatusFilter(statusLabel: string, statusKey?: string, filterStatus?: string) {
+  if (!filterStatus) return true;
+  if (filterStatus === "در انتظار") {
+    return (
+      statusKey === "pending" ||
+      statusKey === "wait_for_payment" ||
+      statusKey === "wait_for_agency" ||
+      statusKey === "wait_for_repost" ||
+      statusKey === "wait_for_stop" ||
+      statusKey === "wait_for_deal_confirmation" ||
+      statusLabel.includes("انتظار")
+    );
+  }
+  if (filterStatus === "فعال") {
+    return (
+      statusKey === "published" ||
+      statusKey === "deal_success" ||
+      statusLabel === "فعال" ||
+      statusLabel === "منتشر شده" ||
+      statusLabel === "معامله موفق"
+    );
+  }
+  if (filterStatus === "غیر فعال") {
+    return (
+      statusKey === "expired" ||
+      statusKey === "deleted" ||
+      statusKey === "deal_unsuccessful" ||
+      statusKey === "rejected_by_agency" ||
+      statusKey === "archived" ||
+      statusKey === "incomplete_deleted" ||
+      statusLabel.includes("غیر") ||
+      statusLabel.includes("منقض") ||
+      statusLabel.includes("حذف") ||
+      statusLabel.includes("رد") ||
+      statusLabel.includes("بایگانی")
+    );
+  }
+  if (filterStatus === "نیمه کاره") {
+    return statusKey === "incomplete" || statusLabel.includes("نیمه");
+  }
+  return statusLabel === filterStatus;
+}
+
 function matchesAdFilters(
   ad: ConsultantAd & { publisher?: string },
   filters: AdManagementFilters,
   assignedTab: boolean,
+  statusKey?: string,
 ) {
-  const matchesStatus = assignedTab ? true : filters.status ? ad.status === filters.status : true;
+  const matchesStatus = assignedTab
+    ? true
+    : matchesStatusFilter(ad.status, statusKey, filters.status);
   const matchesNeighborhood = filters.neighborhoods.length
     ? filters.neighborhoods.some((neighborhood) =>
         ad.timeAndLocation.includes(neighborhood.name),
@@ -307,7 +353,9 @@ export function IndependentConsultantAdManagementPage() {
 
           return { card, sourceAd, statusInfo };
         })
-        .filter(({ card }) => matchesAdFilters(card, scopedFilters, false)),
+        .filter(({ card, statusInfo }) =>
+          matchesAdFilters(card, scopedFilters, false, statusInfo.key),
+        ),
     [adsQuery.data, scopedFilters],
   );
   const visibleCount = assignedTab ? assignedAdvertisements.length : activeAdvertisements.length;

@@ -97,8 +97,12 @@ export function PackagePaymentMethodSheet({
   }
 
   const finalPrice = appliedDiscount ? appliedDiscount.final_price : packagePrice;
-  const isFree = Boolean(appliedDiscount?.is_free || appliedDiscount?.disable_gateway);
-  const isGatewayDisabled = Boolean(appliedDiscount?.disable_gateway);
+  const isFree = Boolean(
+    appliedDiscount?.is_free ||
+    appliedDiscount?.disable_gateway ||
+    finalPrice === 0,
+  );
+  const isGatewayDisabled = Boolean(appliedDiscount?.disable_gateway || isFree);
 
   const normalizedWalletCredit = toAmount(walletCredit);
   const walletShortage = useMemo(

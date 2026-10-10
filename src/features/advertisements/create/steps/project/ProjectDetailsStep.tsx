@@ -23,9 +23,16 @@ type ProjectMultiSheet = {
   options: string[];
 };
 
+function generateDetailId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `item-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
 function createProjectDetailItem(): ProjectDetailItem {
   return {
-    id: crypto.randomUUID(),
+    id: generateDetailId(),
     meterage: "",
     floors: [],
     rooms: [],

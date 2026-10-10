@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage, getApiFieldError } from "../../../shared/api/api";
-import { backRoute } from "../../../shared/navigation/navigation";
+import { backRoute, replaceRoute } from "../../../shared/navigation/navigation";
 import {
   mapAdvertisementToAdCard,
   type AdvertisementFeature,
@@ -21,7 +21,7 @@ import {
   useSaveAdvertiseDraftMutation,
 } from "../api/advertisement.hooks";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
-import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
+import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER, USER } from "../../../shared/constants/roles.constants";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import { handleValidationFailure, scrollToFirstError } from "./validationScroll";
@@ -1504,24 +1504,25 @@ export function NewAdFlowPage() {
         clearNewAdDraftStorage();
 
         if (isWaitingForAgency) {
-          navigateTo(getAdStatePath(createdAdId), {
+          replaceRoute(getAdStatePath(createdAdId), {
             ad: createdAd,
             card: ad,
-            returnTo: adManagementPaths.root,
+            returnTo: "/account/my-ads",
             status: "wait_for_agency",
             tab: "status",
-          });
+            isAssigned: true,
+          }, { rememberCurrent: false });
           return;
         }
 
         if (isAlreadyPublished) {
-          navigateTo(getAdStatePath(createdAdId), {
+          replaceRoute(getAdStatePath(createdAdId), {
             ad: createdAd,
             card: ad,
-            returnTo: adManagementPaths.root,
+            returnTo: activeRole === USER || !activeRole ? "/account/my-ads" : adManagementPaths.root,
             status: "published",
             tab: "status",
-          });
+          }, { rememberCurrent: false });
           return;
         }
 

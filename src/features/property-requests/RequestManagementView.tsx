@@ -323,10 +323,14 @@ export function RequestManagementView({
     setToast({ message, title, variant });
   };
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const refreshRequests = () => {
+    setIsRefreshing(true);
     setDismissedReceivedRequestIds(new Set<string>());
 
     void requestsQuery.refetch().then((result) => {
+      setTimeout(() => setIsRefreshing(false), 600);
       if (result.isError) {
         showToast(
           getApiErrorMessage(result.error, "بروزرسانی درخواست‌ها با خطا مواجه شد."),
@@ -337,6 +341,8 @@ export function RequestManagementView({
       }
 
       showToast("درخواست‌ها بروزرسانی شدند.");
+    }).catch(() => {
+      setTimeout(() => setIsRefreshing(false), 600);
     });
   };
 
@@ -454,7 +460,13 @@ export function RequestManagementView({
       <TopBar
         actions={[
           {
-            icon: <LinearRefresh className="h-6 w-6" />,
+            icon: (
+              <LinearRefresh
+                className={`h-6 w-6 transition-transform ${
+                  isRefreshing || requestsQuery.isFetching ? "animate-spin" : ""
+                }`}
+              />
+            ),
             id: "refresh-requests",
             label: "بروزرسانی درخواست‌ها",
             onClick: refreshRequests,
@@ -538,7 +550,7 @@ export function RequestManagementView({
                   );
                 })}
               </HorizontalFilterBar>
-            ) : activeRole === REAL_ESTATE_MANAGER ? (
+            ) : (
                 <div className="bg-surface-container-lowest px-4 py-2 shadow-[0_4px_16px_rgba(26,26,26,0.08)]">
                   <Button
                     unstyled
@@ -555,40 +567,6 @@ export function RequestManagementView({
                     <LinearArrowDown1 aria-hidden="true" className="h-6 w-6 shrink-0 text-on-surface-var opacity-40" />
                   </Button>
                 </div>
-              ) : (
-              <div className="flex items-center justify-between border-t border-outline-var bg-surface-container-lowest px-4 py-2.5 [direction:rtl]">
-                <div className="flex items-center gap-2 min-w-0">
-                  <Typography
-                    as="span"
-                    variant="label"
-                    size="medium"
-                    weight="medium"
-                    className="shrink-0 text-outline"
-                  >
-                    فیلتر درخواست:
-                  </Typography>
-                  <Typography
-                    as="span"
-                    variant="label"
-                    size="medium"
-                    weight="semibold"
-                    className="text-primary truncate max-w-[200px]"
-                  >
-                    {activeFilterTitle}
-                  </Typography>
-                </div>
-                <Button
-                  unstyled
-                  onClick={() => setIsFilterSheetOpen(true)}
-                  className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[10px] border border-outline-var bg-surface-container-low px-3 py-1.5 text-xs font-medium text-on-surface transition active:scale-95"
-                  type="button"
-                >
-                  <LinearArrowDown1 className="h-4 w-4 text-outline" />
-                  <Typography as="span" variant="label" size="small" weight="medium">
-                    تغییر فیلتر
-                  </Typography>
-                </Button>
-              </div>
             )
           ) : null}
         </div>

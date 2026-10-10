@@ -6,6 +6,7 @@ import { TopBar } from "../../../shared/components/TopBar";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import { pushRoute } from "../../../shared/navigation/navigation";
 import { useTransientNotice } from "../../../shared/hooks/useTransientNotice";
+import { useToast } from "../../../shared/hooks/useToast";
 import { usePackagePaymentMutation, usePackagesQuery } from "../../packages/api/package.hooks";
 import { useWalletQuery } from "../api/account.hooks";
 import type { PackageItem, PackagePaymentType } from "../../packages/api/package.service";
@@ -67,6 +68,7 @@ function mapPackageToCreditPlan(
 
 export function IndependentConsultantCreditPage({ view }: { view: CreditView }) {
   const { message, showNotice } = useTransientNotice();
+  const { showToast } = useToast();
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const packagesQuery = usePackagesQuery();
   const walletQuery = useWalletQuery();
@@ -93,13 +95,15 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
       { discountCode, packageId: selectedPackage.id, paymentType },
       {
         onError: (error) => {
-          showNotice(
+          showToast(
             getApiErrorMessage(
               error,
               paymentType === 1
                 ? "پرداخت بسته از کیف پول با خطا مواجه شد."
                 : "اتصال به درگاه پرداخت با خطا مواجه شد.",
             ),
+            "خطا",
+            "error",
           );
         },
         onSuccess: ({ paymentUrl }) => {

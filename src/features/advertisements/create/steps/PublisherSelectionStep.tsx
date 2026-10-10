@@ -3,6 +3,7 @@ import { useFormContext } from "react-hook-form";
 
 import { useMyAgencyProfileQuery } from "../../../account/api/account.hooks";
 import { useAgencyConsultantsQuery } from "../../../agencies/api/agency.hooks";
+import { useErrorToast } from "../../../../shared/hooks/useErrorToast";
 import {
   AgencyPublisherPickerPage,
   type AgencyPublisherOption,
@@ -21,6 +22,8 @@ export function PublisherSelectionStep({
   const publisherName = watch("publisherName");
   const agencyQuery = useMyAgencyProfileQuery();
   const consultantsQuery = useAgencyConsultantsQuery({ page: 1, perPage: 100 });
+  useErrorToast(agencyQuery.error, "دریافت اطلاعات آژانس با خطا مواجه شد.");
+  useErrorToast(consultantsQuery.error, "دریافت فهرست مشاوران با خطا مواجه شد.");
 
   const options = useMemo<AgencyPublisherOption[]>(() => {
     const next: AgencyPublisherOption[] = [];

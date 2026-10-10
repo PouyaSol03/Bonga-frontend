@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, Polygon, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
+import { useErrorToast } from "../../../shared/hooks/useErrorToast";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
 import { getBrowserLocation } from "../../../shared/lib/browserLocation";
 import { defaultSelectedCity, readStoredSelectedCity, selectedCityStorageKeys } from "../../../shared/lib/selectedCityStorage";
@@ -338,6 +339,9 @@ export function NewAdLocationPage() {
     selectedNeighborhoodId,
     Boolean(selectedNeighborhoodId),
   );
+  useErrorToast(locationSearchQuery.error, "جستجوی محله با خطا مواجه شد.");
+  useErrorToast(locationByCoordinatesQuery.error, "دریافت محله از روی نقشه با خطا مواجه شد.");
+  useErrorToast(neighborhoodInfoQuery.error, "دریافت اطلاعات محله با خطا مواجه شد.");
   const selectedSubNeighborhood = useMemo(() => {
     const fullInfo = neighborhoodInfoQuery.data;
     const subNeighborhoods = fullInfo ? getNeighborhoodSubNeighborhoods(fullInfo) : [];

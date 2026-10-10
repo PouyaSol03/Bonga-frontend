@@ -10,6 +10,7 @@ import { TopBar } from "../../../shared/components/TopBar";
 import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
 import { pushRoute } from "../../../shared/navigation/navigation";
+import { useToast } from "../../../shared/hooks/useToast";
 import { useChargeWalletMutation, useWalletQuery } from "../api/account.hooks";
 import {
   useAdvertisementCheckoutQuery,
@@ -370,7 +371,8 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [agencyMethod, setAgencyMethod] = useState<AgencyPaymentMethod>("ad_credit");
-  const [, setErrorMessage] = useState("");
+  const { showToast } = useToast();
+  const showError = (message: string) => showToast(message, "خطا", "error");
   const [discountInput, setDiscountInput] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<ValidateDiscountCodeResult | null>(null);
   const [discountLoading, setDiscountLoading] = useState(false);
@@ -712,7 +714,6 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   ) {
     if (checkoutPending) return;
 
-    setErrorMessage("");
     const mutationOptions = {
       onError: (error: unknown) => {
         if (getApiErrorCode(error) === "AD_WAITING_FOR_AGENCY") {
@@ -724,7 +725,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
           return;
         }
 
-        setErrorMessage(
+        showError(
           getApiErrorMessage(error, "پرداخت و انتشار آگهی با خطا مواجه شد."),
         );
       },
@@ -743,7 +744,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
 
         if (paymentMethod === "gateway") {
           if (!paymentUrl) {
-            setErrorMessage("آدرس درگاه پرداخت از سرور دریافت نشد.");
+            showError("آدرس درگاه پرداخت از سرور دریافت نشد.");
             return;
           }
 
@@ -1782,17 +1783,17 @@ function ApiCreditDeficitBox({ deficit }: { deficit: number }) {
 
 function ApiWalletDeficitBox({ deficit }: { deficit: number }) {
   const chargeWalletMutation = useChargeWalletMutation();
-  const [, setErrorMessage] = useState("");
+  const { showToast } = useToast();
+  const showError = (message: string) => showToast(message, "خطا", "error");
 
   function chargeWallet() {
     if (chargeWalletMutation.isPending || deficit <= 0) return;
 
-    setErrorMessage("");
     chargeWalletMutation.mutate(
       { price: Math.ceil(deficit) },
       {
         onError: (error: unknown) => {
-          setErrorMessage(getApiErrorMessage(error, "شارژ کیف پول با خطا مواجه شد."));
+          showError(getApiErrorMessage(error, "شارژ کیف پول با خطا مواجه شد."));
         },
         onSuccess: ({ paymentUrl }) => {
           storePaymentReturnTarget({

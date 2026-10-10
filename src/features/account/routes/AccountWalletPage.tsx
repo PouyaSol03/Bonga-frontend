@@ -6,6 +6,7 @@ import { AdCardTomanIcon } from "../../advertisements/components/AdCardIcons";
 import { formatPrice, formatBigNumber } from "../../../shared/lib/MoneyHandler";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
+import { useToast } from "../../../shared/hooks/useToast";
 import { AccountPageShell, AccountRetryState, ChevronLeftIcon, PlusIcon, WalletPageSkeleton, formatMoney, normalizeWalletAmount } from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -13,7 +14,8 @@ import { TextField } from "../../../shared/ui/TextField";
 
 export function AccountWalletPage() {
   const [amount, setAmount] = useState("");
-  const [, setChargeError] = useState<string | null>(null);
+  const { showToast } = useToast();
+  const showError = (message: string) => showToast(message, "خطا", "error");
   const chargeWalletMutation = useChargeWalletMutation();
   const { data: wallet, error, isError, isLoading, refetch } = useWalletQuery();
   const numericAmount = Number(amount);
@@ -150,12 +152,11 @@ export function AccountWalletPage() {
           onClick={() => {
             if (!canCharge) return;
 
-            setChargeError(null);
             chargeWalletMutation.mutate(
               { price: numericAmount },
               {
                 onError: (chargeRequestError) => {
-                  setChargeError(
+                  showError(
                     getApiErrorMessage(
                       chargeRequestError,
                       "اتصال به درگاه پرداخت با خطا مواجه شد.",

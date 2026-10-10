@@ -9,6 +9,7 @@ import {
   useSubmitAdvertisementCheckoutMutation,
 } from "../../advertisements/api/advertisement.hooks";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
+import { useToast } from "../../../shared/hooks/useToast";
 import type {
   AdvertisementCheckout,
   AdvertisementCheckoutItem,
@@ -43,7 +44,8 @@ export function AdIncreaseVisitsPage() {
   const [step, setStep] = useState<"options" | "checkout">("options");
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [selectedTariffs, setSelectedTariffs] = useState<AdTariffOptionId[]>(["special"]);
-  const [, setErrorMessage] = useState("");
+  const { showToast } = useToast();
+  const showError = (message: string) => showToast(message, "خطا", "error");
   const checkout = checkoutQuery.data;
   const products = useMemo(() => resolveUpgradeProducts(checkout), [checkout]);
   const tariffOptions = useMemo(
@@ -108,15 +110,14 @@ export function AdIncreaseVisitsPage() {
 
   function submit(paymentMethod: AdvertisementCheckoutPaymentMethodCode) {
     if (!adId || selectedProducts.length === 0 || checkoutMutation.isPending) return;
-    setErrorMessage("");
     checkoutMutation.mutate(
       { advertiseId: adId, items: selectedProducts, paymentMethod },
       {
-        onError: (error: unknown) => setErrorMessage(getApiErrorMessage(error, "پرداخت و افزایش بازدید با خطا مواجه شد.")),
+        onError: (error: unknown) => showError(getApiErrorMessage(error, "پرداخت و افزایش بازدید با خطا مواجه شد.")),
         onSuccess: ({ paymentUrl }) => {
           if (paymentMethod === "gateway") {
             if (!paymentUrl) {
-              setErrorMessage("آدرس درگاه پرداخت از سرور دریافت نشد.");
+              showError("آدرس درگاه پرداخت از سرور دریافت نشد.");
               return;
             }
             storePaymentReturnTarget({ label: "بازگشت به وضعیت آگهی", path: backTo });

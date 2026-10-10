@@ -169,21 +169,21 @@ function BottomNavigationComponent({
               clearNewAdDraftStorage();
 
               if (option.id === "personal") {
-                navigateTo("/new-ad/personal?registrantType=personal");
+                navigateTo("/new-ad/personal?registrantType=personal&context=personal");
                 return;
               }
 
               if (option.id === "independent-consultant") {
-                navigateTo("/new-ad/independent-consultant?registrantType=personal");
+                navigateTo("/new-ad/independent-consultant?registrantType=personal&context=independent-consultant");
                 return;
               }
 
               if (option.id === "agency-manager") {
-                navigateTo("/new-ad/agency?registrantType=personal&publisherType=agency");
+                navigateTo("/new-ad/agency?registrantType=personal&publisherType=agency&context=agency");
                 return;
               }
 
-              navigateTo("/new-ad/agency-consultant?registrantType=personal&publisherType=agent");
+              navigateTo("/new-ad/agency-consultant?registrantType=personal&publisherType=agent&context=agency-consultant");
             }}
           />
         </Suspense>

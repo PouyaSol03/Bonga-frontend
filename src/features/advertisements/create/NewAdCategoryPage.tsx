@@ -391,6 +391,9 @@ export function NewAdCategoryPage() {
             label: selectedOption.label,
           });
 
+          const context = new URLSearchParams(window.location.search).get("context");
+          if (context) params.set("context", context);
+
           if (registrantType) {
             params.set("registrantType", registrantType);
           }

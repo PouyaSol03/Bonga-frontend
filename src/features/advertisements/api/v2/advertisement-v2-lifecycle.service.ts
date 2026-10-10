@@ -1,4 +1,6 @@
-import { apiV2 } from "../../../../shared/api/api";
+import { apiV2, getActiveV2Role, type V2RoleSegment } from "../../../../shared/api/api";
+import { getStoredAuthSession } from "../../../../shared/auth/auth-storage";
+import type { AdvertisementPayment } from "../advertisement.service";
 import type {
   AdvertisementV2CheckoutPayload,
   AdvertisementV2DealResultPayload,
@@ -50,32 +52,84 @@ export const getV2Edit = (id: string | number) =>
 export const getV2Preview = (id: string | number) =>
   apiV2.get(`advertise/${enc(id)}/preview`).json();
 
+type RegistrationContext = Exclude<V2RoleSegment, "superadmin">;
+
+function getRegistrationContext(): RegistrationContext {
+  const selected = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("context")
+    : null;
+  if (
+    selected === "personal" || selected === "agency" ||
+    selected === "agency-consultant" || selected === "independent-consultant"
+  ) return selected;
+
+  const active = getActiveV2Role();
+  return active === "superadmin" ? "personal" : active;
+}
+
+function registrationOptions(body?: FormData | Record<string, unknown>, isDraft = false) {
+  const omittedKeys = new Set([
+    "id", "advertiser_type",
+    ...(isDraft ? ["images", "images[]", "existing_images", "existing_images[]", "contact_type", "contact_type[]", "consultant_id", "assigned_consultant_id"] : []),
+  ]);
+  const context = getRegistrationContext();
+  if (context === "personal") {
+    omittedKeys.add("consultant_id");
+    omittedKeys.add("assigned_consultant_id");
+  } else if (context === "agency" || context === "agency-consultant") {
+    omittedKeys.add("agency_id");
+    omittedKeys.add("assigned_consultant_id");
+    const session = getStoredAuthSession();
+    const role = context === "agency" ? "real_estate_manager" : "real_estate_consultant";
+    const permissions = session?.contextPermissions?.[role] ??
+      (getActiveV2Role() === context ? session?.managerPermissions : undefined);
+    if ((permissions?.ad_management ?? permissions?.manage_advertises) !== true) {
+      omittedKeys.add("consultant_id");
+    }
+  }
+  const isEmptyAssignment = (key: string, value: unknown) =>
+    ["agency_id", "consultant_id", "assigned_consultant_id"].includes(key) &&
+    (value === null || value === undefined || String(value).trim() === "");
+  if (body instanceof FormData) {
+    const payload = new FormData();
+    for (const [key, value] of body.entries()) {
+      if (!omittedKeys.has(key) && !isEmptyAssignment(key, value)) payload.append(key, value);
+    }
+    return { body: payload };
+  }
+  const json = { ...body };
+  for (const key of Object.keys(json)) {
+    if (omittedKeys.has(key) || isEmptyAssignment(key, json[key])) delete json[key];
+  }
+  return { json };
+}
+
 // Drafts & Registration
 export const createV2Draft = (body?: FormData | Record<string, unknown>) => {
-  const options = body instanceof FormData ? { body } : { json: body ?? {} };
-  return apiV2.post("advertise/draft", options).json();
+  const options = registrationOptions(body, true);
+  return apiV2.post(`${getRegistrationContext()}/advertise/draft`, options).json();
 };
 
 export const updateV2Draft = (id: string | number, body: FormData | Record<string, unknown>) => {
-  const options = body instanceof FormData ? { body } : { json: body };
-  return apiV2.patch(`advertise/${enc(id)}/draft`, options).json();
+  const options = registrationOptions(body, true);
+  return apiV2.patch(`${getRegistrationContext()}/advertise/${enc(id)}/draft`, options).json();
 };
 
 export const createV2Advertisement = (body: FormData | Record<string, unknown>) => {
-  const options = body instanceof FormData ? { body } : { json: body };
-  return apiV2.post("advertise", options).json();
+  const options = registrationOptions(body);
+  return apiV2.post(`${getRegistrationContext()}/advertise`, options).json();
 };
 
 export const updateV2Advertisement = (id: string | number, body: FormData | Record<string, unknown>) => {
-  const options = body instanceof FormData ? { body } : { json: body };
-  return apiV2.patch(`advertise/${enc(id)}`, options).json();
+  const options = registrationOptions(body);
+  return apiV2.patch(`${getRegistrationContext()}/advertise/${enc(id)}`, options).json();
 };
 
 export const updateV2OwnerContact = (id: string | number, payload: AdvertisementV2OwnerContact) =>
   apiV2.patch(`advertise/${enc(id)}/owner-contact`, { json: payload }).json();
 
 export const getV2AdvertisementPayments = (id: string | number) =>
-  apiV2.get(`advertise/${enc(id)}/payments`).json<{ status?: boolean; payments?: unknown[] } | unknown[]>();
+  apiV2.get(`advertise/${enc(id)}/payments`).json<{ status: boolean; data: AdvertisementPayment[] }>();
 
 export const changeV2AdvertiseConsultant = (
   id: string | number,

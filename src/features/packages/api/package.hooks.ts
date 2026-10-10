@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { getActiveV2Role, type V2RoleSegment } from "../../../shared/api/api";
 
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
@@ -55,13 +56,15 @@ export function useAgentPackagePaymentMutation() {
 
 export function useAgentEntitlementsQuery({
   enabled = true,
+  context = getActiveV2Role(),
 }: {
   enabled?: boolean;
+  context?: V2RoleSegment;
 } = {}) {
   return useQuery({
-    enabled,
-    queryFn: getAgentEntitlements,
-    queryKey: queryKeys.packages.agentEntitlements(),
+    enabled: enabled && ["agency", "agency-consultant", "independent-consultant"].includes(context),
+    queryFn: () => getAgentEntitlements(context),
+    queryKey: queryKeys.packages.agentEntitlements(context),
   });
 }
 
@@ -69,14 +72,16 @@ export function useAgentEntitlementLedgerQuery({
   enabled = true,
   page = 1,
   perPage = 20,
+  context = getActiveV2Role(),
 }: {
   enabled?: boolean;
   page?: number;
   perPage?: number;
+  context?: V2RoleSegment;
 } = {}) {
   return useQuery({
-    enabled,
-    queryFn: () => getAgentEntitlementLedger({ page, perPage }),
-    queryKey: queryKeys.packages.agentEntitlementLedger(page, perPage),
+    enabled: enabled && ["agency", "agency-consultant", "independent-consultant"].includes(context),
+    queryFn: () => getAgentEntitlementLedger({ page, perPage, context }),
+    queryKey: queryKeys.packages.agentEntitlementLedger(page, perPage, context),
   });
 }

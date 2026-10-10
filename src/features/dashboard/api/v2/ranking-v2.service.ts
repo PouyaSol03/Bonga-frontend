@@ -54,18 +54,22 @@ export interface V2RankingProgressPoint {
 }
 
 export interface V2RankingBadge {
-  id: string | number;
+  id?: string | number;
   title?: string;
   label?: string;
   name?: string;
   slug?: string;
   status?: string;
+  level?: number;
   is_earned?: boolean;
   earned?: boolean;
   image?: string;
   src?: string;
   progress?: number;
   progress_value?: number;
+  current_value?: number;
+  next_target?: number;
+  thresholds?: number[];
 }
 
 function rankingRecord(value: unknown): Record<string, unknown> {

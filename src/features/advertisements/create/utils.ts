@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { getActiveV2Role } from "../../../shared/api/api";
 
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../shared/auth/auth-storage";
 import {
@@ -838,7 +839,9 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "has_virtual_tour", values.hasVirtualTour);
   addFeature(features, "publisher", values.registrantType === "agency" ? values.publisherName : "");
   addFeature(features, "agency_id", values.registrantType === "agency" ? values.agencyId : "");
-  addFeature(features, "consultant_id", values.consultantId ? values.consultantId : "");
+  if (shouldSendConsultantAssignment(values)) {
+    addFeature(features, "consultant_id", values.consultantId ? values.consultantId : "");
+  }
 
   if (isProject && !isPartnership) {
     addFeature(features, "project_total_floors", toNumber(values.projectTotalFloors));
@@ -880,6 +883,11 @@ export function buildPayload(values: NewAdFormValues) {
       whatsapp: values.whatsapp || null,
     },
   };
+}
+
+export function shouldSendConsultantAssignment(values: NewAdFormValues): boolean {
+  const context = new URLSearchParams(window.location.search).get("context") ?? getActiveV2Role();
+  return context !== "agency-consultant" || values.consultantAssignmentSelected === true;
 }
 
 export function buildNewAdFormData(
@@ -1035,7 +1043,7 @@ export function buildNewAdFormData(
     "agency_id",
     cleanValues.registrantType === "agency" ? cleanValues.agencyId.trim() : "",
   );
-  if (cleanValues.consultantId) {
+  if (cleanValues.consultantId && shouldSendConsultantAssignment(cleanValues)) {
     appendBaseValue("consultant_id", cleanValues.consultantId.trim());
   }
   if (!options.isEdit) {

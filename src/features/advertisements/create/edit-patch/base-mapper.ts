@@ -12,6 +12,7 @@ import {
   getStoredNewAdLocationNumber,
   mediaSource,
   trimFormValues,
+  shouldSendConsultantAssignment,
 } from "../utils";
 
 export function mapChangedBaseFields(
@@ -42,7 +43,7 @@ export function mapChangedBaseFields(
     appender.appendBase("agency_id", clean.registrantType === "agency" ? clean.agencyId.trim() : "");
   }
 
-  if (changed.has("consultantId")) {
+  if (changed.has("consultantId") && shouldSendConsultantAssignment(clean)) {
     const cId = clean.consultantId ? clean.consultantId.trim() : "";
     appender.appendBase("consultant_id", cId);
   }

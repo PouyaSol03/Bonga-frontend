@@ -865,10 +865,11 @@ function mapAdvertisementToEditValues(ad: AdvertisementItem, base: NewAdFormValu
   const resolvedConsultantId = readFirstValue(
     ad,
     features,
-    ["publisher_agent_id", "assigned_consultant_id", "consultant_id"],
-    ["publisher_agent_id", "assigned_consultant_id", "assignedConsultantId", "consultant_id", "consultantId"],
+    ["assigned_consultant_id", "consultant_id"],
+    ["assigned_consultant_id", "assignedConsultantId", "consultant_id", "consultantId"],
   );
   if (resolvedConsultantId) {
+    next.consultantAssignmentSelected = false;
     next.consultantId = String(typeof resolvedConsultantId === "object" ? (resolvedConsultantId as any)?.id : resolvedConsultantId);
   }
   setText("ownerPhone", readTextValue(ad, features, ["owner_contact_phone"], ["owner_contact_phone"]));
@@ -1602,6 +1603,7 @@ export function NewAdFlowPage() {
   };
 
   const confirmPublisher = (publisher: { id: string; name: string; type: "agency" | "consultant" }) => {
+    methods.setValue("consultantAssignmentSelected", publisher.type === "consultant", { shouldDirty: true });
     methods.setValue("registrantType", "personal", { shouldDirty: true });
     methods.setValue("agencyId", "", { shouldDirty: true });
     methods.setValue("publisherName", publisher.name, { shouldDirty: true });

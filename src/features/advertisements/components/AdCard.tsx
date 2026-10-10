@@ -274,6 +274,9 @@ function AdCardImage({
   showStatusBadge: boolean
   onDeleteIncomplete?: (event: React.MouseEvent) => void
 }) {
+  const isIncomplete = Boolean(onDeleteIncomplete) ||
+    /نیمه[\s\u200c]*کاره|incomplete|draft/i.test(ad.status) || ad.status === '-5'
+
   return (
     <div
       className={`ad-card__image relative aspect-[328/219.3] shrink-0 overflow-hidden rounded-2xl bg-primary-container bg-cover bg-center ${ad.imageClassName} ${className}`}
@@ -295,8 +298,8 @@ function AdCardImage({
           }}
         />
       ) : null}
-      {imageMeta}
-      {showImageCount ? (
+      {!isIncomplete && imageMeta}
+      {showImageCount && !isIncomplete ? (
         <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center gap-1.5 rounded-lg bg-black/60 px-2 text-sm font-medium leading-5 text-white" aria-label={`${ad.imageCount} تصویر`}>
           <AdCardAlbumIcon className="h-5 w-5 shrink-0" />
           <Typography as="span" variant="body" size="medium" weight="regular">{ad.imageCount}</Typography>

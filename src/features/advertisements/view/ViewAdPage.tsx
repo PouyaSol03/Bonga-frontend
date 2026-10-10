@@ -2116,40 +2116,19 @@ export function ViewAdPage() {
               void refetch();
             }}
             ownerContactAddress={
-              (typeof ad?.owner_contact_address === "string" && ad.owner_contact_address) ||
-              (typeof ad?.owner_address === "string" && ad.owner_address) ||
-              (typeof (ad as any)?.user_address === "string" && (ad as any).user_address) ||
-              (Array.isArray(ad?.features)
-                ? String(
-                    ad.features.find(
-                      (f: any) => f?.label === "owner_contact_address" || f?.label === "owner_address"
-                    )?.value ?? ""
-                  )
-                : "") ||
-              undefined
+              typeof (ad as any)?.owner_contact_address === "string"
+                ? (ad as any).owner_contact_address
+                : undefined
             }
             ownerContactName={
-              (typeof ad?.owner_contact_name === "string" && ad.owner_contact_name) ||
-              (typeof ad?.owner_name === "string" && ad.owner_name) ||
-              (typeof (ad as any)?.user_fullname === "string" && (ad as any).user_fullname) ||
-              (Array.isArray(ad?.features)
-                ? String(
-                    ad.features.find(
-                      (f: any) => f?.label === "owner_contact_name" || f?.label === "owner_name"
-                    )?.value ?? ""
-                  )
-                : "") ||
-              undefined
+              typeof (ad as any)?.owner_contact_name === "string"
+                ? (ad as any).owner_contact_name
+                : undefined
             }
             ownerContactPhone={
-              (typeof ad?.owner_contact_phone === "string" && ad.owner_contact_phone) ||
-              (typeof (ad as any)?.owner_phone === "string" && (ad as any).owner_phone) ||
-              (Array.isArray(ad?.features)
-                ? String(
-                    ad.features.find((f: any) => f?.label === "owner_contact_phone")?.value ?? ""
-                  )
-                : "") ||
-              undefined
+              typeof (ad as any)?.owner_contact_phone === "string"
+                ? (ad as any).owner_contact_phone
+                : undefined
             }
           />
         ) : null

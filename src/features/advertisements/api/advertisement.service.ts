@@ -1625,13 +1625,17 @@ export interface AgencyRemoveAdPayload {
 export async function removeAgencyAdvertisement(
   advertiseId: string | number,
   payload: AgencyRemoveAdPayload = {
-    reason: "other",
+    reason: "deal_done",
     description: "حذف توسط آژانس",
   },
 ) {
-  const response = await api
-    .post(`me/agency/advertise/stop-requests/${encodeURIComponent(String(advertiseId))}/remove`, {
-      json: payload,
+  const encId = encodeURIComponent(String(advertiseId));
+  const response = await apiV2
+    .delete(`advertise/${encId}`, {
+      json: {
+        reason: payload.reason || "deal_done",
+        ...(payload.description?.trim() ? { description: payload.description.trim() } : {}),
+      },
     })
     .json<Record<string, unknown>>();
 

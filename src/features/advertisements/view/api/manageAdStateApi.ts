@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useActiveAuthRole } from "../../../../shared/auth/use-active-auth-role";
 import { getV2Overview } from "../../api/v2";
+import { getV2AdvertiseAssignment } from "../../api/agency-advertise-assignment.service";
 
 export interface ManageAdOverviewData {
   id: number | string;
@@ -63,7 +64,31 @@ export async function getManageAdAssignment(
   adId?: string | number,
 ): Promise<ManageAdAssignmentData | null> {
   if (!adId) return null;
-  return null;
+  try {
+    const res = await getV2AdvertiseAssignment(adId);
+    const raw = res?.data;
+    if (Array.isArray(raw) && raw.length > 0) {
+      const latest = raw[0] as Record<string, unknown>;
+      return {
+        ad_id: adId,
+        can_reassign: true,
+        agency: latest?.agency as ManageAdAssignmentData["agency"] ?? (latest?.target_agency_id ? { id: Number(latest.target_agency_id), name: String(latest.agency_name || "") } : undefined),
+        assigned_consultant: latest?.consultant as ManageAdAssignmentData["assigned_consultant"] ?? (latest?.target_consultant_id ? { id: Number(latest.target_consultant_id), full_name: String(latest.consultant_name || "") } : undefined),
+      };
+    }
+    if (raw && typeof raw === "object") {
+      const obj = raw as Record<string, unknown>;
+      return {
+        ad_id: adId,
+        can_reassign: true,
+        agency: (obj.agency as ManageAdAssignmentData["agency"]) ?? undefined,
+        assigned_consultant: (obj.assigned_consultant as ManageAdAssignmentData["assigned_consultant"]) ?? undefined,
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getManageAdActions(
@@ -109,6 +134,8 @@ export function useManageAdAssignmentQuery(
   return useQuery({
     queryKey: ["manage-ad-assignment", adId ? String(adId) : "", activeRole],
     queryFn: async () => {
+      const live = await getManageAdAssignment(adId);
+      if (live) return live;
       return {
         ad_id: adId ?? "",
         can_reassign: true,

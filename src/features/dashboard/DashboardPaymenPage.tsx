@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
-import { TransientNotice } from "../../shared/components/TransientNotice";
 import { useToast } from "../../shared/hooks/useToast";
 import { getApiErrorMessage } from "../../shared/api/api";
 import { storePaymentReturnTarget } from "../../shared/utils/payment-return";
@@ -356,7 +355,6 @@ function DashboardPaymentMobilePage({
     window.history.state?.initialPaymentTab === "packages" ? "packages" : "panel";
   const [activeTab, setActiveTab] = useState<MobilePaymentTab>(initialPaymentTab);
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const { showToast } = useToast();
   const walletQuery = useWalletQuery();
   const packagePaymentMutation = usePackagePaymentMutation();
@@ -392,11 +390,6 @@ function DashboardPaymentMobilePage({
     : null;
 
   const ErrorState = getRequestErrorState(error);
-
-  function showNotice(text: string) {
-    setMessage(null);
-    window.setTimeout(() => setMessage(text), 10);
-  }
 
   function handlePay(packageId: string | number) {
     if (packagePaymentMutation.isPending) return;
@@ -454,7 +447,7 @@ function DashboardPaymentMobilePage({
           } else {
             setSelectedPackageId(null);
           }
-          showNotice("بسته با موفقیت خریداری و فعال شد.");
+          showToast("بسته با موفقیت خریداری و فعال شد.");
         },
       },
     );
@@ -462,25 +455,22 @@ function DashboardPaymentMobilePage({
 
   if (selectedPackage) {
     return (
-      <>
-        <PackagePaymentPage
-          isPending={packagePaymentMutation.isPending}
-          onBack={handlePaymentBack}
-          onSubmit={handleSubmitPayment}
-          packageItem={selectedPackage}
-          walletCredit={walletQuery.data?.credit}
-          walletError={
-            walletQuery.isError
-              ? getApiErrorMessage(
-                  walletQuery.error,
-                  "دریافت موجودی کیف پول با خطا مواجه شد.",
-                )
-              : null
-          }
-          walletLoading={walletQuery.isLoading}
-        />
-        <TransientNotice message={message} />
-      </>
+      <PackagePaymentPage
+        isPending={packagePaymentMutation.isPending}
+        onBack={handlePaymentBack}
+        onSubmit={handleSubmitPayment}
+        packageItem={selectedPackage}
+        walletCredit={walletQuery.data?.credit}
+        walletError={
+          walletQuery.isError
+            ? getApiErrorMessage(
+                walletQuery.error,
+                "دریافت موجودی کیف پول با خطا مواجه شد.",
+              )
+            : null
+        }
+        walletLoading={walletQuery.isLoading}
+      />
     );
   }
 
@@ -546,7 +536,6 @@ function DashboardPaymentMobilePage({
           <EmptyPackagesState className="mt-2" />
         ) : null}
       </main>
-      <TransientNotice message={message} />
     </PageFrame>
   );
 }

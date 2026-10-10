@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import { useTransientNotice } from "../../../shared/hooks/useTransientNotice";
+import { useToast } from "../../../shared/hooks/useToast";
 import { useAuthorizeMeMutation, useMyProfileQuery, useTransferSimOwnershipMutation } from "../api/account.hooks";
 import { getStoredAuthSession, clearStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { isUserIdentityVerified } from "../api/account.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { TopBar } from "../../../shared/components/TopBar";
-import { TransientNotice } from "../../../shared/components/TransientNotice";
 import { Button } from "../../../shared/ui/Button";
 import { IdentityPendingState, IdentityVerifiedState, SimCardOwnershipChangeState, WarningTriangleIcon } from "../accountPageViews";
 import type { IdentityPageStep } from "../accountPageViews";
@@ -15,7 +14,7 @@ import { Typography } from "../../../shared/ui/Typography";
 export function AccountIdentityPage() {
   const [step, setStep] = useState<IdentityPageStep>("pending");
   const [isOwnershipWarningOpen, setIsOwnershipWarningOpen] = useState(false);
-  const { message, showNotice } = useTransientNotice();
+  const { showToast } = useToast();
   const authorize = useAuthorizeMeMutation();
   const transferOwnership = useTransferSimOwnershipMutation();
   const { data: profile } = useMyProfileQuery();
@@ -67,10 +66,10 @@ export function AccountIdentityPage() {
                 { nationalnumber },
                 {
                   onError: (error) => {
-                    showNotice(getApiErrorMessage(error, "تایید کد ملی با خطا مواجه شد"));
+                    showToast(getApiErrorMessage(error, "تایید کد ملی با خطا مواجه شد"), undefined, "error");
                   },
                   onSuccess: () => {
-                    showNotice("کد ملی با موفقیت ثبت شد و در انتظار تایید ادمین است");
+                    showToast("کد ملی با موفقیت ثبت شد و در انتظار تایید ادمین است", undefined, "success");
                   },
                 },
               );
@@ -79,7 +78,10 @@ export function AccountIdentityPage() {
         ) : null}
 
         {step === "verified" ? (
-          <IdentityVerifiedState onChangeOwner={() => setStep("ownership")} />
+          <IdentityVerifiedState
+            authorizeDate={profile?.authorize_date}
+            onChangeOwner={() => setStep("ownership")}
+          />
         ) : null}
 
         {step === "ownership" ? (
@@ -132,13 +134,13 @@ export function AccountIdentityPage() {
                   onSuccess: (data) => {
                     setIsOwnershipWarningOpen(false);
                     clearStoredAuthSession();
-                    showNotice(data?.message || "تغییر مالکیت سیم‌کارت با موفقیت ثبت شد");
+                    showToast(data?.message || "تغییر مالکیت سیم‌کارت با موفقیت ثبت شد", undefined, "success");
                     setTimeout(() => {
                       window.location.assign("/");
                     }, 1200);
                   },
                   onError: (error) => {
-                    showNotice(getApiErrorMessage(error, "خطایی در ثبت تغییر مالکیت سیم‌کارت رخ داد"));
+                    showToast(getApiErrorMessage(error, "خطایی در ثبت تغییر مالکیت سیم‌کارت رخ داد"), undefined, "error");
                   },
                 },
               );
@@ -149,8 +151,6 @@ export function AccountIdentityPage() {
           </Button>
         </div>
       </BottomSheet>
-
-      <TransientNotice message={message} className="bottom-20" />
     </div>
   );
 }

@@ -1,11 +1,9 @@
 import { useState } from "react";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
-import { TransientNotice } from "../../../shared/components/TransientNotice";
 import { TopBar } from "../../../shared/components/TopBar";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
 import { pushRoute } from "../../../shared/navigation/navigation";
-import { useTransientNotice } from "../../../shared/hooks/useTransientNotice";
 import { useToast } from "../../../shared/hooks/useToast";
 import { usePackagePaymentMutation, usePackagesQuery } from "../../packages/api/package.hooks";
 import { useWalletQuery } from "../api/account.hooks";
@@ -67,7 +65,6 @@ function mapPackageToCreditPlan(
 
 
 export function IndependentConsultantCreditPage({ view }: { view: CreditView }) {
-  const { message, showNotice } = useTransientNotice();
   const { showToast } = useToast();
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const packagesQuery = usePackagesQuery();
@@ -121,7 +118,7 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
           }
 
           setSelectedPackageId(null);
-          showNotice("بسته با موفقیت خریداری و فعال شد.");
+          showToast("بسته با موفقیت خریداری و فعال شد.");
         },
       },
     );
@@ -129,27 +126,24 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
 
   if (selectedPackage) {
     return (
-      <>
-        <PackagePaymentPage
-          isPending={packagePaymentMutation.isPending}
-          onBack={() => {
-            if (!packagePaymentMutation.isPending) setSelectedPackageId(null);
-          }}
-          onSubmit={submitPackagePayment}
-          packageItem={selectedPackage}
-          walletCredit={walletQuery.data?.credit}
-          walletError={
-            walletQuery.isError
-              ? getApiErrorMessage(
-                  walletQuery.error,
-                  "دریافت موجودی کیف پول با خطا مواجه شد.",
-                )
-              : null
-          }
-          walletLoading={walletQuery.isLoading}
-        />
-        <TransientNotice message={message} />
-      </>
+      <PackagePaymentPage
+        isPending={packagePaymentMutation.isPending}
+        onBack={() => {
+          if (!packagePaymentMutation.isPending) setSelectedPackageId(null);
+        }}
+        onSubmit={submitPackagePayment}
+        packageItem={selectedPackage}
+        walletCredit={walletQuery.data?.credit}
+        walletError={
+          walletQuery.isError
+            ? getApiErrorMessage(
+                walletQuery.error,
+                "دریافت موجودی کیف پول با خطا مواجه شد.",
+              )
+            : null
+        }
+        walletLoading={walletQuery.isLoading}
+      />
     );
   }
 
@@ -188,7 +182,6 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
           <CreditPlansStatus message="بسته‌ای برای نمایش وجود ندارد." />
         )}
       </main>
-      <TransientNotice message={message} />
     </PageFrame>
   );
 }

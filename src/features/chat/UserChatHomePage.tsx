@@ -13,7 +13,6 @@ import {
 import { BottomSheet, BottomSheetActionList } from "../../shared/components/BottomSheet";
 import { Button } from "../../shared/ui/Button";
 import { Chip } from "../../shared/ui/Chip";
-import { TransientNotice } from "../../shared/components/TransientNotice";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
@@ -2207,7 +2206,7 @@ export function UserChatResponseTimePage() {
   const [startHour, setStartHour] = useState<string | undefined>();
   const [endHour, setEndHour] = useState<string | undefined>();
   const [openSheet, setOpenSheet] = useState<ResponseTimeSheet>(null);
-  const { message, showNotice } = useTransientNotice();
+  const { showNotice } = useTransientNotice();
 
   useEffect(() => {
     if (!availabilityQuery.data) return;
@@ -2404,7 +2403,6 @@ export function UserChatResponseTimePage() {
         onSelect={setEndHour}
         title="تا ساعت"
       />
-      <TransientNotice className="bottom-20" message={message} />
     </PageFrame>
   );
 }
@@ -2424,7 +2422,6 @@ export function UserChatRenamePage() {
   const [chatName, setChatName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const didHydrateShowingNameRef = useRef(false);
-  const { message } = useTransientNotice();
 
   useEffect(() => {
     if (showingNameQuery.data === undefined || didHydrateShowingNameRef.current) return;
@@ -2518,8 +2515,6 @@ export function UserChatRenamePage() {
           </Button>
         </div>
       </footer>
-
-      <TransientNotice className="bottom-20" message={message} />
     </PageFrame>
   );
 }
@@ -2547,7 +2542,7 @@ export function UserChatDetailPage() {
   const [sentMessages, setSentMessages] = useState<SentChatMessage[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [isSendingLocation, setIsSendingLocation] = useState(false);
-  const { message, showNotice } = useTransientNotice();
+  const { showNotice } = useTransientNotice();
   const chatScrollRef = useRef<HTMLElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
@@ -3131,7 +3126,6 @@ export function UserChatDetailPage() {
         }}
         onConfirm={confirmBlockChat}
       />
-      <TransientNotice className="bottom-20" message={message} />
     </PageFrame>
   );
 }
@@ -3150,7 +3144,7 @@ export function UserChatHomePage() {
   const [showBlocked, setShowBlocked] = useState(false);
   const [query, setQuery] = useState("");
   const deferredSearch = useDebouncedValue(query.trim(), 300);
-  const { message, showNotice } = useTransientNotice();
+  const { showNotice } = useTransientNotice();
 
   const authSession = getStoredAuthSession();
   const activeRole = getActiveAuthRole(authSession);
@@ -3308,7 +3302,6 @@ export function UserChatHomePage() {
           <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-4 text-center text-sm text-outline">هنوز گفتگویی ندارید.</Typography>
         )
       ) : null}
-      <TransientNotice message={message} />
     </TopBarNavigationLayout>
   );
 }
@@ -3402,7 +3395,6 @@ export function UserChatBulkDeletePage() {
   const [showMyAds, setShowMyAds] = useState(false);
   const [selectedChatIds, setSelectedChatIds] = useState<Set<string>>(() => new Set());
   const [deleteError, setDeleteError] = useState("");
-  const { message } = useTransientNotice();
   const {
     data: chatsPage,
     error,
@@ -3558,7 +3550,6 @@ export function UserChatBulkDeletePage() {
         showBlocked={showBlocked}
         showMyAds={showMyAds}
       />
-      <TransientNotice className="bottom-20" message={message} />
     </ChatPageShell>
   );
 }

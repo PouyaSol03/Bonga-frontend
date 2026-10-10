@@ -71,6 +71,18 @@ export function ConsultantEditForm({
 
   const handleSubmit = () => {
     setErrorMessage("");
+    if (adQuota > maxAdQuota) {
+      setErrorMessage("سهمیه آگهی نمی‌تواند بیشتر از سهمیه باقیمانده آژانس باشد.");
+      return;
+    }
+    if (updateQuota > maxRenewQuota) {
+      setErrorMessage("سهمیه بروزرسانی نمی‌تواند بیشتر از سهمیه باقیمانده آژانس باشد.");
+      return;
+    }
+    if (specialQuota > maxSpecialQuota) {
+      setErrorMessage("سهمیه ویژه نمی‌تواند بیشتر از سهمیه باقیمانده آژانس باشد.");
+      return;
+    }
     updateConsultantMutation.mutate(
       {
         adQuota,

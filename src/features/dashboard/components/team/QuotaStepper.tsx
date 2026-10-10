@@ -5,6 +5,7 @@ import { toEnglishDigits, toPersianNumber } from "../../../../shared/lib/numberU
 
 export function QuotaStepper({
   label,
+  max,
   remaining,
   remainingClassName,
   setValue,
@@ -38,15 +39,17 @@ export function QuotaStepper({
           inputMode="numeric"
           onChange={(e) => {
             const raw = toEnglishDigits(e.target.value).replace(/\D/g, "");
-            setValue(raw ? Number(raw) : 0);
+            const num = raw ? Number(raw) : 0;
+            setValue(max !== undefined ? Math.min(max, num) : num);
           }}
           type="text"
           value={value === 0 ? "۰" : toPersianNumber(value)}
         />
         <Button
           unstyled
-          className="grid place-items-center border-l border-outline-var bg-surface-container text-2xl font-normal text-on-surface-var"
-          onClick={() => setValue((current) => current + 1)}
+          className="grid place-items-center border-l border-outline-var bg-surface-container text-2xl font-normal text-on-surface-var disabled:cursor-not-allowed disabled:opacity-40"
+          disabled={max !== undefined && value >= max}
+          onClick={() => setValue((current) => (max !== undefined ? Math.min(max, current + 1) : current + 1))}
           type="button"
         >
           +

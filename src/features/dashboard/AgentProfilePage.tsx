@@ -92,6 +92,75 @@ function toSelectedNeighborhood(neighborhood: NeighborhoodDto): SelectedNeighbor
   };
 }
 
+export function AgentProfileSkeleton({ desktop = false }: { desktop?: boolean }) {
+  if (desktop) {
+    return (
+      <div className="space-y-8 animate-pulse [direction:rtl]" aria-label="در حال بارگذاری مشخصات مشاور">
+        <div className="h-6 w-32 rounded bg-surface-container-high" />
+        <div className="mt-7 flex flex-wrap items-end gap-8">
+          <div className="h-28 w-28 shrink-0 rounded-full bg-surface-container-high" />
+          <div className="min-w-[280px] max-w-[520px] flex-1 space-y-2">
+            <div className="h-4 w-20 rounded bg-surface-container-high" />
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+          </div>
+        </div>
+        <div className="h-px bg-outline-var" />
+        <div className="space-y-4">
+          <div className="h-5 w-28 rounded bg-surface-container-high" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="h-5 w-32 rounded bg-surface-container-high" />
+          <div className="grid grid-cols-3 gap-4">
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+          </div>
+        </div>
+        <div className="h-14 w-36 rounded-xl bg-surface-container-high" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden pb-24 [direction:rtl]" aria-label="در حال بارگذاری مشخصات مشاور">
+      <section className="bg-surface-container-lowest p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="h-24 w-24 shrink-0 rounded-full animate-skeleton bg-surface-container-high" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 w-3/4 rounded animate-skeleton bg-surface-container-high" />
+            <div className="h-3 w-1/2 rounded animate-skeleton bg-surface-container-high" />
+          </div>
+        </div>
+        <div className="mt-4">
+          <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+        </div>
+      </section>
+
+      <section className="bg-surface-container-lowest p-4 space-y-3">
+        <div className="h-5 w-24 rounded animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+      </section>
+
+      <section className="bg-surface-container-lowest p-4 space-y-3">
+        <div className="h-5 w-32 rounded animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+      </section>
+
+      <section className="bg-surface-container-lowest p-4 space-y-3">
+        <div className="h-5 w-28 rounded animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+      </section>
+    </div>
+  );
+}
+
 export function AgentProfilePage() {
   const desktop = isDesktopDashboard();
   const selectedCity = readStoredSelectedCity();
@@ -315,7 +384,9 @@ export function AgentProfilePage() {
     }
   };
 
-  const formContent = (
+  const formContent = profileQuery.isLoading ? (
+    <AgentProfileSkeleton desktop={desktop} />
+  ) : (
     <AgentProfileForm
       activityAreas={selectedActivityAreas}
       activityAreasError={activityAreasError}

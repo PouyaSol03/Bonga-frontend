@@ -84,13 +84,18 @@ export function AccountProfileForm({
     phone?: string;
   };
 }) {
+  const initialNationalNumber =
+    profile?.nationalnumber ??
+    (profile as Record<string, unknown> | undefined)?.national_number as string ??
+    "";
+
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState("");
   const [form, setForm] = useState({
     email: profile?.email ?? "",
     family: profile?.family ?? "",
     name: profile?.name ?? "",
-    nationalnumber: profile?.nationalnumber ?? "",
+    nationalnumber: initialNationalNumber,
   });
 
   useEffect(() => {
@@ -139,7 +144,7 @@ export function AccountProfileForm({
 
       <section className="mt-4 space-y-6 px-4">
         <ReadonlyField label="شماره همراه" value={profile?.mobile ?? profile?.phone ?? mobile} />
-        <ReadonlyField label="کد ملی" value={form.nationalnumber || "-"} />
+        <ReadonlyField label="کد ملی" value={form.nationalnumber || initialNationalNumber || "-"} />
       </section>
 
       <div className="mt-4 h-4 bg-surface-container" />
@@ -927,7 +932,36 @@ function normalizeNumericInput(value: string) {
     .replace(/\D/g, "");
 }
 
-export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void }) {
+export function formatPersianMonthYear(dateString?: string | null): string {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    const formatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+      month: "long",
+      year: "numeric",
+    });
+    const parts = formatter.formatToParts(date);
+    const month = parts.find((p) => p.type === "month")?.value;
+    const year = parts.find((p) => p.type === "year")?.value;
+    if (month && year) {
+      return `${month} ${year}`;
+    }
+    return formatter.format(date);
+  } catch {
+    return "";
+  }
+}
+
+export function IdentityVerifiedState({
+  authorizeDate,
+  onChangeOwner,
+}: {
+  authorizeDate?: string | null;
+  onChangeOwner: () => void;
+}) {
+  const formattedDate = formatPersianMonthYear(authorizeDate);
+
   return (
     <>
       <section className="p-4">
@@ -940,9 +974,16 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
           </div>
 
           <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 text-on-surface-var">
-            احراز هویت شما در
-            {" "}<Typography as="span" variant="body" size="large" weight="medium" className="">بهمن 1401</Typography> {" "}
-            با موفقیت انجام شده است.
+            احراز هویت شما
+            {formattedDate ? (
+              <>
+                {" "}در{" "}
+                <Typography as="span" variant="body" size="large" weight="medium" className="">
+                  {formattedDate}
+                </Typography>
+              </>
+            ) : ""}
+            {" "}با موفقیت انجام شده است.
           </Typography>
         </div>
       </section>
@@ -1287,8 +1328,8 @@ function formatPaymentDate(value?: string) {
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
     <TextField
-      className="text-sm text-outline disabled:cursor-default"
-      disabled
+      className="text-sm text-on-surface cursor-default select-text"
+      readOnly
       forceLabel
       highlightWhenFilled={false}
       label={label}

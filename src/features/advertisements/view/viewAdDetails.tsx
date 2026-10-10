@@ -1967,7 +1967,29 @@ function goBackOrNavigate(fallbackPath: string, legacyBackTarget?: string | null
   replaceRoute(targetPath, targetState, { rememberCurrent: false });
 }
 
+let isAdBackNavigationPending = false;
+
+const MAX_AD_BACK_STEPS = 10;
+const AD_BACK_STEP_TIMEOUT_MS = 250;
+
+function getCurrentAdBackPath() {
+  return `${window.location.pathname}${window.location.search}`;
+}
+
+function isOnAdPath() {
+  return /^\/(?:ads|preview-ad)\//.test(window.location.pathname);
+}
+
 export function goBackFromAd(fallbackPath: string) {
+  // Ignore repeated taps while a back navigation is already in flight, or when
+  // the URL already left the ad page but its UI is still on screen (route
+  // transitions keep the old page visible until the next one is ready).
+  // Otherwise each extra tap pops another history entry and skips past the
+  // previous page.
+  if (isAdBackNavigationPending || !isOnAdPath()) {
+    return;
+  }
+
   const storedBackTarget = getStoredBackTarget();
 
   // Preview/detail pages are opened as real navigation entries. When we have
@@ -1975,7 +1997,44 @@ export function goBackFromAd(fallbackPath: string) {
   // the exact previous page (including its URL/state) instead of replacing
   // the current entry with a guessed destination.
   if (storedBackTarget && window.history.length > 1) {
-    window.history.back();
+    isAdBackNavigationPending = true;
+
+    const startPath = getCurrentAdBackPath();
+    let steps = 0;
+    let stepTimeoutId = 0;
+
+    const finish = () => {
+      window.clearTimeout(stepTimeoutId);
+      window.removeEventListener("popstate", handlePopState);
+      isAdBackNavigationPending = false;
+    };
+
+    const handlePopState = () => {
+      if (getCurrentAdBackPath() !== startPath) {
+        finish();
+      }
+    };
+
+    const step = () => {
+      steps += 1;
+      window.history.back();
+
+      // Embedded iframes on the ad page (the Neshan location map) add their own
+      // entries to the browser's joint session history. history.back() then
+      // only rewinds the iframe and the page stays on the ad, so keep stepping
+      // back until the page itself leaves the ad.
+      stepTimeoutId = window.setTimeout(() => {
+        if (getCurrentAdBackPath() === startPath && steps < MAX_AD_BACK_STEPS) {
+          step();
+          return;
+        }
+
+        finish();
+      }, AD_BACK_STEP_TIMEOUT_MS);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    step();
     return;
   }
 

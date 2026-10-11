@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../../../shared/auth/auth-storage";
-import { getApiAssetUrl } from "../../../../shared/api/api";
+import { getActiveV2Role, getApiAssetUrl } from "../../../../shared/api/api";
 import { useMyAgencyProfileQuery, useMyProfileQuery } from "../../../account/api/account.hooks";
 import { useAgencyConsultantsQuery } from "../../../agencies/api/agency.hooks";
 import type { NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
@@ -49,6 +49,19 @@ export function MediaStep({
   const publisherType = getParams().publisherType?.toLowerCase() ?? "";
   const session = getStoredAuthSession();
   const activeRole = getActiveAuthRole(session);
+  const activeV2Role = getActiveV2Role();
+  const managerPermissions =
+    session?.contextPermissions?.real_estate_consultant ??
+    session?.managerPermissions;
+  const hasAdManagementPermission =
+    Boolean(managerPermissions?.manage_advertises ?? managerPermissions?.ad_management);
+  const hasConsultantManagementPermission =
+    Boolean(managerPermissions?.manage_consultants);
+  const isAgencyConsultantManager =
+    (activeRole === "real_estate_consultant" || activeV2Role === "agency-consultant") &&
+    hasAdManagementPermission &&
+    hasConsultantManagementPermission;
+
   const isProfessionalPublisher =
     publisherType === "agency" ||
     publisherType === "agent" ||
@@ -58,10 +71,10 @@ export function MediaStep({
   const isAgencyPublisher = publisherType === "agency" || activeRole === "real_estate_manager";
   const { data: profile } = useMyProfileQuery();
   const { data: agencyProfile } = useMyAgencyProfileQuery({
-    enabled: isAgencyPublisher || activeRole === "real_estate_consultant",
+    enabled: isAgencyPublisher || activeRole === "real_estate_consultant" || isAgencyConsultantManager,
   });
   const { data: consultantsPage } = useAgencyConsultantsQuery({
-    enabled: isAgencyPublisher && Boolean(values.consultantId),
+    enabled: (isAgencyPublisher || isAgencyConsultantManager) && Boolean(values.consultantId),
     page: 1,
     perPage: 100,
   });
@@ -91,9 +104,10 @@ export function MediaStep({
     publisherType === "agent" ||
     publisherType === "consultant";
   const canChangePublisher =
-    !isIndependentUser &&
-    !isAgencyConsultantUser &&
-    isAgencyPublisher;
+    (!isIndependentUser &&
+      !isAgencyConsultantUser &&
+      isAgencyPublisher) ||
+    isAgencyConsultantManager;
 
   const agencyPublisherName = agencyPublisherIsConsultant
     ? selectedConsultant?.name?.trim() ||

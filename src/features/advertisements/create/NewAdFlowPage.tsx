@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
 import { PageFrame } from "../../../shared/layout/PageFrame";
-import { getApiAssetUrl, getApiErrorMessage, getApiFieldError } from "../../../shared/api/api";
+import { getActiveV2Role, getApiAssetUrl, getApiErrorMessage, getApiFieldError } from "../../../shared/api/api";
 import { backRoute, replaceRoute } from "../../../shared/navigation/navigation";
 import {
   mapAdvertisementToAdCard,
@@ -1052,7 +1052,21 @@ export function NewAdFlowPage() {
   const advertiseFormQuery = useAdvertiseFormDefinitionQuery(
     !isCrmSource ? currentFormCode : null,
   );
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
+  const authSession = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(authSession);
+  const activeV2Role = getActiveV2Role();
+  const managerPermissions =
+    authSession?.contextPermissions?.real_estate_consultant ??
+    authSession?.managerPermissions;
+  const hasAdManagementPermission =
+    Boolean(managerPermissions?.manage_advertises ?? managerPermissions?.ad_management);
+  const hasConsultantManagementPermission =
+    Boolean(managerPermissions?.manage_consultants);
+  const isAgencyConsultantManager =
+    (activeRole === REAL_ESTATE_CONSULTANT || activeV2Role === "agency-consultant") &&
+    hasAdManagementPermission &&
+    hasConsultantManagementPermission;
+
   const isAgencyRole = activeRole === REAL_ESTATE_MANAGER;
   const isAgencyConsultantUser =
     activeRole === REAL_ESTATE_CONSULTANT ||
@@ -1060,9 +1074,10 @@ export function NewAdFlowPage() {
     routeParams.publisherType === "consultant";
   const isIndependentUser = activeRole === INDEPENDENT_CONSULTANT;
   const canChangePublisher =
-    !isIndependentUser &&
-    !isAgencyConsultantUser &&
-    (isAgencyRole || routeParams.publisherType === "agency");
+    (!isIndependentUser &&
+      !isAgencyConsultantUser &&
+      (isAgencyRole || routeParams.publisherType === "agency")) ||
+    isAgencyConsultantManager;
 
   const editAdQuery = useQuery<AdvertisementItem, Error>({
     enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),
@@ -1546,6 +1561,8 @@ export function NewAdFlowPage() {
         navigateTo(getAdPaymentPath(createdAdId), {
           ad: createdAd,
           card: ad,
+          consultantAssignmentSelected: values.consultantAssignmentSelected,
+          consultantChanged: Boolean(values.consultantId),
           consultantId: values.consultantId || undefined,
           isAgencyPublisher,
           paymentFlow: "new-ad",

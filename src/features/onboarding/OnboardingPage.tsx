@@ -424,21 +424,6 @@ function OnboardingCitySelectionPage() {
     [searchedCityDtos],
   );
 
-  useEffect(() => {
-    if (selectedCity || popularCities.length === 0) return;
-
-    const initialCity = popularCities.find((city) => city.name === "مشهد") ?? popularCities[0];
-
-    if (initialCity) {
-      setSelectedCity({
-        id: initialCity.id,
-        latitude: initialCity.latitude,
-        longitude: initialCity.longitude,
-        name: initialCity.name,
-      });
-    }
-  }, [popularCities, selectedCity]);
-
   const isSearching = query.trim().length > 0;
   const visibleCities = isSearching ? searchedCities : popularCities;
   const isCityListLoading = isSearching ? isSearchingCities : isPopularCitiesLoading;
@@ -454,7 +439,7 @@ function OnboardingCitySelectionPage() {
   };
 
   const start = () => {
-    if (!selectedCity) return;
+    if (!hasExplicitCitySelection || !selectedCity) return;
 
     saveSelectedCity(selectedCity);
     goHome();
@@ -598,7 +583,7 @@ function OnboardingCitySelectionPage() {
         <div className="mx-auto flex w-full max-w-[500px] justify-center">
           <Button
             className="h-10 w-full rounded-[10px]"
-            disabled={!selectedCity}
+            disabled={!hasExplicitCitySelection || !selectedCity}
             onClick={start}
             size="x-medium"
             leadingIcon={<LinearArrowRight2 className="h-5 w-5" />}

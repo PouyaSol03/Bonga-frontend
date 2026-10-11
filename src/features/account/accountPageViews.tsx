@@ -187,21 +187,21 @@ export function AccountProfileForm({
 
       <section className="space-y-6 px-4 pt-4">
         <TextField
-          className="text-sm text-outline placeholder:text-outline"
+          className={`text-sm placeholder:text-outline ${form.name ? "text-on-surface" : "text-outline"}`}
           label="نام خود را وارد کنید"
           placeholder="نام خود را وارد کنید"
           value={form.name}
           onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
         />
         <TextField
-          className="text-sm text-outline placeholder:text-outline"
+          className={`text-sm placeholder:text-outline ${form.family ? "text-on-surface" : "text-outline"}`}
           label="نام خانوادگی خود را وارد کنید"
           placeholder="نام خانوادگی خود را وارد کنید"
           value={form.family}
           onChange={(event) => setForm((current) => ({ ...current, family: event.target.value }))}
         />
         <TextField
-          className="text-sm text-outline placeholder:text-outline"
+          className={`text-sm placeholder:text-outline ${form.email ? "text-on-surface" : "text-outline"}`}
           label="پست الکترونیکی"
           placeholder="پست الکترونیکی"
           value={form.email}

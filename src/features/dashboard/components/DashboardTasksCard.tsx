@@ -6,7 +6,8 @@ import { toPersianNumber } from "../../../shared/lib/numberUtils";
 export type DashboardTaskRole =
   | "REAL_ESTATE_MANAGER"
   | "REAL_ESTATE_CONSULTANT"
-  | "INDEPENDENT_CONSULTANT";
+  | "INDEPENDENT_CONSULTANT"
+  | "agency-consultant";
 
 export interface DashboardTaskItem {
   id: string;
@@ -27,7 +28,7 @@ export function DashboardTasksCard({
   totalCount = 46,
   items,
 }: DashboardTasksCardProps) {
-  const isAssigned = role === "REAL_ESTATE_CONSULTANT";
+  const isAssigned = role === "REAL_ESTATE_CONSULTANT" || (role as string) === "agency-consultant";
 
   const defaultItems: DashboardTaskItem[] = [
     { id: "leads", count: 3, label: "پیگیری سرنخ", to: "/account/dashboard/requests" },

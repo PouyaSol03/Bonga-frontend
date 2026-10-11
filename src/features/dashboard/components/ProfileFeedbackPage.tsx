@@ -6,12 +6,14 @@ import LinearLike from "../../../shared/icons/LinearLike";
 import LinearDislike from "../../../shared/icons/LinearDislike";
 import { useToast } from "../../../shared/hooks/useToast";
 import { getApiErrorMessage } from "../../../shared/api/api";
+import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import { pushRoute } from "../../../shared/navigation/navigation";
 import {
   ViewAdActionPageTopBar,
   ViewAdPageActionBar,
 } from "../../advertisements/view/pages/ViewAdActionPageLayout";
 import {
-  getPublicProfileFeedbackItems,
+  getProfileFeedbackItems,
   submitProfileFeedback,
   type ProfileFeedbackItem,
   type ProfileFeedbackTargetType,
@@ -66,8 +68,8 @@ export function ProfileFeedbackPage({
   const [ratings, setRatings] = useState<Record<number, boolean | null>>({});
 
   const { data: items = [], isLoading, isError } = useQuery({
-    queryKey: ["publicProfileFeedbackItems"],
-    queryFn: getPublicProfileFeedbackItems,
+    queryKey: ["profileFeedbackItems"],
+    queryFn: getProfileFeedbackItems,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -109,6 +111,16 @@ export function ProfileFeedbackPage({
   };
 
   const handleSubmit = () => {
+    const authSession = getStoredAuthSession();
+    if (!authSession) {
+      const redirectPath = `${window.location.pathname}${window.location.search}`;
+      const params = new URLSearchParams({
+        action: "ثبت بازخورد",
+        returnTo: redirectPath,
+      });
+      pushRoute(`/login-required?${params.toString()}`);
+      return;
+    }
     submitMutation.mutate();
   };
 

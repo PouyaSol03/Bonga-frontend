@@ -1,6 +1,4 @@
-import { ApiError, api, apiV2, getApiAssetUrl } from "../../../shared/api/api";
-import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
-import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT } from "../../../shared/constants/roles.constants";
+import { ApiError, api, apiV2, getActiveV2Role, getApiAssetUrl } from "../../../shared/api/api";
 import type { ApiDataResponse, ApiListResponse } from "../../../shared/api/response";
 import { unwrapList } from "../../../shared/api/response";
 import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
@@ -784,9 +782,13 @@ export async function getMyAds({
   perPage?: number;
   type?: MyAdsType;
 }) {
-  const role = getActiveAuthRole(getStoredAuthSession());
-  const isConsultant = role === INDEPENDENT_CONSULTANT || role === REAL_ESTATE_CONSULTANT;
-  const endpoint = isConsultant ? "independent-consultant/advertise" : "advertise";
+  const v2Role = getActiveV2Role();
+  const endpoint =
+    v2Role === "agency-consultant"
+      ? "agency-consultant/advertise"
+      : v2Role === "independent-consultant"
+        ? "independent-consultant/advertise"
+        : "advertise";
 
   const searchParams: Record<string, string | number | boolean> = { page, per_page: perPage };
   if (type && type !== "all") searchParams.type = type;

@@ -10,7 +10,8 @@ import LinearWalletAdd from "../../../shared/icons/LinearWalletAdd";
 export type DashboardRole =
   | "REAL_ESTATE_MANAGER"
   | "REAL_ESTATE_CONSULTANT"
-  | "INDEPENDENT_CONSULTANT";
+  | "INDEPENDENT_CONSULTANT"
+  | "agency-consultant";
 
 interface QuickActionItem {
   id: string;
@@ -53,7 +54,7 @@ export function DashboardQuickAccessGrid({
   const session = getStoredAuthSession();
   const permissions = session?.managerPermissions;
   const isIndependent = role === "INDEPENDENT_CONSULTANT";
-  const isConsultant = role === "REAL_ESTATE_CONSULTANT";
+  const isConsultant = role === "REAL_ESTATE_CONSULTANT" || role === "agency-consultant";
 
   const actions = allActions.filter((a) => {
     if (isIndependent) {

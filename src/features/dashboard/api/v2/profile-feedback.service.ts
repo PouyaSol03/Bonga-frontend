@@ -1,4 +1,4 @@
-import { apiV2, publicApiV2 } from "../../../../shared/api/api";
+import { apiV2 } from "../../../../shared/api/api";
 
 export type ProfileFeedbackTargetType = "agency" | "consultant";
 
@@ -28,26 +28,31 @@ type ProfileFeedbackItemsResponse = {
 };
 
 /**
- * Public: fetch feedback items for feedback submission
- * GET /api/v2/public/profile-feedback/items
+ * Fetch feedback items for feedback submission in the current context
+ * GET /api/v2/{context}/profile-feedback/items
  */
-export async function getPublicProfileFeedbackItems(): Promise<ProfileFeedbackItem[]> {
-  const response = await publicApiV2
-    .get("public/profile-feedback/items")
+export async function getProfileFeedbackItems(): Promise<ProfileFeedbackItem[]> {
+  const response = await apiV2
+    .get("profile-feedback/items")
     .json<ProfileFeedbackItemsResponse>();
   return response?.data ?? [];
 }
 
 /**
- * Submit feedback for an agency or consultant
- * POST /api/v2/profile-feedback/{targetType}/{targetId}
+ * Backward compatibility alias
+ */
+export const getPublicProfileFeedbackItems = getProfileFeedbackItems;
+
+/**
+ * Submit feedback for an agency or consultant in the current context
+ * POST /api/v2/{context}/profile-feedback/{targetType}/{targetId}
  */
 export async function submitProfileFeedback(
   targetType: ProfileFeedbackTargetType,
   targetId: number | string,
   payload: SubmitProfileFeedbackPayload
 ): Promise<void> {
-  await publicApiV2.post(`public/profile-feedback/${targetType}/${targetId}`, {
+  await apiV2.post(`profile-feedback/${targetType}/${targetId}`, {
     json: payload,
   });
 }

@@ -52,10 +52,12 @@ export function DashboardView({
   onViewReports,
 }: DashboardViewProps) {
   const isManager = role === "REAL_ESTATE_MANAGER";
-  const isAssigned = role === "REAL_ESTATE_CONSULTANT";
+  const isAgencyConsultant =
+    role === "REAL_ESTATE_CONSULTANT" || (role as string) === "agency-consultant";
+  const isAssigned = isAgencyConsultant;
   const persona: DashboardRolePersona = isManager
     ? "agency"
-    : role === "REAL_ESTATE_CONSULTANT"
+    : isAgencyConsultant
       ? "agent_in_agency"
       : "agent";
 
@@ -93,36 +95,7 @@ export function DashboardView({
 
   const recentAds = useMemo(() => {
     if (Array.isArray(recentAdsApiQuery.data) && recentAdsApiQuery.data.length > 0) {
-      return recentAdsApiQuery.data.map((item, idx) => {
-        const depositText =
-          item.depositAmount != null
-            ? `${toPersianNumber(item.depositAmount)} تومان ودیعه`
-            : "";
-        const rentText =
-          item.rentAmount != null
-            ? `${toPersianNumber(item.rentAmount)} تومان اجاره`
-            : "";
-        const locationText = [item.cityTitle, item.districtTitle]
-          .filter(Boolean)
-          .join("، ");
-
-        return {
-          id: item.id,
-          title: item.title || "آگهی بدون عنوان",
-          agency: "",
-          status: item.status || "",
-          imageCount: item.coverImage ? "1" : "0",
-          imageUrl: item.coverImage || undefined,
-          imageClassName: item.coverImage ? "" : `ad-card__image--${(idx % 4) + 1}`,
-          priceLabelPrimary: rentText ? "ودیعه:" : depositText ? "قیمت:" : "",
-          pricePrimary: depositText || "",
-          priceLabelSecondary: rentText ? "اجاره:" : "",
-          priceSecondary: rentText || "",
-          timeAndLocation: locationText,
-          badges: [],
-          category: item.categoryTitle || "",
-        };
-      });
+      return recentAdsApiQuery.data;
     }
     return [];
   }, [recentAdsApiQuery.data]);
@@ -193,6 +166,14 @@ export function DashboardView({
   const activeBalances = creditsQuery.data?.balances ?? dashboard?.balances;
   const activeDeltas = creditsQuery.data?.balanceDeltas ?? dashboard?.balanceDeltas;
 
+  const fallbackCredits: DashboardCreditItem[] | undefined = isAgencyConsultant
+    ? [
+        { key: "ads", label: "آگهی", value: 34, deltaText: "۲۴%", isPositive: true, type: "ad" },
+        { key: "updates", label: "بروزرسانی", value: 13, deltaText: "۵%", isPositive: true, type: "refresh" },
+        { key: "specials", label: "ویژه", value: 9, deltaText: "۱۶%", isNegative: true, type: "special" },
+      ]
+    : undefined;
+
   const creditItems: DashboardCreditItem[] | undefined = activeBalances
     ? [
         {
@@ -219,15 +200,19 @@ export function DashboardView({
           isNegative: activeDeltas ? activeDeltas.specialCreditUsed.change < 0 : undefined,
           type: "special",
         },
-        {
-          key: "expiry",
-          label: "اعتبار",
-          value: activeBalances.panelDaysRemaining,
-          deltaText: "روز",
-          type: "expiry",
-        },
+        ...(!isAgencyConsultant
+          ? [
+              {
+                key: "expiry" as const,
+                label: "اعتبار",
+                value: activeBalances.panelDaysRemaining,
+                deltaText: "روز",
+                type: "expiry" as const,
+              },
+            ]
+          : []),
       ]
-    : undefined;
+    : fallbackCredits;
 
   const rawLevel =
     rankingBadgeQuery.data?.badgeTitle ??

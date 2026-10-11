@@ -7,6 +7,7 @@ import { Button } from "../../../../shared/ui/Button";
 import { shouldPreserveNewAdDraft } from "../session";
 import LinearCancelCircle from "../../../../shared/icons/LinearCancelCircle";
 import LinearImage from "../../../../shared/icons/LinearImage";
+import { ViewAdAlbumPage } from "../../view/pages/ViewAdAlbumPage";
 
 export const allowedPhotoTypes = ["image/jpeg", "image/png", "image/webp"];
 export const allowedPhotoExtensions = ["jpg", "jpeg", "png", "webp"];
@@ -56,6 +57,7 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const createdPreviewUrls = useRef<string[]>([]);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 
   const photos = watch("photos") ?? [];
 
@@ -188,8 +190,9 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
         {photos.map((photo, index) => (
           <div
-            className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[12px] bg-surface-container"
+            className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[12px] bg-surface-container cursor-pointer"
             key={photo.id}
+            onClick={() => setSelectedPhotoIndex(index)}
           >
             <img
               alt={`عکس آگهی ${index + 1}`}
@@ -209,7 +212,10 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
             <Button unstyled
               aria-label="حذف عکس"
               className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-surface-container-lowest text-on-surface-var shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
-              onClick={() => removePhoto(photo.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                removePhoto(photo.id);
+              }}
               type="button"
             >
               <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
@@ -217,6 +223,14 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
           </div>
         ))}
       </div>
+
+      {selectedPhotoIndex !== null ? (
+        <ViewAdAlbumPage
+          initialIndex={selectedPhotoIndex}
+          mediaItems={photos.map((p) => ({ src: p.previewUrl, type: "image" as const }))}
+          onClose={() => setSelectedPhotoIndex(null)}
+        />
+      ) : null}
     </div>
   );
 }

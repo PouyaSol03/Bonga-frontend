@@ -63,7 +63,6 @@ import LinearBuilding2 from "../../shared/icons/LinearBuilding2";
 
 const agencyEditPath = "/account/dashboard/agency";
 const agencyPreviewPath = "/account/dashboard/agency/preview";
-const agencyQrCodePath = `${agencyPreviewPath}/qr-code`;
 type AgencyPreviewContactInfo = {
   phone: string;
   secondPhone: string;
@@ -360,6 +359,7 @@ export function AgencyPreviewPage() {
   const [activeTab, setActiveTab] = useState<AgencyPreviewTab>(getInitialAgencyTab);
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [isQrSheetOpen, setIsQrSheetOpen] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<BadgeDetailItem | null>(null);
   const [toast, setToast] = useState<AgencyToast | null>(null);
   const isPublicPreview = isPublicAgencyPreviewPath();
@@ -680,31 +680,20 @@ export function AgencyPreviewPage() {
       />
       <h1 className="sr-only">{seoTitle}</h1>
       <TopBar
-        actions={
-          isPublicPreview
-            ? [
-                {
-                  id: "share",
-                  label: "اشتراک‌گذاری",
-                  icon: <LinearShare className="h-6 w-6" />,
-                  onClick: () => void handleShareClick(),
-                },
-              ]
-            : [
-                {
-                  id: "share",
-                  label: "اشتراک‌گذاری",
-                  icon: <LinearShare className="h-6 w-6" />,
-                  onClick: () => void handleShareClick(),
-                },
-                {
-                  id: "qr-code",
-                  label: "کد QR",
-                  icon: <LinearQrCode className="h-6 w-6" />,
-                  to: agencyQrCodePath,
-                },
-              ]
-        }
+        actions={[
+          {
+            id: "share",
+            label: "اشتراک‌گذاری",
+            icon: <LinearShare className="h-6 w-6" />,
+            onClick: () => void handleShareClick(),
+          },
+          {
+            id: "qr-code",
+            label: "کد QR",
+            icon: <LinearQrCode className="h-6 w-6" />,
+            onClick: () => setIsQrSheetOpen(true),
+          },
+        ]}
         backTo={isPublicPreview ? "/home" : agencyEditPath}
         contentClassName="px-1"
         title={pageTitle}
@@ -759,8 +748,12 @@ export function AgencyPreviewPage() {
                 onFeedbackClick={() => {
                   const authSession = getStoredAuthSession();
                   if (!authSession) {
-                    storeLoginRedirectPath(window.location.pathname + window.location.search);
-                    pushRoute("/login");
+                    const redirectPath = `${window.location.pathname}${window.location.search}`;
+                    const params = new URLSearchParams({
+                      action: "ثبت بازخورد",
+                      returnTo: redirectPath,
+                    });
+                    pushRoute(`/login-required?${params.toString()}`);
                     return;
                   }
                   setIsFeedbackModalOpen(true);
@@ -804,6 +797,20 @@ export function AgencyPreviewPage() {
           />
         </>
       ) : null}
+
+      <BottomSheet
+        ariaLabel={isAgentPreview ? "کد QR مشاور" : "کد QR آژانس"}
+        isOpen={isQrSheetOpen}
+        onClose={() => setIsQrSheetOpen(false)}
+        title={isAgentPreview ? "کد QR مشاور" : "کد QR آژانس"}
+      >
+        <div className="flex flex-col items-center justify-center p-6">
+          <AgencyQrCard
+            agencyUrl={shareUrl}
+            qrLabel={entityId ? `${isAgentPreview ? "Agent" : "Agency"}${entityId}` : "—"}
+          />
+        </div>
+      </BottomSheet>
     </div>
   );
 }
@@ -1066,7 +1073,7 @@ function AgencySegmentedTabs({
               </Typography>
               {isActive && (
                 <motion.div
-                  className="absolute inset-0 -z-10 rounded-lg bg-primary-container"
+                  className="absolute inset-0 -z-10 bg-primary-container"
                   layoutId="agency-preview-tab-active-indicator"
                   transition={{ type: "spring", stiffness: 450, damping: 35 }}
                 />

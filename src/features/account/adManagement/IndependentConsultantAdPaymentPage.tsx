@@ -35,6 +35,7 @@ import {
 import { PaymentOptionIcon } from "./AdManagementIcons";
 import { formatTariffToman } from "./AdTariffOptionsView";
 import { useAgentEntitlementsQuery } from "../../packages/api/package.hooks";
+import { useAgencyConsultantsQuery } from "../../agencies/api/agency.hooks";
 import LinearAdd from "../../../shared/icons/LinearAdd";
 import LinearChartUp from "../../../shared/icons/LinearChartUp";
 import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
@@ -472,14 +473,60 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         new URLSearchParams(window.location.search).get("consultantId")
       : null);
 
+  const hasConsultantManagementPermission =
+    Boolean(managerPermissions?.manage_consultants);
+  const isAgencyConsultantWithFullPermissions =
+    isAgencyConsultantWithAdManagement &&
+    hasConsultantManagementPermission;
+
+  const consultantsQuery = useAgencyConsultantsQuery({
+    enabled: isAgencyConsultantWithFullPermissions,
+    page: 1,
+    perPage: 100,
+  });
+  const currentUserId = authSession?.userId;
+  const currentMobile = authSession?.mobile;
+  const myConsultant = (consultantsQuery.data?.data ?? []).find(
+    (c) =>
+      (currentUserId &&
+        (String(c.userId) === String(currentUserId) ||
+          String(c.agentId) === String(currentUserId))) ||
+      (currentMobile && c.mobile === currentMobile),
+  );
+  const myConsultantAgentId = myConsultant?.agentId ? String(myConsultant.agentId) : undefined;
+  const myConsultantUserId = myConsultant?.userId ? String(myConsultant.userId) : undefined;
+
+  const isOwnConsultant = Boolean(
+    targetConsultantId &&
+    ((myConsultantAgentId && String(targetConsultantId) === myConsultantAgentId) ||
+      (myConsultantUserId && String(targetConsultantId) === myConsultantUserId) ||
+      (currentUserId && String(targetConsultantId) === String(currentUserId))),
+  );
+
+  const hasChangedConsultant = Boolean(
+    targetConsultantId &&
+    !isOwnConsultant &&
+    (routeState.consultantAssignmentSelected ||
+      routeState.consultantChanged ||
+      routeState.consultantId ||
+      routeState.publisherType === "consultant" ||
+      routeState.publisherType === "agent" ||
+      Boolean(targetConsultantId)),
+  );
+
+  const onlyShowByConsultant = Boolean(
+    isAgencyConsultantWithFullPermissions &&
+    hasChangedConsultant,
+  );
+
   const canSendToConsultant =
     activeRole === REAL_ESTATE_MANAGER ||
     activeV2Role === "agency" ||
     isAgencyConsultantWithAdManagement;
 
   const showByConsultant = Boolean(
-    canSendToConsultant &&
-    Boolean(targetConsultantId),
+    (canSendToConsultant && Boolean(targetConsultantId)) ||
+    onlyShowByConsultant,
   );
 
   const rawByConsultantMethod = checkout
@@ -614,6 +661,13 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     );
 
     if (usesAgencyCheckoutOptions) {
+      if (onlyShowByConsultant) {
+        if (agencyMethod !== "by_consultant") {
+          setAgencyMethod("by_consultant");
+        }
+        return;
+      }
+
       const byConsultantAvailable =
         showByConsultant && byConsultantMethod?.available !== false;
       const currentMethodSelectable =
@@ -661,6 +715,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     checkout,
     gatewayMethod,
     hasFreeQuota,
+    onlyShowByConsultant,
     payableAmount,
     showByConsultant,
     usesAgencyCheckoutOptions,
@@ -870,6 +925,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         pending={checkoutPending}
         price={publishPrice}
         showByConsultant={showByConsultant}
+        onlyShowByConsultant={onlyShowByConsultant}
         title="پرداخت"
         upgradeItems={upgradeItems}
         walletMethod={walletMethod}
@@ -899,6 +955,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
           pending={checkoutPending}
           price={publishPrice}
           showByConsultant={showByConsultant}
+          onlyShowByConsultant={onlyShowByConsultant}
           showPurchaseDetails={false}
           title="پرداخت"
           upgradeItems={upgradeItems}
@@ -966,6 +1023,7 @@ function AgencyCombinedCheckoutView({
   pending,
   price,
   showByConsultant = false,
+  onlyShowByConsultant = false,
   showPurchaseDetails = true,
   title = "پرداخت",
   upgradeItems = [],
@@ -989,6 +1047,7 @@ function AgencyCombinedCheckoutView({
   pending: boolean;
   price: number;
   showByConsultant?: boolean;
+  onlyShowByConsultant?: boolean;
   showPurchaseDetails?: boolean;
   title?: string;
   upgradeItems?: AdvertisementCheckoutItem[];
@@ -1125,7 +1184,7 @@ function AgencyCombinedCheckoutView({
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-6">
         <section className="bg-surface-container-lowest" aria-label="هزینه ثبت آگهی و روش پرداخت">
-          {showPurchaseDetails ? (
+          {showPurchaseDetails && !onlyShowByConsultant ? (
             <>
               <div className="px-4 pb-4 pt-5" aria-label="هزینه ثبت آگهی">
                 <div className="flex items-start justify-between gap-5 [direction:ltr]">
@@ -1167,11 +1226,13 @@ function AgencyCombinedCheckoutView({
                       : "این روش در دسترس نیست"
                   }
                 />
-                <div className="mx-4 border-t border-outline-var/40" />
+                {!onlyShowByConsultant ? (
+                  <div className="mx-4 border-t border-outline-var/40" />
+                ) : null}
               </>
             ) : null}
 
-            {creditMethod ? (
+            {!onlyShowByConsultant && creditMethod ? (
               <>
                 <PaymentMethodOption
                   active={method === creditMethod}
@@ -1197,42 +1258,46 @@ function AgencyCombinedCheckoutView({
               </>
             ) : null}
 
-            <PaymentMethodOption
-              active={method === "wallet"}
-              disabled={!walletSelectable}
-              icon="wallet"
-              label="کیف پول"
-              onClick={() => onMethodChange("wallet")}
-              subLabel={
-                walletSupported
-                  ? `مانده: ${formatTariffToman(walletBalance)} تومان`
-                  : "این روش پرداخت در دسترس نیست"
-              }
-              subLabelClassName={
-                walletDeficit > 0 ? "text-error font-medium" : "text-tertiary font-medium"
-              }
-            />
+            {!onlyShowByConsultant ? (
+              <>
+                <PaymentMethodOption
+                  active={method === "wallet"}
+                  disabled={!walletSelectable}
+                  icon="wallet"
+                  label="کیف پول"
+                  onClick={() => onMethodChange("wallet")}
+                  subLabel={
+                    walletSupported
+                      ? `مانده: ${formatTariffToman(walletBalance)} تومان`
+                      : "این روش پرداخت در دسترس نیست"
+                  }
+                  subLabelClassName={
+                    walletDeficit > 0 ? "text-error font-medium" : "text-tertiary font-medium"
+                  }
+                />
 
-            {walletSupported && walletDeficit > 0 ? (
-              <div className="px-4 pb-2 pt-1">
-                <ApiWalletDeficitBox deficit={walletDeficit} />
-              </div>
+                {walletSupported && walletDeficit > 0 ? (
+                  <div className="px-4 pb-2 pt-1">
+                    <ApiWalletDeficitBox deficit={walletDeficit} />
+                  </div>
+                ) : null}
+
+                <div className="mx-4 border-t border-outline-var/40" />
+
+                <PaymentMethodOption
+                  active={method === "gateway"}
+                  disabled={!gatewayAvailable}
+                  icon="online"
+                  label="پرداخت آنلاین"
+                  onClick={() => onMethodChange("gateway")}
+                  subLabel={gatewayAvailable ? "بانک ملت" : "درگاه پرداخت در دسترس نیست"}
+                />
+              </>
             ) : null}
-
-            <div className="mx-4 border-t border-outline-var/40" />
-
-            <PaymentMethodOption
-              active={method === "gateway"}
-              disabled={!gatewayAvailable}
-              icon="online"
-              label="پرداخت آنلاین"
-              onClick={() => onMethodChange("gateway")}
-              subLabel={gatewayAvailable ? "بانک ملت" : "درگاه پرداخت در دسترس نیست"}
-            />
           </div>
         </section>
 
-        {showPurchaseDetails ? (
+        {showPurchaseDetails && !onlyShowByConsultant ? (
           <>
             <div className="h-2 bg-surface-container" aria-hidden="true" />
             <DisabledUpgradeOptionsSection

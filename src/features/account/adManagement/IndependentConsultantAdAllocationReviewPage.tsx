@@ -147,6 +147,8 @@ export function IndependentConsultantAdAllocationReviewPage(props?: IndependentC
         ad,
         assignment,
         assignmentId: assignment?.id,
+        consultantAssignmentSelected: publisher === "consultant" && Boolean(consultant),
+        consultantChanged: publisher === "consultant" && Boolean(consultant),
         consultantId: publisher === "consultant" ? consultant?.id : undefined,
         paymentFlow: "agency-allocation",
         publisherType: publisher,

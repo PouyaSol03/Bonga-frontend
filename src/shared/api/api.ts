@@ -443,11 +443,11 @@ const apiOptionsV2: Options = {
 
         const resolvedUrl = resolveV2Url(request.url);
         if (resolvedUrl !== request.url) {
+          // Don't gate on `request.body`: Firefox doesn't expose it on Request,
+          // so it is always undefined there and the payload would be dropped.
           const hasBody = !["GET", "HEAD"].includes(request.method);
-          const body =
-            hasBody && request.body
-              ? await request.clone().arrayBuffer()
-              : undefined;
+          const bodyBuffer = hasBody ? await request.clone().arrayBuffer() : undefined;
+          const body = bodyBuffer && bodyBuffer.byteLength > 0 ? bodyBuffer : undefined;
           return new Request(resolvedUrl, {
             body,
             cache: request.cache,

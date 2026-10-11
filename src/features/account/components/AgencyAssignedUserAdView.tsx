@@ -349,7 +349,8 @@ export function AgencyAssignedUserAdView({
   const expirationDateText = resolveExpirationDateText(ad);
 
   const isPublished = statusKey === "published";
-  const isWaitForAgency = statusKey === "wait_for_agency" || statusKey === "pending";
+  const isWaitForAdmin = statusKey === "pending";
+  const isWaitForAgency = statusKey === "wait_for_agency";
   const isWaitForRepost = statusKey === "wait_for_repost";
   const isArchived = statusKey === "archived";
   const isWaitForDeal = statusKey === "wait_for_deal_confirmation";
@@ -445,7 +446,12 @@ export function AgencyAssignedUserAdView({
               منتشر شده
             </span>
           )}
-          {(isWaitForAgency || statusKey === "pending") && (
+          {isWaitForAdmin && (
+            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container/30 px-4 text-sm font-medium text-warning">
+              در انتظار تایید انتشار
+            </span>
+          )}
+          {isWaitForAgency && (
             <span className="inline-flex h-10 items-center rounded-lg bg-warning-container/30 px-4 text-sm font-medium text-warning">
               در انتظار تایید آژانس
             </span>
@@ -502,6 +508,28 @@ export function AgencyAssignedUserAdView({
             <div className="flex h-11 items-center justify-between [direction:rtl]">
               <span className="text-sm text-on-surface-var">انقضا</span>
               {renderDateWithRelative(expirationDateText)}
+            </div>
+          </div>
+        )}
+
+        {/* Notice for Pending Admin Review */}
+        {isWaitForAdmin && (
+          <div className="mt-4 rounded-lg border border-warning bg-warning-container px-4 py-3 text-right">
+            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-on-surface">
+              این آگهی در صف بررسی سامانه قرار دارد.
+            </Typography>
+            <Typography as="p" variant="body" size="medium" weight="regular">
+              پس از تایید، آگهی به صورت خودکار منتشر می‌شود.
+            </Typography>
+
+            <div className="mt-3 border-t border-dashed border-outline-var pt-3">
+              <div className="flex h-6 items-center justify-between gap-4 text-xs font-normal leading-4 [direction:ltr]">
+                <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface [direction:rtl]">بین ۱ تا ۶ ساعت</Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-on-surface-var [direction:rtl]">
+                  <LinearClock className="h-5 w-5" />
+                  زمان تقریبی بررسی:
+                </Typography>
+              </div>
             </div>
           </div>
         )}
@@ -757,6 +785,31 @@ export function AgencyAssignedUserAdView({
                     <>
                       وضعیت به{" "}
                       <span className="font-medium text-warning">در انتظار تایید آژانس</span>{" "}
+                      تغییر یافت.
+                    </>
+                  }
+                />
+                <TimelineItem
+                  time="دیروز ۱۲:۲۰"
+                  description={
+                    <>
+                      درخواست به{" "}
+                      <span className="font-medium text-primary">{agencyName}</span>{" "}
+                      ارسال شد.
+                    </>
+                  }
+                />
+              </>
+            )}
+
+            {isWaitForAdmin && (
+              <>
+                <TimelineItem
+                  time="دیروز ۱۲:۲۰"
+                  description={
+                    <>
+                      وضعیت به{" "}
+                      <span className="font-medium text-warning">در انتظار تایید انتشار</span>{" "}
                       تغییر یافت.
                     </>
                   }

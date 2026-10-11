@@ -116,7 +116,7 @@ function formatPrice(value: unknown) {
 }
 
 
-function readVideoUrl(ad: AdvertisementItem) {
+export function readVideoUrl(ad: AdvertisementItem) {
   return typeof ad.video === "string" && ad.video.trim()
     ? getApiAssetUrl(ad.video)
     : "";

@@ -1,5 +1,5 @@
 import { v7 as uuidv7 } from "uuid";
-import { ApiError, api, apiV2, baseUrl, publicApi } from "../../../shared/api/api";
+import { ApiError, api, apiV2, baseUrl, getActiveV2Role, publicApi } from "../../../shared/api/api";
 import { formatCardPrice } from "../../../shared/lib/MoneyHandler";
 import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
 import { getAdvertisementImageUrls } from "../utils/advertisement-images";
@@ -589,7 +589,7 @@ function formatPrice(value: unknown) {
   return formatCardPrice(value);
 }
 
-function readFeatureValue(item: AdvertisementItem, labels: string[]) {
+export function readFeatureValue(item: AdvertisementItem, labels: string[]) {
   const rawFeatures = Array.isArray(item.features) ? item.features : [];
   const dynamicFields = Array.isArray((item as Record<string, unknown>).dynamicFields)
     ? ((item as Record<string, unknown>).dynamicFields as AdvertisementFeature[])
@@ -1428,8 +1428,9 @@ export async function getAdvertisementCheckout(advertiseId: string) {
 }
 
 export async function getAgencyAdvertisementCheckout(advertiseId: string) {
+  const context = getActiveV2Role() === "agency-consultant" ? "agency-consultant" : "agency";
   const response = (await apiV2
-    .get(`agency/advertise/${encodeURIComponent(advertiseId)}/checkout`)
+    .get(`${context}/advertise/${encodeURIComponent(advertiseId)}/checkout`)
     .json()) as AdvertisementCheckoutResponse;
 
   if (response && typeof response === "object" && !Array.isArray(response)) {
@@ -1510,9 +1511,10 @@ export async function submitAgencyAdvertisementCheckout({
       : undefined;
 
   let response: unknown;
+  const context = getActiveV2Role() === "agency-consultant" ? "agency-consultant" : "agency";
   if (paymentMethod === "by_consultant") {
     response = await apiV2
-      .post(`agency/advertise/${encodeURIComponent(advertiseId)}/checkout`, {
+      .post(`${context}/advertise/${encodeURIComponent(advertiseId)}/checkout`, {
         json: {
           payment_method: "by_consultant",
           ...(numericConsultantId !== undefined ? { consultant_id: numericConsultantId } : {}),
@@ -1521,7 +1523,7 @@ export async function submitAgencyAdvertisementCheckout({
       .json();
   } else {
     response = await apiV2
-      .post(`agency/advertise/${encodeURIComponent(advertiseId)}/checkout`, {
+      .post(`${context}/advertise/${encodeURIComponent(advertiseId)}/checkout`, {
         json: {
           ...(numericConsultantId !== undefined ? { consultant_id: numericConsultantId } : {}),
           ...(discount_code ? { discount_code } : {}),

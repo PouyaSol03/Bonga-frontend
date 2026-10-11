@@ -207,7 +207,8 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     status === "wait_for_agency" ||
     status === "wait-for-agency" ||
     (isAssignedToAgency &&
-      (["1", "2", "pending", "review", "waiting", "wait_for_agency", "wait-for-agency"].includes(status) ||
+      assignmentStatus !== "approved" &&
+      (["1", "2", "pending", "review", "waiting", "wait_for_agency", "wait-for-agency", "wait_for_admin", "wait-for-admin"].includes(status) ||
         status.includes("انتظار") ||
         status.includes("بررسی")))
   ) {
@@ -344,6 +345,7 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     "waiting",
     "in-review",
     "wait-for-admin",
+    "wait_for_admin",
   ].includes(status)) {
     return myAdStatusConfig.pending;
   }

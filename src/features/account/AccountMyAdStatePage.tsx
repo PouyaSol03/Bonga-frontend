@@ -299,6 +299,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const showAgencyBottomBar = Boolean(
     (isAssigned ||
       statusInfo.key === "wait_for_agency" ||
+      statusInfo.key === "pending" ||
       statusInfo.key === "wait_for_stop") &&
     statusInfo.key !== "rejected_by_agency"
   );
@@ -1451,7 +1452,12 @@ function getStateActions(
   if (status === "wait_for_repost" || status === "rejected_by_agency") return [preview, remove, history];
   if (status === "archived") return [preview, remove];
   if (status === "wait_for_payment") return [preview, edit, payment, remove, history];
-  if (status === "pending") return [preview, edit, remove, history];
+  if (status === "pending") {
+    if (isAssigned) {
+      return [preview, edit, callAgency, chatAgency, history];
+    }
+    return [preview, edit, remove, history];
+  }
   if (status === "needs_edit") return [edit, preview, history];
   if (status === "incomplete") return [edit, payment, remove];
   if (status === "expired" || status === "deleted" || status === "incomplete_deleted") return [preview, history];

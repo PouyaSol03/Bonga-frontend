@@ -15,7 +15,15 @@ import { useDeleteAdvertisementMutation } from "../advertisements/api/advertisem
 import { useMyAdsInfiniteQuery } from "./api/account.hooks";
 import { RouteLink } from "../../shared/navigation/RouteLink";
 import type { AgencyAdvertiseAssignmentDto } from "../advertisements/api/agency-advertise-assignment.service";
-import { getAdvertisementPublisherName, mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
+import {
+  getAdvertisementPublisherName,
+  mapAdvertisementToAdCard,
+  readFeatureValue,
+} from "../advertisements/api/advertisement.service";
+import {
+  hasTour3d,
+  readVideoUrl,
+} from "../advertisements/view/viewAdDetails";
 import { SearchIcon } from "./adManagement/AdManagementIcons";
 import { ConsultantAdCard } from "./adManagement/ConsultantAdCard";
 import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
@@ -666,6 +674,30 @@ function AssignedConsultantAdCard({
   const imageSrc = ad.imageUrl;
   const imageCountNum = Number(ad.imageCount || 1) || 1;
 
+  const rawAd = assignment.advertise;
+  const hasVideoMedia = Boolean(
+    (rawAd && readVideoUrl(rawAd)) ||
+    (rawAd?.videos && Array.isArray(rawAd.videos) && rawAd.videos.length > 0) ||
+    (rawAd && (readFeatureValue(rawAd, ["has_video"]) === true || readFeatureValue(rawAd, ["has_video"]) === "true"))
+  );
+
+  const hasTour3dMedia = Boolean(
+    (rawAd && hasTour3d(rawAd)) ||
+    (rawAd && (readFeatureValue(rawAd, ["has_virtual_tour", "virtual_tour", "tour_3d", "tour3d"]) === true || readFeatureValue(rawAd, ["has_virtual_tour"]) === "true"))
+  );
+
+  const publisherType = String(
+    rawAd?.publisher_type ??
+    rawAd?.owner_type ??
+    (rawAd ? readFeatureValue(rawAd, ["advertiser_type"]) : "") ??
+    ""
+  ).toLowerCase();
+  const isPersonalAd = Boolean(
+    publisherType.includes("user") ||
+    publisherType.includes("personal") ||
+    publisherType.includes("شخصی")
+  );
+
   return (
     <article
       className="w-full overflow-hidden rounded-none bg-surface-container-lowest p-4 [direction:rtl]"
@@ -705,17 +737,23 @@ function AssignedConsultantAdCard({
         {/* Media indicators pill overlay */}
         <div className="absolute right-2 top-2 z-10 inline-flex h-7 items-center overflow-hidden rounded-[9px] bg-black/65 text-white shadow-sm [direction:ltr]">
           {/* Virtual tour 360 icon */}
-          <div className="grid h-7 min-w-7 place-items-center border-r border-white/30 px-1">
-            <Linear3d className="h-4 w-4" />
-          </div>
+          {hasTour3dMedia ? (
+            <div className="grid h-7 min-w-7 place-items-center border-r border-white/30 px-1">
+              <Linear3d className="h-4 w-4" />
+            </div>
+          ) : null}
           {/* Video icon */}
-          <div className="grid h-7 min-w-7 place-items-center border-r border-white/30 px-1">
-            <LinearVideo className="h-4 w-4" />
-          </div>
-          {/* Plan/user icon */}
-          <div className="grid h-7 min-w-7 place-items-center border-r border-white/30 px-1">
-            <LinearUserSolid className="h-4 w-4" />
-          </div>
+          {hasVideoMedia ? (
+            <div className="grid h-7 min-w-7 place-items-center border-r border-white/30 px-1">
+              <LinearVideo className="h-4 w-4" />
+            </div>
+          ) : null}
+          {/* Personal advertiser icon */}
+          {isPersonalAd ? (
+            <div className="grid h-7 min-w-7 place-items-center border-r border-white/30 px-1">
+              <LinearUserSolid className="h-4 w-4" />
+            </div>
+          ) : null}
           {/* Album icon + count */}
           <div className="inline-flex h-7 items-center gap-0.5 px-1.5">
             <AdCardAlbumIcon className="h-4 w-4" />

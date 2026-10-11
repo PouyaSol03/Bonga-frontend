@@ -589,7 +589,7 @@ function formatPrice(value: unknown) {
   return formatCardPrice(value);
 }
 
-function readFeatureValue(item: AdvertisementItem, labels: string[]) {
+export function readFeatureValue(item: AdvertisementItem, labels: string[]) {
   const rawFeatures = Array.isArray(item.features) ? item.features : [];
   const dynamicFields = Array.isArray((item as Record<string, unknown>).dynamicFields)
     ? ((item as Record<string, unknown>).dynamicFields as AdvertisementFeature[])

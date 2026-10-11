@@ -1,6 +1,8 @@
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ProfileFeedbackModal } from "./components/ProfileFeedbackModal";
+import { ProfileFeedbackPage } from "./components/ProfileFeedbackPage";
+import { BadgeDetailBottomSheet, type BadgeDetailItem } from "./components/BadgeDetailBottomSheet";
+import { BADGE_IMAGES } from "./ranking/AgencyBadgesPanel";
 import { motion } from "motion/react";
 import { SEO } from "../../shared/components/SEO";
 import { AdCard } from "../advertisements/components/AdCard";
@@ -358,6 +360,7 @@ export function AgencyPreviewPage() {
   const [activeTab, setActiveTab] = useState<AgencyPreviewTab>(getInitialAgencyTab);
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<BadgeDetailItem | null>(null);
   const [toast, setToast] = useState<AgencyToast | null>(null);
   const isPublicPreview = isPublicAgencyPreviewPath();
   const isAgentPreview = isPublicAgentPreviewPath();
@@ -763,6 +766,7 @@ export function AgencyPreviewPage() {
                   setIsFeedbackModalOpen(true);
                 }}
                 badges={isAgentPreview ? publicAgent?.badges : publicAgency?.badges}
+                onBadgeClick={(badge) => setSelectedBadge(badge)}
                 workingHours={workingHours}
               />
             )}
@@ -783,13 +787,22 @@ export function AgencyPreviewPage() {
         onClose={() => setIsContactSheetOpen(false)}
       />
       {entityId ? (
-        <ProfileFeedbackModal
-          isOpen={isFeedbackModalOpen}
-          onClose={() => setIsFeedbackModalOpen(false)}
-          targetId={entityId}
-          targetName={entityName}
-          targetType={isAgentPreview ? "consultant" : "agency"}
-        />
+        <>
+          {isFeedbackModalOpen ? (
+            <ProfileFeedbackPage
+              onClose={() => setIsFeedbackModalOpen(false)}
+              targetId={entityId}
+              targetName={entityName}
+              targetType={isAgentPreview ? "consultant" : "agency"}
+            />
+          ) : null}
+
+          <BadgeDetailBottomSheet
+            badge={selectedBadge}
+            isOpen={Boolean(selectedBadge)}
+            onClose={() => setSelectedBadge(null)}
+          />
+        </>
       ) : null}
     </div>
   );
@@ -1075,6 +1088,7 @@ function AgencyInfoTab({
   badges,
   entityLabel = "آژانس",
   isAgent = false,
+  onBadgeClick,
   onFeedbackClick,
   workingHours = "",
 }: {
@@ -1095,6 +1109,7 @@ function AgencyInfoTab({
   }>;
   entityLabel?: string;
   isAgent?: boolean;
+  onBadgeClick?: (badge: BadgeDetailItem) => void;
   onFeedbackClick?: () => void;
   workingHours?: string;
 }) {
@@ -1110,36 +1125,49 @@ function AgencyInfoTab({
         <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right">نشان‌ها</Typography>
         {badges && badges.length > 0 ? (
           <div className="mt-4 grid grid-cols-3 gap-3">
-            {badges.map((b, idx) => (
-              <div
-                key={b.slug ?? idx}
-                className={`flex flex-col items-center rounded-xl border border-outline-var bg-surface-container-lowest p-3 text-center ${
-                  !b.earned ? "grayscale opacity-60" : ""
-                }`}
-              >
-                <div className="grid h-12 w-12 place-items-center text-warning">
-                  <LinearStar className="h-8 w-8" innerColor="currentColor" />
-                </div>
-                <Typography as="span" variant="label" size="small" weight="medium" className="mt-1 truncate text-xs font-medium text-on-surface">
-                  {b.title || "نشان"}
-                </Typography>
-                <div className="mt-1 flex h-3 items-center justify-center [direction:ltr]">
-                  {[0, 1, 2].map((star) => (
-                    <LinearStar
-                      className={`h-2.5 w-2.5 ${(b.level ?? 0) > star ? "text-warning" : "text-outline"}`}
-                      innerColor="currentColor"
-                      key={star}
+            {badges.map((b, idx) => {
+              const slug = (b.slug ?? "").trim().toLowerCase();
+              const badgeImage =
+                BADGE_IMAGES[slug] ||
+                BADGE_IMAGES[slug.replace(/_/g, "-")] ||
+                "/vectors/badges/badge-cup.webp";
+              return (
+                <button
+                  key={b.slug ?? idx}
+                  onClick={() => onBadgeClick?.(b)}
+                  type="button"
+                  className={`flex flex-col items-center rounded-xl border border-outline-var bg-surface-container-lowest p-3 text-center transition active:scale-[0.98] ${
+                    !b.earned ? "grayscale opacity-60" : ""
+                  }`}
+                >
+                  <div className="grid h-12 w-12 place-items-center">
+                    <img
+                      alt={b.title || "نشان"}
+                      className="h-10 w-10 object-contain"
+                      src={badgeImage}
                     />
-                  ))}
-                </div>
-                <div className="mt-2 h-1 w-full rounded-full bg-warning-container/30">
-                  <div
-                    className="h-1 rounded-full bg-warning"
-                    style={{ width: `${Math.min(100, Math.max(0, b.progress ?? 0))}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+                  </div>
+                  <Typography as="span" variant="label" size="small" weight="medium" className="mt-1 truncate text-xs font-medium text-on-surface">
+                    {b.title || "نشان"}
+                  </Typography>
+                  <div className="mt-1 flex h-3 items-center justify-center [direction:ltr]">
+                    {[0, 1, 2].map((star) => (
+                      <LinearStar
+                        className={`h-2.5 w-2.5 ${(b.level ?? 0) > star ? "text-warning" : "text-outline"}`}
+                        innerColor="currentColor"
+                        key={star}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-2 h-1 w-full rounded-full bg-warning-container/30">
+                    <div
+                      className="h-1 rounded-full bg-warning"
+                      style={{ width: `${Math.min(100, Math.max(0, b.progress ?? 0))}%` }}
+                    />
+                  </div>
+                </button>
+              );
+            })}
           </div>
         ) : (
           <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-4 text-center text-outline">

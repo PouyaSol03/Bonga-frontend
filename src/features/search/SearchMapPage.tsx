@@ -1713,20 +1713,12 @@ export function SearchMapPage() {
   const isFullListOpen = mode === "list";
   const isGeofenceConfirmed =
     drawingState === "confirmed" && geofenceResult !== null;
-  const showMapEmptyState =
-    !isGeofenceConfirmed &&
-    hasActiveSearchCriteria &&
-    mapQuery.isSuccess &&
-    !isMapLoading &&
-    visibleListings.length === 0;
   const showListEmptyState =
     hasActiveSearchCriteria &&
     listQuery.isSuccess &&
     !isListLoading &&
     apiListListings.length === 0;
-  const showCurrentEmptyState = isFullListOpen
-    ? showListEmptyState
-    : showMapEmptyState;
+  const showCurrentEmptyState = isFullListOpen && showListEmptyState;
   const isGeofenceEditorOpen =
     mode === "map" &&
     !showCurrentEmptyState &&

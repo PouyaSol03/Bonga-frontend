@@ -1396,9 +1396,10 @@ export function NewAdFlowPage() {
         const currentCard = currentAd ? mapAdvertisementToAdCard(currentAd, 0) : undefined;
         const statusInfo = currentAd ? getMyAdStatusInfo(currentAd) : { key: "status" };
         const targetPath =
-          statusInfo.key === "pending"
+          editAdState.editReturnTo ??
+          (isAssigned || statusInfo.key === "pending"
             ? getAdStatePath(editAdId)
-            : editAdState.editReturnTo ?? adManagementPaths.published;
+            : adManagementPaths.published);
         const separator = targetPath.includes("?") ? "&" : "?";
 
         navigateTo(`${targetPath}${separator}updated=1`, {
@@ -1429,9 +1430,10 @@ export function NewAdFlowPage() {
             const updatedCard = mapAdvertisementToAdCard(updatedAd, 0);
             const statusInfo = getMyAdStatusInfo(updatedAd);
             const targetPath =
-              statusInfo.key === "pending"
+              editAdState.editReturnTo ??
+              (isAssigned || statusInfo.key === "pending"
                 ? getAdStatePath(editAdId)
-                : editAdState.editReturnTo ?? adManagementPaths.published;
+                : adManagementPaths.published);
             const separator = targetPath.includes("?") ? "&" : "?";
 
             navigateTo(`${targetPath}${separator}updated=1`, {
@@ -1563,6 +1565,23 @@ export function NewAdFlowPage() {
     ? editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`
     : "/crm/advertises";
   const leaveCrmEditor = () => backRoute(crmReturnTo);
+
+  const getEditBackTarget = () => {
+    if (editAdState.editReturnTo) return editAdState.editReturnTo;
+    if (editAdState.returnTo) return editAdState.returnTo;
+    if (editAdId) {
+      if (isAssigned) {
+        return getAdStatePath(editAdId);
+      }
+      return getAdStatePath(editAdId);
+    }
+    return "/account/my-ads";
+  };
+
+  const handleEditBack = () => {
+    const target = getEditBackTarget();
+    backRoute(target);
+  };
   const goToAgencySelection = () => {
     const values = methods.getValues();
     const validation = validateNewAd(values, { forceFullEditFields: isEditMode && !isEditingIncomplete });
@@ -1726,9 +1745,11 @@ export function NewAdFlowPage() {
                     ? goToDetails
                     : isCrmEditMode
                       ? leaveCrmEditor
-                      : step === "details"
-                        ? () => navigateTo(`/new-ad/category${window.location.search}`)
-                        : undefined
+                      : isEditMode
+                        ? handleEditBack
+                        : step === "details"
+                          ? () => navigateTo(`/new-ad/category${window.location.search}`)
+                          : undefined
                 }
               />
             ) : null}
@@ -1755,7 +1776,7 @@ export function NewAdFlowPage() {
             errors={fieldErrors}
             isPending={saveDraftMutation.isPending}
             label={label}
-            onBack={isCrmEditMode ? leaveCrmEditor : undefined}
+            onBack={isCrmEditMode ? leaveCrmEditor : isEditMode ? handleEditBack : undefined}
             onClearError={clearFieldError}
             onMoreFeatures={() => setStep("moreFeatures")}
             onProjectDetails={() => setStep("projectDetails")}

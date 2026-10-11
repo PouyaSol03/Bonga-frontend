@@ -221,10 +221,12 @@ export function useVerifyPaymentCallbackMutation() {
 
 export function useMyAdsInfiniteQuery({
   enabled = true,
+  isMine,
   perPage = 20,
   type,
 }: {
   enabled?: boolean;
+  isMine?: boolean;
   perPage?: number;
   type?: MyAdsType;
 }) {
@@ -241,8 +243,8 @@ export function useMyAdsInfiniteQuery({
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined,
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => getMyAds({ page: pageParam, perPage, type }),
-    queryKey: queryKeys.account.myAds({ perPage, type: type ?? "all", userType }),
+    queryFn: ({ pageParam }) => getMyAds({ isMine, page: pageParam, perPage, type }),
+    queryKey: queryKeys.account.myAds({ isMine, perPage, type: type ?? "all", userType }),
   });
 
   useEffect(() => {

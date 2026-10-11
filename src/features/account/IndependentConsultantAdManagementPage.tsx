@@ -310,6 +310,7 @@ export function IndependentConsultantAdManagementPage() {
     status: "pending",
   });
   const adsQuery = useMyAdsInfiniteQuery({
+    isMine: showMineOnly ? true : undefined,
     perPage: assignmentPageSize,
   });
   const deleteMutation = useDeleteAdvertisementMutation();

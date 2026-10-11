@@ -74,9 +74,16 @@ export function AgencyBadgesPanel() {
     <section className="rounded-2xl bg-surface-container-lowest p-4" aria-label="نشان‌ها">
       <SectionHeader guideTo={DASHBOARD_BADGES_GUIDE_PATH} title="نشان‌ها" />
       {v2BadgesQuery.isLoading ? (
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-outline">
-          در حال دریافت نشان‌ها...
-        </Typography>
+        <div className="mt-6 grid grid-cols-2 gap-4 [direction:ltr] animate-pulse">
+          {[0, 1].map((i) => (
+            <div key={i} className="flex h-[186px] w-full flex-col items-center rounded-lg border border-outline-var bg-surface-container-lowest pt-6">
+              <div className="h-[72px] w-[72px] rounded-full bg-surface-container-high" />
+              <div className="mt-2 h-6 w-20 rounded bg-surface-container-high" />
+              <div className="mt-2 h-3 w-14 rounded bg-surface-container-high" />
+              <div className="mt-4 h-1 w-[92px] rounded-full bg-surface-container-high" />
+            </div>
+          ))}
+        </div>
       ) : null}
       {!v2BadgesQuery.isLoading && badges.length === 0 ? (
         <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-8 text-center text-outline">

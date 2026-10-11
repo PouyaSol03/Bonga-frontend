@@ -31,22 +31,30 @@ export function TopAgenciesPanel({ agencies, isLoading }: TopAgenciesPanelProps)
 
         <div className="h-px bg-outline-var" aria-hidden="true" />
 
-        {agencies.map((agency, index) => (
-          <div
-            className={`grid h-10 grid-cols-[56px_1fr] items-center rounded-lg px-2 text-sm leading-5 [direction:ltr] ${
-              index % 2 === 1 ? "bg-surface-container/50" : ""
-            }`}
-            key={agency.entityId || `${agency.name}-${index}`}
-          >
-            <Typography as="span" variant="label" size="medium" weight="semibold" className="text-center font-semibold [direction:rtl]">
-              {formatOptionalNumber(agency.totalScore)}
-            </Typography>
-
-            <Typography as="span" variant="label" size="medium" weight="semibold" className="text-right font-semibold text-on-surface-var [direction:rtl]">
-              {formatOptionalNumber(agency.rank)}. {agency.name}
-            </Typography>
+        {isLoading ? (
+          <div className="space-y-2 py-2 animate-pulse">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-9 w-full rounded-lg bg-surface-container-high/40" />
+            ))}
           </div>
-        ))}
+        ) : (
+          agencies.map((agency, index) => (
+            <div
+              className={`grid h-10 grid-cols-[56px_1fr] items-center rounded-lg px-2 text-sm leading-5 [direction:ltr] ${
+                index % 2 === 1 ? "bg-surface-container/50" : ""
+              }`}
+              key={agency.entityId || `${agency.name}-${index}`}
+            >
+              <Typography as="span" variant="label" size="medium" weight="semibold" className="text-center font-semibold [direction:rtl]">
+                {formatOptionalNumber(agency.totalScore)}
+              </Typography>
+
+              <Typography as="span" variant="label" size="medium" weight="semibold" className="text-right font-semibold text-on-surface-var [direction:rtl]">
+                {formatOptionalNumber(agency.rank)}. {agency.name}
+              </Typography>
+            </div>
+          ))
+        )}
 
         {!isLoading && agencies.length === 0 ? (
           <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-6 text-center text-outline">

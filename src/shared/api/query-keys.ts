@@ -402,8 +402,8 @@ export const queryKeys = {
     creditHistory: (perPage: number) =>
       [...queryKeys.account.all, "credit-history", perPage] as const,
     myAdsRoot: () => [...queryKeys.account.all, "my-ads"] as const,
-    myAds: (filters: { perPage: number; type: string; userType: string }) =>
-      [...queryKeys.account.myAdsRoot(), filters.userType, filters.type, filters.perPage] as const,
+    myAds: (filters: { isMine?: boolean; perPage: number; type: string; userType: string }) =>
+      [...queryKeys.account.myAdsRoot(), filters.userType, filters.type, filters.perPage, filters.isMine] as const,
   },
 
   packages: {

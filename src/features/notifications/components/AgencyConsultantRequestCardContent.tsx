@@ -125,7 +125,7 @@ export function AgencyConsultantRequestCardContent({
       <div className="mt-auto flex items-center justify-start gap-2 [direction:rtl]">
         <Button
           unstyled
-          className="h-7 w-[106px] shrink-0 rounded-lg bg-primary px-2 text-center text-xs font-medium leading-4 text-on-primary active:opacity-80 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
+          className="h-7 min-w-[106px] max-w-full shrink-0 rounded-lg bg-primary px-3 text-center text-xs font-medium leading-4 text-on-primary whitespace-nowrap active:opacity-80 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isResponding || isResolved}
           onClick={() => onDecision("accept")}
           onPointerDown={(event) => event.stopPropagation()}
@@ -144,7 +144,7 @@ export function AgencyConsultantRequestCardContent({
 
         <Button
           unstyled
-          className="h-7 w-[76px] shrink-0 rounded-lg border border-primary bg-surface-container-lowest px-2 text-center text-xs font-medium leading-4 text-primary active:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
+          className="h-7 min-w-[76px] max-w-full shrink-0 rounded-lg border border-primary bg-surface-container-lowest px-3 text-center text-xs font-medium leading-4 text-primary whitespace-nowrap active:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isResponding || isResolved}
           onClick={() => onDecision("reject")}
           onPointerDown={(event) => event.stopPropagation()}

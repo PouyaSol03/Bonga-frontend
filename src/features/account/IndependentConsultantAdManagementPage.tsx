@@ -8,7 +8,6 @@ import { isForbiddenApiError } from "../../shared/api/api";
 import { AccessDeniedState } from "../../shared/components/ErrorState";
 import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
 import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
-import LinearTimeQuarter from "../../shared/icons/LinearTimeQuarter";
 import { SwitchButton } from "../../shared/components/SwitchButton";
 import { TopBar } from "../../shared/components/TopBar";
 import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../advertisements/api/agency-advertise-assignment.hooks";
@@ -32,6 +31,15 @@ import {
   type AdsTab,
   type ConsultantAd,
 } from "./adManagement/adManagementData";
+import {
+  AdCardAlbumIcon,
+} from "../advertisements/components/AdCardIcons";
+import { AdCardBody } from "../advertisements/components/AdCard";
+import LinearVideo from "../../shared/icons/LinearVideo";
+import Linear3d from "../../shared/icons/Linear3d";
+import LinearUserSolid from "../../shared/icons/LinearUserSolid";
+import LinearImage from "../../shared/icons/LinearImage";
+import LinearClock from "../../shared/icons/LinearClock";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { getMyAdStatusInfo } from "./myAdsStatus";
@@ -646,7 +654,7 @@ function AssignedConsultantAdCard({
   countdown: AssignmentCountdown;
   loadMoreRef?: (node: HTMLElement | null) => void;
 }) {
-  const countdownClassName = getAllocationCountdownClassName(countdown);
+  const countdownBadge = getAllocationCountdownBadge(countdown);
   const routeState = {
     ad,
     assignment,
@@ -655,15 +663,19 @@ function AssignedConsultantAdCard({
     tab: "status" as const,
   };
 
+  const imageSrc = ad.imageUrl;
+  const imageCountNum = Number(ad.imageCount || 1) || 1;
+
   return (
     <article
-      className="w-full overflow-hidden rounded-none bg-surface-container-lowest [direction:rtl]"
+      className="w-full overflow-hidden rounded-none bg-surface-container-lowest p-4 [direction:rtl]"
       ref={loadMoreRef}
     >
+      {/* Top Countdown Pill Banner */}
       <div
-        className={`flex gap-2 items-center rounded-xl mt-4 mx-4 py-2 px-3 text-center text-xs font-medium ${countdownClassName}`}
+        className={`flex h-9 items-center justify-center gap-2 rounded-xl px-3 text-center text-xs font-medium ${countdownBadge.className}`}
       >
-        <LinearTimeQuarter className="w-4 h-4"/>
+        <LinearClock className="h-4 w-4 shrink-0" />
         <Typography
           as="span"
           variant="label"
@@ -671,23 +683,61 @@ function AssignedConsultantAdCard({
           weight="medium"
           className="text-xs font-medium"
         >
-          {countdown.isExpired
-            ? "مهلت تخصیص به پایان رسیده است"
-            : `${formatAllocationCountdown(countdown)} تا پایان مهلت تخصیص`}
+          {countdownBadge.text}
         </Typography>
       </div>
 
-      <ConsultantAdCard
+      {/* Media Image with Top-Right Meta Badge Overlay */}
+      <div className="relative mt-4 aspect-[328/219.3] w-full shrink-0 overflow-hidden rounded-2xl bg-primary-container">
+        {imageSrc ? (
+          <img
+            alt={ad.title}
+            className="h-full w-full object-cover object-center"
+            draggable={false}
+            src={imageSrc}
+          />
+        ) : (
+          <div className="absolute inset-0 grid place-items-center text-outline" aria-hidden="true">
+            <LinearImage className="h-12 w-12" />
+          </div>
+        )}
+
+        {/* Media indicators pill overlay */}
+        <div className="absolute right-2 top-2 z-10 inline-flex h-7 items-center overflow-hidden rounded-[9px] bg-black/65 text-white shadow-sm [direction:ltr]">
+          {/* Virtual tour 360 icon */}
+          <div className="grid h-7 min-w-7 place-items-center border-r border-white/30 px-1">
+            <Linear3d className="h-4 w-4" />
+          </div>
+          {/* Video icon */}
+          <div className="grid h-7 min-w-7 place-items-center border-r border-white/30 px-1">
+            <LinearVideo className="h-4 w-4" />
+          </div>
+          {/* Plan/user icon */}
+          <div className="grid h-7 min-w-7 place-items-center border-r border-white/30 px-1">
+            <LinearUserSolid className="h-4 w-4" />
+          </div>
+          {/* Album icon + count */}
+          <div className="inline-flex h-7 items-center gap-0.5 px-1.5">
+            <AdCardAlbumIcon className="h-4 w-4" />
+            <Typography as="span" variant="label" size="small" weight="medium" className="text-[10px] font-medium leading-none">
+              {toPersianDigits(imageCountNum)}
+            </Typography>
+          </div>
+        </div>
+      </div>
+
+      {/* Dynamic Ad Body according to ad category & specs */}
+      <AdCardBody
         ad={ad}
-        className="border-none shadow-none"
-        showStatusBadge
-        state={routeState}
-        to={getAllocationReviewPath(ad.id)}
+        className="pt-0"
+        hasSecondaryPrice={Boolean(ad.priceSecondary && ad.priceSecondary !== "—")}
+        showBadges={Boolean(ad.badges && ad.badges.length > 0)}
       />
 
-      <div className="px-4 pb-4 pt-1">
+      {/* CTA Button: بررسی و تخصیص */}
+      <div className="mt-4 pt-1">
         <RouteLink
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-surface-container-lowest text-sm font-medium leading-5 text-primary no-underline border border-primary active:bg-primary/10"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium leading-5 text-primary no-underline active:bg-primary/10"
           state={routeState}
           to={getAllocationReviewPath(ad.id)}
         >
@@ -700,7 +750,7 @@ function AssignedConsultantAdCard({
           >
             بررسی و تخصیص
           </Typography>
-          <LinearArrowLeft2 className="w-5 h-5"/>
+          <LinearArrowLeft2 className="h-5 w-5" />
         </RouteLink>
       </div>
     </article>
@@ -721,14 +771,33 @@ function formatAllocationCountdown({ hours, minutes, isExpired }: AssignmentCoun
   return `${toPersianDigits(hours)} ساعت و ${toPersianDigits(minutes)} دقیقه`;
 }
 
-function getAllocationCountdownClassName(countdown: AssignmentCountdown) {
+function getAllocationCountdownBadge(countdown: AssignmentCountdown) {
   if (countdown.isExpired || (countdown.hours <= 0 && countdown.minutes <= 0)) {
-    return "bg-error-container text-error";
+    return {
+      className: "bg-error-container text-error",
+      text: "مهلت تایید تخصیص به پایان رسیده است",
+    };
   }
-  if (countdown.hours < 3) return "bg-error-container text-error";
-  if (countdown.hours < 12) return "bg-warning-container text-warning";
 
-  return "bg-tertiary-container text-tertiary";
+  const text = `${formatAllocationCountdown(countdown)} تا پایان مهلت تایید تخصیص`;
+
+  if (countdown.hours < 4) {
+    return {
+      className: "bg-error-container text-error",
+      text,
+    };
+  }
+  if (countdown.hours < 12) {
+    return {
+      className: "bg-warning-container text-warning",
+      text,
+    };
+  }
+
+  return {
+    className: "bg-tertiary-container text-tertiary",
+    text,
+  };
 }
 
 function toPersianDigits(value: number | string) {

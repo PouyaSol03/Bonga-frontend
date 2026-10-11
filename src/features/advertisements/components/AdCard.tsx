@@ -334,7 +334,7 @@ function AdCardImage({
   )
 }
 
-function AdCardBody({
+export function AdCardBody({
   ad,
   className = '',
   hasSecondaryPrice,

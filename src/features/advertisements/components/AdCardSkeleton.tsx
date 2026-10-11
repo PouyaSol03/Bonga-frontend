@@ -89,49 +89,32 @@ export function AdCardSkeleton({
     return (
       <article
         aria-hidden="true"
-        className={`w-full overflow-hidden rounded-none bg-surface-container-lowest [direction:rtl] ${className}`}
+        className={`w-full overflow-hidden rounded-none bg-surface-container-lowest p-4 [direction:rtl] ${className}`}
       >
         {/* Top allocation countdown badge */}
-        <div className="mx-4 mt-4 h-9 rounded-xl animate-skeleton" />
+        <div className="h-9 w-full rounded-xl animate-skeleton" />
 
-        <div className="p-4">
-          {/* Header */}
-          <div className="flex items-center gap-3 [direction:rtl]">
-            <div className="h-20 w-[120px] shrink-0 rounded-[8px] animate-skeleton" />
-            <div className="flex h-20 flex-1 min-w-0 flex-col justify-between py-0.5">
-              <div className="h-7 w-20 rounded-[8px] animate-skeleton" />
-              <div className="h-4 w-3/4 rounded animate-skeleton" />
-              <div className="h-3 w-1/2 rounded animate-skeleton" />
-            </div>
-          </div>
+        {/* Hero image with meta overlay */}
+        <div className="mt-4 aspect-[328/219.3] w-full rounded-2xl animate-skeleton" />
 
-          {/* Metrics */}
-          <div className="grid grid-cols-4 pt-6 pb-5 px-1 [direction:rtl]">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div className="flex flex-col items-center justify-center gap-1.5" key={i}>
-                <div className="h-6 w-6 rounded-full animate-skeleton" />
-                <div className="h-4 w-8 rounded animate-skeleton" />
-                <div className="h-3 w-10 rounded animate-skeleton" />
-              </div>
-            ))}
-          </div>
+        {/* Pricing */}
+        <div className="mt-3 h-6 w-36 rounded-lg animate-skeleton" />
 
-          {/* Divider */}
-          <div className="h-[1px] w-full bg-outline-variant" />
-
-          {/* Actions */}
-          <div className="flex items-center justify-between pt-4 [direction:rtl]">
-            <div className="h-10 w-[136px] rounded-[10px] animate-skeleton" />
-            <div className="flex items-center gap-6 [direction:ltr]">
-              <div className="h-10 w-10 rounded-full animate-skeleton" />
-              <div className="h-10 w-10 rounded-full animate-skeleton" />
-              <div className="h-10 w-10 rounded-full animate-skeleton" />
-            </div>
-          </div>
+        {/* Specs row */}
+        <div className="mt-3 flex items-center gap-6">
+          <div className="h-5 w-16 rounded animate-skeleton" />
+          <div className="h-5 w-16 rounded animate-skeleton" />
+          <div className="h-5 w-16 rounded animate-skeleton" />
         </div>
 
+        {/* Title */}
+        <div className="mt-3 h-6 w-4/5 rounded animate-skeleton" />
+
+        {/* Time and location */}
+        <div className="mt-2 h-4 w-1/3 rounded animate-skeleton" />
+
         {/* Bottom Review & Allocation Button */}
-        <div className="px-4 pb-4 pt-1">
+        <div className="mt-4 pt-1">
           <div className="h-11 w-full rounded-lg animate-skeleton" />
         </div>
       </article>

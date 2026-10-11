@@ -47,7 +47,7 @@ export async function submitProfileFeedback(
   targetId: number | string,
   payload: SubmitProfileFeedbackPayload
 ): Promise<void> {
-  await apiV2.post(`profile-feedback/${targetType}/${targetId}`, {
+  await publicApiV2.post(`public/profile-feedback/${targetType}/${targetId}`, {
     json: payload,
   });
 }

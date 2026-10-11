@@ -396,7 +396,9 @@ export function resolveV2Url(inputUrl: string): string {
       endpoint === "auth" ||
       endpoint.startsWith("auth/") ||
       endpoint === "public" ||
-      endpoint.startsWith("public/");
+      endpoint.startsWith("public/") ||
+      endpoint === "panel" ||
+      endpoint.startsWith("panel/");
 
     const isShowEndpoint = /(?:^|\/)show(?:\/|$)/.test(endpoint);
     if (!isGlobalEndpoint && !isShowEndpoint && /^superadmin(?:\/|$)/.test(endpoint)) {

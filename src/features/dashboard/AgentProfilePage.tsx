@@ -22,7 +22,6 @@ import TonalWhatsapp from "../../shared/icons/TonalWhatsapp";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { FormChoiceChip } from "../../shared/form/FormControls";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
-import { Toast } from "../../shared/components/Toast";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
@@ -32,6 +31,7 @@ import {
 } from "../account/api/account.hooks";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
+import { useToast } from "../../shared/hooks/useToast";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import type {
   UpdateConsultantProfilePayload,
@@ -55,12 +55,6 @@ const neighborhoodSearchDebounceMs = 250;
 type SelectedNeighborhood = {
   id: string;
   name: string;
-};
-
-type AgentProfileToast = {
-  message: string;
-  title: string;
-  variant: "error" | "success" | "info" | "warning";
 };
 
 function isDesktopDashboard() {
@@ -196,7 +190,7 @@ export function AgentProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [toast, setToast] = useState<AgentProfileToast | null>(null);
+  const { showToast } = useToast();
 
   const trimmedName = name.trim();
   const nameError = hasSubmitted && !trimmedName ? "نام مشاور الزامی است." : null;
@@ -211,24 +205,17 @@ export function AgentProfilePage() {
   }, [avatarPreviewUrl]);
 
   useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 3200);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
-
-  useEffect(() => {
     if (!profileQuery.isError) return;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setToast({
-      message: getApiErrorMessage(
+    showToast(
+      getApiErrorMessage(
         profileQuery.error,
         "دریافت اطلاعات مشاور با خطا مواجه شد.",
       ),
-      title: "خطا",
-      variant: "error",
-    });
-  }, [profileQuery.error, profileQuery.isError]);
+      "خطا",
+      "error",
+    );
+  }, [profileQuery.error, profileQuery.isError, showToast]);
 
   useEffect(() => {
     const profile = profileQuery.data;
@@ -300,12 +287,6 @@ export function AgentProfilePage() {
       })),
     );
   }, [neighborhoodNameById, neighborhoods.length]);
-
-  const showToast = (
-    message: string,
-    title = "موفقیت",
-    variant: "error" | "success" | "info" | "warning" = "success",
-  ) => setToast({ message, title, variant });
 
   const handleAvatarChange = async (file: File | null) => {
     if (!file) return;
@@ -419,7 +400,6 @@ export function AgentProfilePage() {
 
   return (
     <>
-      <Toast onDismiss={() => setToast(null)} toast={toast} />
       {desktop ? (
         <div className="min-h-full rounded-xl bg-surface-container-lowest px-6 pb-12 pt-6 text-on-surface [direction:rtl]">
           {formContent}

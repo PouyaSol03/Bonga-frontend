@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
 import { useMyProfileQuery, useUpdateMyProfileMutation } from "../api/account.hooks";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { getApiErrorMessage } from "../../../shared/api/api";
+import { useToast } from "../../../shared/hooks/useToast";
 import { AccountPageShell, AccountProfileForm, AccountProfileSkeleton, AccountRetryState } from "../accountPageViews";
-import type { AccountToast } from "../accountPageViews";
 
 export function AccountProfilePage() {
-  const [toast, setToast] = useState<AccountToast | null>(null);
+  const { showToast } = useToast();
   const { data: profile, error, isError, isLoading, refetch } = useMyProfileQuery();
   const updateProfile = useUpdateMyProfileMutation();
   const mobile = getStoredAuthSession()?.mobile ?? "-";
@@ -18,20 +17,6 @@ export function AccountProfilePage() {
     profile?.name,
     profile?.nationalnumber,
   ].join("|");
-
-  useEffect(() => {
-    if (!toast) return;
-
-    const timer = window.setTimeout(() => setToast(null), 3200);
-
-    return () => window.clearTimeout(timer);
-  }, [toast]);
-
-  const showToast = (
-    message: string,
-    title = "موفقیت",
-    variant: "error" | "success" | "info" | "warning" = "success",
-  ) => setToast({ message, title, variant });
 
   return (
     <AccountPageShell title="مشخصات من">

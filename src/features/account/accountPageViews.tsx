@@ -18,6 +18,12 @@ import { getMyAdStatusInfo } from "./myAdsStatus";
 import { getAdEditPath } from "./adManagement/adManagementData";
 import LinearUserConfirmation from "../../shared/icons/LinearUserConfirmation";
 import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
+import { useToast } from "../../shared/hooks/useToast";
+import {
+  validateImageDimensions,
+  MAX_PROFILE_IMAGE_BYTES,
+  MAX_PROFILE_IMAGE_DIMENSION,
+} from "../../shared/utils/image-validation";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import LinearUserAccount from "../../shared/icons/LinearUserAccount";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
@@ -52,6 +58,8 @@ const simCardOwnershipReasons: Array<{
     { id: "purchased", label: "سیم‌کارتم را تازه خریده‌ام" },
   ];
 
+const profileAvatarMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
+
 const adFilters: Array<{ label: string; type: MyAdsType }> = [
   { label: "همه", type: "all" },
   { label: "در انتظار", type: "pending" },
@@ -84,6 +92,7 @@ export function AccountProfileForm({
     phone?: string;
   };
 }) {
+  const { showToast } = useToast();
   const initialNationalNumber =
     profile?.nationalnumber ??
     (profile as Record<string, unknown> | undefined)?.national_number as string ??
@@ -137,7 +146,34 @@ export function AccountProfileForm({
             className="hidden"
             id="profile-avatar-upload"
             type="file"
-            onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)}
+            onChange={async (event) => {
+              const file = event.target.files?.[0] ?? null;
+              if (!file) {
+                setAvatarFile(null);
+                return;
+              }
+              if (!profileAvatarMimeTypes.has(file.type)) {
+                showToast("فرمت تصویر باید jpg، png یا gif باشد.", "خطا", "error");
+                event.target.value = "";
+                return;
+              }
+              if (file.size > MAX_PROFILE_IMAGE_BYTES) {
+                showToast("حجم تصویر نباید بیشتر از 1MB باشد.", "خطا", "error");
+                event.target.value = "";
+                return;
+              }
+              const { valid } = await validateImageDimensions(
+                file,
+                MAX_PROFILE_IMAGE_DIMENSION,
+                MAX_PROFILE_IMAGE_DIMENSION,
+              );
+              if (!valid) {
+                showToast("ابعاد تصویر نباید بیشتر از ۱۰۰۰ در ۱۰۰۰ پیکسل باشد.", "خطا", "error");
+                event.target.value = "";
+                return;
+              }
+              setAvatarFile(file);
+            }}
           />
         </div>
       </section>

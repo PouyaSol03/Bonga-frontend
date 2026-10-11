@@ -1,4 +1,4 @@
-import { publicApi } from "../../../shared/api/api";
+import { publicApi, publicApiV2 } from "../../../shared/api/api";
 import {
   asRecord,
   firstNumber,
@@ -79,6 +79,8 @@ export function normalizePublicAgencyDetail(
       item.recent_ads,
       item.advertises,
     ),
+    badges: Array.isArray(item.badges) ? (item.badges as PublicAgencyDetailDto["badges"]) : undefined,
+    badge_window_days: toOptionalNumber(item.badge_window_days),
     working_hours: firstText(item.working_hours) || undefined,
   };
 }
@@ -131,7 +133,7 @@ export async function getPublicAgencies({
 export async function getPublicAgencyDetail(
   id: number | string,
 ): Promise<PublicAgencyDetailDto> {
-  const response = await publicApi
+  const response = await publicApiV2
     .get(`public/agencies/${encodeURIComponent(String(id))}`)
     .json<PublicAgencyDetailApiResponse>();
   const data = asRecord(response.data);

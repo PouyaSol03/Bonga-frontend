@@ -48,6 +48,16 @@ export type PublicAgentDetailDto = {
   agencyId?: string;
   agency?: PublicAgentAgencySummary;
   avatar?: string;
+  badges?: Array<{
+    current_value?: number;
+    earned?: boolean;
+    level?: number;
+    next_target?: number;
+    progress?: number;
+    slug?: string;
+    thresholds?: number[];
+    title?: string;
+  }>;
   id: string;
   instagram?: string;
   level_slug?: string;

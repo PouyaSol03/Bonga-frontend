@@ -38,6 +38,17 @@ export type PublicAgencyDetailDto = PublicAgencyDto & {
   active_advertises_count: number;
   about_us?: string;
   agency_type?: number;
+  badges?: Array<{
+    current_value?: number;
+    earned?: boolean;
+    level?: number;
+    next_target?: number;
+    progress?: number;
+    slug?: string;
+    thresholds?: number[];
+    title?: string;
+  }>;
+  badge_window_days?: number;
   consultants: AgencyConsultantDto[];
   instagram?: string;
   phone1?: string;

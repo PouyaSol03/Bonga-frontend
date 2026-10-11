@@ -172,7 +172,8 @@ export function normalizePublicAgentDetail(
     ),
     status: firstText(item.status) || undefined,
     telegram: readSocialValue(item, "telegram") || undefined,
-    userId: firstText(item.user_id, user.id, user._id) || undefined,
+    userId: firstText(item.user_id, item.userId, user.id, user._id) || undefined,
     whatsapp: readSocialValue(item, "whatsapp") || undefined,
+    badges: Array.isArray(item.badges) ? (item.badges as PublicAgentDetailDto["badges"]) : undefined,
   };
 }

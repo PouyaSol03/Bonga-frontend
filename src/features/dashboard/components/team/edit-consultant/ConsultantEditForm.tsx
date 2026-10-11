@@ -11,6 +11,7 @@ import {
 import { ConsultantEditRoleSection } from "./ConsultantEditRoleSection";
 import { ConsultantEditQuotaSection } from "./ConsultantEditQuotaSection";
 import { useUpdateAgencyConsultantMutation } from "../../../../agencies/api/agency.hooks";
+import { useToast } from "../../../../../shared/hooks/useToast";
 
 export function ConsultantEditForm({
   agencyBalances,
@@ -29,6 +30,7 @@ export function ConsultantEditForm({
   consultantId: number | string;
 }) {
   const updateConsultantMutation = useUpdateAgencyConsultantMutation();
+  const { showToast } = useToast();
 
   const [accessRole, setAccessRole] = useState<AccessRole>(() =>
     getAgencyConsultantAccessRole(consultant),
@@ -94,10 +96,13 @@ export function ConsultantEditForm({
       },
       {
         onSuccess: () => {
+          showToast("اطلاعات مشاور با موفقیت بروزرسانی شد.");
           pushRoute("/account/dashboard/team");
         },
         onError: (err: any) => {
-          setErrorMessage(err?.message || "خطا در اعمال تغییرات");
+          const msg = err?.message || "خطا در اعمال تغییرات";
+          setErrorMessage(msg);
+          showToast(msg, "خطا", "error");
         },
       },
     );

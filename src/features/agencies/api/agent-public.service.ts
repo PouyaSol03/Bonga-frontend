@@ -1,4 +1,4 @@
-import { publicApi } from "../../../shared/api/api";
+import { publicApi, publicApiV2 } from "../../../shared/api/api";
 import { asRecord, toNumber } from "./agency-helpers";
 import {
   normalizePublicAgentDetail,
@@ -52,8 +52,8 @@ export async function getPublicAgents({
 export async function getPublicAgentDetail(
   id: number | string,
 ): Promise<PublicAgentDetailDto> {
-  const response = await publicApi
-    .get(`public/agents/${encodeURIComponent(String(id))}`)
+  const response = await publicApiV2
+    .get(`public/consultants/${encodeURIComponent(String(id))}`)
     .json<PublicAgentDetailApiResponse>();
   const root = asRecord(response);
   const data = asRecord(response.data);

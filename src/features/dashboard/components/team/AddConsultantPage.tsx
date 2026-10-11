@@ -10,29 +10,21 @@ import {
   useAddAgencyConsultantMutation,
   usePublicAgentsQuery,
 } from "../../../agencies/api/agency.hooks";
-import { useAgencyDashboardQuery } from "../../api/dashboard.hooks";
+import { useToast } from "../../../../shared/hooks/useToast";
 import { AddConsultantSearchResults } from "./add-consultant/AddConsultantSearchResults";
 import { AddConsultantRoleSection } from "./add-consultant/AddConsultantRoleSection";
-import { AddConsultantQuotaSection } from "./add-consultant/AddConsultantQuotaSection";
 import type { AccessRole } from "./teamTypes";
 
 export function AddConsultantPage() {
+  const { showToast } = useToast();
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [accessRole, setAccessRole] = useState<AccessRole>("consultant");
   const [managerAccess, setManagerAccess] = useState<string[]>(["ads", "requests"]);
-  const [adQuota, setAdQuota] = useState(0);
-  const [updateQuota, setUpdateQuota] = useState(0);
-  const [specialQuota, setSpecialQuota] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
 
   const addConsultantMutation = useAddAgencyConsultantMutation();
-  const agencyDashboardQuery = useAgencyDashboardQuery();
-  const agencyBalances = agencyDashboardQuery.data?.balances;
-
-  const formatRemaining = (value: number | undefined) =>
-    value === undefined ? "—" : new Intl.NumberFormat("fa-IR").format(value);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedSearch(searchValue.trim()), 350);
@@ -67,22 +59,6 @@ export function AddConsultantPage() {
       return;
     }
 
-    const maxAd = agencyBalances?.unassignedAdCreditBalance ?? agencyBalances?.adCreditBalance ?? 0;
-    if (adQuota > maxAd) {
-      setErrorMessage("سهمیه آگهی نمی‌تواند بیشتر از سهمیه باقیمانده آژانس باشد.");
-      return;
-    }
-    const maxRenew = agencyBalances?.unassignedRenewCreditBalance ?? agencyBalances?.renewCreditBalance ?? 0;
-    if (updateQuota > maxRenew) {
-      setErrorMessage("سهمیه بروزرسانی نمی‌تواند بیشتر از سهمیه باقیمانده آژانس باشد.");
-      return;
-    }
-    const maxSpecial = agencyBalances?.unassignedSpecialCreditBalance ?? agencyBalances?.specialCreditBalance ?? 0;
-    if (specialQuota > maxSpecial) {
-      setErrorMessage("سهمیه ویژه نمی‌تواند بیشتر از سهمیه باقیمانده آژانس باشد.");
-      return;
-    }
-
     const permissions: Record<string, boolean> =
       accessRole === "manager"
         ? {
@@ -96,18 +72,21 @@ export function AddConsultantPage() {
 
     addConsultantMutation.mutate(
       {
-        adQuota,
+        adQuota: 0,
         agentId: selectedAgentId,
         permissions,
-        renewQuota: updateQuota,
+        renewQuota: 0,
         role: accessRole,
-        specialQuota,
+        specialQuota: 0,
       },
       {
         onError: (error) => {
-          setErrorMessage(getApiErrorMessage(error, "اضافه کردن مشاور با خطا مواجه شد."));
+          const msg = getApiErrorMessage(error, "اضافه کردن مشاور با خطا مواجه شد.");
+          setErrorMessage(msg);
+          showToast(msg, "خطا", "error");
         },
         onSuccess: () => {
+          showToast("مشاور با موفقیت اضافه شد.");
           window.history.pushState({}, "", "/account/dashboard/team");
           window.dispatchEvent(new PopStateEvent("popstate"));
         },
@@ -155,19 +134,6 @@ export function AddConsultantPage() {
             managerAccess={managerAccess}
             onAccessRoleChange={setAccessRole}
             onToggleManagerAccess={toggleManagerAccess}
-          />
-
-          <AddConsultantQuotaSection
-            adQuota={adQuota}
-            availableAdBalance={agencyBalances?.unassignedAdCreditBalance ?? agencyBalances?.adCreditBalance ?? 0}
-            availableRenewBalance={agencyBalances?.unassignedRenewCreditBalance ?? agencyBalances?.renewCreditBalance ?? 0}
-            availableSpecialBalance={agencyBalances?.unassignedSpecialCreditBalance ?? agencyBalances?.specialCreditBalance ?? 0}
-            formatRemaining={formatRemaining}
-            setAdQuota={setAdQuota}
-            setSpecialQuota={setSpecialQuota}
-            setUpdateQuota={setUpdateQuota}
-            specialQuota={specialQuota}
-            updateQuota={updateQuota}
           />
         </div>
       </main>

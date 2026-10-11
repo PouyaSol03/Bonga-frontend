@@ -1,5 +1,9 @@
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { ProfileFeedbackPage } from "./components/ProfileFeedbackPage";
+import { BadgeDetailBottomSheet, type BadgeDetailItem } from "./components/BadgeDetailBottomSheet";
+import { BADGE_IMAGES } from "./ranking/AgencyBadgesPanel";
+import { motion } from "motion/react";
 import { SEO } from "../../shared/components/SEO";
 import { AdCard } from "../advertisements/components/AdCard";
 import type { AdCardData } from "../advertisements/components/AdCard";
@@ -355,6 +359,8 @@ type AgencyToast = {
 export function AgencyPreviewPage() {
   const [activeTab, setActiveTab] = useState<AgencyPreviewTab>(getInitialAgencyTab);
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<BadgeDetailItem | null>(null);
   const [toast, setToast] = useState<AgencyToast | null>(null);
   const isPublicPreview = isPublicAgencyPreviewPath();
   const isAgentPreview = isPublicAgentPreviewPath();
@@ -750,6 +756,17 @@ export function AgencyPreviewPage() {
                 agentAgency={isAgentPreview ? publicAgent?.agency : undefined}
                 entityLabel={entityLabel}
                 isAgent={isAgentPreview}
+                onFeedbackClick={() => {
+                  const authSession = getStoredAuthSession();
+                  if (!authSession) {
+                    storeLoginRedirectPath(window.location.pathname + window.location.search);
+                    pushRoute("/login");
+                    return;
+                  }
+                  setIsFeedbackModalOpen(true);
+                }}
+                badges={isAgentPreview ? publicAgent?.badges : publicAgency?.badges}
+                onBadgeClick={(badge) => setSelectedBadge(badge)}
                 workingHours={workingHours}
               />
             )}
@@ -769,6 +786,24 @@ export function AgencyPreviewPage() {
         isOpen={isContactSheetOpen}
         onClose={() => setIsContactSheetOpen(false)}
       />
+      {entityId ? (
+        <>
+          {isFeedbackModalOpen ? (
+            <ProfileFeedbackPage
+              onClose={() => setIsFeedbackModalOpen(false)}
+              targetId={entityId}
+              targetName={entityName}
+              targetType={isAgentPreview ? "consultant" : "agency"}
+            />
+          ) : null}
+
+          <BadgeDetailBottomSheet
+            badge={selectedBadge}
+            isOpen={Boolean(selectedBadge)}
+            onClose={() => setSelectedBadge(null)}
+          />
+        </>
+      ) : null}
     </div>
   );
 }
@@ -1010,24 +1045,33 @@ function AgencySegmentedTabs({
   return (
     <div className="relative z-10 bg-surface-container-lowest px-4 pb-4 shadow-[0_4px_12px_rgba(0,0,0,0.10)]">
       <div
-        className="grid h-10 overflow-hidden rounded-xl border border-outline bg-surface-container-lowest text-sm font-semibold leading-5 text-on-surface-var"
+        className="relative grid h-10 overflow-hidden rounded-xl border border-outline bg-surface-container-lowest text-sm font-semibold leading-5 text-on-surface-var"
         style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       >
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 
           return (
-            <Button unstyled
+            <button
               aria-pressed={isActive}
-              className={`h-full transition-colors ${isActive ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface-var"}`}
+              className={`relative z-10 flex h-full items-center justify-center transition-colors duration-200 cursor-pointer ${
+                isActive ? "text-primary" : "text-on-surface-var"
+              }`}
               key={tab.id}
               onClick={() => onChange(tab.id)}
               type="button"
             >
               <Typography variant="label" size="large" weight="medium">
-              {tab.label}
+                {tab.label}
               </Typography>
-            </Button>
+              {isActive && (
+                <motion.div
+                  className="absolute inset-0 -z-10 rounded-lg bg-primary-container"
+                  layoutId="agency-preview-tab-active-indicator"
+                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                />
+              )}
+            </button>
           );
         })}
       </div>
@@ -1038,11 +1082,14 @@ function AgencySegmentedTabs({
 function AgencyInfoTab({
   aboutUs,
   activityAreas,
-  agencyId = "",
+  agencyId: _agencyId = "",
   agencyName,
   agentAgency,
+  badges,
   entityLabel = "آژانس",
   isAgent = false,
+  onBadgeClick,
+  onFeedbackClick,
   workingHours = "",
 }: {
   aboutUs: string;
@@ -1050,8 +1097,20 @@ function AgencyInfoTab({
   agencyId?: string;
   agencyName: string;
   agentAgency?: PublicAgentAgencySummary;
+  badges?: Array<{
+    current_value?: number;
+    earned?: boolean;
+    level?: number;
+    next_target?: number;
+    progress?: number;
+    slug?: string;
+    thresholds?: number[];
+    title?: string;
+  }>;
   entityLabel?: string;
   isAgent?: boolean;
+  onBadgeClick?: (badge: BadgeDetailItem) => void;
+  onFeedbackClick?: () => void;
   workingHours?: string;
 }) {
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
@@ -1064,9 +1123,57 @@ function AgencyInfoTab({
     <div className="space-y-2 bg-surface-container-low">
       <section className="bg-surface-container-lowest px-4 py-4">
         <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right">نشان‌ها</Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-4 text-center text-outline">
-          اطلاعات نشان‌ها از سرور دریافت نشده است.
-        </Typography>
+        {badges && badges.length > 0 ? (
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            {badges.map((b, idx) => {
+              const slug = (b.slug ?? "").trim().toLowerCase();
+              const badgeImage =
+                BADGE_IMAGES[slug] ||
+                BADGE_IMAGES[slug.replace(/_/g, "-")] ||
+                "/vectors/badges/badge-cup.webp";
+              return (
+                <button
+                  key={b.slug ?? idx}
+                  onClick={() => onBadgeClick?.(b)}
+                  type="button"
+                  className={`flex flex-col items-center rounded-xl border border-outline-var bg-surface-container-lowest p-3 text-center transition active:scale-[0.98] ${
+                    !b.earned ? "grayscale opacity-60" : ""
+                  }`}
+                >
+                  <div className="grid h-12 w-12 place-items-center">
+                    <img
+                      alt={b.title || "نشان"}
+                      className="h-10 w-10 object-contain"
+                      src={badgeImage}
+                    />
+                  </div>
+                  <Typography as="span" variant="label" size="small" weight="medium" className="mt-1 truncate text-xs font-medium text-on-surface">
+                    {b.title || "نشان"}
+                  </Typography>
+                  <div className="mt-1 flex h-3 items-center justify-center [direction:ltr]">
+                    {[0, 1, 2].map((star) => (
+                      <LinearStar
+                        className={`h-2.5 w-2.5 ${(b.level ?? 0) > star ? "text-warning" : "text-outline"}`}
+                        innerColor="currentColor"
+                        key={star}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-2 h-1 w-full rounded-full bg-warning-container/30">
+                    <div
+                      className="h-1 rounded-full bg-warning"
+                      style={{ width: `${Math.min(100, Math.max(0, b.progress ?? 0))}%` }}
+                    />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-4 text-center text-outline">
+            اطلاعات نشان‌ها از سرور دریافت نشده است.
+          </Typography>
+        )}
       </section>
 
       <section className="bg-surface-container-lowest p-4">
@@ -1118,22 +1225,20 @@ function AgencyInfoTab({
         <AgencyActionRow
           icon={<LinearAdd className="h-6 w-6 text-on-surface-var" />}
           onClick={() => {
-            const targetAgencyId = agencyId || getPublicPreviewId();
             const params = new URLSearchParams({
-              registrantType: "agency",
+              registrantType: "personal",
+              context: "personal",
             });
-            if (targetAgencyId) {
-              params.set("agencyId", targetAgencyId);
-            }
-            if (agencyName) {
-              params.set("agencyName", agencyName);
-            }
             navigateTo(`/new-ad/category?${params.toString()}`);
           }}
           title="ثبت آگهی رایگان"
         />
       ) : null}
-      <AgencyActionRow icon={<LinearAddToList className="h-6 w-6 text-on-surface-var" />} title="ثبت بازخورد" />
+      <AgencyActionRow
+        icon={<LinearAddToList className="h-6 w-6 text-on-surface-var" />}
+        onClick={onFeedbackClick}
+        title="ثبت بازخورد"
+      />
 
       <section className="bg-surface-container-lowest p-4 text-center">
         <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">درباره {agencyName}</Typography>

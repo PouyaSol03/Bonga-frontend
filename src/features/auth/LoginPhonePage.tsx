@@ -5,12 +5,14 @@ import { RouteLink } from "../../shared/navigation/RouteLink";
 import LoginPhoneBackground from "../../shared/assets/images/LoginPhoneBackground.svg";
 import { useRequestOtpMutation } from "./api/auth.hooks";
 import { getAuthErrorMessage, normalizeMobile } from "./api/auth.service";
+import { useToast } from "../../shared/hooks/useToast";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { goBackOrNavigate, pushRoute } from "../../shared/navigation/navigation";
 
 export function LoginPhonePage() {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const { showToast } = useToast();
   const [notice, setNotice] = useState<{
     message: string;
     title: string;
@@ -25,6 +27,7 @@ export function LoginPhonePage() {
     const mobile = normalizeMobile(phoneNumber);
 
     if (!/^09\d{9}$/.test(mobile)) {
+      showToast("شماره موبایل باید با ۰۹ شروع شود و ۱۱ رقم باشد.", "شماره نامعتبر!", "error");
       setNotice({
         message: "شماره موبایل باید با ۰۹ شروع شود و ۱۱ رقم باشد.",
         title: "شماره نامعتبر!",
@@ -37,10 +40,13 @@ export function LoginPhonePage() {
 
     try {
       await requestOtpMutation.mutateAsync({ mobile });
+      showToast("کد تایید با موفقیت پیامک شد.", "ارسال شد", "success");
       pushRoute("/login/verify");
     } catch (error) {
+      const msg = getAuthErrorMessage(error, "ارسال کد تایید انجام نشد.");
+      showToast(msg, "ارسال کد ناموفق!", "error");
       setNotice({
-        message: getAuthErrorMessage(error, "ارسال کد تایید انجام نشد."),
+        message: msg,
         title: "ارسال کد ناموفق!",
         variant: "error",
       });

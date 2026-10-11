@@ -1,11 +1,12 @@
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { Typography } from "../../shared/ui/Typography";
-import { useAgentBadgeDetailQuery } from "../dashboard/api/dashboard.hooks";
+import { useV2RankingBadgesQuery } from "../dashboard/api/v2/ranking-v2.hooks";
 import {
   formatBadgeProgressNumber,
   readAgentBadgeProgressLevels,
   type BadgeProgressLevel,
+  type BadgeProgressVariant,
 } from "./utils/badgeProgress";
 
 type BadgeKey = "file" | "magnet" | "response" | "time";
@@ -43,16 +44,36 @@ const slugMap: Record<BadgeKey, string> = {
 
 export function IndependentConsultantBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
   const targetSlug = slugMap[badgeKey] || badgeKey;
-  const badgeQuery = useAgentBadgeDetailQuery(targetSlug);
+  const badgesQuery = useV2RankingBadgesQuery();
   const definition = badgeDefinitions[badgeKey];
-  const badge = badgeQuery.data;
+  const rawBadges = badgesQuery.data?.badges ?? badgesQuery.data?.data ?? [];
+  const badge = rawBadges.find((item) => {
+    const slug = typeof item.slug === "string" ? item.slug.trim().toLowerCase() : "";
+    return slug === targetSlug || slug === badgeKey;
+  });
 
   const badgeName = badge?.title || definition.name;
   const badgeImage = definition.image;
-  const progress = badge?.progress ?? 0;
-  const metricValue = `${formatBadgeProgressNumber(progress)}٪`;
-  const levels = readAgentBadgeProgressLevels(badge);
-  const starCount = badge?.level ?? 0;
+  const currentLevel = Number(badge?.level ?? 0);
+  const currentValue = Number(badge?.current_value ?? 0);
+
+  const thresholds = badge?.thresholds;
+  const levels: BadgeProgressLevel[] = Array.isArray(thresholds)
+    ? thresholds.map((threshold, index) => {
+        const isComplete = index < currentLevel;
+        const isCurrent = index === currentLevel;
+        const variant: BadgeProgressVariant = isComplete ? "complete" : isCurrent ? "current" : "locked";
+        const prevThreshold = index > 0 ? (thresholds[index - 1] ?? 0) : 0;
+        return {
+          done: `${isComplete ? threshold : isCurrent ? currentValue : prevThreshold + 1}`,
+          total: `${threshold}`,
+          progress: isComplete ? 100 : isCurrent ? Math.min(100, Math.max(0, Number(badge?.progress ?? ((currentValue / threshold) * 100)))) : 0,
+          title: `سطح ${index + 1}`,
+          variant,
+        };
+      })
+    : readAgentBadgeProgressLevels(badge as any);
+  const starCount = Number(badge?.level ?? 0);
 
   return (
     <PageFrame
@@ -78,11 +99,11 @@ export function IndependentConsultantBadgeDetailsPage({ badgeKey }: { badgeKey: 
         </div>
 
         <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 flex h-7 items-center justify-center gap-2 text-base leading-6 [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">پیشرفت نشان:</Typography>
-          <strong className="font-semibold text-on-surface">{metricValue}</strong>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface text-sm">امتیاز کاربر</Typography>
+          <strong className="text-2xl font-medium text-on-surface">{formatBadgeProgressNumber(currentValue)}</strong>
         </Typography>
 
-        {badgeQuery.isLoading ? (
+        {badgesQuery.isLoading ? (
           <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-outline">
             در حال دریافت جزئیات نشان...
           </Typography>
@@ -109,37 +130,42 @@ function BadgeLevelCard({
   title,
   variant,
 }: BadgeProgressLevel) {
-  const progressClassName =
-    variant === "complete"
-      ? "bg-tertiary"
-      : variant === "current"
-        ? "bg-warning"
-        : "bg-outline";
-  const trackClassName =
-    variant === "complete"
-      ? "bg-tertiary-container/40"
-      : variant === "current"
-        ? "bg-warning-container/40"
-        : "bg-outline-var";
-  const amountClassName =
-    variant === "complete"
-      ? "text-tertiary"
-      : variant === "locked"
-        ? "text-outline"
-        : "text-on-surface-var";
+  const isComplete = variant === "complete";
+  const isCurrent = variant === "current";
+
+  const progressClassName = isComplete
+    ? "bg-tertiary"
+    : isCurrent
+      ? "bg-warning"
+      : "bg-outline";
+  const trackClassName = isComplete
+    ? "bg-tertiary-container/40"
+    : isCurrent
+      ? "bg-warning-container/40"
+      : "bg-outline-var";
 
   return (
     <section className="h-[72px] rounded-2xl border border-outline-var bg-surface-container px-4 py-4">
       <div className="flex h-5 items-center justify-between text-sm font-medium leading-5 [direction:ltr]">
-        <Typography as="span" variant="body" size="medium" weight="regular" className={`flex items-center gap-1 ${amountClassName}`}>
-          {done}
-          {total ? (
-            <>
-              <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">/</Typography>
-              <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">{total}</Typography>
-            </>
-          ) : null}
-        </Typography>
+        {isComplete ? (
+          <Typography as="span" variant="body" size="medium" weight="medium" className="text-tertiary">
+            تکمیل شده
+          </Typography>
+        ) : total ? (
+          <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1 [direction:ltr]">
+            <Typography as="span" variant="body" size="medium" weight="regular" className={isCurrent ? "text-warning" : "text-outline"}>
+              {formatBadgeProgressNumber(Number(done) || 0)}
+            </Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">/</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">
+              {formatBadgeProgressNumber(Number(total) || 0)}
+            </Typography>
+          </Typography>
+        ) : (
+          <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">
+            {done}
+          </Typography>
+        )}
         <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var [direction:rtl]">{title}</Typography>
       </div>
       <div className={`mt-4 h-1 w-full rounded-full ${trackClassName}`}>

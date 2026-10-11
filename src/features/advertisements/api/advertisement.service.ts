@@ -1590,8 +1590,8 @@ export function submitAdvertiseFeedback({
 }
 
 export async function getAdvertiseReportReasons() {
-  const response = await publicApi
-    .get("public/advertise/report-reasons/list")
+  const response = await apiV2
+    .get("advertise/report-reasons")
     .json<AdvertiseReportReasonsResponse>();
 
   if (Array.isArray(response)) return response;
@@ -1607,11 +1607,11 @@ export function submitAdvertiseReport({
   description,
   reportReasonId,
 }: SubmitAdvertiseReportPayload) {
-  return api
-    .post(`public/advertise/report/add/${advertiseId}`, {
+  return apiV2
+    .post(`advertise/report/${encodeURIComponent(String(advertiseId))}`, {
       json: {
-        description,
-        report_reason_id: reportReasonId,
+        description: description?.trim() || "",
+        report_reason_id: Number(reportReasonId),
       },
     })
     .json<ApiMutationResponse>();
@@ -1625,13 +1625,17 @@ export interface AgencyRemoveAdPayload {
 export async function removeAgencyAdvertisement(
   advertiseId: string | number,
   payload: AgencyRemoveAdPayload = {
-    reason: "other",
+    reason: "deal_done",
     description: "حذف توسط آژانس",
   },
 ) {
-  const response = await api
-    .post(`me/agency/advertise/stop-requests/${encodeURIComponent(String(advertiseId))}/remove`, {
-      json: payload,
+  const encId = encodeURIComponent(String(advertiseId));
+  const response = await apiV2
+    .delete(`advertise/${encId}`, {
+      json: {
+        reason: payload.reason || "deal_done",
+        ...(payload.description?.trim() ? { description: payload.description.trim() } : {}),
+      },
     })
     .json<Record<string, unknown>>();
 

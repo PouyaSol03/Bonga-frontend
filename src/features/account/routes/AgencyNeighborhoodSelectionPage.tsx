@@ -14,6 +14,7 @@ import { Button } from "../../../shared/ui/Button";
 import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { SearchInputBar } from "../../../shared/ui/SearchBar";
 import { Typography } from "../../../shared/ui/Typography";
+import { useToast } from "../../../shared/hooks/useToast";
 import {
   readAgencyCreationDraft,
   writeAgencyCreationDraft,
@@ -68,6 +69,7 @@ function NeighborhoodSkeleton() {
 }
 
 export function AgencyNeighborhoodSelectionPage() {
+  const { showToast } = useToast();
   const initialDraft = useMemo(() => readAgencyCreationDraft(), []);
   const [query, setQuery] = useState("");
   const [pendingNeighborhoods, setPendingNeighborhoods] = useState<NeighborhoodDto[]>(
@@ -108,10 +110,15 @@ export function AgencyNeighborhoodSelectionPage() {
   };
 
   const handleConfirm = () => {
+    if (pendingNeighborhoods.length === 0) {
+      showToast("حداقل یک محله باید انتخاب شود.", "خطا", "error");
+      return;
+    }
     writeAgencyCreationDraft({
       agencyName: initialDraft.agencyName,
       selectedNeighborhoods: pendingNeighborhoods,
     });
+    showToast(`${pendingNeighborhoods.length} محله ذخیره شد.`, "ثبت شد", "success");
     returnToAgencyForm();
   };
 

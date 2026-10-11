@@ -1,4 +1,6 @@
 import { ApiError, api, apiV2, getApiAssetUrl } from "../../../shared/api/api";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT } from "../../../shared/constants/roles.constants";
 import type { ApiDataResponse, ApiListResponse } from "../../../shared/api/response";
 import { unwrapList } from "../../../shared/api/response";
 import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
@@ -772,19 +774,26 @@ export function verifyPaymentCallback(
 }
 
 export async function getMyAds({
+  isMine,
   page = 1,
   perPage = 20,
   type,
 }: {
+  isMine?: boolean;
   page?: number;
   perPage?: number;
   type?: MyAdsType;
 }) {
-  const searchParams: Record<string, string | number> = { page, per_page: perPage };
+  const role = getActiveAuthRole(getStoredAuthSession());
+  const isConsultant = role === INDEPENDENT_CONSULTANT || role === REAL_ESTATE_CONSULTANT;
+  const endpoint = isConsultant ? "independent-consultant/advertise" : "advertise";
+
+  const searchParams: Record<string, string | number | boolean> = { page, per_page: perPage };
   if (type && type !== "all") searchParams.type = type;
+  if (isMine !== undefined) searchParams.is_mine = isMine;
 
   const response = await apiV2
-    .get("advertise", { searchParams })
+    .get(endpoint, { searchParams })
     .json<MyAdsResponse>();
   const record = Array.isArray(response) ? {} : (response as Record<string, unknown>);
   const data = Array.isArray(response)

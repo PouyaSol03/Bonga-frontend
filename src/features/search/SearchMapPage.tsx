@@ -18,8 +18,7 @@ import {
   useSavedSearchesQuery,
   useSaveSearchMutation,
 } from "./api/saved-search.hooks";
-import { TransientNotice } from "../../shared/components/TransientNotice";
-import { useTransientNotice } from "../../shared/hooks/useTransientNotice";
+import { useToast } from "../../shared/hooks/useToast";
 import {
   getBrowserLocation,
   getBrowserLocationNotice,
@@ -1056,7 +1055,15 @@ export function SearchMapPage() {
   const [savedSearchUrl, setSavedSearchUrl] = useState<string | null>(null);
   const didResolveIpLocationRef = useRef(false);
   const [searchSnapshot, setSearchSnapshot] = useState(() => window.location.search);
-  const { message, showNotice } = useTransientNotice();
+  const { showToast } = useToast();
+  const showNotice = useCallback(
+    (msg: string | null | undefined, variant?: "error" | "success" | "info" | "warning") => {
+      if (!msg) return;
+      const isError = /خطا|ناموفق|اشتباه|نشد/.test(msg);
+      showToast(msg, undefined, variant ?? (isError ? "error" : "success"));
+    },
+    [showToast],
+  );
   const requestSenderOptions = usePublisherOptions(pendingSearchRequest !== null);
   const createPropertyRequestMutation = useCreatePropertyRequestMutation();
   const isAuthenticated = Boolean(getStoredAuthSession());
@@ -1754,7 +1761,6 @@ export function SearchMapPage() {
             }}
           />
         </div>
-        <TransientNotice message={message} />
       </div>
     );
   }
@@ -1916,7 +1922,6 @@ export function SearchMapPage() {
         onSelect={handleConfirmSearchRequest}
         options={requestSenderOptions}
       />
-      <TransientNotice message={message} />
     </div>
   );
 }

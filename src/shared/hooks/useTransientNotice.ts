@@ -1,32 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
+import { useToast } from "./useToast";
+import type { ToastVariant } from "../components/Toast";
 
-export function useTransientNotice(duration = 2200) {
-  const [message, setMessage] = useState<string | null>(null);
-  const timerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current !== null) {
-        window.clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
+export function useTransientNotice(_duration = 2200) {
+  const { showToast } = useToast();
 
   const showNotice = useCallback(
-    (nextMessage: string) => {
-      setMessage(nextMessage);
+    (nextMessage: string | null | undefined, variant?: ToastVariant) => {
+      if (!nextMessage) return;
+      const isError = /خطا|ناموفق|اشتباه|نشد|امکان‌پذیر نیست|معتبر نیست/.test(nextMessage);
+      const resolvedVariant: ToastVariant = variant ?? (isError ? "error" : "success");
 
-      if (timerRef.current !== null) {
-        window.clearTimeout(timerRef.current);
-      }
-
-      timerRef.current = window.setTimeout(() => {
-        setMessage(null);
-        timerRef.current = null;
-      }, duration);
+      showToast(nextMessage, undefined, resolvedVariant);
     },
-    [duration],
+    [showToast],
   );
 
-  return { message, showNotice };
+  return { message: null, showNotice };
 }

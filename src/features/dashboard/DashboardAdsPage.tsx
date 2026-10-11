@@ -23,6 +23,7 @@ export function DashboardAdsPage() {
   const [showMineOnly, setShowMineOnly] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const adsQuery = useMyAdsInfiniteQuery({
+    isMine: showMineOnly ? true : undefined,
     perPage: 100,
     type: activeTab === "status" ? "all" : "active",
   });

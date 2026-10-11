@@ -150,6 +150,29 @@ function normalizeProfileCoordinate(value: MyAgencyProfile["lat"] | MyAgencyProf
   return Number.isFinite(numberValue) ? numberValue : null;
 }
 
+function findNearestNeighborhood(
+  lat: number,
+  lng: number,
+  neighborhoods: NeighborhoodDto[],
+): SelectedNeighborhood | null {
+  let nearest: NeighborhoodDto | null = null;
+  let minDistance = Infinity;
+
+  for (const n of neighborhoods) {
+    const nLat = Number(n.lat);
+    const nLng = Number(n.lng);
+    if (Number.isFinite(nLat) && Number.isFinite(nLng)) {
+      const d = (lat - nLat) ** 2 + (lng - nLng) ** 2;
+      if (d < minDistance) {
+        minDistance = d;
+        nearest = n;
+      }
+    }
+  }
+
+  return nearest ? toSelectedNeighborhood(nearest) : null;
+}
+
 function resolveNeighborhoodById(
   id: string | null | undefined,
   neighborhoods: NeighborhoodDto[],
@@ -159,7 +182,7 @@ function resolveNeighborhoodById(
   const normalizedId = String(id);
   const neighborhood = neighborhoods.find((item) => getNeighborhoodId(item) === normalizedId);
 
-  return neighborhood ? toSelectedNeighborhood(neighborhood) : { id: normalizedId, name: normalizedId };
+  return neighborhood ? toSelectedNeighborhood(neighborhood) : null;
 }
 
 function resolveProfileNeighborhoodIds(profile: MyAgencyProfile) {
@@ -362,6 +385,18 @@ export function AgencyProfilePage() {
       return;
     }
 
+    const validNeighborhoodIds = new Set(neighborhoods.map((n) => getNeighborhoodId(n)));
+    if (selectedNeighborhood?.id && !validNeighborhoodIds.has(selectedNeighborhood.id)) {
+      showToast("محله انتخاب‌شده معتبر نیست.", "خطا", "error");
+      return;
+    }
+
+    const invalidArea = selectedActivityAreas.find((area) => !validNeighborhoodIds.has(area.id));
+    if (invalidArea) {
+      showToast(`محدوده فعالیت "${invalidArea.name}" معتبر نیست.`, "خطا", "error");
+      return;
+    }
+
     const neighborhoodIds = Array.from(
       new Set([
         ...(selectedNeighborhood?.id ? [selectedNeighborhood.id] : []),
@@ -410,10 +445,30 @@ export function AgencyProfilePage() {
     if (!cityId) return;
     void getNeighborhoodInfoWithLoc({ cityId, lat: center.lat, lng: center.lng })
       .then((neighborhood) => {
-        if (neighborhood) setSelectedNeighborhood(toSelectedNeighborhood(neighborhood));
+        if (neighborhood) {
+          setSelectedNeighborhood(toSelectedNeighborhood(neighborhood));
+        } else if (neighborhoods.length > 0) {
+          const nearest = findNearestNeighborhood(center.lat, center.lng, neighborhoods);
+          if (nearest && nearest.lat !== undefined && nearest.lng !== undefined) {
+            setSelectedNeighborhood(nearest);
+            setMapCenter((cur) => ({ ...cur, lat: nearest.lat!, lng: nearest.lng! }));
+          }
+        }
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (neighborhoods.length > 0) {
+          const nearest = findNearestNeighborhood(center.lat, center.lng, neighborhoods);
+          if (nearest && nearest.lat !== undefined && nearest.lng !== undefined) {
+            setSelectedNeighborhood(nearest);
+            setMapCenter((cur) => ({ ...cur, lat: nearest.lat!, lng: nearest.lng! }));
+          }
+        }
+      });
   };
+
+  const isNeighborhoodResolving =
+    Boolean(agencyProfileQuery.data?.neighborhood_id || resolveProfileNeighborhoodIds(agencyProfileQuery.data ?? {}).length) &&
+    neighborhoodListQuery.isLoading;
 
   return (
     <PageFrame
@@ -439,6 +494,7 @@ export function AgencyProfilePage() {
         <OwnerInfoSection
           agencyName={agencyName}
           agencyNameError={agencyNameError}
+          isNeighborhoodLoading={isNeighborhoodResolving}
           logoPreviewUrl={logoPreviewUrl}
           logoUrl={logoUrl}
           neighborhood={selectedNeighborhood}
@@ -503,6 +559,7 @@ export function AgencyProfilePage() {
 function OwnerInfoSection({
   agencyName,
   agencyNameError,
+  isNeighborhoodLoading,
   logoPreviewUrl,
   logoUrl,
   neighborhood,
@@ -512,6 +569,7 @@ function OwnerInfoSection({
 }: {
   agencyName: string;
   agencyNameError?: string | null;
+  isNeighborhoodLoading?: boolean;
   logoPreviewUrl: string | null;
   logoUrl: string | null;
   neighborhood: SelectedNeighborhood | null;
@@ -538,6 +596,7 @@ function OwnerInfoSection({
           </Typography>
         ) : null}
         <SelectField
+          isLoading={isNeighborhoodLoading}
           onClick={onOpenNeighborhoodPicker}
           placeholder="محله"
           value={neighborhood?.name}
@@ -737,8 +796,9 @@ function AboutSection({
   return (
     <Section title="درباره ما">
       <Button unstyled
-        className="mr-auto mt-3 inline-flex px-4 py-1.5 items-center gap-2 rounded-lg bg-surface-container-high text-xs! font-medium! leading-5 text-on-surface"
+        className="mr-auto mt-3 inline-flex px-4 py-1.5 items-center gap-2 rounded-lg bg-surface-container-high text-xs! font-medium! leading-5 text-on-surface opacity-50 cursor-not-allowed"
         type="button"
+        disabled
       >
         <LinearAiContent className="h-4 w-4 text-on-surface-var" />
         تولید با هوش مصنوعی
@@ -901,14 +961,24 @@ function Field({
 }
 
 function SelectField({
+  isLoading,
   onClick,
   placeholder,
   value,
 }: {
+  isLoading?: boolean;
   onClick: () => void;
   placeholder: string;
   value?: string;
 }) {
+  if (isLoading) {
+    return (
+      <div className="relative flex w-full items-center rounded-xl border border-outline-var bg-surface-container-lowest px-3 py-4.5">
+        <div className="h-4 w-32 animate-pulse rounded bg-surface-container-high" />
+      </div>
+    );
+  }
+
   return (
     <Button unstyled
       className={`relative flex w-full items-center rounded-xl border bg-surface-container-lowest px-3 py-4.5 text-right focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 ${value ? "border-primary" : "border-outline-var"
@@ -1175,7 +1245,7 @@ function AgencyFooterActions({
   onSave: () => void;
 }) {
   return (
-    <footer className="absolute inset-x-0 bottom-0 z-10 border-t border-outline-var bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3">
+    <footer className="absolute inset-x-0 bottom-0 z-[600] border-t border-outline-var bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3">
       <div className="grid h-10 grid-cols-2 gap-3 [direction:ltr]">
         <Button unstyled
           className="rounded-lg bg-primary text-sm font-medium text-on-primary disabled:cursor-not-allowed disabled:opacity-60"

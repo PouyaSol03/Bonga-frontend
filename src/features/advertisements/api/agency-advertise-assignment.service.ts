@@ -1,12 +1,10 @@
-import { api } from "../../../shared/api/api";
+import { apiV2 } from "../../../shared/api/api";
 import {
   confirmV2DealResult,
   getV2ArchiveEligibility,
   getV2DealResultEligibility,
   getV2History,
   getV2ReRegisterEligibility,
-  reRegisterV2,
-  restoreV2Archive,
   submitV2DealResult,
 } from "./v2";
 import type { AdvertisementItem } from "./advertisement.service";
@@ -41,10 +39,13 @@ export type AgencyAdvertiseAssignmentsParams = {
   advertiseId?: number | string;
   agencyId?: number | string;
   consultantId?: number | string;
+  neighborhoods?: string;
   page?: number;
   perPage?: number;
+  property_types?: string;
   status?: AgencyAdvertiseAssignmentStatus;
   targetType?: AgencyAdvertiseAssignmentTargetType;
+  transaction?: "sale" | "rent" | "project" | string;
 };
 
 export type AgencyAdvertiseAssignmentsPage = {
@@ -190,30 +191,49 @@ export async function getMyAgencyAdvertiseAssignments({
   advertiseId,
   agencyId,
   consultantId,
+  neighborhoods,
   page = 1,
   perPage = 20,
+  property_types,
   status,
   targetType,
+  transaction,
 }: AgencyAdvertiseAssignmentsParams = {}): Promise<AgencyAdvertiseAssignmentsPage> {
-  const response = await api
-    .get("me/agency/advertise/assignments", {
-      searchParams: {
-        advertise_id: advertiseId,
-        agency_id: agencyId,
-        consultant_id: consultantId,
-        page,
-        per_page: perPage,
-        status,
-        target_type: targetType,
-      },
+  const searchParams: Record<string, string | number> = {
+    page,
+    per_page: perPage,
+  };
+  if (transaction) searchParams.transaction = transaction;
+  if (property_types) searchParams.property_types = property_types;
+  if (neighborhoods) searchParams.neighborhoods = neighborhoods;
+  if (advertiseId !== undefined && advertiseId !== null && advertiseId !== "") {
+    searchParams.advertise_id = String(advertiseId);
+  }
+  if (agencyId !== undefined && agencyId !== null && agencyId !== "") {
+    searchParams.agency_id = String(agencyId);
+  }
+  if (consultantId !== undefined && consultantId !== null && consultantId !== "") {
+    searchParams.consultant_id = String(consultantId);
+  }
+  if (status) searchParams.status = status;
+  if (targetType) searchParams.target_type = targetType;
+
+  const response = await apiV2
+    .get("advertise-assignments", {
+      searchParams,
     })
     .json<AssignmentsApiResponse>();
-  const data = (response.data ?? [])
+  const rawData = Array.isArray(response)
+    ? response
+    : Array.isArray(response?.data)
+      ? response.data
+      : [];
+  const data = rawData
     .map(normalizeAssignment)
     .filter((item): item is AgencyAdvertiseAssignmentDto => Boolean(item));
-  const resolvedPage = Math.max(1, toNumber(response.page, page));
-  const resolvedPerPage = Math.max(1, toNumber(response.per_page, perPage));
-  const parsedTotal = Number(response.total);
+  const resolvedPage = Math.max(1, toNumber(response?.page, page));
+  const resolvedPerPage = Math.max(1, toNumber(response?.per_page, perPage));
+  const parsedTotal = Number(response?.total);
   const hasTotal = Number.isFinite(parsedTotal);
   const total = hasTotal ? Math.max(0, parsedTotal) : data.length;
 
@@ -228,29 +248,38 @@ export async function getMyAgencyAdvertiseAssignments({
   };
 }
 
+export type DecideAgencyAdvertiseAssignmentPayload = {
+  assignmentId: number | string;
+  decision: "accept" | "reject";
+  rejectReason?: string;
+};
 
-export async function rejectAgencyAdvertiseAssignment({
+export async function decideAgencyAdvertiseAssignment({
   assignmentId,
+  decision,
   rejectReason,
-}: RejectAgencyAdvertiseAssignmentPayload): Promise<AgencyAdvertiseAssignmentDto | null> {
-  const normalizedReason = rejectReason.trim();
-
-  if (!normalizedReason) {
-    throw new Error("دلیل رد آگهی مشخص نشده است.");
+}: DecideAgencyAdvertiseAssignmentPayload): Promise<AgencyAdvertiseAssignmentDto | null> {
+  const encId = encodeURIComponent(String(assignmentId));
+  const payload: { decision: "accept" | "reject"; reject_reason?: string } = {
+    decision,
+  };
+  if (decision === "reject") {
+    const normalizedReason = rejectReason?.trim();
+    if (!normalizedReason) {
+      throw new Error("دلیل رد آگهی مشخص نشده است.");
+    }
+    payload.reject_reason = normalizedReason;
   }
 
-  const response = await api
-    .post(
-      `me/agency/advertise/assignments/${encodeURIComponent(String(assignmentId))}/reject`,
-      {
-        json: { reject_reason: normalizedReason },
-      },
-    )
+  const response = await apiV2
+    .post(`advertise-assignments/${encId}/decision`, {
+      json: payload,
+    })
     .json<RejectAssignmentApiResponse>();
 
-  const responseData = response.data;
+  const responseData = response?.data;
   const rawAssignment =
-    response.assignment ??
+    response?.assignment ??
     (responseData && typeof responseData === "object" && !Array.isArray(responseData)
       ? "assignment" in responseData
         ? responseData.assignment
@@ -258,6 +287,26 @@ export async function rejectAgencyAdvertiseAssignment({
       : undefined);
 
   return rawAssignment ? normalizeAssignment(rawAssignment as AssignmentApiItem) : null;
+}
+
+export async function approveAgencyAdvertiseAssignment(
+  assignmentId: number | string,
+): Promise<AgencyAdvertiseAssignmentDto | null> {
+  return decideAgencyAdvertiseAssignment({
+    assignmentId,
+    decision: "accept",
+  });
+}
+
+export async function rejectAgencyAdvertiseAssignment({
+  assignmentId,
+  rejectReason,
+}: RejectAgencyAdvertiseAssignmentPayload): Promise<AgencyAdvertiseAssignmentDto | null> {
+  return decideAgencyAdvertiseAssignment({
+    assignmentId,
+    decision: "reject",
+    rejectReason,
+  });
 }
 
 import {
@@ -285,36 +334,65 @@ export async function changeAgencyAdvertiseConsultant({
 }
 
 export async function cancelUserAdvertiseAssignment(advertiseId: string | number, reason?: string) {
-  return api
-    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/assignment/cancel`, {
-      json: { cancel_reason: reason ?? "لغو واگذاری توسط کاربر" },
+  const encId = encodeURIComponent(String(advertiseId));
+  return apiV2
+    .post(`personal/advertise/${encId}/assignment/cancel`, {
+      json: { cancel_reason: reason?.trim() || "درخواست خود را پس گرفتم" },
     })
     .json();
 }
 
-export async function restoreArchivedAdvertise(advertiseId: string | number, note?: string) {
-  return restoreV2Archive(advertiseId, note);
+export async function restoreArchivedAdvertise(advertiseId: string | number) {
+  const encId = encodeURIComponent(String(advertiseId));
+  return apiV2
+    .post(`personal/advertise/${encId}/assignment/restore`)
+    .json();
 }
 
-export async function republishAdAsPersonal(advertiseId: string | number, note?: string) {
-  return reRegisterV2(advertiseId, note);
+export async function republishAdAsPersonal(advertiseId: string | number) {
+  const encId = encodeURIComponent(String(advertiseId));
+  return apiV2
+    .post(`personal/advertise/${encId}/assignment/republish-personal`)
+    .json();
 }
 
-export async function reassignAdToAgency({
-  advertiseId,
-  agencyId,
-}: {
+export type ReassignAdToAgencyPayload = {
+  advertiseId: string | number;
+  agencyId?: string | number;
+  consultantId?: string | number;
+  targetType?: "agency" | "consultant";
+  metadata?: Record<string, unknown>;
+};
+
+export async function reassignAdToAgency(payload: ReassignAdToAgencyPayload | {
   advertiseId: string | number;
   agencyId: string | number;
 }) {
-  return api
-    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/assignment`, {
-      json: {
-        target_type: "agency",
-        agency_id: Number(agencyId),
-      },
+  const encId = encodeURIComponent(String(payload.advertiseId));
+  const targetType = ("targetType" in payload && payload.targetType) || "agency";
+  const json: Record<string, unknown> = {
+    target_type: targetType,
+    metadata: ("metadata" in payload && payload.metadata) || { source: "mobile_register_flow" },
+  };
+  if (payload.agencyId !== undefined && payload.agencyId !== null && payload.agencyId !== "") {
+    json.agency_id = Number(payload.agencyId);
+  }
+  if ("consultantId" in payload && payload.consultantId !== undefined && payload.consultantId !== null && payload.consultantId !== "") {
+    json.consultant_id = Number(payload.consultantId);
+  }
+
+  return apiV2
+    .post(`personal/advertise/${encId}/assignment`, {
+      json,
     })
     .json();
+}
+
+export async function getV2AdvertiseAssignment(advertiseId: string | number) {
+  const encId = encodeURIComponent(String(advertiseId));
+  return apiV2
+    .get(`advertise/${encId}/assignment`)
+    .json<{ status?: boolean; data?: unknown }>();
 }
 
 export type StopPublishReasonKey = "deal_done" | "no_longer_want_publish" | "other";
@@ -364,9 +442,10 @@ export async function createStopPublishRequest({
   const normalizedDescription =
     description?.trim() ||
     (reason !== normalizedReason && normalizedReason === "other" ? reason.trim() : undefined);
+  const encId = encodeURIComponent(String(advertiseId));
 
-  return api
-    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/stop-request`, {
+  return apiV2
+    .post(`personal/advertise/${encId}/stop-request`, {
       json: {
         reason: normalizedReason,
         ...(normalizedDescription ? { description: normalizedDescription } : {}),
@@ -375,9 +454,14 @@ export async function createStopPublishRequest({
     .json();
 }
 
-export async function cancelStopPublishRequest(advertiseId: string | number) {
-  return api
-    .post(`me/advertise/${encodeURIComponent(String(advertiseId))}/stop-request/cancel`)
+export async function cancelStopPublishRequest(advertiseId: string | number, description?: string) {
+  const encId = encodeURIComponent(String(advertiseId));
+  return apiV2
+    .post(`personal/advertise/${encId}/stop-request/cancel`, {
+      json: {
+        description: description?.trim() || "انصراف از درخواست توقف انتشار",
+      },
+    })
     .json();
 }
 
@@ -387,9 +471,11 @@ export async function approveAgencyStopRequest(
 ) {
   const requestId = typeof payload === "object" ? payload.requestId : payload;
   const agencyResponse = typeof payload === "object" ? payload.agencyResponse : maybeResponse;
-  return api
-    .post(`me/agency/advertise/stop-requests/${encodeURIComponent(String(requestId))}/approve`, {
-      json: { agency_response: agencyResponse },
+  const encId = encodeURIComponent(String(requestId));
+
+  return apiV2
+    .post(`advertise-stop-requests/${encId}/approve`, {
+      json: agencyResponse?.trim() ? { agency_response: agencyResponse.trim() } : {},
     })
     .json();
 }
@@ -400,9 +486,11 @@ export async function rejectAgencyStopRequest(
 ) {
   const requestId = typeof payload === "object" ? payload.requestId : payload;
   const agencyResponse = typeof payload === "object" ? payload.agencyResponse : maybeResponse;
-  return api
-    .post(`me/agency/advertise/stop-requests/${encodeURIComponent(String(requestId))}/reject`, {
-      json: { agency_response: agencyResponse },
+  const encId = encodeURIComponent(String(requestId));
+
+  return apiV2
+    .post(`advertise-stop-requests/${encId}/reject`, {
+      json: agencyResponse?.trim() ? { agency_response: agencyResponse.trim() } : {},
     })
     .json();
 }

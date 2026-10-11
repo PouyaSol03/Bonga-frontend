@@ -68,6 +68,7 @@ const CrmSupportRequestsPage = lazyNamed(() => import('../../features/crm/routes
 const CrmPropertyRequestsPage = lazyNamed(() => import('../../features/crm/routes/CrmPropertyRequestsPage'), 'CrmPropertyRequestsPage')
 const CrmSupportPage = lazyNamed(() => import('../../features/crm/routes/CrmSupportPage'), 'CrmSupportPage')
 const CrmDiscountsPage = lazyNamed(() => import('../../features/crm/routes/CrmDiscountsPage'), 'CrmDiscountsPage')
+const CrmFeedbackPage = lazyNamed(() => import('../../features/crm/routes/CrmFeedbackPage'), 'CrmFeedbackPage')
 const NotificationsPage = lazyNamed(() => import('../../features/notifications/NotificationsPage'), 'NotificationsPage')
 const NotificationManagementPage = lazyNamed(() => import('../../features/notifications/NotificationsPage'), 'NotificationManagementPage')
 const AccountAboutPage = lazyNamed(() => import('../../features/account/routes/AccountAboutPage'), 'AccountAboutPage')
@@ -173,7 +174,7 @@ function AccountRoleRedirect() {
 
 export type AppRoute = {
   authority?: string[]
-  crmSection?: 'overview' | 'advertises' | 'users' | 'consultants' | 'agencies' | 'categories' | 'locations' | 'forms' | 'packages' | 'payments' | 'costs' | 'reports' | 'requests' | 'propertyRequests' | 'support' | 'discounts'
+  crmSection?: 'overview' | 'advertises' | 'users' | 'consultants' | 'agencies' | 'categories' | 'locations' | 'forms' | 'packages' | 'payments' | 'costs' | 'reports' | 'requests' | 'propertyRequests' | 'support' | 'discounts' | 'feedback'
   layout?: 'crm' | 'dashboard'
   path: string
   placeholderNote?: string
@@ -623,6 +624,15 @@ export const routes: AppRoute[] = [
     title: 'مدیریت کدهای تخفیف',
     Component: CrmDiscountsPage,
     crmSection: 'discounts',
+    authority: [SUPER_ADMIN],
+    layout: 'crm',
+    requiresAuth: true,
+  },
+  {
+    path: `${CRM_PATH}/feedback`,
+    title: 'معیارهای بازخورد',
+    Component: CrmFeedbackPage,
+    crmSection: 'feedback',
     authority: [SUPER_ADMIN],
     layout: 'crm',
     requiresAuth: true,

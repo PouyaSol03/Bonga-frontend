@@ -53,7 +53,7 @@ import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { SearchInputBar } from "../../shared/ui/SearchBar";
 import type { AdCardData } from "../advertisements/components/AdCard";
 import { RouteLink } from "../../shared/navigation/RouteLink";
-import { pushRoute } from "../../shared/navigation/navigation";
+import { pushRoute, replaceRoute } from "../../shared/navigation/navigation";
 import {
   adManagementPaths,
   getAdCloseResultPath,
@@ -186,8 +186,26 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const statusInfo = getMyAdStatusInfo(
     props?.status ?? detailQuery.data ?? statusQuery ?? routeState.status ?? routeState.ad ?? routeState.card?.status,
   );
-  const cameFromAdManagement = Boolean(routeState.tab || routeState.returnTo);
-  const backTo = props?.backTo ?? getStateAdBackPath(routeState);
+  const isAssigned = statusInfo.key !== "wait_for_payment" && Boolean(
+    props?.isAssigned ??
+    routeState.isAssigned ??
+    (
+      sourceAd?.assigned_agency_id ||
+      sourceAd?.assignedAgencyId ||
+      sourceAd?.assignment_id ||
+      sourceAd?.assignmentId ||
+      sourceAd?.assignment_status ||
+      sourceAd?.assignmentStatus ||
+      sourceAd?.is_assigned ||
+      sourceAd?.isAssigned ||
+      statusInfo.key === "wait_for_agency" ||
+      statusInfo.key === "wait_for_repost" ||
+      statusInfo.key === "wait_for_stop" ||
+      statusInfo.key === "wait_for_deal_confirmation"
+    )
+  );
+  const cameFromAdManagement = !isAssigned && Boolean(routeState.tab || routeState.returnTo);
+  const backTo = props?.backTo ?? getStateAdBackPath(routeState, isAssigned);
   const backState = cameFromAdManagement ? { tab: routeState.tab } : undefined;
   const activeRole = props?.role ?? getActiveAuthRole(getStoredAuthSession());
 
@@ -221,25 +239,6 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     id: agencyId,
     enabled: Boolean(agencyId),
   });
-
-  const isAssigned = statusInfo.key !== "wait_for_payment" && Boolean(
-    props?.isAssigned ??
-    routeState.isAssigned ??
-    (
-      sourceAd?.assigned_agency_id ||
-      sourceAd?.assignedAgencyId ||
-      sourceAd?.assignment_id ||
-      sourceAd?.assignmentId ||
-      sourceAd?.assignment_status ||
-      sourceAd?.assignmentStatus ||
-      sourceAd?.is_assigned ||
-      sourceAd?.isAssigned ||
-      statusInfo.key === "wait_for_agency" ||
-      statusInfo.key === "wait_for_repost" ||
-      statusInfo.key === "wait_for_stop" ||
-      statusInfo.key === "wait_for_deal_confirmation"
-    )
-  );
 
   if (detailQuery.isLoading && !detailQuery.data && !routeState.ad && !routeState.card) {
     return <MyAdStateSkeleton backState={backState} backTo={backTo} />;
@@ -336,6 +335,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
         <TopBar
           backState={backState}
           backTo={backTo}
+          onBack={() => replaceRoute(backTo, backState, { rememberCurrent: false })}
           className="[&_a]:text-on-surface"
           title="مدیریت آگهی"
         />
@@ -380,6 +380,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
       <TopBar
         backState={backState}
         backTo={backTo}
+        onBack={() => replaceRoute(backTo, backState, { rememberCurrent: false })}
         className="[&_a]:text-on-surface"
         title="مدیریت آگهی"
       />
@@ -1120,12 +1121,19 @@ function ManagerPublisherPickerPage({
   );
 }
 
-function getStateAdBackPath(routeState: MyAdRouteState) {
+function getStateAdBackPath(routeState: MyAdRouteState, isAssigned = false) {
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const returnTo = normalizeLocalPath(routeState.returnTo);
 
+  if (isAssigned) {
+    if (returnTo && !returnTo.startsWith("/account/manage-ads") && !returnTo.startsWith("/account/ad-management")) {
+      return returnTo;
+    }
+    return "/account/my-ads";
+  }
+
   if (returnTo) return returnTo;
-  if (activeRole === USER) return "/account/my-ads";
+  if (activeRole === USER || !activeRole) return "/account/my-ads";
 
   if (routeState.tab) return getBusinessAdManagementFallbackPath();
 

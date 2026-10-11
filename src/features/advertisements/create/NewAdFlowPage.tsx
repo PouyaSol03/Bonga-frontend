@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { ProjectDetailsStep } from "./steps/project/ProjectDetailsStep";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage, getApiFieldError } from "../../../shared/api/api";
-import { backRoute } from "../../../shared/navigation/navigation";
+import { backRoute, replaceRoute } from "../../../shared/navigation/navigation";
 import {
   mapAdvertisementToAdCard,
   type AdvertisementFeature,
@@ -21,7 +21,7 @@ import {
   useSaveAdvertiseDraftMutation,
 } from "../api/advertisement.hooks";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
-import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
+import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER, USER } from "../../../shared/constants/roles.constants";
 import { Header } from "./components/NewAdControls";
 import { NewAdDesktopLayoutContext } from "./NewAdLayoutContext";
 import { handleValidationFailure, scrollToFirstError } from "./validationScroll";
@@ -1396,9 +1396,10 @@ export function NewAdFlowPage() {
         const currentCard = currentAd ? mapAdvertisementToAdCard(currentAd, 0) : undefined;
         const statusInfo = currentAd ? getMyAdStatusInfo(currentAd) : { key: "status" };
         const targetPath =
-          statusInfo.key === "pending"
+          editAdState.editReturnTo ??
+          (isAssigned || statusInfo.key === "pending"
             ? getAdStatePath(editAdId)
-            : editAdState.editReturnTo ?? adManagementPaths.published;
+            : adManagementPaths.published);
         const separator = targetPath.includes("?") ? "&" : "?";
 
         navigateTo(`${targetPath}${separator}updated=1`, {
@@ -1429,9 +1430,10 @@ export function NewAdFlowPage() {
             const updatedCard = mapAdvertisementToAdCard(updatedAd, 0);
             const statusInfo = getMyAdStatusInfo(updatedAd);
             const targetPath =
-              statusInfo.key === "pending"
+              editAdState.editReturnTo ??
+              (isAssigned || statusInfo.key === "pending"
                 ? getAdStatePath(editAdId)
-                : editAdState.editReturnTo ?? adManagementPaths.published;
+                : adManagementPaths.published);
             const separator = targetPath.includes("?") ? "&" : "?";
 
             navigateTo(`${targetPath}${separator}updated=1`, {
@@ -1504,24 +1506,25 @@ export function NewAdFlowPage() {
         clearNewAdDraftStorage();
 
         if (isWaitingForAgency) {
-          navigateTo(getAdStatePath(createdAdId), {
+          replaceRoute(getAdStatePath(createdAdId), {
             ad: createdAd,
             card: ad,
-            returnTo: adManagementPaths.root,
+            returnTo: "/account/my-ads",
             status: "wait_for_agency",
             tab: "status",
-          });
+            isAssigned: true,
+          }, { rememberCurrent: false });
           return;
         }
 
         if (isAlreadyPublished) {
-          navigateTo(getAdStatePath(createdAdId), {
+          replaceRoute(getAdStatePath(createdAdId), {
             ad: createdAd,
             card: ad,
-            returnTo: adManagementPaths.root,
+            returnTo: activeRole === USER || !activeRole ? "/account/my-ads" : adManagementPaths.root,
             status: "published",
             tab: "status",
-          });
+          }, { rememberCurrent: false });
           return;
         }
 
@@ -1562,6 +1565,23 @@ export function NewAdFlowPage() {
     ? editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`
     : "/crm/advertises";
   const leaveCrmEditor = () => backRoute(crmReturnTo);
+
+  const getEditBackTarget = () => {
+    if (editAdState.editReturnTo) return editAdState.editReturnTo;
+    if (editAdState.returnTo) return editAdState.returnTo;
+    if (editAdId) {
+      if (isAssigned) {
+        return getAdStatePath(editAdId);
+      }
+      return getAdStatePath(editAdId);
+    }
+    return "/account/my-ads";
+  };
+
+  const handleEditBack = () => {
+    const target = getEditBackTarget();
+    backRoute(target);
+  };
   const goToAgencySelection = () => {
     const values = methods.getValues();
     const validation = validateNewAd(values, { forceFullEditFields: isEditMode && !isEditingIncomplete });
@@ -1725,9 +1745,11 @@ export function NewAdFlowPage() {
                     ? goToDetails
                     : isCrmEditMode
                       ? leaveCrmEditor
-                      : step === "details"
-                        ? () => navigateTo(`/new-ad/category${window.location.search}`)
-                        : undefined
+                      : isEditMode
+                        ? handleEditBack
+                        : step === "details"
+                          ? () => navigateTo(`/new-ad/category${window.location.search}`)
+                          : undefined
                 }
               />
             ) : null}
@@ -1754,7 +1776,7 @@ export function NewAdFlowPage() {
             errors={fieldErrors}
             isPending={saveDraftMutation.isPending}
             label={label}
-            onBack={isCrmEditMode ? leaveCrmEditor : undefined}
+            onBack={isCrmEditMode ? leaveCrmEditor : isEditMode ? handleEditBack : undefined}
             onClearError={clearFieldError}
             onMoreFeatures={() => setStep("moreFeatures")}
             onProjectDetails={() => setStep("projectDetails")}

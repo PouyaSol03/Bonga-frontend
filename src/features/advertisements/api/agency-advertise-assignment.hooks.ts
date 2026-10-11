@@ -4,17 +4,20 @@ import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
 import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
 import {
+  approveAgencyAdvertiseAssignment,
   approveAgencyStopRequest,
   cancelStopPublishRequest,
   cancelUserAdvertiseAssignment,
   changeAgencyAdvertiseConsultant,
   confirmUserDealResult,
   createStopPublishRequest,
+  decideAgencyAdvertiseAssignment,
   getAdvertisementArchiveStatus,
   getAdvertisementHistory,
   getAdvertisementReRegisterStatus,
   getAdvertisementSubmitResultStatus,
   getMyAgencyAdvertiseAssignments,
+  getV2AdvertiseAssignment,
   reassignAdToAgency,
   rejectAgencyAdvertiseAssignment,
   rejectAgencyStopRequest,
@@ -24,6 +27,7 @@ import {
   type AgencyAdvertiseAssignmentsPage,
   type AgencyAdvertiseAssignmentsParams,
   type ChangeAgencyAdvertiseConsultantPayload,
+  type DecideAgencyAdvertiseAssignmentPayload,
 } from "./agency-advertise-assignment.service";
 
 export function useAgencyAdvertiseAssignmentsInfiniteQuery({
@@ -79,6 +83,52 @@ export function useRejectAgencyAdvertiseAssignmentMutation() {
         queryKey: queryKeys.account.myAdsRoot(),
       });
     },
+  });
+}
+
+export function useApproveAgencyAdvertiseAssignmentMutation() {
+  return useMutation({
+    mutationFn: (assignmentId: number | string) =>
+      approveAgencyAdvertiseAssignment(assignmentId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.agencyAdvertiseAssignments.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAdsRoot(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.all,
+      });
+    },
+  });
+}
+
+export function useDecideAgencyAdvertiseAssignmentMutation() {
+  return useMutation({
+    mutationFn: (payload: DecideAgencyAdvertiseAssignmentPayload) =>
+      decideAgencyAdvertiseAssignment(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.agencyAdvertiseAssignments.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAdsRoot(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.all,
+      });
+    },
+  });
+}
+
+export function useV2AdvertiseAssignmentQuery(advertiseId?: string | number | null) {
+  const activeRole = useActiveAuthRole();
+  return useQuery({
+    queryKey: ["advertisement", "v2-assignment", advertiseId ? String(advertiseId) : "", activeRole],
+    queryFn: () => getV2AdvertiseAssignment(advertiseId!),
+    enabled: Boolean(advertiseId),
+    staleTime: 30_000,
   });
 }
 

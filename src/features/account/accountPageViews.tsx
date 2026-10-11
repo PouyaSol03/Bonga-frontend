@@ -18,6 +18,12 @@ import { getMyAdStatusInfo } from "./myAdsStatus";
 import { getAdEditPath } from "./adManagement/adManagementData";
 import LinearUserConfirmation from "../../shared/icons/LinearUserConfirmation";
 import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
+import { useToast } from "../../shared/hooks/useToast";
+import {
+  validateImageDimensions,
+  MAX_PROFILE_IMAGE_BYTES,
+  MAX_PROFILE_IMAGE_DIMENSION,
+} from "../../shared/utils/image-validation";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import LinearUserAccount from "../../shared/icons/LinearUserAccount";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
@@ -52,6 +58,8 @@ const simCardOwnershipReasons: Array<{
     { id: "purchased", label: "سیم‌کارتم را تازه خریده‌ام" },
   ];
 
+const profileAvatarMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
+
 const adFilters: Array<{ label: string; type: MyAdsType }> = [
   { label: "همه", type: "all" },
   { label: "در انتظار", type: "pending" },
@@ -84,13 +92,19 @@ export function AccountProfileForm({
     phone?: string;
   };
 }) {
+  const { showToast } = useToast();
+  const initialNationalNumber =
+    profile?.nationalnumber ??
+    (profile as Record<string, unknown> | undefined)?.national_number as string ??
+    "";
+
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState("");
   const [form, setForm] = useState({
     email: profile?.email ?? "",
     family: profile?.family ?? "",
     name: profile?.name ?? "",
-    nationalnumber: profile?.nationalnumber ?? "",
+    nationalnumber: initialNationalNumber,
   });
 
   useEffect(() => {
@@ -132,35 +146,62 @@ export function AccountProfileForm({
             className="hidden"
             id="profile-avatar-upload"
             type="file"
-            onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)}
+            onChange={async (event) => {
+              const file = event.target.files?.[0] ?? null;
+              if (!file) {
+                setAvatarFile(null);
+                return;
+              }
+              if (!profileAvatarMimeTypes.has(file.type)) {
+                showToast("فرمت تصویر باید jpg، png یا gif باشد.", "خطا", "error");
+                event.target.value = "";
+                return;
+              }
+              if (file.size > MAX_PROFILE_IMAGE_BYTES) {
+                showToast("حجم تصویر نباید بیشتر از 1MB باشد.", "خطا", "error");
+                event.target.value = "";
+                return;
+              }
+              const { valid } = await validateImageDimensions(
+                file,
+                MAX_PROFILE_IMAGE_DIMENSION,
+                MAX_PROFILE_IMAGE_DIMENSION,
+              );
+              if (!valid) {
+                showToast("ابعاد تصویر نباید بیشتر از ۱۰۰۰ در ۱۰۰۰ پیکسل باشد.", "خطا", "error");
+                event.target.value = "";
+                return;
+              }
+              setAvatarFile(file);
+            }}
           />
         </div>
       </section>
 
       <section className="mt-4 space-y-6 px-4">
         <ReadonlyField label="شماره همراه" value={profile?.mobile ?? profile?.phone ?? mobile} />
-        <ReadonlyField label="کد ملی" value={form.nationalnumber || "-"} />
+        <ReadonlyField label="کد ملی" value={form.nationalnumber || initialNationalNumber || "-"} />
       </section>
 
       <div className="mt-4 h-4 bg-surface-container" />
 
       <section className="space-y-6 px-4 pt-4">
         <TextField
-          className="text-sm text-outline placeholder:text-outline"
+          className={`text-sm placeholder:text-outline ${form.name ? "text-on-surface" : "text-outline"}`}
           label="نام خود را وارد کنید"
           placeholder="نام خود را وارد کنید"
           value={form.name}
           onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
         />
         <TextField
-          className="text-sm text-outline placeholder:text-outline"
+          className={`text-sm placeholder:text-outline ${form.family ? "text-on-surface" : "text-outline"}`}
           label="نام خانوادگی خود را وارد کنید"
           placeholder="نام خانوادگی خود را وارد کنید"
           value={form.family}
           onChange={(event) => setForm((current) => ({ ...current, family: event.target.value }))}
         />
         <TextField
-          className="text-sm text-outline placeholder:text-outline"
+          className={`text-sm placeholder:text-outline ${form.email ? "text-on-surface" : "text-outline"}`}
           label="پست الکترونیکی"
           placeholder="پست الکترونیکی"
           value={form.email}
@@ -927,7 +968,36 @@ function normalizeNumericInput(value: string) {
     .replace(/\D/g, "");
 }
 
-export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => void }) {
+export function formatPersianMonthYear(dateString?: string | null): string {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    const formatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+      month: "long",
+      year: "numeric",
+    });
+    const parts = formatter.formatToParts(date);
+    const month = parts.find((p) => p.type === "month")?.value;
+    const year = parts.find((p) => p.type === "year")?.value;
+    if (month && year) {
+      return `${month} ${year}`;
+    }
+    return formatter.format(date);
+  } catch {
+    return "";
+  }
+}
+
+export function IdentityVerifiedState({
+  authorizeDate,
+  onChangeOwner,
+}: {
+  authorizeDate?: string | null;
+  onChangeOwner: () => void;
+}) {
+  const formattedDate = formatPersianMonthYear(authorizeDate);
+
   return (
     <>
       <section className="p-4">
@@ -940,9 +1010,16 @@ export function IdentityVerifiedState({ onChangeOwner }: { onChangeOwner: () => 
           </div>
 
           <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 text-on-surface-var">
-            احراز هویت شما در
-            {" "}<Typography as="span" variant="body" size="large" weight="medium" className="">بهمن 1401</Typography> {" "}
-            با موفقیت انجام شده است.
+            احراز هویت شما
+            {formattedDate ? (
+              <>
+                {" "}در{" "}
+                <Typography as="span" variant="body" size="large" weight="medium" className="">
+                  {formattedDate}
+                </Typography>
+              </>
+            ) : ""}
+            {" "}با موفقیت انجام شده است.
           </Typography>
         </div>
       </section>
@@ -996,7 +1073,7 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
 
             return (
               <label
-                className="flex min-h-6 w-full cursor-pointer items-center justify-between gap-3 text-right focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-primary/25"
+                className="flex min-h-6 w-full cursor-pointer items-center justify-between gap-3 text-right outline-none ring-0 border-0 focus:outline-none focus:ring-0 focus-visible:outline-none"
                 key={reason.id}
               >
                 <input
@@ -1287,8 +1364,8 @@ function formatPaymentDate(value?: string) {
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
     <TextField
-      className="text-sm text-outline disabled:cursor-default"
-      disabled
+      className="text-sm text-on-surface cursor-default select-text"
+      readOnly
       forceLabel
       highlightWhenFilled={false}
       label={label}

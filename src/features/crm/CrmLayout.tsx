@@ -58,7 +58,8 @@ export type CrmSection =
   | "requests"
   | "propertyRequests"
   | "support"
-  | "discounts";
+  | "discounts"
+  | "feedback";
 
 export type ToastState = {
   id: number;
@@ -142,6 +143,7 @@ const sectionMeta: Record<CrmSection, { path: string; subtitle: string; title: s
   propertyRequests: { path: "/crm/property-requests", subtitle: "مشاهده درخواست‌هایی که کاربران برای یافتن آگهی مناسب ثبت کرده‌اند", title: "درخواست‌های یافتن آگهی" },
   support: { path: "/crm/support", subtitle: "پاسخگویی فوری به مشتریان حاضر در صف پشتیبانی", title: "پشتیبانی" },
   discounts: { path: "/crm/discounts", subtitle: "تعریف کدهای تخفیف، درصد تخفیف و تعیین سرویس‌های مجاز", title: "مدیریت کدهای تخفیف" },
+  feedback: { path: "/crm/feedback", subtitle: "مدیریت و ویرایش معیارهای بازخورد پروفایل آژانس و مشاور", title: "معیارهای بازخورد" },
 };
 
 const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
@@ -155,6 +157,7 @@ const navigationItems: Array<{ icon: IconName; section: CrmSection }> = [
   { icon: "wallet", section: "packages" },
   { icon: "payment", section: "payments" },
   { icon: "payment", section: "discounts" },
+  { icon: "check", section: "feedback" },
   { icon: "settings", section: "costs" },
   { icon: "reports", section: "reports" },
   { icon: "requests", section: "requests" },

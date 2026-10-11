@@ -535,7 +535,15 @@ export function AgencyAssignedUserAdView({
               type="button"
               onClick={() => {
                 if (!currentAdId) return;
-                pushRoute(getAdEditPath(currentAdId));
+                pushRoute(getAdEditPath(currentAdId), {
+                  ad,
+                  card,
+                  editReturnTo: `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`,
+                  isAssigned: true,
+                  isEditMode: true,
+                  returnTo: `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`,
+                  status: statusKey,
+                });
               }}
               className="flex h-14 w-full items-center justify-between text-right transition-colors active:bg-surface-container-low [direction:rtl]"
             >

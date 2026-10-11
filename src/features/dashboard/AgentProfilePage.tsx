@@ -22,7 +22,6 @@ import TonalWhatsapp from "../../shared/icons/TonalWhatsapp";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { FormChoiceChip } from "../../shared/form/FormControls";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
-import { Toast } from "../../shared/components/Toast";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
@@ -32,6 +31,7 @@ import {
 } from "../account/api/account.hooks";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
+import { useToast } from "../../shared/hooks/useToast";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import type {
   UpdateConsultantProfilePayload,
@@ -55,12 +55,6 @@ const neighborhoodSearchDebounceMs = 250;
 type SelectedNeighborhood = {
   id: string;
   name: string;
-};
-
-type AgentProfileToast = {
-  message: string;
-  title: string;
-  variant: "error" | "success" | "info" | "warning";
 };
 
 function isDesktopDashboard() {
@@ -90,6 +84,75 @@ function toSelectedNeighborhood(neighborhood: NeighborhoodDto): SelectedNeighbor
     id: getNeighborhoodId(neighborhood),
     name: neighborhood.name,
   };
+}
+
+export function AgentProfileSkeleton({ desktop = false }: { desktop?: boolean }) {
+  if (desktop) {
+    return (
+      <div className="space-y-8 animate-pulse [direction:rtl]" aria-label="در حال بارگذاری مشخصات مشاور">
+        <div className="h-6 w-32 rounded bg-surface-container-high" />
+        <div className="mt-7 flex flex-wrap items-end gap-8">
+          <div className="h-28 w-28 shrink-0 rounded-full bg-surface-container-high" />
+          <div className="min-w-[280px] max-w-[520px] flex-1 space-y-2">
+            <div className="h-4 w-20 rounded bg-surface-container-high" />
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+          </div>
+        </div>
+        <div className="h-px bg-outline-var" />
+        <div className="space-y-4">
+          <div className="h-5 w-28 rounded bg-surface-container-high" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="h-5 w-32 rounded bg-surface-container-high" />
+          <div className="grid grid-cols-3 gap-4">
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+          </div>
+        </div>
+        <div className="h-14 w-36 rounded-xl bg-surface-container-high" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden pb-24 [direction:rtl]" aria-label="در حال بارگذاری مشخصات مشاور">
+      <section className="bg-surface-container-lowest p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="h-24 w-24 shrink-0 rounded-full animate-skeleton bg-surface-container-high" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 w-3/4 rounded animate-skeleton bg-surface-container-high" />
+            <div className="h-3 w-1/2 rounded animate-skeleton bg-surface-container-high" />
+          </div>
+        </div>
+        <div className="mt-4">
+          <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+        </div>
+      </section>
+
+      <section className="bg-surface-container-lowest p-4 space-y-3">
+        <div className="h-5 w-24 rounded animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+      </section>
+
+      <section className="bg-surface-container-lowest p-4 space-y-3">
+        <div className="h-5 w-32 rounded animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+      </section>
+
+      <section className="bg-surface-container-lowest p-4 space-y-3">
+        <div className="h-5 w-28 rounded animate-skeleton bg-surface-container-high" />
+        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+      </section>
+    </div>
+  );
 }
 
 export function AgentProfilePage() {
@@ -127,7 +190,7 @@ export function AgentProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [toast, setToast] = useState<AgentProfileToast | null>(null);
+  const { showToast } = useToast();
 
   const trimmedName = name.trim();
   const nameError = hasSubmitted && !trimmedName ? "نام مشاور الزامی است." : null;
@@ -142,24 +205,17 @@ export function AgentProfilePage() {
   }, [avatarPreviewUrl]);
 
   useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 3200);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
-
-  useEffect(() => {
     if (!profileQuery.isError) return;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setToast({
-      message: getApiErrorMessage(
+    showToast(
+      getApiErrorMessage(
         profileQuery.error,
         "دریافت اطلاعات مشاور با خطا مواجه شد.",
       ),
-      title: "خطا",
-      variant: "error",
-    });
-  }, [profileQuery.error, profileQuery.isError]);
+      "خطا",
+      "error",
+    );
+  }, [profileQuery.error, profileQuery.isError, showToast]);
 
   useEffect(() => {
     const profile = profileQuery.data;
@@ -232,12 +288,6 @@ export function AgentProfilePage() {
     );
   }, [neighborhoodNameById, neighborhoods.length]);
 
-  const showToast = (
-    message: string,
-    title = "موفقیت",
-    variant: "error" | "success" | "info" | "warning" = "success",
-  ) => setToast({ message, title, variant });
-
   const handleAvatarChange = async (file: File | null) => {
     if (!file) return;
 
@@ -281,6 +331,13 @@ export function AgentProfilePage() {
       return;
     }
 
+    const validNeighborhoodIds = new Set(neighborhoods.map((n) => getNeighborhoodId(n)));
+    const invalidArea = selectedActivityAreas.find((area) => !validNeighborhoodIds.has(area.id));
+    if (invalidArea) {
+      showToast(`محدوده فعالیت "${invalidArea.name}" معتبر نیست.`, "خطا", "error");
+      return;
+    }
+
     try {
       const profileName = splitProfileName(trimmedName);
 
@@ -315,7 +372,9 @@ export function AgentProfilePage() {
     }
   };
 
-  const formContent = (
+  const formContent = profileQuery.isLoading ? (
+    <AgentProfileSkeleton desktop={desktop} />
+  ) : (
     <AgentProfileForm
       activityAreas={selectedActivityAreas}
       activityAreasError={activityAreasError}
@@ -348,7 +407,6 @@ export function AgentProfilePage() {
 
   return (
     <>
-      <Toast onDismiss={() => setToast(null)} toast={toast} />
       {desktop ? (
         <div className="min-h-full rounded-xl bg-surface-container-lowest px-6 pb-12 pt-6 text-on-surface [direction:rtl]">
           {formContent}

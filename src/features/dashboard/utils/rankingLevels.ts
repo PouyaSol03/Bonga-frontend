@@ -101,7 +101,11 @@ function normalizeText(text?: string | null): string {
 export const LEVEL_SLUG_TO_PERSIAN: Record<string, string> = {
   // Agency
   newbie: "آژانس تازه‌کار",
+  new_agency: "آژانس تازه‌کار",
+  "new agency": "آژانس تازه‌کار",
   active: "آژانس فعال",
+  active_agency: "آژانس فعال",
+  "active agency": "آژانس فعال",
   very_active: "آژانس پویا",
   dynamic: "آژانس پویا",
   top_one: "آژانس برتر منطقه",
@@ -153,8 +157,8 @@ export function getAgencyRankingLevel(params?: {
       const lvlTitle = normalizeText(lvl.title);
       const lvlSlug = normalizeText(lvl.slug);
       return (
-        (title && (lvlTitle.includes(title) || title.includes(lvlTitle))) ||
-        (slug && (lvlSlug === slug || slug.includes(lvlSlug)))
+        (title && (lvlTitle.includes(title) || title.includes(lvlTitle) || (title.includes("new") && lvlSlug === "newbie"))) ||
+        (slug && (lvlSlug === slug || slug.includes(lvlSlug) || (slug.includes("new") && lvlSlug === "newbie")))
       );
     });
     if (found) return found;

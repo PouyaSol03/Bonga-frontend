@@ -334,18 +334,52 @@ function readChatMessageLocation(message: ChatMessage) {
   };
 }
 
+function parseChatDate(value: unknown): Date | null {
+  const text = readText(value);
+  if (!text) return null;
+
+  let trimmed = text.trim();
+  if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(trimmed)) {
+    trimmed = trimmed.replace(" ", "T") + "Z";
+  }
+
+  const date = new Date(trimmed);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatChatMessageTime(value?: unknown) {
+  const text = readText(value);
+  if (!text) {
+    return new Intl.DateTimeFormat("fa-IR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Asia/Tehran",
+    }).format(new Date());
+  }
+
+  const date = parseChatDate(text);
+  if (!date) return text;
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Tehran",
+  }).format(date);
+}
+
 function readChatMessageTime(message: ChatMessage) {
   const text = readPathText(message, ["sent_at", "sentAt", "created_at", "createdAt", "date"]);
 
   if (!text) return undefined;
 
-  const date = new Date(text);
+  const date = parseChatDate(text);
 
-  if (Number.isNaN(date.getTime())) return text;
+  if (!date) return text;
 
   return new Intl.DateTimeFormat("fa-IR", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Asia/Tehran",
   }).format(date);
 }
 
@@ -471,9 +505,9 @@ function formatChatDate(value: unknown) {
 
   if (!text) return "";
 
-  const date = new Date(text);
+  const date = parseChatDate(text);
 
-  if (Number.isNaN(date.getTime())) return text;
+  if (!date) return text;
 
   return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
     day: "numeric",
@@ -1404,7 +1438,7 @@ function ChatBubble({
   children,
   direction,
   isRead = false,
-  time = "18:21",
+  time = formatChatMessageTime(),
   wide = false,
 }: {
   children: ReactNode;
@@ -1442,10 +1476,16 @@ function ChatBubble({
 }
 
 function ChatDateChip() {
+  const todayPersian = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    day: "numeric",
+    month: "long",
+    timeZone: "Asia/Tehran",
+  }).format(new Date());
+
   return (
     <div className="flex justify-center py-0.5">
       <Typography as="span" variant="body" size="small" weight="regular" className="rounded-lg bg-surface-container px-3 py-1 text-[10px] font-normal leading-4 text-outline">
-        22 بهمن
+        {todayPersian}
       </Typography>
     </div>
   );
@@ -1457,7 +1497,7 @@ function ChatImageBubble({
   fileName,
   imageUrl,
   isRead = false,
-  time,
+  time = formatChatMessageTime(),
 }: {
   direction?: "incoming" | "outgoing";
   fileName: string;
@@ -1499,7 +1539,7 @@ function ChatLocationBubble({
   direction = "outgoing",
   isRead = false,
   mapsUrl,
-  time,
+  time = formatChatMessageTime(),
 }: {
   direction?: "incoming" | "outgoing";
   isRead?: boolean;
@@ -1542,15 +1582,17 @@ function ChatLocationBubble({
 }
 
 function SentChatMessageBubble({ message }: { message: SentChatMessage }) {
+  const time = formatChatMessageTime();
+
   if (message.type === "image") {
-    return <ChatImageBubble fileName={message.fileName} imageUrl={message.imageUrl} />;
+    return <ChatImageBubble fileName={message.fileName} imageUrl={message.imageUrl} time={time} />;
   }
 
   if (message.type === "location") {
-    return <ChatLocationBubble mapsUrl={message.mapsUrl} />;
+    return <ChatLocationBubble mapsUrl={message.mapsUrl} time={time} />;
   }
 
-  return <ChatBubble direction="outgoing">{message.text}</ChatBubble>;
+  return <ChatBubble direction="outgoing" time={time}>{message.text}</ChatBubble>;
 }
 
 function ChatApiMessageBubble({

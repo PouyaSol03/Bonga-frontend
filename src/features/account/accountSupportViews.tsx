@@ -267,7 +267,12 @@ export function formatSupportConversationDate(value: unknown) {
   const text = readChatText(value);
   if (!text) return "";
 
-  const date = new Date(text);
+  let trimmed = text.trim();
+  if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(trimmed)) {
+    trimmed = trimmed.replace(" ", "T") + "Z";
+  }
+
+  const date = new Date(trimmed);
   if (Number.isNaN(date.getTime())) return text;
 
   return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
@@ -383,10 +388,16 @@ export function formatSupportMessageTime(value: unknown) {
     return new Intl.DateTimeFormat("fa-IR", {
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "Asia/Tehran",
     }).format(new Date());
   }
 
-  const date = new Date(text);
+  let trimmed = text.trim();
+  if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(trimmed)) {
+    trimmed = trimmed.replace(" ", "T") + "Z";
+  }
+
+  const date = new Date(trimmed);
   if (Number.isNaN(date.getTime())) return text;
 
   return new Intl.DateTimeFormat("fa-IR", {

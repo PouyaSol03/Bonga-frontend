@@ -11,12 +11,14 @@ import {
   usePublicAgentsQuery,
 } from "../../../agencies/api/agency.hooks";
 import { useAgencyDashboardQuery } from "../../api/dashboard.hooks";
+import { useToast } from "../../../../shared/hooks/useToast";
 import { AddConsultantSearchResults } from "./add-consultant/AddConsultantSearchResults";
 import { AddConsultantRoleSection } from "./add-consultant/AddConsultantRoleSection";
 import { AddConsultantQuotaSection } from "./add-consultant/AddConsultantQuotaSection";
 import type { AccessRole } from "./teamTypes";
 
 export function AddConsultantPage() {
+  const { showToast } = useToast();
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
@@ -105,9 +107,12 @@ export function AddConsultantPage() {
       },
       {
         onError: (error) => {
-          setErrorMessage(getApiErrorMessage(error, "اضافه کردن مشاور با خطا مواجه شد."));
+          const msg = getApiErrorMessage(error, "اضافه کردن مشاور با خطا مواجه شد.");
+          setErrorMessage(msg);
+          showToast(msg, "خطا", "error");
         },
         onSuccess: () => {
+          showToast("مشاور با موفقیت اضافه شد.");
           window.history.pushState({}, "", "/account/dashboard/team");
           window.dispatchEvent(new PopStateEvent("popstate"));
         },

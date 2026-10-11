@@ -331,6 +331,13 @@ export function AgentProfilePage() {
       return;
     }
 
+    const validNeighborhoodIds = new Set(neighborhoods.map((n) => getNeighborhoodId(n)));
+    const invalidArea = selectedActivityAreas.find((area) => !validNeighborhoodIds.has(area.id));
+    if (invalidArea) {
+      showToast(`محدوده فعالیت "${invalidArea.name}" معتبر نیست.`, "خطا", "error");
+      return;
+    }
+
     try {
       const profileName = splitProfileName(trimmedName);
 

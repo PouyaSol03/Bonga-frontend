@@ -32,6 +32,18 @@ function formatOptionalNumber(value: number | null | undefined) {
 
 const DASHBOARD_BADGES_GUIDE_PATH = "/account/dashboard/ranking/badges/guide";
 
+function AgencyRankingSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse [direction:rtl]">
+      <div className="h-24 w-full rounded-2xl bg-surface-container-high" />
+      <div className="h-20 w-full rounded-2xl bg-surface-container-high" />
+      <div className="h-20 w-full rounded-2xl bg-surface-container-high" />
+      <div className="h-32 w-full rounded-2xl bg-surface-container-high" />
+      <div className="h-48 w-full rounded-2xl bg-surface-container-high" />
+    </div>
+  );
+}
+
 export function DashboardRankingPage() {
   const activeRole = getActiveAuthRole(getStoredAuthSession());
 
@@ -162,29 +174,35 @@ function AgencyDashboardRankingPage() {
       />
 
       <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-surface-container px-4 pb-6 pt-4">
-        <LevelSummaryCard
-          image={currentLevel.image}
-          levelTitle={displayLevelTitle}
-          score={formatOptionalNumber(currentTotalScore)}
-        />
-        <MetricSummaryCard
-          icon={<LinearRanking className="h-6 w-6 text-tertiary" />}
-          iconClassName="bg-tertiary-container/30"
-          label="رتبه آژانس"
-          value={formatOptionalNumber(currentRank)}
-        />
-        <MetricSummaryCard
-          icon={<LinearStar className="h-6 w-6 text-warning" />}
-          iconClassName="bg-warning-container/30"
-          label="امتیاز آژانس"
-          value={formatOptionalNumber(currentTotalScore)}
-        />
-        <AgencyBadgesPanel />
-        <RankingIndicatorsPanel indicators={indicators} period={period} setPeriod={setPeriod} />
-        <TopAgenciesPanel
-          agencies={leaderboard}
-          isLoading={v2LeaderboardQuery.isLoading || v2SummaryQuery.isLoading}
-        />
+        {v2SummaryQuery.isLoading ? (
+          <AgencyRankingSkeleton />
+        ) : (
+          <>
+            <LevelSummaryCard
+              image={currentLevel.image}
+              levelTitle={displayLevelTitle}
+              score={formatOptionalNumber(currentTotalScore)}
+            />
+            <MetricSummaryCard
+              icon={<LinearRanking className="h-6 w-6 text-tertiary" />}
+              iconClassName="bg-tertiary-container/30"
+              label="رتبه آژانس"
+              value={formatOptionalNumber(currentRank)}
+            />
+            <MetricSummaryCard
+              icon={<LinearStar className="h-6 w-6 text-warning" />}
+              iconClassName="bg-warning-container/30"
+              label="امتیاز آژانس"
+              value={formatOptionalNumber(currentTotalScore)}
+            />
+            <AgencyBadgesPanel />
+            <RankingIndicatorsPanel indicators={indicators} period={period} setPeriod={setPeriod} />
+            <TopAgenciesPanel
+              agencies={leaderboard}
+              isLoading={v2LeaderboardQuery.isLoading || v2SummaryQuery.isLoading}
+            />
+          </>
+        )}
       </main>
       <Toast onDismiss={() => setToast(null)} toast={toast} />
     </PageFrame>

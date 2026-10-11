@@ -11,6 +11,8 @@ import {
   useAgencyConsultantsQuery,
   useDeactivateAgencyConsultantMutation,
 } from "../../../agencies/api/agency.hooks";
+import { useToast } from "../../../../shared/hooks/useToast";
+import { getApiErrorMessage } from "../../../../shared/api/api";
 import {
   ConsultantProfilePill,
   getRouteConsultant,
@@ -24,6 +26,7 @@ import {
 } from "./remove-consultant/ConsultantRemoveReplacementPicker";
 
 export function ConsultantRemovePage() {
+  const { showToast } = useToast();
   const routeConsultant = getRouteConsultant();
   const routeId = getRouteConsultantId();
   const agencyProfileQuery = useMyAgencyProfileQuery();
@@ -165,8 +168,16 @@ export function ConsultantRemovePage() {
                   },
               {
                 onSuccess: () => {
+                  showToast("مشاور با موفقیت حذف شد.");
                   window.history.pushState({}, "", "/account/dashboard/team");
                   window.dispatchEvent(new PopStateEvent("popstate"));
+                },
+                onError: (error) => {
+                  showToast(
+                    getApiErrorMessage(error, "حذف مشاور با خطا مواجه شد."),
+                    "خطا",
+                    "error",
+                  );
                 },
               },
             );

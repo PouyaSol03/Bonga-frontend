@@ -31,6 +31,27 @@ function TeamFilterButton({
   );
 }
 
+function ConsultantCardSkeleton() {
+  return (
+    <div className="w-full bg-surface-container-lowest p-4 [direction:rtl] animate-pulse space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="h-12 w-12 rounded-full bg-surface-container-high shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 w-32 rounded bg-surface-container-high" />
+          <div className="h-3 w-24 rounded bg-surface-container-high" />
+        </div>
+      </div>
+      <div className="flex items-center justify-between border-t border-outline-var/40 pt-3">
+        <div className="h-4 w-20 rounded bg-surface-container-high" />
+        <div className="flex gap-2">
+          <div className="h-8 w-8 rounded-lg bg-surface-container-high" />
+          <div className="h-8 w-8 rounded-lg bg-surface-container-high" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ConsultantEmptyState() {
   return (
     <div className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center bg-surface-container-lowest px-8 py-8 text-center">
@@ -126,7 +147,13 @@ export function ConsultantManagementPage() {
           </div>
         ) : null}
 
-        {visibleConsultants.length > 0 ? (
+        {agencyConsultantsQuery.isLoading ? (
+          <div className="space-y-1">
+            <ConsultantCardSkeleton />
+            <ConsultantCardSkeleton />
+            <ConsultantCardSkeleton />
+          </div>
+        ) : visibleConsultants.length > 0 ? (
           <div className="space-y-1">
             {visibleConsultants.map((consultant) => (
               <ConsultantCard consultant={consultant} key={consultant.id} />

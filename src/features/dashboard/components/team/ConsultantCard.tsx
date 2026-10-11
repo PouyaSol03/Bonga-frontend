@@ -8,6 +8,7 @@ import { Typography } from "../../../../shared/ui/Typography";
 import { RouteLink } from "../../../../shared/navigation/RouteLink";
 import { getApiErrorMessage } from "../../../../shared/api/api";
 import { useCancelAgencyConsultantRequestMutation } from "../../../agencies/api/agency.hooks";
+import { useToast } from "../../../../shared/hooks/useToast";
 import { ConsultantAvatar } from "./ConsultantCardWidgets";
 import { consultantTeamPaths, type TeamConsultant } from "./teamTypes";
 import { formatPhoneNumber } from "./teamUtils";
@@ -15,6 +16,7 @@ import { formatPhoneNumber } from "./teamUtils";
 export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
   const isPending = consultant.status === "pending";
   const cancelRequestMutation = useCancelAgencyConsultantRequestMutation();
+  const { showToast } = useToast();
   const [cancelError, setCancelError] = useState("");
 
   const cancelRequest = () => {
@@ -23,10 +25,13 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
 
     setCancelError("");
     cancelRequestMutation.mutate(agentId, {
+      onSuccess: () => {
+        showToast("درخواست همکاری با موفقیت لغو شد.");
+      },
       onError: (error) => {
-        setCancelError(
-          getApiErrorMessage(error, "لغو درخواست همکاری با خطا مواجه شد."),
-        );
+        const msg = getApiErrorMessage(error, "لغو درخواست همکاری با خطا مواجه شد.");
+        setCancelError(msg);
+        showToast(msg, "خطا", "error");
       },
     });
   };

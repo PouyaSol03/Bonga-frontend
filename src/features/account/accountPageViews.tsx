@@ -1073,7 +1073,7 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
 
             return (
               <label
-                className="flex min-h-6 w-full cursor-pointer items-center justify-between gap-3 text-right focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-primary/25"
+                className="flex min-h-6 w-full cursor-pointer items-center justify-between gap-3 text-right outline-none ring-0 border-0 focus:outline-none focus:ring-0 focus-visible:outline-none"
                 key={reason.id}
               >
                 <input

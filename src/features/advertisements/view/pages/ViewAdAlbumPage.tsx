@@ -46,9 +46,6 @@ export function ViewAdAlbumPage({
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const swiperRef = useRef<SwiperInstance | null>(null);
   const dotSizes = mediaItems.map((_, index) => getAlbumDotSize(index, activeIndex, mediaItems.length));
-  const indicatorContentWidth =
-    dotSizes.reduce((sum, size) => sum + size, 0) + Math.max(mediaItems.length - 1, 0) * 8;
-  const indicatorWidth = indicatorContentWidth + 24;
 
   return (
     <div className="absolute inset-0 z-[60] flex flex-col overflow-hidden bg-black text-white">
@@ -78,36 +75,40 @@ export function ViewAdAlbumPage({
         >
           {mediaItems.map((item, index) => (
             <SwiperSlide key={`${item.src}-${item.type}-${index}`}>
-              <div className="pt-[202px]">
+              <div className="flex h-full w-full items-center justify-center p-2">
                 {item.type === "video" ? (
                   <video
-                    className="aspect-[3/2] w-full bg-black object-contain"
+                    className="max-h-full max-w-full bg-black object-contain"
                     controls
                     playsInline
                     preload="metadata"
                     src={item.src}
                   />
                 ) : (
-                  <img alt="" className="aspect-[3/2] w-full object-cover" src={item.src} />
+                  <img
+                    alt=""
+                    className="max-h-full max-w-full object-contain"
+                    src={item.src}
+                  />
                 )}
               </div>
             </SwiperSlide>
           ))}
         </Swiper>
 
-        <div className="absolute bottom-13 left-0 right-0 z-10 flex justify-center">
+        {/* Indicator pill container */}
+        <div className="pointer-events-none absolute bottom-13 left-0 right-0 z-10 flex justify-center">
           <div
             aria-label={`رسانه ${activeIndex + 1} از ${mediaItems.length}`}
-            className="flex h-6 items-center justify-center"
+            className="pointer-events-auto flex h-6 items-center justify-center rounded-full bg-black/40 px-3 backdrop-blur-sm"
             role="img"
-            style={{ width: indicatorWidth }}
           >
             <div className="flex h-2 items-center gap-2">
               {mediaItems.map((item, index) => (
                 <Button unstyled
                   aria-label={`نمایش رسانه ${index + 1}`}
-                  className={`block h-2 rounded-full ${index === activeIndex ? "bg-white" : "bg-white/20"}`}
-                  key={`${item.type}-${index}`}
+                  className={`block h-2 rounded-full transition-all ${index === activeIndex ? "bg-white" : "bg-white/40"}`}
+                  key={`${item.src}-${item.type}-${index}`}
                   onClick={() => swiperRef.current?.slideTo(index)}
                   style={{ width: dotSizes[index] }}
                   type="button"

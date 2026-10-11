@@ -1569,7 +1569,11 @@ export function ViewAdPage() {
     : detailQuery;
   const useAgencyAllocationPreview =
     isPreview && (ad ? shouldUseAgencyAllocationPreview(ad) : shouldUseAgencyAllocationPreview());
-  const showAgencyOwnerContact = isPreview && !useAgencyAllocationPreview;
+  const isPersonalPreview =
+    isPreview &&
+    !useAgencyAllocationPreview &&
+    String(ad?.publisher_type ?? ad?.owner_type ?? "user").toLowerCase() === "user";
+  const showAgencyOwnerContact = isPreview && !useAgencyAllocationPreview && !isPersonalPreview;
   const reportedImpressionAdIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -1644,7 +1648,7 @@ export function ViewAdPage() {
 
   const details = mapAdToDetails(resolvedAd);
   const isOwnAd = isOwnAdvertisement(resolvedAd);
-  const usesPublicAdPresentation = isPreview || !isOwnAd;
+  const usesPublicAdPresentation = isPreview ? !isPersonalPreview : !isOwnAd;
   const isAdPublished = isPublishedAdvertisement(resolvedAd);
   const contactInfo = readContactInfo(resolvedAd);
   const rawAgencyUserContact = (window.history.state as Record<string, unknown> | null)?.userContact as
@@ -1707,7 +1711,9 @@ export function ViewAdPage() {
     contactInfo.phone || contactInfo.instagram || contactInfo.telegram || contactInfo.whatsapp,
   );
   const hasChatContact = usesPublicAdPresentation && contactInfo.chat;
-  const contactActionCount = Number(hasContactSheetData) + Number(hasChatContact);
+  const contactActionCount = isPersonalPreview
+    ? 0
+    : Number(hasContactSheetData) + Number(hasChatContact);
   const contactActionsGridClassName = contactActionCount === 1 ? "grid-cols-1" : "grid-cols-2";
   const mediaItems = buildGalleryMediaItems(resolvedAd);
   const resolvedTour3dUrl = getVirtualTourUrl(resolvedAd);
@@ -2030,7 +2036,7 @@ export function ViewAdPage() {
         />
       </main>
 
-      {isPreview ? (
+      {isPreview && !isPersonalPreview ? (
         useAgencyAllocationPreview ? (
           <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
             <div className="flex gap-4 [direction:ltr]">

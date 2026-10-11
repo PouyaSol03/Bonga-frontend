@@ -1,5 +1,7 @@
 import { apiV2, getV2RoleSegment, type V2RoleSegment } from "../../../shared/api/api";
 import { getStoredAuthSession, getActiveAuthRole } from "../../../shared/auth/auth-storage";
+import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../advertisements/api/advertisement.service";
+import type { AdCardData } from "../../advertisements/components/AdCard";
 
 export type DashboardPeriod = "week" | "month" | "year" | "7d" | "30d" | "90d";
 
@@ -1026,23 +1028,14 @@ export async function getDashboardReportsTeaser(
   }
 }
 
-export type DashboardRecentAdItem = {
-  id: string;
-  title: string;
-  coverImage?: string;
-  cityTitle?: string;
-  districtTitle?: string;
-  categoryTitle?: string;
-  dealType?: string;
-  depositAmount?: number;
-  rentAmount?: number;
-  status: string;
-  assignmentStatus?: string;
+export type DashboardRecentAdItem = AdCardData & {
+  rawStatus?: string;
   statusCode?: number;
   viewsCount?: number;
   publishedAt?: string;
   confirmDate?: string;
   expireDate?: string;
+  assignmentStatus?: string;
 };
 
 export async function getDashboardRecentAds(
@@ -1055,25 +1048,24 @@ export async function getDashboardRecentAds(
       .get(`${context}/dashboard/recent-ads`, { searchParams: { limit } })
       .json<{ data?: { items?: unknown[] } }>();
     const items = Array.isArray(res.data?.items) ? res.data!.items : [];
-    return items.map((raw) => {
+    return items.map((raw, index) => {
       const rec = asRecord(raw);
+      const card = mapAdvertisementToAdCard(rec as unknown as AdvertisementItem, index);
+      const statusLabel =
+        (rec.status_label as string) ||
+        (rec.status as string) ||
+        card.status;
+
       return {
-        id: toStringValue(rec.id),
-        title: toStringValue(rec.title),
-        coverImage: rec.cover_image ? String(rec.cover_image) : undefined,
-        cityTitle: rec.city_title ? String(rec.city_title) : undefined,
-        districtTitle: rec.district_title ? String(rec.district_title) : undefined,
-        categoryTitle: rec.category_title ? String(rec.category_title) : undefined,
-        dealType: rec.deal_type ? String(rec.deal_type) : undefined,
-        depositAmount: toNumberOrUndefined(rec.deposit_amount),
-        rentAmount: toNumberOrUndefined(rec.rent_amount),
-        status: toStringValue(rec.status, "active"),
-        assignmentStatus: rec.assignment_status ? String(rec.assignment_status) : undefined,
+        ...card,
+        status: statusLabel,
+        rawStatus: toStringValue(rec.status),
         statusCode: toNumberOrUndefined(rec.status_code),
         viewsCount: toNumberOrUndefined(rec.views_count),
         publishedAt: rec.published_at ? String(rec.published_at) : undefined,
         confirmDate: rec.confirm_date ? String(rec.confirm_date) : undefined,
         expireDate: rec.expire_date ? String(rec.expire_date) : undefined,
+        assignmentStatus: rec.assignment_status ? String(rec.assignment_status) : undefined,
       };
     });
   } catch {

@@ -3,6 +3,7 @@ import type { NeighborhoodDto } from "../../locations/api/neighborhood.service";
 import { useCreateMyAgencyMutation, useMyProfileQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { pushRoute } from "../../../shared/navigation/navigation";
+import { useToast } from "../../../shared/hooks/useToast";
 import { AgencyFields, BusinessFormPage, getNeighborhoodId } from "../businessCreationShared";
 import type { BusinessToast } from "../businessCreationShared";
 import {
@@ -12,6 +13,7 @@ import {
 } from "../agencyCreationDraft";
 
 export function AgencyBusinessCreationPage() {
+  const { showToast: showGlobalToast } = useToast();
   const { data: profile } = useMyProfileQuery();
   const isAgencyPending = Boolean(
     profile?.agency_id &&
@@ -47,6 +49,7 @@ export function AgencyBusinessCreationPage() {
 
   const showToast = (message: string, title = "خطا", variant: "error" | "success" | "info" | "warning" = "error") => {
     setToast({ message, title, variant });
+    showGlobalToast(message, title, variant);
   };
 
   const handleSubmitAgency = async () => {
@@ -71,6 +74,7 @@ export function AgencyBusinessCreationPage() {
       });
 
       clearAgencyCreationDraft();
+      showToast("اطلاعات آژانس با موفقیت ثبت شد و در انتظار تایید است.", "موفقیت", "success");
       return true;
     } catch (error) {
       showToast(getApiErrorMessage(error, "ایجاد کسب و کار با خطا مواجه شد."));

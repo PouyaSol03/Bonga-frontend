@@ -19,6 +19,7 @@ import {
 } from "./api/auth.service";
 import { getMyProfile } from "../account/api/account.service";
 import { searchCities } from "../cities/api/city.service";
+import { useToast } from "../../shared/hooks/useToast";
 import {
   consumeLoginRedirectPath,
   getOtpResendSecondsRemaining,
@@ -56,6 +57,7 @@ async function ensureSelectedCityAfterLogin() {
 
 export function LoginVerifyPage() {
   const [verificationCode, setVerificationCode] = useState("");
+  const { showToast } = useToast();
   const [isFocused, setIsFocused] = useState(true);
   const [notice, setNotice] = useState<{
     message: string;
@@ -163,6 +165,7 @@ export function LoginVerifyPage() {
     const code = verificationCode;
 
     if (!mobile) {
+      showToast("ابتدا شماره موبایل خود را وارد کنید.", "شماره همراه یافت نشد!", "error");
       setNotice({
         message: "ابتدا شماره موبایل خود را وارد کنید.",
         title: "شماره همراه یافت نشد!",
@@ -172,6 +175,7 @@ export function LoginVerifyPage() {
     }
 
     if (!/^\d{4}$/.test(code)) {
+      showToast("کد تایید چهار رقمی را وارد کنید.", "کد نامعتبر!", "error");
       setNotice({
         message: "کد تایید چهار رقمی را وارد کنید.",
         title: "کد نامعتبر!",
@@ -189,8 +193,10 @@ export function LoginVerifyPage() {
       try {
         await getMyProfile();
       } catch (profileError) {
+        const msg = getAuthErrorMessage(profileError, "دریافت وضعیت احراز هویت با خطا مواجه شد.");
+        showToast(msg, "بررسی حساب ناموفق بود!", "error");
         setNotice({
-          message: getAuthErrorMessage(profileError, "دریافت وضعیت احراز هویت با خطا مواجه شد."),
+          message: msg,
           title: "بررسی حساب ناموفق بود!",
           variant: "error",
         });
@@ -198,6 +204,7 @@ export function LoginVerifyPage() {
       }
 
       await ensureSelectedCityAfterLogin();
+      showToast("ورود به حساب کاربری با موفقیت انجام شد.", "خوش آمدید", "success");
 
       // Replace the OTP entry after a successful login so Back does not
       // return to the verification screen. The router also guards all auth
@@ -205,8 +212,10 @@ export function LoginVerifyPage() {
       window.history.replaceState({ state: "new" }, "", redirectPath);
       window.dispatchEvent(new PopStateEvent("popstate"));
     } catch (error) {
+      const msg = getAuthErrorMessage(error, "تایید کد انجام نشد.");
+      showToast(msg, "کد نامعتبر!", "error");
       setNotice({
-        message: getAuthErrorMessage(error, "تایید کد انجام نشد."),
+        message: msg,
         title: "کد نامعتبر!",
         variant: "error",
       });
@@ -217,6 +226,7 @@ export function LoginVerifyPage() {
     const mobile = normalizeMobile(phoneNumber);
 
     if (!mobile) {
+      showToast("ابتدا شماره موبایل خود را وارد کنید.", "شماره همراه یافت نشد!", "error");
       setNotice({
         message: "ابتدا شماره موبایل خود را وارد کنید.",
         title: "شماره همراه یافت نشد!",
@@ -233,14 +243,17 @@ export function LoginVerifyPage() {
       lastAutoSubmittedCodeRef.current = "";
       setResendSeconds(getOtpResendSecondsRemaining());
       inputRef.current?.focus();
+      showToast("کد تایید مجددا به شماره همراه شما ارسال شد.", "کد ارسال شد.", "success");
       setNotice({
         message: "کد تایید مجددا به شماره همراه شما ارسال شد.",
         title: "کد ارسال شد.",
         variant: "success",
       });
     } catch (error) {
+      const msg = getAuthErrorMessage(error, "ارسال مجدد کد انجام نشد.");
+      showToast(msg, "ارسال کد ناموفق!", "error");
       setNotice({
-        message: getAuthErrorMessage(error, "ارسال مجدد کد انجام نشد."),
+        message: msg,
         title: "ارسال کد ناموفق!",
         variant: "error",
       });

@@ -1,5 +1,6 @@
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { motion } from "motion/react";
 import { SEO } from "../../shared/components/SEO";
 import { AdCard } from "../advertisements/components/AdCard";
 import type { AdCardData } from "../advertisements/components/AdCard";
@@ -1010,24 +1011,33 @@ function AgencySegmentedTabs({
   return (
     <div className="relative z-10 bg-surface-container-lowest px-4 pb-4 shadow-[0_4px_12px_rgba(0,0,0,0.10)]">
       <div
-        className="grid h-10 overflow-hidden rounded-xl border border-outline bg-surface-container-lowest text-sm font-semibold leading-5 text-on-surface-var"
+        className="relative grid h-10 overflow-hidden rounded-xl border border-outline bg-surface-container-lowest text-sm font-semibold leading-5 text-on-surface-var"
         style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       >
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 
           return (
-            <Button unstyled
+            <button
               aria-pressed={isActive}
-              className={`h-full transition-colors ${isActive ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface-var"}`}
+              className={`relative z-10 flex h-full items-center justify-center transition-colors duration-200 cursor-pointer ${
+                isActive ? "text-primary" : "text-on-surface-var"
+              }`}
               key={tab.id}
               onClick={() => onChange(tab.id)}
               type="button"
             >
               <Typography variant="label" size="large" weight="medium">
-              {tab.label}
+                {tab.label}
               </Typography>
-            </Button>
+              {isActive && (
+                <motion.div
+                  className="absolute inset-0 -z-10 rounded-lg bg-primary-container"
+                  layoutId="agency-preview-tab-active-indicator"
+                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                />
+              )}
+            </button>
           );
         })}
       </div>

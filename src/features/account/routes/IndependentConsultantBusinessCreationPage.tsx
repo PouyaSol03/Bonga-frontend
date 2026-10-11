@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useCreateMyAgentMutation, useMyProfileQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
+import { useToast } from "../../../shared/hooks/useToast";
 import { BusinessFormPage, RequiredLabel, normalizePhoneDigits } from "../businessCreationShared";
 import type { BusinessToast } from "../businessCreationShared";
 
 export function IndependentConsultantBusinessCreationPage() {
+  const { showToast: showGlobalToast } = useToast();
   const { data: profile } = useMyProfileQuery();
   const isAgencyPending = Boolean(
     profile?.agency_id &&
@@ -26,6 +28,11 @@ export function IndependentConsultantBusinessCreationPage() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  const showToast = (message: string, title = "خطا", variant: "error" | "success" | "info" | "warning" = "error") => {
+    setToast({ message, title, variant });
+    showGlobalToast(message, title, variant);
+  };
+
   const handleSubmitAgent = async () => {
     createAgentMutation.reset();
 
@@ -33,20 +40,12 @@ export function IndependentConsultantBusinessCreationPage() {
     const normalizedMobile = normalizePhoneDigits(mobile);
 
     if (!trimmedFullName) {
-      setToast({
-        message: "نام و نام خانوادگی مشاور الزامی است.",
-        title: "خطا",
-        variant: "error",
-      });
+      showToast("نام و نام خانوادگی مشاور الزامی است.", "خطا", "error");
       return false;
     }
 
     if (!normalizedMobile) {
-      setToast({
-        message: "شماره همراه الزامی است.",
-        title: "خطا",
-        variant: "error",
-      });
+      showToast("شماره همراه الزامی است.", "خطا", "error");
       return false;
     }
 
@@ -57,13 +56,10 @@ export function IndependentConsultantBusinessCreationPage() {
         phonenumber: normalizedMobile,
       });
 
+      showToast("اطلاعات مشاور با موفقیت ثبت شد و در انتظار تایید است.", "موفقیت", "success");
       return true;
     } catch (error) {
-      setToast({
-        message: getApiErrorMessage(error, "ایجاد کسب و کار با خطا مواجه شد."),
-        title: "خطا",
-        variant: "error",
-      });
+      showToast(getApiErrorMessage(error, "ایجاد کسب و کار با خطا مواجه شد."), "خطا", "error");
       return false;
     }
   };

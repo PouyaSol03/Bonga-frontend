@@ -64,6 +64,7 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
     },
     onSuccess: (_, draft) => {
       queryClient.invalidateQueries({ queryKey: ["crmProfileFeedbackItems"] });
+      queryClient.invalidateQueries({ queryKey: ["profileFeedbackItems"] });
       queryClient.invalidateQueries({ queryKey: ["publicProfileFeedbackItems"] });
       notify(
         draft.id ? "معیار بازخورد با موفقیت ویرایش شد." : "معیار بازخورد جدید افزوده شد.",
@@ -81,6 +82,7 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
       updateCrmProfileFeedbackItem(item.id, { is_active: !item.is_active }),
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ["crmProfileFeedbackItems"] });
+      queryClient.invalidateQueries({ queryKey: ["profileFeedbackItems"] });
       queryClient.invalidateQueries({ queryKey: ["publicProfileFeedbackItems"] });
       notify(
         `وضعیت «${updated.title}» به ${updated.is_active ? "فعال" : "غیرفعال"} تغییر یافت.`,
@@ -96,6 +98,7 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
     mutationFn: (id: number) => deleteCrmProfileFeedbackItem(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crmProfileFeedbackItems"] });
+      queryClient.invalidateQueries({ queryKey: ["profileFeedbackItems"] });
       queryClient.invalidateQueries({ queryKey: ["publicProfileFeedbackItems"] });
       notify("معیار بازخورد با موفقیت حذف شد.", "success");
       setDeletingId(null);

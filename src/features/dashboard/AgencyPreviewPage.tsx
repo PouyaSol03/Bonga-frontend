@@ -759,8 +759,12 @@ export function AgencyPreviewPage() {
                 onFeedbackClick={() => {
                   const authSession = getStoredAuthSession();
                   if (!authSession) {
-                    storeLoginRedirectPath(window.location.pathname + window.location.search);
-                    pushRoute("/login");
+                    const redirectPath = `${window.location.pathname}${window.location.search}`;
+                    const params = new URLSearchParams({
+                      action: "ثبت بازخورد",
+                      returnTo: redirectPath,
+                    });
+                    pushRoute(`/login-required?${params.toString()}`);
                     return;
                   }
                   setIsFeedbackModalOpen(true);

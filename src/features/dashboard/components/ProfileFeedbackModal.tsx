@@ -8,7 +8,7 @@ import LinearDislike from "../../../shared/icons/LinearDislike";
 import { useToast } from "../../../shared/hooks/useToast";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import {
-  getPublicProfileFeedbackItems,
+  getProfileFeedbackItems,
   submitProfileFeedback,
   type ProfileFeedbackItem,
   type ProfileFeedbackTargetType,
@@ -33,8 +33,8 @@ export function ProfileFeedbackModal({
   const [ratings, setRatings] = useState<Record<number, boolean | null>>({});
 
   const { data: items = [], isLoading, isError } = useQuery({
-    queryKey: ["publicProfileFeedbackItems"],
-    queryFn: getPublicProfileFeedbackItems,
+    queryKey: ["profileFeedbackItems"],
+    queryFn: getProfileFeedbackItems,
     enabled: isOpen,
     staleTime: 5 * 60 * 1000,
   });

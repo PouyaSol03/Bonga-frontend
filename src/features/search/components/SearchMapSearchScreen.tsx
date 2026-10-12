@@ -452,7 +452,7 @@ function SearchMapField({
 
   return (
     <form
-      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-surface-container-lowest px-3 text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-primary/25 ${
+      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-surface-container-lowest pl-3 text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-primary/25 ${
         query ? "border-primary" : "border-outline"
       }`}
       dir="rtl"

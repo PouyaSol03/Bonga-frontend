@@ -9,4 +9,4 @@ export const SORT_OPTIONS: SortOption[] = [
 
 export const DIRECTORY_PAGE_SIZE = 20;
 export const LOAD_MORE_REMAINING_ITEM_COUNT = 10;
-export const SEARCH_DEBOUNCE_MS = 350;
+export const SEARCH_DEBOUNCE_MS = 300;

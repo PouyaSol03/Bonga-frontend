@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
+import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { TopBar } from "../../../shared/components/TopBar";
 import SearchErrors from "./SearchErrors";
 import { useCitySearchQuery } from "../../cities/api/city.hooks";
@@ -50,10 +51,11 @@ export function CitySelectionScreen({
   const [selectedCityId, setSelectedCityId] = useState(getStoredCityId);
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query.trim(), 300);
 
   const { data: apiCities = [], error, isError, isLoading, refetch } = useCitySearchQuery({
     enabled: isOpen,
-    q: isSearching ? query.trim() : "",
+    q: isSearching ? debouncedQuery : "",
   });
   const CityErrorState = getRequestErrorState(error);
   const cityList = useMemo<UiCityOption[]>(() => {

@@ -55,3 +55,5 @@ export function StarIcon() {
     </svg>
   );
 }
+
+export { SortIcon } from "../../advertisements/create/components/SortIcon";

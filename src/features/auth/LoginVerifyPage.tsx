@@ -18,6 +18,7 @@ import {
   normalizeMobile,
 } from "./api/auth.service";
 import { getMyProfile } from "../account/api/account.service";
+import { useProfileStore } from "../account/stores/useProfileStore";
 import { searchCities } from "../cities/api/city.service";
 import { useToast } from "../../shared/hooks/useToast";
 import {
@@ -116,9 +117,10 @@ export function LoginVerifyPage() {
       .then((content: unknown) => {
         const code = (content as { code?: string })?.code;
         if (code) {
-          const digits = normalizeDigits(code).replace(/\D/g, "").slice(0, 4);
+          const rawMatch = normalizeDigits(code).match(/\d{4,6}/);
+          const digits = (rawMatch ? rawMatch[0] : normalizeDigits(code).replace(/\D/g, "")).slice(0, 4);
           if (digits.length === 4) {
-            setVerificationCode(digits);
+            handleCodeChange(digits);
           }
         }
       })
@@ -191,7 +193,8 @@ export function LoginVerifyPage() {
       const redirectPath = consumeLoginRedirectPath() || "/account";
 
       try {
-        await getMyProfile();
+        const userProfile = await getMyProfile();
+        useProfileStore.getState().setProfile(userProfile);
       } catch (profileError) {
         const msg = getAuthErrorMessage(profileError, "دریافت وضعیت احراز هویت با خطا مواجه شد.");
         showToast(msg, "بررسی حساب ناموفق بود!", "error");

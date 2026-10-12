@@ -13,6 +13,7 @@ import { useNotificationUnreadCountQuery } from "../notifications/api/notificati
 import { getApiAssetUrl } from "../../shared/api/api";
 import { formatMobileForDisplay } from "../auth/api/auth.service";
 import { isUserIdentityVerified, type MyAgencyProfile, type UserProfile } from "./api/account.service";
+import { useProfileStore } from "./stores/useProfileStore";
 
 import {
   authSessionChangedEventName,
@@ -186,6 +187,12 @@ export function MyAccountPage() {
       window.removeEventListener("storage", syncAuthSession);
     };
   }, []);
+
+  useEffect(() => {
+    if (authSession) {
+      void useProfileStore.getState().fetchProfile(true);
+    }
+  }, [authSession]);
   const businessSuccessSheet = (
     <AccountBusinessSuccessSheet
       isOpen={isBusinessSuccessOpen}

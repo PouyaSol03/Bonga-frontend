@@ -432,7 +432,7 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
           };
           const isIncomplete = statusInfo.key === "incomplete";
           const destination = isIncomplete
-            ? getAdEditPath(adId)
+            ? getAdEditPath(adId, "/account/my-ads")
             : `/account/my-ads/${encodeURIComponent(adId)}/state-ad`;
           const destinationState = isIncomplete
             ? {

@@ -76,7 +76,7 @@ export function IndependentConsultantAdPublishedPage(props?: IndependentConsulta
         <div className="min-h-[300px] flex-1 bg-surface-container-lowest">
           <PublishedAction icon="preview" label="پیش‌نمایش" returnTo={backTo} to={getAdPreviewPath(ad.id)} />
           <PublishedActionDivider />
-          <PublishedAction ad={ad} icon="edit" label="ویرایش" returnTo={backTo} to={getAdEditPath(ad.id)} />
+          <PublishedAction ad={ad} icon="edit" label="ویرایش" returnTo={backTo} to={getAdEditPath(ad.id, backTo)} />
           <PublishedActionDivider />
           <PublishedAction
             ad={ad}

@@ -62,7 +62,7 @@ export function IndependentConsultantAdAllocationPage() {
             to={getAdPreviewPath(ad.id)}
           />
           <div className="h-px bg-outline-var" aria-hidden="true" />
-          <AllocationAction icon="edit" label="ویرایش" state={{ ad, card: ad, editReturnTo: adManagementPaths.allocation, isEditMode: true }} to={getAdEditPath(ad.id)} />
+          <AllocationAction icon="edit" label="ویرایش" state={{ ad, card: ad, editReturnTo: adManagementPaths.allocation, isEditMode: true }} to={getAdEditPath(ad.id, adManagementPaths.allocation)} />
         </div>
       </main>
 

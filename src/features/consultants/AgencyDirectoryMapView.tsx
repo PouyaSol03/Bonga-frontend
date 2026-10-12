@@ -7,7 +7,7 @@ import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { searchMapTileConfig } from "../search/searchMapData";
 import { defaultSelectedCity } from "../../shared/lib/selectedCityStorage";
-import LinearSearch from "../../shared/icons/LinearSearch";
+import { SearchInputBar } from "../../shared/ui/SearchBar";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { createAgencyMarkerIcon } from "./map/AgencyMarkerIcon";
@@ -135,16 +135,17 @@ export function AgencyDirectoryMapView({
         </MapContainer>
 
         {isSelection ? (
-          <label className="absolute inset-x-4 top-4 z-[500] flex h-12 items-center gap-3 rounded-xl border border-outline bg-surface-container-lowest px-4 text-on-surface-var shadow-[0_3px_12px_rgba(26,26,26,0.08)] focus-within:border-primary">
-            <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base leading-6 text-on-surface outline-none placeholder:text-outline"
-              onChange={(event) => onSearchChange?.(event.target.value)}
+          <div className="absolute inset-x-4 top-4 z-[500] shadow-[0_3px_12px_rgba(26,26,26,0.08)]">
+            <SearchInputBar
+              compact
+              debounceMs={300}
+              onClear={() => onSearchChange?.("")}
+              onDebouncedChange={(value) => onSearchChange?.(value)}
+              onValueChange={(value) => onSearchChange?.(value)}
               placeholder={searchPlaceholder}
-              type="search"
               value={searchValue}
             />
-            <LinearSearch className="w-6 h-6 text-on-surface-var" />
-          </label>
+          </div>
         ) : null}
 
         {isSelection && searchValue.trim() && items.length === 0 ? (

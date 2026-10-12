@@ -38,7 +38,7 @@ const sortOptions: Array<{ id: AgencySort; title: string }> = [
   { id: "oldest", title: "با سابقه‌ترین" },
 ];
 
-function useDebouncedValue(value: string, delay = 350) {
+function useDebouncedValue(value: string, delay = 300) {
   const [debounced, setDebounced] = useState(value);
 
   useEffect(() => {
@@ -199,7 +199,7 @@ export function AgencySelectionStep({
   const [view, setView] = useState<"list" | "map">("list");
   const observerRef = useRef<IntersectionObserver | null>(null);
   const debouncedSearch = useDebouncedValue(search.trim());
-  const debouncedNeighborhoodSearch = useDebouncedValue(neighborhoodSearch.trim(), 250);
+  const debouncedNeighborhoodSearch = useDebouncedValue(neighborhoodSearch.trim(), 300);
   const selectedCity = readStoredSelectedCity();
 
   const agenciesQuery = useAgencyInfiniteQuery({

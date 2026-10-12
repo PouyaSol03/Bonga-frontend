@@ -94,7 +94,7 @@ export function HomeSearchScreen({
   const [isSavedView, setIsSavedView] = useState(false);
 
   const trimmedQuery = query.trim();
-  const debouncedQuery = useDebouncedValue(trimmedQuery, 250);
+  const debouncedQuery = useDebouncedValue(trimmedQuery, 300);
   const isResultsView = trimmedQuery.length > 0;
   const isAuthenticated = Boolean(getStoredAuthSession());
   const hasEnoughSearchQueryLength = trimmedQuery.length >= minSearchQueryLength;

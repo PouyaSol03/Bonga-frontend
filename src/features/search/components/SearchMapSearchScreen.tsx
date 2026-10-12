@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 
 import BoldBookmarkSolid from "../../../shared/icons/BoldBookmarkSolid";
 import LinearBookmarkSolid from "../../../shared/icons/LinearBookmarkSolid";
-import LinearCancelCircle from "../../../shared/icons/LinearCancelCircle";
 import { TopBar } from "../../../shared/components/TopBar";
+import { SearchInputBar } from "../../../shared/ui/SearchBar";
 import { AdCardSkeleton } from "../../advertisements/components/AdCardSkeleton";
 import SearchErrors from "../../home/components/SearchErrors";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
@@ -139,8 +139,7 @@ export function SearchMapSearchScreen({
     if (closeAfterPublish) onClose();
   };
 
-  const updateQuery = (nextQuery: string) => {
-    setQuery(nextQuery);
+  const handleDebouncedQueryChange = (nextQuery: string) => {
     const normalized = normalizeQuery(nextQuery);
 
     if (normalized === lastPublishedQueryRef.current) return;
@@ -180,7 +179,8 @@ export function SearchMapSearchScreen({
               isSaved={isCurrentSearchSaved}
               isSaving={saveMutation.isPending}
               isOpen={isOpen}
-              onQueryChange={updateQuery}
+              onDebouncedQueryChange={handleDebouncedQueryChange}
+              onQueryChange={setQuery}
               onSavedClick={saveCurrentSearch}
               onSubmit={() => publishQuery(query, true)}
               query={query}
@@ -405,6 +405,7 @@ function SearchMapField({
   isSaved,
   isSaving,
   isOpen,
+  onDebouncedQueryChange,
   onQueryChange,
   onSavedClick,
   onSubmit,
@@ -414,63 +415,51 @@ function SearchMapField({
   isSaved: boolean;
   isSaving: boolean;
   isOpen: boolean;
+  onDebouncedQueryChange: (query: string) => void;
   onQueryChange: (query: string) => void;
   onSavedClick: () => void;
   onSubmit: () => void;
   query: string;
 }) {
   return (
-    <form
-      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-surface-container-lowest text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-primary/25 ${
-        query ? "border-primary" : "border-outline"
-      }`}
-      dir="rtl"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit();
+    <SearchInputBar
+      autoFocus={isOpen}
+      compact
+      debounceMs={300}
+      inputClassName="home-search-input"
+      onClear={() => {
+        onQueryChange("");
+        onDebouncedQueryChange("");
       }}
-    >
-      <Button unstyled
-        aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
-        aria-pressed={isSaved}
-        className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
-          isSaved || isSaving
-            ? "text-on-surface"
-            : "text-on-surface-var active:bg-primary-container"
-        }`}
-        disabled={isSaveDisabled || isSaving || isSaved}
-        onClick={onSavedClick}
-        tabIndex={isOpen ? 0 : -1}
-        type="button"
-      >
-        {isSaved || isSaving ? (
-          <BoldBookmarkSolid className="h-6 w-6" />
-        ) : (
-          <LinearBookmarkSolid className="h-6 w-6" />
-        )}
-      </Button>
-      <div aria-hidden="true" className="me-3 h-6 w-px shrink-0 bg-outline-var" />
-      <input
-        aria-label="جستجو در آگهی‌های نقشه"
-        autoFocus={isOpen}
-        className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-on-surface caret-primary outline-none placeholder:text-outline"
-        onChange={(event) => onQueryChange(event.target.value)}
-        placeholder="جستجو در آگهی‌ها"
-        tabIndex={isOpen ? 0 : -1}
-        type="search"
-        value={query}
-      />
-      {query ? (
+      onDebouncedChange={onDebouncedQueryChange}
+      onSubmit={onSubmit}
+      onValueChange={onQueryChange}
+      placeholder="جستجو در آگهی‌ها"
+      savedSlot={
         <Button unstyled
-          aria-label="پاک کردن جستجو"
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-outline transition active:bg-surface-container"
-          onClick={() => onQueryChange("")}
+          aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
+          aria-pressed={isSaved}
+          className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
+            isSaved || isSaving
+              ? "text-on-surface"
+              : "text-on-surface-var active:bg-primary-container"
+          }`}
+          disabled={isSaveDisabled || isSaving || isSaved}
+          onClick={onSavedClick}
           tabIndex={isOpen ? 0 : -1}
           type="button"
         >
-          <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
+          {isSaved || isSaving ? (
+            <BoldBookmarkSolid className="h-6 w-6" />
+          ) : (
+            <LinearBookmarkSolid className="h-6 w-6" />
+          )}
         </Button>
-      ) : null}
-    </form>
+      }
+      showSearchIcon={false}
+      tabIndex={isOpen ? 0 : -1}
+      type="search"
+      value={query}
+    />
   );
 }

@@ -5,6 +5,7 @@ import { Circle, MapContainer, Marker, Polygon, TileLayer, useMap, useMapEvents 
 import type { BrowserLocation } from "../../../shared/lib/browserLocation";
 import type { NeighborhoodGeoPoint } from "../../locations/api/neighborhood.service";
 import { SearchMapMarker } from "./SearchMapMarker";
+import { SearchMapClusterLayer } from "../clusters/SearchMapClusterLayer";
 import { SearchMapGeofenceConfirmedLayer } from "../geofence/SearchMapGeofenceConfirmedLayer";
 import { SearchMapGeofenceLayer } from "../geofence/SearchMapGeofenceLayer";
 import { SearchMapGeofencePreviewLayer } from "../geofence/SearchMapGeofencePreviewLayer";
@@ -284,22 +285,14 @@ function SearchMapViewComponent({
         />
       ))}
 
-      {listings.map((listing) => {
-        const isSelected =
-          selectedListingId != null &&
-          String(listing.id) === String(selectedListingId);
-
-        return (
-          <SearchMapMarker
-            key={listing.id}
-            listing={listing}
-            isPriceVisible={isSelected || priceMarkerListingIds.has(listing.id)}
-            isSeen={seenListingIds.has(listing.id)}
-            isSelected={isSelected}
-            onSelect={onSelectListing}
-          />
-        );
-      })}
+      <SearchMapClusterLayer
+        listings={listings}
+        priceMarkerListingIds={priceMarkerListingIds}
+        seenListingIds={seenListingIds}
+        selectedListingId={selectedListingId}
+        onSelectListing={onSelectListing}
+        maxZoom={tileConfig.maxZoom}
+      />
 
       {userLocation ? (
         <>

@@ -1,4 +1,13 @@
-import { forwardRef, type ButtonHTMLAttributes, type FormEvent, type InputHTMLAttributes, type ReactNode } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useRef,
+  type ButtonHTMLAttributes,
+  type ChangeEvent,
+  type FormEvent,
+  type InputHTMLAttributes,
+  type ReactNode,
+} from "react";
 
 import { cn, focusRing } from "../../design-system/classes";
 import LinearBookmarkSolid from "../icons/LinearBookmarkSolid";
@@ -44,8 +53,10 @@ export function SearchBar({
 type SearchInputBarProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "size" | "value"> & {
   compact?: boolean;
   containerClassName?: string;
+  debounceMs?: number;
   inputClassName?: string;
   onClear?: () => void;
+  onDebouncedChange?: (value: string) => void;
   onSubmit?: () => void;
   onValueChange: (value: string) => void;
   savedSlot?: ReactNode;
@@ -59,8 +70,10 @@ export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(
     className = "",
     compact = false,
     containerClassName = "",
+    debounceMs = 300,
     inputClassName = "",
     onClear,
+    onDebouncedChange,
     onSubmit,
     onValueChange,
     placeholder = "جستجو",
@@ -76,8 +89,42 @@ export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(
 ) {
   const hasValue = value.length > 0;
   const resolvedSize = size ?? (compact ? "compact" : "default");
+  const debounceTimerRef = useRef<number | null>(null);
+
+  const clearDebounceTimer = () => {
+    if (debounceTimerRef.current !== null) {
+      window.clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => clearDebounceTimer();
+  }, []);
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.target.value;
+    onValueChange(nextValue);
+
+    if (onDebouncedChange) {
+      clearDebounceTimer();
+      debounceTimerRef.current = window.setTimeout(() => {
+        onDebouncedChange(nextValue);
+      }, debounceMs);
+    }
+  };
+
+  const handleClear = () => {
+    clearDebounceTimer();
+    onValueChange("");
+    onClear?.();
+    onDebouncedChange?.("");
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    clearDebounceTimer();
+    onDebouncedChange?.(value);
     onSubmit?.();
   };
 
@@ -108,7 +155,7 @@ export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(
           inputClassName,
           className,
         )}
-        onChange={(event) => onValueChange(event.target.value)}
+        onChange={handleChange}
         placeholder={placeholder}
         ref={ref}
         tabIndex={tabIndex}
@@ -117,11 +164,11 @@ export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(
         {...props}
       />
 
-      {hasValue && onClear ? (
+      {hasValue && (onClear || onDebouncedChange) ? (
         <Button unstyled
           aria-label="پاک کردن جستجو"
           className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-outline transition active:bg-surface-container"
-          onClick={onClear}
+          onClick={handleClear}
           tabIndex={tabIndex}
           type="button"
         >

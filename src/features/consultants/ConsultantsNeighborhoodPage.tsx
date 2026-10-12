@@ -145,7 +145,7 @@ export function ConsultantsNeighborhoodPage() {
               return (
                 <Button unstyled
                   aria-pressed={checked}
-                  className="flex w-full items-center justify-between gap-5 py-3.5 text-right active:bg-surface-container"
+                  className="flex w-full items-center justify-between gap-5 py-3.5 text-right [-webkit-tap-highlight-color:transparent]"
                   key={neighborhoodId}
                   onClick={() => setSelectedNeighborhood(neighborhood)}
                   type="button"

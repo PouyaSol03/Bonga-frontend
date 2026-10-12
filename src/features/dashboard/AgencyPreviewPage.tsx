@@ -20,12 +20,12 @@ import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
 import LinearLocation from "../../shared/icons/LinearLocation";
 import LinearQrCode from "../../shared/icons/LinearQrCode";
 import LinearRanking from "../../shared/icons/LinearRanking";
-import LinearSearch from "../../shared/icons/LinearSearch";
 import LinearShare from "../../shared/icons/LinearShare";
 import LinearStar from "../../shared/icons/LinearStar";
 import LinearTag from "../../shared/icons/LinearTag";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { SearchInputBar } from "../../shared/ui/SearchBar";
 import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
 import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
@@ -1329,16 +1329,17 @@ function AgencyAdsTab({
             <LinearFilterHorizontal className="h-6 w-6" />
           </Button>
         ) : null}
-        <label className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border border-outline-var bg-surface-container-lowest px-3 [direction:rtl]">
-          <LinearSearch className="h-6 w-6 shrink-0 text-on-surface-var" />
-          <input
-            className="min-w-0 flex-1 border-0 bg-transparent text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
-            onChange={(event) => setQuery(event.target.value)}
+        <div className="min-w-0 flex-1">
+          <SearchInputBar
+            compact
+            debounceMs={300}
+            onClear={() => setQuery("")}
+            onDebouncedChange={setQuery}
+            onValueChange={setQuery}
             placeholder="جستجو در آگهی‌ها"
-            type="search"
             value={query}
           />
-        </label>
+        </div>
       </div>
 
       <div className="flex flex-col pt-4">

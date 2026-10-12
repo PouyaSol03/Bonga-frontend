@@ -1,6 +1,7 @@
 import { getNeighborhoodDescription, type NeighborhoodDto } from "../../../locations/api/neighborhood.service";
 import { RadioIndicator } from "../../../../shared/components/RadioIndicator";
 import { SearchEmptyState } from "../../../../shared/components/SearchEmptyState";
+import { SearchInputBar } from "../../../../shared/ui/SearchBar";
 import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
 
@@ -61,16 +62,16 @@ export function AgencyNeighborhoodFilterPage({
           <BackIcon />
         </Button>
 
-        <label className="flex h-12 min-w-0 flex-1 items-center rounded-xl border border-outline bg-surface-container-lowest px-4 focus-within:border-primary focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-primary/20">
-          <input
-            autoFocus
-            className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base leading-6 text-on-surface outline-none placeholder:text-outline"
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="جستجو محله"
-            type="search"
-            value={search}
-          />
-        </label>
+        <SearchInputBar
+          autoFocus
+          compact
+          containerClassName="flex-1 border-outline"
+          onClear={() => onSearchChange("")}
+          onValueChange={onSearchChange}
+          placeholder="جستجو محله"
+          showSearchIcon={false}
+          value={search}
+        />
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-24 [-webkit-overflow-scrolling:touch]">

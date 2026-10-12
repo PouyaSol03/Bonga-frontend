@@ -8,7 +8,7 @@ import LinearLike from "../../../shared/icons/LinearLike";
 import LinearDislike from "../../../shared/icons/LinearDislike";
 import { useConfirmUserDealResultMutation } from "../../advertisements/api/agency-advertise-assignment.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { replaceRoute } from "../../../shared/navigation/navigation";
 
 export type AgencyDealResultPageProps = {
   adId?: string | number;
@@ -24,7 +24,7 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
   const confirmDealResultMutation = useConfirmUserDealResultMutation();
 
   const handleGoBack = () => {
-    pushRoute(returnTo);
+    replaceRoute(returnTo, undefined, { rememberCurrent: false });
   };
 
   const handleSubmit = async () => {
@@ -37,7 +37,7 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
       if (props?.onSuccess) {
         props.onSuccess();
       } else {
-        pushRoute(returnTo);
+        replaceRoute(returnTo, undefined, { rememberCurrent: false });
       }
     } catch (err) {
       alert(getApiErrorMessage(err, "ثبت نتیجه درخواست با خطا مواجه شد."));

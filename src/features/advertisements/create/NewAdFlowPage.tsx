@@ -1362,17 +1362,17 @@ export function NewAdFlowPage() {
               const returnTo = editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`;
               const separator = returnTo.includes("?") ? "&" : "?";
 
-              navigateTo(`${returnTo}${separator}updated=1`, {
+              replaceRoute(`${returnTo}${separator}updated=1`, {
                 crmEditSuccess: true,
                 isEditMode: true,
-              });
+              }, { rememberCurrent: false });
               return;
             }
 
             const createdId = getCrmRecordId(savedAdvertise);
-            navigateTo(createdId
+            replaceRoute(createdId
               ? `/crm/advertises/${encodeURIComponent(createdId)}?created=1`
-              : "/crm/advertises?created=1");
+              : "/crm/advertises?created=1", undefined, { rememberCurrent: false });
           },
         },
       );
@@ -1431,14 +1431,14 @@ export function NewAdFlowPage() {
             : adManagementPaths.published);
         const separator = targetPath.includes("?") ? "&" : "?";
 
-        navigateTo(`${targetPath}${separator}updated=1`, {
+        replaceRoute(`${targetPath}${separator}updated=1`, {
           ad: currentAd,
           card: currentCard,
           isEditMode: true,
           returnTo: editAdState.returnTo,
           status: statusInfo.key,
           tab: editAdState.tab ?? "status",
-        });
+        }, { rememberCurrent: false });
         return;
       }
 
@@ -1465,14 +1465,14 @@ export function NewAdFlowPage() {
                 : adManagementPaths.published);
             const separator = targetPath.includes("?") ? "&" : "?";
 
-            navigateTo(`${targetPath}${separator}updated=1`, {
+            replaceRoute(`${targetPath}${separator}updated=1`, {
               ad: updatedAd,
               card: updatedCard,
               isEditMode: true,
               returnTo: editAdState.returnTo,
               status: statusInfo.key,
               tab: editAdState.tab ?? "status",
-            });
+            }, { rememberCurrent: false });
           },
         },
       );

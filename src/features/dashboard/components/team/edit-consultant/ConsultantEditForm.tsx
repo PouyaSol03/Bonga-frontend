@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { pushRoute } from "../../../../../shared/navigation/navigation";
+import { replaceRoute } from "../../../../../shared/navigation/navigation";
 import { Button } from "../../../../../shared/ui/Button";
 import { ConsultantProfilePill } from "../ConsultantCardWidgets";
 import type { TeamConsultant, AccessRole } from "../teamTypes";
@@ -97,7 +97,7 @@ export function ConsultantEditForm({
       {
         onSuccess: () => {
           showToast("اطلاعات مشاور با موفقیت بروزرسانی شد.");
-          pushRoute("/account/dashboard/team");
+          replaceRoute("/account/dashboard/team", undefined, { rememberCurrent: false });
         },
         onError: (err: any) => {
           const msg = err?.message || "خطا در اعمال تغییرات";

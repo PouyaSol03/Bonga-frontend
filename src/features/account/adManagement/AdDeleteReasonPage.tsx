@@ -53,7 +53,7 @@ export function AdDeleteReasonPage() {
         description: selectedReasonLabel,
       });
 
-      window.history.pushState(
+      window.history.replaceState(
         {
           ...routeState,
           deletedAdId: adId,

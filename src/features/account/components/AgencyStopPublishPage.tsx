@@ -7,7 +7,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
 import { useCreateStopPublishRequestMutation } from "../../advertisements/api/agency-advertise-assignment.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { replaceRoute } from "../../../shared/navigation/navigation";
 
 const STOP_PUBLISH_OPTIONS = [
   { id: "deal_done", label: "معامله انجام شده است" },
@@ -30,7 +30,7 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
   const createStopRequestMutation = useCreateStopPublishRequestMutation();
 
   const handleGoBack = () => {
-    pushRoute(returnTo);
+    replaceRoute(returnTo, undefined, { rememberCurrent: false });
   };
 
   const handleSubmit = async () => {
@@ -44,7 +44,7 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
       if (props?.onSuccess) {
         props.onSuccess();
       } else {
-        pushRoute(returnTo);
+        replaceRoute(returnTo, undefined, { rememberCurrent: false });
       }
     } catch (err) {
       alert(getApiErrorMessage(err, "ثبت درخواست توقف با خطا مواجه شد."));

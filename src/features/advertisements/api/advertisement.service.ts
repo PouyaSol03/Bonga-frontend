@@ -6,6 +6,7 @@ import { getAdvertisementImageUrls } from "../utils/advertisement-images";
 import {
   createV2Advertisement,
   createV2Draft,
+  finalizeV2Draft,
   getV2Checkout,
   getV2Preview,
   getV2AdvertisementPayments,
@@ -1200,8 +1201,34 @@ export async function getMyAdvertisementDetail(id: string): Promise<Advertisemen
   return normalizeAdvertisementLoan(response as AdvertisementItem);
 }
 
-export async function createAdvertisement(payload: FormData) {
-  const response = (await createV2Advertisement(payload)) as AdvertisementCreateResponse;
+export async function createAdvertisement(
+  arg: FormData | { payload: FormData; draftId?: string | number | null },
+) {
+  let payload: FormData;
+  let draftId: string | number | null | undefined;
+
+  if (arg instanceof FormData) {
+    payload = arg;
+    const rawId = arg.get("id");
+    if (rawId !== null && rawId !== undefined && String(rawId).trim() !== "") {
+      draftId = String(rawId).trim();
+    }
+  } else {
+    payload = arg.payload;
+    draftId = arg.draftId;
+    if (!draftId) {
+      const rawId = arg.payload.get("id");
+      if (rawId !== null && rawId !== undefined && String(rawId).trim() !== "") {
+        draftId = String(rawId).trim();
+      }
+    }
+  }
+
+  const response = (
+    draftId
+      ? await finalizeV2Draft(draftId, payload)
+      : await createV2Advertisement(payload)
+  ) as AdvertisementCreateResponse;
 
   const createdAdvertise = "data" in response && response.data
     ? response.data as AdvertisementItem
@@ -1212,6 +1239,26 @@ export async function createAdvertisement(payload: FormData) {
         : response as AdvertisementItem;
 
   return createdAdvertise;
+}
+
+export async function finalizeAdvertisement(
+  advertiseId: string | number,
+  payload: FormData,
+) {
+  const response = (await finalizeV2Draft(
+    advertiseId,
+    payload,
+  )) as AdvertisementCreateResponse;
+
+  const finalizedAdvertise = "data" in response && response.data
+    ? response.data as AdvertisementItem
+    : "result" in response && response.result
+      ? response.result as AdvertisementItem
+      : "advertise" in response && response.advertise
+        ? response.advertise as AdvertisementItem
+        : response as AdvertisementItem;
+
+  return finalizedAdvertise;
 }
 
 export async function saveAdvertiseDraft(

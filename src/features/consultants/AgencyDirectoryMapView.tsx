@@ -5,21 +5,15 @@ import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import ListIcon from "../../shared/assets/icons/ListIcon";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
-import { searchMapCenter, searchMapTileConfig } from "../search/searchMapData";
+import { searchMapTileConfig } from "../search/searchMapData";
+import { defaultSelectedCity } from "../../shared/lib/selectedCityStorage";
 import LinearSearch from "../../shared/icons/LinearSearch";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { createAgencyMarkerIcon } from "./map/AgencyMarkerIcon";
 import { AgencyMapController } from "./map/AgencyMapController";
-import {
-  AgencyDirectoryCard,
-  AgencyMapSelectionFooter,
-  AgencySelectionCard,
-} from "./map/AgencyMapCards";
-import type {
-  AgencyDirectoryMapItem,
-  AgencyDirectoryMapViewProps,
-} from "./map/AgencyMap.types";
+import { AgencyDirectoryCard, AgencyMapSelectionFooter, AgencySelectionCard } from "./map/AgencyMapCards";
+import type { AgencyDirectoryMapItem, AgencyDirectoryMapViewProps } from "./map/AgencyMap.types";
 
 export type { AgencyDirectoryMapItem, AgencyDirectoryMapViewProps };
 
@@ -58,13 +52,19 @@ export function AgencyDirectoryMapView({
       ),
     [items],
   );
-  const cityMappableItems = useMemo(() => {
-    if (!center) return mappableItems;
-    const nearby = mappableItems.filter(
-      (item) => Math.abs(item.latitude - center.latitude) <= 1.5 && Math.abs(item.longitude - center.longitude) <= 1.5,
-    );
-    return nearby.length > 0 ? nearby : mappableItems;
-  }, [center, mappableItems]);
+  const fallbackCenter = center ?? {
+    latitude: defaultSelectedCity.latitude,
+    longitude: defaultSelectedCity.longitude,
+  };
+  const cityMappableItems = useMemo(
+    () =>
+      mappableItems.filter(
+        (item) =>
+          Math.abs(item.latitude - fallbackCenter.latitude) <= 0.8 &&
+          Math.abs(item.longitude - fallbackCenter.longitude) <= 0.8,
+      ),
+    [fallbackCenter.latitude, fallbackCenter.longitude, mappableItems],
+  );
   const selectedItem = useMemo(
     () =>
       selectedAgencyId === null
@@ -72,17 +72,17 @@ export function AgencyDirectoryMapView({
         : mappableItems.find((item) => item.id === selectedAgencyId) ?? null,
     [mappableItems, selectedAgencyId],
   );
-  const pointsCenter = useMemo(() => {
-    const target = cityMappableItems.length > 0 ? cityMappableItems : mappableItems;
-    if (target.length === 0) return null;
-    const sumLat = target.reduce((acc, item) => acc + item.latitude, 0);
-    const sumLng = target.reduce((acc, item) => acc + item.longitude, 0);
-    return { latitude: sumLat / target.length, longitude: sumLng / target.length };
-  }, [cityMappableItems, mappableItems]);
-  const initialCenter = pointsCenter ?? center ?? {
-    latitude: searchMapCenter.latitude,
-    longitude: searchMapCenter.longitude,
-  };
+  const targetCenter = useMemo(() => {
+    if (cityMappableItems.length > 0) {
+      const sumLat = cityMappableItems.reduce((acc, item) => acc + item.latitude, 0);
+      const sumLng = cityMappableItems.reduce((acc, item) => acc + item.longitude, 0);
+      return {
+        latitude: sumLat / cityMappableItems.length,
+        longitude: sumLng / cityMappableItems.length,
+      };
+    }
+    return fallbackCenter;
+  }, [cityMappableItems, fallbackCenter]);
   const isSelection = variant === "selection";
 
   return (
@@ -92,12 +92,12 @@ export function AgencyDirectoryMapView({
       <main className="relative min-h-0 flex-1 overflow-hidden">
         <MapContainer
           attributionControl={false}
-          center={[initialCenter.latitude, initialCenter.longitude]}
+          center={[targetCenter.latitude, targetCenter.longitude]}
           className="h-full min-h-[320px] w-full bg-surface-container"
           maxZoom={searchMapTileConfig.maxZoom}
           minZoom={searchMapTileConfig.minZoom}
           preferCanvas
-          zoom={15}
+          zoom={13}
           zoomControl={false}
         >
           <TileLayer
@@ -109,8 +109,7 @@ export function AgencyDirectoryMapView({
           />
 
           <AgencyMapController
-            center={center}
-            items={cityMappableItems.length > 0 ? cityMappableItems : mappableItems}
+            center={targetCenter}
             onMapClick={() => onSelectAgency(null)}
           />
 

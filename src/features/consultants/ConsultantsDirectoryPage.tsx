@@ -3,6 +3,7 @@ import { TopBar } from "../../shared/components/TopBar";
 import { SEO } from "../../shared/components/SEO";
 import { Typography } from "../../shared/ui/Typography";
 import { pushRoute } from "../../shared/navigation/navigation";
+import { defaultSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { clearConsultantsSelectedNeighborhood } from "./consultantsNeighborhoodSelection";
 import { AgencyDirectoryMapView } from "./AgencyDirectoryMapView";
 import { DirectoryFilterBar } from "./components/DirectoryFilterBar";
@@ -73,9 +74,14 @@ export function ConsultantsDirectoryPage() {
   };
 
   if (isMapOpen && mode === "agency") {
-    const mapCenter = selectedCity?.latitude !== undefined && selectedCity.longitude !== undefined
-      ? { latitude: selectedCity.latitude, longitude: selectedCity.longitude }
-      : undefined;
+    const mapCenter =
+      selectedCity?.latitude !== undefined &&
+      selectedCity.longitude !== undefined
+        ? { latitude: selectedCity.latitude, longitude: selectedCity.longitude }
+        : {
+            latitude: defaultSelectedCity.latitude,
+            longitude: defaultSelectedCity.longitude,
+          };
 
     return (
       <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]" variant="flush">

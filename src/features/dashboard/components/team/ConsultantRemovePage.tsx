@@ -169,7 +169,7 @@ export function ConsultantRemovePage() {
               {
                 onSuccess: () => {
                   showToast("مشاور با موفقیت حذف شد.");
-                  window.history.pushState({}, "", "/account/dashboard/team");
+                  window.history.replaceState({}, "", "/account/dashboard/team");
                   window.dispatchEvent(new PopStateEvent("popstate"));
                 },
                 onError: (error) => {

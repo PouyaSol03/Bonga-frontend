@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { replaceRoute } from "../../../shared/navigation/navigation";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { useToast } from "../../../shared/hooks/useToast";
 import {
@@ -77,7 +77,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
   };
 
   function navigateBackToReview() {
-    pushRoute(reviewPath, reviewState, { rememberCurrent: false });
+    replaceRoute(reviewPath, reviewState, { rememberCurrent: false });
   }
 
   function handleConfirm() {
@@ -105,7 +105,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
           );
         },
         onSuccess: () => {
-          pushRoute(adManagementPaths.root, { tab: "status" }, { rememberCurrent: false });
+          replaceRoute(adManagementPaths.root, { tab: "status" }, { rememberCurrent: false });
         },
       },
     );

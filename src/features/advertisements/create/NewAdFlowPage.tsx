@@ -1024,11 +1024,19 @@ export function NewAdFlowPage() {
       : null,
   );
   const submitLockRef = useRef(false);
+  const isInitialIncomplete =
+    isEditMode &&
+    (editAdState.status === "incomplete" ||
+      String(editAdState.status) === "-5" ||
+      editAdState.ad?.status === "incomplete" ||
+      String(editAdState.ad?.status) === "-5" ||
+      (editAdState.ad as Record<string, unknown> | undefined)?.status_code === -5 ||
+      String((editAdState.ad as Record<string, unknown> | undefined)?.status_code) === "-5");
   const [step, setStep] = useState<FlowStep>(
     () => restoredSessionRef.current?.step ?? "details",
   );
   const [draftAdId, setDraftAdId] = useState<string | null>(
-    () => restoredSessionRef.current?.draftAdId ?? (isEditMode ? editAdId : null),
+    () => restoredSessionRef.current?.draftAdId ?? (isInitialIncomplete ? editAdId : null),
   );
   const [fieldErrors, setFieldErrors] = useState<NewAdFieldErrors>({});
   const [submitError, setSubmitError] = useState("");
@@ -1133,6 +1141,12 @@ export function NewAdFlowPage() {
       String(editAdState.status) === "-5");
 
   useRequireAuth();
+
+  useEffect(() => {
+    if (isEditingIncomplete && editAdId && !draftAdId) {
+      setDraftAdId(String(editAdId));
+    }
+  }, [isEditingIncomplete, editAdId, draftAdId]);
 
   useEffect(() => {
     if (!isEditMode) return undefined;
@@ -1348,17 +1362,17 @@ export function NewAdFlowPage() {
               const returnTo = editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`;
               const separator = returnTo.includes("?") ? "&" : "?";
 
-              navigateTo(`${returnTo}${separator}updated=1`, {
+              replaceRoute(`${returnTo}${separator}updated=1`, {
                 crmEditSuccess: true,
                 isEditMode: true,
-              });
+              }, { rememberCurrent: false });
               return;
             }
 
             const createdId = getCrmRecordId(savedAdvertise);
-            navigateTo(createdId
+            replaceRoute(createdId
               ? `/crm/advertises/${encodeURIComponent(createdId)}?created=1`
-              : "/crm/advertises?created=1");
+              : "/crm/advertises?created=1", undefined, { rememberCurrent: false });
           },
         },
       );
@@ -1417,14 +1431,14 @@ export function NewAdFlowPage() {
             : adManagementPaths.published);
         const separator = targetPath.includes("?") ? "&" : "?";
 
-        navigateTo(`${targetPath}${separator}updated=1`, {
+        replaceRoute(`${targetPath}${separator}updated=1`, {
           ad: currentAd,
           card: currentCard,
           isEditMode: true,
           returnTo: editAdState.returnTo,
           status: statusInfo.key,
           tab: editAdState.tab ?? "status",
-        });
+        }, { rememberCurrent: false });
         return;
       }
 
@@ -1451,14 +1465,14 @@ export function NewAdFlowPage() {
                 : adManagementPaths.published);
             const separator = targetPath.includes("?") ? "&" : "?";
 
-            navigateTo(`${targetPath}${separator}updated=1`, {
+            replaceRoute(`${targetPath}${separator}updated=1`, {
               ad: updatedAd,
               card: updatedCard,
               isEditMode: true,
               returnTo: editAdState.returnTo,
               status: statusInfo.key,
               tab: editAdState.tab ?? "status",
-            });
+            }, { rememberCurrent: false });
           },
         },
       );
@@ -1483,9 +1497,12 @@ export function NewAdFlowPage() {
     setFieldErrors({});
     setSubmitError("");
     submitLockRef.current = true;
-    const activeAdId = draftAdId || (isEditingIncomplete ? editAdId : null);
+    const isDraft = Boolean(draftAdId || isEditingIncomplete);
+    const activeAdId = isDraft ? (draftAdId || (isEditingIncomplete ? editAdId : null)) : null;
     if (activeAdId) {
       formData.set("id", String(activeAdId));
+    } else {
+      formData.delete("id");
     }
     createAdvertisement.mutate(formData, {
       onError: (error) => {
@@ -1700,7 +1717,8 @@ export function NewAdFlowPage() {
     formData.delete("label");
     formData.delete("description");
 
-    const activeDraftId = draftAdId || (isEditMode ? editAdId : null);
+    const isDraft = Boolean(draftAdId || isEditingIncomplete);
+    const activeDraftId = isDraft ? (draftAdId || (isEditingIncomplete ? editAdId : null)) : null;
     if (activeDraftId) {
       formData.append("id", activeDraftId);
     }

@@ -8,8 +8,12 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { useDeleteMyBusinessMutation } from "./api/account.hooks";
 
-function navigateTo(path: string) {
-  window.history.pushState({}, "", path);
+function navigateTo(path: string, replace = false) {
+  if (replace) {
+    window.history.replaceState({}, "", path);
+  } else {
+    window.history.pushState({}, "", path);
+  }
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
@@ -17,7 +21,7 @@ function downgradeBusinessToUser() {
   const session = getStoredAuthSession();
 
   if (!session) {
-    navigateTo("/login/phone");
+    navigateTo("/login/phone", true);
     return;
   }
 
@@ -38,7 +42,7 @@ function downgradeBusinessToUser() {
     roles,
   });
 
-  navigateTo("/account");
+  navigateTo("/account", true);
 }
 
 function ConfirmCheckIcon({ checked }: { checked: boolean }) {

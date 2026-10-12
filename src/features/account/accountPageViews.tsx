@@ -28,6 +28,7 @@ import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import LinearUserAccount from "../../shared/icons/LinearUserAccount";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
 import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
+import { DeleteAdBottomSheet } from "./components/DeleteAdBottomSheet";
 
 import { Typography } from "../../shared/ui/Typography";
 import { TextField } from "../../shared/ui/TextField";
@@ -293,20 +294,35 @@ export function AccountMyAdsEmptyState({
 export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
   const availableFilters = adFilters;
   const [activeFilter, setActiveFilter] = useState(availableFilters[0]);
+  const [deletingAdId, setDeletingAdId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
   const deleteMutation = useDeleteAdvertisementMutation();
-  const handleDeleteIncomplete = useCallback(async (targetAdId: string) => {
-    if (!window.confirm("آیا از حذف این آگهی نیمه کاره اطمینان دارید؟")) return;
+
+  const handleOpenDelete = useCallback((targetAdId: string, event?: React.MouseEvent) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    setDeletingAdId(targetAdId);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deletingAdId) return;
+    setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync({
-        advertiseId: targetAdId,
+        advertiseId: deletingAdId,
         deleteReasonId: "other",
         description: "حذف آگهی نیمه کاره",
       });
+      showToast("آگهی با موفقیت حذف شد.", undefined, "success");
+      setDeletingAdId(null);
     } catch (err) {
-      console.error("Failed to delete incomplete ad:", err);
+      showToast(getApiErrorMessage(err, "حذف آگهی با خطا مواجه شد."), "خطا", "error");
+    } finally {
+      setIsDeleting(false);
     }
-  }, [deleteMutation]);
+  }, [deletingAdId, deleteMutation, showToast]);
   const {
     data: adsPages,
     error,
@@ -436,7 +452,7 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
             >
               <AdCard
                 ad={cardWithStatus}
-                onDeleteIncomplete={isIncomplete ? () => void handleDeleteIncomplete(adId) : undefined}
+                onDeleteIncomplete={isIncomplete ? (e) => handleOpenDelete(adId, e) : undefined}
                 showStatusBadge
                 state={destinationState}
                 to={destination}
@@ -449,6 +465,12 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
           <AccountMyAdsEmptyState filterLabel={activeFilter.label} mode={emptyMode} />
         ) : null}
       </div>
+      <DeleteAdBottomSheet
+        isDeleting={isDeleting}
+        isOpen={Boolean(deletingAdId)}
+        onClose={() => !isDeleting && setDeletingAdId(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </main>
   );
 }

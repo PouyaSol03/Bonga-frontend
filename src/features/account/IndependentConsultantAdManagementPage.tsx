@@ -4,7 +4,9 @@ import "../advertisements/components/AdCard.css";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { useActiveAuthRole } from "../../shared/auth/use-active-auth-role";
 import { pushRoute, replaceRoute } from "../../shared/navigation/navigation";
-import { isForbiddenApiError } from "../../shared/api/api";
+import { getApiErrorMessage, isForbiddenApiError } from "../../shared/api/api";
+import { useToast } from "../../shared/hooks/useToast";
+import { DeleteAdBottomSheet } from "./components/DeleteAdBottomSheet";
 import { AccessDeniedState } from "../../shared/components/ErrorState";
 import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
 import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
@@ -329,17 +331,32 @@ export function IndependentConsultantAdManagementPage() {
     isMine: showMineOnly ? true : undefined,
     perPage: assignmentPageSize,
   });
+  const [deletingAdId, setDeletingAdId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
   const deleteMutation = useDeleteAdvertisementMutation();
-  const handleDeleteIncomplete = async (targetAdId: string) => {
-    if (!window.confirm("آیا از حذف این آگهی نیمه کاره اطمینان دارید؟")) return;
+
+  const handleOpenDelete = (targetAdId: string, event?: React.MouseEvent) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    setDeletingAdId(targetAdId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingAdId) return;
+    setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync({
-        advertiseId: targetAdId,
+        advertiseId: deletingAdId,
         deleteReasonId: "other",
         description: "حذف آگهی نیمه کاره",
       });
+      showToast("آگهی با موفقیت حذف شد.", undefined, "success");
+      setDeletingAdId(null);
     } catch (err) {
-      console.error("Failed to delete incomplete ad:", err);
+      showToast(getApiErrorMessage(err, "حذف آگهی با خطا مواجه شد."), "خطا", "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
   const assignmentItems = useMemo(
@@ -620,7 +637,7 @@ export function IndependentConsultantAdManagementPage() {
                 >
                   <ConsultantAdCard
                     ad={card}
-                    onDeleteIncomplete={isIncomplete ? () => void handleDeleteIncomplete(String(sourceAd.id ?? sourceAd._id ?? card.id)) : undefined}
+                    onDeleteIncomplete={isIncomplete ? (e) => handleOpenDelete(String(sourceAd.id ?? sourceAd._id ?? card.id), e) : undefined}
                     roleType={
                       activeRole === REAL_ESTATE_MANAGER
                         ? "agency"
@@ -647,6 +664,13 @@ export function IndependentConsultantAdManagementPage() {
           ) : null}
         </div>
       </main>
+
+      <DeleteAdBottomSheet
+        isDeleting={isDeleting}
+        isOpen={Boolean(deletingAdId)}
+        onClose={() => !isDeleting && setDeletingAdId(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </PageFrame>
   );
 }

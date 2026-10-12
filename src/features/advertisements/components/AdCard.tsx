@@ -357,13 +357,13 @@ export function AdCardBody({
         {truncateAdCardText(ad.title)}
       </Typography>
 
-      <div className="mt-3 flex h-6 items-center justify-start gap-2">
+      <div className="mt-2 flex items-center justify-start gap-2">
         {showBadges && Array.isArray(ad.badges) ? ad.badges.map((badge) => (
-          <Typography as="span" variant="label" size="small" weight="medium" className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs font-medium leading-4 ${badge === 'فوری' ? 'border-warning bg-warning-container text-warning' : 'border-tertiary bg-tertiary-container text-tertiary'}`} key={badge}>
+          <Typography as="span" variant="body" size="small" weight="medium" className={`whitespace-nowrap rounded-lg border px-2 py-1 ${badge === 'فوری' || badge === 'ویژه' ? 'border-on-warning-container bg-warning-container text-on-warning-container' : 'border-tertiary bg-tertiary-container text-tertiary'}`} key={badge}>
             {badge}
           </Typography>
         )) : null}
-        {showBadges && Array.isArray(ad.badges) && ad.badges.length > 0 ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-outline-var" aria-hidden="true" /> : null}
+        {showBadges && Array.isArray(ad.badges) && ad.badges.length > 0 ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-4 w-px bg-outline-var" aria-hidden="true" /> : null}
         <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">{ad.timeAndLocation}</Typography>
       </div>
     </div>
@@ -1072,7 +1072,7 @@ function getStatusBadgeClassName(status: string) {
     normalizedStatus === '1' ||
     normalizedStatus === '2'
   ) {
-    return 'bg-warning-container text-warning'
+    return 'bg-warning-container text-on-warning-container'
   }
 
   // 3. سبز (تایید شده، تایید، منتشر شده، فعال)

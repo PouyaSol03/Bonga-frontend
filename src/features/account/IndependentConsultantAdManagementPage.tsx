@@ -851,7 +851,7 @@ function getAllocationCountdownBadge(countdown: AssignmentCountdown) {
   }
   if (countdown.hours < 12) {
     return {
-      className: "bg-warning-container text-warning",
+      className: "bg-warning-container text-on-warning-container",
       text,
     };
   }

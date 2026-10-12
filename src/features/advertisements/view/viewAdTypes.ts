@@ -130,6 +130,7 @@ export type ViewAdDetails = {
   totalPrice: string;
   imagesBelongToAd?: boolean;
   isSpecial?: boolean;
+  isLadder?: boolean;
   dailyHotelRooms?: ViewAdDailyHotelRoom[];
   projectDetails?: ViewAdProjectDetailVariant[];
   features: DetailItem[];

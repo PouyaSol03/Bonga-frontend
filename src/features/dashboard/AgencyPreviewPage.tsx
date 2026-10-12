@@ -54,6 +54,7 @@ import type {
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { useToast } from "../../shared/hooks/useToast";
 import { toEnglishDigits } from "../../shared/lib/numberUtils";
 import LinearAddToList from "../../shared/icons/LinearAddToList";
 import TonalInstagram from "../../shared/icons/TonalInstagram";
@@ -232,7 +233,7 @@ function isPublicAgentPreviewPath() {
 function getPublicPreviewId() {
   if (typeof window === "undefined") return "";
 
-  const match = window.location.pathname.match(/^\/(?:agencies|agents)\/([^/]+)\/?$/);
+  const match = window.location.pathname.match(/^\/(?:agencies|agents)\/([^/]+)(?:\/qr-code)?\/?$/);
   return match?.[1] ? decodeURIComponent(match[1]) : "";
 }
 
@@ -348,20 +349,12 @@ async function shareOrCopyAgencyUrl(url: string, title: string, text: string) {
   throw new Error("Sharing is not supported in this browser.");
 }
 
-type AgencyToast = {
-  message: string;
-  title: string;
-  variant: "error" | "success" | "info" | "warning";
-};
-
-
 export function AgencyPreviewPage() {
   const [activeTab, setActiveTab] = useState<AgencyPreviewTab>(getInitialAgencyTab);
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
-  const [isQrSheetOpen, setIsQrSheetOpen] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<BadgeDetailItem | null>(null);
-  const [toast, setToast] = useState<AgencyToast | null>(null);
+  const { showToast } = useToast();
   const isPublicPreview = isPublicAgencyPreviewPath();
   const isAgentPreview = isPublicAgentPreviewPath();
   const previewPath = getCurrentAgencyPreviewPath();
@@ -573,22 +566,6 @@ export function AgencyPreviewPage() {
     }
   }, [activeTab, isAgentPreview]);
 
-  useEffect(() => {
-    if (!toast) return;
-
-    const timer = window.setTimeout(() => setToast(null), 3200);
-
-    return () => window.clearTimeout(timer);
-  }, [toast]);
-
-  const showToast = (
-    message: string,
-    title = "انجام شد",
-    variant: "error" | "success" | "info" | "warning" = "success",
-  ) => {
-    setToast({ message, title, variant });
-  };
-
   async function handleShareClick() {
     try {
       const result = await shareOrCopyAgencyUrl(shareUrl, shareTitle, shareText);
@@ -691,11 +668,23 @@ export function AgencyPreviewPage() {
             id: "qr-code",
             label: "کد QR",
             icon: <LinearQrCode className="h-6 w-6" />,
-            onClick: () => setIsQrSheetOpen(true),
+            onClick: () => {
+              const targetPath = isPublicPreview
+                ? `${window.location.pathname.replace(/\/+$/, "")}/qr-code${window.location.search}`
+                : `${agencyPreviewPath}/qr-code`;
+              pushRoute(targetPath);
+            },
           },
         ]}
-        backTo={isPublicPreview ? "/home" : agencyEditPath}
-        contentClassName="px-1"
+        backTo={
+          isPublicPreview
+            ? isAgentPreview
+              ? "/consultants?type=consultant"
+              : "/consultants"
+            : agencyEditPath
+        }
+        className="bg-surface-container-lowest"
+        contentClassName="px-2"
         title={pageTitle}
       />
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-15">
@@ -798,64 +787,73 @@ export function AgencyPreviewPage() {
         </>
       ) : null}
 
-      <BottomSheet
-        ariaLabel={isAgentPreview ? "کد QR مشاور" : "کد QR آژانس"}
-        isOpen={isQrSheetOpen}
-        onClose={() => setIsQrSheetOpen(false)}
-        title={isAgentPreview ? "کد QR مشاور" : "کد QR آژانس"}
-      >
-        <div className="flex flex-col items-center justify-center p-6">
-          <AgencyQrCard
-            agencyUrl={shareUrl}
-            qrLabel={entityId ? `${isAgentPreview ? "Agent" : "Agency"}${entityId}` : "—"}
-          />
-        </div>
-      </BottomSheet>
     </div>
   );
 }
 
 export function AgencyQrCodePage() {
-  const [toast, setToast] = useState<AgencyToast | null>(null);
+  const { showToast } = useToast();
+  const isPublicPreview = isPublicAgencyPreviewPath();
+  const isAgentPreview = isPublicAgentPreviewPath();
+  const publicPreviewId = getPublicPreviewId();
   const isRealEstateManager =
     getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
-  const agencyProfileQuery = useMyAgencyProfileQuery({ enabled: isRealEstateManager });
-  const profile = agencyProfileQuery.data;
-  const selectedCity = readStoredSelectedCity();
-  const agencyId = String(profile?.id ?? profile?._id ?? "").trim();
-  const agencyName = profile?.name?.trim() || "آژانس املاک";
-  const agencyUrl = getAbsoluteAgencyPreviewUrl(agencyId, {
-    cityId: String(profile?.city_id ?? selectedCity?.id ?? "").trim() || undefined,
-    cityName: profile?.city_name?.trim() || selectedCity?.name || undefined,
-    location: profile?.address?.trim() || undefined,
-    name: agencyName,
-    neighborhoodIds: getProfileNeighborhoodIds(profile),
+
+  const publicAgencyQuery = usePublicAgencyDetailQuery({
+    enabled: isPublicPreview && !isAgentPreview && Boolean(publicPreviewId),
+    id: publicPreviewId,
   });
-  const qrLabel = agencyId ? `Agency${agencyId}` : "—";
-  const shareText = `صفحه آژانس ${agencyName}`;
+  const publicAgentQuery = usePublicAgentDetailQuery({
+    enabled: isPublicPreview && isAgentPreview && Boolean(publicPreviewId),
+    id: publicPreviewId,
+  });
+  const agencyProfileQuery = useMyAgencyProfileQuery({
+    enabled: !isPublicPreview && isRealEstateManager,
+  });
 
-  useEffect(() => {
-    if (!toast) return;
+  const profile = agencyProfileQuery.data;
+  const publicAgency = publicAgencyQuery.data;
+  const publicAgent = publicAgentQuery.data;
+  const selectedCity = readStoredSelectedCity();
 
-    const timer = window.setTimeout(() => setToast(null), 3200);
+  const agencyId = isPublicPreview
+    ? publicPreviewId
+    : String(profile?.id ?? profile?._id ?? "").trim();
 
-    return () => window.clearTimeout(timer);
-  }, [toast]);
+  const agencyName = isAgentPreview
+    ? publicAgent?.name || getPreviewSearchParam("name") || "مشاور املاک"
+    : isPublicPreview
+      ? publicAgency?.name || getPreviewSearchParam("name") || "آژانس املاک"
+      : profile?.name?.trim() || getPreviewSearchParam("name") || "آژانس املاک";
 
-  const showToast = (
-    message: string,
-    title = "انجام شد",
-    variant: "error" | "success" | "info" | "warning" = "success",
-  ) => {
-    setToast({ message, title, variant });
-  };
+  const publicPath =
+    typeof window !== "undefined"
+      ? `${window.location.pathname.replace(/\/qr-code\/?$/, "")}${window.location.search}`
+      : "";
+
+  const agencyUrl = isPublicPreview
+    ? typeof window !== "undefined"
+      ? new URL(publicPath, window.location.origin).toString()
+      : publicPath
+    : getAbsoluteAgencyPreviewUrl(agencyId, {
+        cityId: String(profile?.city_id ?? selectedCity?.id ?? "").trim() || undefined,
+        cityName: profile?.city_name?.trim() || selectedCity?.name || undefined,
+        location: profile?.address?.trim() || undefined,
+        name: agencyName,
+        neighborhoodIds: getProfileNeighborhoodIds(profile),
+      });
+
+  const backTo = isPublicPreview ? publicPath : agencyPreviewPath;
+
+  const pageTitle = isAgentPreview ? "کیوآرکد مشاور" : "کیوآرکد آژانس";
+  const shareText = `صفحه ${isAgentPreview ? "مشاور" : "آژانس"} ${agencyName}`;
 
   async function handleShareClick() {
     try {
       const result = await shareOrCopyAgencyUrl(agencyUrl, agencyName, shareText);
 
       if (result === "copied") {
-        showToast("لینک صفحه آژانس کپی شد.");
+        showToast(`لینک صفحه ${isAgentPreview ? "مشاور" : "آژانس"} کپی شد.`);
       }
     } catch (shareError) {
       if (shareError instanceof DOMException && shareError.name === "AbortError") {
@@ -868,16 +866,16 @@ export function AgencyQrCodePage() {
 
   return (
     <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]">
+      <SEO title={`${pageTitle} ${agencyName}`} />
       <TopBar
-        backTo={agencyPreviewPath}
-        className="bg-surface-container-low"
+        backTo={backTo}
+        className="bg-surface-container-lowest"
         contentClassName="px-2"
-        title="کیوآرکد آژانس"
-        titleClassName="text-base font-semibold leading-6"
+        title={pageTitle}
       />
 
       <main className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto bg-surface-container-lowest px-4 pb-14">
-        <AgencyQrCard agencyUrl={agencyUrl} qrLabel={qrLabel} />
+        <AgencyQrCard agencyUrl={agencyUrl} qrLabel={agencyName} />
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-2">
@@ -915,7 +913,7 @@ function AgencyQrCard({
           level="M"
           marginSize={0}
           size={240}
-          title="کد QR صفحه آژانس"
+          title="کد QR"
           value={agencyUrl}
         />
         <div
@@ -924,7 +922,7 @@ function AgencyQrCard({
         />
       </div>
 
-      <Typography as="p" variant="headline" size="small" className="m-0 mt-2 text-center text-[28px] font-medium leading-9 text-secondary [direction:ltr]">
+      <Typography as="p" variant="headline" size="small" className="m-0 mt-4 text-center text-2xl font-semibold leading-9 text-secondary">
         {qrLabel}
       </Typography>
     </section>

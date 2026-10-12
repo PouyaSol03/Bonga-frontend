@@ -7,6 +7,7 @@ import LinearEdit2 from "../../../shared/icons/LinearEdit2";
 import LinearPreview from "../../../shared/icons/LinearPreview";
 import { RadioIndicator } from "../../../shared/components/RadioIndicator";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { SearchInputBar } from "../../../shared/ui/SearchBar";
 import { TopBar } from "../../../shared/components/TopBar";
 import { useAgencyConsultantsQuery } from "../../agencies/api/agency.hooks";
 import { RouteLink } from "../../../shared/navigation/RouteLink";
@@ -25,7 +26,6 @@ import type { AgencyAdvertiseAssignmentDto } from "../../advertisements/api/agen
 import LinearBuilding2 from "../../../shared/icons/LinearBuilding2";
 import LinearUserSolid from "../../../shared/icons/LinearUserSolid";
 import LinearCancel from "../../../shared/icons/LinearCancel";
-import LinearSearch from "../../../shared/icons/LinearSearch";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
@@ -533,16 +533,16 @@ function ConsultantPickerPage({
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest px-4 pb-24 pt-3">
-        <label className="flex items-center gap-2 rounded-xl border border-outline bg-surface-container-lowest p-3 focus-within:border-primary">
-          <input
-            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-xs font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
-            onChange={(event) => setSearchValue(event.target.value)}
-            placeholder="جستجوی مشاور"
-            type="search"
-            value={searchValue}
-          />
-          <LinearSearch className="h-6 w-6 text-on-surface-var"/>
-        </label>
+        <SearchInputBar
+          compact
+          containerClassName="border-outline"
+          debounceMs={300}
+          onClear={() => setSearchValue("")}
+          onDebouncedChange={setSearchValue}
+          onValueChange={setSearchValue}
+          placeholder="جستجوی مشاور"
+          value={searchValue}
+        />
 
         <div className="mt-6 grid gap-6">
           {isLoading ? (

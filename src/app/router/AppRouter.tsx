@@ -7,7 +7,7 @@ import { PageFrame } from '../../shared/layout/PageFrame'
 import { BottomNavigation } from '../layout/BottomNavigation'
 import { AccessDeniedState, NoConnectionState, NotFoundErrorState } from '../../shared/components/ErrorState'
 import LinearNotification from '../../shared/icons/LinearNotification'
-import { TopBar, TopBarLayoutProvider } from '../../shared/components/TopBar'
+import { TopBarLayoutProvider } from '../../shared/components/TopBar'
 import { Typography } from '../../shared/ui/Typography'
 import {
   CRM_ADVERTISE_ROLES,
@@ -35,6 +35,7 @@ import {
 } from '../../shared/navigation/navigation'
 import { getAppChromeConfig } from './routeChrome'
 import { selectedCityStorageKeys } from '../../shared/lib/selectedCityStorage'
+import { IdentityGate } from '../../features/account/components/IdentityGate'
 
 installHistoryNavigationBridge();
 setRoutePrefetcher(preloadRoute);
@@ -58,10 +59,6 @@ function lazyNamed<TModule extends Record<string, unknown>>(
 const UnreadNotificationBadge = lazyNamed(
   () => import('../../features/notifications/components/UnreadNotificationBadge'),
   'UnreadNotificationBadge',
-)
-const IdentityGate = lazyNamed(
-  () => import('../../features/account/components/IdentityGate'),
-  'IdentityGate',
 )
 const AccountMyAdStatePage = lazyNamed(
   () => import('../../features/account/AccountMyAdStatePage'),
@@ -229,20 +226,6 @@ function shouldRequireIdentityForPath(path: string) {
 function navigateTo(path: string) {
   window.history.pushState({}, '', path)
   window.dispatchEvent(new PopStateEvent('popstate'))
-}
-
-function IdentityGateLoadingPage({ title }: { title: string }) {
-  return (
-    <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
-      variant="flush"
-    >
-      <TopBar backTo="/account" title={title} />
-      <main className="flex min-h-0 flex-1 items-center justify-center bg-surface-container-lowest px-6 pb-20 text-center text-sm font-medium text-outline">
-        در حال بررسی وضعیت احراز هویت...
-      </main>
-    </PageFrame>
-  )
 }
 
 function getResolvedPath() {
@@ -736,14 +719,9 @@ export function AppRouter() {
     </Suspense>
   )
   const page = requiresIdentity ? (
-    <Suspense fallback={<IdentityGateLoadingPage title={route.title} />}>
-      <IdentityGate
-        loadingFallback={<IdentityGateLoadingPage title={route.title} />}
-        title={route.title}
-      >
-        {activePage}
-      </IdentityGate>
-    </Suspense>
+    <IdentityGate title={route.title}>
+      {activePage}
+    </IdentityGate>
   ) : activePage
 
   if (route.layout === 'crm') {

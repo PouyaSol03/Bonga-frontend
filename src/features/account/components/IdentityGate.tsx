@@ -54,7 +54,7 @@ function IdentityRequiredPage({ title }: { title: string }) {
 
 type IdentityGateProps = {
   children: ReactNode;
-  loadingFallback: ReactNode;
+  loadingFallback?: ReactNode;
   title: string;
 };
 
@@ -70,7 +70,7 @@ export function IdentityGate({ children, loadingFallback, title }: IdentityGateP
     }
   }, [isInitialized, isLoading, fetchProfile]);
 
-  if (!isInitialized && isLoading) return loadingFallback;
+  if (!isInitialized) return loadingFallback ?? <div className="min-h-0 flex-1 bg-surface-container" />;
   if (!isUserIdentityVerified(profile)) return <IdentityRequiredPage title={title} />;
 
   return children;

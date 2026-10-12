@@ -170,7 +170,7 @@ export function getAdPreviewPath(adId: ConsultantAd["id"] | string) {
   return `/preview-ad/${encodeURIComponent(String(adId))}`;
 }
 
-export function getAdEditPath(adId?: ConsultantAd["id"] | string) {
+export function getAdEditPath(adId?: ConsultantAd["id"] | string, returnTo?: string) {
   const params = new URLSearchParams({
     category: "apartment",
     edit: "true",
@@ -180,6 +180,10 @@ export function getAdEditPath(adId?: ConsultantAd["id"] | string) {
 
   if (adId !== undefined && adId !== null && adId !== "") {
     params.set("adId", String(adId));
+  }
+
+  if (returnTo) {
+    params.set("returnTo", returnTo);
   }
 
   return `${adManagementPaths.edit}?${params.toString()}`;

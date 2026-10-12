@@ -6,7 +6,7 @@ import LinearAnalytics from "../../../../shared/icons/LinearAnalytics";
 import LinearDelete from "../../../../shared/icons/LinearDelete";
 import { LinearMonitorCheck } from "../../../../shared/icons/LinearMonitorCheck";
 import { Typography } from "../../../../shared/ui/Typography";
-import { getAdEditPath, getAdPreviewPath, getAdStatePath } from "../adManagementData";
+import { adManagementPaths, getAdEditPath, getAdPreviewPath, getAdStatePath } from "../adManagementData";
 import { getMyAdStatusInfo } from "../../myAdsStatus";
 import type { ManagementAdCardProps } from "./types";
 
@@ -49,7 +49,7 @@ export const ManagementAdActions: React.FC<Props> = ({
 
   const effectiveDeskPath = deskTo || to || getAdStatePath(ad.id);
   const effectivePreviewPath = previewTo || getAdPreviewPath(ad.id);
-  const effectiveEditPath = editTo || getAdEditPath(ad.id);
+  const effectiveEditPath = editTo || getAdEditPath(ad.id, adManagementPaths.root);
   const effectiveAnalyticsPath =
     analyticsTo || `${getAdStatePath(ad.id)}?businessTab=performance`;
 

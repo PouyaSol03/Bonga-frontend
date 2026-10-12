@@ -268,8 +268,13 @@ export function getEditAdRouteState(): EditAdRouteState {
     routeState.isEditMode === true ||
     window.location.pathname.includes("/published/edit");
 
+  const returnTo = routeState.returnTo ?? params.get("returnTo") ?? undefined;
+  const editReturnTo = routeState.editReturnTo ?? params.get("editReturnTo") ?? returnTo;
+
   return {
     ...routeState,
+    editReturnTo,
+    returnTo,
     isEditMode: isEditRoute,
   };
 }

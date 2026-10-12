@@ -617,7 +617,7 @@ export function IndependentConsultantAdManagementPage() {
             activeAdvertisements.map(({ card, sourceAd, statusInfo }, index) => {
               const isIncomplete = statusInfo.key === "incomplete";
               const destination = isIncomplete
-                ? getAdEditPath(card.id)
+                ? getAdEditPath(card.id, adManagementPaths.root)
                 : getAdStatePath(card.id);
               const destinationState = isIncomplete
                 ? {

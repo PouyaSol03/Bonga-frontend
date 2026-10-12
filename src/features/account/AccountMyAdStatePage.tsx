@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { getApiErrorMessage } from "../../shared/api/api";
 
@@ -62,6 +62,7 @@ import {
   getAdPaymentHistoryPath,
   getAdPaymentPath,
   getAdPreviewPath,
+  getAdStatePath,
   getAdVisitStatisticsPath,
 } from "./adManagement/adManagementData";
 import { getMyAdStatusInfo, type MyAdStatusKey } from "./myAdsStatus";
@@ -243,6 +244,12 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   if (detailQuery.isLoading && !detailQuery.data && !routeState.ad && !routeState.card) {
     return <MyAdStateSkeleton backState={backState} backTo={backTo} />;
   }
+
+  useEffect(() => {
+    if (statusInfo.key === "incomplete" && currentAdId) {
+      replaceRoute(getAdEditPath(currentAdId, backTo));
+    }
+  }, [statusInfo.key, currentAdId, backTo]);
 
   // Draft ads do not have a state page
   if (statusInfo.key === "incomplete" || statusInfo.key === "incomplete_deleted") {
@@ -980,7 +987,7 @@ function getManagerActions(
   isAdDeleted?: boolean,
 ): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
-  const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId) };
+  const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId, getAdStatePath(adId)) };
   const payment: StateAction = { icon: "payment", label: "پرداخت", to: getAdPaymentPath(adId) };
   const result: StateAction = { icon: "result", label: "ثبت نتیجه آگهی", to: getAdCloseResultPath(adId) };
   const remove: StateAction = { icon: "delete", label: "حذف", onClick: onDelete };
@@ -1342,7 +1349,7 @@ function NeedsEditNotice({
           isEditMode: true,
           returnTo,
         }}
-        to={getAdEditPath(card.id)}
+        to={getAdEditPath(card.id, getAdStatePath(card.id))}
       >
         ویرایش آگهی
         <StateIcon icon="edit" />
@@ -1376,7 +1383,7 @@ function getStateActions(
   onStopPublish?: () => void,
 ): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
-  const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId) };
+  const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId, getAdStatePath(adId)) };
   const remove: StateAction = {
     icon: "delete",
     label: "حذف",

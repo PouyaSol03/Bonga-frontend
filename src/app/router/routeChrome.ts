@@ -73,6 +73,10 @@ export function getAccountFallbackBackTo(path: string) {
 
   if (myAdActionMatch?.[2] === "state-ad") return "/account/my-ads";
 
+  if (path === "/account/dashboard/agency/preview/qr-code") {
+    return "/account/dashboard/agency/preview";
+  }
+
   if (path.startsWith("/account/dashboard/")) {
     const dashboardSection = path.split("/")[3];
 

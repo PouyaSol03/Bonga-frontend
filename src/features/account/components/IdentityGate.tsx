@@ -1,7 +1,7 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import { isUserIdentityVerified } from "../api/account.service";
-import { useMyProfileQuery } from "../api/account.hooks";
+import { useProfileStore } from "../stores/useProfileStore";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Button } from "../../../shared/ui/Button";
@@ -59,11 +59,18 @@ type IdentityGateProps = {
 };
 
 export function IdentityGate({ children, loadingFallback, title }: IdentityGateProps) {
-  const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({
-    enabled: true,
-  });
+  const profile = useProfileStore((state) => state.profile);
+  const isInitialized = useProfileStore((state) => state.isInitialized);
+  const isLoading = useProfileStore((state) => state.isLoading);
+  const fetchProfile = useProfileStore((state) => state.fetchProfile);
 
-  if (isProfileLoading) return loadingFallback;
+  useEffect(() => {
+    if (!isInitialized && !isLoading) {
+      void fetchProfile();
+    }
+  }, [isInitialized, isLoading, fetchProfile]);
+
+  if (!isInitialized && isLoading) return loadingFallback;
   if (!isUserIdentityVerified(profile)) return <IdentityRequiredPage title={title} />;
 
   return children;

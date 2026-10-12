@@ -135,6 +135,7 @@ const ViewAdProjectDetailsPage = lazyNamed(
 )
 const PublicAgencyPreviewPage = lazyNamed(() => import('../../features/dashboard/AgencyPreviewPage'), 'AgencyPreviewPage')
 const AgentPreviewPage = PublicAgencyPreviewPage
+const AgencyQrCodePage = lazyNamed(() => import('../../features/dashboard/AgencyPreviewPage'), 'AgencyQrCodePage')
 
 function normalizePathname(pathname: string) {
   const normalizedPath = pathname.replace(/\/{2,}/g, '/')
@@ -445,6 +446,14 @@ function getRoute(path: string): AppRoute {
       path,
       title: statusDeskRoute?.title ?? 'میز کار آگهی',
     }
+  }
+
+  if (/^\/agencies\/[^/]+\/qr-code\/?$/.test(path)) {
+    return { path, title: 'کیوآرکد آژانس', Component: AgencyQrCodePage }
+  }
+
+  if (/^\/agents\/[^/]+\/qr-code\/?$/.test(path)) {
+    return { path, title: 'کیوآرکد مشاور', Component: AgencyQrCodePage }
   }
 
   if (/^\/agencies\/[^/]+\/?$/.test(path)) {

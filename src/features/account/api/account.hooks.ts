@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
+import { useProfileStore } from "../stores/useProfileStore";
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
 import { getApiErrorCode } from "../../../shared/api/api";
@@ -52,7 +53,11 @@ function redirectToRequiredAdvertiseProfile(error: unknown) {
 export function useMyProfileQuery({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
     enabled,
-    queryFn: getMyProfile,
+    queryFn: async () => {
+      const data = await getMyProfile();
+      useProfileStore.getState().setProfile(data);
+      return data;
+    },
     queryKey: queryKeys.account.profile(),
   });
 }
@@ -64,6 +69,7 @@ export function useUpdateMyProfileMutation() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.profile(),
       });
+      void useProfileStore.getState().fetchProfile(true);
     },
   });
 }
@@ -116,6 +122,7 @@ export function useAuthorizeMeMutation() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.profile(),
       });
+      void useProfileStore.getState().fetchProfile(true);
     },
   });
 }

@@ -24,6 +24,7 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { pushRoute } from "../../shared/navigation/navigation";
 import { SEO } from "../../shared/components/SEO";
+import { useProfileStore } from "../account/stores/useProfileStore";
 import { useCitySearchQuery } from "../cities/api/city.hooks";
 import { useFcm } from "../notifications/useFcm";
 
@@ -235,6 +236,12 @@ export function HomePage() {
   useEffect(() => {
     if (isCategorySheetOpen) setHasLoadedCategorySheet(true);
   }, [isCategorySheetOpen]);
+
+  useEffect(() => {
+    if (hasAuthSession) {
+      void useProfileStore.getState().fetchProfile(true);
+    }
+  }, [hasAuthSession]);
 
   useEffect(() => {
     if (isSearchOpen) setHasLoadedSearchScreen(true);

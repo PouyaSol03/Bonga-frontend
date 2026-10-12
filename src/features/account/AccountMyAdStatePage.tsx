@@ -471,7 +471,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
 
         <div className="h-2 shrink-0 bg-surface-container" aria-hidden="true" />
 
-        <section className="min-h-[300px] flex-1 bg-surface-container-lowest" aria-label="عملیات آگهی">
+        <section className="min-h-[300px] flex-1 shrink-0 bg-surface-container-lowest" aria-label="عملیات آگهی">
           {actions.map((action, index) => (
             <div key={action.label}>
               <StateAdAction

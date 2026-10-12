@@ -1,12 +1,19 @@
 import type { SVGProps } from "react";
 
-export function SortIcon({ className, ...props }: SVGProps<SVGSVGElement>) {
+export function SortIcon({
+  className,
+  height = 20,
+  width = 20,
+  ...props
+}: SVGProps<SVGSVGElement>) {
   return (
     <svg
       aria-hidden="true"
       className={className}
       fill="none"
+      height={height}
       viewBox="0 0 20 20"
+      width={width}
       {...props}
     >
       <path

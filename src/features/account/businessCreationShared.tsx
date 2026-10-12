@@ -314,8 +314,12 @@ export function getBusinessTypeFromSearch(): BusinessType {
   return type === "independent-consultant" ? "independent-consultant" : "agency";
 }
 
-export function navigateTo(path: string, state?: unknown) {
-  window.history.pushState(state ?? {}, "", path);
+export function navigateTo(path: string, state?: unknown, replace = false) {
+  if (replace) {
+    window.history.replaceState(state ?? {}, "", path);
+  } else {
+    window.history.pushState(state ?? {}, "", path);
+  }
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
@@ -347,7 +351,7 @@ export function BusinessFormPage({
 
     await getMyProfile();
     setStoredActiveRole(USER);
-    navigateTo("/account?businessSuccess=1", { businessSuccess: true, businessType });
+    navigateTo("/account?businessSuccess=1", { businessSuccess: true, businessType }, true);
   };
 
   return (

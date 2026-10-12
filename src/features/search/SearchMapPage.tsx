@@ -717,20 +717,44 @@ function getAdMapPosition(item: AdvertisementItem) {
 }
 
 function readBadges(item: AdvertisementItem) {
+  const badges: string[] = [];
+  const isSpecial =
+    item.is_special === true ||
+    item.is_special === 1 ||
+    item.is_special === "true" ||
+    item.is_special === "1" ||
+    item.special === true ||
+    item.special === 1 ||
+    item.special === "true" ||
+    item.special === "1";
+  const isLadder =
+    item.is_ladder === true ||
+    item.is_ladder === 1 ||
+    item.is_ladder === "true" ||
+    item.is_ladder === "1" ||
+    item.ladder === true ||
+    item.ladder === 1 ||
+    item.ladder === "true" ||
+    item.ladder === "1";
+
+  if (isSpecial) {
+    badges.push("ویژه");
+  }
+  if (isLadder) {
+    badges.push("بروزرسانی");
+  }
+
+  if (badges.length > 0) {
+    return badges;
+  }
+
   if (Array.isArray(item.badges)) {
     return item.badges.filter(
       (badge): badge is string => typeof badge === "string" && badge.trim().length > 0,
     );
   }
 
-  const badges: string[] = [];
-  const urgent = item.is_urgent ?? item.urgent ?? readFeatureRaw(item, ["is_urgent", "urgent"]);
-  const featured = item.is_featured ?? item.featured ?? readFeatureRaw(item, ["is_featured", "featured"]);
-
-  if (urgent === true || urgent === "true" || urgent === 1 || urgent === "1") badges.push("فوری");
-  if (featured === true || featured === "true" || featured === 1 || featured === "1") badges.push("ویژه");
-
-  return badges;
+  return [];
 }
 
 function mapAdvertisementToSearchListing(

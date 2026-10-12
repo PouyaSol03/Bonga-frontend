@@ -45,7 +45,7 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
     label: "منقضی شده",
   },
   incomplete: {
-    badgeClassName: "bg-warning-container text-warning",
+    badgeClassName: "bg-warning-container text-on-warning-container",
     key: "incomplete",
     label: "نیمه کاره",
   },
@@ -55,22 +55,22 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
     label: "نیمه کاره حذف شده",
   },
   wait_for_payment: {
-    badgeClassName: "bg-warning-container text-warning",
+    badgeClassName: "bg-warning-container text-on-warning-container",
     key: "wait_for_payment",
     label: "در انتظار پرداخت",
   },
   pending: {
-    badgeClassName: "bg-warning-container text-warning",
+    badgeClassName: "bg-warning-container text-on-warning-container",
     key: "pending",
     label: "در انتظار تایید انتشار",
   },
   wait_for_agency: {
-    badgeClassName: "bg-warning-container text-warning",
+    badgeClassName: "bg-warning-container text-on-warning-container",
     key: "wait_for_agency",
     label: "در انتظار تأیید آژانس",
   },
   wait_for_repost: {
-    badgeClassName: "bg-warning-container text-warning",
+    badgeClassName: "bg-warning-container text-on-warning-container",
     key: "wait_for_repost",
     label: "در انتظار ثبت مجدد",
   },
@@ -85,17 +85,17 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
     label: "رد شده توسط آژانس",
   },
   wait_for_stop: {
-    badgeClassName: "bg-warning-container text-warning",
+    badgeClassName: "bg-warning-container text-on-warning-container",
     key: "wait_for_stop",
     label: "در انتظار توقف انتشار",
   },
   wait_for_deal_confirmation: {
-    badgeClassName: "bg-warning-container text-warning",
+    badgeClassName: "bg-warning-container text-on-warning-container",
     key: "wait_for_deal_confirmation",
     label: "در انتظار تأیید نتیجه معامله",
   },
   needs_edit: {
-    badgeClassName: "bg-warning-container text-warning",
+    badgeClassName: "bg-warning-container text-on-warning-container",
     key: "needs_edit",
     label: "نیازمند ویرایش",
   },

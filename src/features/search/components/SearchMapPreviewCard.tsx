@@ -66,7 +66,7 @@ function searchMapListingToPreviewAdCardData(listing: SearchMapListing): AdCardD
     timeAndLocation: listing.postedAt || (listing.locationLabel ? `در ${listing.locationLabel}` : ""),
     imageClassName: listing.imageClassName ?? "",
     imageUrl: listing.imageSrc,
-    badges: listing.badges ?? [],
+    badges: [],
   };
 }
 

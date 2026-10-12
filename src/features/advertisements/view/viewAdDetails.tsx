@@ -1875,6 +1875,13 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
         featureMap.is_special ??
         getFeatureValue(features, "is_special"),
       ) === true,
+    isLadder:
+      toBooleanLike(
+        ad.is_ladder ??
+        ad.ladder ??
+        featureMap.is_ladder ??
+        getFeatureValue(features, "is_ladder"),
+      ) === true,
     dailyHotelRooms,
     projectDetails,
   };
@@ -3462,7 +3469,7 @@ function DetailInfoValueView({
         : item.tone === "danger"
           ? "bg-error-container text-error border border-error"
         : item.tone === "warning"
-          ? "bg-warning-container text-warning border border-warning"
+          ? "bg-warning-container text-on-warning-container border border-on-warning-container"
           : "bg-surface-container-high text-on-surface-var";
 
     return (

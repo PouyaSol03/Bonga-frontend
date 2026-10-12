@@ -102,7 +102,7 @@ export async function getPublicAgencies({
   search,
   sort,
 }: PublicAgencyListParams): Promise<PublicAgencyPage> {
-  const response = await publicApi
+  const response = await publicApiV2
     .get("public/agencies", {
       searchParams: {
         neighborhood_id: neighborhoodId,

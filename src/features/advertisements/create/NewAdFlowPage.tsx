@@ -1424,11 +1424,15 @@ export function NewAdFlowPage() {
         const currentAd = editAdData ?? editAdState.ad;
         const currentCard = currentAd ? mapAdvertisementToAdCard(currentAd, 0) : undefined;
         const statusInfo = currentAd ? getMyAdStatusInfo(currentAd) : { key: "status" };
+        const fallbackTarget = editAdId
+          ? getAdStatePath(editAdId)
+          : activeRole === USER || !activeRole
+            ? "/account/my-ads"
+            : adManagementPaths.root;
         const targetPath =
           editAdState.editReturnTo ??
-          (isAssigned || statusInfo.key === "pending"
-            ? getAdStatePath(editAdId)
-            : adManagementPaths.published);
+          editAdState.returnTo ??
+          fallbackTarget;
         const separator = targetPath.includes("?") ? "&" : "?";
 
         replaceRoute(`${targetPath}${separator}updated=1`, {
@@ -1458,11 +1462,15 @@ export function NewAdFlowPage() {
             clearNewAdDraftStorage();
             const updatedCard = mapAdvertisementToAdCard(updatedAd, 0);
             const statusInfo = getMyAdStatusInfo(updatedAd);
+            const fallbackTarget = editAdId
+              ? getAdStatePath(editAdId)
+              : activeRole === USER || !activeRole
+                ? "/account/my-ads"
+                : adManagementPaths.root;
             const targetPath =
               editAdState.editReturnTo ??
-              (isAssigned || statusInfo.key === "pending"
-                ? getAdStatePath(editAdId)
-                : adManagementPaths.published);
+              editAdState.returnTo ??
+              fallbackTarget;
             const separator = targetPath.includes("?") ? "&" : "?";
 
             replaceRoute(`${targetPath}${separator}updated=1`, {

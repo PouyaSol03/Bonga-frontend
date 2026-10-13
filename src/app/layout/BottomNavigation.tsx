@@ -1,7 +1,7 @@
 import { lazy, memo, Suspense, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
+import { Link,  useNavigate  } from "react-router";
 import { getStoredAuthSession, setStoredActiveRole, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
-import { RouteLink } from "../../shared/navigation/RouteLink";
 import { clearNewAdDraftStorage } from "../../features/advertisements/create/utils";
 import LinearAddCircle from "../../shared/icons/LinearAddCircle";
 import LinearChat from "../../shared/icons/LinearChat";
@@ -69,11 +69,6 @@ const BottomNavigationUnreadChatBadge = lazy(() =>
   ),
 );
 
-function navigateTo(path: string) {
-  window.history.pushState({}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 function getLoginRequiredPath(returnTo: string) {
   const params = new URLSearchParams({ returnTo });
 
@@ -85,6 +80,7 @@ function BottomNavigationComponent({
 }: {
   activeKey?: string;
 }) {
+  const navigate = useNavigate();
   const [isCreateAdOpen, setIsCreateAdOpen] = useState(false);
   const [hasLoadedCreateAdSheet, setHasLoadedCreateAdSheet] = useState(false);
   const hasAuthSession = Boolean(getStoredAuthSession());
@@ -104,7 +100,7 @@ function BottomNavigationComponent({
             const Icon = item.Icon;
 
             return (
-              <RouteLink
+              <Link
                 key={item.key}
                 to={item.to}
                 aria-current={isActive ? "page" : undefined}
@@ -117,7 +113,7 @@ function BottomNavigationComponent({
 
                   if (!session) {
                     storeLoginRedirectPath("/new-ad/category");
-                    navigateTo(getLoginRequiredPath("/new-ad/category"));
+                    navigate(getLoginRequiredPath("/new-ad/category"));
                     return;
                   }
 
@@ -152,7 +148,7 @@ function BottomNavigationComponent({
                 <Typography as="span" variant="body" size="small" weight="medium" className="max-w-full overflow-hidden text-ellipsis">
                   {item.label}
                 </Typography>
-              </RouteLink>
+              </Link>
             );
           })}
         </div>
@@ -169,21 +165,21 @@ function BottomNavigationComponent({
               clearNewAdDraftStorage();
 
               if (option.id === "personal") {
-                navigateTo("/new-ad/personal?registrantType=personal&context=personal");
+                navigate("/new-ad/personal?registrantType=personal&context=personal");
                 return;
               }
 
               if (option.id === "independent-consultant") {
-                navigateTo("/new-ad/independent-consultant?registrantType=personal&context=independent-consultant");
+                navigate("/new-ad/independent-consultant?registrantType=personal&context=independent-consultant");
                 return;
               }
 
               if (option.id === "agency-manager") {
-                navigateTo("/new-ad/agency?registrantType=personal&publisherType=agency&context=agency");
+                navigate("/new-ad/agency?registrantType=personal&publisherType=agency&context=agency");
                 return;
               }
 
-              navigateTo("/new-ad/agency-consultant?registrantType=personal&publisherType=agent&context=agency-consultant");
+              navigate("/new-ad/agency-consultant?registrantType=personal&publisherType=agent&context=agency-consultant");
             }}
           />
         </Suspense>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { getActiveV2Role } from "../../../shared/api/api";
 
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../shared/auth/auth-storage";
+import { clearAtomicDraft } from "./draft/adDraftStore";
 import {
   basicPropertyFieldsByListingType,
   blankValues,
@@ -167,12 +168,7 @@ function getLoginRequiredPath(returnTo: string) {
 
 export function clearNewAdDraftStorage() {
   clearNewAdFlowSession();
-  window.localStorage.removeItem(draftKey);
-  window.localStorage.removeItem(locationKey);
-  window.localStorage.removeItem(locationLatKey);
-  window.localStorage.removeItem(locationLngKey);
-  window.localStorage.removeItem(neighborhoodIdKey);
-  window.localStorage.removeItem(subNeighborhoodIdKey);
+  clearAtomicDraft();
 }
 
 export function getParams(): {

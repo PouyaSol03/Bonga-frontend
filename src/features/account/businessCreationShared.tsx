@@ -1,10 +1,10 @@
 import { useState, type ComponentType, type Dispatch, type ReactNode, type SetStateAction, type SVGProps } from "react";
+import { Link, useNavigate } from "react-router";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { setStoredActiveRole } from "../../shared/auth/auth-storage";
 import { USER } from "../../shared/constants/roles.constants";
 import { getMyProfile } from "./api/account.service";
-import { RouteLink } from "../../shared/navigation/RouteLink";
 import type { NeighborhoodDto } from "../locations/api/neighborhood.service";
 import LinearCancelSmall from "../../shared/icons/LinearCancelSmall";
 import { ChoiceIndicator } from "../../shared/ui/Choice";
@@ -314,15 +314,6 @@ export function getBusinessTypeFromSearch(): BusinessType {
   return type === "independent-consultant" ? "independent-consultant" : "agency";
 }
 
-export function navigateTo(path: string, state?: unknown, replace = false) {
-  if (replace) {
-    window.history.replaceState(state ?? {}, "", path);
-  } else {
-    window.history.pushState(state ?? {}, "", path);
-  }
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 export function BusinessFormPage({
   businessType,
   disabledSubmit = false,
@@ -340,6 +331,7 @@ export function BusinessFormPage({
   onSubmit?: () => boolean | Promise<boolean>;
   toast?: BusinessToast | null;
 }) {
+  const navigate = useNavigate();
   const [isNoticeVisible, setIsNoticeVisible] = useState(true);
 
   const handleSubmit = async () => {
@@ -351,7 +343,7 @@ export function BusinessFormPage({
 
     await getMyProfile();
     setStoredActiveRole(USER);
-    navigateTo("/account?businessSuccess=1", { businessSuccess: true, businessType }, true);
+    navigate("/account?businessSuccess=1", { replace: true, state: { businessSuccess: true, businessType } });
   };
 
   return (
@@ -360,7 +352,7 @@ export function BusinessFormPage({
         <div className="grid grid-cols-2 gap-4 px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3">
           <Button unstyled
             className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] border border-primary bg-surface-container-lowest px-4 text-sm font-semibold leading-5 text-primary"
-            onClick={() => navigateTo("/account/business/create")}
+            onClick={() => navigate("/account/business/create")}
             type="button"
           >
             <LinearArrowRight1 className="h-5 w-5" />
@@ -411,7 +403,7 @@ export function BusinessFormPage({
           {fields}
 
           <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-6 text-on-surface-var">
-            با ثبت‌نام در کسب‌وکار ایران شناسا <RouteLink className="font-semibold text-primary underline" to="/account/about">قوانین و مقررات</RouteLink> سایت را قبول کرده‌اید.
+            با ثبت‌نام در کسب‌وکار ایران شناسا <Link className="font-semibold text-primary underline" to="/account/about">قوانین و مقررات</Link> سایت را قبول کرده‌اید.
           </Typography>
         </div>
       </form>
@@ -586,6 +578,7 @@ export function BusinessHero({
   infoType?: BusinessType;
   showInfoButton?: boolean;
 }) {
+  const navigate = useNavigate();
   return (
     <section className="mx-4 rounded-[24px] bg-surface-container-lowest px-6 pb-6 pt-7 shadow-sm">
       <div className="relative overflow-hidden pb-1 text-right">
@@ -629,7 +622,7 @@ export function BusinessHero({
       {showInfoButton && infoType ? (
         <Button unstyled
           className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-lg border border-primary bg-surface-container-lowest px-3 text-primary"
-          onClick={() => navigateTo(getBusinessInfoPath(infoType))}
+          onClick={() => navigate(getBusinessInfoPath(infoType))}
           type="button"
         >
           <Typography as="span" variant="label" size="medium" weight="medium">

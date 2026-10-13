@@ -9,7 +9,7 @@ import { RadioIndicator } from "../../../shared/components/RadioIndicator";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
 import { TopBar } from "../../../shared/components/TopBar";
 import { useAgencyConsultantsQuery } from "../../agencies/api/agency.hooks";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link, useNavigate } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
 import {
   adManagementPaths,
@@ -68,6 +68,7 @@ export type IndependentConsultantAdAllocationReviewPageProps = {
 };
 
 export function IndependentConsultantAdAllocationReviewPage(props?: IndependentConsultantAdAllocationReviewPageProps) {
+  const navigate = useNavigate();
   const routeState = getAdManagementRouteState();
   const assignment = props?.assignment ?? routeState.assignment;
   const ad = props?.ad ?? getSelectedConsultantAd();
@@ -142,8 +143,8 @@ export function IndependentConsultantAdAllocationReviewPage(props?: IndependentC
 
   function navigateToPayment(consultant = assignedConsultant) {
     markAgencyAllocationCheckout(ad.id);
-    window.history.pushState(
-      {
+    navigate(getAdPaymentPath(ad.id), {
+      state: {
         ad,
         assignment,
         assignmentId: assignment?.id,
@@ -154,10 +155,7 @@ export function IndependentConsultantAdAllocationReviewPage(props?: IndependentC
         publisherType: publisher,
         tab: "status",
       },
-      "",
-      getAdPaymentPath(ad.id),
-    );
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    });
   }
 
   function handlePrimaryAction() {
@@ -368,19 +366,19 @@ function ReviewAction({
   }
 
   return (
-    <RouteLink
+    <Link
       className="flex h-[52px] w-full items-center justify-between text-on-surface no-underline [direction:ltr] active:bg-black/5"
       state={state}
       to={to || "#"}
     >
       {content}
-    </RouteLink>
+    </Link>
   );
 }
 
 function RejectAction({ state, to }: { state?: unknown; to: string }) {
   return (
-    <RouteLink
+    <Link
       className="flex h-[52px] w-full items-center justify-between bg-surface-container-lowest p-0 text-on-surface no-underline [direction:ltr] active:bg-black/5"
       state={state}
       to={to}
@@ -390,7 +388,7 @@ function RejectAction({ state, to }: { state?: unknown; to: string }) {
         <LinearCancel className="h-6 w-6 text-on-surface-var" />
         رد ثبت آگهی
       </Typography>
-    </RouteLink>
+    </Link>
   );
 }
 

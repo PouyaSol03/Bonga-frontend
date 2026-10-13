@@ -4,7 +4,7 @@ import "../../advertisements/components/AdCard.css";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { TopBar } from "../../../shared/components/TopBar";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { PublishedActionIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
@@ -174,7 +174,7 @@ function PublishedAction({
 
   if (to) {
     return (
-      <RouteLink
+      <Link
         className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var no-underline [direction:ltr]"
         state={{
           ad,
@@ -192,7 +192,7 @@ function PublishedAction({
         to={to}
       >
         {content}
-      </RouteLink>
+      </Link>
     );
   }
 

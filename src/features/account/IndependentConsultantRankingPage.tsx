@@ -4,7 +4,7 @@ import { useV2RankingBadgesQuery, useV2RankingSummaryQuery } from "../dashboard/
 import { usePublicAgentsQuery } from "../agencies/api/agency.hooks";
 import type { V2RankingBadge } from "../dashboard/api/v2/ranking-v2.service";
 import { TopBar } from "../../shared/components/TopBar";
-import { RouteLink } from "../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { BADGE_IMAGES } from "../dashboard/ranking/AgencyBadgesPanel";
 import { Toast, type ToastItem } from "../../shared/components/Toast";
 import { getApiErrorMessage } from "../../shared/api/api";
@@ -209,7 +209,7 @@ function LevelSummaryCard({
   score: string;
 }) {
   return (
-    <RouteLink
+    <Link
       aria-label="سطح پیشرفت مشاور"
       className="flex h-20 items-center justify-between rounded-2xl bg-surface-container-lowest px-4 text-on-surface no-underline [direction:ltr]"
       to="/account/ranking/levels"
@@ -231,7 +231,7 @@ function LevelSummaryCard({
         </div>
       </div>
       <img alt={levelTitle} className="h-12 w-12 shrink-0 object-contain" src={image} />
-    </RouteLink>
+    </Link>
   );
 }
 
@@ -331,7 +331,7 @@ function BadgeCard({
   const detailPath = slugToConsultantPath[slug] || `/account/ranking/badges/${slug || badge.id}`;
 
   return (
-    <RouteLink
+    <Link
       aria-label={`جزییات نشان ${title}`}
       className={`flex h-[186px] w-full flex-col items-center rounded-lg border border-outline-var pt-6 text-inherit no-underline transition active:scale-[0.99] ${!isEarned ? "grayscale" : ""}`}
       to={detailPath}
@@ -359,7 +359,7 @@ function BadgeCard({
       <div className="mt-4 h-1 w-[92px] rounded-full bg-warning-container/30">
         <div className="h-1 rounded-full bg-warning" style={{ width: `${progressVal}%` }} />
       </div>
-    </RouteLink>
+    </Link>
   );
 }
 
@@ -476,9 +476,9 @@ function GuidePill({ to }: { to?: string } = {}) {
 
   if (to) {
     return (
-      <RouteLink aria-label="راهنمای نشان‌ها" className={className} to={to}>
+      <Link aria-label="راهنمای نشان‌ها" className={className} to={to}>
         {content}
-      </RouteLink>
+      </Link>
     );
   }
 

@@ -6,7 +6,7 @@ import LinearChat from "../../shared/icons/LinearChat";
 import LinearSearch from "../../shared/icons/LinearSearch";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
-import { RouteLink } from "../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 
@@ -284,13 +284,13 @@ export function AccountSupportFaqPage() {
         ) : null}
       </main>
 
-      <RouteLink
+      <Link
         aria-label="گفتگو با پشتیبانی"
         className="absolute bottom-5 right-4 z-20 grid h-12 w-12 place-items-center rounded-full bg-primary text-on-primary shadow-[0_6px_16px_rgba(0,72,196,0.24)] outline-none active:scale-[0.98] focus-visible:ring-3 focus-visible:ring-surface-container-lowest focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
         to={SUPPORT_CHAT_PATH}
       >
         <LinearChat className="h-5.5 w-5.5" />
-      </RouteLink>
+      </Link>
     </PageFrame>
   );
 }

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { useAdvertisementPaymentsQuery } from "../../advertisements/api/advertisement.hooks";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import type { AdvertisementItem, AdvertisementPayment } from "../../advertisements/api/advertisement.service";
 import {
   adManagementPaths,
@@ -187,7 +187,7 @@ function EmptyPaymentHistory({
         پس از اولین پرداخت برای این آگهی، سابقه‌ها در این بخش نمایش داده می‌شود
       </Typography>
 
-      <RouteLink
+      <Link
         className="mt-4 inline-flex h-10 min-w-[112px] items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary no-underline"
         state={{
           ad: card ?? ad,
@@ -202,7 +202,7 @@ function EmptyPaymentHistory({
         <Typography as="span" variant="body" size="medium" weight="regular">افزایش بازدید</Typography>
         <ArrowLeftIcon className="h-4 w-4" />
         {adId ? <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">برای آگهی {adId}</Typography> : null}
-      </RouteLink>
+      </Link>
     </section>
   );
 }

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getRecentViews } from "../api/recent-views.service";
 import { useMemo } from "react";
 import { type AdvertisementItem, mapAdvertisementToAdCard } from "../../advertisements/api/advertisement.service";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { AdCard } from "../../advertisements/components/AdCard";
 import { AccountAdCardsSkeleton, AccountPageShell, AccountRetryState, EmptyAccountState } from "../accountPageViews";
@@ -26,8 +26,8 @@ export function AccountRecentViewsPage() {
   return (
     <AccountPageShell
       action={
-        <RouteLink className="grid h-12 w-12 place-items-center text-on-surface" to="/search">
-        </RouteLink>
+        <Link className="grid h-12 w-12 place-items-center text-on-surface" to="/search">
+        </Link>
       }
       title="بازدیدهای اخیر"
     >

@@ -6,10 +6,9 @@ import {
   type ClipboardEvent,
   type FormEvent,
 } from "react";
+import { Link, useNavigate } from "react-router";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
-import { RouteLink } from "../../shared/navigation/RouteLink";
-import { goBackOrNavigate } from "../../shared/navigation/navigation";
 import LoginOTPbackground from "../../shared/assets/images/LoginOTPBackground.svg";
 import { useResendOtpMutation, useVerifyOtpMutation } from "./api/auth.hooks";
 import {
@@ -57,6 +56,7 @@ async function ensureSelectedCityAfterLogin() {
 }
 
 export function LoginVerifyPage() {
+  const navigate = useNavigate();
   const [verificationCode, setVerificationCode] = useState("");
   const { showToast } = useToast();
   const [isFocused, setIsFocused] = useState(true);
@@ -212,8 +212,7 @@ export function LoginVerifyPage() {
       // Replace the OTP entry after a successful login so Back does not
       // return to the verification screen. The router also guards all auth
       // pages while a valid session exists.
-      window.history.replaceState({ state: "new" }, "", redirectPath);
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      navigate(redirectPath, { replace: true, state: { state: "new" } });
     } catch (error) {
       const msg = getAuthErrorMessage(error, "تایید کد انجام نشد.");
       showToast(msg, "کد نامعتبر!", "error");
@@ -271,7 +270,10 @@ export function LoginVerifyPage() {
       <form className="contents" noValidate onSubmit={handleSubmit} ref={formRef}>
         <TopBar
           backTo="/account"
-          onBack={() => goBackOrNavigate("/login/phone")}
+          onBack={() => {
+            if (window.history.state?.idx > 0) navigate(-1);
+            else navigate("/login/phone", { replace: true });
+          }}
           title="ورود به حساب کاربری"
         />
 
@@ -301,13 +303,13 @@ export function LoginVerifyPage() {
               </Typography>
               <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-sm font-normal leading-5 text-on-surface-var min-[390px]:gap-2 min-[390px]:text-sm">
                 <Typography as="span" variant="body" size="medium" weight="regular">کد ارسال شده به </Typography>
-                <RouteLink
+                <Link
                   dir="ltr"
                   className="font-medium text-primary underline underline-offset-3"
                   to="/login/phone"
                 >
                   {phoneNumber}
-                </RouteLink>
+                </Link>
                 <img
                   className="block h-3 w-3 object-contain"
                   src="/figma/otp/edit.svg"

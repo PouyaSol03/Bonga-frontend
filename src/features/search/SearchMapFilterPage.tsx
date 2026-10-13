@@ -16,10 +16,10 @@ import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { FeatureIcon } from "../advertisements/components/FeatureIcon";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import { useNavigate } from "react-router";
 import { formatBigNumber, formatPrice } from "../../shared/lib/MoneyHandler";
 import { getNeighborhoodDescription, type NeighborhoodDto } from "../locations/api/neighborhood.service";
 import { toEnglishDigits } from "../../shared/lib/numberUtils";
-import { goBackOrNavigate } from "../../shared/navigation/navigation";
 import { useAdvertisementListQuery } from "../advertisements/api/advertisement.hooks";
 import { readSearchFilters } from "./SearchMapPage";
 import type { AdvertisementListParams } from "../advertisements/api/advertisement.service";
@@ -2515,6 +2515,7 @@ export function AdvertisementFilterPage({
   backBasePath = "/search",
   title = "فیلترها",
 }: AdvertisementFilterPageProps) {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<FilterState>(readInitialFiltersFromUrl);
   const [categoryPickerInitial, setCategoryPickerInitial] = useState<CategoryKey | undefined>(
     filters.category,
@@ -2674,12 +2675,10 @@ export function AdvertisementFilterPage({
   };
 
   const applyFilters = () => {
-    window.history.replaceState(
-      window.history.state ?? {},
-      "",
-      buildSearchUrl(filters, applyBasePath),
-    );
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    navigate(buildSearchUrl(filters, applyBasePath), {
+      replace: true,
+      state: window.history.state ?? {},
+    });
   };
 
   if (!filters.category) {
@@ -2703,7 +2702,10 @@ export function AdvertisementFilterPage({
           backTo={getBackToSearchPath(backBasePath)}
           centerClassName="px-0"
           className="bg-surface-container"
-          onBack={() => goBackOrNavigate(getBackToSearchPath(backBasePath))}
+          onBack={() => {
+            if (window.history.state?.idx > 0) navigate(-1);
+            else navigate(getBackToSearchPath(backBasePath), { replace: true });
+          }}
           title={title}
         />
 
@@ -3219,6 +3221,7 @@ function CategorySelectionScreen({
   initialTransaction,
   onConfirm,
 }: CategorySelectionScreenProps) {
+  const navigate = useNavigate();
   const [draftTransaction, setDraftTransaction] =
     useState<TransactionType>(initialTransaction);
 
@@ -3236,7 +3239,10 @@ function CategorySelectionScreen({
           backTo={getBackToSearchPath(backBasePath)}
           centerClassName="px-0"
           className="bg-surface-container"
-          onBack={() => goBackOrNavigate(getBackToSearchPath(backBasePath))}
+          onBack={() => {
+            if (window.history.state?.idx > 0) navigate(-1);
+            else navigate(getBackToSearchPath(backBasePath), { replace: true });
+          }}
           title="انتخاب دسته‌بندی"
         />
 

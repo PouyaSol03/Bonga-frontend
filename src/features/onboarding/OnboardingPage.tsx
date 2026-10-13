@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
-import { replaceRoute } from "../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 
 import { useCitySearchQuery, useMostVisitedCityListQuery } from "../cities/api/city.hooks";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
@@ -93,10 +93,6 @@ function dedupeCities(cities: CityDto[]) {
   });
 
   return Array.from(unique.values());
-}
-
-function goHome() {
-  replaceRoute("/home", undefined, { rememberCurrent: false });
 }
 
 function readExplicitlyStoredCity() {
@@ -394,6 +390,7 @@ export function OnboardingPage() {
 }
 
 function OnboardingCitySelectionPage() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<StoredSelectedCity | null>(
     readExplicitlyStoredCity,
@@ -442,7 +439,7 @@ function OnboardingCitySelectionPage() {
     if (!hasExplicitCitySelection || !selectedCity) return;
 
     saveSelectedCity(selectedCity);
-    goHome();
+    navigate("/home", { replace: true });
   };
 
   return (

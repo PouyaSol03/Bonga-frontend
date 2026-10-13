@@ -9,7 +9,7 @@ import { NotificationSettingsSheet } from "./components/NotificationSettingsShee
 import { NotificationsEmptyState } from "./components/NotificationsEmptyState";
 import { SwipeableNotificationCard } from "./components/SwipeableNotificationCard";
 import { getAgencyConsultantRequestDisplayState } from "./components/AgencyConsultantRequestCardContent";
-import { navigateTo } from "./notificationRouting";
+import { useNavigate } from "react-router";
 
 // Re-exports for backward compatibility and storybook
 export { NotificationHeader } from "./components/NotificationHeader";
@@ -29,7 +29,6 @@ export {
   formatNotificationTime,
   getNotificationActionLabel,
   getNotificationPath,
-  navigateTo,
 } from "./notificationRouting";
 export {
   categoryColorClassNames,
@@ -39,6 +38,7 @@ export {
 } from "./types";
 
 export function NotificationsPage() {
+  const navigate = useNavigate();
   const {
     agencyRequestActionNotificationId,
     agencyRequestDecisions,
@@ -182,7 +182,7 @@ export function NotificationsPage() {
         onMarkAllUnreadChange={setMarkAllUnread}
         onManage={() => {
           setIsSettingsSheetOpen(false);
-          navigateTo("/notifications/settings");
+          navigate("/notifications/settings");
         }}
       />
     </PageFrame>

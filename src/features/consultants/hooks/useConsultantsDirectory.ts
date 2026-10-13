@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import { useAgencyInfiniteQuery, usePublicAgentsInfiniteQuery } from "../../agencies/api/agency.hooks";
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
-import { pushRoute } from "../../../shared/navigation/navigation";
 import { toPersianNumber } from "../../../shared/lib/numberUtils";
 import type { PublicAgencyDto, PublicAgentListDto } from "../../agencies/api/agency.service";
 import type { NeighborhoodDto } from "../../locations/api/neighborhood.service";
@@ -47,6 +47,7 @@ function getInitialMode(): DirectoryMode {
 }
 
 export function useConsultantsDirectory() {
+  const navigate = useNavigate();
   const selectedCity = readStoredSelectedCity();
   const [mode, setMode] = useState<DirectoryMode>(getInitialMode);
   const [isModeSheetOpen, setIsModeSheetOpen] = useState(false);
@@ -150,16 +151,16 @@ export function useConsultantsDirectory() {
     if (item.neighborhoodIds?.length) params.set("neighborhood_ids", item.neighborhoodIds.join(","));
     if (item.rank) params.set("rank", item.rank);
     if (item.score) params.set("score", item.score);
-    pushRoute(`/agencies/${encodeURIComponent(item.id)}${params.toString() ? `?${params.toString()}` : ""}`);
-  }, [selectedCity]);
+    navigate(`/agencies/${encodeURIComponent(item.id)}${params.toString() ? `?${params.toString()}` : ""}`);
+  }, [navigate, selectedCity]);
 
   const navigateToAgent = useCallback((item: DirectoryItem) => {
     if (!item.id) return;
     const params = new URLSearchParams();
     if (item.name) params.set("name", item.name);
     if (item.image) params.set("logo", item.image);
-    pushRoute(`/agents/${encodeURIComponent(item.id)}${params.toString() ? `?${params.toString()}` : ""}`);
-  }, []);
+    navigate(`/agents/${encodeURIComponent(item.id)}${params.toString() ? `?${params.toString()}` : ""}`);
+  }, [navigate]);
 
   return {
     activeQuery,

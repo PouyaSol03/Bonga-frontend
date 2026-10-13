@@ -1,7 +1,7 @@
+import { useNavigate } from "react-router";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { SEO } from "../../shared/components/SEO";
-import { pushRoute } from "../../shared/navigation/navigation";
 import { defaultSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { clearConsultantsSelectedNeighborhood } from "./consultantsNeighborhoodSelection";
 import { AgencyDirectoryMapView } from "./AgencyDirectoryMapView";
@@ -14,6 +14,7 @@ import { DirectorySortSheet } from "./components/DirectorySortSheet";
 import { useConsultantsDirectory } from "./hooks/useConsultantsDirectory";
 
 export function ConsultantsDirectoryPage() {
+  const navigate = useNavigate();
   const {
     activeQuery,
     agencyDirectoryItems,
@@ -62,9 +63,9 @@ export function ConsultantsDirectoryPage() {
   const neighborhoodChipLabel = selectedNeighborhood?.name ?? "محله";
 
   const openNeighborhoodPage = () => {
-    const state = typeof window.history.state === "object" && window.history.state ? window.history.state : {};
-    window.history.replaceState({ ...state, consultantsDirectoryState: { search, selectedSort } }, "", `${window.location.pathname}${window.location.search}`);
-    pushRoute("/consultants/neighborhood");
+    navigate("/consultants/neighborhood", {
+      state: { consultantsDirectoryState: { search, selectedSort } },
+    });
   };
 
   const clearNeighborhood = () => {
@@ -109,7 +110,7 @@ export function ConsultantsDirectoryPage() {
       <div className="shrink-0 bg-surface-container-lowest">
         <TopBar
           className="bg-surface-container-lowest"
-          onBack={() => pushRoute("/home", undefined, { rememberCurrent: false })}
+          onBack={() => navigate("/home", { replace: true })}
           placement="inline"
           title="مشاورین"
         />

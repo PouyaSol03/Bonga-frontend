@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 
 import {
   useDeleteSavedSearchMutation,
@@ -88,6 +89,7 @@ export function HomeSearchScreen({
   onQuerySearchChange,
   onSelectResult,
 }: HomeSearchScreenProps) {
+  const navigate = useNavigate();
   const lastPublishedQueryRef = useRef("");
   const wasOpenRef = useRef(false);
   const [query, setQuery] = useState("");
@@ -204,8 +206,7 @@ export function HomeSearchScreen({
           onClose();
 
           if (item.url.startsWith("/")) {
-            window.history.pushState({}, "", item.url);
-            window.dispatchEvent(new PopStateEvent("popstate"));
+            navigate(item.url);
             return;
           }
 
@@ -320,8 +321,7 @@ export function HomeSearchScreen({
                   if (item.url) {
                     setQuery("");
                     onClose();
-                    window.history.pushState({}, "", item.url);
-                    window.dispatchEvent(new PopStateEvent("popstate"));
+                    navigate(item.url);
                     return;
                   }
 

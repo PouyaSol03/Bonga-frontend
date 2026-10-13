@@ -1,6 +1,7 @@
+import { useNavigate } from "react-router";
 import { AccessDeniedState } from "../../shared/components/ErrorState";
-import { pushRoute } from "../../shared/navigation/navigation";
 
 export function AccessDeniedPage() {
-  return <AccessDeniedState onBack={() => pushRoute("/account")} />;
+  const navigate = useNavigate();
+  return <AccessDeniedState onBack={() => navigate("/account")} />;
 }

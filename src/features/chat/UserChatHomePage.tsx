@@ -35,7 +35,7 @@ import { TopBar } from "../../shared/components/TopBar";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBarNavigationLayout } from "../../shared/layout/TopBarNavigationLayout";
 import NavHomeIcon from "../../shared/icons/NavHomeIcon";
-import { RouteLink } from "../../shared/navigation/RouteLink";
+import { Link, useNavigate } from "react-router";
 import { getBrowserLocation, getBrowserLocationNotice } from "../../shared/lib/browserLocation";
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { REAL_ESTATE_MANAGER, SUPER_ADMIN } from "../../shared/constants/roles.constants";
@@ -1332,14 +1332,14 @@ const ChatCard = memo(function ChatCard({
   }
 
   return (
-    <RouteLink
+    <Link
       aria-label={`${displayItem.userName} - ${displayItem.adTitle}`}
       className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
       state={displayItem.detailState}
       to={displayItem.detailPath ?? `/chat/${index + 1}`}
     >
       {cardContent}
-    </RouteLink>
+    </Link>
   );
 });
 
@@ -1424,13 +1424,13 @@ function ChatPropertyStrip({ thread }: { thread?: ChatThread }) {
   if (!advertiseId) return content;
 
   return (
-    <RouteLink
+    <Link
       aria-label={`مشاهده ${advertiseTitle}`}
       className="block shrink-0 text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
       to={`/ads/${encodeURIComponent(advertiseId)}`}
     >
       {content}
-    </RouteLink>
+    </Link>
   );
 }
 
@@ -2451,14 +2451,8 @@ export function UserChatResponseTimePage() {
 
 const CHAT_RENAME_NOTICE_STORAGE_KEY = "bonga-chat-rename-notice";
 
-function navigateFromChatSettings(path: string, replace = false) {
-  const method = replace ? "replaceState" : "pushState";
-
-  window.history[method]({}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 export function UserChatRenamePage() {
+  const navigate = useNavigate();
   const showingNameQuery = useChatShowingNameQuery();
   const updateShowingNameMutation = useUpdateChatShowingNameMutation();
   const [chatName, setChatName] = useState("");
@@ -2482,7 +2476,7 @@ export function UserChatRenamePage() {
         CHAT_RENAME_NOTICE_STORAGE_KEY,
         normalizedName ? "تغییر نام با موفقیت انجام شد" : "نام نمایشی پاک شد",
       );
-      navigateFromChatSettings("/chat", true);
+      navigate("/chat", { replace: true });
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, "ثبت نام نمایشی با خطا مواجه شد."));
     }
@@ -2550,7 +2544,7 @@ export function UserChatRenamePage() {
           </Button>
           <Button unstyled
             className="h-11 min-w-0 flex-1 rounded-lg border border-primary bg-surface-container-lowest text-xs font-semibold leading-5 text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:bg-primary-container/10"
-            onClick={() => navigateFromChatSettings("/chat", true)}
+            onClick={() => navigate("/chat", { replace: true })}
             type="button"
           >
             انصراف
@@ -2562,6 +2556,7 @@ export function UserChatRenamePage() {
 }
 
 export function UserChatDetailPage() {
+  const navigate = useNavigate();
   const routeId = getChatRouteThreadId();
   const routeThreadId = getChatRouteStateThreadId() || routeId;
   const routeThread = getChatRouteStateThread();
@@ -2850,8 +2845,7 @@ export function UserChatDetailPage() {
   };
 
   const navigateToChatHome = () => {
-    window.history.pushState({}, "", "/chat");
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    navigate("/chat");
   };
 
   const confirmBlockChat = () => {
@@ -2917,12 +2911,9 @@ export function UserChatDetailPage() {
     }
 
     if (id === "report") {
-      window.history.pushState(
-        { returnTo: window.location.pathname },
-        "",
-        `/chat/${encodeURIComponent(activeThreadId)}/report`,
-      );
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      navigate(`/chat/${encodeURIComponent(activeThreadId)}/report`, {
+        state: { returnTo: window.location.pathname },
+      });
       return;
     }
 
@@ -3173,6 +3164,7 @@ export function UserChatDetailPage() {
 }
 
 export function UserChatHomePage() {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ChatFilter | null>(() => {
@@ -3245,22 +3237,19 @@ export function UserChatHomePage() {
     setIsMenuOpen(false);
 
     if (id === "hours") {
-      window.history.pushState({}, "", "/chat/response-time");
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      navigate("/chat/response-time");
       return;
     }
 
     if (id === "rename") {
-      window.history.pushState({}, "", "/chat/rename");
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      navigate("/chat/rename");
       return;
     }
 
     if (id === "bulk-delete") {
-      window.history.pushState({}, "", "/chat/bulk-delete");
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      navigate("/chat/bulk-delete");
     }
-  }, []);
+  }, [navigate]);
 
   const visibleChats = chats;
 
@@ -3432,6 +3421,7 @@ function ChatPageShell({ action, children, onBack, title }: ChatPageShellProps) 
 }
 
 export function UserChatBulkDeletePage() {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showBlocked, setShowBlocked] = useState(false);
   const [showMyAds, setShowMyAds] = useState(false);
@@ -3494,26 +3484,23 @@ export function UserChatBulkDeletePage() {
         setDeleteError("حذف گفتگوها با خطا مواجه شد. دوباره تلاش کنید.");
       },
       onSuccess: () => {
-        window.history.replaceState({}, "", "/chat");
-        window.dispatchEvent(new PopStateEvent("popstate"));
+        navigate("/chat", { replace: true });
       },
     });
-  }, [deleteChatsMutation, selectedChatIds]);
+  }, [deleteChatsMutation, navigate, selectedChatIds]);
 
   const handleMenuSelect = useCallback((id: string) => {
     setIsMenuOpen(false);
 
     if (id === "hours") {
-      window.history.pushState({}, "", "/chat/response-time");
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      navigate("/chat/response-time");
       return;
     }
 
     if (id === "rename") {
-      window.history.pushState({}, "", "/chat/rename");
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      navigate("/chat/rename");
     }
-  }, []);
+  }, [navigate]);
 
   return (
     <ChatPageShell

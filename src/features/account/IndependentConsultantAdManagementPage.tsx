@@ -50,6 +50,8 @@ import Linear3d from "../../shared/icons/Linear3d";
 import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import LinearImage from "../../shared/icons/LinearImage";
 import LinearClock from "../../shared/icons/LinearClock";
+import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
+import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { getMyAdStatusInfo } from "./myAdsStatus";
@@ -318,6 +320,9 @@ export function IndependentConsultantAdManagementPage() {
   );
   const [showMineOnly, setShowMineOnly] = useState(routeState.onlyMine ?? false);
   const [filters] = useState<AdManagementFilters>(routeState.filters ?? emptyFilters);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebouncedValue(searchQuery.trim(), 300);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const assignedTab = isAssignedTab(activeTab);
   const scopedFilters = getScopedFilters(filters, activeTab);
@@ -330,6 +335,7 @@ export function IndependentConsultantAdManagementPage() {
   const adsQuery = useMyAdsInfiniteQuery({
     isMine: showMineOnly ? true : undefined,
     perPage: assignmentPageSize,
+    search: isSearching && debouncedSearchQuery ? debouncedSearchQuery : undefined,
   });
   const [deletingAdId, setDeletingAdId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -370,8 +376,13 @@ export function IndependentConsultantAdManagementPage() {
           ad: mapAssignmentToAd(assignment, index),
           assignment,
         }))
-        .filter(({ ad }) => matchesAdFilters(ad, scopedFilters, true)),
-    [assignmentItems, scopedFilters],
+        .filter(({ ad }) => matchesAdFilters(ad, scopedFilters, true))
+        .filter(({ ad }) => {
+          if (!isSearching || !debouncedSearchQuery) return true;
+          const q = debouncedSearchQuery.toLowerCase();
+          return Boolean(ad.title && ad.title.toLowerCase().includes(q));
+        }),
+    [assignmentItems, scopedFilters, isSearching, debouncedSearchQuery],
   );
   const activeAdvertisements = useMemo(
     () =>
@@ -435,22 +446,56 @@ export function IndependentConsultantAdManagementPage() {
       variant="flush"
     >
       <TopBar
-        backTo="/account"
+        backTo={isSearching ? undefined : "/account"}
+        onBack={
+          isSearching
+            ? () => {
+                setIsSearching(false);
+                setSearchQuery("");
+              }
+            : undefined
+        }
         centerClassName="px-0"
         centerSlot={
-          <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-right text-base font-semibold leading-6 text-on-surface">
-            مدیریت آگهی‌ها
-          </Typography>
+          isSearching ? (
+            <div className="flex h-10 w-full items-center rounded-xl border border-outline bg-surface-container-lowest px-3 [direction:rtl]">
+              <input
+                autoFocus
+                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal text-on-surface outline-none placeholder:text-outline"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="جستجو در آگهی‌ها..."
+                type="search"
+                value={searchQuery}
+              />
+              {searchQuery ? (
+                <Button unstyled
+                  aria-label="پاک کردن"
+                  className="grid h-6 w-6 shrink-0 place-items-center text-outline"
+                  onClick={() => setSearchQuery("")}
+                  type="button"
+                >
+                  <LinearCancelCircle className="h-5 w-5" />
+                </Button>
+              ) : null}
+            </div>
+          ) : (
+            <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-right text-base font-semibold leading-6 text-on-surface">
+              مدیریت آگهی‌ها
+            </Typography>
+          )
         }
         className="bg-surface-container"
         startSlot={
-          <Button unstyled
-            aria-label="جستجو"
-            className="grid h-12 w-12 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40"
-            type="button"
-          >
-            <SearchIcon className="h-6 w-6" />
-          </Button>
+          isSearching ? undefined : (
+            <Button unstyled
+              aria-label="جستجو"
+              className="grid h-12 w-12 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40"
+              onClick={() => setIsSearching(true)}
+              type="button"
+            >
+              <SearchIcon className="h-6 w-6" />
+            </Button>
+          )
         }
       />
 
@@ -851,7 +896,7 @@ function getAllocationCountdownBadge(countdown: AssignmentCountdown) {
   }
   if (countdown.hours < 12) {
     return {
-      className: "bg-warning-container text-warning",
+      className: "bg-warning-container text-on-warning-container",
       text,
     };
   }

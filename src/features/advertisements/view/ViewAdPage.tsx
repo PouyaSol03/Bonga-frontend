@@ -1192,17 +1192,30 @@ function ViewAdContent({
             </div>
           </div>
 
-          {details.isSpecial ? (
-            <div className="mt-3 flex justify-end">
-              <Typography
-                as="span"
-                variant="label"
-                size="small"
-                weight="semibold"
-                className="inline-flex min-h-7 items-center rounded-lg bg-tertiary-container px-3 text-tertiary"
-              >
-                بروزرسانی ویژه
-              </Typography>
+          {details.isSpecial || details.isLadder ? (
+            <div className="mt-3 flex items-center justify-start gap-2 [direction:rtl]">
+              {details.isSpecial ? (
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="small"
+                  weight="medium"
+                  className="whitespace-nowrap rounded-lg border border-on-warning-container bg-warning-container px-2 py-1 text-on-warning-container"
+                >
+                  ویژه
+                </Typography>
+              ) : null}
+              {details.isLadder ? (
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="small"
+                  weight="medium"
+                  className="whitespace-nowrap rounded-lg border border-tertiary bg-tertiary-container px-2 py-1 text-tertiary"
+                >
+                  بروزرسانی
+                </Typography>
+              ) : null}
             </div>
           ) : null}
 

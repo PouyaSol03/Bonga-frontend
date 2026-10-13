@@ -448,14 +448,11 @@ export function NewAdLocationPage() {
 
       clearNewAdDraftStorage();
     };
-    const clearOnPageHide = () => clearNewAdDraftStorage();
 
     window.addEventListener("popstate", clearOnExit);
-    window.addEventListener("pagehide", clearOnPageHide);
 
     return () => {
       window.removeEventListener("popstate", clearOnExit);
-      window.removeEventListener("pagehide", clearOnPageHide);
     };
   }, []);
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import LinearSearch from "../../../../../shared/icons/LinearSearch";
+import { SearchInputBar } from "../../../../../shared/ui/SearchBar";
 import { TopBar } from "../../../../../shared/components/TopBar";
 import { SearchEmptyState } from "../../../../../shared/components/SearchEmptyState";
 import { Button } from "../../../../../shared/ui/Button";
@@ -78,16 +78,15 @@ export function ReplacementPicker({
 
       <main className="min-h-0 flex-1 overflow-y-auto pb-24">
         <div className="bg-surface-container-lowest px-4 pb-5 pt-3">
-          <label className="flex h-12 items-center gap-2 rounded-lg border border-outline-var bg-surface-container-lowest px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
-            <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-on-surface outline-none placeholder:text-outline"
-              onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="جستجوی مشاور"
-              type="search"
-              value={searchValue}
-            />
-            <LinearSearch className="h-5 w-5 shrink-0 text-on-surface-var" />
-          </label>
+          <SearchInputBar
+            compact
+            debounceMs={300}
+            onClear={() => setSearchValue("")}
+            onDebouncedChange={setSearchValue}
+            onValueChange={setSearchValue}
+            placeholder="جستجوی مشاور"
+            value={searchValue}
+          />
         </div>
 
         <section className="bg-surface-container-lowest px-4 py-4">

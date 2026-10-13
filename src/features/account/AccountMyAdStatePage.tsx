@@ -1363,7 +1363,7 @@ function NeedsEditNotice({
 
 function WaitForPaymentNotice({ adId }: { adId?: string }) {
   return (
-    <div className="mt-4 flex items-center justify-between rounded-xl bg-warning-container p-3 text-warning">
+    <div className="mt-4 flex items-center justify-between rounded-xl bg-warning-container p-3 text-on-warning-container">
       <span className="text-sm font-medium">برای ادامه فرایند انتشار آگهی، پرداخت را تکمیل کنید.</span>
       {adId ? (
         <Link

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 
 import BoldBookmarkSolid from "../../../shared/icons/BoldBookmarkSolid";
 import LinearBookmarkSolid from "../../../shared/icons/LinearBookmarkSolid";
+import LinearCancelCircle from "../../../shared/icons/LinearCancelCircle";
 import { TopBar } from "../../../shared/components/TopBar";
-import { SearchInputBar } from "../../../shared/ui/SearchBar";
 import { AdCardSkeleton } from "../../advertisements/components/AdCardSkeleton";
 import SearchErrors from "../../home/components/SearchErrors";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
@@ -421,45 +421,84 @@ function SearchMapField({
   onSubmit: () => void;
   query: string;
 }) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleChange = (value: string) => {
+    onQueryChange(value);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onDebouncedQueryChange(value);
+    }, 300);
+  };
+
+  const handleClear = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    onQueryChange("");
+    onDebouncedQueryChange("");
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (timerRef.current) clearTimeout(timerRef.current);
+    onDebouncedQueryChange(query);
+    onSubmit();
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
   return (
-    <SearchInputBar
-      autoFocus={isOpen}
-      compact
-      debounceMs={300}
-      inputClassName="home-search-input"
-      onClear={() => {
-        onQueryChange("");
-        onDebouncedQueryChange("");
-      }}
-      onDebouncedChange={onDebouncedQueryChange}
-      onSubmit={onSubmit}
-      onValueChange={onQueryChange}
-      placeholder="جستجو در آگهی‌ها"
-      savedSlot={
+    <form
+      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-surface-container-lowest pl-3 text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-primary/25 ${
+        query ? "border-primary" : "border-outline"
+      }`}
+      dir="rtl"
+      onSubmit={handleSubmit}
+    >
+      <Button unstyled
+        aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
+        aria-pressed={isSaved}
+        className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
+          isSaved || isSaving
+            ? "text-on-surface"
+            : "text-on-surface-var active:bg-primary-container"
+        }`}
+        disabled={isSaveDisabled || isSaving || isSaved}
+        onClick={onSavedClick}
+        tabIndex={isOpen ? 0 : -1}
+        type="button"
+      >
+        {isSaved || isSaving ? (
+          <BoldBookmarkSolid className="h-6 w-6" />
+        ) : (
+          <LinearBookmarkSolid className="h-6 w-6" />
+        )}
+      </Button>
+      <div aria-hidden="true" className="me-3 h-6 w-px shrink-0 bg-outline-var" />
+      <input
+        aria-label="جستجو در آگهی‌های نقشه"
+        autoFocus={isOpen}
+        className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-on-surface caret-primary outline-none placeholder:text-outline"
+        onChange={(event) => handleChange(event.target.value)}
+        placeholder="جستجو در آگهی‌ها"
+        tabIndex={isOpen ? 0 : -1}
+        type="search"
+        value={query}
+      />
+      {query ? (
         <Button unstyled
-          aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
-          aria-pressed={isSaved}
-          className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-transparent transition-colors disabled:cursor-not-allowed ${
-            isSaved || isSaving
-              ? "text-on-surface"
-              : "text-on-surface-var active:bg-primary-container"
-          }`}
-          disabled={isSaveDisabled || isSaving || isSaved}
-          onClick={onSavedClick}
+          aria-label="پاک کردن جستجو"
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-outline transition active:bg-surface-container"
+          onClick={handleClear}
           tabIndex={isOpen ? 0 : -1}
           type="button"
         >
-          {isSaved || isSaving ? (
-            <BoldBookmarkSolid className="h-6 w-6" />
-          ) : (
-            <LinearBookmarkSolid className="h-6 w-6" />
-          )}
+          <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
         </Button>
-      }
-      showSearchIcon={false}
-      tabIndex={isOpen ? 0 : -1}
-      type="search"
-      value={query}
-    />
+      ) : null}
+    </form>
   );
 }

@@ -6,11 +6,12 @@ import { defaultSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { clearConsultantsSelectedNeighborhood } from "./consultantsNeighborhoodSelection";
 import { AgencyDirectoryMapView } from "./AgencyDirectoryMapView";
 import { DirectoryFilterBar } from "./components/DirectoryFilterBar";
-import { SearchInputBar } from "../../shared/ui/SearchBar";
+import { SearchIcon } from "./components/DirectoryIcons";
 import { DirectoryList } from "./components/DirectoryList";
 import { DirectoryMapButton } from "./components/DirectoryMapButton";
 import { DirectoryModeSheet } from "./components/DirectoryModeSheet";
 import { DirectorySortSheet } from "./components/DirectorySortSheet";
+import { Typography } from "../../shared/ui/Typography";
 import { useConsultantsDirectory } from "./hooks/useConsultantsDirectory";
 
 export function ConsultantsDirectoryPage() {
@@ -116,13 +117,18 @@ export function ConsultantsDirectoryPage() {
         />
 
         <div className="px-4 pt-2">
-          <SearchInputBar
-            compact
-            onClear={() => setSearch("")}
-            onValueChange={setSearch}
-            placeholder={searchPlaceholder}
-            value={search}
-          />
+          <label className="relative flex items-center rounded-xl border border-outline bg-surface-container-lowest text-outline">
+            <input
+              className="h-full w-full rounded-[inherit] border-0 bg-transparent px-4 py-3 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline"
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={searchPlaceholder}
+              type="search"
+              value={search}
+            />
+            <Typography as="span" variant="body" size="medium" weight="regular" className="absolute left-5 top-1/2 -translate-y-1/2 text-outline">
+              <SearchIcon />
+            </Typography>
+          </label>
         </div>
 
         <DirectoryFilterBar

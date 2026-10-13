@@ -13,6 +13,7 @@ import {
   readConsultantsSelectedNeighborhood,
   saveConsultantsSelectedNeighborhood,
 } from "./consultantsNeighborhoodSelection";
+import { SearchInputBar } from "../../shared/ui/SearchBar";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 
@@ -28,16 +29,16 @@ function NeighborhoodSearchField({
   value: string;
 }) {
   return (
-    <label className="flex py-2 w-full min-w-0 items-center rounded-xl border border-outline bg-surface-container-lowest px-4 focus-within:border-primary">
-      <input
-        autoFocus
-        className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base font-normal text-on-surface outline-none placeholder:font-normal! placeholder:text-outline"
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="جستجو محله"
-        type="search"
-        value={value}
-      />
-    </label>
+    <SearchInputBar
+      autoFocus
+      compact
+      containerClassName="border-outline"
+      onClear={() => onChange("")}
+      onValueChange={onChange}
+      placeholder="جستجو محله"
+      showSearchIcon={false}
+      value={value}
+    />
   );
 }
 

@@ -13,14 +13,13 @@ import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
 import LinearEdit2 from "../../shared/icons/LinearEdit2";
 import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
-import LinearSearch from "../../shared/icons/LinearSearch";
 import LinearUserSolid from "../../shared/icons/LinearUserSolid";
-import LinearX from "../../shared/icons/LinearX";
 import TonalInstagram from "../../shared/icons/TonalInstagram";
 import TonalTelegram from "../../shared/icons/TonalTelegram";
 import TonalWhatsapp from "../../shared/icons/TonalWhatsapp";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { FormChoiceChip } from "../../shared/form/FormControls";
+import { SearchInputBar } from "../../shared/ui/SearchBar";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
@@ -789,26 +788,16 @@ function NeighborhoodSelectionSheet({
     >
       <div className="shrink-0 px-3 pb-2 pt-3">
         <div className="flex h-11 items-center gap-2 [direction:ltr]">
-          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-outline bg-surface-container-lowest px-3 focus-within:border-primary" dir="rtl">
-            <LinearSearch className="h-5 w-5 shrink-0 text-outline" />
-            <input
-              className="h-9 min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="جستجوی محله"
-              type="search"
-              value={query}
-            />
-            {query ? (
-              <Button unstyled
-                aria-label="پاک کردن جستجو"
-                className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var"
-                onClick={() => setQuery("")}
-                type="button"
-              >
-                <LinearX />
-              </Button>
-            ) : null}
-          </label>
+          <SearchInputBar
+            containerClassName="flex-1 border-outline"
+            debounceMs={300}
+            onClear={() => setQuery("")}
+            onDebouncedChange={setQuery}
+            onValueChange={setQuery}
+            placeholder="جستجوی محله"
+            size="dense"
+            value={query}
+          />
           <Button unstyled
             aria-label="بازگشت"
             className="grid h-10 w-10 shrink-0 place-items-center text-on-surface-var"

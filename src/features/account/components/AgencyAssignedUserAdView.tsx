@@ -450,17 +450,17 @@ export function AgencyAssignedUserAdView({
             </span>
           )}
           {isWaitForAdmin && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container/30 px-4 text-sm font-medium text-warning">
+            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container px-4 text-sm font-medium text-on-warning-container">
               در انتظار تایید انتشار
             </span>
           )}
           {isWaitForAgency && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container/30 px-4 text-sm font-medium text-warning">
+            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container px-4 text-sm font-medium text-on-warning-container">
               در انتظار تایید آژانس
             </span>
           )}
           {isWaitForRepost && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container/30 px-4 text-sm font-medium text-warning">
+            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container px-4 text-sm font-medium text-on-warning-container">
               در انتظار ثبت مجدد
             </span>
           )}

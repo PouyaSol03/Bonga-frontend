@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import LinearSearch from "../../../../shared/icons/LinearSearch";
+import { SearchInputBar } from "../../../../shared/ui/SearchBar";
 import LinearUserAdd from "../../../../shared/icons/LinearUserAdd";
 import { SearchEmptyState } from "../../../../shared/components/SearchEmptyState";
 import { FormChoiceChip } from "../../../../shared/form/FormControls";
@@ -121,16 +121,16 @@ export function ConsultantManagementPage() {
       >
         {showConsultantControls ? (
           <div className="shrink-0 bg-surface-container px-4 py-2">
-            <label className="flex h-12 items-center gap-2 rounded-xl border border-outline bg-surface-container-lowest px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
-              <input
-                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal text-on-surface outline-none placeholder:text-outline"
-                onChange={(event) => setSearchValue(event.target.value)}
-                placeholder="جستجوی مشاور"
-                type="search"
-                value={searchValue}
-              />
-              <LinearSearch className="h-5 w-5 shrink-0 text-on-surface-var" />
-            </label>
+            <SearchInputBar
+              compact
+              containerClassName="border-outline"
+              debounceMs={300}
+              onClear={() => setSearchValue("")}
+              onDebouncedChange={setSearchValue}
+              onValueChange={setSearchValue}
+              placeholder="جستجوی مشاور"
+              value={searchValue}
+            />
 
             <div className="mt-3 flex items-center gap-2">
               <TeamFilterButton

@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { SwitchButton } from "../../shared/components/SwitchButton";
 import { Link } from "react-router";
-import { AnalyticsIcon, FilterIcon, SearchIcon } from "../account/adManagement/AdManagementIcons";
+import { SearchInputBar } from "../../shared/ui/SearchBar";
+import { AnalyticsIcon, FilterIcon } from "../account/adManagement/AdManagementIcons";
 import { DashboardAdCard } from "./DashboardAdCard";
 import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
 import { useMyAdsInfiniteQuery } from "../account/api/account.hooks";
@@ -97,16 +98,17 @@ export function DashboardAdsPage() {
               <Typography as="span" variant="body" size="medium" weight="regular">فیلترها</Typography>
             </Button>
 
-            <label className="relative block h-10 w-[360px]">
-              <SearchIcon className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-on-surface-var" />
-              <input
-                className="h-full w-full rounded-xl border border-outline-var bg-surface-container-lowest pr-4 pl-12 text-right text-sm font-medium text-on-surface outline-none transition placeholder:text-outline focus:border-primary"
-                onChange={(event) => setSearchTerm(event.target.value)}
+            <div className="w-[360px]">
+              <SearchInputBar
+                debounceMs={300}
+                onClear={() => setSearchTerm("")}
+                onDebouncedChange={setSearchTerm}
+                onValueChange={setSearchTerm}
                 placeholder="جستجو"
-                type="search"
+                size="dense"
                 value={searchTerm}
               />
-            </label>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">

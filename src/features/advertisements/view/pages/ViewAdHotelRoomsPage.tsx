@@ -15,8 +15,7 @@ import {
   useAdvertisementPreviewQuery,
 } from "../../api/advertisement.hooks";
 import {
-  goBackToAd,
-  mapAdToDetails,
+    mapAdToDetails,
   parseViewAdIdFromPath,
 } from "../viewAdDetails";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "../ViewAdRouteStates";
@@ -66,7 +65,7 @@ export function ViewAdHotelRoomsPage() {
       className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
       variant="flush"
     >
-      <TopBar onBack={() => goBackToAd(adId)} title="اطلاعات هتل" />
+      <TopBar backTo={adId ? `/ads/${adId}` : "/home"} title="اطلاعات هتل" />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container divide-y-8 divide-surface-container">
         {rooms.length > 0 ? (

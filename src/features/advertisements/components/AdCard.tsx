@@ -3,7 +3,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import type { ReactNode } from 'react'
 import './AdCard.css'
 
-import { RouteLink } from '../../../shared/navigation/RouteLink'
+import { Link } from 'react-router'
 import LinearImage from '../../../shared/icons/LinearImage'
 import LinearDelete from '../../../shared/icons/LinearDelete'
 import LinearCity from '../../../shared/icons/LinearCity'
@@ -144,7 +144,7 @@ export function AdCard({
         : []
 
     return (
-      <RouteLink
+      <Link
         aria-current={isSelected ? 'true' : undefined}
         className={`flex h-[216px] w-[min(360px,calc(100vw-28px))] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-surface-container-lowest p-3 text-right no-underline shadow-[0_4px_16px_rgba(0,0,0,0.10)] ${className}`}
         data-map-slider-card={mapSliderCardId === undefined ? undefined : String(mapSliderCardId)}
@@ -170,7 +170,7 @@ export function AdCard({
         <Typography as="p" variant="body" size="medium" weight="medium" className="mt-1.5 text-right text-on-surface">
           {truncateAdCardText(ad.title)}
         </Typography>
-      </RouteLink>
+      </Link>
     )
   }
 
@@ -180,7 +180,7 @@ export function AdCard({
         {topBadge}
 
         <div className="relative">
-          <RouteLink
+          <Link
             aria-label={ariaLabel ?? `مشاهده آگهی ${ad.title}`}
             className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/25"
             state={linkState}
@@ -194,12 +194,12 @@ export function AdCard({
               showImageCount={false}
               showStatusBadge={false}
             />
-          </RouteLink>
+          </Link>
 
           {imageAction}
         </div>
 
-        <RouteLink
+        <Link
           aria-label={ariaLabel ?? `مشاهده آگهی ${ad.title}`}
           className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/25"
           state={linkState}
@@ -210,7 +210,7 @@ export function AdCard({
             hasSecondaryPrice={hasSecondaryPrice}
             showBadges={showBadges}
           />
-        </RouteLink>
+        </Link>
       </article>
     )
   }
@@ -219,7 +219,7 @@ export function AdCard({
   const isCarousel = variant === 'carousel'
 
   return (
-    <RouteLink
+    <Link
       aria-label={ariaLabel ?? `مشاهده آگهی ${ad.title}`}
       className={`block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/25 ${isDashboard ? 'min-w-0' : ''} ${className}`}
       state={linkState}
@@ -251,7 +251,7 @@ export function AdCard({
           showBadges={showBadges}
         />
       </article>
-    </RouteLink>
+    </Link>
   )
 }
 

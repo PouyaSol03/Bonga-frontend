@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { SwitchButton } from "../../shared/components/SwitchButton";
-import { RouteLink } from "../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { AnalyticsIcon, FilterIcon, SearchIcon } from "../account/adManagement/AdManagementIcons";
 import { DashboardAdCard } from "./DashboardAdCard";
 import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
@@ -110,13 +110,13 @@ export function DashboardAdsPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <RouteLink
+            <Link
               className="inline-flex h-10 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-on-surface no-underline transition"
               to="/account/ad-management/statistics"
             >
               <AnalyticsIcon className="h-5 w-5 text-on-surface-var" />
               <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">آمار آگهی‌ها</Typography>
-            </RouteLink>
+            </Link>
 
             <Typography as="span" variant="body" size="medium" weight="regular" className="h-8 w-px bg-outline-var" />
 
@@ -174,13 +174,13 @@ function DashboardAdsEmptyState() {
       >
         می‌توانید همین حالا آگهی جدید ثبت کنید و وضعیت آن را از این بخش پیگیری نمایید.
       </Typography>
-      <RouteLink
+      <Link
         className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary"
         to="/new-ad/category"
       >
         <PlusIcon className="h-5 w-5" />
         ثبت آگهی
-      </RouteLink>
+      </Link>
     </section>
   );
 }

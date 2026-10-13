@@ -1,5 +1,5 @@
 import { Typography } from "../../../shared/ui/Typography";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import { toPersianNumber } from "../../../shared/lib/numberUtils";
 
@@ -126,7 +126,7 @@ export function DashboardLeadFollowupCard({ item }: DashboardLeadFollowupCardPro
         </div>
 
         {/* Action Button: سرنخ آگهی < */}
-        <RouteLink
+        <Link
           to={targetLink}
           className="flex items-center gap-1.5 rounded-[10px] border border-[#0048C4] px-3.5 py-2 text-xs font-medium text-[#0048C4] transition-colors active:bg-[#0048C4]/10"
         >
@@ -140,7 +140,7 @@ export function DashboardLeadFollowupCard({ item }: DashboardLeadFollowupCardPro
             سرنخ آگهی
           </Typography>
           <LinearArrowLeft1 className="h-3.5 w-3.5 text-[#0048C4]" />
-        </RouteLink>
+        </Link>
       </div>
     </div>
   );

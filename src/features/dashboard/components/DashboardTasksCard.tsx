@@ -1,5 +1,5 @@
 import { Typography } from "../../../shared/ui/Typography";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import { toPersianNumber } from "../../../shared/lib/numberUtils";
 
@@ -96,9 +96,9 @@ export function DashboardTasksCard({
 
             if (item.to) {
               return (
-                <RouteLink key={item.id} className="no-underline" to={item.to}>
+                <Link key={item.id} className="no-underline" to={item.to}>
                   {content}
-                </RouteLink>
+                </Link>
               );
             }
 

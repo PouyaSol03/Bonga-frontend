@@ -7,7 +7,7 @@ import LinearDislike from "../../../shared/icons/LinearDislike";
 import { useToast } from "../../../shared/hooks/useToast";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import {
   ViewAdActionPageTopBar,
   ViewAdPageActionBar,
@@ -64,6 +64,7 @@ export function ProfileFeedbackPage({
   targetId: number | string;
   targetName?: string;
 }) {
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const [ratings, setRatings] = useState<Record<number, boolean | null>>({});
 
@@ -118,7 +119,7 @@ export function ProfileFeedbackPage({
         action: "ثبت بازخورد",
         returnTo: redirectPath,
       });
-      pushRoute(`/login-required?${params.toString()}`);
+      navigate(`/login-required?${params.toString()}`);
       return;
     }
     submitMutation.mutate();

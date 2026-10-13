@@ -1,5 +1,5 @@
 import { Typography } from "../../../shared/ui/Typography";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import LinearTick from "../../../shared/icons/LinearTick";
 import { toPersianNumber } from "../../../shared/lib/numberUtils";
@@ -106,7 +106,7 @@ export function DashboardUrgentActionsCard({
           {title}
         </Typography>
         {actionItems.length > 0 && (
-          <RouteLink
+          <Link
             className="flex items-center gap-1 text-primary"
             to={viewAllTo}
           >
@@ -120,7 +120,7 @@ export function DashboardUrgentActionsCard({
               مشاهده همه
             </Typography>
             <LinearArrowLeft1 className="h-3.5 w-3.5" />
-          </RouteLink>
+          </Link>
         )}
       </div>
 
@@ -161,7 +161,7 @@ export function DashboardUrgentActionsCard({
                   : "caution");
             const style = urgencyStyles[urgencyKey] ?? urgencyStyles.caution;
             return (
-              <RouteLink
+              <Link
                 key={item.id}
                 to={item.to || "#"}
                 className={`flex items-center justify-between rounded-[12px] border ${style.border} ${style.bg} p-2.5 transition active:scale-[0.99] no-underline`}
@@ -206,7 +206,7 @@ export function DashboardUrgentActionsCard({
                 </div>
 
                 <LinearArrowLeft1 className="h-4 w-4 text-on-surface-var" />
-              </RouteLink>
+              </Link>
             );
           })}
         </div>

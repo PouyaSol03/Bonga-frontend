@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
 import LinearDanger from "../../../../shared/icons/LinearDanger";
 import { TopBar } from "../../../../shared/components/TopBar";
-import { canGoBackInApp, replaceRoute } from "../../../../shared/navigation/navigation";
 import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
 import { useMyAgencyProfileQuery } from "../../../account/api/account.hooks";
@@ -26,6 +26,7 @@ import {
 } from "./remove-consultant/ConsultantRemoveReplacementPicker";
 
 export function ConsultantRemovePage() {
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const routeConsultant = getRouteConsultant();
   const routeId = getRouteConsultantId();
@@ -126,12 +127,12 @@ export function ConsultantRemovePage() {
         <Button
           fullWidth
           onClick={() => {
-            if (canGoBackInApp()) {
-              window.history.back();
+            if (window.history.state?.idx > 0) {
+              navigate(-1);
               return;
             }
 
-            replaceRoute("/account/dashboard/team", undefined, { rememberCurrent: false });
+            navigate("/account/dashboard/team", { replace: true });
           }}
           size="x-medium"
           type="button"
@@ -169,8 +170,7 @@ export function ConsultantRemovePage() {
               {
                 onSuccess: () => {
                   showToast("مشاور با موفقیت حذف شد.");
-                  window.history.replaceState({}, "", "/account/dashboard/team");
-                  window.dispatchEvent(new PopStateEvent("popstate"));
+                  navigate("/account/dashboard/team", { replace: true });
                 },
                 onError: (error) => {
                   showToast(

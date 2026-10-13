@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import LinearSearch from "../../../../shared/icons/LinearSearch";
 import LinearUserAdd from "../../../../shared/icons/LinearUserAdd";
 import { SearchEmptyState } from "../../../../shared/components/SearchEmptyState";
@@ -71,6 +72,7 @@ function ConsultantEmptyState() {
 }
 
 export function ConsultantManagementPage() {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<TeamFilter>("consultants");
   const [searchValue, setSearchValue] = useState("");
   const agencyConsultantsQuery = useAgencyConsultantsQuery({ perPage: 100 });
@@ -171,8 +173,7 @@ export function ConsultantManagementPage() {
           fullWidth
           leadingIcon={<LinearUserAdd className="h-5 w-5" />}
           onClick={() => {
-            window.history.pushState({}, "", "/account/dashboard/team/add-consultant");
-            window.dispatchEvent(new PopStateEvent("popstate"));
+            navigate("/account/dashboard/team/add-consultant");
           }}
           size="x-medium"
           radius="medium"

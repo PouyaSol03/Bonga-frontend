@@ -11,8 +11,7 @@ import { usePackagePaymentMutation, usePackagesQuery } from "../packages/api/pac
 import { PackagePaymentPage } from "../packages/components/PackagePaymentPage";
 import { useWalletQuery } from "../account/api/account.hooks";
 import type { PackagePaymentType, PackageItem } from "../packages/api/package.service";
-import { RouteLink } from "../../shared/navigation/RouteLink";
-import { getStoredBackTarget, replaceRoute } from "../../shared/navigation/navigation";
+import { Link, useNavigate } from "react-router";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import LinearTooman from "../../shared/icons/LinearTooman";
@@ -345,6 +344,7 @@ function DashboardPaymentMobilePage({
   packages: PackageItem[];
   refetch: () => void;
 }) {
+  const navigate = useNavigate();
   const returnTo =
     window.history.state?.returnTo ||
     (typeof window !== "undefined"
@@ -488,25 +488,24 @@ function DashboardPaymentMobilePage({
             } catch {
               // ignore
             }
-            replaceRoute(returnTo, undefined, { rememberCurrent: false });
+            navigate(returnTo, { replace: true });
             return;
           }
 
-          const storedBackTarget = getStoredBackTarget();
-          if (storedBackTarget && window.history.length > 1) {
-            window.history.back();
+          if (window.history.state?.idx > 0) {
+            navigate(-1);
             return;
           }
 
-          replaceRoute("/account/dashboard", undefined, { rememberCurrent: false });
+          navigate("/account/dashboard", { replace: true });
         }}
         startSlot={
-          <RouteLink
+          <Link
             className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-primary no-underline"
             to="/account/credit/history"
           >
             تاریخچه پرداخت
-          </RouteLink>
+          </Link>
         }
         title="افزایش اعتبار"
       />
@@ -680,12 +679,12 @@ function DashboardPaymentDesktopPage({
           </Typography>
         </div>
 
-        <RouteLink
-          className="rounded-lg border border-primary px-3 py-2 text-xs font-medium text-primary no-underline"
+        <Link
+          className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-primary no-underline"
           to="/account/credit/history"
         >
           تاریخچه پرداخت
-        </RouteLink>
+        </Link>
       </div>
 
       {isError ? (

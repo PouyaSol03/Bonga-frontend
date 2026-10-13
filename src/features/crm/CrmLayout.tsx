@@ -14,7 +14,7 @@ import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { getNeighborhoodHierarchyDescription } from "../locations/api/neighborhood.service";
 import { defaultSelectedCity, readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { searchMapTileConfig } from "../search/searchMapData";
-import { RouteLink } from "../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckIndicator";
 import { useQuery } from "@tanstack/react-query";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
@@ -585,13 +585,13 @@ export function CrmLayout({
             </div>
           </div>
 
-          <RouteLink
+          <Link
             className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white no-underline transition hover:bg-[#003ba1]"
             to="/home"
           >
             <CrmIcon name="account" />
             بازگشت به سایت
-          </RouteLink>
+          </Link>
         </div>
       </header>
 
@@ -638,7 +638,7 @@ export function CrmLayout({
               const pendingCount = pendingCounts[item.section] ?? 0;
 
               return (
-                <RouteLink
+                <Link
                   aria-current={isActive ? "page" : undefined}
                   className={`relative flex h-10 items-center rounded-xl text-sm no-underline transition ${
                     isActive ? "bg-[#0048c414] text-[#0048c4]" : "text-[#303030] hover:bg-[#f5f7fb]"
@@ -669,12 +669,12 @@ export function CrmLayout({
                   ) : isActive ? (
                     <Typography as="span" variant="body" size="medium" weight="regular" className="absolute mt-8 h-1 w-1 rounded-full bg-[#0048c4]" />
                   ) : null}
-                </RouteLink>
+                </Link>
               );
             })}
           </nav>
 
-          <RouteLink
+          <Link
             className={`flex h-10 items-center rounded-xl border border-[#f0f0f0] text-sm text-[#4d4d4d] no-underline transition hover:bg-[#f5f7fb] ${
               isSidebarCollapsed ? "justify-center" : "gap-2 px-3"
             }`}
@@ -683,7 +683,7 @@ export function CrmLayout({
           >
             <CrmIcon name="account" />
             {!isSidebarCollapsed ? <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium">حساب کاربری</Typography> : null}
-          </RouteLink>
+          </Link>
         </aside>
 
         <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
@@ -725,12 +725,12 @@ function DesktopRequiredPage() {
         <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm leading-7 text-[#6f7888]">
           برای استفاده کامل از جدول‌ها، فرم‌ها و نقشه مدیریت، این صفحه را روی لپ‌تاپ یا نمایشگر بزرگ‌تر باز کنید.
         </Typography>
-        <RouteLink
+        <Link
           className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white no-underline"
           to="/account"
         >
           بازگشت به حساب من
-        </RouteLink>
+        </Link>
       </section>
     </div>
   );
@@ -1886,10 +1886,10 @@ export function CrmSelect({ children, className = "", ...props }: SelectHTMLAttr
 
 export function TextLink({ label, to }: { label: string; to: string }) {
   return (
-    <RouteLink className="inline-flex items-center gap-1 text-sm font-bold text-[#0048c4] no-underline" to={to}>
+    <Link className="inline-flex items-center gap-1 text-sm font-bold text-[#0048c4] no-underline" to={to}>
       {label}
       <CrmIcon name="arrow" size={15} />
-    </RouteLink>
+    </Link>
   );
 }
 

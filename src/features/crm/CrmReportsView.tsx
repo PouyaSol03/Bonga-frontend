@@ -16,7 +16,7 @@ import LinearUserAccount from "../../shared/icons/LinearUserAccount";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { getStoredAuthSession, normalizeAuthRoleSlug } from "../../shared/auth/auth-storage";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
-import { RouteLink } from "../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { SUPPORT, SUPER_ADMIN } from "../../shared/constants/roles.constants";
 import {
   getCrmRecordId,
@@ -685,12 +685,12 @@ function ReportDetailsModal({
                 {hasMeaningfulValue(linkedTargetId) ? <DetailItem label="شناسه" value={linkedTargetId} ltr /> : null}
                 {kind === "advertise" && linkedTargetId ? (
                   <div className="flex items-end">
-                    <RouteLink
+                    <Link
                       className="inline-flex h-10 items-center justify-center rounded-xl border border-[#c9daf8] bg-[#eef4ff] px-4 text-sm font-bold text-[#0048c4] no-underline transition hover:border-[#0048c4]"
                       to={`/crm/advertises/${encodeURIComponent(linkedTargetId)}`}
                     >
                       مشاهده آگهی در CRM
-                    </RouteLink>
+                    </Link>
                   </div>
                 ) : null}
               </DetailsSection>

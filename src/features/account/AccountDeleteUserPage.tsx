@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { getStoredAuthSession, setStoredAuthSession, type AuthRole } from "../../shared/auth/auth-storage";
@@ -8,20 +9,11 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { useDeleteMyBusinessMutation } from "./api/account.hooks";
 
-function navigateTo(path: string, replace = false) {
-  if (replace) {
-    window.history.replaceState({}, "", path);
-  } else {
-    window.history.pushState({}, "", path);
-  }
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
-function downgradeBusinessToUser() {
+function downgradeBusinessToUser(navigate: (to: string, options?: { replace?: boolean }) => void) {
   const session = getStoredAuthSession();
 
   if (!session) {
-    navigateTo("/login/phone", true);
+    navigate("/login/phone", { replace: true });
     return;
   }
 
@@ -42,7 +34,7 @@ function downgradeBusinessToUser() {
     roles,
   });
 
-  navigateTo("/account", true);
+  navigate("/account", { replace: true });
 }
 
 function ConfirmCheckIcon({ checked }: { checked: boolean }) {
@@ -68,6 +60,7 @@ function ConfirmCheckIcon({ checked }: { checked: boolean }) {
 }
 
 export function AccountDeleteUserPage() {
+  const navigate = useNavigate();
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const deleteMutation = useDeleteMyBusinessMutation();
@@ -77,7 +70,7 @@ export function AccountDeleteUserPage() {
     setErrorMessage(null);
     try {
       await deleteMutation.mutateAsync();
-      downgradeBusinessToUser();
+      downgradeBusinessToUser(navigate);
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ||
@@ -140,7 +133,7 @@ export function AccountDeleteUserPage() {
           </Button>
           <Button unstyled
             className="inline-flex h-10 items-center justify-center rounded-[10px] border border-outline-var bg-surface-container-lowest px-4 text-sm font-semibold leading-5 text-on-surface"
-            onClick={() => navigateTo("/account")}
+            onClick={() => navigate("/account")}
             type="button"
           >
             انصراف

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { replaceRoute } from "../../../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import { Button } from "../../../../../shared/ui/Button";
 import { ConsultantProfilePill } from "../ConsultantCardWidgets";
 import type { TeamConsultant, AccessRole } from "../teamTypes";
@@ -29,6 +29,7 @@ export function ConsultantEditForm({
   consultant: TeamConsultant;
   consultantId: number | string;
 }) {
+  const navigate = useNavigate();
   const updateConsultantMutation = useUpdateAgencyConsultantMutation();
   const { showToast } = useToast();
 
@@ -97,7 +98,7 @@ export function ConsultantEditForm({
       {
         onSuccess: () => {
           showToast("اطلاعات مشاور با موفقیت بروزرسانی شد.");
-          replaceRoute("/account/dashboard/team", undefined, { rememberCurrent: false });
+          navigate("/account/dashboard/team", { replace: true });
         },
         onError: (err: any) => {
           const msg = err?.message || "خطا در اعمال تغییرات";

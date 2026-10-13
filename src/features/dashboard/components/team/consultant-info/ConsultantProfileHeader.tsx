@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import LinearMoreVertical from "../../../../../shared/icons/LinearMoreVertical";
 import LinearEdit2 from "../../../../../shared/icons/LinearEdit2";
 import LinearDelete from "../../../../../shared/icons/LinearDelete";
-import { RouteLink } from "../../../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { Typography } from "../../../../../shared/ui/Typography";
 import {
   ConsultantAvatar,
@@ -87,7 +87,7 @@ export function ConsultantProfileHeader({
 
           {menuOpen && (
             <div className="absolute left-0 top-11 z-30 min-w-[150px] rounded-xl border border-outline-var/40 bg-surface-container-lowest p-1.5 shadow-lg">
-              <RouteLink
+              <Link
                 to={`${consultantTeamPaths.edit}/${consultantId}`}
                 state={{ consultant }}
                 className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface"
@@ -95,8 +95,8 @@ export function ConsultantProfileHeader({
               >
                 <LinearEdit2 className="h-4 w-4 text-on-surface-var" />
                 <span>ویرایش مشاور</span>
-              </RouteLink>
-              <RouteLink
+              </Link>
+              <Link
                 to={`${consultantTeamPaths.remove}/${consultantId}`}
                 state={{ consultant }}
                 className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-error"
@@ -104,7 +104,7 @@ export function ConsultantProfileHeader({
               >
                 <LinearDelete className="h-4 w-4 text-error" />
                 <span>حذف مشاور</span>
-              </RouteLink>
+              </Link>
             </div>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { PageFrame } from "../../../shared/layout/PageFrame";
@@ -39,6 +40,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 
 export function AdIncreaseVisitsPage() {
+  const navigate = useNavigate();
   const routeState = getAdManagementRouteState();
   const adId = readAdIdFromPath() ?? readQueryAdId() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
   const backTo = routeState.paymentHistoryReturnTo ?? (adId ? getAdStatePath(adId) : adManagementPaths.root);
@@ -192,7 +194,7 @@ export function AdIncreaseVisitsPage() {
             window.location.assign(paymentUrl);
             return;
           }
-          navigateTo(backTo, completeState, true);
+          navigate(backTo, { replace: true, state: completeState });
         },
       },
     );
@@ -306,11 +308,6 @@ function getCheckoutAmount(checkout?: AdvertisementCheckout) {
 
 function findMethod(checkout: AdvertisementCheckout, method: string): AdvertisementCheckoutPaymentMethod | undefined {
   return checkout.payment_methods.find((item) => item.method === method);
-}
-
-function navigateTo(path: string, state?: unknown, replace = false) {
-  window.history[replace ? "replaceState" : "pushState"](state ?? {}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
 function readAdIdFromPath() {

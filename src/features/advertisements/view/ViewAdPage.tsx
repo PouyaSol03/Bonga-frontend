@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Link, useNavigate } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { SEO } from "../../../shared/components/SEO";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -9,7 +10,6 @@ import "swiper/css";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { ColorableSvgIcon } from "../../../shared/components/ColorableSvgIcon";
 import { AdLocationMap } from "../components/AdLocationMap";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { Toast } from "../../../shared/components/Toast";
 import { getApiErrorMessage, isUnauthorizedApiError } from "../../../shared/api/api";
@@ -44,7 +44,6 @@ import TonalTelegram from "../../../shared/icons/TonalTelegram";
 import TonalWhatsapp from "../../../shared/icons/TonalWhatsapp";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
-import { pushRoute } from "../../../shared/navigation/navigation";
 import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
 import type { ChatThread } from "../../chat/api/chat.service";
 import {
@@ -54,7 +53,6 @@ import {
   getMapPosition,
   getPropertyPreviewTitle,
   getVirtualTourUrl,
-  goBackFromAd,
   hasTour3d,
   isOwnAdvertisement,
   mapAdToDetails,
@@ -1355,7 +1353,7 @@ function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
 
   return (
     <section className="border-t-8 border-surface-container bg-surface-container-lowest px-4 py-6 text-center">
-      <RouteLink
+      <Link
         className="block rounded-2xl px-2 py-2 text-inherit no-underline transition active:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
         to={preview.href}
       >
@@ -1385,7 +1383,7 @@ function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
           </div>
         ) : null}
         <AdvertiserMetrics preview={preview} />
-      </RouteLink>
+      </Link>
     </section>
   );
 }
@@ -1410,7 +1408,7 @@ function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
 
   return (
     <section className="border-t-8 border-surface-container bg-surface-container-lowest text-center">
-      <RouteLink
+      <Link
         className="block px-4 pb-3 pt-4 text-inherit no-underline transition active:bg-surface-container focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
         to={preview.href}
       >
@@ -1450,7 +1448,7 @@ function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
         ) : null}
 
         <AdvertiserMetrics preview={resolvedPreview} agencyStyle />
-      </RouteLink>
+      </Link>
     </section>
   );
 }
@@ -1522,17 +1520,6 @@ function getChatThreadId(thread: ChatThread) {
   return "";
 }
 
-function navigateToLoginRequiredPage(actionLabel: string) {
-  const redirectPath = `${window.location.pathname}${window.location.search}`;
-  const params = new URLSearchParams({
-    action: actionLabel,
-    returnTo: redirectPath,
-  });
-
-  window.history.pushState({}, "", `/login-required?${params.toString()}`);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 function isLoggedIn() {
   return Boolean(getStoredAuthSession());
 }
@@ -1544,6 +1531,17 @@ function readAdvertisementBookmarkState(advertisement: AdvertisementItem | undef
 }
 
 export function ViewAdPage() {
+  const navigate = useNavigate();
+
+  const navigateToLoginRequiredPage = (actionLabel: string) => {
+    const redirectPath = `${window.location.pathname}${window.location.search}`;
+    const params = new URLSearchParams({
+      action: actionLabel,
+      returnTo: redirectPath,
+    });
+    navigate(`/login-required?${params.toString()}`);
+  };
+
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isAgencyContactSheetOpen, setIsAgencyContactSheetOpen] = useState(false);
   const [isOwnerContactSheetOpen, setIsOwnerContactSheetOpen] = useState(false);
@@ -1774,9 +1772,11 @@ export function ViewAdPage() {
           return;
         }
 
-        pushRoute(`/chat/${encodeURIComponent(threadId)}`, {
-          thread,
-          threadId,
+        navigate(`/chat/${encodeURIComponent(threadId)}`, {
+          state: {
+            thread,
+            threadId,
+          },
         });
       },
     });
@@ -1799,7 +1799,7 @@ export function ViewAdPage() {
         clearConsultantsSelectedNeighborhood();
       }
 
-      pushRoute("/consultants");
+      navigate("/consultants");
       return;
     }
 
@@ -2025,7 +2025,6 @@ export function ViewAdPage() {
         }
         backTo="/home"
         bookmarked={isBookmarked}
-        onBack={() => goBackFromAd("/home")}
         onAction={handleTopBarAction}
       />
 

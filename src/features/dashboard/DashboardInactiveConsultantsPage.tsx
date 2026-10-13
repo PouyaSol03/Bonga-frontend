@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { Typography } from "../../shared/ui/Typography";
-import { RouteLink } from "../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import { toPersianNumber } from "../../shared/lib/numberUtils";
 
@@ -140,7 +140,7 @@ export function DashboardInactiveConsultantsPage() {
         {/* Consultants List */}
         <div className="flex flex-col gap-3">
           {consultants.map((consultant) => (
-            <RouteLink
+            <Link
               key={consultant.id}
               to={`/account/dashboard/team`}
               className="flex h-[88px] items-center justify-between rounded-[16px] border border-[#F0F0F0] bg-white p-4 shadow-2xs transition-transform active:scale-[0.99]"
@@ -184,7 +184,7 @@ export function DashboardInactiveConsultantsPage() {
 
               {/* Left: Arrow icon */}
               <LinearArrowLeft1 className="h-5 w-5 shrink-0 text-[#808080]" />
-            </RouteLink>
+            </Link>
           ))}
         </div>
       </main>

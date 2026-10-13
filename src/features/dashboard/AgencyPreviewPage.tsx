@@ -30,11 +30,7 @@ import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
 import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
-import { pushRoute } from "../../shared/navigation/navigation";
-import {
-  preserveNewAdDraftStateKey,
-  shouldPreserveNewAdDraft,
-} from "../advertisements/create/session";
+import { useNavigate } from "react-router";
 import { useCreateAgencyChatMutation } from "../chat/api/chat.hooks";
 import { useMyAdsInfiniteQuery, useMyAgencyProfileQuery } from "../account/api/account.hooks";
 import { formatRankingLevelTitle } from "./utils/rankingLevels";
@@ -208,15 +204,7 @@ function getInitialAgencyTab(): AgencyPreviewTab {
   return tab === "ads" || tab === "consultants" || tab === "info" ? tab : "info";
 }
 
-function navigateTo(path: string) {
-  if (typeof window !== "undefined" && shouldPreserveNewAdDraft(window.history.state)) {
-    pushRoute(path, {
-      [preserveNewAdDraftStateKey]: true,
-    });
-    return;
-  }
-  pushRoute(path);
-}
+
 
 function isPublicAgencyPreviewPath() {
   return (
@@ -350,6 +338,7 @@ async function shareOrCopyAgencyUrl(url: string, title: string, text: string) {
 }
 
 export function AgencyPreviewPage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<AgencyPreviewTab>(getInitialAgencyTab);
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -588,7 +577,7 @@ export function AgencyPreviewPage() {
     const authSession = getStoredAuthSession();
     if (!authSession) {
       storeLoginRedirectPath(window.location.pathname + window.location.search);
-      pushRoute("/login");
+      navigate("/login");
       return;
     }
 
@@ -601,9 +590,9 @@ export function AgencyPreviewPage() {
       onSuccess: (thread) => {
         const threadId = thread?.id ?? thread?.thread_id ?? thread?._id;
         if (threadId) {
-          pushRoute(`/chat/${encodeURIComponent(String(threadId))}`);
+          navigate(`/chat/${encodeURIComponent(String(threadId))}`);
         } else {
-          pushRoute("/chat");
+          navigate("/chat");
         }
       },
       onError: (err) => {
@@ -672,7 +661,7 @@ export function AgencyPreviewPage() {
               const targetPath = isPublicPreview
                 ? `${window.location.pathname.replace(/\/+$/, "")}/qr-code${window.location.search}`
                 : `${agencyPreviewPath}/qr-code`;
-              pushRoute(targetPath);
+              navigate(targetPath);
             },
           },
         ]}
@@ -742,7 +731,7 @@ export function AgencyPreviewPage() {
                       action: "ثبت بازخورد",
                       returnTo: redirectPath,
                     });
-                    pushRoute(`/login-required?${params.toString()}`);
+                    navigate(`/login-required?${params.toString()}`);
                     return;
                   }
                   setIsFeedbackModalOpen(true);
@@ -1118,6 +1107,7 @@ function AgencyInfoTab({
   onFeedbackClick?: () => void;
   workingHours?: string;
 }) {
+  const navigate = useNavigate();
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
   const activityAreaText = activityAreas.length
     ? activityAreas.join("، ")
@@ -1193,7 +1183,7 @@ function AgencyInfoTab({
           className="flex w-full items-center gap-3 bg-surface-container-lowest p-4 text-right"
           onClick={() => {
             if (agentAgency.id) {
-              navigateTo(`/agencies/${encodeURIComponent(agentAgency.id)}`);
+              navigate(`/agencies/${encodeURIComponent(agentAgency.id)}`);
             }
           }}
           type="button"
@@ -1234,7 +1224,7 @@ function AgencyInfoTab({
               registrantType: "personal",
               context: "personal",
             });
-            navigateTo(`/new-ad/category?${params.toString()}`);
+            navigate(`/new-ad/category?${params.toString()}`);
           }}
           title="ثبت آگهی رایگان"
         />
@@ -1300,6 +1290,7 @@ function AgencyAdsTab({
   previewPath: string;
   showFilter?: boolean;
 }) {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const filterReturnTo = encodeURIComponent(`${previewPath}?tab=ads`);
   const normalizedQuery = query.trim().toLocaleLowerCase("fa-IR");
@@ -1323,7 +1314,7 @@ function AgencyAdsTab({
           <Button unstyled
             aria-label="فیلتر آگهی‌ها"
             className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-primary bg-primary-container text-primary"
-            onClick={() => navigateTo(`${agencyPreviewPath}/filter?returnTo=${filterReturnTo}`)}
+            onClick={() => navigate(`${agencyPreviewPath}/filter?returnTo=${filterReturnTo}`)}
             type="button"
           >
             <LinearFilterHorizontal className="h-6 w-6" />
@@ -1367,6 +1358,7 @@ function AgencyAdsTab({
 }
 
 function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDto[] }) {
+  const navigate = useNavigate();
   return (
     <section className="flex flex-col gap-y-2">
       {consultants.map((consultant, index) => (
@@ -1375,7 +1367,7 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
           key={consultant.agentId ?? consultant.userId}
           onClick={() => {
             if (consultant.agentId === undefined) return;
-            navigateTo(`/agents/${encodeURIComponent(String(consultant.agentId))}`);
+            navigate(`/agents/${encodeURIComponent(String(consultant.agentId))}`);
           }}
           type="button"
         >

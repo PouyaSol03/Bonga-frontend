@@ -1,9 +1,9 @@
+import { Link, useNavigate } from "react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import "../advertisements/components/AdCard.css";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { useActiveAuthRole } from "../../shared/auth/use-active-auth-role";
-import { pushRoute, replaceRoute } from "../../shared/navigation/navigation";
 import { getApiErrorMessage, isForbiddenApiError } from "../../shared/api/api";
 import { useToast } from "../../shared/hooks/useToast";
 import { DeleteAdBottomSheet } from "./components/DeleteAdBottomSheet";
@@ -15,7 +15,6 @@ import { TopBar } from "../../shared/components/TopBar";
 import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../advertisements/api/agency-advertise-assignment.hooks";
 import { useDeleteAdvertisementMutation } from "../advertisements/api/advertisement.hooks";
 import { useMyAdsInfiniteQuery } from "./api/account.hooks";
-import { RouteLink } from "../../shared/navigation/RouteLink";
 import type { AgencyAdvertiseAssignmentDto } from "../advertisements/api/agency-advertise-assignment.service";
 import {
   getAdvertisementPublisherName,
@@ -312,6 +311,7 @@ function getAssignmentCountdown(assignment: AgencyAdvertiseAssignmentDto): Assig
 }
 
 export function IndependentConsultantAdManagementPage() {
+  const navigate = useNavigate();
   const routeState = getAdManagementRouteState();
   const activeRole = useActiveAuthRole();
   const canAccessAssignments = activeRole !== INDEPENDENT_CONSULTANT;
@@ -430,13 +430,13 @@ export function IndependentConsultantAdManagementPage() {
 
   useEffect(() => {
     if (adsQuery.isError && isForbiddenApiError(adsQuery.error)) {
-      replaceRoute("/403", undefined, { rememberCurrent: false });
+      navigate("/403", { replace: true });
     }
   }, [adsQuery.isError, adsQuery.error]);
 
   useEffect(() => {
     if (assignedTab && assignmentsQuery.isError && isForbiddenApiError(assignmentsQuery.error)) {
-      replaceRoute("/403", undefined, { rememberCurrent: false });
+      navigate("/403", { replace: true });
     }
   }, [assignedTab, assignmentsQuery.isError, assignmentsQuery.error]);
 
@@ -544,7 +544,7 @@ export function IndependentConsultantAdManagementPage() {
           </div>
         ) : null}
 
-        <RouteLink
+        <Link
           className={`relative inline-flex items-center gap-1 rounded-lg border p-2 text-sm font-normal no-underline ${
             hasFilters
               ? "border-primary bg-primary-container text-primary"
@@ -558,7 +558,7 @@ export function IndependentConsultantAdManagementPage() {
           {hasFilters ? (
             <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-surface-container-lowest" />
           ) : null}
-        </RouteLink>
+        </Link>
       </section>
 
       {hasFilters ? (
@@ -643,7 +643,7 @@ export function IndependentConsultantAdManagementPage() {
           ) : adsQuery.isError ? (
             (adsQuery.error as { status?: number })?.status === 403 ? (
               <div className="flex flex-1 items-center justify-center py-10">
-                <AccessDeniedState onBack={() => pushRoute("/account")} />
+                <AccessDeniedState onBack={() => navigate("/account")} />
               </div>
             ) : (
               <AssignmentStatusMessage>
@@ -843,7 +843,7 @@ function AssignedConsultantAdCard({
 
       {/* CTA Button: بررسی و تخصیص */}
       <div className="mt-4 pt-1">
-        <RouteLink
+        <Link
           className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium leading-5 text-primary no-underline active:bg-primary/10"
           state={routeState}
           to={getAllocationReviewPath(ad.id)}
@@ -858,7 +858,7 @@ function AssignedConsultantAdCard({
             بررسی و تخصیص
           </Typography>
           <LinearArrowLeft2 className="h-5 w-5" />
-        </RouteLink>
+        </Link>
       </div>
     </article>
   );

@@ -2,7 +2,7 @@ import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { listCrmAdvertises, countCrmAdvertisesByStatus, updateCrmAdvertiseStatus, getCrmRecordId, type AdvertiseStatus } from "../api/crm.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import { getCrmAdvertiseCreatePath, getCrmAdvertiseEditPath, getCrmAdvertiseEditState } from "../crmAdvertiseNavigation";
 import { AdCard } from "../../advertisements/components/AdCard";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
@@ -16,6 +16,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 
 export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [trackCode, setTrackCode] = useState("");
   const [status, setStatus] = useState("");
@@ -138,7 +139,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
               </label>
             </div>
 
-            <PrimaryButton icon="plus" label="ثبت آگهی جدید" onClick={() => pushRoute(getCrmAdvertiseCreatePath())} />
+            <PrimaryButton icon="plus" label="ثبت آگهی جدید" onClick={() => navigate(getCrmAdvertiseCreatePath())} />
           </div>
         </div>
 
@@ -211,7 +212,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                       <Typography as="span" variant="body" size="medium" weight="regular">کد پیگیری: <strong className="font-semibold text-[#4d4d4d]">{readText(ad, ["track_code"])}</strong></Typography>
                     </div>
                     <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
-                      <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => pushRoute(getCrmAdvertiseEditPath(id), getCrmAdvertiseEditState(id))} tone="primary" />
+                      <SmallActionButton icon={<LinearEdit2 className="h-4 w-4" />} label="ویرایش" onClick={() => navigate(getCrmAdvertiseEditPath(id), { state: getCrmAdvertiseEditState(id) })} tone="primary" />
                       <SmallActionButton icon={<LinearCheckmark className="h-4 w-4" />} label="تأیید" onClick={() => updateStatus(id, "accepted")} tone="success" />
                       <SmallActionButton icon={<LinearCancel className="h-4 w-4" />} label="رد آگهی" onClick={() => openRejectModal(id)} tone="warning" />
                       <SmallActionButton

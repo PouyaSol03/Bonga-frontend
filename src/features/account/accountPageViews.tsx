@@ -11,8 +11,7 @@ import type { AdCardData } from "../advertisements/components/AdCard";
 import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { TopBar } from "../../shared/components/TopBar";
-import { RouteLink } from "../../shared/navigation/RouteLink";
-import { pushRoute } from "../../shared/navigation/navigation";
+import { Link, useNavigate } from "react-router";
 import { AdCardTomanIcon } from "../advertisements/components/AdCardIcons";
 import { getMyAdStatusInfo } from "./myAdsStatus";
 import { getAdEditPath } from "./adManagement/adManagementData";
@@ -279,13 +278,13 @@ export function AccountMyAdsEmptyState({
         {description}
       </Typography>
       {shouldShowAction ? (
-        <RouteLink
+        <Link
           className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary"
           to="/new-ad/category"
         >
           <PlusIcon className="h-5 w-5" />
           ثبت آگهی
-        </RouteLink>
+        </Link>
       ) : null}
     </section>
   );
@@ -679,6 +678,7 @@ export function NoteCard({
   const [dragOffset, setDragOffset] = useState(0);
   const dragStartX = useRef<number | null>(null);
   const dragStartOffset = useRef(0);
+  const navigate = useNavigate();
   const didDrag = useRef(false);
   const noteId = getNoteId(note);
   const advertiseId = getNoteAdvertiseId(note);
@@ -737,14 +737,14 @@ export function NoteCard({
 
           if (!advertiseId) return;
 
-          pushRoute(`/ads/${encodeURIComponent(advertiseId)}`);
+          navigate(`/ads/${encodeURIComponent(advertiseId)}`);
         }}
         onKeyDown={(event) => {
           if (!advertiseId || event.target !== event.currentTarget) return;
           if (event.key !== "Enter" && event.key !== " ") return;
 
           event.preventDefault();
-          pushRoute(`/ads/${encodeURIComponent(advertiseId)}`);
+          navigate(`/ads/${encodeURIComponent(advertiseId)}`);
         }}
         onPointerCancel={handlePointerEnd}
         onPointerDown={(event) => {
@@ -785,7 +785,7 @@ export function NoteCard({
         </div>
 
         <div className="mt-2 py-2 gap-x-2 flex min-w-0 items-center [direction:rtl]">
-          <RouteLink
+          <Link
             aria-label={`مشاهده آگهی ${mappedAd.title}`}
             className={`relative h-10 w-[60px] shrink-0 overflow-hidden rounded-lg bg-surface-container bg-cover bg-center ${mappedAd.imageClassName}`}
             style={mappedAd.imageUrl ? { backgroundImage: `url(${mappedAd.imageUrl})` } : undefined}

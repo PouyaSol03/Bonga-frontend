@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import { Typography } from "../../../shared/ui/Typography";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import LinearRanking from "../../../shared/icons/LinearRanking";
 
@@ -24,7 +24,7 @@ export function DashboardBadgeBanner({
   iconTextClass = "text-[#FF8D00] dark:text-[#FFAA33]",
 }: DashboardBadgeBannerProps) {
   return (
-    <RouteLink
+    <Link
       className="flex h-[64px] items-center justify-between rounded-[16px] bg-surface-container-lowest px-4 shadow-sm transition active:scale-[0.99] no-underline [direction:rtl]"
       to={to}
     >
@@ -68,6 +68,6 @@ export function DashboardBadgeBanner({
       </div>
 
       <LinearArrowLeft1 className="h-4 w-4 text-on-surface-var" />
-    </RouteLink>
+    </Link>
   );
 }

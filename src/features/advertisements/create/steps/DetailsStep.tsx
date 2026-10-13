@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import { useFormContext } from "react-hook-form";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -49,7 +50,6 @@ import {
   getBasicPropertyFields,
   getMoreFeatureFields,
   getParams,
-  navigateTo,
 } from "../utils";
 import { getFormSchemaByListing } from "../../forms";
 import type { MoreFeatureFormKey, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, SelectKey, SheetState } from "../types";
@@ -149,13 +149,14 @@ export function DetailsStep({
 }: {
   errors?: NewAdFieldErrors;
   isPending?: boolean;
-  label: string;
+  label?: string;
   onClearError?: (key: NewAdFieldErrorKey) => void;
   onBack?: () => void;
   onNext: () => void;
-  onMoreFeatures: () => void;
-  onProjectDetails: () => void;
+  onMoreFeatures?: () => void;
+  onProjectDetails?: () => void;
 }) {
+  const navigate = useNavigate();
   const desktop = useNewAdDesktopLayout();
   const { setValue, watch } = useFormContext<NewAdFormValues>();
   const [sheet, setSheet] = useState<SheetState | null>(null);
@@ -884,7 +885,7 @@ export function DetailsStep({
         <Section icon="location.svg" title={isSaleResidential || isRentResidential ? "موقعیت آگهی" : "موقعیت ملک"}>
           <div data-field-key="location">
             <LocationBox
-              label={label}
+              label={label ?? ""}
               value={values.location || (typeof window !== "undefined" ? window.localStorage.getItem(locationKey)?.trim() ?? "" : "")}
             />
           </div>
@@ -897,8 +898,8 @@ export function DetailsStep({
             projectDetailsError={errors.projectDetails}
             setField={setField}
             onOpenSelect={openSelectSheet}
-            onOpenProjectDetails={onProjectDetails}
-            onOpenMoreFeatures={onMoreFeatures}
+            onOpenProjectDetails={onProjectDetails ?? (() => {})}
+            onOpenMoreFeatures={onMoreFeatures ?? (() => {})}
           />
         ) : (
           <Section
@@ -1317,7 +1318,7 @@ export function DetailsStep({
 
       <Footer
         disabled={isPending}
-        onBack={onBack ?? (() => navigateTo(`/new-ad/category${window.location.search}`))}
+        onBack={onBack ?? (() => navigate(`/new-ad/category${window.location.search}`))}
         onPrimary={onNext}
         primary={isPending ? "در حال ذخیره..." : "مرحله بعد"}
       />

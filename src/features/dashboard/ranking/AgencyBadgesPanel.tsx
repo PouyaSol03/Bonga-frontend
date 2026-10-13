@@ -1,5 +1,5 @@
 import LinearStar from "../../../shared/icons/LinearStar";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { Typography } from "../../../shared/ui/Typography";
 import { SectionHeader } from "./RankingSharedComponents";
 import { useV2RankingBadgesQuery } from "../api/v2/ranking-v2.hooks";
@@ -104,7 +104,7 @@ function BadgeCard({ badge }: { badge: AgencyBadge }) {
   const className = `flex h-[186px] w-full flex-col items-center rounded-lg border border-outline-var bg-surface-container-lowest pt-6 text-inherit no-underline transition active:scale-[0.99] focus-visible:outline-3 focus-visible:outline-primary/40 ${!isActive ? "grayscale" : ""}`;
 
   return (
-    <RouteLink
+    <Link
       aria-label={badge.ariaLabel}
       className={className}
       to={badge.detailPath}
@@ -143,6 +143,6 @@ function BadgeCard({ badge }: { badge: AgencyBadge }) {
           style={{ width: `${badge.progress}%` }}
         />
       </div>
-    </RouteLink>
+    </Link>
   );
 }

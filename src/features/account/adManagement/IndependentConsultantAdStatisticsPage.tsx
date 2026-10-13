@@ -5,7 +5,7 @@ import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Typography } from "../../../shared/ui/Typography";
 import { useMyAdsInfiniteQuery } from "../api/account.hooks";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../advertisements/api/advertisement.service";
 import { StatisticsIcon } from "./AdManagementIcons";
 import { adManagementPaths, type StatisticsAd } from "./adManagementData";
@@ -85,14 +85,14 @@ function StatisticsAdCard({ ad, sourceAd }: { ad: StatisticsAd; sourceAd: Advert
         <StatisticsMetric icon="view" label="بازدید" value={readStatistic(sourceAd, ["total_views", "views_count", "views", "visit_count", "view_count"])} />
       </div>
 
-      <RouteLink
+      <Link
         className="mr-auto mt-4 inline-flex h-10 w-[156px] items-center justify-center gap-2 rounded-[10px] border border-primary text-sm font-medium leading-5 text-primary no-underline [direction:ltr]"
         state={{ ad: sourceAd, statisticsAd: ad }}
         to={adManagementPaths.statisticsDetails}
       >
         <LinearArrowLeft1 className="h-5 w-5" />
         <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">جزییات آمار آگهی</Typography>
-      </RouteLink>
+      </Link>
     </article>
   );
 }

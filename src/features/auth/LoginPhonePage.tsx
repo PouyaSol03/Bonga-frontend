@@ -1,16 +1,16 @@
 import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
-import { RouteLink } from "../../shared/navigation/RouteLink";
 import LoginPhoneBackground from "../../shared/assets/images/LoginPhoneBackground.svg";
 import { useRequestOtpMutation } from "./api/auth.hooks";
 import { getAuthErrorMessage, normalizeMobile } from "./api/auth.service";
 import { useToast } from "../../shared/hooks/useToast";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
-import { goBackOrNavigate, pushRoute } from "../../shared/navigation/navigation";
 
 export function LoginPhonePage() {
+  const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState("");
   const { showToast } = useToast();
   const [notice, setNotice] = useState<{
@@ -41,7 +41,7 @@ export function LoginPhonePage() {
     try {
       await requestOtpMutation.mutateAsync({ mobile });
       showToast("کد تایید با موفقیت پیامک شد.", "ارسال شد", "success");
-      pushRoute("/login/verify");
+      navigate("/login/verify");
     } catch (error) {
       const msg = getAuthErrorMessage(error, "ارسال کد تایید انجام نشد.");
       showToast(msg, "ارسال کد ناموفق!", "error");
@@ -61,7 +61,10 @@ export function LoginPhonePage() {
       <form className="contents" noValidate onSubmit={handleSubmit}>
         <TopBar
           backTo="/account"
-          onBack={() => goBackOrNavigate("/account")}
+          onBack={() => {
+            if (window.history.state?.idx > 0) navigate(-1);
+            else navigate("/account", { replace: true });
+          }}
           title="ورود به حساب کاربری"
         />
 
@@ -114,12 +117,12 @@ export function LoginPhonePage() {
 
             <Typography as="p" variant="body" size="medium" weight="regular" className="flex max-w-full flex-wrap items-center justify-start py-1 text-sm font-normal leading-5 min-[390px]:text-xs">
               <Typography as="span" variant="body" size="medium" weight="regular" className="ml-0.5">با ثبت‌نام،</Typography>
-              <RouteLink
+              <Link
                 className="text-primary underline underline-offset-6"
                 to="/"
               >
                 قوانین ایران شناسا
-              </RouteLink>
+              </Link>
               <Typography as="span" variant="body" size="medium" weight="regular" className="mr-0.5"> را می‌پذیرم!</Typography>
             </Typography>
           </section>

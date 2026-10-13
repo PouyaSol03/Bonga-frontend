@@ -1,5 +1,5 @@
 import React from "react";
-import { RouteLink } from "../../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearImage from "../../../../shared/icons/LinearImage";
 import { Typography } from "../../../../shared/ui/Typography";
 import { ManagementAdStatusBadge } from "./ManagementAdStatusBadge";
@@ -114,9 +114,9 @@ export const ManagementAdHeader: React.FC<Props> = ({
 
         <div className="min-w-0">
           {to ? (
-            <RouteLink className="block min-w-0 no-underline" state={state} to={to}>
+            <Link className="block min-w-0 no-underline" state={state} to={to}>
               {titleNode}
-            </RouteLink>
+            </Link>
           ) : (
             titleNode
           )}

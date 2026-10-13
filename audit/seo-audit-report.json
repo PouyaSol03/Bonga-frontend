@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-13T05:58:38.947Z",
+  "generatedAt": "2026-10-13T13:44:46.438Z",
   "summary": {
     "passed": 30,
     "warnings": 1,
     "failed": 0,
-    "dynamicSitemapUrls": 28
+    "dynamicSitemapUrls": 63
   },
   "passed": [
     "public/robots.txt exists",
@@ -22,7 +22,7 @@
     "Static sitemap contains /home",
     "Static sitemap contains /search",
     "Static sitemap contains /consultants",
-    "Dynamic sitemaps currently contain 28 public entity URLs",
+    "Dynamic sitemaps currently contain 63 public entity URLs",
     "llms.txt has structured H1/H2 sections",
     "src/features/home/HomePage.tsx renders SEO metadata",
     "src/features/home/HomePage.tsx contains an H1",

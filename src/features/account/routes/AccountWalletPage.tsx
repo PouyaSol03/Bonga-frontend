@@ -4,7 +4,7 @@ import { useChargeWalletMutation, useWalletQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { AdCardTomanIcon } from "../../advertisements/components/AdCardIcons";
 import { formatPrice, formatBigNumber } from "../../../shared/lib/MoneyHandler";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
 import { useToast } from "../../../shared/hooks/useToast";
 import { AccountPageShell, AccountRetryState, ChevronLeftIcon, PlusIcon, WalletPageSkeleton, formatMoney, normalizeWalletAmount } from "../accountPageViews";
@@ -132,14 +132,14 @@ export function AccountWalletPage() {
               })}
             </div>
 
-            <RouteLink
+            <Link
               className="relative mt-8 flex gap-2 p-4 w-full items-center justify-center rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-sm font-medium leading-5 text-on-surface no-underline"
               to="/account/wallet/history"
             >
               <img src="/icons/walletHistory.svg" alt="" />
               <Typography as="span" variant="body" size="large" weight="regular" className="text-base flex-1">تاریخچه پرداخت</Typography>
               <ChevronLeftIcon className="h-4 w-4 text-on-surface-var" />
-            </RouteLink>
+            </Link>
           </section>
         ) : null}
       </main>

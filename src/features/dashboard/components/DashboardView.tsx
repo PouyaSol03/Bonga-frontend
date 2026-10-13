@@ -8,7 +8,7 @@ import { DashboardNotificationsCard } from "./DashboardNotificationsCard";
 import { DashboardReportsTeaserCard } from "./DashboardReportsTeaserCard";
 import { DashboardRecentAdsCard } from "./DashboardRecentAdsCard";
 import { DashboardSkeleton } from "./DashboardSkeleton";
-import { replaceRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import { isForbiddenApiError } from "../../../shared/api/api";
 import type { DashboardOverview, DashboardRolePersona } from "../api/dashboard.service";
 import {
@@ -51,6 +51,7 @@ export function DashboardView({
   isLoading = false,
   onViewReports,
 }: DashboardViewProps) {
+  const navigate = useNavigate();
   const isManager = role === "REAL_ESTATE_MANAGER";
   const isAgencyConsultant =
     role === "REAL_ESTATE_CONSULTANT" || (role as string) === "agency-consultant";
@@ -81,7 +82,7 @@ export function DashboardView({
       recentAdsApiQuery.error,
     ];
     if (errors.some(isForbiddenApiError)) {
-      replaceRoute("/403", undefined, { rememberCurrent: false });
+      navigate("/403", { replace: true });
     }
   }, [
     tasksQuery.error,

@@ -1,5 +1,5 @@
 import { Typography } from "../../../shared/ui/Typography";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
 export interface ExpiringAdItem {
@@ -22,7 +22,7 @@ export function DashboardExpiringAdCard({ ad }: DashboardExpiringAdCardProps) {
     ad.to || (ad.adId ? `/account/dashboard/ads?adId=${ad.adId}` : `/account/dashboard/ads`);
 
   return (
-    <RouteLink
+    <Link
       to={targetLink}
       className="flex flex-col justify-between rounded-[12px] bg-surface-container-lowest p-4 border border-outline-variant transition-transform active:scale-[0.99] [direction:rtl]"
     >
@@ -105,7 +105,7 @@ export function DashboardExpiringAdCard({ ad }: DashboardExpiringAdCardProps) {
           {ad.timeRemaining}
         </Typography>
       </div>
-    </RouteLink>
+    </Link>
   );
 }
 export default DashboardExpiringAdCard;

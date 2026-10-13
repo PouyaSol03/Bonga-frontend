@@ -16,8 +16,8 @@ import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckI
 import { TopBar } from "../../shared/components/TopBar";
 import { Toast } from "../../shared/components/Toast";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { Link } from "react-router";
 import { SearchInputBar } from "../../shared/ui/SearchBar";
-import { RouteLink } from "../../shared/navigation/RouteLink";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
@@ -1244,13 +1244,13 @@ function AgencyFooterActions({
         >
           {isSaving ? "در حال ذخیره..." : "ذخیره اطلاعات"}
         </Button>
-        <RouteLink
+        <Link
           className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary bg-surface-container-lowest text-xs font-semibold leading-5 text-primary no-underline"
           to="/account/dashboard/agency/preview"
         >
           پیش نمایش
           <LinearPreview className="w-5 h-5" />
-        </RouteLink>
+        </Link>
       </div>
     </footer>
   );

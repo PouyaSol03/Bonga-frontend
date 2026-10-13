@@ -5,7 +5,7 @@ import { ConfirmModal, CrmIcon, DEFAULT_CENTER, DEFAULT_COUNTRY_ID, EditorModal,
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
 
@@ -33,6 +33,7 @@ function getSubNeighborhoodNames(value: unknown) {
 }
 
 export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [citySearch, setCitySearch] = useState("");
   const cityFilter = citySearch.trim();
@@ -171,7 +172,7 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
       if (Number.isFinite(lng)) params.set("lng", String(lng));
     }
     if (neighborhoodId) params.set("neighborhoodId", neighborhoodId);
-    pushRoute(`/crm/locations/map?${params.toString()}`);
+    navigate(`/crm/locations/map?${params.toString()}`);
   };
 
   const handleDeleteCity = async (id: string) => {

@@ -1,11 +1,10 @@
 import { useEffect, useState, type ComponentType, type ReactNode, type SVGProps } from "react";
+import { Link, useNavigate } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
 
 import { TopBarNavigationLayout } from "../../shared/layout/TopBarNavigationLayout";
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { TopBar } from "../../shared/components/TopBar";
-import { RouteLink } from "../../shared/navigation/RouteLink";
-import { replaceRoute } from "../../shared/navigation/navigation";
 import { DASHBOARD_PATH } from "../../app/router/routes";
 import { useMyAgencyProfileQuery, useMyProfileQuery } from "./api/account.hooks";
 import { useLogoutMutation } from "../auth/api/auth.hooks";
@@ -885,6 +884,7 @@ function AccountBusinessSuccessSheet({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const navigate = useNavigate();
   return (
     <BottomSheet
       ariaLabel="ثبت موفق حساب"
@@ -917,7 +917,7 @@ function AccountBusinessSuccessSheet({
         </div>
         <Button unstyled
           className="mt-4 inline-flex h-10 rounded-xl w-full items-center justify-center gap-2 bg-primary px-4 text-sm font-semibold leading-5 text-on-primary"
-          onClick={() => navigateTo("/account/credit/panel")}
+          onClick={() => navigate("/account/credit/panel")}
           type="button"
         >
           <LinearWalletAdd color="white" className="w-5 h-5 text-on-primary" />
@@ -1056,11 +1056,6 @@ function AccountProfileAvatar({
   );
 }
 
-function navigateTo(path: string) {
-  window.history.pushState({}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 function getLoginRequiredPath(returnTo: string, actionLabel?: string) {
   const params = new URLSearchParams({ returnTo });
 
@@ -1072,6 +1067,7 @@ function getLoginRequiredPath(returnTo: string, actionLabel?: string) {
 }
 
 function useLogoutAccount() {
+  const navigate = useNavigate();
   const logoutMutation = useLogoutMutation();
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
@@ -1095,7 +1091,7 @@ function useLogoutAccount() {
     logoutMutation.mutate(undefined, {
       onSettled: () => {
         setIsLogoutConfirmOpen(false);
-        replaceRoute("/home", undefined, { rememberCurrent: false });
+        navigate("/home", { replace: true });
       },
     });
   };
@@ -1113,7 +1109,7 @@ function LoggedOutAccountHeader() {
   return (
     <section className="bg-surface-container-lowest pt-4" aria-label="ورود به حساب">
       <div className="px-4 pb-2 pt-2">
-        <RouteLink
+        <Link
           className="flex h-14 w-full items-center gap-2 rounded-xl border border-primary px-4 text-primary [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25"
           to="/login/phone"
         >
@@ -1122,7 +1118,7 @@ function LoggedOutAccountHeader() {
             ورود به حساب کاربری
           </Typography>
           <LinearLock className="w-5 h-5" />
-        </RouteLink>
+        </Link>
 
         <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-5 text-on-surface-var">
           برای استفاده از تمام امکانات وارد حساب کاربری خود شوید.
@@ -1169,6 +1165,7 @@ function AccountMenuRow({
   hasDivider?: boolean;
   spacedDivider?: boolean;
 }) {
+  const navigate = useNavigate();
   const isDanger = action.tone === "danger";
   const isWarning = action.tone === "warning";
   const isDisabled = Boolean(action.disabled);
@@ -1221,13 +1218,13 @@ function AccountMenuRow({
   return (
     <>
       {action.to ? (
-        <RouteLink
+        <Link
           className="flex w-full cursor-pointer items-center gap-2 bg-surface-container-lowest p-4 text-on-surface [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25"
           onClick={(event) => {
             if (action.requiresAuth && !getStoredAuthSession()) {
               event.preventDefault();
               storeLoginRedirectPath(action.to ?? "/account");
-              navigateTo(getLoginRequiredPath(action.to ?? "/account", action.label));
+              navigate(getLoginRequiredPath(action.to ?? "/account", action.label));
               return;
             }
 
@@ -1240,7 +1237,7 @@ function AccountMenuRow({
           to={action.to}
         >
           {content}
-        </RouteLink>
+        </Link>
       ) : (
         <Button unstyled
           className="flex h-14 w-full cursor-pointer items-center gap-2 bg-surface-container-lowest px-4 text-on-surface [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25"
@@ -1273,7 +1270,7 @@ function AccountNotificationButton() {
   });
 
   return (
-    <RouteLink
+    <Link
       aria-label="اعلان‌ها"
       className="relative grid h-10 w-10 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
       to="/notifications"
@@ -1285,7 +1282,7 @@ function AccountNotificationButton() {
           className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-error ring-2 ring-surface-container-lowest"
         />
       ) : null}
-    </RouteLink>
+    </Link>
   );
 }
 

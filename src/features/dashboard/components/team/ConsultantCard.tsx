@@ -5,7 +5,7 @@ import LinearEdit2 from "../../../../shared/icons/LinearEdit2";
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
 import { Button } from "../../../../shared/ui/Button";
 import { Typography } from "../../../../shared/ui/Typography";
-import { RouteLink } from "../../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { getApiErrorMessage } from "../../../../shared/api/api";
 import { useCancelAgencyConsultantRequestMutation } from "../../../agencies/api/agency.hooks";
 import { useToast } from "../../../../shared/hooks/useToast";
@@ -120,7 +120,7 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
 
       {!isPending && (
         <div className="mt-6 flex h-10 items-center overflow-hidden rounded-[10px] bg-surface-container">
-          <RouteLink
+          <Link
             className="flex h-full flex-1 items-center justify-center gap-1.5"
             state={{ consultant }}
             to={`${consultantTeamPaths.info}/${actionTargetId}`}
@@ -135,9 +135,9 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             >
               اطلاعات
             </Typography>
-          </RouteLink>
+          </Link>
           <span className="h-6 w-px bg-outline-var" />
-          <RouteLink
+          <Link
             className="flex h-full flex-1 items-center justify-center gap-1.5"
             state={{ consultant }}
             to={`${consultantTeamPaths.edit}/${actionTargetId}`}
@@ -152,9 +152,9 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             >
               ویرایش
             </Typography>
-          </RouteLink>
+          </Link>
           <span className="h-6 w-px bg-outline-var" />
-          <RouteLink
+          <Link
             className="flex h-full flex-1 items-center justify-center gap-1.5"
             state={{ consultant }}
             to={`${consultantTeamPaths.remove}/${actionTargetId}`}
@@ -169,7 +169,7 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             >
               حذف
             </Typography>
-          </RouteLink>
+          </Link>
         </div>
       )}
     </article>

@@ -9,7 +9,6 @@ import { getFeatureIconSrc } from "../../../shared/lib/handleFeaturesIcons";
 import type { AdvertisementItem } from "../api/advertisement.service";
 import { ViewAdIcon } from "./ViewAdIcon";
 import { parseAdIdFromPath } from "./viewAdData";
-import { getStoredBackTarget, isSafeAppPath, replaceRoute } from "../../../shared/navigation/navigation";
 import type { DetailItem, IconName, ViewAdDailyHotelRoom, ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
 import LinearStar from "../../../shared/icons/LinearStar";
 import {
@@ -1939,113 +1938,10 @@ export function parseViewAdIdFromPath(pathname: string) {
   return match?.[1] ?? null;
 }
 
-export function goBackToAd(adId: string) {
-  const fallbackPath = getCurrentViewAdBasePath(adId);
-
-  goBackOrNavigate(fallbackPath);
-}
-
 export function getCurrentViewAdBasePath(adId: string) {
   return window.location.pathname.startsWith("/preview-ad/")
     ? `/preview-ad/${adId}`
     : `/ads/${adId}`;
-}
-
-function getLegacyHistoryBackTarget() {
-  const state = window.history.state as { from?: unknown } | null;
-  const from = state?.from;
-
-  if (!isSafeAppPath(from) || from.startsWith("/ads/") || from.startsWith("/preview-ad/")) {
-    return null;
-  }
-
-  return from;
-}
-
-function goBackOrNavigate(fallbackPath: string, legacyBackTarget?: string | null) {
-  const storedBackTarget = getStoredBackTarget();
-  const safeFallbackPath = isSafeAppPath(fallbackPath) ? fallbackPath : "/home";
-  const targetPath = storedBackTarget?.backTo ?? legacyBackTarget ?? safeFallbackPath;
-  const targetState = storedBackTarget?.backState;
-
-  // Navigate directly to the resolved in-app return target. Browser history can
-  // contain duplicate ad entries or entries from another site, which made the
-  // back action appear to need multiple clicks.
-  replaceRoute(targetPath, targetState, { rememberCurrent: false });
-}
-
-let isAdBackNavigationPending = false;
-
-const MAX_AD_BACK_STEPS = 10;
-const AD_BACK_STEP_TIMEOUT_MS = 250;
-
-function getCurrentAdBackPath() {
-  return `${window.location.pathname}${window.location.search}`;
-}
-
-function isOnAdPath() {
-  return /^\/(?:ads|preview-ad)\//.test(window.location.pathname);
-}
-
-export function goBackFromAd(fallbackPath: string) {
-  // Ignore repeated taps while a back navigation is already in flight, or when
-  // the URL already left the ad page but its UI is still on screen (route
-  // transitions keep the old page visible until the next one is ready).
-  // Otherwise each extra tap pops another history entry and skips past the
-  // previous page.
-  if (isAdBackNavigationPending || !isOnAdPath()) {
-    return;
-  }
-
-  const storedBackTarget = getStoredBackTarget();
-
-  // Preview/detail pages are opened as real navigation entries. When we have
-  // a stored back target, use the browser back stack so the user returns to
-  // the exact previous page (including its URL/state) instead of replacing
-  // the current entry with a guessed destination.
-  if (storedBackTarget && window.history.length > 1) {
-    isAdBackNavigationPending = true;
-
-    const startPath = getCurrentAdBackPath();
-    let steps = 0;
-    let stepTimeoutId = 0;
-
-    const finish = () => {
-      window.clearTimeout(stepTimeoutId);
-      window.removeEventListener("popstate", handlePopState);
-      isAdBackNavigationPending = false;
-    };
-
-    const handlePopState = () => {
-      if (getCurrentAdBackPath() !== startPath) {
-        finish();
-      }
-    };
-
-    const step = () => {
-      steps += 1;
-      window.history.back();
-
-      // Embedded iframes on the ad page (the Neshan location map) add their own
-      // entries to the browser's joint session history. history.back() then
-      // only rewinds the iframe and the page stays on the ad, so keep stepping
-      // back until the page itself leaves the ad.
-      stepTimeoutId = window.setTimeout(() => {
-        if (getCurrentAdBackPath() === startPath && steps < MAX_AD_BACK_STEPS) {
-          step();
-          return;
-        }
-
-        finish();
-      }, AD_BACK_STEP_TIMEOUT_MS);
-    };
-
-    window.addEventListener("popstate", handlePopState);
-    step();
-    return;
-  }
-
-  goBackOrNavigate(fallbackPath, getLegacyHistoryBackTarget());
 }
 
 export function getDetailPageTitle(
@@ -3683,7 +3579,7 @@ export function DetailInfoFullPage({
       className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
       variant="flush"
     >
-      <TopBar onBack={() => goBackToAd(adId)} title={title} />
+      <TopBar backTo={adId ? `/ads/${adId}` : "/home"} title={title} />
 
       <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
         {sections.length > 0 ? (

@@ -19,7 +19,7 @@ assert.equal(auth.getStoredAuthSession().managerPermissions.manage_credits,true)
 assert.notEqual(before,JSON.stringify(keys.agencies.consultants({page:1,perPage:20})));
 auth.setStoredActiveRole('user');
 assert.equal(auth.getStoredAuthSession().managerPermissions,undefined);
-const agency=fs.readFileSync('src/features/agencies/api/agency.service.ts','utf8');
+const agency=fs.readFileSync('src/features/agencies/api/agency-consultants.service.ts','utf8');
 assert(!agency.includes('me/agency/consultants'));
 assert(agency.includes('consultant_id:'));
 const requests=fs.readFileSync('src/features/property-requests/api/property-request.service.ts','utf8');

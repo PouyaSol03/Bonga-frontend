@@ -52,8 +52,7 @@ import { RadioIndicator } from "../../shared/components/RadioIndicator";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { SearchInputBar } from "../../shared/ui/SearchBar";
 import type { AdCardData } from "../advertisements/components/AdCard";
-import { RouteLink } from "../../shared/navigation/RouteLink";
-import { pushRoute, replaceRoute } from "../../shared/navigation/navigation";
+import { Link, useNavigate } from "react-router";
 import {
   adManagementPaths,
   getAdCloseResultPath,
@@ -175,6 +174,7 @@ function AgencyActionsFooter({
 }
 
 export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
+  const navigate = useNavigate();
   const routeState = props ? { ...readRouteState(), ...props } : readRouteState();
   const adId = readAdIdFromPath() ?? readEntityId(props?.ad) ?? readEntityId(props?.card) ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
   const detailQuery = useMyAdvertisementDetailQuery(props?.card || props?.ad ? null : (adId ?? null));
@@ -241,15 +241,15 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     enabled: Boolean(agencyId),
   });
 
+  useEffect(() => {
+    if (statusInfo.key === "incomplete" && currentAdId) {
+      navigate(getAdEditPath(currentAdId, backTo), { replace: true });
+    }
+  }, [statusInfo.key, currentAdId, backTo]);
+
   if (detailQuery.isLoading && !detailQuery.data && !routeState.ad && !routeState.card) {
     return <MyAdStateSkeleton backState={backState} backTo={backTo} />;
   }
-
-  useEffect(() => {
-    if (statusInfo.key === "incomplete" && currentAdId) {
-      replaceRoute(getAdEditPath(currentAdId, backTo));
-    }
-  }, [statusInfo.key, currentAdId, backTo]);
 
   // Draft ads do not have a state page
   if (statusInfo.key === "incomplete" || statusInfo.key === "incomplete_deleted") {
@@ -343,7 +343,6 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
         <TopBar
           backState={backState}
           backTo={backTo}
-          onBack={() => replaceRoute(backTo, backState, { rememberCurrent: false })}
           className="[&_a]:text-on-surface"
           title="مدیریت آگهی"
         />
@@ -388,7 +387,6 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
       <TopBar
         backState={backState}
         backTo={backTo}
-        onBack={() => replaceRoute(backTo, backState, { rememberCurrent: false })}
         className="[&_a]:text-on-surface"
         title="مدیریت آگهی"
       />
@@ -527,7 +525,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
           try {
             await republishPersonalMutation.mutateAsync(currentAdId);
             setIsRepostChoiceModalOpen(false);
-            pushRoute(getAdPaymentPath(currentAdId));
+            navigate(getAdPaymentPath(currentAdId));
           } catch (err) {
             alert(getApiErrorMessage(err, "ثبت مجدد آگهی با خطا مواجه شد."));
           }
@@ -604,6 +602,7 @@ function RealEstateManagerAdStatePage({
   role?: string | null;
   statusInfo: ReturnType<typeof getMyAdStatusInfo>;
 }) {
+  const navigate = useNavigate();
   const currentRole = role ?? getActiveAuthRole(getStoredAuthSession());
   const isIndependentConsultant =
     currentRole === INDEPENDENT_CONSULTANT ||
@@ -711,8 +710,7 @@ function RealEstateManagerAdStatePage({
         },
       });
       setIsDeleteDialogOpen(false);
-      window.history.pushState(backState ?? {}, "", backTo);
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      navigate(backTo, { state: backState ?? {} });
     } catch (err) {
       alert(getApiErrorMessage(err, "حذف آگهی با خطا مواجه شد."));
     } finally {
@@ -1168,6 +1166,11 @@ function readRouteState(): MyAdRouteState {
 
   if (!state || typeof state !== "object") return {};
 
+  const usr = (state as Record<string, unknown>).usr;
+  if (usr && typeof usr === "object") {
+    return { ...(state as MyAdRouteState), ...(usr as MyAdRouteState) };
+  }
+
   return state as MyAdRouteState;
 }
 
@@ -1340,7 +1343,7 @@ function NeedsEditNotice({
         </ul>
       </div>
 
-      <RouteLink
+      <Link
         className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline"
         state={{
           ad,
@@ -1353,7 +1356,7 @@ function NeedsEditNotice({
       >
         ویرایش آگهی
         <StateIcon icon="edit" />
-      </RouteLink>
+      </Link>
     </div>
   );
 }
@@ -1363,13 +1366,13 @@ function WaitForPaymentNotice({ adId }: { adId?: string }) {
     <div className="mt-4 flex items-center justify-between rounded-xl bg-warning-container p-3 text-warning">
       <span className="text-sm font-medium">برای ادامه فرایند انتشار آگهی، پرداخت را تکمیل کنید.</span>
       {adId ? (
-        <RouteLink
+        <Link
           className="inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3 text-xs font-medium text-on-primary no-underline"
           to={getAdPaymentPath(adId)}
           state={{ paymentFlow: "new-ad" }}
         >
           پرداخت
-        </RouteLink>
+        </Link>
       ) : null}
     </div>
   );
@@ -1519,7 +1522,7 @@ function StateAdAction({
     );
 
     return (
-      <RouteLink
+      <Link
         className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var no-underline [direction:ltr]"
         state={{
           ad: action.icon === "upgrade" && !ad ? card : ad,
@@ -1545,7 +1548,7 @@ function StateAdAction({
         to={action.to}
       >
         {content}
-      </RouteLink>
+      </Link>
     );
   }
 

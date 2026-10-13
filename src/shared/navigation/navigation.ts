@@ -5,20 +5,6 @@ const BONGA_ROUTE_CHANGE_EVENT = "bonga:route-change";
 // entry of a session (typed URL, external link, new tab) never has it.
 const BONGA_IN_APP_ENTRY_KEY = "__bongaInAppEntry";
 
-let isHistoryNavigationPatched = false;
-
-function withInAppEntryMarker(data: unknown, isInAppEntry: boolean) {
-  if (data != null && !isRecord(data)) return data;
-
-  const { [BONGA_IN_APP_ENTRY_KEY]: _marker, ...state } = data ?? {};
-
-  return isInAppEntry ? { ...state, [BONGA_IN_APP_ENTRY_KEY]: true } : state;
-}
-
-function dispatchRouteChange() {
-  window.dispatchEvent(new Event(BONGA_ROUTE_CHANGE_EVENT));
-}
-
 /**
  * Keep the SPA router in sync even when legacy screens call history.pushState /
  * history.replaceState directly instead of using pushRoute / replaceRoute.
@@ -27,26 +13,21 @@ function dispatchRouteChange() {
  * URL can change while React keeps rendering the previous route until refresh.
  */
 export function installHistoryNavigationBridge() {
-  if (isHistoryNavigationPatched) return;
-
-  isHistoryNavigationPatched = true;
-
-  const nativePushState = window.history.pushState.bind(window.history);
-  const nativeReplaceState = window.history.replaceState.bind(window.history);
-
-  window.history.pushState = (data, unused, url) => {
-    nativePushState(withInAppEntryMarker(data, true), unused, url);
-    dispatchRouteChange();
-  };
-
-  window.history.replaceState = (data, unused, url) => {
-    // Replacing keeps the entries before this one, so keep this entry's marker.
-    nativeReplaceState(withInAppEntryMarker(data, canGoBackInApp()), unused, url);
-    dispatchRouteChange();
-  };
+  // No-op in React Router v7. Native history is managed directly by BrowserRouter.
 }
 
 export const historyRouteChangeEvent = BONGA_ROUTE_CHANGE_EVENT;
+
+type RouterNavigateFn = (
+  to: string | number,
+  options?: { replace?: boolean; state?: unknown },
+) => void;
+
+let activeRouterNavigate: RouterNavigateFn | null = null;
+
+export function setRouterNavigate(navigate: RouterNavigateFn | null) {
+  activeRouterNavigate = navigate;
+}
 
 const BONGA_BACK_TO_KEY = "__bongaBackTo";
 const BONGA_BACK_STATE_KEY = "__bongaBackState";
@@ -82,7 +63,11 @@ function stripNavigationMeta(state: unknown) {
 export function canGoBackInApp() {
   const state = window.history.state;
 
-  return isRecord(state) && state[BONGA_IN_APP_ENTRY_KEY] === true;
+  return (
+    isRecord(state) &&
+    (state[BONGA_IN_APP_ENTRY_KEY] === true ||
+      (typeof state.idx === "number" && state.idx > 0))
+  );
 }
 
 export function isSafeAppPath(path: unknown): path is string {
@@ -159,8 +144,13 @@ export function pushRoute(
   }
 
   prefetchRoute(path);
-  window.history.pushState(createNavigationState(state, options), "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
+  const nextState = createNavigationState(state, options);
+  if (activeRouterNavigate) {
+    activeRouterNavigate(path, { state: nextState });
+  } else {
+    window.history.pushState(nextState, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }
 }
 
 export function replaceRoute(
@@ -168,8 +158,13 @@ export function replaceRoute(
   state?: unknown,
   options?: { rememberCurrent?: boolean },
 ) {
-  window.history.replaceState(createNavigationState(state, options), "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
+  const nextState = createNavigationState(state, options);
+  if (activeRouterNavigate) {
+    activeRouterNavigate(path, { replace: true, state: nextState });
+  } else {
+    window.history.replaceState(nextState, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }
 }
 
 /**
@@ -195,7 +190,11 @@ export function backRoute(fallbackPath: string, fallbackState?: unknown) {
  */
 export function goBackOrNavigate(fallbackPath: string) {
   if (typeof window !== "undefined" && canGoBackInApp()) {
-    window.history.back();
+    if (activeRouterNavigate) {
+      activeRouterNavigate(-1);
+    } else {
+      window.history.back();
+    }
     return;
   }
   replaceRoute(fallbackPath, undefined, { rememberCurrent: false });

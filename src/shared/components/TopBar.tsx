@@ -8,9 +8,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-
-import { canGoBackInApp, getStoredBackTarget, replaceRoute } from "../navigation/navigation";
-import { RouteLink } from "../navigation/RouteLink";
+import { Link, useNavigate } from "react-router";
+import { canGoBackInApp } from "../navigation/navigation";
 import LinearArrowLeft2 from "../icons/LinearArrowLeft2";
 import LinearArrowRight2 from "../icons/LinearArrowRight2";
 import BoldBookmarkSolid from "../icons/BoldBookmarkSolid";
@@ -93,9 +92,9 @@ function TopBarIconButton({ action }: { action: TopBarAction }) {
 
   if (action.to) {
     return (
-      <RouteLink aria-label={action.label} className={className} state={action.state} to={action.to}>
+      <Link aria-label={action.label} className={className} state={action.state} to={action.to}>
         {action.icon}
-      </RouteLink>
+      </Link>
     );
   }
 
@@ -124,6 +123,7 @@ function TopBarBackButton({
   backTo?: string;
   onBack?: () => void;
 }) {
+  const navigate = useNavigate();
   const label = backLabel ?? "بازگشت";
 
   return (
@@ -136,28 +136,17 @@ function TopBarBackButton({
           return;
         }
 
-        const storedBackTarget = getStoredBackTarget();
-
-        if (storedBackTarget) {
-          if (window.history.length > 1) {
-            window.history.back();
-            return;
-          }
-          replaceRoute(storedBackTarget.backTo, storedBackTarget.backState ?? backState, { rememberCurrent: false });
+        if (window.history.state?.idx > 0 || canGoBackInApp()) {
+          navigate(-1);
           return;
         }
 
         if (backTo) {
-          replaceRoute(backTo, backState, { rememberCurrent: false });
+          navigate(backTo, { replace: true, state: backState });
           return;
         }
 
-        if (canGoBackInApp()) {
-          window.history.back();
-          return;
-        }
-
-        replaceRoute("/account/dashboard", undefined, { rememberCurrent: false });
+        navigate("/account", { replace: true });
       }}
       type="button"
     >
@@ -245,7 +234,7 @@ function TopBarView({
   titleClassName = "text-base font-semibold leading-6",
 }: LayoutTopBarProps) {
   const hasStartSlot = startSlot !== undefined || actions.length > 0;
-  const hasBack = showBack && (backTo || onBack || getStoredBackTarget());
+  const hasBack = showBack && (backTo || onBack);
 
   return (
     <header

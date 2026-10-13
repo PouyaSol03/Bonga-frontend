@@ -2,11 +2,6 @@ import type { NotificationItem } from "./api/notification.service";
 
 export { getNotificationActionLabel } from "./notificationActionLabels";
 
-export function navigateTo(path: string) {
-  window.history.pushState({}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 export function readRecord(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null && !Array.isArray(value)
     ? (value as Record<string, unknown>)

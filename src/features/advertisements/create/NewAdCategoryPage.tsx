@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
@@ -122,11 +123,6 @@ const transactionConfigs: Record<TransactionType, TransactionConfig> = {
 
 const transactionTabs: TransactionType[] = ["sale", "rent", "project"];
 
-function navigateTo(path: string) {
-  window.history.pushState({}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 function getLoginRequiredPath(returnTo: string) {
   const params = new URLSearchParams({ returnTo });
 
@@ -157,8 +153,9 @@ function getInitialRegistrantType(): RegistrantType {
 }
 
 function PageHeader({ title }: { title: string }) {
+  const navigate = useNavigate();
   const handleBack = () => {
-    navigateTo("/home");
+    navigate("/home");
   };
 
   return (
@@ -301,13 +298,14 @@ function NextActionBar({
 }
 
 export function NewAdCategoryPage() {
+  const navigate = useNavigate();
   useEffect(() => {
     if (getStoredAuthSession()) return;
 
     const returnTo = `${window.location.pathname}${window.location.search}`;
     storeLoginRedirectPath(returnTo);
-    navigateTo(getLoginRequiredPath(returnTo));
-  }, []);
+    navigate(getLoginRequiredPath(returnTo));
+  }, [navigate]);
 
   useEffect(() => {
     if (!shouldPreserveNewAdDraft(window.history.state)) {
@@ -413,7 +411,7 @@ export function NewAdCategoryPage() {
             params.set("editSource", "crm");
           }
 
-          navigateTo(`/new-ad/details?${params.toString()}`);
+          navigate(`/new-ad/details?${params.toString()}`);
         }}
       />
     </PageFrame>

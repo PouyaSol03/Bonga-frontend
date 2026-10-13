@@ -1,5 +1,5 @@
 import { Typography } from "../../../shared/ui/Typography";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
 
 export function SectionHeader({ guideTo, title }: { guideTo?: string; title: string }) {
@@ -27,9 +27,9 @@ export function GuidePill({ ariaLabel = "راهنما", to }: { ariaLabel?: stri
 
   if (to) {
     return (
-      <RouteLink aria-label={ariaLabel} className={className} to={to}>
+      <Link aria-label={ariaLabel} className={className} to={to}>
         {content}
-      </RouteLink>
+      </Link>
     );
   }
 

@@ -1,7 +1,7 @@
 import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
 import LinearTick from "../../shared/icons/LinearTick";
 import { BottomSheet, BottomSheetActionList, type BottomSheetAction } from "../../shared/components/BottomSheet";
-import { RouteLink } from "../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import type { SupportRequestItem } from "../support/api/support-request.service";
 
 import { Typography } from "../../shared/ui/Typography";
@@ -152,13 +152,13 @@ export function SupportRequestCard({ request }: { request: SupportRequest }) {
   );
 
   return request.threadId ? (
-    <RouteLink
+    <Link
       className="block text-inherit no-underline"
       state={{ threadId: request.threadId }}
       to={`/account/support/chat/new?thread_id=${encodeURIComponent(request.threadId)}`}
     >
       {card}
-    </RouteLink>
+    </Link>
   ) : card;
 }
 

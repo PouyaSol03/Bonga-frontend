@@ -9,7 +9,7 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import { useToast } from "../../../shared/hooks/useToast";
 import { useChargeWalletMutation, useWalletQuery } from "../api/account.hooks";
 import {
@@ -177,16 +177,6 @@ function getUpgradeCheckoutItems(checkout: AdvertisementCheckout | undefined) {
   );
 }
 
-function navigateTo(path: string, state?: unknown, replace = false) {
-  if (replace) {
-    window.history.replaceState(state ?? {}, "", path);
-  } else {
-    window.history.pushState(state ?? {}, "", path);
-  }
-
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 function formatShortPayment(value: number) {
   if (value === 0) return "رایگان";
   if (value >= 1_000_000) {
@@ -298,6 +288,7 @@ export function IndependentConsultantAdPaymentPage() {
 }
 
 function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
+  const navigate = useNavigate();
   const routeState = getAdManagementRouteState();
   const authSession = getStoredAuthSession();
   const activeRole = getActiveAuthRole(authSession);
@@ -635,11 +626,14 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   useEffect(() => {
     if (getApiErrorCode(checkoutQuery.error) !== "AD_WAITING_FOR_AGENCY") return;
 
-    navigateTo(stateAdPath, {
-      returnTo: adsHomePath,
-      status: "wait_for_agency",
-      tab: "status",
-    }, true);
+    navigate(stateAdPath, {
+      replace: true,
+      state: {
+        returnTo: adsHomePath,
+        status: "wait_for_agency",
+        tab: "status",
+      },
+    });
   }, [checkoutQuery.error, stateAdPath]);
 
   useEffect(() => {
@@ -772,11 +766,14 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     const mutationOptions = {
       onError: (error: unknown) => {
         if (getApiErrorCode(error) === "AD_WAITING_FOR_AGENCY") {
-          navigateTo(stateAdPath, {
-            returnTo: adsHomePath,
-            status: "wait_for_agency",
-            tab: "status",
-          }, true);
+          navigate(stateAdPath, {
+            replace: true,
+            state: {
+              returnTo: adsHomePath,
+              status: "wait_for_agency",
+              tab: "status",
+            },
+          });
           return;
         }
 
@@ -793,7 +790,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         }
 
         if (paymentMethod === "by_consultant") {
-          navigateTo(adsHomePath, { tab: "status" }, true);
+          navigate(adsHomePath, { replace: true, state: { tab: "status" } });
           return;
         }
 
@@ -811,7 +808,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
           return;
         }
 
-        navigateTo(stateAdPath, publishState, true);
+        navigate(stateAdPath, { replace: true, state: publishState });
       },
     };
 
@@ -874,7 +871,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         : "/new-ad";
 
   const leaveNewAdPayment = () => {
-    navigateTo(adsHomePath, { tab: "status" }, true);
+    navigate(adsHomePath, { replace: true, state: { tab: "status" } });
   };
 
   if (checkoutQuery.isLoading || (isBusinessRole && agentEntitlementsQuery.isLoading)) {
@@ -918,7 +915,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         creditShortage={agencyCreditShortage}
         gatewayMethod={gatewayMethod}
         method={agencyMethod}
-        onBack={isNewAdCheckout ? leaveNewAdPayment : () => navigateTo(stateAdPath, undefined, true)}
+        onBack={isNewAdCheckout ? leaveNewAdPayment : () => navigate(stateAdPath, { replace: true })}
         onMethodChange={setAgencyMethod}
         onSubmit={(extraItems) => finishCheckout(agencyMethod, extraItems)}
         payableAmount={payableAmount}
@@ -1806,19 +1803,22 @@ function CheckoutStatusPage({
 }
 
 function ApiCreditDeficitBox({ deficit }: { deficit: number }) {
+  const navigate = useNavigate();
+
   function openCreditPackages() {
     try {
       sessionStorage.setItem("bonga:paymentReturnTo", window.location.pathname);
     } catch {
       // ignore
     }
-    pushRoute(
+    navigate(
       "/account/dashboard/payments",
       {
-        initialPaymentTab: "packages",
-        returnTo: window.location.pathname,
+        state: {
+          initialPaymentTab: "packages",
+          returnTo: window.location.pathname,
+        },
       },
-      { rememberCurrent: true },
     );
   }
 

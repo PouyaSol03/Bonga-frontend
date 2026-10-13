@@ -1,53 +1,29 @@
-import type { AnchorHTMLAttributes, MouseEvent } from 'react'
-import { prefetchRoute, pushRoute } from './navigation'
+import { Link, type LinkProps } from 'react-router'
+import { prefetchRoute } from './navigation'
 
-type RouteLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & {
-  to: string
-  state?: unknown
-}
+export type RouteLinkProps = LinkProps
 
 export function RouteLink({
   to,
-  state,
-  onClick,
   onMouseEnter,
   onTouchStart,
   children,
   ...props
 }: RouteLinkProps) {
-  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
-    onClick?.(event)
-
-    if (
-      event.defaultPrevented ||
-      event.metaKey ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.button !== 0
-    ) {
-      return
-    }
-
-    event.preventDefault()
-    pushRoute(to, state)
-  }
-
   return (
-    <a
-      href={to}
-      onClick={handleClick}
+    <Link
+      to={to}
       onMouseEnter={(event) => {
-        prefetchRoute(to)
+        if (typeof to === 'string') prefetchRoute(to)
         onMouseEnter?.(event)
       }}
       onTouchStart={(event) => {
-        prefetchRoute(to)
+        if (typeof to === 'string') prefetchRoute(to)
         onTouchStart?.(event)
       }}
       {...props}
     >
       {children}
-    </a>
+    </Link>
   )
 }

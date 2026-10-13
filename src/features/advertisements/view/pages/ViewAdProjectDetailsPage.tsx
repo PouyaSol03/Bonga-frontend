@@ -8,9 +8,7 @@ import {
   useAdvertisementPreviewQuery,
 } from "../../api/advertisement.hooks";
 import {
-  goBackFromAd,
-  goBackToAd,
-  mapAdToDetails,
+      mapAdToDetails,
   parseViewAdIdFromPath,
 } from "../viewAdDetails";
 import { toPersianDigits } from "../viewAdComponents";
@@ -141,7 +139,6 @@ export function ViewAdProjectDetailsPage() {
       <TopBar
         backTo={adId ? `/ads/${adId}` : "/home"}
         className="bg-surface-container shrink-0"
-        onBack={() => (adId ? goBackToAd(adId) : goBackFromAd("/home"))}
         title="اطلاعات پروژه"
       />
 

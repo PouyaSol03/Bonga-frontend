@@ -7,7 +7,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import LinearInfoCircle from "../../../shared/icons/LinearInfoCircle";
 import { useCreateStopPublishRequestMutation } from "../../advertisements/api/agency-advertise-assignment.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
-import { replaceRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 
 const STOP_PUBLISH_OPTIONS = [
   { id: "deal_done", label: "معامله انجام شده است" },
@@ -22,6 +22,7 @@ export type AgencyStopPublishPageProps = {
 };
 
 export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
+  const navigate = useNavigate();
   const adId = props?.adId ?? readAdIdFromPath();
   const returnTo = props?.returnTo ?? (adId ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad` : "/account/my-ads");
   const [selectedReason, setSelectedReason] = useState<string>(STOP_PUBLISH_OPTIONS[0].id);
@@ -30,7 +31,7 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
   const createStopRequestMutation = useCreateStopPublishRequestMutation();
 
   const handleGoBack = () => {
-    replaceRoute(returnTo, undefined, { rememberCurrent: false });
+    navigate(returnTo, { replace: true });
   };
 
   const handleSubmit = async () => {
@@ -44,7 +45,7 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
       if (props?.onSuccess) {
         props.onSuccess();
       } else {
-        replaceRoute(returnTo, undefined, { rememberCurrent: false });
+        navigate(returnTo, { replace: true });
       }
     } catch (err) {
       alert(getApiErrorMessage(err, "ثبت درخواست توقف با خطا مواجه شد."));

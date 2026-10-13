@@ -2,8 +2,7 @@ import { useState } from "react";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { Link, useNavigate } from "react-router";
 import { useToast } from "../../../shared/hooks/useToast";
 import { usePackagePaymentMutation, usePackagesQuery } from "../../packages/api/package.hooks";
 import { useWalletQuery } from "../api/account.hooks";
@@ -187,6 +186,7 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
 }
 
 function CreditTopBar() {
+  const navigate = useNavigate();
   const returnTo =
     window.history.state?.returnTo ||
     (typeof window !== "undefined"
@@ -204,18 +204,20 @@ function CreditTopBar() {
           } catch {
             // ignore
           }
-          pushRoute(returnTo);
+          navigate(returnTo);
+        } else if (window.history.state?.idx > 0) {
+          navigate(-1);
         } else {
-          pushRoute("/account/dashboard");
+          navigate("/account/dashboard", { replace: true });
         }
       }}
       startSlot={
-        <RouteLink
+        <Link
           className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-primary no-underline"
           to="/account/credit/history"
         >
           تاریخچه پرداخت
-        </RouteLink>
+        </Link>
       }
       title="افزایش اعتبار"
     />
@@ -226,22 +228,22 @@ function CreditTabs({ activeTab }: { activeTab: "packages" | "panel" }) {
   return (
     <nav className="shrink-0 bg-surface-container-lowest px-4 py-4" aria-label="نوع افزایش اعتبار">
       <div className="flex h-11 overflow-hidden rounded-xl border border-primary [direction:ltr]">
-        <RouteLink
+        <Link
           className={`flex flex-1 items-center justify-center text-base font-medium leading-6 [direction:rtl] ${
             activeTab === "panel" ? "bg-primary-container text-primary font-semibold" : "bg-surface-container-lowest text-on-surface-var"
           }`}
           to="/account/credit/panel"
         >
           اعتبار پنل
-        </RouteLink>
-        <RouteLink
+        </Link>
+        <Link
           className={`flex flex-1 items-center justify-center border-l border-primary text-base font-medium leading-6 [direction:rtl] ${
             activeTab === "packages" ? "bg-primary-container text-primary font-semibold" : "bg-surface-container-lowest text-on-surface-var"
           }`}
           to="/account/credit/packages"
         >
           بسته‌ها
-        </RouteLink>
+        </Link>
       </div>
     </nav>
   );

@@ -23,8 +23,7 @@ import LinearOwner from "../../shared/icons/LinearOwner";
 import LinearUserAccount from "../../shared/icons/LinearUserAccount";
 import { AdLocationMap } from "../advertisements/components/AdLocationMap";
 import { getAdvertisementImageUrls } from "../advertisements/utils/advertisement-images";
-import { RouteLink } from "../../shared/navigation/RouteLink";
-import { backRoute } from "../../shared/navigation/navigation";
+import { Link,  useNavigate  } from "react-router";
 import { formatNumber, toNumericValue } from "../../shared/lib/numberUtils";
 import {
   getCrmAdvertise,
@@ -609,7 +608,9 @@ function DetailSkeleton() {
   );
 }
 
-export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: CrmAdvertiseDetailViewProps) {
+export function CrmAdvertiseDetailView({
+ advertiseId, notify, refreshNonce }: CrmAdvertiseDetailViewProps) {
+  const navigate = useNavigate();
   const advertiseQuery = useQuery({
     queryFn: () => getCrmAdvertise(advertiseId),
     queryKey: ["crm", "advertise", "panel-show", advertiseId, refreshNonce],
@@ -673,7 +674,7 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
           </Typography>
           <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-lg font-bold text-[#1a1a1a]">اطلاعات آگهی دریافت نشد</Typography>
           <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm text-[#808080]">پاسخ قابل نمایشی از سرویس جزئیات آگهی دریافت نشد.</Typography>
-          <Button unstyled className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white no-underline" onClick={() => backRoute("/crm/advertises")} type="button">
+          <Button unstyled className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white no-underline" onClick={() => window.history.state?.idx > 0 ? navigate(-1) : navigate("/crm/advertises", { replace: true })} type="button">
             <LinearArrowRight1 className="h-5 w-5" />
             بازگشت به آگهی‌ها
           </Button>
@@ -756,19 +757,19 @@ export function CrmAdvertiseDetailView({ advertiseId, notify, refreshNonce }: Cr
   return (
     <div className="pb-6" dir="rtl">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white px-5 py-4">
-        <Button unstyled className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-semibold text-[#1a1a1a] no-underline transition hover:border-[#0048c4] hover:text-[#0048c4]" onClick={() => backRoute("/crm/advertises")} type="button">
+        <Button unstyled className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-semibold text-[#1a1a1a] no-underline transition hover:border-[#0048c4] hover:text-[#0048c4]" onClick={() => window.history.state?.idx > 0 ? navigate(-1) : navigate("/crm/advertises", { replace: true })} type="button">
           <LinearArrowRight1 className="h-5 w-5" />
           بازگشت به مدیریت آگهی‌ها
         </Button>
         <div className="flex flex-wrap items-center gap-3">
-          <RouteLink
+          <Link
             className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white no-underline transition hover:bg-[#003ca4]"
             state={getCrmAdvertiseEditState(advertiseId)}
             to={getCrmAdvertiseEditPath(advertiseId)}
           >
             <LinearEdit2 className="h-5 w-5" />
             ویرایش آگهی
-          </RouteLink>
+          </Link>
           <Typography as="span" variant="label" size="medium" weight="semibold" className={`inline-flex min-h-9 items-center rounded-full px-4 text-sm font-bold ${statusTone(advertise.status)}`}>
             {advertiseStatusLabel(advertise.status)}
           </Typography>

@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { useNavigate } from "react-router";
 
 import { isUserIdentityVerified } from "../api/account.service";
 import { useProfileStore } from "../stores/useProfileStore";
@@ -7,11 +8,6 @@ import { TopBar } from "../../../shared/components/TopBar";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import LinearUserAccount from "../../../shared/icons/LinearUserAccount";
-
-function navigateTo(path: string) {
-  window.history.pushState({}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
 
 function IdentityRequiredIcon() {
   return (
@@ -22,6 +18,8 @@ function IdentityRequiredIcon() {
 }
 
 function IdentityRequiredPage({ title }: { title: string }) {
+  const navigate = useNavigate();
+
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
@@ -39,7 +37,7 @@ function IdentityRequiredPage({ title }: { title: string }) {
         <Button
           unstyled
           className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold leading-5 text-on-primary"
-          onClick={() => navigateTo("/account/identity?required=1")}
+          onClick={() => navigate("/account/identity?required=1")}
           type="button"
         >
           <LinearUserAccount className="h-5 w-5" />

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
@@ -8,47 +9,30 @@ import {
 } from "../../shared/auth/auth-storage";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
-import { goBackOrNavigate } from "../../shared/navigation/navigation";
 
 const defaultReturnPath = "/home";
 
-function navigateTo(path: string, replace = false) {
-  if (replace) {
-    window.history.replaceState({}, "", path);
-  } else {
-    window.history.pushState({}, "", path);
-  }
-
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
-function getSafeReturnPath() {
-  const params = new URLSearchParams(window.location.search);
-  const returnTo = params.get("returnTo") || "";
-
-  if (
-    returnTo.startsWith("/") &&
-    !returnTo.startsWith("/login") &&
-    !returnTo.startsWith("/login-required")
-  ) {
-    return returnTo;
-  }
-
-  return defaultReturnPath;
-}
-
 export function LoginRequiredPage() {
-  const returnTo = getSafeReturnPath();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const rawReturnTo = searchParams.get("returnTo") || "";
+  const returnTo =
+    rawReturnTo.startsWith("/") &&
+    !rawReturnTo.startsWith("/login") &&
+    !rawReturnTo.startsWith("/login-required")
+      ? rawReturnTo
+      : defaultReturnPath;
 
   useEffect(() => {
     if (getStoredAuthSession()) {
-      navigateTo(returnTo, true);
+      navigate(returnTo, { replace: true });
     }
-  }, [returnTo]);
+  }, [navigate, returnTo]);
 
   const handleLogin = () => {
     storeLoginRedirectPath(returnTo);
-    navigateTo("/login/phone");
+    navigate("/login/phone");
   };
 
   return (
@@ -58,7 +42,13 @@ export function LoginRequiredPage() {
     >
       <TopBar
         backTo={returnTo}
-        onBack={() => goBackOrNavigate(returnTo)}
+        onBack={() => {
+          if (window.history.state?.idx > 0) {
+            navigate(-1);
+          } else {
+            navigate(returnTo, { replace: true });
+          }
+        }}
         title=""
       />
 

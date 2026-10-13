@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import LinearArrowLeft2 from "../../../shared/icons/LinearArrowLeft2";
 import LinearCrm from "../../../shared/icons/LinearCrm";
@@ -19,6 +19,7 @@ function CrmBadgeIcon() {
 }
 
 export function BusinessFeatureSection() {
+  const navigate = useNavigate();
   const [imageLoaded, setImageLoaded] = useState(false);
   const handleBusinessClick = () => {
     const authSession = getStoredAuthSession();
@@ -26,7 +27,7 @@ export function BusinessFeatureSection() {
       DASHBOARD_ROLES.includes(role.slug),
     );
 
-    pushRoute(hasBusinessRole ? "/account" : "/account/business/create");
+    navigate(hasBusinessRole ? "/account" : "/account/business/create");
   };
 
   return (
@@ -94,7 +95,7 @@ export function BusinessFeatureSection() {
           size="x-medium"
           variant="secondary"
           trailingIcon={<LinearArrowLeft2 className="h-5 w-5" />}
-          onClick={() => pushRoute("/account/business/create/info?type=agency")}
+          onClick={() => navigate("/account/business/create/info?type=agency")}
         >
           مشاهده امکانات
         </Button>

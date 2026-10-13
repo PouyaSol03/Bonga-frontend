@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
 import { TopBar } from "../../shared/components/TopBar";
@@ -52,17 +53,8 @@ function getReportReturnPath(threadId: string) {
   return threadId ? `/chat/${encodeURIComponent(threadId)}` : "/chat";
 }
 
-function navigateTo(path: string, replace = false) {
-  if (replace) {
-    window.history.replaceState({}, "", path);
-  } else {
-    window.history.pushState({}, "", path);
-  }
-
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 export function ChatReportPage() {
+  const navigate = useNavigate();
   const threadId = useMemo(getReportThreadId, []);
   const messageId = useMemo(getReportMessageId, []);
   const returnPath = useMemo(() => getReportReturnPath(threadId), [threadId]);
@@ -76,7 +68,7 @@ export function ChatReportPage() {
   useEffect(() => {
     if (!successMessage) return;
 
-    const timer = window.setTimeout(() => navigateTo(returnPath, true), 700);
+    const timer = window.setTimeout(() => navigate(returnPath, { replace: true }), 700);
     return () => window.clearTimeout(timer);
   }, [returnPath, successMessage]);
 
@@ -188,7 +180,7 @@ export function ChatReportPage() {
         <Button unstyled
           className="h-10 min-w-0 flex-1 rounded-[10px] border border-primary bg-surface-container-lowest text-sm font-semibold leading-5 text-primary disabled:cursor-not-allowed disabled:opacity-50"
           disabled={reportMutation.isPending}
-          onClick={() => navigateTo(returnPath, true)}
+          onClick={() => navigate(returnPath, { replace: true })}
           type="button"
         >
           انصراف

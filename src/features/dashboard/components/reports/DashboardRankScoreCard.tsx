@@ -1,4 +1,4 @@
-import { RouteLink } from "../../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { Typography } from "../../../../shared/ui/Typography";
 import { DashboardChartEmptyState } from "./DashboardChartEmptyState";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
@@ -85,7 +85,7 @@ export function DashboardRankScoreCard({
         >
           {displayTitle}
         </Typography>
-        <RouteLink
+        <Link
           className="flex items-center gap-1 text-primary"
           to={badgesTo}
         >
@@ -99,7 +99,7 @@ export function DashboardRankScoreCard({
             صفحه نشان‌ها
           </Typography>
           <LinearArrowLeft1 className="h-3.5 w-3.5 text-primary" />
-        </RouteLink>
+        </Link>
       </div>
 
       {/* 3 Metric Cards */}

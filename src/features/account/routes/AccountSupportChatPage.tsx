@@ -4,7 +4,7 @@ import type { ChatMessage } from "../../chat/api/chat.service";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import LinearMoreVertical from "../../../shared/icons/LinearMoreVertical";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { ConversationCard, SUPPORT_NEW_CHAT_PATH, SupportChatsEmptyState, WelcomeCard, asChatRecord, formatSupportConversationDate, isOpenSupportThread, readChatPathText, readSupportMessageBody, readSupportThreadId } from "../accountSupportViews";
 import type { Conversation } from "../accountSupportViews";
 import { Typography } from "../../../shared/ui/Typography";
@@ -87,12 +87,12 @@ export function AccountSupportChatPage() {
       </main>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3">
-        <RouteLink
+        <Link
           className="pointer-events-auto flex h-10 w-full items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold leading-5 text-on-primary no-underline outline-none active:opacity-80 focus-visible:ring-3 focus-visible:ring-primary/20"
           to={SUPPORT_NEW_CHAT_PATH}
         >
           شروع گفتگوی جدید
-        </RouteLink>
+        </Link>
       </div>
     </PageFrame>
   );

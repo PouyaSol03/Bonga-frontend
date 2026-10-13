@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import { getActiveV2Role } from "../../../shared/api/api";
 
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../shared/auth/auth-storage";
@@ -156,11 +157,6 @@ export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValue
     doubleRoomCount: values.doubleRoomCount,
     suiteCount: values.suiteCount,
   };
-}
-
-export function navigateTo(path: string, state?: unknown) {
-  window.history.pushState(state ?? {}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
 function getLoginRequiredPath(returnTo: string) {
@@ -1311,10 +1307,12 @@ export function buildNewAdFormData(
 }
 
 export function useRequireAuth() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (getStoredAuthSession()) return;
     const returnTo = `${window.location.pathname}${window.location.search}`;
     storeLoginRedirectPath(returnTo);
-    navigateTo(getLoginRequiredPath(returnTo));
-  }, []);
+    navigate(getLoginRequiredPath(returnTo), { replace: true });
+  }, [navigate]);
 }

@@ -1,6 +1,6 @@
+import { useNavigate } from "react-router";
 import { useEffect, useMemo, useState } from "react";
 
-import { getStoredBackTarget, replaceRoute } from "../../../shared/navigation/navigation";
 import { useNeighborhoodListQuery } from "../../locations/api/neighborhood.hooks";
 import {
   getNeighborhoodHierarchyDescription,
@@ -35,19 +35,7 @@ function useDebouncedValue(value: string, delay: number) {
   return debouncedValue;
 }
 
-function returnToAgencyForm() {
-  const storedBackTarget = getStoredBackTarget();
 
-  if (
-    storedBackTarget?.backTo === AGENCY_CREATE_PATH &&
-    window.history.length > 1
-  ) {
-    window.history.back();
-    return;
-  }
-
-  replaceRoute(AGENCY_CREATE_PATH, undefined, { rememberCurrent: false });
-}
 
 function NeighborhoodSkeleton() {
   return (
@@ -69,6 +57,15 @@ function NeighborhoodSkeleton() {
 }
 
 export function AgencyNeighborhoodSelectionPage() {
+  const navigate = useNavigate();
+
+  const returnToAgencyForm = () => {
+    if (window.history.state?.idx > 0) {
+      navigate(-1);
+      return;
+    }
+    navigate(AGENCY_CREATE_PATH, { replace: true });
+  };
   const { showToast } = useToast();
   const initialDraft = useMemo(() => readAgencyCreationDraft(), []);
   const [query, setQuery] = useState("");

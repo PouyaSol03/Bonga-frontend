@@ -2,7 +2,7 @@ import "../../advertisements/components/AdCard.css";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { AllocationIcon } from "./AdManagementIcons";
 import { adManagementPaths, getAdEditPath, getAdPaymentPath, getAdPreviewPath, getSelectedConsultantAd } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
@@ -67,13 +67,13 @@ export function IndependentConsultantAdAllocationPage() {
       </main>
 
       <footer className="shrink-0 bg-surface-container-lowest px-4 pb-3 pt-4 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <RouteLink
+        <Link
           className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline"
           state={{ ad }}
           to={getAdPaymentPath(ad.id)}
         >
           تکمیل پرداخت
-        </RouteLink>
+        </Link>
       </footer>
     </PageFrame>
   );
@@ -91,7 +91,7 @@ function AllocationAction({
   to: string;
 }) {
   return (
-    <RouteLink
+    <Link
       className="flex h-[60px] w-full items-center justify-between text-on-surface [direction:ltr]"
       state={state}
       to={to}
@@ -101,6 +101,6 @@ function AllocationAction({
         <AllocationIcon className="h-6 w-6 text-on-surface-var" icon={icon} />
         {label}
       </Typography>
-    </RouteLink>
+    </Link>
   );
 }

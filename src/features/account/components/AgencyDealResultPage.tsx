@@ -8,7 +8,7 @@ import LinearLike from "../../../shared/icons/LinearLike";
 import LinearDislike from "../../../shared/icons/LinearDislike";
 import { useConfirmUserDealResultMutation } from "../../advertisements/api/agency-advertise-assignment.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
-import { replaceRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 
 export type AgencyDealResultPageProps = {
   adId?: string | number;
@@ -17,6 +17,7 @@ export type AgencyDealResultPageProps = {
 };
 
 export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
+  const navigate = useNavigate();
   const adId = props?.adId ?? readAdIdFromPath();
   const returnTo = props?.returnTo ?? (adId ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad` : "/account/my-ads");
   const [selectedResult, setSelectedResult] = useState<"success" | "unsuccessful">("success");
@@ -24,7 +25,7 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
   const confirmDealResultMutation = useConfirmUserDealResultMutation();
 
   const handleGoBack = () => {
-    replaceRoute(returnTo, undefined, { rememberCurrent: false });
+    navigate(returnTo, { replace: true });
   };
 
   const handleSubmit = async () => {
@@ -37,7 +38,7 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
       if (props?.onSuccess) {
         props.onSuccess();
       } else {
-        replaceRoute(returnTo, undefined, { rememberCurrent: false });
+        navigate(returnTo, { replace: true });
       }
     } catch (err) {
       alert(getApiErrorMessage(err, "ثبت نتیجه درخواست با خطا مواجه شد."));

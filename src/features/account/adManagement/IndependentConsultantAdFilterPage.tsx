@@ -15,7 +15,7 @@ import { useNeighborhoodListQuery } from "../../locations/api/neighborhood.hooks
 import { useAgencyConsultantsQuery } from "../../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "../api/account.hooks";
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../../locations/api/neighborhood.service";
 import {
   adManagementPaths,
@@ -287,13 +287,13 @@ export function IndependentConsultantAdFilterPage() {
 
       <footer className="shrink-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
-          <RouteLink
+          <Link
             className="inline-flex h-10 items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline"
             state={{ filters, onlyMine: isAssignedTab ? false : onlyMine, tab }}
             to={adManagementPaths.root}
           >
             اعمال
-          </RouteLink>
+          </Link>
           <Button unstyled
             className="h-10 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium leading-5 text-primary"
             onClick={resetFilters}

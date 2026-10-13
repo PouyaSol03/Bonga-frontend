@@ -21,7 +21,7 @@ import {
   subNeighborhoodIdKey,
 } from "./data";
 import { clearNewAdDraftStorage, useRequireAuth } from "./utils";
-import { replaceRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import { preserveNewAdDraftStateKey, updateNewAdFlowSessionLocation } from "./session";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -298,6 +298,7 @@ function NewAdLocationMap({
 }
 
 export function NewAdLocationPage() {
+  const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
   const label = searchParams.get("label") ?? "آگهی ملک";
   const isCrmSource = searchParams.get("editSource") === "crm";
@@ -558,11 +559,14 @@ export function NewAdLocationPage() {
       typeof window.history.state === "object"
         ? window.history.state
         : {};
-    replaceRoute(
+    navigate(
       `/new-ad/details${window.location.search || `?label=${encodeURIComponent(label)}`}`,
       {
-        ...currentState,
-        [preserveNewAdDraftStateKey]: true,
+        replace: true,
+        state: {
+          ...currentState,
+          [preserveNewAdDraftStateKey]: true,
+        },
       },
     );
   };
@@ -750,11 +754,14 @@ export function NewAdLocationPage() {
                 typeof window.history.state === "object"
                   ? window.history.state
                   : {};
-              replaceRoute(
+              navigate(
                 `/new-ad/details${window.location.search || `?label=${encodeURIComponent(label)}`}`,
                 {
-                  ...currentState,
-                  [preserveNewAdDraftStateKey]: true,
+                  replace: true,
+                  state: {
+                    ...currentState,
+                    [preserveNewAdDraftStateKey]: true,
+                  },
                 },
               );
             }}

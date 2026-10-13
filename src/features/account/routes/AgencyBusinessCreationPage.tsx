@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import type { NeighborhoodDto } from "../../locations/api/neighborhood.service";
 import { useCreateMyAgencyMutation, useMyProfileQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import { useToast } from "../../../shared/hooks/useToast";
 import { AgencyFields, BusinessFormPage, getNeighborhoodId } from "../businessCreationShared";
 import type { BusinessToast } from "../businessCreationShared";
@@ -13,6 +13,7 @@ import {
 } from "../agencyCreationDraft";
 
 export function AgencyBusinessCreationPage() {
+  const navigate = useNavigate();
   const { showToast: showGlobalToast } = useToast();
   const { data: profile } = useMyProfileQuery();
   const isAgencyPending = Boolean(
@@ -93,7 +94,7 @@ export function AgencyBusinessCreationPage() {
           neighborhoodsError={neighborhoodsError}
           onOpenNeighborhoods={() => {
             writeAgencyCreationDraft({ agencyName, selectedNeighborhoods });
-            pushRoute("/account/business/create/agency/neighborhoods");
+            navigate("/account/business/create/agency/neighborhoods");
           }}
           selectedNeighborhoods={selectedNeighborhoods}
           setAgencyName={setAgencyName}

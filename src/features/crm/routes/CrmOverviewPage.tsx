@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { listCrmAdvertises, listCrmUsers, listCrmAgencies, listCrmAdvertiseForms, getCrmRecordId } from "../api/crm.service";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { CrmIcon, EmptyState, ListSkeleton, Panel, PanelHeader, StatusBadge, TextLink, readText, useQueryErrorToast } from "../CrmLayout";
 import type { CrmRoutePageProps } from "../CrmLayout";
 import { Typography } from "../../../shared/ui/Typography";
@@ -59,7 +59,7 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
     <div className="space-y-4">
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="آمار کلی">
         {metrics.map((metric) => (
-          <RouteLink
+          <Link
             className="group rounded-2xl bg-white p-5 no-underline transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,72,196,0.08)]"
             key={metric.label}
             to={metric.path}
@@ -74,7 +74,7 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
               {isLoading ? "…" : new Intl.NumberFormat("fa-IR").format(metric.value)}
             </strong>
             <Typography as="span" variant="label" size="medium" weight="medium" className="mt-1 block text-sm font-medium text-[#7b8493]">{metric.label}</Typography>
-          </RouteLink>
+          </Link>
         ))}
       </section>
 
@@ -90,7 +90,7 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
               <ListSkeleton count={6} />
             ) : adsQuery.data?.length ? (
               adsQuery.data.slice(0, 6).map((ad) => (
-                <RouteLink
+                <Link
                   className="flex min-h-14 items-center justify-between gap-4 py-3 text-[#273142] no-underline transition hover:text-[#0048c4]"
                   key={getCrmRecordId(ad)}
                   to={`/crm/advertises/${encodeURIComponent(getCrmRecordId(ad))}`}
@@ -102,7 +102,7 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     </Typography>
                   </div>
                   <StatusBadge status={ad.status} />
-                </RouteLink>
+                </Link>
               ))
             ) : (
               <EmptyState compact description="هنوز آگهی‌ای دریافت نشده است." />
@@ -122,7 +122,7 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
               { description: "مشاهده و پاسخگویی به درخواست‌های پشتیبانی کاربران", icon: "requests" as const, label: "درخواست‌های پشتیبانی", to: "/crm/requests" },
               { description: "بررسی درخواست‌های کاربران برای یافتن ملک یا آگهی مناسب", icon: "ads" as const, label: "درخواست‌های یافتن آگهی", to: "/crm/property-requests" },
             ].map((item) => (
-              <RouteLink
+              <Link
                 className="flex items-center gap-3 rounded-xl border border-[#f0f0f0] p-3.5 text-[#273142] no-underline transition hover:border-[#cbd8ed] hover:bg-[#fbfcff]"
                 key={item.label}
                 to={item.to}
@@ -135,7 +135,7 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   <small className="mt-1 block text-sm text-[#8b94a3]">{item.description}</small>
                 </Typography>
                 <CrmIcon name="arrow" size={17} />
-              </RouteLink>
+              </Link>
             ))}
           </div>
         </Panel>

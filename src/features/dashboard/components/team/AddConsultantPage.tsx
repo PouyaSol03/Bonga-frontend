@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
 import LinearSearch from "../../../../shared/icons/LinearSearch";
 import { TopBar } from "../../../../shared/components/TopBar";
@@ -16,6 +17,7 @@ import { AddConsultantRoleSection } from "./add-consultant/AddConsultantRoleSect
 import type { AccessRole } from "./teamTypes";
 
 export function AddConsultantPage() {
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -87,8 +89,7 @@ export function AddConsultantPage() {
         },
         onSuccess: () => {
           showToast("مشاور با موفقیت اضافه شد.");
-          window.history.pushState({}, "", "/account/dashboard/team");
-          window.dispatchEvent(new PopStateEvent("popstate"));
+          navigate("/account/dashboard/team", { replace: true });
         },
       },
     );

@@ -8,7 +8,7 @@ import {
 import LinearPayment from "../../../shared/icons/LinearPayment";
 import LinearWallet2 from "../../../shared/icons/LinearWallet2";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import { ChoiceIndicator } from "../../../shared/ui/Choice";
@@ -266,12 +266,12 @@ export function PackagePaymentMethodSheet({
             >
               موجودی کیف پول برای این خرید {formatMoney(walletShortage)} تومان کم است.
             </Typography>
-            <RouteLink
+            <Link
               className="mt-2 inline-flex text-sm font-medium text-primary no-underline"
               to="/account/wallet"
             >
               شارژ کیف پول
-            </RouteLink>
+            </Link>
           </div>
         ) : null}
 

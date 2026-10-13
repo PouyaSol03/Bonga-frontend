@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import { useMyProfileQuery, useUpdateMyProfileMutation } from "../api/account.hooks";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { getApiErrorMessage } from "../../../shared/api/api";
@@ -5,6 +6,7 @@ import { useToast } from "../../../shared/hooks/useToast";
 import { AccountPageShell, AccountProfileForm, AccountProfileSkeleton, AccountRetryState } from "../accountPageViews";
 
 export function AccountProfilePage() {
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const { data: profile, error, isError, isLoading, refetch } = useMyProfileQuery();
   const updateProfile = useUpdateMyProfileMutation();
@@ -45,8 +47,7 @@ export function AccountProfilePage() {
                   );
                 },
                 onSuccess: () => {
-                  window.history.pushState({}, "", "/account/profile");
-                  window.dispatchEvent(new PopStateEvent("popstate"));
+                  navigate("/account/profile");
                   showToast("اطلاعات حساب ذخیره شد");
                 },
               });

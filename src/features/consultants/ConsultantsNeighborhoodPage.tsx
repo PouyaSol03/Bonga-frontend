@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
@@ -7,7 +8,6 @@ import { TopBar } from "../../shared/components/TopBar";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
-import { getStoredBackTarget, pushRoute } from "../../shared/navigation/navigation";
 import { getNeighborhoodDescription, type NeighborhoodDto } from "../locations/api/neighborhood.service";
 import {
   readConsultantsSelectedNeighborhood,
@@ -19,15 +19,6 @@ import { Button } from "../../shared/ui/Button";
 
 function getNeighborhoodId(neighborhood: NeighborhoodDto) {
   return String(neighborhood.id ?? neighborhood._id ?? "");
-}
-
-function leaveNeighborhoodPage() {
-  if (getStoredBackTarget()) {
-    window.history.back();
-    return;
-  }
-
-  pushRoute("/consultants", undefined, { rememberCurrent: false });
 }
 
 function NeighborhoodSearchField({
@@ -71,6 +62,7 @@ function NeighborhoodListSkeleton() {
 }
 
 export function ConsultantsNeighborhoodPage() {
+  const navigate = useNavigate();
   const selectedCity = readStoredSelectedCity();
   const cityId = selectedCity?.id ?? "";
   const [search, setSearch] = useState("");
@@ -90,6 +82,15 @@ export function ConsultantsNeighborhoodPage() {
   const selectedId = selectedNeighborhood
     ? getNeighborhoodId(selectedNeighborhood)
     : "";
+
+  const leaveNeighborhoodPage = () => {
+    if (window.history.state?.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/consultants", { replace: true });
+    }
+  };
+
   const confirmSelection = () => {
     if (!selectedNeighborhood) return;
 

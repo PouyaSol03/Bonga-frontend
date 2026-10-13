@@ -1,5 +1,5 @@
 import { Typography } from "../../../../shared/ui/Typography";
-import { RouteLink } from "../../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearCall from "../../../../shared/icons/LinearCall";
 import LinearCalendar from "../../../../shared/icons/LinearCalendar";
 import LinearClock from "../../../../shared/icons/LinearClock";
@@ -154,7 +154,7 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
       <div className="my-4 w-full border-b border-outline-variant/60" />
 
       <div className="flex items-center gap-2">
-        <RouteLink
+        <Link
           to={detailsHref}
           state={{ lead, adId }}
           onClick={() => onDetailsClick?.(lead)}
@@ -170,7 +170,7 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
             جزییات
           </Typography>
           <LinearArrowLeft1 className="h-4 w-4 text-primary" />
-        </RouteLink>
+        </Link>
 
         <button
           type="button"

@@ -4,7 +4,9 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const publicDir = path.join(rootDir, 'public');
+const publicDir = process.env.SEO_OUT_DIR
+  ? path.resolve(process.env.SEO_OUT_DIR)
+  : path.join(rootDir, 'public');
 const tempDir = path.join(rootDir, '.seo-sitemap-tmp');
 const MAX_URLS_PER_SITEMAP = 50_000;
 const PAGE_SIZE = 100;
@@ -59,15 +61,16 @@ function normalizeSiteUrl(value) {
 
 function normalizeApiBaseUrl(value, siteUrl) {
   const normalized = trimTrailingSlash(value || siteUrl);
-  if (/\/api$/i.test(normalized)) return normalized;
-  return `${normalized}/api`;
+  if (/\/api\/v\d+$/i.test(normalized)) return normalized;
+  if (/\/api$/i.test(normalized)) return `${normalized}/v2`;
+  return `${normalized}/api/v2`;
 }
 
 const siteUrl = normalizeSiteUrl(
   process.env.SEO_SITE_URL || process.env.VITE_SITE_URL || 'https://bonga.exirfirm.com',
 );
 const apiBaseUrl = normalizeApiBaseUrl(
-  process.env.SEO_API_BASE_URL || process.env.VITE_API_BASE_URL,
+  process.env.SEO_API_BASE_URL || process.env.VITE_API_BASE_URL_V2 || process.env.VITE_API_BASE_URL,
   siteUrl,
 );
 
@@ -380,7 +383,7 @@ try {
   sitemapFiles.push(
     ...(await writeDynamicSitemapGroup({
       baseFileName: 'sitemap-agents.xml',
-      endpoint: 'public/agents',
+      endpoint: 'public/consultants',
       pathPrefix: '/agents',
       idKeys: ['id', '_id', 'agent_id', 'user_id'],
     })),

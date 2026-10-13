@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-08-18T10:01:36.822Z",
+  "generatedAt": "2026-10-13T05:58:38.947Z",
   "summary": {
-    "passed": 31,
-    "warnings": 0,
+    "passed": 30,
+    "warnings": 1,
     "failed": 0,
-    "dynamicSitemapUrls": 16
+    "dynamicSitemapUrls": 28
   },
   "passed": [
     "public/robots.txt exists",
@@ -22,7 +22,7 @@
     "Static sitemap contains /home",
     "Static sitemap contains /search",
     "Static sitemap contains /consultants",
-    "Dynamic sitemaps currently contain 16 public entity URLs",
+    "Dynamic sitemaps currently contain 28 public entity URLs",
     "llms.txt has structured H1/H2 sections",
     "src/features/home/HomePage.tsx renders SEO metadata",
     "src/features/home/HomePage.tsx contains an H1",
@@ -36,10 +36,44 @@
     "src/features/dashboard/AgencyPreviewPage.tsx contains an H1",
     "Nginx emits route-level X-Robots-Tag directives",
     "Fingerprinted Vite assets have long-term cache headers",
-    "Nginx gzip compression is enabled",
-    "No public asset is >= 500 KB"
+    "Nginx gzip compression is enabled"
   ],
-  "warnings": [],
+  "warnings": [
+    "8 public assets are >= 500 KB; largest: public/vectors/agentLevel/deal_diamond.png (2248 KB), public/figma/dashboard/rank-building.png (2186 KB), public/splash.mp4 (1387 KB), public/White_line_tracing_house_logo_20260912142603.mp4 (1387 KB), public/vectors/agentLevel/unmatched_star.png (1353 KB)"
+  ],
   "failed": [],
-  "largestPublicAssets": []
+  "largestPublicAssets": [
+    {
+      "file": "public/vectors/agentLevel/deal_diamond.png",
+      "bytes": 2302165
+    },
+    {
+      "file": "public/figma/dashboard/rank-building.png",
+      "bytes": 2238971
+    },
+    {
+      "file": "public/splash.mp4",
+      "bytes": 1420450
+    },
+    {
+      "file": "public/White_line_tracing_house_logo_20260912142603.mp4",
+      "bytes": 1420450
+    },
+    {
+      "file": "public/vectors/agentLevel/unmatched_star.png",
+      "bytes": 1385711
+    },
+    {
+      "file": "public/apple-touch-icon.png_2K_20260912142725.jpeg",
+      "bytes": 688862
+    },
+    {
+      "file": "public/figma/business-info/agency-3.png",
+      "bytes": 653367
+    },
+    {
+      "file": "public/figma/business-info/consultant-3.png",
+      "bytes": 653367
+    }
+  ]
 }

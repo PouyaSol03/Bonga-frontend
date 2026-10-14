@@ -59,11 +59,27 @@ export default defineConfig([
         },
       ],
 
-      // 3. Prevent duplicate imports & self-imports
+      // 3. Component & Icon Props Extensions (Industry standard for UI design systems)
+      "@typescript-eslint/no-empty-object-type": [
+        "error",
+        {
+          allowInterfaces: "with-single-extends",
+        },
+      ],
+
+      // 4. Fast Refresh Compatibility (allow constant exports alongside components)
+      "react-refresh/only-export-components": [
+        "warn",
+        {
+          allowConstantExport: true,
+        },
+      ],
+
+      // 5. Prevent duplicate imports & self-imports
       "import-x/no-duplicates": ["error", { "prefer-inline": true }],
       "import-x/no-self-import": "error",
 
-      // 4. Clean JS / Modern Best Practices
+      // 6. Clean JS / Modern Best Practices
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "prefer-const": "error",
       "no-var": "error",

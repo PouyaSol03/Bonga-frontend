@@ -1,6 +1,7 @@
 import { lazyNamed, type AppRoute } from './types'
 
 const HomePage = lazyNamed(() => import('../../features/home/HomePage'), 'HomePage')
+const OnboardingPage = lazyNamed(() => import('../../features/onboarding/OnboardingPage'), 'OnboardingPage')
 const SearchMapPage = lazyNamed(() => import('../../features/search/SearchMapPage'), 'SearchMapPage')
 const SearchMapFilterPage = lazyNamed(() => import('../../features/search/SearchMapFilterPage'), 'SearchMapFilterPage')
 const ConsultantsDirectoryPage = lazyNamed(() => import('../../features/consultants/ConsultantsDirectoryPage'), 'ConsultantsDirectoryPage')
@@ -16,7 +17,7 @@ const PublicAgencyPreviewPage = lazyNamed(() => import('../../features/dashboard
 const AgencyQrCodePage = lazyNamed(() => import('../../features/dashboard/AgencyPreviewPage'), 'AgencyQrCodePage')
 
 export const publicRoutes: AppRoute[] = [
-  { path: '/', title: 'خانه', Component: HomePage },
+  { path: '/', title: 'بنگاه', Component: OnboardingPage },
   { path: '/home', title: 'خانه', Component: HomePage },
   { path: '/search', title: 'جستجو', Component: SearchMapPage },
   { path: '/search/filter', title: 'فیلتر جستجو', Component: SearchMapFilterPage },

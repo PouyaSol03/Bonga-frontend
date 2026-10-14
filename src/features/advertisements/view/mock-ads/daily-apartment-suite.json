@@ -1,0 +1,65 @@
+{
+  "id": 101101,
+  "track_code": 101101,
+  "title": "سوئیت مبله ۷۵ متری نزدیک حرم مطهر",
+  "description": "دسترسی ۵ دقیقه پیاده تا ورودی باب الجواد، نظافت هتلی روزانه، وسایل پخت و پز کامل.",
+  "form_code": "daily-apartment-suite",
+  "price": 1200000,
+  "published_time_ago": "لحظاتی پیش",
+  "published_date": "1403/07/20",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.284,
+    "lng": 59.615,
+    "neighborhood": { "id": 12, "name": "امام رضا" },
+    "address": "خیابان امام رضا، امام رضا ۵، کوچه چهنو"
+  },
+  "contacts": {
+    "phone": "09121234567",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "user",
+    "id": 105,
+    "name": "میزبان محترم",
+    "avatar": null
+  },
+  "financial": {
+    "daily_price": 1200000,
+    "normal_daily_price": 1200000,
+    "weekend_daily_price": 1500000,
+    "special_daily_price": 1800000,
+    "extra_person_price": 200000,
+    "evacuation_guarantee": 10000000
+  },
+  "property_info": {
+    "accommodation_type": "سوئیت",
+    "area": 75,
+    "rooms": 1,
+    "standard_capacity": 4,
+    "extra_people_capacity": 2,
+    "building_type": "آپارتمان",
+    "rental_period": "روزانه",
+    "min_stay_days": 1,
+    "check_in_time": "۱۴:۰۰",
+    "check_out_time": "۱۲:۰۰",
+    "view_type": "خیابان",
+    "pet_policy": "مجاز نیست",
+    "furnished": "مبله با لوازم"
+  },
+  "counts": {
+    "elevator": 1,
+    "parking": 0,
+    "warehouse": 0,
+    "terrace": 0
+  },
+  "heating_cooling": ["کولر گازی", "شوفاژ"],
+  "facilities": ["آسانسور", "کولر گازی", "تلویزیون", "یخچال", "وای فای"]
+}

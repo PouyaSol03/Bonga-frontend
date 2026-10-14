@@ -1,0 +1,63 @@
+{
+  "id": 100701,
+  "track_code": 100701,
+  "title": "سوله بهداشتی ۱۰۰۰ متری شهرک صنعتی توس",
+  "description": "زمین ۲۰۰۰ متر، سالن ۱۰۰۰ متر با ارتفاع ۹ متر، برق ۱۰۰ آمپر سه فاز، کف بتن سخت‌کننده.",
+  "form_code": "sale-warehouse",
+  "price": 35000000000,
+  "published_time_ago": "۳ روز پیش",
+  "published_date": "1403/07/17",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.435,
+    "lng": 59.489,
+    "neighborhood": { "id": 90, "name": "شهرک صنعتی توس" },
+    "address": "شهرک صنعتی توس، فاز یک، بلوار تلاش شمالی"
+  },
+  "contacts": {
+    "phone": "09126666666",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "agency",
+    "id": 50,
+    "name": "املاک صنعتی پارس",
+    "rank": 4.9,
+    "rating_score": 5.0
+  },
+  "financial": {
+    "loan": null,
+    "exchange": null
+  },
+  "property_info": {
+    "land_area": 1500,
+    "building_area": 800,
+    "rooms": 2,
+    "age": 4,
+    "ceiling_height": 7,
+    "document_type": "سند شش دانگ صنعتی",
+    "access_type": "تریلی‌رو",
+    "current_status": "تخلیه"
+  },
+  "counts": {
+    "elevator": 0,
+    "parking": 5,
+    "warehouse": 2,
+    "terrace": 0
+  },
+  "heating_cooling": [],
+  "facilities": [
+    "برق سه فاز",
+    "نگهبانی",
+    "امتیاز آب",
+    "امتیاز گاز",
+    "دور دیوار"
+  ]
+}

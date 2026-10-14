@@ -1,0 +1,62 @@
+{
+  "id": 100601,
+  "track_code": 100601,
+  "title": "مغازه تجاری ۴۵ متری حاشیه بلوار وکیل‌آباد",
+  "description": "دارای سند تجاری، انشعابات کامل، گذر پرتردد، مناسب انواع مشاغل و برندها.",
+  "form_code": "sale-commercial",
+  "price": 18000000000,
+  "published_time_ago": "یک هفته پیش",
+  "published_date": "1403/07/13",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.326,
+    "lng": 59.501,
+    "neighborhood": { "id": 30, "name": "وکیل‌آباد" },
+    "address": "بلوار وکیل‌آباد، بین وکیل‌آباد ۲۲ و ۲۴"
+  },
+  "contacts": {
+    "phone": "09125555555",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "agency",
+    "id": 40,
+    "name": "املاک وکیل‌آباد",
+    "rank": 4.6,
+    "rating_score": 4.7
+  },
+  "financial": {
+    "loan": null,
+    "exchange": null
+  },
+  "property_info": {
+    "area": 45,
+    "age": 1,
+    "floor": 0,
+    "total_floors": 1,
+    "rooms": 0,
+    "document_type": "سند تجاری ۶ دانگ",
+    "commercial_position": "حاشیه خیابان اصلی",
+    "ownership_status": "مالکیت قطعی",
+    "suitable_for": ["پوشاک", "طلافروشی", "داروخانه"],
+    "current_status": "تخلیه",
+    "height": 4.5,
+    "opening_count": 1,
+    "commercial_permit": "دارد"
+  },
+  "counts": {
+    "elevator": 0,
+    "parking": 0,
+    "warehouse": 0,
+    "terrace": 0
+  },
+  "heating_cooling": ["کولر گازی"],
+  "facilities": ["کرکره برقی", "شیشه میرال", "دوربین امنیتی"]
+}

@@ -26,6 +26,8 @@ export type AdFormFieldConfig = {
 export type AdFormChipsItem = {
   id: string;
   label: string;
+  hasCount?: boolean;
+  countLabel?: string;
 };
 
 export type AdFormPricingMode =

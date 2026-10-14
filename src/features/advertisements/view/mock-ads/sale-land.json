@@ -1,0 +1,51 @@
+{
+  "id": 100401,
+  "track_code": 100401,
+  "title": "زمین مسکونی ۲۵۰ متری الهیه",
+  "description": "زمین دو کله با بر ۱۰ متر، گذر ۱۶ متری، موقعیت عالی برای ساخت آپارتمان.",
+  "form_code": "sale-land",
+  "price": 6250000000,
+  "published_time_ago": "۴ روز پیش",
+  "published_date": "1403/07/16",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.368,
+    "lng": 59.489,
+    "neighborhood": { "id": 60, "name": "الهیه" },
+    "address": "بلوار الهیه، الهیه ۱۴"
+  },
+  "contacts": {
+    "phone": "09123333333",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "agency",
+    "id": 55,
+    "name": "املاک الهیه",
+    "rank": 4.5,
+    "rating_score": 4.7
+  },
+  "financial": {
+    "loan": null,
+    "exchange": null
+  },
+  "property_info": {
+    "land_area": 250,
+    "land_width": 10,
+    "street_width": 16,
+    "document_type": "تک برگ",
+    "density": "متوسط",
+    "land_position": "دونبش",
+    "land_use": ["مسکونی"],
+    "suitable_for": ["آپارتمان‌سازی"],
+    "build_permit": "دارد"
+  },
+  "facilities": []
+}

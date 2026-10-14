@@ -1,0 +1,100 @@
+{
+  "id": 100101,
+  "track_code": 100101,
+  "title": "آپارتمان ۱۴۰ متری نوساز سه خوابه سجاد",
+  "description": "واحد جنوبی بسیار خوش نقشه با نورگیر عالی، دسترسی فوق‌العاده به مراکز خرید و خیابان اصلی. متریال برند با نمای مدرن.",
+  "form_code": "sale-apartment",
+  "price": 8500000000,
+  "published_time_ago": "لحظاتی پیش",
+  "published_date": "1403/07/20",
+  "images": [
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&auto=format&fit=crop&q=80"
+  ],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.3155,
+    "lng": 59.5492,
+    "neighborhood": { "id": 10, "name": "سجاد" },
+    "address": "خیابان بهار"
+  },
+  "contacts": {
+    "phone": "09120000000",
+    "agency_phone": "05137600000",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": "bonga_agency",
+    "telegram": "bonga_support",
+    "whatsapp": "989120000000"
+  },
+  "publisher": {
+    "type": "agency",
+    "id": 45,
+    "name": "املاک صبا",
+    "location": "مشهد، سجاد",
+    "logo": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=100&auto=format&fit=crop&q=80",
+    "rank": 5,
+    "rating_score": 4.8,
+    "consultant": {
+      "id": 88,
+      "name": "محسن حسینی",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+      "phone": "09121111111"
+    }
+  },
+  "property_info": {
+    "area": 140,
+    "rooms": 3,
+    "floor": 3,
+    "age": 0,
+    "unit_type": "جنوبی",
+    "unit_position": "جلو",
+    "total_floors": 6,
+    "units_per_floor": 2,
+    "document_type": "تک برگ",
+    "occupancy_status": "تخلیه",
+    "renovated": "بله",
+    "furnished": "مبله کامل"
+  },
+  "finishing": {
+    "kitchen_type": "جزیره",
+    "floor_material": "سرامیک",
+    "cabinet_material": "های‌گلاس",
+    "facade_material": "سنگ"
+  },
+  "financial": {
+    "loan": {
+      "amount": 800000000,
+      "installment": 15000000
+    },
+    "exchange": {
+      "items": ["خودرو", "آپارتمان کوچک‌تر"],
+      "description": "معاوضه با خودروی خارجی یا واحد زیر ۱۰۰ متر"
+    }
+  },
+  "counts": {
+    "elevator": 1,
+    "parking": 1,
+    "warehouse": 1,
+    "terrace": 1
+  },
+  "heating_cooling": [
+    "کولر آبی",
+    "کولر گازی",
+    "پکیج",
+    "شوفاژ"
+  ],
+  "facilities": [
+    "آسانسور",
+    "پارکینگ",
+    "انباری",
+    "تراس",
+    "درب ضد سرقت",
+    "آیفون تصویری",
+    "کمد دیواری",
+    "سرویس فرنگی",
+    "گاز رومیزی"
+  ]
+}

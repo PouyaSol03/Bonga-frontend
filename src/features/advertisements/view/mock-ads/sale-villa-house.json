@@ -1,0 +1,76 @@
+{
+  "id": 100301,
+  "track_code": 100301,
+  "title": "ویلای دوبلکس ۳۵۰ متری شاهنامه",
+  "description": "ویلای مدرن با استخر روباز آبگرم، محوطه‌سازی شده، دارای پایان‌کار و سند تک‌برگ.",
+  "form_code": "sale-villa-house",
+  "price": 14000000000,
+  "published_time_ago": "۱ روز پیش",
+  "published_date": "1403/07/19",
+  "images": [
+    "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&auto=format&fit=crop&q=80"
+  ],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.452,
+    "lng": 59.421,
+    "neighborhood": { "id": 50, "name": "شاهنامه" },
+    "address": "بلوار شاهنامه، شاهنامه ۲۴"
+  },
+  "contacts": {
+    "phone": "09122222222",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": "989122222222"
+  },
+  "publisher": {
+    "type": "user",
+    "id": 102,
+    "name": "مالک محترم",
+    "avatar": null
+  },
+  "financial": {
+    "loan": null,
+    "exchange": null
+  },
+  "property_info": {
+    "land_area": 500,
+    "building_area": 350,
+    "rooms": 4,
+    "age": 2,
+    "land_position": "جنوبی",
+    "building_type": "دوبلکس",
+    "villa_type": "ساحلی / شهرکی",
+    "document_type": "تک برگ",
+    "total_floors": 2,
+    "street_width": 12,
+    "renovated": "بله",
+    "furnished": "مبله کامل"
+  },
+  "finishing": {
+    "kitchen_type": "جزیره",
+    "cabinet_material": "ممبران",
+    "facade_material": "سنگ رومی",
+    "floor_material": "پارکت"
+  },
+  "counts": {
+    "parking": 3,
+    "warehouse": 1,
+    "terrace": 2
+  },
+  "heating_cooling": ["کولر گازی", "گرمایش ازکف", "پکیج"],
+  "facilities": [
+    "پارکینگ",
+    "انباری",
+    "تراس",
+    "استخر",
+    "جکوزی",
+    "حیاط",
+    "باربیکیو",
+    "دوربین امنیتی"
+  ]
+}

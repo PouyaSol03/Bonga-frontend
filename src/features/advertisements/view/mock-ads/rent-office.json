@@ -1,0 +1,75 @@
+{
+  "id": 101001,
+  "track_code": 101001,
+  "title": "اجاره دفتر کار اداری ۱۲۰ متری فرامرز عباسی",
+  "description": "طبقه اول، موقعیت اداری برتر، مناسب برای دارالترجمه یا شرکت مهندسی.",
+  "form_code": "rent-office",
+  "price": 200000000,
+  "published_time_ago": "۵ روز پیش",
+  "published_date": "1403/07/15",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.331,
+    "lng": 59.542,
+    "neighborhood": { "id": 45, "name": "فرامرز عباسی" },
+    "address": "بلوار فرامرز عباسی، بین فرامرز ۳ و ۵"
+  },
+  "contacts": {
+    "phone": "09129999999",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "agent",
+    "id": 77,
+    "name": "علی رضایی",
+    "agency_name": "املاک فرامرز",
+    "rank": 4.5,
+    "rating_score": 4.6
+  },
+  "financial": {
+    "mortgage_price": 200000000,
+    "rent_price": 20000000,
+    "is_rent_convertible": true
+  },
+  "property_info": {
+    "area": 120,
+    "rooms": 2,
+    "floor": 1,
+    "age": 4,
+    "total_floors": 5,
+    "suitable_for": ["دفتر اداری", "مطب", "شرکت"],
+    "office_position": "رو به خیابان",
+    "current_status": "تخلیه",
+    "ready_delivery_date": "فوری",
+    "min_contract_months": 12,
+    "office_document_type": "موقعیت اداری",
+    "management_room": "دارد",
+    "conference_room": "دارد",
+    "reception_hall": "دارد",
+    "signboard": "دارد",
+    "kitchen": "دارد",
+    "separate_entrance": "ندارد",
+    "renovated": "بله",
+    "furnished": "مبله کامل"
+  },
+  "finishing": {
+    "facade_material": "سنگ",
+    "floor_material": "سرامیک",
+    "cabinet_material": "MDF"
+  },
+  "counts": {
+    "elevator": 1,
+    "parking": 1,
+    "warehouse": 0,
+    "terrace": 0
+  },
+  "heating_cooling": ["پکیج", "اسپیلت"],
+  "facilities": ["آسانسور", "پارکینگ", "پکیج", "اسپیلت"]
+}

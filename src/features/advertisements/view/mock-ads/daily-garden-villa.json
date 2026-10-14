@@ -1,0 +1,67 @@
+{
+  "id": 101201,
+  "track_code": 101201,
+  "title": "ویلا باغ استخردار لوکس طرقبه",
+  "description": "استخر سرپوشیده با تصفیه اتوماتیک، سیستم صوتی حرفه‌ای، بیلیارد و فوتبال‌دستی.",
+  "form_code": "daily-garden-villa",
+  "price": 3500000,
+  "published_time_ago": "۱ روز پیش",
+  "published_date": "1403/07/19",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.312,
+    "lng": 59.378,
+    "neighborhood": { "id": 80, "name": "طرقبه" },
+    "address": "طرقبه، عنبران، عنبران ۳"
+  },
+  "contacts": {
+    "phone": "09123456789",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "user",
+    "id": 106,
+    "name": "میزبان ویلا",
+    "avatar": null
+  },
+  "financial": {
+    "daily_price": 3500000,
+    "normal_daily_price": 3500000,
+    "weekend_daily_price": 4500000,
+    "special_daily_price": 5000000,
+    "extra_person_price": 300000,
+    "evacuation_guarantee": 20000000
+  },
+  "property_info": {
+    "accommodation_type": "ویلا",
+    "land_area": 1200,
+    "building_area": 250,
+    "rooms": 3,
+    "total_floors": 2,
+    "standard_capacity": 8,
+    "extra_people_capacity": 8,
+    "building_type": "تک طبقه",
+    "rental_period": "روزانه",
+    "min_stay_days": 1,
+    "check_in_time": "۱۰:۰۰",
+    "check_out_time": "۱۲:۰۰",
+    "view_type": "کوهستان",
+    "pet_policy": "مجاز",
+    "furnished": "مبله با لوازم"
+  },
+  "counts": {
+    "elevator": 0,
+    "parking": 6,
+    "warehouse": 1,
+    "terrace": 2
+  },
+  "heating_cooling": ["اسپیلت", "شوفاژ"],
+  "facilities": ["استخر سرپوشیده", "جکوزی", "فوتبال دستی", "بیلیارد", "آلاچیق"]
+}

@@ -1,0 +1,75 @@
+{
+  "id": 100801,
+  "track_code": 100801,
+  "title": "رهن ویلا باغ ۲۰۰۰ متری شاندیز",
+  "description": "ویلای سرسبز با ۲۰۰ متر بنا، محوطه بسیار دلباز با درختان میوه مثمر، آب چاه اختصاصی.",
+  "form_code": "rent-villa-house",
+  "price": 1000000000,
+  "published_time_ago": "۲ روز پیش",
+  "published_date": "1403/07/18",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.398,
+    "lng": 59.312,
+    "neighborhood": { "id": 70, "name": "شاندیز" },
+    "address": "شاندیز، امام رضا ۲۱، کوچه بوستان"
+  },
+  "contacts": {
+    "phone": "09127777777",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "user",
+    "id": 103,
+    "name": "مالک محترم",
+    "avatar": null
+  },
+  "financial": {
+    "mortgage_price": 1000000000,
+    "rent_price": 40000000,
+    "is_rent_convertible": false
+  },
+  "property_info": {
+    "land_area": 400,
+    "building_area": 200,
+    "rooms": 3,
+    "age": 3,
+    "total_floors": 2,
+    "suitable_for": ["خانواده"],
+    "land_position": "شمالی",
+    "building_type": "دوبلکس",
+    "villa_type": "مستقل",
+    "street_width": 10,
+    "pet_policy": "مجاز در حیاط",
+    "renovated": "بله",
+    "furnished": "مبله کامل"
+  },
+  "finishing": {
+    "kitchen_type": "اپن",
+    "cabinet_material": "های‌گلاس",
+    "facade_material": "سنگ",
+    "floor_material": "سرامیک"
+  },
+  "counts": {
+    "elevator": 0,
+    "parking": 4,
+    "warehouse": 1,
+    "terrace": 1
+  },
+  "heating_cooling": ["اسپیلت", "شومینه"],
+  "facilities": [
+    "پارکینگ",
+    "انباری",
+    "تراس",
+    "استخر",
+    "حیاط",
+    "باربیکیو"
+  ]
+}

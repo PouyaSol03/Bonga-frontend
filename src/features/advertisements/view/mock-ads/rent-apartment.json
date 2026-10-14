@@ -1,0 +1,83 @@
+{
+  "id": 100201,
+  "track_code": 100201,
+  "title": "آپارتمان ۱۱۰ متری دو خوابه هفت تیر",
+  "description": "واحد بسیار تمیز و نورگیر، دسترسی عالی به مترو و مراکز خرید، آماده تخلیه.",
+  "form_code": "rent-apartment",
+  "price": 300000000,
+  "published_time_ago": "۳ روز پیش",
+  "published_date": "1403/07/18",
+  "images": [
+    "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format&fit=crop&q=80"
+  ],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.321,
+    "lng": 59.512,
+    "neighborhood": { "id": 15, "name": "هفت تیر" },
+    "address": "بلوار هفت تیر، بین میدان ۷ و ۹"
+  },
+  "contacts": {
+    "phone": "09121111111",
+    "agency_phone": "05138888888",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": "haft_tir_realestate",
+    "telegram": null,
+    "whatsapp": "989121111111"
+  },
+  "publisher": {
+    "type": "agent",
+    "id": 88,
+    "name": "محسن حسینی",
+    "agency_name": "املاک بزرگ هفت تیر",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+    "rank": 4.9,
+    "rating_score": 4.9
+  },
+  "financial": {
+    "mortgage_price": 300000000,
+    "rent_price": 15000000,
+    "is_rent_convertible": true
+  },
+  "property_info": {
+    "area": 110,
+    "rooms": 2,
+    "floor": 2,
+    "age": 5,
+    "total_floors": 5,
+    "units_per_floor": 2,
+    "unit_type": "شمالی",
+    "unit_position": "رو به نما",
+    "suitable_for": ["خانواده", "مجرد موجه"],
+    "occupancy_status": "تخلیه",
+    "ready_delivery_date": "فوری",
+    "min_contract_months": 12,
+    "pet_policy": "مجاز نیست",
+    "renovated": "بله",
+    "furnished": "مبله کامل"
+  },
+  "finishing": {
+    "kitchen_type": "اپن",
+    "floor_material": "سرامیک",
+    "cabinet_material": "MDF",
+    "facade_material": "تراورتن"
+  },
+  "counts": {
+    "elevator": 1,
+    "parking": 1,
+    "warehouse": 1,
+    "terrace": 1
+  },
+  "heating_cooling": ["کولر آبی", "شوفاژ", "پکیج"],
+  "facilities": [
+    "آسانسور",
+    "پارکینگ",
+    "انباری",
+    "تراس",
+    "کمد دیواری",
+    "آیفون تصویری"
+  ]
+}

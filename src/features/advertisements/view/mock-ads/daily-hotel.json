@@ -1,0 +1,116 @@
+{
+  "id": 101301,
+  "track_code": 101301,
+  "title": "هتل آپارتمان ۴ ستاره نوساز خیابان شیرازی",
+  "description": "واحدهای دبل و رویال سوئیت، فاصله ۳۰۰ متری تا حرم، رستوران، کافی‌شاپ و پارکینگ اختصاصی.",
+  "form_code": "daily-hotel",
+  "price": 2200000,
+  "published_time_ago": "لحظاتی پیش",
+  "published_date": "1403/07/20",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.291,
+    "lng": 59.605,
+    "neighborhood": { "id": 14, "name": "شیرازی" },
+    "address": "خیابان شیرازی، بین شیرازی ۲ و ۴"
+  },
+  "contacts": {
+    "phone": "05132222222",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "agency",
+    "id": 80,
+    "name": "رزرواسیون هتل‌های مشهد",
+    "rank": 4.9,
+    "rating_score": 5.0
+  },
+  "financial": {
+    "min_price": 2200000,
+    "max_price": 4500000
+  },
+  "property_info": {
+    "hotel_stars": 4,
+    "accommodation_type": "هتل آپارتمان",
+    "check_in_time": "۱۴:۰۰",
+    "check_out_time": "۱۲:۰۰",
+    "total_floors": 6
+  },
+  "daily_hotel_rooms": [
+    {
+      "room_type": "single",
+      "label": "اتاق یک تخته",
+      "guest_count": 1,
+      "extra_guest_count": 0,
+      "meal_plan": "صبحانه، ناهار",
+      "normal_price": 1500000,
+      "weekend_price": 2500000,
+      "special_price": 5000000
+    },
+    {
+      "room_type": "double",
+      "label": "اتاق دو تخته",
+      "guest_count": 2,
+      "extra_guest_count": 1,
+      "meal_plan": "صبحانه",
+      "normal_price": 2200000,
+      "weekend_price": 3200000,
+      "special_price": 6000000
+    },
+    {
+      "room_type": "triple",
+      "label": "اتاق سه تخته",
+      "guest_count": 3,
+      "extra_guest_count": 1,
+      "meal_plan": "صبحانه",
+      "normal_price": 3000000,
+      "weekend_price": 4000000,
+      "special_price": 7500000
+    },
+    {
+      "room_type": "quad",
+      "label": "اتاق چهار تخته",
+      "guest_count": 4,
+      "extra_guest_count": 2,
+      "meal_plan": "صبحانه",
+      "normal_price": 3800000,
+      "weekend_price": 4800000,
+      "special_price": 8500000
+    },
+    {
+      "room_type": "quint",
+      "label": "اتاق پنج تخته",
+      "guest_count": 5,
+      "extra_guest_count": 2,
+      "meal_plan": "صبحانه",
+      "normal_price": 4500000,
+      "weekend_price": 5500000,
+      "special_price": 9500000
+    },
+    {
+      "room_type": "suite",
+      "label": "سوئیت",
+      "guest_count": 4,
+      "extra_guest_count": 3,
+      "meal_plan": "صبحانه، ناهار، شام",
+      "normal_price": 6000000,
+      "weekend_price": 8000000,
+      "special_price": 12000000
+    }
+  ],
+  "counts": {
+    "elevator": 3,
+    "parking": 20,
+    "warehouse": 0,
+    "terrace": 0
+  },
+  "heating_cooling": ["فن کوئل", "چیلر"],
+  "facilities": ["رستوران", "کافی شاپ", "اینترنت رایگان", "لاندری", "پارکینگ"]
+}

@@ -1074,19 +1074,20 @@ function getAdvertisementNeighborhood(
   ad: AdvertisementItem,
   details: ViewAdDetails,
 ): AdvertisementNeighborhoodSelection | null {
-  const neighborhoodId = ad.neighborhood?.id ?? ad.neighborhood_id;
-  const neighborhoodName = toNonEmptyText(ad.neighborhood?.name ?? ad.neighborhood_name);
+  const loc = (ad as Record<string, any>)?.location;
+  const neighborhoodId = loc?.neighborhood?.id ?? ad.neighborhood?.id ?? ad.neighborhood_id;
+  const neighborhoodName = toNonEmptyText(loc?.neighborhood?.name ?? ad.neighborhood?.name ?? ad.neighborhood_name);
   const id = toNonEmptyText(neighborhoodId);
   const name = neighborhoodName || extractNeighborhoodName(details.locationTitle, true);
 
   if (!id || !name) return null;
 
-  const cityId = toNonEmptyText(ad.city?.id ?? ad.city_id) || undefined;
+  const cityId = toNonEmptyText(loc?.city?.id ?? ad.city?.id ?? ad.city_id) || undefined;
 
   return { cityId, id, name };
 }
 
-function ViewAdContent({
+export function ViewAdContent({
   adId,
   ad,
   details,

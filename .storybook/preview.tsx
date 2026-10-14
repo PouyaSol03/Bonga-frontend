@@ -111,12 +111,17 @@ const preview: Preview = {
         selectedViewport === 'responsive' ||
         selectedViewport === 'reset';
 
+      const isWideLayout =
+        isFullscreen ||
+        context.parameters?.wideLayout === true ||
+        context.title.includes("SingleAdPage");
+
       // Width constraint:
       // - Shared UI and design tokens expand on desktop (max-w-5xl) and scale naturally on mobile.
-      // - If desktop viewport is chosen in toolbar, allow wide container.
+      // - If desktop viewport is chosen in toolbar or story is wide layout, allow wide container.
       // - Otherwise, default to Bonga 500px mobile shell.
-      const containerWidthClass = isSharedUI || isDesktopViewport
-        ? 'w-full max-w-5xl'
+      const containerWidthClass = isSharedUI || isDesktopViewport || isWideLayout
+        ? 'w-full max-w-7xl'
         : 'w-full max-w-[500px]';
 
       return (

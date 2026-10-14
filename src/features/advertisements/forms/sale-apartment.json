@@ -148,19 +148,27 @@
       "items": [
         {
           "id": "elevator",
-          "label": "آسانسور"
+          "label": "آسانسور",
+          "hasCount": true,
+          "countLabel": "تعداد آسانسور"
         },
         {
           "id": "parking",
-          "label": "پارکینگ"
+          "label": "پارکینگ",
+          "hasCount": true,
+          "countLabel": "تعداد پارکینگ"
         },
         {
           "id": "warehouse",
-          "label": "انباری"
+          "label": "انباری",
+          "hasCount": true,
+          "countLabel": "تعداد انباری"
         },
         {
           "id": "terrace",
-          "label": "تراس"
+          "label": "تراس",
+          "hasCount": true,
+          "countLabel": "تعداد تراس"
         },
         {
           "id": "yard",

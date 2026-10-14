@@ -1,0 +1,61 @@
+{
+  "id": 100901,
+  "track_code": 100901,
+  "title": "اجاره مغازه ۶۰ متری حاشیه خیابان راهنمایی",
+  "description": "پاخور عالی، مناسب برای پوشاک، لوازم آرایشی و برندهای معتبر.",
+  "form_code": "rent-commercial",
+  "price": 500000000,
+  "published_time_ago": "۴ روز پیش",
+  "published_date": "1403/07/16",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.302,
+    "lng": 59.563,
+    "neighborhood": { "id": 40, "name": "راهنمایی" },
+    "address": "خیابان راهنمایی، بین راهنمایی ۱۶ و ۱۸"
+  },
+  "contacts": {
+    "phone": "09128888888",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "agency",
+    "id": 35,
+    "name": "املاک مرکزی احمدآباد",
+    "rank": 4.7,
+    "rating_score": 4.8
+  },
+  "financial": {
+    "mortgage_price": 500000000,
+    "rent_price": 35000000,
+    "is_rent_convertible": true
+  },
+  "property_info": {
+    "area": 60,
+    "age": 2,
+    "floor": 0,
+    "rooms": 0,
+    "opening_count": 1,
+    "ceiling_height": 4.5,
+    "commercial_position": "حاشیه خیابان",
+    "suitable_for": ["سوپرمارکت", "کافی‌شاپ", "بوتیک"],
+    "current_status": "تخلیه",
+    "ready_delivery_date": "فوری",
+    "min_contract_months": 12
+  },
+  "counts": {
+    "elevator": 0,
+    "parking": 0,
+    "warehouse": 0,
+    "terrace": 0
+  },
+  "heating_cooling": ["اسپیلت"],
+  "facilities": ["اسپیلت", "کرکره برقی", "شیشه سکوریت"]
+}

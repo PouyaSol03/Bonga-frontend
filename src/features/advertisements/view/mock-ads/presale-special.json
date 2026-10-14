@@ -1,0 +1,85 @@
+{
+  "id": 101501,
+  "track_code": 101501,
+  "title": "پیش فروش برج مسکونی آرامش کوثر",
+  "description": "پروژه ۲۵ طبقه مدرن در مرحله اسکلت، تحویل ۲۴ ماهه با شرایط پرداخت منعطف و اقساطی.",
+  "form_code": "presale-special",
+  "price": 60000000,
+  "published_time_ago": "یک هفته پیش",
+  "published_date": "1403/07/12",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.319,
+    "lng": 59.521,
+    "neighborhood": { "id": 18, "name": "کوثر" },
+    "address": "بلوار کوثر، بین کوثر ۱۱ و ۱۳"
+  },
+  "contacts": {
+    "phone": "09121113344",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "agency",
+    "id": 90,
+    "name": "دفتر فروش برج آرامش",
+    "rank": 5,
+    "rating_score": 4.9
+  },
+  "financial": {
+    "min_meter_price": 60000000,
+    "max_meter_price": 85000000,
+    "sale_terms_percent": 30,
+    "sale_terms_installment_months": 24
+  },
+  "property_info": {
+    "project_type": "برج مسکونی",
+    "builder_company_name": "شرکت ساختمانی آرامش",
+    "project_total_floors": 25,
+    "project_total_units": 120,
+    "project_status": "اسکلت و تیغه‌چینی",
+    "delivery_date": "۱۴۰۵/۰۷",
+    "document_type": "تک برگ عرصه و عیان",
+    "furnished": "مبله با لوازم"
+  },
+  "finishing": {
+    "kitchen_type": "جزیره",
+    "facade_material": "سنگ ترکیبی",
+    "floor_material": "سنگ اسلب",
+    "cabinet_material": "پلی اورتان"
+  },
+  "project_details": [
+    {
+      "meterage": 120,
+      "rooms": 2,
+      "floor": 5,
+      "price": 7200000000
+    },
+    {
+      "meterage": 180,
+      "rooms": 3,
+      "floor": 12,
+      "price": 11700000000
+    },
+    {
+      "meterage": 250,
+      "rooms": 4,
+      "floor": 22,
+      "price": 18750000000
+    }
+  ],
+  "counts": {
+    "elevator": 4,
+    "parking": 150,
+    "warehouse": 120,
+    "terrace": 120
+  },
+  "heating_cooling": ["چیلر مرکزی", "پکیج"],
+  "facilities": ["استخر", "روف گاردن", "لابی مجلل", "سالن بدنسازی"]
+}

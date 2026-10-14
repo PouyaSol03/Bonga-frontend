@@ -1,0 +1,71 @@
+{
+  "id": 100501,
+  "track_code": 100501,
+  "title": "دفتر کار ۱۰۰ متری سند اداری احمدآباد",
+  "description": "واحد موقعیت عالی اداری، تابلو خور، مناسب مطب پزشکان یا شرکت‌های بازرگانی.",
+  "form_code": "sale-office",
+  "price": 11000000000,
+  "published_time_ago": "۵ روز پیش",
+  "published_date": "1403/07/15",
+  "images": [],
+  "video": null,
+  "virtual_tour_link": null,
+  "location": {
+    "lat": 36.295,
+    "lng": 59.578,
+    "neighborhood": { "id": 20, "name": "احمدآباد" },
+    "address": "خیابان ملاصدرا، نبش ملاصدرا ۹"
+  },
+  "contacts": {
+    "phone": "09124444444",
+    "chat_enabled": true
+  },
+  "social": {
+    "instagram": null,
+    "telegram": null,
+    "whatsapp": null
+  },
+  "publisher": {
+    "type": "agency",
+    "id": 62,
+    "name": "املاک تخصصی اداری",
+    "rank": 4.8,
+    "rating_score": 4.9
+  },
+  "financial": {
+    "loan": null,
+    "exchange": null
+  },
+  "property_info": {
+    "area": 100,
+    "rooms": 3,
+    "floor": 2,
+    "age": 3,
+    "total_floors": 5,
+    "suitable_for": ["مطب", "دفتر وکالت", "شرکت"],
+    "current_status": "تخلیه",
+    "office_position": "رو به خیابان",
+    "office_document_type": "سند اداری",
+    "management_room": "دارد",
+    "conference_room": "دارد",
+    "reception_hall": "دارد",
+    "signboard": "دارد",
+    "kitchen": "دارد",
+    "separate_entrance": "ندارد",
+    "renovated": "بله",
+    "furnished": "مبله کامل"
+  },
+  "finishing": {
+    "facade_material": "شیشه و کامپوزیت",
+    "floor_material": "سنگ",
+    "cabinet_material": "MDF"
+  },
+  "counts": {
+    "elevator": 2,
+    "parking": 1,
+    "warehouse": 0,
+    "terrace": 0
+  },
+  "heating_cooling": ["داکت اسپیلت", "پکیج"],
+  "facilities": ["آسانسور", "پارکینگ", "لابی", "نگهبانی"]
+}

@@ -407,6 +407,64 @@ function getResolvedAdvertisementFeatures(
   addRootValue("rooms", ad.rooms);
   addRootValue("building_age", ad.building_age ?? ad.year);
 
+  // Unpack nested objects from new spec: property_info, finishing, financial, counts
+  if (ad && typeof ad === "object") {
+    const raw = ad as Record<string, any>;
+    if (raw.property_info && typeof raw.property_info === "object") {
+      Object.entries(raw.property_info).forEach(([k, v]) => {
+        addRootValue(k, v);
+        if (k === "age") addRootValue("building_age", v);
+      });
+    }
+    if (raw.finishing && typeof raw.finishing === "object") {
+      Object.entries(raw.finishing).forEach(([k, v]) => {
+        addRootValue(k, v);
+      });
+    }
+    if (raw.counts && typeof raw.counts === "object") {
+      if (raw.counts.elevator !== undefined) addRootValue("elevator_count", raw.counts.elevator);
+      if (raw.counts.parking !== undefined) addRootValue("parking_count", raw.counts.parking);
+      if (raw.counts.warehouse !== undefined) addRootValue("warehouse_count", raw.counts.warehouse);
+      if (raw.counts.terrace !== undefined) addRootValue("terrace_count", raw.counts.terrace);
+    }
+    if (raw.financial && typeof raw.financial === "object") {
+      if (raw.financial.loan && typeof raw.financial.loan === "object") {
+        if (raw.financial.loan.amount !== undefined) addRootValue("loan_amount", raw.financial.loan.amount);
+        if (raw.financial.loan.installment !== undefined) addRootValue("loan_installment", raw.financial.loan.installment);
+      }
+      if (raw.financial.exchange && typeof raw.financial.exchange === "object") {
+        addRootValue("has_exchange", true);
+        if (raw.financial.exchange.items) addRootValue("exchange_with", raw.financial.exchange.items);
+        if (raw.financial.exchange.description) addRootValue("exchange", raw.financial.exchange.description);
+      }
+      if (raw.financial.rent_price !== undefined) addRootValue("rent_price", raw.financial.rent_price);
+      if (raw.financial.mortgage_price !== undefined) addRootValue("mortgage_price", raw.financial.mortgage_price);
+      if (raw.financial.is_rent_convertible !== undefined) addRootValue("is_rent_convertible", raw.financial.is_rent_convertible);
+      if (raw.financial.daily_price !== undefined) addRootValue("normal_daily_price", raw.financial.daily_price);
+      if (raw.financial.normal_daily_price !== undefined) addRootValue("normal_daily_price", raw.financial.normal_daily_price);
+      if (raw.financial.weekend_daily_price !== undefined) addRootValue("weekend_daily_price", raw.financial.weekend_daily_price);
+      if (raw.financial.special_daily_price !== undefined) addRootValue("special_daily_price", raw.financial.special_daily_price);
+      if (raw.financial.extra_person_price !== undefined) addRootValue("extra_person_price", raw.financial.extra_person_price);
+      if (raw.financial.min_price !== undefined) addRootValue("min_price", raw.financial.min_price);
+      if (raw.financial.max_price !== undefined) addRootValue("max_price", raw.financial.max_price);
+      if (raw.financial.min_meter_price !== undefined) addRootValue("min_meter_price", raw.financial.min_meter_price);
+      if (raw.financial.max_meter_price !== undefined) addRootValue("max_meter_price", raw.financial.max_meter_price);
+      if (raw.financial.builder_share !== undefined) addRootValue("builder_share", raw.financial.builder_share);
+    }
+    if (Array.isArray(raw.daily_hotel_rooms)) {
+      addRootValue("daily_hotel_rooms", raw.daily_hotel_rooms);
+    }
+    if (Array.isArray(raw.project_details)) {
+      addRootValue("project_details", raw.project_details);
+    }
+    if (Array.isArray(raw.heating_cooling)) {
+      addRootValue("heating_cooling", raw.heating_cooling);
+    }
+    if (Array.isArray(raw.facilities)) {
+      addRootValue("facilities", raw.facilities);
+    }
+  }
+
   const rootKeys = new Set([
     ...Object.keys(propertyInfoLabelMap),
     "meterage",
@@ -1318,8 +1376,9 @@ function resolvePricePresentation(
 }
 
 export function getMapPosition(ad: AdvertisementItem) {
-  const lat = toNumber(ad.lat);
-  const lng = toNumber(ad.lng);
+  const loc = (ad as Record<string, any>)?.location;
+  const lat = toNumber(loc?.lat ?? ad.lat);
+  const lng = toNumber(loc?.lng ?? ad.lng);
 
   if (lat === undefined || lng === undefined) {
     return null;
@@ -1341,12 +1400,11 @@ function readMetric(value: unknown) {
 }
 
 export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetails): AdvertiserPreview | null {
-  const ownerType = String(ad.publisher_type ?? ad.owner_type ?? "").toLowerCase();
+  const pub = (ad as Record<string, any>)?.publisher;
+  const ownerType = String(pub?.type ?? ad.publisher_type ?? ad.owner_type ?? "").toLowerCase();
 
   if (ownerType === "agency") {
-    const agency = ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency)
-      ? ad.agency
-      : null;
+    const agency = pub ?? (ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency) ? ad.agency : null);
     const id = agency?.id ?? ad.publisher_agency_id;
 
     if (id === undefined || id === null) return null;
@@ -1370,10 +1428,8 @@ export function getAdvertiserPreview(ad: AdvertisementItem, details: ViewAdDetai
     };
   }
 
-  if (ownerType === "agent") {
-    const agent = ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent)
-      ? ad.agent
-      : null;
+  if (ownerType === "agent" || ownerType === "consultant") {
+    const agent = pub ?? (ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent) ? ad.agent : null);
     const id = agent?.id ?? ad.publisher_agent_id;
 
     if (id === undefined || id === null) return null;
@@ -1794,35 +1850,37 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const pricePresentation = resolvePricePresentation(formCode, featureMap, ad.price, meterArea, dailyHotelRooms);
   const description = ad.description ?? ad.short_description;
   const title = toText(ad.title ?? ad.label);
-  const cityName = toText(ad.city?.name ?? ad.city_name);
-  const neighborhoodName = toText(ad.neighborhood?.name ?? ad.neighborhood_name);
-  const subNeighborhoodName = toText(ad.sub_neighborhood?.name);
+  const loc = (ad as Record<string, any>)?.location;
+  const cityName = toText(loc?.city?.name ?? ad.city?.name ?? ad.city_name);
+  const neighborhoodName = toText(loc?.neighborhood?.name ?? ad.neighborhood?.name ?? ad.neighborhood_name);
+  const subNeighborhoodName = toText(loc?.sub_neighborhood?.name ?? ad.sub_neighborhood?.name);
   const normalizedLocation = [cityName, neighborhoodName, subNeighborhoodName]
     .filter(Boolean)
     .join("، ");
   const locationTitle = toText(
-    ad.location_label,
+    loc?.address ?? ad.location_label,
     normalizedLocation || toText(ad.form_neighborhood_title, neighborhoodName || title),
   );
-  const ownerType = String(ad.publisher_type ?? ad.owner_type ?? "").toLowerCase();
-  const agencyLocation = ownerType === "agency" && ad.agency && typeof ad.agency === "object"
-    ? toText(ad.agency.location, locationTitle)
-    : ownerType === "agent" && ad.agent && typeof ad.agent === "object"
-      ? toText(ad.agent.agency_name, locationTitle)
+  const pub = (ad as Record<string, any>)?.publisher;
+  const ownerType = String(pub?.type ?? ad.publisher_type ?? ad.owner_type ?? "").toLowerCase();
+  const agencyLocation = ownerType === "agency" && (pub || (ad.agency && typeof ad.agency === "object"))
+    ? toText(pub?.location ?? ad.agency?.location, locationTitle)
+    : (ownerType === "agent" || ownerType === "consultant") && (pub || (ad.agent && typeof ad.agent === "object"))
+      ? toText(pub?.agency_name ?? ad.agent?.agency_name, locationTitle)
       : locationTitle;
 
   return {
     adCode: toPersianDigits(ad.track_code ?? ad.id ?? ad._id ?? ""),
-    agency: ownerType === "agency" && ad.agency && typeof ad.agency === "object"
-      ? toText(ad.agency.name)
-      : ownerType === "agent" && ad.agent && typeof ad.agent === "object"
-        ? toText(ad.agent.agency_name)
+    agency: ownerType === "agency" && (pub || (ad.agency && typeof ad.agency === "object"))
+      ? toText(pub?.name ?? ad.agency?.name)
+      : (ownerType === "agent" || ownerType === "consultant") && (pub || (ad.agent && typeof ad.agent === "object"))
+        ? toText(pub?.agency_name ?? ad.agent?.agency_name)
         : toText(featureMap.advertiser_type),
     agencyLocation,
     age,
     categoryNeighborhood: toText(
       ad.category_neighborhood,
-      buildCategoryNeighborhoodLabel(formCode, neighborhoodName, locationTitle),
+      buildCategoryNeighborhoodLabel(formCode, neighborhoodName || loc?.neighborhood?.name, locationTitle),
     ),
     description: toText(description),
     equipmentSections: [],
@@ -1919,6 +1977,7 @@ type DetailInfoSection = {
   layout?: DetailInfoLayout;
   columns?: 2 | 3;
   choiceRows?: DetailInfoItem[];
+  priceRows?: DetailInfoItem[];
   badges?: DetailInfoItem[];
   showIcons?: boolean;
   ratingBanner?: {
@@ -2079,6 +2138,7 @@ function formatPercentDetailValue(value: unknown) {
 }
 
 function formatAgeDetailValue(value: unknown) {
+  if (value === 0 || value === "0") return "نوساز";
   const text = toText(value);
 
   if (!text) {
@@ -2093,6 +2153,7 @@ function formatAgeDetailValue(value: unknown) {
 }
 
 function formatRoomDetailValue(value: unknown) {
+  if (value === 0 || value === "0") return "بدون اتاق";
   const text = toText(value);
 
   if (!text) {
@@ -2107,13 +2168,15 @@ function formatRoomDetailValue(value: unknown) {
 }
 
 function formatFloorDetailValue(value: unknown) {
+  if (value === 0 || value === "0") return "همکف";
+  if (value === -1 || value === "-1") return "زیرهمکف";
   const text = toText(value);
 
   if (!text) {
     return "-";
   }
 
-  if (text.includes("طبقه")) {
+  if (text.includes("طبقه") || text.includes("همکف")) {
     return text;
   }
 
@@ -2867,6 +2930,35 @@ function buildRentPropertyDetailSections(
   return null;
 }
 
+function buildPartnershipPropertyDetailSections(
+  features: NonNullable<AdvertisementItem["features"]>,
+  formCode: string,
+): DetailInfoSection[] | null {
+  if (formCode !== "partnership") return null;
+
+  const mainItems = [
+    createGridItem({ features, labels: ["participation_type", "partnership_type"], label: "نوع مشارکت", icon: "apartment" }),
+    createGridItem({ features, labels: ["land_area", "area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" }),
+    createGridItem({ features, labels: ["builder_share"], label: "درصد سهم سازنده", formatter: formatPercentDetailValue, icon: "tooman" }),
+    createGridItem({ features, labels: ["current_status"], label: "وضعیت فعلی ملک", icon: "building" }),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const buildingItems = [
+    createGridItem({ features, labels: ["land_position"], label: "موقعیت زمین" }),
+    createGridItem({ features, labels: ["entrance_position"], label: "موقعیت ورودی" }),
+    createGridItem({ features, labels: ["density"], label: "تراکم ساخت" }),
+    createGridItem({ features, labels: ["land_width"], label: "بر زمین", formatter: formatMeterDetailValue }),
+    createGridItem({ features, labels: ["street_width"], label: "عرض گذر", formatter: formatMeterDetailValue }),
+    createGridItem({ features, labels: ["document_type"], label: "نوع سند" }),
+    createGridItem({ features, labels: ["construction_license", "construction_permit", "build_permit"], label: "پروانه ساخت / مجوز" }),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  return filterDetailSections([
+    { title: "مشخصات مشارکت", items: mainItems, layout: "grid", columns: 2, showIcons: true },
+    { title: "مشخصات زمین و ملک", items: buildingItems, layout: "grid", columns: 2 },
+  ]);
+}
+
 function buildDailyPropertyDetailSections(
   features: NonNullable<AdvertisementItem["features"]>,
   formCode: string,
@@ -2883,11 +2975,13 @@ function buildDailyPropertyDetailSections(
     if (Array.isArray(rawRooms)) {
       roomItems = rawRooms.flatMap((room: any) => {
         if (!room || typeof room !== "object") return [];
-        const label = toText(room.label ?? room.room_label ?? room.room_type, "اتاق");
+        const label = toText(room.label ?? room.room_type);
         const details = [
+          isFilledValue(room.count) ? `تعداد: ${toText(room.count)}` : "",
           isFilledValue(room.guest_count) ? `ظرفیت: ${toText(room.guest_count)} نفر` : "",
           isFilledValue(room.extra_guest_count) ? `نفر اضافه: ${toText(room.extra_guest_count)}` : "",
           isFilledValue(room.meal_plan) ? `پذیرایی: ${toText(room.meal_plan)}` : "",
+          isFilledValue(room.price) ? `قیمت: ${formatPrice(room.price)} تومان` : "",
           isFilledValue(room.normal_price) ? `عادی: ${formatPrice(room.normal_price)}` : "",
           isFilledValue(room.weekend_price) ? `آخر هفته: ${formatPrice(room.weekend_price)}` : "",
           isFilledValue(room.special_price) ? `ویژه: ${formatPrice(room.special_price)}` : "",
@@ -2899,6 +2993,11 @@ function buildDailyPropertyDetailSections(
         }];
       });
     }
+
+    const hotelPricingItems = [
+      createGridItem({ features, labels: ["min_price"], label: "حداقل قیمت هر شب", formatter: formatTomanDetailValue }),
+      createGridItem({ features, labels: ["max_price"], label: "حداکثر قیمت هر شب", formatter: formatTomanDetailValue }),
+    ].filter((item): item is DetailInfoItem => item !== null);
 
     const hotelSpaceItems = [
       createGridItem({ features, labels: ["rental_period"], label: "دوره اجاره" }),
@@ -2929,6 +3028,15 @@ function buildDailyPropertyDetailSections(
       });
     }
 
+    if (hotelPricingItems.length) {
+      hotelSections.push({
+        title: "تعرفه اقامتگاه",
+        items: hotelPricingItems,
+        layout: "grid",
+        columns: 2,
+      });
+    }
+
     if (hotelSpaceItems.length) {
       hotelSections.push({
         title: "شرایط و زمان‌بندی اقامت",
@@ -2941,22 +3049,29 @@ function buildDailyPropertyDetailSections(
     return filterDetailSections(hotelSections);
   }
 
-  const mainItems = [
-    createGridItem({ features, labels: ["accommodation_type", "villa_type", "house_type", "space_type"], label: formCode === "daily-office-booth" ? "نوع فضا" : "نوع اقامتگاه" }),
-    createGridItem({ features, labels: ["area", "meterage", "apartment_area", "unit_area", "land_area", "building_area"], label: "متراژ", formatter: formatAreaDetailValue, icon: "ruler" }),
+  const mainGridItems = [
+    createGridItem({ features, labels: ["land_area"], label: "متراژ زمین", formatter: formatAreaDetailValue, icon: "area" }),
+    createGridItem({ features, labels: ["building_area"], label: "متراژ بنا", formatter: formatAreaDetailValue, icon: "area" }),
+    createGridItem({ features, labels: ["area", "meterage", "apartment_area", "unit_area"], label: "متراژ", formatter: formatAreaDetailValue, icon: "area" }),
     createGridItem({ features, labels: ["rooms", "room_count", "bedrooms"], label: "تعداد اتاق‌ها", formatter: formatRoomDetailValue, icon: "bed" }),
     createGridItem({ features, labels: ["standard_capacity", "capacity"], label: "ظرفیت استاندارد", formatter: (val) => `${toText(val)} نفر`, icon: "profile" }),
   ].filter((item): item is DetailInfoItem => item !== null);
 
-  const spaceItems = [
-    createGridItem({ features, labels: ["extra_people_capacity"], label: "تعدادنفر اضافه", formatter: (val) => `${toText(val)} نفر` }),
-    createGridItem({ features, labels: ["space_type"], label: "بافت اقامتگاه" }),
-    createGridItem({ features, labels: ["view_type"], label: "چشم انداز" }),
+  const mainPriceRows = [
+    createGridItem({ features, labels: ["normal_daily_price", "daily_price"], label: "روزهای عادی", formatter: formatTomanDetailValue }),
+    createGridItem({ features, labels: ["weekend_daily_price"], label: "آخر هفته", formatter: formatTomanDetailValue }),
+    createGridItem({ features, labels: ["special_daily_price"], label: "روزهای خاص", formatter: formatTomanDetailValue }),
+  ].filter((item): item is DetailInfoItem => item !== null);
+
+  const buildingItems = [
+    createGridItem({ features, labels: ["extra_people_capacity"], label: "ظرفیت اضافه", formatter: (val) => `${toText(val)} نفر` }),
+    createGridItem({ features, labels: ["building_type", "villa_type", "house_type"], label: "تیپ بنا" }),
     createGridItem({ features, labels: ["rental_period"], label: "دوره اجاره" }),
-    createGridItem({ features, labels: ["check_in_time"], label: "ساعت تحویل" }),
-    createGridItem({ features, labels: ["check_out_time"], label: "ساعت تخلیه" }),
     createGridItem({ features, labels: ["min_stay_days"], label: "حداقل مدت اقامت", formatter: (val) => `${toText(val)} روز` }),
-    createGridItem({ features, labels: ["evacuation_guarantee"], label: "تضمین تخلیه", formatter: formatTomanDetailValue }),
+    createGridItem({ features, labels: ["check_in_time"], label: "ساعت ورود" }),
+    createGridItem({ features, labels: ["check_out_time"], label: "ساعت خروج" }),
+    createGridItem({ features, labels: ["view_type"], label: "چشم انداز" }),
+    createGridItem({ features, labels: ["evacuation_guarantee"], label: "تضمین تخلیه (تومان)", formatter: formatTomanDetailValue }),
     createGridItem({ features, labels: ["pet_policy"], label: "حیوان خانگی" }),
   ].filter((item): item is DetailInfoItem => item !== null);
 
@@ -2968,17 +3083,21 @@ function buildDailyPropertyDetailSections(
   const sections: DetailInfoSection[] = [
     {
       title: "مشخصات اصلی",
-      items: mainItems,
+      items: mainGridItems,
+      priceRows: mainPriceRows,
       layout: "grid",
       columns: 2,
       showIcons: true,
       ratingBanner: hasHotelStars && starCount ? { count: starCount, label: "رتبه اقامتگاه" } : undefined,
     },
+    {
+      title: "موقعیت و ساختمان",
+      items: buildingItems,
+      layout: "grid",
+      columns: 2,
+      badges,
+    },
   ];
-
-  if (spaceItems.length || badges.length) {
-    sections.push({ title: "موقعیت و فضا", items: spaceItems, layout: "grid", columns: 2, badges });
-  }
 
   return filterDetailSections(sections);
 }
@@ -3038,6 +3157,9 @@ export function buildPropertyDetailSections(
 
   const presaleSections = buildPresalePropertyDetailSections(features, formCode);
   if (presaleSections) return presaleSections;
+
+  const partnershipSections = buildPartnershipPropertyDetailSections(features, formCode);
+  if (partnershipSections) return partnershipSections;
 
   const saleSections = buildSalePropertyDetailSections(ad, features, formCode);
   if (saleSections) return saleSections;
@@ -3406,6 +3528,30 @@ function DetailInfoItemCard({
   );
 }
 
+function DetailInfoPriceRows({ rows }: { rows: DetailInfoItem[] }) {
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <div>
+      {rows.map((row) => (
+        <div
+          className="flex items-center justify-between border-t border-dashed border-outline-var py-3.5 [direction:rtl]"
+          key={row.label}
+        >
+          <Typography as="span" variant="label" size="large" weight="medium" className="text-outline">
+            {row.label}:
+          </Typography>
+          <div className="font-semibold text-on-surface">
+            <DetailInfoValueView item={row} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function DetailInfoChoiceRows({ rows }: { rows: DetailInfoItem[] }) {
   if (rows.length === 0) {
     return null;
@@ -3507,7 +3653,7 @@ function DetailInfoRowCard({
   );
 }
 
-function DetailInfoSectionBlock({
+export function DetailInfoSectionBlock({
   section,
   separated = false,
 }: {
@@ -3557,6 +3703,7 @@ function DetailInfoSectionBlock({
             ))}
           </div>
 
+          <DetailInfoPriceRows rows={section.priceRows ?? []} />
           <DetailInfoChoiceRows rows={section.choiceRows ?? []} />
           <DetailInfoCheckBadges badges={section.badges ?? []} />
         </>

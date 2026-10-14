@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { saveCrmAdvertise } from "../../../../crm/api/crm.service";
-import type { CrmRecord } from "../../../../crm/api/crm.service";
+import { saveCrmAdvertise, type CrmRecord  } from "../../../../crm/api/crm.service";
+
 import { buildCrmAdvertisePayload } from "../../edit-mapping/crmEditNormalizer";
 import type { NewAdFormValues } from "../../types";
 

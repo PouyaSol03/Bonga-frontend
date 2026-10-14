@@ -15,9 +15,9 @@ import {
   isOpenSupportThread,
   readChatPathText,
   readSupportMessageBody,
-  readSupportThreadId,
+  readSupportThreadId, type Conversation 
 } from "../accountSupportViews";
-import type { Conversation } from "../accountSupportViews";
+
 import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountSupportChatPage() {

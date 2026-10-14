@@ -13,9 +13,9 @@ import {
   SupportRequestCard,
   SupportRequestTabs,
   SupportRequestsEmptyState,
-  mapSupportRequest,
+  mapSupportRequest, type SupportRequestFilter 
 } from "../accountSupportRequestViews";
-import type { SupportRequestFilter } from "../accountSupportRequestViews";
+
 import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountSupportRequestsPage() {

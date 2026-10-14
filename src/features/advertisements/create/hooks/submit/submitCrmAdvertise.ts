@@ -1,7 +1,7 @@
 import type { NavigateFunction } from "react-router";
 import { getApiErrorMessage } from "../../../../../shared/api/api";
-import { getCrmRecordId } from "../../../../crm/api/crm.service";
-import type { CrmRecord } from "../../../../crm/api/crm.service";
+import { getCrmRecordId, type CrmRecord  } from "../../../../crm/api/crm.service";
+
 import { getEditAdRouteState } from "../../routeState";
 import type { NewAdFormValues } from "../../types";
 import { clearNewAdDraftStorage } from "../../utils";

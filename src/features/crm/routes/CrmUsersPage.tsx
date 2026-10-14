@@ -31,9 +31,9 @@ import {
   readText,
   useQueryErrorToast,
   userRoleOptions,
-  userRoleSlugs,
+  userRoleSlugs, type ConfirmState, type CrmRoutePageProps, type EditorState 
 } from "../CrmLayout";
-import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
+
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";

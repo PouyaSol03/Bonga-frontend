@@ -15,9 +15,9 @@ import {
   PanelHeader,
   cleanEmptyValues,
   stringifyValue,
-  useQueryErrorToast,
+  useQueryErrorToast, type CrmRoutePageProps, type EditorState 
 } from "../CrmLayout";
-import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
+
 
 export function CrmCategoriesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();

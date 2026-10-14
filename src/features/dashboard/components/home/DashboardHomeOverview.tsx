@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import type { ComponentType, ReactNode, SVGProps } from "react";
+import { useEffect, useRef, useState, type ComponentType, type ReactNode, type SVGProps  } from "react";
+
 import {
   Bar,
   BarChart,

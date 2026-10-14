@@ -4,9 +4,9 @@ import {
   BusinessCreationShell,
   BusinessHero,
   BusinessTypeCard,
-  getBusinessTypePath,
+  getBusinessTypePath, type BusinessType 
 } from "../businessCreationShared";
-import type { BusinessType } from "../businessCreationShared";
+
 import { useMyProfileQuery } from "../api/account.hooks";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";

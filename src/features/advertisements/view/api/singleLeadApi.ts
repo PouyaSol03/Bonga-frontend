@@ -6,12 +6,11 @@ import {
   getV2AdvertisementLeadDetail,
   getV2AdvertisementLeads,
   updateV2AdvertisementLeadStage,
+  type AdvertisementV2Activity,
+  type AdvertisementV2Lead,
+  type AdvertisementV2Note
 } from "../../api/v2";
-import type {
-  AdvertisementV2Activity,
-  AdvertisementV2Lead,
-  AdvertisementV2Note,
-} from "../../api/v2";
+
 
 export type ViewAdLeadClient = NonNullable<AdvertisementV2Lead["client"]>;
 export type ViewAdLeadDetail = AdvertisementV2Lead;

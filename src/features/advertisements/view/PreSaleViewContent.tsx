@@ -1,8 +1,8 @@
-import { DetailSection, MoreLink } from "./viewAdComponents";
+import { DetailSection, MoreLink, PropertyGrid  } from "./viewAdComponents";
 import { Typography } from "../../../shared/ui/Typography";
 import type { ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
 import { getCurrentViewAdBasePath } from "./viewAdDetails";
-import { PropertyGrid } from "./viewAdComponents";
+
 
 function ProjectDetailsCard({ details }: { details: ViewAdProjectDetailVariant[] }) {
   const first = details[0];

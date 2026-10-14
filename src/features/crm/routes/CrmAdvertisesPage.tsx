@@ -32,9 +32,9 @@ import {
   inputClassName,
   mapCrmAdvertiseToCard,
   readText,
-  useQueryErrorToast,
+  useQueryErrorToast, type ConfirmState, type CrmRoutePageProps 
 } from "../CrmLayout";
-import type { ConfirmState, CrmRoutePageProps } from "../CrmLayout";
+
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 

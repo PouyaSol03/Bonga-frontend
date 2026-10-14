@@ -1,6 +1,6 @@
 import LinearMapsLocation from "../../../shared/icons/LinearMapsLocation";
-import { AdCard } from "../../advertisements/components/AdCard";
-import type { AdCardData } from "../../advertisements/components/AdCard";
+import { AdCard, type AdCardData  } from "../../advertisements/components/AdCard";
+
 import { AdCardSkeleton } from "../../advertisements/components/AdCardSkeleton";
 import { SearchNoResultsRequestCard } from "./SearchNoResultsRequestCard";
 import type { SearchMapListing } from "../searchMapData";

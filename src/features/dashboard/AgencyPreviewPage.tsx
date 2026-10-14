@@ -5,8 +5,8 @@ import { BadgeDetailBottomSheet, type BadgeDetailItem } from "./components/Badge
 import { BADGE_IMAGES } from "./ranking/AgencyBadgesPanel";
 import { motion } from "motion/react";
 import { SEO } from "../../shared/components/SEO";
-import { AdCard } from "../advertisements/components/AdCard";
-import type { AdCardData } from "../advertisements/components/AdCard";
+import { AdCard, type AdCardData  } from "../advertisements/components/AdCard";
+
 import { BottomSheet } from "../../shared/components/BottomSheet";
 import { QRCodeSVG } from "qrcode.react";
 import { DivIcon } from "leaflet";

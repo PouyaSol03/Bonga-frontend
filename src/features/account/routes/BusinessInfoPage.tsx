@@ -5,9 +5,9 @@ import {
   BusinessInfoCard,
   businessInfoCards,
   getBusinessTypeFromSearch,
-  getBusinessTypePath,
+  getBusinessTypePath, type BusinessType 
 } from "../businessCreationShared";
-import type { BusinessType } from "../businessCreationShared";
+
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 

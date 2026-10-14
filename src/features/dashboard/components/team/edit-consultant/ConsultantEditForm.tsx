@@ -140,13 +140,13 @@ export function ConsultantEditForm({
         />
 
         {errorMessage ? (
-          <div className="mt-4 rounded-xl border border-error/20 bg-error/10 p-3 text-center text-xs font-medium text-error">
+          <div className="border-error/20 bg-error/10 text-error mt-4 rounded-xl border p-3 text-center text-xs font-medium">
             {errorMessage}
           </div>
         ) : null}
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
+      <div className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-sm">
         <Button
           fullWidth
           loading={updateConsultantMutation.isPending}

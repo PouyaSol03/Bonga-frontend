@@ -51,8 +51,7 @@ export function useAdvertisementInfiniteQuery({
     ReturnType<typeof queryKeys.advertisements.list>,
     number
   >({
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getAdvertisementList({
@@ -85,7 +84,6 @@ export function useAdvertisementListQuery(params: AdvertisementListParams | null
     // staleTime: 0,
   });
 }
-
 
 export function useAdvertiseFormDefinitionQuery(formCode: string | null) {
   return useQuery({
@@ -162,13 +160,8 @@ export function useCreateAdvertisementMutation() {
 
 export function useFinalizeAdvertisementMutation() {
   return useMutation({
-    mutationFn: ({
-      advertiseId,
-      payload,
-    }: {
-      advertiseId: string | number;
-      payload: FormData;
-    }) => finalizeAdvertisement(advertiseId, payload),
+    mutationFn: ({ advertiseId, payload }: { advertiseId: string | number; payload: FormData }) =>
+      finalizeAdvertisement(advertiseId, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.advertisements.all,
@@ -260,7 +253,10 @@ export function useAgencyAdvertisementCheckoutQuery(advertiseId: string | null, 
   });
 }
 
-export function useConsultantAdvertisementCheckoutQuery(advertiseId: string | null, enabled = true) {
+export function useConsultantAdvertisementCheckoutQuery(
+  advertiseId: string | null,
+  enabled = true,
+) {
   const activeRole = useActiveAuthRole();
   return useQuery({
     enabled: Boolean(advertiseId) && enabled,
@@ -278,7 +274,10 @@ export function useSubmitConsultantAdvertisementCheckoutMutation() {
       variables: SubmitAdvertisementCheckoutPayload,
     ) => {
       void queryClient.invalidateQueries({
-        queryKey: [...queryKeys.advertisements.consultantCheckout(variables.advertiseId), activeRole],
+        queryKey: [
+          ...queryKeys.advertisements.consultantCheckout(variables.advertiseId),
+          activeRole,
+        ],
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.myAdsRoot(),
@@ -358,4 +357,3 @@ export function useRemoveAgencyAdvertisementMutation() {
     },
   });
 }
-

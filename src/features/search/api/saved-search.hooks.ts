@@ -2,11 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
-import {
-  deleteSavedSearch,
-  getSavedSearches,
-  saveSearch,
-} from "./saved-search.service";
+import { deleteSavedSearch, getSavedSearches, saveSearch } from "./saved-search.service";
 
 export function useSavedSearchesQuery(enabled = true) {
   return useQuery({

@@ -78,7 +78,7 @@ function ConversionSummaryCard({
         variant="label"
         size="medium"
         weight="medium"
-        className="mb-2 text-on-surface"
+        className="text-on-surface mb-2"
       >
         {label}
       </Typography>
@@ -103,7 +103,7 @@ function ConversionSummaryCard({
           variant="label"
           size="small"
           weight="medium"
-          className="mt-2 text-on-surface-var"
+          className="text-on-surface-var mt-2"
         >
           {formatted.unit}
         </Typography>
@@ -137,22 +137,21 @@ export function RentPriceConversion({
   const sourceMortgage = parseRentPriceValue(mortgagePrice);
   const sourceRent = parseRentPriceValue(rentPrice);
   const sourceHasPrice = sourceMortgage > 0 && sourceRent > 0;
-  const isMortgageMillionMultiple = sourceMortgage > 0 && sourceMortgage % RENT_CONVERSION_MORTGAGE_UNIT === 0;
+  const isMortgageMillionMultiple =
+    sourceMortgage > 0 && sourceMortgage % RENT_CONVERSION_MORTGAGE_UNIT === 0;
   const canEnable = sourceHasPrice && isMortgageMillionMultiple;
 
   const [baseline, setBaseline] = useState<ConversionBaseline>(() => ({
     mortgage: sourceMortgage,
     rent: sourceRent,
   }));
-  const [liveMortgage, setLiveMortgage] = useState(() =>
-    parseRentPriceValue(selectedMortgagePrice) || sourceMortgage,
+  const [liveMortgage, setLiveMortgage] = useState(
+    () => parseRentPriceValue(selectedMortgagePrice) || sourceMortgage,
   );
 
   const draggingRef = useRef(false);
 
-  const activeBaseline = enabled
-    ? baseline
-    : { mortgage: sourceMortgage, rent: sourceRent };
+  const activeBaseline = enabled ? baseline : { mortgage: sourceMortgage, rent: sourceRent };
   const activeMortgage = enabled
     ? liveMortgage
     : parseRentPriceValue(selectedMortgagePrice) || sourceMortgage;
@@ -229,11 +228,7 @@ export function RentPriceConversion({
   };
 
   const updateLiveConversion = (value: string | number) => {
-    const next = calculateRentPriceConversion(
-      baseline.mortgage,
-      baseline.rent,
-      value,
-    );
+    const next = calculateRentPriceConversion(baseline.mortgage, baseline.rent, value);
 
     setLiveMortgage(next.convertedMortgage);
     return next;
@@ -246,7 +241,7 @@ export function RentPriceConversion({
   };
 
   return (
-    <div className="mt-5 border-t border-outline-var pt-1">
+    <div className="border-outline-var mt-5 border-t pt-1">
       <div className="flex h-16 items-center justify-between [direction:ltr]">
         <SwitchButton checked={enabled} disabled={!canEnable} onChange={handleToggle} />
 
@@ -255,7 +250,7 @@ export function RentPriceConversion({
           variant="title"
           size="medium"
           weight="semibold"
-          className="text-right text-on-surface [direction:rtl]"
+          className="text-on-surface text-right [direction:rtl]"
         >
           تبدیل رهن و اجاره
         </Typography>
@@ -267,15 +262,15 @@ export function RentPriceConversion({
           variant="body"
           size="small"
           weight="regular"
-          className="text-right text-error -mt-1 mb-2 [direction:rtl]"
+          className="text-error -mt-1 mb-2 text-right [direction:rtl]"
         >
           برای فعال‌سازی تبدیل، مبلغ رهن باید مضربی از یک میلیون تومان باشد.
         </Typography>
       ) : null}
 
       {enabled ? (
-        <div className="pb-2 pt-2 [direction:rtl]">
-          <div className="flex items-start gap-2 rounded-2xl bg-primary-container/20 px-4 py-3 text-primary">
+        <div className="pt-2 pb-2 [direction:rtl]">
+          <div className="bg-primary-container/20 text-primary flex items-start gap-2 rounded-2xl px-4 py-3">
             <LinearInfoCircle aria-hidden="true" className="mt-0.5 h-6 w-6 shrink-0" />
             <Typography
               as="p"
@@ -290,42 +285,63 @@ export function RentPriceConversion({
 
           <div className="mt-4 py-4">
             <div className="flex items-center justify-between gap-4 px-0.5">
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
-                رهن <span className="text-tertiary">{formatMoney(conversion.convertedMortgage)}</span>
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="medium"
+                className="text-on-surface-var"
+              >
+                رهن{" "}
+                <span className="text-tertiary">{formatMoney(conversion.convertedMortgage)}</span>
               </Typography>
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="medium"
+                className="text-on-surface-var"
+              >
                 اجاره <span className="text-warning">{formatMoney(conversion.convertedRent)}</span>
               </Typography>
             </div>
 
             <div className="relative mx-2 mt-1 h-[28px] select-none [direction:ltr]">
-              <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-surface-container">
+              <div className="bg-surface-container absolute top-1/2 right-0 left-0 h-2 -translate-y-1/2 overflow-hidden rounded-full">
                 <div
-                  className="absolute bottom-0 left-0 top-0 bg-warning"
+                  className="bg-warning absolute top-0 bottom-0 left-0"
                   style={{ width: `${conversion.positionPercent}%` }}
                 />
                 <div
-                  className="absolute bottom-0 right-0 top-0 bg-tertiary"
+                  className="bg-tertiary absolute top-0 right-0 bottom-0"
                   style={{ width: `${100 - conversion.positionPercent}%` }}
                 />
-                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-surface-container-lowest" />
+                <div className="border-surface-container-lowest absolute top-1/2 right-0 left-0 -translate-y-1/2 border-t-2 border-dashed" />
               </div>
 
-              <div className="absolute left-0 top-1/2 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface-container-lowest bg-warning">
-                <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface-container-lowest" />
+              <div className="border-surface-container-lowest bg-warning absolute top-1/2 left-0 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2">
+                <span className="bg-surface-container-lowest absolute top-1/2 left-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full" />
               </div>
-              <div className="absolute right-0 top-1/2 z-10 h-5 w-5 translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface-container-lowest bg-tertiary">
-                <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface-container-lowest" />
+              <div className="border-surface-container-lowest bg-tertiary absolute top-1/2 right-0 z-10 h-5 w-5 translate-x-1/2 -translate-y-1/2 rounded-full border-2">
+                <span className="bg-surface-container-lowest absolute top-1/2 left-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full" />
               </div>
 
               {hasPrice ? (
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border border-outline-var bg-surface-container-lowest px-4 py-1.5 text-on-surface-var shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
+                  className="border-outline-var bg-surface-container-lowest text-on-surface-var pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border px-4 py-1.5 shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
                   style={{ left: `${12 + conversion.positionPercent * 0.76}%` }}
                 >
                   <LinearArrowLeft1 className="h-4 w-4" />
-                  <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface">تبدیل</Typography>
+                  <Typography
+                    as="span"
+                    variant="label"
+                    size="small"
+                    weight="medium"
+                    className="text-on-surface"
+                  >
+                    تبدیل
+                  </Typography>
                   <LinearArrowRight1 className="h-4 w-4" />
                 </div>
               ) : null}
@@ -333,7 +349,7 @@ export function RentPriceConversion({
               <input
                 aria-label="تبدیل مبلغ رهن و اجاره"
                 className="absolute z-20 h-full cursor-ew-resize touch-pan-y opacity-0 disabled:cursor-not-allowed"
-                style={{ left: '12%', width: '76%' }}
+                style={{ left: "12%", width: "76%" }}
                 disabled={!hasPrice}
                 max={Math.max(0, Math.round(conversion.maximumMortgage))}
                 min={0}
@@ -380,7 +396,8 @@ export function RentPriceConversion({
             </div>
 
             <span className="sr-only">
-              تغییر رهن {mortgageDelta.value} {mortgageDelta.unit}، تغییر اجاره {rentDelta.value} {rentDelta.unit}
+              تغییر رهن {mortgageDelta.value} {mortgageDelta.unit}، تغییر اجاره {rentDelta.value}{" "}
+              {rentDelta.unit}
             </span>
           </div>
         </div>

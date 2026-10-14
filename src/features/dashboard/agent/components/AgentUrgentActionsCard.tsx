@@ -13,4 +13,3 @@ export interface AgentUrgentActionsCardProps {
 export function AgentUrgentActionsCard(props: AgentUrgentActionsCardProps) {
   return <DashboardUrgentActionsCard {...props} />;
 }
-

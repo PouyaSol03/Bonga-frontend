@@ -48,7 +48,8 @@ export function submitEditPatch({
     setSubmitError("شناسه آگهی برای ویرایش مشخص نیست.");
     return;
   }
-  const baseline = initialEditValuesRef.current ?? getDefaultValues({ ...editAdState, isEditMode: true });
+  const baseline =
+    initialEditValuesRef.current ?? getDefaultValues({ ...editAdState, isEditMode: true });
   const patchResult = buildEditPatchFormData(values, baseline, {
     categoryId,
     dynamicFieldKeys,
@@ -88,7 +89,8 @@ export function submitEditPatch({
   updateAdvertisement.mutate(
     { advertiseId: editAdId, payload: patchResult.formData },
     {
-      onError: (error: unknown) => setSubmitError(getApiErrorMessage(error, "ویرایش آگهی با خطا مواجه شد.")),
+      onError: (error: unknown) =>
+        setSubmitError(getApiErrorMessage(error, "ویرایش آگهی با خطا مواجه شد.")),
       onSettled: () => {
         submitLockRef.current = false;
       },

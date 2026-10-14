@@ -41,7 +41,14 @@ export interface DashboardCreditsCardProps {
 
 const defaultCredits: DashboardCreditItem[] = [
   { key: "ads", label: "آگهی", value: 34, deltaText: "۲۴%", isPositive: true, type: "ad" },
-  { key: "updates", label: "بروزرسانی", value: 13, deltaText: "۵%", isPositive: true, type: "refresh" },
+  {
+    key: "updates",
+    label: "بروزرسانی",
+    value: 13,
+    deltaText: "۵%",
+    isPositive: true,
+    type: "refresh",
+  },
   { key: "specials", label: "ویژه", value: 9, deltaText: "۱۶%", isNegative: true, type: "special" },
   { key: "expiry", label: "اعتبار", value: 12, deltaText: "روز", type: "expiry" },
 ];
@@ -53,9 +60,15 @@ export function DashboardCreditsCard({
   const creditList = Array.isArray(items) && items.length > 0 ? items : defaultCredits;
 
   return (
-    <section className="w-full rounded-[16px] bg-surface-container-lowest shadow-sm [direction:rtl]">
+    <section className="bg-surface-container-lowest w-full rounded-[16px] shadow-sm [direction:rtl]">
       {/* Title */}
-      <Typography as="h2" variant="label" size="large" weight="medium" className="mb-2.5 pt-4 pr-4 text-on-surface">
+      <Typography
+        as="h2"
+        variant="label"
+        size="large"
+        weight="medium"
+        className="text-on-surface mb-2.5 pt-4 pr-4"
+      >
         {title}
       </Typography>
 
@@ -68,10 +81,10 @@ export function DashboardCreditsCard({
 
           return (
             <div key={col.key} className="flex flex-1 items-center">
-              <div className="flex flex-1 flex-col items-center gap-2 text-center py-4">
+              <div className="flex flex-1 flex-col items-center gap-2 py-4 text-center">
                 {/* Squircle Icon 48x48 */}
                 <div
-                  className={`flex p-2 items-center justify-center rounded-[14px] ${cfg.bg} ${cfg.text}`}
+                  className={`flex items-center justify-center rounded-[14px] p-2 ${cfg.bg} ${cfg.text}`}
                 >
                   <Icon className="h-6 w-6" />
                 </div>
@@ -88,16 +101,21 @@ export function DashboardCreditsCard({
                 </Typography>
 
                 {/* Value */}
-                <Typography variant="title" size="large" weight="medium" className="text-on-surface">
+                <Typography
+                  variant="title"
+                  size="large"
+                  weight="medium"
+                  className="text-on-surface"
+                >
                   {toPersianNumber(col.value)}
                 </Typography>
 
                 {/* Delta / Trend */}
                 <div className="flex items-center justify-center gap-1">
                   {col.isPositive ? (
-                    <LinearChartUp className="h-4 w-4 text-tertiary" />
+                    <LinearChartUp className="text-tertiary h-4 w-4" />
                   ) : col.isNegative ? (
-                    <LinearChartDown className="h-4 w-4 text-error" />
+                    <LinearChartDown className="text-error h-4 w-4" />
                   ) : null}
                   <Typography
                     as="span"
@@ -118,9 +136,7 @@ export function DashboardCreditsCard({
               </div>
 
               {/* Partial vertical divider */}
-              {isNotLast && (
-                <div className="h-[120px] w-[1px] rounded-full bg-surface-container" />
-              )}
+              {isNotLast && <div className="bg-surface-container h-[120px] w-[1px] rounded-full" />}
             </div>
           );
         })}

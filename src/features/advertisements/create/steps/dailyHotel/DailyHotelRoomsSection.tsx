@@ -21,7 +21,10 @@ import { Typography } from "../../../../../shared/ui/Typography";
 import { Button } from "../../../../../shared/ui/Button";
 
 const editorSelectFields: Record<
-  Exclude<DailyHotelRoomConfigKey, "id" | "label" | "normalPrice" | "weekendPrice" | "specialPrice">,
+  Exclude<
+    DailyHotelRoomConfigKey,
+    "id" | "label" | "normalPrice" | "weekendPrice" | "specialPrice"
+  >,
   { title: string; placeholder: string; options: string[] }
 > = {
   guestCount: {
@@ -120,9 +123,7 @@ function hasConfiguredRoom(room?: DailyHotelRoomConfig) {
 function moneySupportingText(value: string) {
   const number = Number(value.replace(/,/g, ""));
 
-  return Number.isFinite(number) && number > 0
-    ? `${formatBigNumber(number)} تومان`
-    : "";
+  return Number.isFinite(number) && number > 0 ? `${formatBigNumber(number)} تومان` : "";
 }
 
 function buildRoomSummary(room: DailyHotelRoomConfig) {
@@ -138,28 +139,18 @@ function buildRoomSummary(room: DailyHotelRoomConfig) {
   return summary;
 }
 
-function RoomEditorHeader({
-  title,
-  onBack,
-}: {
-  title: string;
-  onBack: () => void;
-}) {
+function RoomEditorHeader({ title, onBack }: { title: string; onBack: () => void }) {
   return (
-    <header className="shrink-0 border-b border-surface-container bg-surface-container pt-2 [direction:rtl]">
+    <header className="border-surface-container bg-surface-container shrink-0 border-b pt-2 [direction:rtl]">
       <div className="flex h-20 items-center gap-2 px-4">
-        <Button unstyled
+        <Button
+          unstyled
           aria-label="بازگشت"
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-on-surface-var active:bg-surface-container-high"
+          className="text-on-surface-var active:bg-surface-container-high grid h-12 w-12 shrink-0 place-items-center rounded-full"
           onClick={onBack}
           type="button"
         >
-          <svg
-            aria-hidden="true"
-            className="h-7 w-7"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
+          <svg aria-hidden="true" className="h-7 w-7" fill="none" viewBox="0 0 24 24">
             <path
               d="M15 7l5 5-5 5M20 12H4"
               stroke="currentColor"
@@ -170,7 +161,13 @@ function RoomEditorHeader({
           </svg>
         </Button>
 
-        <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 min-w-0 flex-1 truncate text-right text-xl font-semibold leading-7 text-on-surface">
+        <Typography
+          as="h2"
+          variant="title"
+          size="large"
+          weight="semibold"
+          className="text-on-surface m-0 min-w-0 flex-1 truncate text-right text-xl leading-7 font-semibold"
+        >
           {title}
         </Typography>
       </div>
@@ -209,7 +206,9 @@ export function DailyHotelRoomsSection() {
   const saveRoom = () => {
     if (!draftRoom) return;
 
-    const nextRooms = rooms.map((room) => (room.id === draftRoom.id ? normalizeRoomConfig(draftRoom) : room));
+    const nextRooms = rooms.map((room) =>
+      room.id === draftRoom.id ? normalizeRoomConfig(draftRoom) : room,
+    );
     setValue("dailyHotelRooms", nextRooms, {
       shouldDirty: true,
       shouldValidate: true,
@@ -237,18 +236,20 @@ export function DailyHotelRoomsSection() {
           const summary = buildRoomSummary(room);
 
           return (
-            <div className="border-b border-outline-var py-4 last:border-b-0" key={room.id}>
+            <div className="border-outline-var border-b py-4 last:border-b-0" key={room.id}>
               <div className="flex items-center justify-between gap-3">
-                <Button unstyled
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-on-surface-var active:bg-surface-container-high"
+                <Button
+                  unstyled
+                  className="text-on-surface-var active:bg-surface-container-high grid h-9 w-9 shrink-0 place-items-center rounded-full"
                   onClick={() => openEditor(room.id)}
                   type="button"
                 >
                   {configured ? <EditIcon /> : <ChevronLeftIcon />}
                 </Button>
 
-                <Button unstyled
-                  className="min-w-0 flex-1 text-right text-base font-semibold leading-7 text-on-surface"
+                <Button
+                  unstyled
+                  className="text-on-surface min-w-0 flex-1 text-right text-base leading-7 font-semibold"
                   onClick={() => openEditor(room.id)}
                   type="button"
                 >
@@ -258,9 +259,10 @@ export function DailyHotelRoomsSection() {
 
               {configured ? (
                 <div className="mt-4 flex items-start gap-3">
-                  <Button unstyled
+                  <Button
+                    unstyled
                     aria-label={`حذف اطلاعات ${room.label}`}
-                    className="mt-1 grid h-6 w-6 shrink-0 place-items-center text-on-surface-var"
+                    className="text-on-surface-var mt-1 grid h-6 w-6 shrink-0 place-items-center"
                     onClick={() => resetRoom(room.id)}
                     type="button"
                   >
@@ -269,8 +271,12 @@ export function DailyHotelRoomsSection() {
 
                   <div className="flex flex-wrap justify-start gap-2" dir="rtl">
                     {summary.map((item) => (
-                      <Typography as="span" variant="label" size="medium" weight="medium"
-                        className="flex min-h-9 items-center rounded-[7px] border border-outline-var bg-surface-container-lowest px-3 py-1 text-sm font-medium leading-5 text-on-surface-var"
+                      <Typography
+                        as="span"
+                        variant="label"
+                        size="medium"
+                        weight="medium"
+                        className="border-outline-var bg-surface-container-lowest text-on-surface-var flex min-h-9 items-center rounded-[7px] border px-3 py-1 text-sm leading-5 font-medium"
                         key={item}
                       >
                         {item}
@@ -288,7 +294,7 @@ export function DailyHotelRoomsSection() {
         <div className="fixed inset-0 z-[70] flex flex-col bg-white" dir="rtl">
           <RoomEditorHeader title={selectedRoom.label} onBack={closeEditor} />
 
-          <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pb-4 pt-6">
+          <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pt-6 pb-4">
             <div className="space-y-4">
               <SelectBox
                 onClick={() =>
@@ -330,7 +336,11 @@ export function DailyHotelRoomsSection() {
                 formatNumeric
                 leftText="تومان"
                 numeric
-                onChange={(value) => setDraftRoom((current) => (current ? { ...current, normalPrice: value } : current))}
+                onChange={(value) =>
+                  setDraftRoom((current) =>
+                    current ? { ...current, normalPrice: value } : current,
+                  )
+                }
                 placeholder="قیمت روزهای عادی *"
                 supportingText={moneySupportingText(draftRoom.normalPrice)}
                 value={draftRoom.normalPrice}
@@ -340,7 +350,11 @@ export function DailyHotelRoomsSection() {
                 formatNumeric
                 leftText="تومان"
                 numeric
-                onChange={(value) => setDraftRoom((current) => (current ? { ...current, weekendPrice: value } : current))}
+                onChange={(value) =>
+                  setDraftRoom((current) =>
+                    current ? { ...current, weekendPrice: value } : current,
+                  )
+                }
                 placeholder="قیمت آخر هفته *"
                 supportingText={moneySupportingText(draftRoom.weekendPrice)}
                 value={draftRoom.weekendPrice}
@@ -350,7 +364,11 @@ export function DailyHotelRoomsSection() {
                 formatNumeric
                 leftText="تومان"
                 numeric
-                onChange={(value) => setDraftRoom((current) => (current ? { ...current, specialPrice: value } : current))}
+                onChange={(value) =>
+                  setDraftRoom((current) =>
+                    current ? { ...current, specialPrice: value } : current,
+                  )
+                }
                 placeholder="قیمت روزهای خاص *"
                 supportingText={moneySupportingText(draftRoom.specialPrice)}
                 value={draftRoom.specialPrice}
@@ -358,17 +376,19 @@ export function DailyHotelRoomsSection() {
             </div>
           </main>
 
-          <footer className="grid shrink-0 grid-cols-2 gap-3 bg-surface-container-lowest px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-4px_16px_0_rgba(0,0,0,0.08)] [direction:ltr]">
-            <Button unstyled
-              className="h-12 rounded-[10px] bg-primary text-base font-medium leading-6 text-on-primary"
+          <footer className="bg-surface-container-lowest grid shrink-0 grid-cols-2 gap-3 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_16px_0_rgba(0,0,0,0.08)] [direction:ltr]">
+            <Button
+              unstyled
+              className="bg-primary text-on-primary h-12 rounded-[10px] text-base leading-6 font-medium"
               onClick={saveRoom}
               type="button"
             >
               ثبت
             </Button>
 
-            <Button unstyled
-              className="h-12 rounded-[10px] border border-primary bg-surface-container-lowest text-base font-medium leading-6 text-primary"
+            <Button
+              unstyled
+              className="border-primary bg-surface-container-lowest text-primary h-12 rounded-[10px] border text-base leading-6 font-medium"
               onClick={closeEditor}
               type="button"
             >
@@ -409,9 +429,9 @@ export function DailyHotelRoomsSection() {
                 setDraftRoom((current) =>
                   current
                     ? {
-                      ...current,
-                      [sheet.field]: item.title,
-                    }
+                        ...current,
+                        [sheet.field]: item.title,
+                      }
                     : current,
                 );
                 setSheet(null);

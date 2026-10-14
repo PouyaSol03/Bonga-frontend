@@ -3,14 +3,40 @@ import "../../advertisements/components/AdCard.css";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Typography } from "../../../shared/ui/Typography";
-import { adManagementPaths, getAdManagementRouteState, type StatisticsAd } from "./adManagementData";
+import {
+  adManagementPaths,
+  getAdManagementRouteState,
+  type StatisticsAd,
+} from "./adManagementData";
 import { getPrimaryAdvertisementImageUrl } from "../../advertisements/utils/advertisement-images";
 
 const chartSections = [
-  { keys: ["total_views", "views_count", "views", "visit_count", "view_count"], label: "بازدید امروز:", title: "بازدید از آگهی" },
-  { keys: ["search_display_count", "impressions", "impression_count", "display_count", "shown_count"], label: "کل نمایش‌ها:", title: "نمایش در صفحه جستجو" },
-  { keys: ["chat_count", "chats_count", "chats", "conversation_count", "message_count"], label: "کل گفتگوها:", title: "گفتگوها (چت‌ها)" },
-  { keys: ["call_count", "calls_count", "calls", "phone_clicks", "contact_count"], label: "کل تماس‌ها:", title: "اقدام به تماس" },
+  {
+    keys: ["total_views", "views_count", "views", "visit_count", "view_count"],
+    label: "بازدید امروز:",
+    title: "بازدید از آگهی",
+  },
+  {
+    keys: [
+      "search_display_count",
+      "impressions",
+      "impression_count",
+      "display_count",
+      "shown_count",
+    ],
+    label: "کل نمایش‌ها:",
+    title: "نمایش در صفحه جستجو",
+  },
+  {
+    keys: ["chat_count", "chats_count", "chats", "conversation_count", "message_count"],
+    label: "کل گفتگوها:",
+    title: "گفتگوها (چت‌ها)",
+  },
+  {
+    keys: ["call_count", "calls_count", "calls", "phone_clicks", "contact_count"],
+    label: "کل تماس‌ها:",
+    title: "اقدام به تماس",
+  },
 ] as const;
 
 export function IndependentConsultantAdStatisticsDetailsPage() {
@@ -19,7 +45,7 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
 
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -28,12 +54,28 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
         title="جزییات آمار آگهی"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
-        <section className="h-[104px] bg-surface-container-lowest px-4 py-4" aria-label={ad.title}>
+      <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <section className="bg-surface-container-lowest h-[104px] px-4 py-4" aria-label={ad.title}>
           <div className="flex h-[72px] items-center justify-between gap-4 [direction:ltr]">
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
-              <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 truncate text-sm font-medium leading-5">{ad.title}</Typography>
-              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs font-normal leading-4 text-outline">{ad.timeAndLocation}</Typography>
+              <Typography
+                as="h2"
+                variant="title"
+                size="small"
+                weight="medium"
+                className="m-0 truncate text-sm leading-5 font-medium"
+              >
+                {ad.title}
+              </Typography>
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-outline m-0 mt-2 text-xs leading-4 font-normal"
+              >
+                {ad.timeAndLocation}
+              </Typography>
             </div>
             <div
               aria-hidden="true"
@@ -43,10 +85,10 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
           </div>
         </section>
 
-        <div className="h-2 bg-surface-container" aria-hidden="true" />
+        <div className="bg-surface-container h-2" aria-hidden="true" />
         {chartSections.map((section, index) => (
           <div key={section.title}>
-            {index > 0 ? <div className="h-2 bg-surface-container" aria-hidden="true" /> : null}
+            {index > 0 ? <div className="bg-surface-container h-2" aria-hidden="true" /> : null}
             <StatisticsChart
               label={section.label}
               title={section.title}
@@ -61,21 +103,43 @@ export function IndependentConsultantAdStatisticsDetailsPage() {
 
 function StatisticsChart({ label, title, value }: { label: string; title: string; value: string }) {
   return (
-    <section className="h-[283px] bg-surface-container-low px-4 py-4" aria-label={title}>
+    <section className="bg-surface-container-low h-[283px] px-4 py-4" aria-label={title}>
       <div className="flex h-12 items-center justify-end [direction:ltr]">
-        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
-          <TrendIcon className="h-6 w-6 text-on-surface-var" />
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="medium"
+          className="m-0 inline-flex items-center gap-2 text-base leading-6 font-medium [direction:rtl]"
+        >
+          <TrendIcon className="text-on-surface-var h-6 w-6" />
           {title}
         </Typography>
       </div>
 
       <div className="mt-4 h-[187px]">
         <div className="flex h-6 items-center justify-start gap-2 [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-on-surface-var">{label}</Typography>
-          <strong className="rounded bg-primary-container px-2 text-base font-medium leading-6 text-primary">{value}</strong>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var text-sm leading-5 font-normal"
+          >
+            {label}
+          </Typography>
+          <strong className="bg-primary-container text-primary rounded px-2 text-base leading-6 font-medium">
+            {value}
+          </strong>
         </div>
-        <div className="mx-auto mt-2 flex h-[155px] w-full items-center justify-center border-b border-outline-var text-center">
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-outline">
+        <div className="border-outline-var mx-auto mt-2 flex h-[155px] w-full items-center justify-center border-b text-center">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline m-0 text-xs"
+          >
             داده نموداری از سرور دریافت نشده است.
           </Typography>
         </div>
@@ -103,7 +167,8 @@ function readStatistic(ad: unknown, keys: string[]) {
   for (const container of containers) {
     for (const key of keys) {
       const value = container[key];
-      if (typeof value === "number" && Number.isFinite(value)) return new Intl.NumberFormat("fa-IR").format(value);
+      if (typeof value === "number" && Number.isFinite(value))
+        return new Intl.NumberFormat("fa-IR").format(value);
       if (typeof value === "string" && value.trim()) return value;
     }
   }
@@ -126,7 +191,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function TrendIcon({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.7"
+      viewBox="0 0 24 24"
+    >
       <rect height="17" rx="2" width="16" x="4" y="3.5" />
       <path d="m7.5 15.5 3.25-3.25 2.5 2.25 3.5-5M15 9.5h1.75v1.75" />
     </svg>

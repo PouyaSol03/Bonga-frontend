@@ -26,22 +26,36 @@ export function mapChangedBaseFields(
   if (changed.has("title")) appender.appendBase("title", clean.title);
   if (changed.has("description")) appender.appendBase("description", clean.description);
 
-  if (changed.has("location") || changed.has("neighborhoodId") || changed.has("subNeighborhoodId")) {
+  if (
+    changed.has("location") ||
+    changed.has("neighborhoodId") ||
+    changed.has("subNeighborhoodId")
+  ) {
     const nId = clean.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey) || "";
-    const subNId = clean.subNeighborhoodId || window.localStorage.getItem(subNeighborhoodIdKey) || "";
+    const subNId =
+      clean.subNeighborhoodId || window.localStorage.getItem(subNeighborhoodIdKey) || "";
     appender.appendBase("neighborhood_id", nId);
     appender.appendBase("sub_neighborhood_id", subNId);
     appender.appendBase("lat", getStoredNewAdLocationNumber(locationLatKey));
     appender.appendBase("lng", getStoredNewAdLocationNumber(locationLngKey));
-    appender.appendBase("location_label", clean.location || window.localStorage.getItem(locationKey) || "");
+    appender.appendBase(
+      "location_label",
+      clean.location || window.localStorage.getItem(locationKey) || "",
+    );
   }
 
   if (changed.has("virtualTourLink") || changed.has("hasVirtualTour")) {
-    appender.appendBase("virtual_tour_link", clean.hasVirtualTour ? clean.virtualTourLink.trim() : "");
+    appender.appendBase(
+      "virtual_tour_link",
+      clean.hasVirtualTour ? clean.virtualTourLink.trim() : "",
+    );
   }
 
   if (changed.has("agencyId")) {
-    appender.appendBase("agency_id", clean.registrantType === "agency" ? clean.agencyId.trim() : "");
+    appender.appendBase(
+      "agency_id",
+      clean.registrantType === "agency" ? clean.agencyId.trim() : "",
+    );
   }
 
   if (changed.has("consultantId") && shouldSendConsultantAssignment(clean)) {
@@ -69,7 +83,10 @@ export function mapChangedBaseFields(
   if (changed.has("whatsapp")) appender.appendBase("whatsapp", clean.whatsapp);
 
   if (changed.has("chatEnabled") || changed.has("phoneEnabled")) {
-    const contactTypes = [clean.chatEnabled ? "chat" : null, clean.phoneEnabled ? "phone" : null].filter(Boolean);
+    const contactTypes = [
+      clean.chatEnabled ? "chat" : null,
+      clean.phoneEnabled ? "phone" : null,
+    ].filter(Boolean);
     contactTypes.forEach((t) => appender.formData.append("contact_type[]", String(t)));
   }
 

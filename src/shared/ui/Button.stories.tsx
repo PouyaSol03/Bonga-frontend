@@ -70,37 +70,43 @@ export const InteractivePlayground: Story = {
 export const AllVariantsShowcase: Story = {
   name: "تمام ۸ واریانت دکمه",
   render: () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-2">
-      <div className="flex flex-col gap-2 rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-        <span className="text-xs font-bold text-on-surface-var">Primary (اصلی برند)</span>
+    <div className="grid grid-cols-1 gap-4 p-2 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="border-outline-var bg-surface-container-lowest flex flex-col gap-2 rounded-xl border p-4">
+        <span className="text-on-surface-var text-xs font-bold">Primary (اصلی برند)</span>
         <Button variant="primary">ثبت و ادامه</Button>
       </div>
-      <div className="flex flex-col gap-2 rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-        <span className="text-xs font-bold text-on-surface-var">Secondary (حاشیه‌دار آبی)</span>
+      <div className="border-outline-var bg-surface-container-lowest flex flex-col gap-2 rounded-xl border p-4">
+        <span className="text-on-surface-var text-xs font-bold">Secondary (حاشیه‌دار آبی)</span>
         <Button variant="secondary">انصراف و بازگشت</Button>
       </div>
-      <div className="flex flex-col gap-2 rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-        <span className="text-xs font-bold text-on-surface-var">Danger (حذف و اقدام خطرناک)</span>
-        <Button variant="danger" leadingIcon={<LinearCancelCircle className="h-5 w-5" />}>حذف آگهی</Button>
+      <div className="border-outline-var bg-surface-container-lowest flex flex-col gap-2 rounded-xl border p-4">
+        <span className="text-on-surface-var text-xs font-bold">Danger (حذف و اقدام خطرناک)</span>
+        <Button variant="danger" leadingIcon={<LinearCancelCircle className="h-5 w-5" />}>
+          حذف آگهی
+        </Button>
       </div>
-      <div className="flex flex-col gap-2 rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-        <span className="text-xs font-bold text-on-surface-var">Neutral Outline (حاشیه خاکستری)</span>
-        <Button variant="neutral-outline" leadingIcon={<LinearEdit className="h-5 w-5" />}>ویرایش مشخصات</Button>
+      <div className="border-outline-var bg-surface-container-lowest flex flex-col gap-2 rounded-xl border p-4">
+        <span className="text-on-surface-var text-xs font-bold">
+          Neutral Outline (حاشیه خاکستری)
+        </span>
+        <Button variant="neutral-outline" leadingIcon={<LinearEdit className="h-5 w-5" />}>
+          ویرایش مشخصات
+        </Button>
       </div>
-      <div className="flex flex-col gap-2 rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-        <span className="text-xs font-bold text-on-surface-var">Neutral (پس‌زمینه خنثی)</span>
+      <div className="border-outline-var bg-surface-container-lowest flex flex-col gap-2 rounded-xl border p-4">
+        <span className="text-on-surface-var text-xs font-bold">Neutral (پس‌زمینه خنثی)</span>
         <Button variant="neutral">ذخیره موقت</Button>
       </div>
-      <div className="flex flex-col gap-2 rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-        <span className="text-xs font-bold text-on-surface-var">Ghost (شیشه‌ای آبی)</span>
+      <div className="border-outline-var bg-surface-container-lowest flex flex-col gap-2 rounded-xl border p-4">
+        <span className="text-on-surface-var text-xs font-bold">Ghost (شیشه‌ای آبی)</span>
         <Button variant="ghost">مشاهده جزئیات</Button>
       </div>
-      <div className="flex flex-col gap-2 rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-        <span className="text-xs font-bold text-on-surface-var">Neutral Text (متن خاکستری)</span>
+      <div className="border-outline-var bg-surface-container-lowest flex flex-col gap-2 rounded-xl border p-4">
+        <span className="text-on-surface-var text-xs font-bold">Neutral Text (متن خاکستری)</span>
         <Button variant="neutral-text">رد کردن این مرحله</Button>
       </div>
-      <div className="flex flex-col gap-2 rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-        <span className="text-xs font-bold text-on-surface-var">Text (متن آبی خالص)</span>
+      <div className="border-outline-var bg-surface-container-lowest flex flex-col gap-2 rounded-xl border p-4">
+        <span className="text-on-surface-var text-xs font-bold">Text (متن آبی خالص)</span>
         <Button variant="text">قوانین و مقررات</Button>
       </div>
     </div>
@@ -110,24 +116,30 @@ export const AllVariantsShowcase: Story = {
 export const SizesComparison: Story = {
   name: "مقایسه اندازه‌ها (Sizes)",
   render: () => (
-    <div className="flex flex-col gap-6 p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
-      <div className="flex items-center justify-between gap-4 border-b border-outline-var pb-4">
-        <div className="text-sm font-bold text-on-surface">
+    <div className="bg-surface-container-lowest border-outline-var flex flex-col gap-6 rounded-xl border p-4">
+      <div className="border-outline-var flex items-center justify-between gap-4 border-b pb-4">
+        <div className="text-on-surface text-sm font-bold">
           Medium (56px) - دکمه‌های اقدام اصلی صفحات و فرم‌های ثبت
         </div>
-        <Button size="medium" variant="primary">تایید و پرداخت</Button>
+        <Button size="medium" variant="primary">
+          تایید و پرداخت
+        </Button>
       </div>
-      <div className="flex items-center justify-between gap-4 border-b border-outline-var pb-4">
-        <div className="text-sm font-bold text-on-surface">
+      <div className="border-outline-var flex items-center justify-between gap-4 border-b pb-4">
+        <div className="text-on-surface text-sm font-bold">
           X-Medium (40px) - دکمه‌های کارت‌ها، اکشن‌بارها و مودال‌ها
         </div>
-        <Button size="x-medium" variant="primary">ارسال پیام</Button>
+        <Button size="x-medium" variant="primary">
+          ارسال پیام
+        </Button>
       </div>
       <div className="flex items-center justify-between gap-4">
-        <div className="text-sm font-bold text-on-surface">
+        <div className="text-on-surface text-sm font-bold">
           Small (28px) - دکمه‌های فشرده درون جدولی و بج‌های قابل اقدام
         </div>
-        <Button size="small" variant="primary">تمدید</Button>
+        <Button size="small" variant="primary">
+          تمدید
+        </Button>
       </div>
     </div>
   ),
@@ -136,15 +148,24 @@ export const SizesComparison: Story = {
 export const TactileFeedbackDemo: Story = {
   name: "دموی انیمیشن فشردگی لمسی (Tactile Tap Scale)",
   render: () => (
-    <div className="flex flex-col gap-4 p-6 bg-surface-container-lowest rounded-xl border border-outline-var text-center">
-      <h3 className="text-base font-bold text-on-surface">بر روی دکمه‌های زیر کلیک کنید یا نگه دارید:</h3>
-      <p className="text-sm text-on-surface-var">
-        انیمیشن انقباض لمسی نرم (`active:scale-[0.97]`) با نرخ پاسخ‌دهی ۷۵ میلی‌ثانیه فیدبک طبیعی ایجاد می‌کند.
+    <div className="bg-surface-container-lowest border-outline-var flex flex-col gap-4 rounded-xl border p-6 text-center">
+      <h3 className="text-on-surface text-base font-bold">
+        بر روی دکمه‌های زیر کلیک کنید یا نگه دارید:
+      </h3>
+      <p className="text-on-surface-var text-sm">
+        انیمیشن انقباض لمسی نرم (`active:scale-[0.97]`) با نرخ پاسخ‌دهی ۷۵ میلی‌ثانیه فیدبک طبیعی
+        ایجاد می‌کند.
       </p>
       <div className="flex flex-wrap justify-center gap-4 pt-2">
-        <Button variant="primary" size="medium">کلیک برای تست فیدبک</Button>
-        <Button variant="secondary" size="medium">دکمه ثانویه تعاملی</Button>
-        <Button variant="danger" size="medium">دکمه هشدار تعاملی</Button>
+        <Button variant="primary" size="medium">
+          کلیک برای تست فیدبک
+        </Button>
+        <Button variant="secondary" size="medium">
+          دکمه ثانویه تعاملی
+        </Button>
+        <Button variant="danger" size="medium">
+          دکمه هشدار تعاملی
+        </Button>
       </div>
     </div>
   ),
@@ -153,11 +174,19 @@ export const TactileFeedbackDemo: Story = {
 export const LoadingAndDisabledStates: Story = {
   name: "حالت‌های لودینگ و غیرفعال",
   render: () => (
-    <div className="flex flex-wrap gap-4 p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
-      <Button loading variant="primary">در حال ارسال اطلاعات...</Button>
-      <Button loading variant="secondary">در حال پردازش</Button>
-      <Button disabled variant="primary">غیرفعال (Disabled)</Button>
-      <Button disabled variant="neutral-outline">ویرایش غیرفعال</Button>
+    <div className="bg-surface-container-lowest border-outline-var flex flex-wrap gap-4 rounded-xl border p-4">
+      <Button loading variant="primary">
+        در حال ارسال اطلاعات...
+      </Button>
+      <Button loading variant="secondary">
+        در حال پردازش
+      </Button>
+      <Button disabled variant="primary">
+        غیرفعال (Disabled)
+      </Button>
+      <Button disabled variant="neutral-outline">
+        ویرایش غیرفعال
+      </Button>
     </div>
   ),
 };
@@ -165,7 +194,7 @@ export const LoadingAndDisabledStates: Story = {
 export const DialogActionPair: Story = {
   name: "جفت دکمه‌های تایید و انصراف مودال",
   render: () => (
-    <div className="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl border border-outline-var max-w-md">
+    <div className="bg-surface-container-lowest border-outline-var flex max-w-md items-center gap-3 rounded-xl border p-4">
       <Button fullWidth variant="primary" trailingIcon={<LinearArrowLeft1 className="h-5 w-5" />}>
         تایید و ادامه
       </Button>

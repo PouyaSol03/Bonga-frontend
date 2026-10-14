@@ -99,7 +99,8 @@ function TopBarIconButton({ action }: { action: TopBarAction }) {
   }
 
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-label={action.label}
       className={className}
       onClick={action.onClick}
@@ -127,9 +128,10 @@ function TopBarBackButton({
   const label = backLabel ?? "بازگشت";
 
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-label={label}
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 active:bg-surface-container-high"
+      className="text-on-surface focus-visible:outline-primary/25 active:bg-surface-container-high grid h-10 w-10 shrink-0 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
       onClick={() => {
         if (onBack) {
           onBack();
@@ -160,38 +162,41 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
 
   if (!hasSavedAction) {
     return (
-      <SearchBar
-        aria-label={search.label}
-        compact
-        onClick={search.onClick}
-        text={search.label}
-      />
+      <SearchBar aria-label={search.label} compact onClick={search.onClick} text={search.label} />
     );
   }
 
   return (
     <div
-      className="relative flex h-12 w-full min-w-0 items-center overflow-hidden rounded-xl border border-outline bg-surface-container-lowest text-right text-sm font-normal leading-5 text-outline focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-primary/25"
+      className="border-outline bg-surface-container-lowest text-outline focus-within:outline-primary/25 relative flex h-12 w-full min-w-0 items-center overflow-hidden rounded-xl border text-right text-sm leading-5 font-normal focus-within:outline-3 focus-within:outline-offset-[-3px]"
       dir="rtl"
     >
-      <Button unstyled
+      <Button
+        unstyled
         aria-label={search.label}
-        className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-3 bg-transparent py-0 pe-3 ps-0 text-right text-sm font-normal leading-5 text-outline"
+        className="text-outline flex h-full min-w-0 flex-1 cursor-pointer items-center gap-3 bg-transparent py-0 ps-0 pe-3 text-right text-sm leading-5 font-normal"
         onClick={search.onClick}
         type="button"
       >
-        <SearchBarSearchIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-outline" />
-        <span aria-hidden="true" className="h-6 w-px shrink-0 bg-outline-var" />
-        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right">
+        <SearchBarSearchIcon aria-hidden="true" className="text-outline h-5 w-5 shrink-0" />
+        <span aria-hidden="true" className="bg-outline-var h-6 w-px shrink-0" />
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="min-w-0 flex-1 truncate text-right"
+        >
           {search.label}
         </Typography>
       </Button>
 
       {hasSavedAction ? (
-        <Button unstyled
+        <Button
+          unstyled
           aria-label={search.savedLabel ?? "جستجوی ذخیره شده"}
           aria-pressed={search.isSaved}
-          className="relative grid h-12 w-12 shrink-0 place-items-center bg-transparent text-on-surface transition-colors [-webkit-tap-highlight-color:transparent] active:bg-transparent focus:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
+          className="text-on-surface relative grid h-12 w-12 shrink-0 place-items-center bg-transparent transition-colors [-webkit-tap-highlight-color:transparent] focus:bg-transparent active:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
           disabled={search.isSaving || search.isSavedDisabled}
           onClick={(event) => {
             event.stopPropagation();
@@ -201,7 +206,13 @@ function TopBarSearchButton({ search }: { search: TopBarSearch }) {
         >
           <TopBarBookmarkIcon filled={Boolean(search.isSaved)} />
           {search.savedCount && search.savedCount > 0 ? (
-            <Typography as="span" variant="label" size="small" weight="semibold" className="absolute right-1 top-1 grid min-h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-on-primary">
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="semibold"
+              className="bg-primary text-on-primary absolute top-1 right-1 grid min-h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] leading-4 font-bold"
+            >
               {search.savedCount > 99
                 ? "۹۹+"
                 : new Intl.NumberFormat("fa-IR").format(search.savedCount)}
@@ -237,17 +248,12 @@ function TopBarView({
   const hasBack = showBack && (backTo || onBack);
 
   return (
-    <header
-      className={`shrink-0 bg-surface-container ${heightClassName} ${className}`}
-      dir="rtl"
-    >
+    <header className={`bg-surface-container shrink-0 ${heightClassName} ${className}`} dir="rtl">
       <div className={`flex h-full min-w-0 items-center [direction:ltr] ${contentClassName}`}>
         {hasStartSlot || reserveStartSpace ? (
           <div className="flex h-10 min-w-10 shrink-0 items-center gap-2">
             {startSlot ??
-              actions.map((action) => (
-                <TopBarIconButton action={action} key={action.id} />
-              ))}
+              actions.map((action) => <TopBarIconButton action={action} key={action.id} />)}
           </div>
         ) : null}
 
@@ -257,8 +263,12 @@ function TopBarView({
           ) : search ? (
             <TopBarSearchButton search={search} />
           ) : title ? (
-            <Typography as="h1" variant="title" size="large" weight="semibold"
-              className={`m-0 truncate text-right text-on-surface ${titleClassName}`}
+            <Typography
+              as="h1"
+              variant="title"
+              size="large"
+              weight="semibold"
+              className={`text-on-surface m-0 truncate text-right ${titleClassName}`}
             >
               {title}
             </Typography>
@@ -337,12 +347,8 @@ export function TopBarLayoutProvider({
   const setTopBar = useCallback((props: LayoutTopBarProps | null) => {
     setRegisteredTopBar(props ? { props, resetKey: resetKeyRef.current } : null);
   }, []);
-  const contextValue = useMemo<TopBarLayoutContextValue>(
-    () => ({ setTopBar }),
-    [setTopBar],
-  );
-  const topBar =
-    registeredTopBar?.resetKey === resetKey ? registeredTopBar.props : defaultTopBar;
+  const contextValue = useMemo<TopBarLayoutContextValue>(() => ({ setTopBar }), [setTopBar]);
+  const topBar = registeredTopBar?.resetKey === resetKey ? registeredTopBar.props : defaultTopBar;
 
   return (
     <TopBarLayoutContext.Provider value={contextValue}>

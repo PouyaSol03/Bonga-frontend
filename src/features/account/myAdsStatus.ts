@@ -111,8 +111,6 @@ export const myAdStatusConfig: Record<MyAdStatusKey, MyAdStatusInfo> = {
   },
 };
 
-
-
 function normalizeStatusText(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) return String(value);
   if (typeof value !== "string") return "";
@@ -153,9 +151,13 @@ function readCandidateStatus(source: unknown) {
 export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
   const rawStatus = readCandidateStatus(source);
   const status = normalizeStatusText(rawStatus);
-  const record = source && typeof source === "object" ? (source as Record<string, unknown>) : undefined;
-  const deleteReason = (record?.delete_reason ?? record?.deleteReason) as Record<string, unknown> | undefined;
-  const assignmentStatus = String(record?.assignment_status ?? record?.assignmentStatus ?? "").toLowerCase();
+  const record =
+    source && typeof source === "object" ? (source as Record<string, unknown>) : undefined;
+  const deleteReason = (record?.delete_reason ?? record?.deleteReason) as
+    Record<string, unknown> | undefined;
+  const assignmentStatus = String(
+    record?.assignment_status ?? record?.assignmentStatus ?? "",
+  ).toLowerCase();
 
   if (
     deleteReason?.status === "pending_user_confirmation" ||
@@ -196,7 +198,7 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     record?.assignment_id ||
     record?.assignmentId ||
     record?.is_assigned ||
-    record?.isAssigned
+    record?.isAssigned,
   );
 
   if (
@@ -208,7 +210,17 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     status === "wait-for-agency" ||
     (isAssignedToAgency &&
       assignmentStatus !== "approved" &&
-      (["1", "2", "pending", "review", "waiting", "wait_for_agency", "wait-for-agency", "wait_for_admin", "wait-for-admin"].includes(status) ||
+      ([
+        "1",
+        "2",
+        "pending",
+        "review",
+        "waiting",
+        "wait_for_agency",
+        "wait-for-agency",
+        "wait_for_admin",
+        "wait-for-admin",
+      ].includes(status) ||
         status.includes("انتظار") ||
         status.includes("بررسی")))
   ) {
@@ -222,8 +234,12 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     status === "wait_for_repost" ||
     status.includes("ثبت مجدد")
   ) {
-    const repostDeadline = deleteReason?.repost_deadline ? Date.parse(String(deleteReason.repost_deadline)) : NaN;
-    const archiveDeadline = deleteReason?.archive_deadline ? Date.parse(String(deleteReason.archive_deadline)) : NaN;
+    const repostDeadline = deleteReason?.repost_deadline
+      ? Date.parse(String(deleteReason.repost_deadline))
+      : NaN;
+    const archiveDeadline = deleteReason?.archive_deadline
+      ? Date.parse(String(deleteReason.archive_deadline))
+      : NaN;
     if (!Number.isNaN(repostDeadline)) {
       if (Date.now() <= repostDeadline) {
         return myAdStatusConfig.wait_for_repost;
@@ -266,7 +282,12 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     return myAdStatusConfig.expired;
   }
 
-  if (status.includes("انقضا") || status.includes("منقض") || status.includes("غیر فعال") || status.includes("غیرفعال")) {
+  if (
+    status.includes("انقضا") ||
+    status.includes("منقض") ||
+    status.includes("غیر فعال") ||
+    status.includes("غیرفعال")
+  ) {
     return myAdStatusConfig.expired;
   }
 
@@ -338,15 +359,11 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     return myAdStatusConfig.needs_edit;
   }
 
-  if ([
-    "1",
-    "pending",
-    "review",
-    "waiting",
-    "in-review",
-    "wait-for-admin",
-    "wait_for_admin",
-  ].includes(status)) {
+  if (
+    ["1", "pending", "review", "waiting", "in-review", "wait-for-admin", "wait_for_admin"].includes(
+      status,
+    )
+  ) {
     return myAdStatusConfig.pending;
   }
 
@@ -354,7 +371,11 @@ export function getMyAdStatusInfo(source?: unknown): MyAdStatusInfo {
     return myAdStatusConfig.pending;
   }
 
-  if (["3", "accepted", "active", "approved", "publish", "published", "success", "paid"].includes(status)) {
+  if (
+    ["3", "accepted", "active", "approved", "publish", "published", "success", "paid"].includes(
+      status,
+    )
+  ) {
     return myAdStatusConfig.published;
   }
 

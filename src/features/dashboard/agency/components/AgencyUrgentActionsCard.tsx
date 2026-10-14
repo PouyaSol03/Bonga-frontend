@@ -8,5 +8,3 @@ export type AgencyUrgentActionsCardProps = DashboardUrgentActionsCardProps;
 export function AgencyUrgentActionsCard(props: AgencyUrgentActionsCardProps) {
   return <DashboardUrgentActionsCard {...props} />;
 }
-
-

@@ -59,11 +59,7 @@ export function SearchMapGeofenceConfirmedLayer({
         pathOptions={MASK_OPTIONS}
         positions={[WORLD_MASK_RING, selectedRing]}
       />
-      <Polyline
-        interactive={false}
-        pathOptions={BOUNDARY_OPTIONS}
-        positions={selectedRing}
-      />
+      <Polyline interactive={false} pathOptions={BOUNDARY_OPTIONS} positions={selectedRing} />
     </Pane>
   );
 }

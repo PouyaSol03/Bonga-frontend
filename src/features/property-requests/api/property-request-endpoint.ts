@@ -1,12 +1,6 @@
 import { getActiveV2Role, type V2RoleSegment } from "../../../shared/api/api";
-import {
-  getActiveAuthRole,
-  getStoredAuthSession,
-} from "../../../shared/auth/auth-storage";
-import type {
-  PropertyRequestOwnerType,
-  PropertyRequestScope,
-} from "./property-request-types";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import type { PropertyRequestOwnerType, PropertyRequestScope } from "./property-request-types";
 
 const V2_SUPPORTED_REQUEST_ROLES: ReadonlySet<V2RoleSegment> = new Set<V2RoleSegment>([
   "agency",

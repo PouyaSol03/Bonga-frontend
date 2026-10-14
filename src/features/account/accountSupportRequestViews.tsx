@@ -1,6 +1,10 @@
 import LinearArrowDown1 from "../../shared/icons/LinearArrowDown1";
 import LinearTick from "../../shared/icons/LinearTick";
-import { BottomSheet, BottomSheetActionList, type BottomSheetAction } from "../../shared/components/BottomSheet";
+import {
+  BottomSheet,
+  BottomSheetActionList,
+  type BottomSheetAction,
+} from "../../shared/components/BottomSheet";
 import { Link } from "react-router";
 import type { SupportRequestItem } from "../support/api/support-request.service";
 
@@ -55,15 +59,11 @@ export const priorityOptions: SelectOption[] = [
     id: "urgent",
     title: "فوری",
     value: "urgent",
-    description:
-      "فقط در صورت اختلال جدی در استفاده از سامانه، گزینه «فوری» را انتخاب کنید.",
+    description: "فقط در صورت اختلال جدی در استفاده از سامانه، گزینه «فوری» را انتخاب کنید.",
   },
 ];
 
-const statusPresentation: Record<
-  SupportRequestStatus,
-  { label: string; className: string }
-> = {
+const statusPresentation: Record<SupportRequestStatus, { label: string; className: string }> = {
   open: {
     label: "باز",
     className: "bg-tertiary-container/30 text-tertiary",
@@ -84,14 +84,10 @@ function toPersianDigits(value: number | string) {
 
 export function mapSupportRequest(item: SupportRequestItem): SupportRequest {
   const id = item.id === undefined || item.id === null ? "" : String(item.id);
-  const threadId = item.thread_id === undefined || item.thread_id === null
-    ? undefined
-    : String(item.thread_id);
-  const status: SupportRequestStatus = item.status === "closed"
-    ? "closed"
-    : item.status === "in_progress"
-      ? "in_progress"
-      : "open";
+  const threadId =
+    item.thread_id === undefined || item.thread_id === null ? undefined : String(item.thread_id);
+  const status: SupportRequestStatus =
+    item.status === "closed" ? "closed" : item.status === "in_progress" ? "in_progress" : "open";
   const createdAt = item.created_at
     ? new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
         day: "numeric",
@@ -118,8 +114,12 @@ function SupportRequestStatusChip({ status }: { status: SupportRequestStatus }) 
   const presentation = statusPresentation[status];
 
   return (
-    <Typography as="span" variant="label" size="small" weight="medium"
-      className={`inline-flex h-6 shrink-0 items-center justify-center rounded-md px-2 text-[11px] font-medium leading-4 ${presentation.className}`}
+    <Typography
+      as="span"
+      variant="label"
+      size="small"
+      weight="medium"
+      className={`inline-flex h-6 shrink-0 items-center justify-center rounded-md px-2 text-[11px] leading-4 font-medium ${presentation.className}`}
     >
       {presentation.label}
     </Typography>
@@ -128,13 +128,25 @@ function SupportRequestStatusChip({ status }: { status: SupportRequestStatus }) 
 
 export function SupportRequestCard({ request }: { request: SupportRequest }) {
   const card = (
-    <article className="rounded-2xl border border-outline-var bg-surface-container-lowest px-4 py-3.5 text-right shadow-sm">
+    <article className="border-outline-var bg-surface-container-lowest rounded-2xl border px-4 py-3.5 text-right shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs font-normal leading-5 text-on-surface-var">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-on-surface-var m-0 text-xs leading-5 font-normal"
+          >
             {request.category}
           </Typography>
-          <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-1 text-sm font-semibold leading-6 text-on-surface">
+          <Typography
+            as="h2"
+            variant="title"
+            size="small"
+            weight="semibold"
+            className="text-on-surface m-0 mt-1 text-sm leading-6 font-semibold"
+          >
             {request.title}
           </Typography>
         </div>
@@ -142,9 +154,18 @@ export function SupportRequestCard({ request }: { request: SupportRequest }) {
         <SupportRequestStatusChip status={request.status} />
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-3 text-[10px] font-normal leading-4 text-outline">
-        <Typography as="span" variant="body" size="medium" weight="regular">{request.createdAt}</Typography>
-        <Typography as="span" variant="body" size="medium" weight="regular" className="truncate" dir="rtl">
+      <div className="text-outline mt-3 flex items-center justify-between gap-3 text-[10px] leading-4 font-normal">
+        <Typography as="span" variant="body" size="medium" weight="regular">
+          {request.createdAt}
+        </Typography>
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="truncate"
+          dir="rtl"
+        >
           شماره درخواست {request.requestNumber}
         </Typography>
       </div>
@@ -159,7 +180,9 @@ export function SupportRequestCard({ request }: { request: SupportRequest }) {
     >
       {card}
     </Link>
-  ) : card;
+  ) : (
+    card
+  );
 }
 
 export function SupportRequestsEmptyState() {
@@ -172,13 +195,24 @@ export function SupportRequestsEmptyState() {
         src="/vectors/NoSupportRequest.svg"
       />
 
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-base font-semibold leading-6 text-on-surface">
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0 mt-5 text-base leading-6 font-semibold"
+      >
         درخواستی ثبت نشده است!
       </Typography>
 
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[300px] text-sm font-normal leading-6 text-on-surface-var">
-        اگر به راهنمایی یا پیگیری نیاز دارید، می‌توانید یک درخواست جدید برای تیم
-        پشتیبانی ثبت کنید.
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-on-surface-var m-0 mt-2 max-w-[300px] text-sm leading-6 font-normal"
+      >
+        اگر به راهنمایی یا پیگیری نیاز دارید، می‌توانید یک درخواست جدید برای تیم پشتیبانی ثبت کنید.
       </Typography>
     </div>
   );
@@ -194,15 +228,16 @@ export function SupportRequestTabs({
   return (
     <nav
       aria-label="فیلتر وضعیت درخواست‌ها"
-      className="flex h-[52px] shrink-0 gap-2 overflow-x-auto border-b border-outline-var bg-surface-container-lowest px-3 py-2 [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="border-outline-var bg-surface-container-lowest flex h-[52px] shrink-0 [scrollbar-width:none] gap-2 overflow-x-auto border-b px-3 py-2 [-ms-overflow-style:none] [direction:rtl] [&::-webkit-scrollbar]:hidden"
     >
       {filters.map((filter) => {
         const isActive = activeFilter === filter.id;
 
         return (
-          <Button unstyled
+          <Button
+            unstyled
             aria-pressed={isActive}
-            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-primary/40 ${
+            className={`focus-visible:outline-primary/40 flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs leading-4 font-medium transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 ${
               isActive
                 ? "border-primary bg-primary-container text-primary"
                 : "border-outline-var bg-surface-container-lowest text-on-surface-var active:bg-surface-container"
@@ -221,9 +256,24 @@ export function SupportRequestTabs({
 
 export function RequiredLabel({ children }: { children: string }) {
   return (
-    <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex items-center gap-1 text-sm font-medium leading-5 text-on-surface">
-      <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
-      <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className="text-error">
+    <Typography
+      as="span"
+      variant="label"
+      size="medium"
+      weight="medium"
+      className="text-on-surface inline-flex items-center gap-1 text-sm leading-5 font-medium"
+    >
+      <Typography as="span" variant="body" size="medium" weight="regular">
+        {children}
+      </Typography>
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        aria-hidden="true"
+        className="text-error"
+      >
         *
       </Typography>
     </Typography>
@@ -244,15 +294,22 @@ export function RequestSelectField({
   return (
     <label className="block">
       <RequiredLabel>{label}</RequiredLabel>
-      <Button unstyled
-        className={`mt-2 flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface-container-lowest px-3 text-right text-sm font-normal leading-5 outline-none transition focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-primary/20 [direction:ltr] ${
+      <Button
+        unstyled
+        className={`border-outline-var bg-surface-container-lowest focus-visible:border-primary focus-visible:ring-primary/20 mt-2 flex h-12 w-full items-center justify-between rounded-xl border px-3 text-right text-sm leading-5 font-normal transition outline-none [direction:ltr] focus-visible:ring-3 ${
           value ? "text-on-surface" : "text-outline"
         }`}
         onClick={onClick}
         type="button"
       >
-        <LinearArrowDown1 className="h-5 w-5 shrink-0 text-on-surface-var" />
-        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate pr-2 text-right [direction:rtl]">
+        <LinearArrowDown1 className="text-on-surface-var h-5 w-5 shrink-0" />
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="min-w-0 flex-1 truncate pr-2 text-right [direction:rtl]"
+        >
           {value || placeholder}
         </Typography>
       </Button>
@@ -296,9 +353,10 @@ export function RequestOptionBottomSheet({
 
             return (
               <div key={option.id}>
-                <Button unstyled
+                <Button
+                  unstyled
                   aria-pressed={isSelected}
-                  className={`relative flex min-h-12 w-full items-center justify-center bg-surface-container-lowest px-10 py-2.5 text-center outline-none transition-colors focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-primary/40 ${
+                  className={`bg-surface-container-lowest focus-visible:ring-primary/40 relative flex min-h-12 w-full items-center justify-center px-10 py-2.5 text-center transition-colors outline-none focus-visible:ring-3 focus-visible:ring-inset ${
                     isSelected ? "text-primary" : "text-on-surface"
                   }`}
                   onClick={() => onSelect(option.value)}
@@ -306,18 +364,33 @@ export function RequestOptionBottomSheet({
                   type="button"
                 >
                   {isSelected ? (
-                    <LinearTick
-                      aria-hidden="true"
-                      className="absolute right-4 h-5 w-5"
-                    />
+                    <LinearTick aria-hidden="true" className="absolute right-4 h-5 w-5" />
                   ) : null}
 
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-col items-center">
-                    <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6">
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="medium"
+                    weight="regular"
+                    className="flex min-w-0 flex-col items-center"
+                  >
+                    <Typography
+                      as="span"
+                      variant="body"
+                      size="large"
+                      weight="regular"
+                      className="text-base leading-6 font-normal"
+                    >
                       {option.title}
                     </Typography>
                     {option.description ? (
-                      <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 max-w-[360px] text-xs font-normal leading-5 text-outline">
+                      <Typography
+                        as="span"
+                        variant="body"
+                        size="small"
+                        weight="regular"
+                        className="text-outline mt-1 max-w-[360px] text-xs leading-5 font-normal"
+                      >
                         {option.description}
                       </Typography>
                     ) : null}
@@ -326,7 +399,7 @@ export function RequestOptionBottomSheet({
 
                 {index < options.length - 1 ? (
                   <div className="px-4 py-2">
-                    <div className="h-px bg-outline-var" />
+                    <div className="bg-outline-var h-px" />
                   </div>
                 ) : null}
               </div>

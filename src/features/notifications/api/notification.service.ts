@@ -1,12 +1,7 @@
 import { api } from "../../../shared/api/api";
 
 export type NotificationCategory =
-  | "advertise"
-  | "chats"
-  | "requests"
-  | "trades"
-  | "systems"
-  | "support";
+  "advertise" | "chats" | "requests" | "trades" | "systems" | "support";
 
 export type NotificationPayload = Record<string, unknown> & {
   advertise_id?: number | string;
@@ -172,9 +167,7 @@ export async function getNotificationUnreadCount(category?: NotificationCategory
 }
 
 export async function getNotificationPreferences() {
-  const response = await api
-    .get("notifications/preferences")
-    .json<PreferencesResponse>();
+  const response = await api.get("notifications/preferences").json<PreferencesResponse>();
 
   return readPreferences(response);
 }
@@ -192,11 +185,14 @@ export async function updateNotificationPreference({
         enabled,
       },
     })
-    .json<{
-      data?: NotificationPreference;
-      preference?: NotificationPreference;
-      status?: boolean;
-    } | NotificationPreference>();
+    .json<
+      | {
+          data?: NotificationPreference;
+          preference?: NotificationPreference;
+          status?: boolean;
+        }
+      | NotificationPreference
+    >();
 
   if ("data" in response && response.data) return response.data;
   if ("preference" in response && response.preference) return response.preference;
@@ -271,4 +267,3 @@ export async function unregisterFcmToken(token: string) {
     })
     .json<{ status?: boolean }>();
 }
-

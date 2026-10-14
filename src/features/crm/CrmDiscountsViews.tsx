@@ -84,7 +84,11 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
   const [draft, setDraft] = useState<DiscountDraft>(emptyDraft);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
-  const { data: discountCodes = [], isLoading, isError } = useQuery({
+  const {
+    data: discountCodes = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["crm", "discount-codes", refreshNonce],
     queryFn: listCrmDiscountCodes,
   });
@@ -221,37 +225,56 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
       {/* Header & Create Button */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <Typography as="h2" variant="title" size="large" weight="semibold" className="text-xl font-bold text-on-surface">
+          <Typography
+            as="h2"
+            variant="title"
+            size="large"
+            weight="semibold"
+            className="text-on-surface text-xl font-bold"
+          >
             مدیریت کدهای تخفیف
           </Typography>
-          <Typography as="p" variant="body" size="small" weight="regular" className="mt-1 text-on-surface-var">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-on-surface-var mt-1"
+          >
             تعریف کدهای تخفیف درصدی و ۱۰۰٪ و تخصیص به سرویس‌های آگهی، بسته و پنل
           </Typography>
         </div>
 
-        <Button
-          className="h-11 px-5"
-          onClick={openCreateModal}
-          type="button"
-          variant="primary"
-        >
+        <Button className="h-11 px-5" onClick={openCreateModal} type="button" variant="primary">
           + ایجاد کد تخفیف جدید
         </Button>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="rounded-2xl border border-outline-var bg-surface-container-lowest p-4">
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">
+        <div className="border-outline-var bg-surface-container-lowest rounded-2xl border p-4">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-on-surface-var"
+          >
             کل کدهای تخفیف
           </Typography>
-          <div className="mt-2 text-2xl font-bold text-on-surface">
+          <div className="text-on-surface mt-2 text-2xl font-bold">
             {formatPersianNumber(totalCodes)}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-outline-var bg-surface-container-lowest p-4">
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">
+        <div className="border-outline-var bg-surface-container-lowest rounded-2xl border p-4">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-on-surface-var"
+          >
             کدهای فعال
           </Typography>
           <div className="mt-2 text-2xl font-bold text-[#11a366]">
@@ -259,8 +282,14 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-outline-var bg-surface-container-lowest p-4">
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">
+        <div className="border-outline-var bg-surface-container-lowest rounded-2xl border p-4">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-on-surface-var"
+          >
             کدهای تخفیف ۱۰۰٪
           </Typography>
           <div className="mt-2 text-2xl font-bold text-[#0048c4]">
@@ -268,21 +297,27 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-outline-var bg-surface-container-lowest p-4">
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">
+        <div className="border-outline-var bg-surface-container-lowest rounded-2xl border p-4">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-on-surface-var"
+          >
             مجموع دفعات استفاده
           </Typography>
-          <div className="mt-2 text-2xl font-bold text-on-surface">
+          <div className="text-on-surface mt-2 text-2xl font-bold">
             {formatPersianNumber(totalUsed)}
           </div>
         </div>
       </div>
 
       {/* Table of Discount Codes */}
-      <div className="overflow-hidden rounded-2xl border border-outline-var bg-surface-container-lowest shadow-sm">
+      <div className="border-outline-var bg-surface-container-lowest overflow-hidden rounded-2xl border shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-right text-sm">
-            <thead className="border-b border-outline-var bg-surface-container text-xs font-semibold text-on-surface-var">
+            <thead className="border-outline-var bg-surface-container text-on-surface-var border-b text-xs font-semibold">
               <tr>
                 <th className="px-4 py-3.5">کد تخفیف</th>
                 <th className="px-4 py-3.5">درصد تخفیف</th>
@@ -294,22 +329,22 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
                 <th className="px-4 py-3.5 text-center">عملیات</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-var">
+            <tbody className="divide-outline-var divide-y">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-on-surface-var">
+                  <td colSpan={8} className="text-on-surface-var py-12 text-center">
                     در حال بارگذاری کدهای تخفیف...
                   </td>
                 </tr>
               ) : isError ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-error">
+                  <td colSpan={8} className="text-error py-12 text-center">
                     خطا در دریافت کدهای تخفیف. لطفاً دوباره تلاش کنید.
                   </td>
                 </tr>
               ) : discountCodes.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-on-surface-var">
+                  <td colSpan={8} className="text-on-surface-var py-12 text-center">
                     هیچ کد تخفیفی تاکنون تعریف نشده است.
                   </td>
                 </tr>
@@ -320,12 +355,15 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
 
                   return (
                     <tr className="hover:bg-surface-container-low transition-colors" key={item.id}>
-                      <td className="px-4 py-4 font-mono font-bold text-on-surface" dir="ltr">
-                        <span className="rounded-lg bg-surface-container-high px-2.5 py-1 text-sm font-semibold tracking-wider text-primary">
+                      <td className="text-on-surface px-4 py-4 font-mono font-bold" dir="ltr">
+                        <span className="bg-surface-container-high text-primary rounded-lg px-2.5 py-1 text-sm font-semibold tracking-wider">
                           {item.code}
                         </span>
                         {item.description ? (
-                          <div className="mt-1 font-sans text-xs font-normal text-on-surface-var" dir="rtl">
+                          <div
+                            className="text-on-surface-var mt-1 font-sans text-xs font-normal"
+                            dir="rtl"
+                          >
                             {item.description}
                           </div>
                         ) : null}
@@ -337,7 +375,7 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
                             ۱۰۰٪ (رایگان)
                           </span>
                         ) : (
-                          <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                          <span className="border-primary/20 bg-primary/10 text-primary inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-bold">
                             {formatPersianNumber(item.discount_percent)}٪
                           </span>
                         )}
@@ -358,18 +396,23 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
                         </div>
                       </td>
 
-                      <td className="px-4 py-4 text-on-surface">
+                      <td className="text-on-surface px-4 py-4">
                         {item.max_discount_amount
                           ? `${formatPersianNumber(item.max_discount_amount)} تومان`
                           : "بدون سقف"}
                       </td>
 
-                      <td className="px-4 py-4 text-on-surface">
-                        <span className="font-semibold">{formatPersianNumber(item.used_count || 0)}</span>
+                      <td className="text-on-surface px-4 py-4">
+                        <span className="font-semibold">
+                          {formatPersianNumber(item.used_count || 0)}
+                        </span>
                         {item.usage_limit ? (
-                          <span className="text-on-surface-var"> / {formatPersianNumber(item.usage_limit)}</span>
+                          <span className="text-on-surface-var">
+                            {" "}
+                            / {formatPersianNumber(item.usage_limit)}
+                          </span>
                         ) : (
-                          <span className="text-xs text-on-surface-var"> (نامحدود)</span>
+                          <span className="text-on-surface-var text-xs"> (نامحدود)</span>
                         )}
                       </td>
 
@@ -378,7 +421,7 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
                           {formatDatePersian(item.expire_at)}
                         </span>
                         {isExpired ? (
-                          <div className="text-xs font-medium text-error">منقضی شده</div>
+                          <div className="text-error text-xs font-medium">منقضی شده</div>
                         ) : null}
                       </td>
 
@@ -392,15 +435,17 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
 
                       <td className="px-4 py-4">
                         <div className="flex items-center justify-center gap-2">
-                          <Button unstyled
-                            className="h-8 rounded-lg bg-surface-container px-3 text-xs font-medium text-on-surface hover:bg-surface-container-high transition"
+                          <Button
+                            unstyled
+                            className="bg-surface-container text-on-surface hover:bg-surface-container-high h-8 rounded-lg px-3 text-xs font-medium transition"
                             onClick={() => openEditModal(item)}
                             type="button"
                           >
                             ویرایش
                           </Button>
-                          <Button unstyled
-                            className="h-8 rounded-lg bg-error-container/30 px-3 text-xs font-medium text-error hover:bg-error-container/50 transition"
+                          <Button
+                            unstyled
+                            className="bg-error-container/30 text-error hover:bg-error-container/50 h-8 rounded-lg px-3 text-xs font-medium transition"
                             onClick={() => setDeleteConfirmId(item.id)}
                             type="button"
                           >
@@ -423,16 +468,22 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
             <motion.div
               animate={{ opacity: 1, scale: 1 }}
-              className="w-full max-w-lg rounded-2xl border border-outline-var bg-surface-container-lowest p-6 shadow-xl [direction:rtl]"
+              className="border-outline-var bg-surface-container-lowest w-full max-w-lg rounded-2xl border p-6 shadow-xl [direction:rtl]"
               exit={{ opacity: 0, scale: 0.95 }}
               initial={{ opacity: 0, scale: 0.95 }}
             >
-              <div className="flex items-center justify-between border-b border-outline-var pb-4">
-                <Typography as="h3" variant="title" size="medium" weight="semibold" className="text-lg font-bold text-on-surface">
+              <div className="border-outline-var flex items-center justify-between border-b pb-4">
+                <Typography
+                  as="h3"
+                  variant="title"
+                  size="medium"
+                  weight="semibold"
+                  className="text-on-surface text-lg font-bold"
+                >
                   {editingItem ? "ویرایش کد تخفیف" : "افزودن کد تخفیف جدید"}
                 </Typography>
                 <button
-                  className="rounded-lg p-1 text-on-surface-var hover:bg-surface-container"
+                  className="text-on-surface-var hover:bg-surface-container rounded-lg p-1"
                   onClick={closeModal}
                   type="button"
                 >
@@ -442,7 +493,7 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
 
               <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface-var mb-1.5">
+                  <label className="text-on-surface-var mb-1.5 block text-xs font-semibold">
                     کد تخفیف <span className="text-error">*</span>
                   </label>
                   <input
@@ -458,12 +509,14 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
                     required
                     value={draft.code}
                   />
-                  <span className="text-[11px] text-on-surface-var">کد تخفیف به صورت خودکار به حروف بزرگ تبدیل می‌شود.</span>
+                  <span className="text-on-surface-var text-[11px]">
+                    کد تخفیف به صورت خودکار به حروف بزرگ تبدیل می‌شود.
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-xs font-semibold text-on-surface-var mb-1.5">
+                    <label className="text-on-surface-var mb-1.5 block text-xs font-semibold">
                       درصد تخفیف (۱ تا ۱۰۰) <span className="text-error">*</span>
                     </label>
                     <input
@@ -481,13 +534,14 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
                     />
                     {Number(draft.discountPercent) === 100 ? (
                       <span className="text-[11px] font-medium text-emerald-600">
-                        تخفیف ۱۰۰٪ درگاه پرداخت را غیرفعال کرده و پرداخت از کیف پول را رایگان می‌کند.
+                        تخفیف ۱۰۰٪ درگاه پرداخت را غیرفعال کرده و پرداخت از کیف پول را رایگان
+                        می‌کند.
                       </span>
                     ) : null}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-on-surface-var mb-1.5">
+                    <label className="text-on-surface-var mb-1.5 block text-xs font-semibold">
                       سقف تخفیف (تومان) - اختیاری
                     </label>
                     <input
@@ -504,38 +558,40 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
                 </div>
 
                 {/* Services Checkboxes */}
-                <div className="rounded-xl border border-outline-var bg-surface-container-low p-3.5">
-                  <label className="block text-xs font-semibold text-on-surface mb-2">
+                <div className="border-outline-var bg-surface-container-low rounded-xl border p-3.5">
+                  <label className="text-on-surface mb-2 block text-xs font-semibold">
                     سرویس‌های مجاز برای این کد تخفیف <span className="text-error">*</span>
                   </label>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                    {(["advertise", "package", "panel"] as CrmDiscountServiceType[]).map((service) => {
-                      const isChecked = draft.services.includes(service);
-                      return (
-                        <label
-                          className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2.5 text-xs font-medium transition ${
-                            isChecked
-                              ? "border-primary bg-primary/5 text-primary font-bold"
-                              : "border-outline-var bg-surface-container-lowest text-on-surface-var"
-                          }`}
-                          key={service}
-                        >
-                          <input
-                            checked={isChecked}
-                            className="accent-primary"
-                            onChange={() => toggleService(service)}
-                            type="checkbox"
-                          />
-                          <span>{serviceLabels[service]}</span>
-                        </label>
-                      );
-                    })}
+                    {(["advertise", "package", "panel"] as CrmDiscountServiceType[]).map(
+                      (service) => {
+                        const isChecked = draft.services.includes(service);
+                        return (
+                          <label
+                            className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2.5 text-xs font-medium transition ${
+                              isChecked
+                                ? "border-primary bg-primary/5 text-primary font-bold"
+                                : "border-outline-var bg-surface-container-lowest text-on-surface-var"
+                            }`}
+                            key={service}
+                          >
+                            <input
+                              checked={isChecked}
+                              className="accent-primary"
+                              onChange={() => toggleService(service)}
+                              type="checkbox"
+                            />
+                            <span>{serviceLabels[service]}</span>
+                          </label>
+                        );
+                      },
+                    )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-xs font-semibold text-on-surface-var mb-1.5">
+                    <label className="text-on-surface-var mb-1.5 block text-xs font-semibold">
                       حداکثر تعداد دفعات استفاده
                     </label>
                     <input
@@ -552,15 +608,13 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-on-surface-var mb-1.5">
+                    <label className="text-on-surface-var mb-1.5 block text-xs font-semibold">
                       تاریخ انقضا
                     </label>
                     <input
                       className={inputClass}
                       dir="ltr"
-                      onChange={(e) =>
-                        setDraft((prev) => ({ ...prev, expireAt: e.target.value }))
-                      }
+                      onChange={(e) => setDraft((prev) => ({ ...prev, expireAt: e.target.value }))}
                       type="date"
                       value={draft.expireAt}
                     />
@@ -568,30 +622,28 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface-var mb-1.5">
+                  <label className="text-on-surface-var mb-1.5 block text-xs font-semibold">
                     توضیحات یا یادداشت ادمین
                   </label>
                   <input
                     className={inputClass}
-                    onChange={(e) =>
-                      setDraft((prev) => ({ ...prev, description: e.target.value }))
-                    }
+                    onChange={(e) => setDraft((prev) => ({ ...prev, description: e.target.value }))}
                     placeholder="مثال: کمپین نوروزی اینستاگرام"
                     value={draft.description}
                   />
                 </div>
 
-                <div className="flex items-center justify-between rounded-xl border border-outline-var p-3">
-                  <span className="text-xs font-medium text-on-surface">کد تخفیف هم‌اکنون فعال باشد</span>
+                <div className="border-outline-var flex items-center justify-between rounded-xl border p-3">
+                  <span className="text-on-surface text-xs font-medium">
+                    کد تخفیف هم‌اکنون فعال باشد
+                  </span>
                   <SwitchButton
                     checked={draft.isActive}
-                    onChange={(checked) =>
-                      setDraft((prev) => ({ ...prev, isActive: checked }))
-                    }
+                    onChange={(checked) => setDraft((prev) => ({ ...prev, isActive: checked }))}
                   />
                 </div>
 
-                <div className="mt-6 flex justify-end gap-3 pt-3 border-t border-outline-var">
+                <div className="border-outline-var mt-6 flex justify-end gap-3 border-t pt-3">
                   <Button
                     className="h-10 px-4"
                     disabled={createMutation.isPending || updateMutation.isPending}
@@ -622,14 +674,26 @@ export function CrmDiscountsViews({ notify, refreshNonce }: ViewProps) {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
             <motion.div
               animate={{ opacity: 1, scale: 1 }}
-              className="w-full max-w-sm rounded-2xl border border-outline-var bg-surface-container-lowest p-6 shadow-xl [direction:rtl]"
+              className="border-outline-var bg-surface-container-lowest w-full max-w-sm rounded-2xl border p-6 shadow-xl [direction:rtl]"
               exit={{ opacity: 0, scale: 0.95 }}
               initial={{ opacity: 0, scale: 0.95 }}
             >
-              <Typography as="h3" variant="title" size="medium" weight="semibold" className="text-base font-bold text-error">
+              <Typography
+                as="h3"
+                variant="title"
+                size="medium"
+                weight="semibold"
+                className="text-error text-base font-bold"
+              >
                 حذف کد تخفیف
               </Typography>
-              <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 text-sm text-on-surface-var">
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-on-surface-var mt-2 text-sm"
+              >
                 آیا از حذف این کد تخفیف اطمینان دارید؟ این عملیات غیرقابل بازگشت است.
               </Typography>
 

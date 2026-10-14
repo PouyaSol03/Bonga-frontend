@@ -25,10 +25,22 @@ export function SearchEmptyState({
         draggable={false}
         src={NoSearchIcon}
       />
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-base font-semibold leading-6 text-on-surface">
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0 mt-4 text-base leading-6 font-semibold"
+      >
         {title}
       </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[320px] text-sm font-normal leading-6 text-on-surface-var">
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-on-surface-var m-0 mt-2 max-w-[320px] text-sm leading-6 font-normal"
+      >
         {description}
       </Typography>
     </div>

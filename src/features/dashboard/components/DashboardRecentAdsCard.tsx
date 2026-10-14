@@ -58,14 +58,26 @@ export function DashboardRecentAdsCard({
   };
 
   return (
-    <section className="w-full rounded-[16px] bg-surface-container-lowest p-4 shadow-sm [direction:rtl]">
+    <section className="bg-surface-container-lowest w-full rounded-[16px] p-4 shadow-sm [direction:rtl]">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
-        <Typography as="h2" variant="title" size="small" weight="semibold" className="text-on-surface">
+        <Typography
+          as="h2"
+          variant="title"
+          size="small"
+          weight="semibold"
+          className="text-on-surface"
+        >
           {title}
         </Typography>
-        <Link className="flex items-center gap-1 text-primary" to={viewAllTo}>
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-primary">
+        <Link className="text-primary flex items-center gap-1" to={viewAllTo}>
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-primary"
+          >
             مشاهده همه
           </Typography>
           <LinearArrowLeft1 className="h-3.5 w-3.5" />
@@ -94,11 +106,11 @@ export function DashboardRecentAdsCard({
           <div
             ref={scrollerRef}
             onScroll={handleScroll}
-            className="flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-none [direction:rtl]"
+            className="flex w-full snap-x snap-mandatory scrollbar-none overflow-x-auto [direction:rtl]"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {adList.map((item) => (
-              <div key={item.id} className="w-full shrink-0 snap-center min-w-full">
+              <div key={item.id} className="w-full min-w-full shrink-0 snap-center">
                 <DashboardAdCard ad={item} returnTo={viewAllTo} />
               </div>
             ))}
@@ -106,17 +118,18 @@ export function DashboardRecentAdsCard({
 
           {/* Pagination Indicator Dots */}
           {adList.length > 1 && (
-            <div className="mt-3 flex items-center justify-center gap-1.5" aria-label="انتخاب اسلاید آگهی">
+            <div
+              className="mt-3 flex items-center justify-center gap-1.5"
+              aria-label="انتخاب اسلاید آگهی"
+            >
               {adList.map((_, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => scrollToSlide(idx)}
                   aria-label={`اسلاید ${idx + 1}`}
-                  className={`h-1.5 rounded-full transition-all duration-300 border-none p-0 cursor-pointer ${
-                    idx === activeIndex
-                      ? "w-4 bg-on-surface"
-                      : "w-1.5 bg-surface-container-highest"
+                  className={`h-1.5 cursor-pointer rounded-full border-none p-0 transition-all duration-300 ${
+                    idx === activeIndex ? "bg-on-surface w-4" : "bg-surface-container-highest w-1.5"
                   }`}
                 />
               ))}

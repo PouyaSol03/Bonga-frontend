@@ -55,17 +55,21 @@ export function getAccountFallbackBackTo(path: string) {
     path === "/account/support/chat" ||
     path === "/account/support/requests" ||
     path === "/account/support/faq"
-  ) return "/account/support";
+  )
+    return "/account/support";
   if (path === "/account/support") return "/account";
   if (path === "/account/wallet/history") return "/account/wallet";
   if (path.startsWith("/account/ranking/badges")) return "/account/ranking";
   if (path === "/account/ranking/levels") return "/account/ranking";
   if (path === "/account/credit/history") return "/account/credit/panel";
   if (path.startsWith("/account/credit/")) return "/account";
-  if (path === "/account/ad-management/statistics/details") return "/account/ad-management/statistics";
+  if (path === "/account/ad-management/statistics/details")
+    return "/account/ad-management/statistics";
   if (path.startsWith("/account/ad-management/")) return "/account/ad-management";
 
-  const myAdActionMatch = path.match(/^\/account\/my-ads\/([^/]+)\/(payment-history|increase-visits|visit-statistics|close-result|state-ad)\/?$/);
+  const myAdActionMatch = path.match(
+    /^\/account\/my-ads\/([^/]+)\/(payment-history|increase-visits|visit-statistics|close-result|state-ad)\/?$/,
+  );
 
   if (myAdActionMatch?.[1] && myAdActionMatch[2] !== "state-ad") {
     return `/account/my-ads/${myAdActionMatch[1]}/state-ad`;
@@ -161,7 +165,8 @@ export function getAppChromeConfig(
           contentClassName: isDashboardRoute
             ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
             : "flex h-full min-h-0 flex-1 flex-col overflow-hidden",
-          frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]",
+          frameClassName:
+            "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]",
           topBar,
           wrapInShell: true,
         }
@@ -172,7 +177,8 @@ export function getAppChromeConfig(
     return {
       bottomNavigationKey,
       contentClassName: "min-h-0 flex-1 overflow-hidden",
-      frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface",
+      frameClassName:
+        "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface",
       topBar,
       wrapInShell: true,
     };
@@ -181,7 +187,8 @@ export function getAppChromeConfig(
   return {
     bottomNavigationKey,
     contentClassName: "min-h-0 flex-1 overflow-hidden",
-    frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]",
+    frameClassName:
+      "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]",
     topBar,
     wrapInShell: true,
   };

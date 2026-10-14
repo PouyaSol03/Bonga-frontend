@@ -11,7 +11,11 @@ import { useLogoutMutation } from "../auth/api/auth.hooks";
 import { useNotificationUnreadCountQuery } from "../notifications/api/notification.hooks";
 import { getApiAssetUrl } from "../../shared/api/api";
 import { formatMobileForDisplay } from "../auth/api/auth.service";
-import { isUserIdentityVerified, type MyAgencyProfile, type UserProfile } from "./api/account.service";
+import {
+  isUserIdentityVerified,
+  type MyAgencyProfile,
+  type UserProfile,
+} from "./api/account.service";
 import { useProfileStore } from "./stores/useProfileStore";
 
 import {
@@ -164,13 +168,11 @@ const secondaryActions: AccountAction[] = [
   { icon: "headphone", label: "پشتیبانی", to: "/account/support" },
 ];
 
-
-
 export function MyAccountPage() {
   const [authSession, setAuthSession] = useState(() => getStoredAuthSession());
   const activeRole = getActiveAuthRole(authSession);
-  const [isBusinessSuccessOpen, setIsBusinessSuccessOpen] = useState(() =>
-    new URLSearchParams(window.location.search).get("businessSuccess") === "1",
+  const [isBusinessSuccessOpen, setIsBusinessSuccessOpen] = useState(
+    () => new URLSearchParams(window.location.search).get("businessSuccess") === "1",
   );
 
   useEffect(() => {
@@ -271,12 +273,16 @@ function IndependentConsultantAccountPage({
   }, [agencyProfile]);
 
   const consultantActions = getBusinessAccountActions(activeRole, agencyProfile);
-  const accountSwitchActions = getAccountSwitchActions(authSession, activeRole, profile, agencyProfile);
-  const businessHeader = getBusinessAccountHeader(activeRole, profile, agencyProfile);
-  const isBusinessAccountLoading = Boolean(authSession) && (
-    (!isManagerRole && isProfileLoading) ||
-    (isManagerRole && isAgencyProfileLoading)
+  const accountSwitchActions = getAccountSwitchActions(
+    authSession,
+    activeRole,
+    profile,
+    agencyProfile,
   );
+  const businessHeader = getBusinessAccountHeader(activeRole, profile, agencyProfile);
+  const isBusinessAccountLoading =
+    Boolean(authSession) &&
+    ((!isManagerRole && isProfileLoading) || (isManagerRole && isAgencyProfileLoading));
   const accountOverlay = (
     <>
       {businessSuccessSheet}
@@ -295,18 +301,16 @@ function IndependentConsultantAccountPage({
       contentClassName="flex flex-col gap-4 bg-surface-container"
       frameClassName="relative bg-surface-container text-on-surface [direction:rtl]"
       overlay={accountOverlay}
-      topBar={<TopBar
-        backTo="/home"
-        startSlot={<AccountNotificationButton />}
-        title="حساب من"
-      />}
+      topBar={<TopBar backTo="/home" startSlot={<AccountNotificationButton />} title="حساب من" />}
     >
-
       {isBusinessAccountLoading ? (
         <BusinessAccountSkeleton />
       ) : (
         <>
-          <section className="shrink-0 bg-surface-container-lowest" aria-label={businessHeader.ariaLabel}>
+          <section
+            className="bg-surface-container-lowest shrink-0"
+            aria-label={businessHeader.ariaLabel}
+          >
             <div className="flex h-[128px] min-h-[128px] items-center gap-4 px-4 [direction:rtl]">
               <AccountProfileAvatar
                 avatarUrl={businessHeader.imageSrc}
@@ -315,13 +319,23 @@ function IndependentConsultantAccountPage({
                 label={businessHeader.name}
               />
               <div className="min-w-0 flex-1 text-right">
-                <Typography as="p" variant="body" size="medium" weight="medium"
-                  className="m-0 truncate text-sm font-semibold leading-5"
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="medium"
+                  weight="medium"
+                  className="m-0 truncate text-sm leading-5 font-semibold"
                   style={{ color: businessHeader.color }}
                 >
                   {businessHeader.name}
                 </Typography>
-                <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-sm font-medium leading-5 text-outline">
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="medium"
+                  weight="medium"
+                  className="text-outline m-0 mt-2 text-sm leading-5 font-medium"
+                >
                   {businessHeader.subtitle}
                 </Typography>
               </div>
@@ -331,11 +345,7 @@ function IndependentConsultantAccountPage({
             <AccountSection actions={accountSwitchActions} spacedDividers />
           </section>
 
-          <AccountSection
-            actions={consultantActions}
-            className=" pt-0.5"
-            spacedDividers
-          />
+          <AccountSection actions={consultantActions} className="pt-0.5" spacedDividers />
           <section className="bg-surface-container-lowest px-4 py-1">
             <ThemeToggleRow />
           </section>
@@ -382,9 +392,7 @@ function getBusinessAccountHeader(
         (acc.type === "agent" && Boolean(acc.agency_id || acc.agency)),
     );
     const agencyTitle =
-      consultantAccount?.agency?.name?.trim() ||
-      agencyProfile?.name?.trim() ||
-      agencyName;
+      consultantAccount?.agency?.name?.trim() || agencyProfile?.name?.trim() || agencyName;
 
     return {
       ariaLabel: "اطلاعات مشاور آژانس",
@@ -427,10 +435,18 @@ function getBusinessAccountActions(
       actions.push({ icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` });
     }
     if (permissions.manage_requests) {
-      actions.push({ icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` });
+      actions.push({
+        icon: "request",
+        label: "مدیریت درخواست‌ها",
+        to: `${DASHBOARD_PATH}/requests`,
+      });
     }
     if (permissions.manage_credits) {
-      actions.push({ icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` });
+      actions.push({
+        icon: "wallet-add",
+        label: "افزایش اعتبار",
+        to: `${DASHBOARD_PATH}/payments`,
+      });
     }
     if (permissions.support) {
       actions.push({ icon: "message", label: "پشتیبانی", to: "/chat?filter=support" });
@@ -477,14 +493,22 @@ function getBusinessAccountActions(
     ];
 
     if (permissions.manage_requests) {
-      actions.push({ icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` });
+      actions.push({
+        icon: "request",
+        label: "مدیریت درخواست‌ها",
+        to: `${DASHBOARD_PATH}/requests`,
+      });
     }
 
     if (permissions.manage_consultants) {
       actions.push({ icon: "team", label: "مدیریت مشاورین", to: `${DASHBOARD_PATH}/team` });
     }
     if (permissions.manage_credits) {
-      actions.push({ icon: "wallet-add", label: "افزایش اعتبار", to: `${DASHBOARD_PATH}/payments` });
+      actions.push({
+        icon: "wallet-add",
+        label: "افزایش اعتبار",
+        to: `${DASHBOARD_PATH}/payments`,
+      });
     }
 
     actions.push(
@@ -541,7 +565,11 @@ function getAccountSwitchActions(
             }
           },
         });
-      } else if (acc.context === "agency" || acc.role_slug === "real_estate_manager" || acc.type === "agency") {
+      } else if (
+        acc.context === "agency" ||
+        acc.role_slug === "real_estate_manager" ||
+        acc.type === "agency"
+      ) {
         actions.push({
           activeRole: REAL_ESTATE_MANAGER,
           icon: "agency",
@@ -650,10 +678,10 @@ function getCreatedBusinessActions(
 
   const isAgencyPending = Boolean(
     profile?.agency_id &&
-      (profile?.agency_status === 0 ||
-        profile?.agency_status === "0" ||
-        profile?.agency_status === "wait" ||
-        String(profile?.agency_status).toLowerCase() === "wait"),
+    (profile?.agency_status === 0 ||
+      profile?.agency_status === "0" ||
+      profile?.agency_status === "wait" ||
+      String(profile?.agency_status).toLowerCase() === "wait"),
   );
 
   if (isAgencyPending) {
@@ -703,12 +731,11 @@ function StandardAccountPage({
   } = useLogoutAccount();
   const accountHeader = getAccountHeader(profile);
   const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
-  const isAccountLoading = isLoggedIn && (isProfileLoading || (hasManagerRole && isAgencyProfileLoading));
+  const isAccountLoading =
+    isLoggedIn && (isProfileLoading || (hasManagerRole && isAgencyProfileLoading));
   const primaryAccountActions = isUserIdentityVerified(profile)
     ? primaryActions.map((action) =>
-        action.to === "/account/identity"
-          ? { ...action, label: "مدیریت سیم‌کارت" }
-          : action,
+        action.to === "/account/identity" ? { ...action, label: "مدیریت سیم‌کارت" } : action,
       )
     : primaryActions;
   const accountOverlay = (
@@ -725,12 +752,7 @@ function StandardAccountPage({
   const accountTopBar = isLoggedIn ? (
     <TopBar backTo="/home" startSlot={<AccountNotificationButton />} title="حساب من" />
   ) : (
-    <TopBar
-      centerClassName="px-0"
-      contentClassName="px-4"
-      showBack={false}
-      title="حساب من"
-    />
+    <TopBar centerClassName="px-0" contentClassName="px-4" showBack={false} title="حساب من" />
   );
 
   return (
@@ -746,7 +768,7 @@ function StandardAccountPage({
       ) : (
         <>
           {isLoggedIn ? (
-            <section className="shrink-0 bg-surface-container-lowest" aria-label="وضعیت حساب">
+            <section className="bg-surface-container-lowest shrink-0" aria-label="وضعیت حساب">
               <div className="flex h-[128px] min-h-[128px] items-center gap-4 px-4 [direction:rtl]">
                 <AccountProfileAvatar
                   avatarUrl={accountHeader.avatarUrl}
@@ -756,13 +778,23 @@ function StandardAccountPage({
                 />
 
                 <div className="min-w-0 flex-1 text-right">
-                  <Typography as="p" variant="body" size="medium" weight="medium"
-                    className="m-0 truncate text-sm font-semibold leading-5"
+                  <Typography
+                    as="p"
+                    variant="body"
+                    size="medium"
+                    weight="medium"
+                    className="m-0 truncate text-sm leading-5 font-semibold"
                     style={{ color: accountHeader.color }}
                   >
                     {accountHeader.label}
                   </Typography>
-                  <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-sm font-medium leading-5 text-outline [direction:ltr]">
+                  <Typography
+                    as="p"
+                    variant="body"
+                    size="medium"
+                    weight="medium"
+                    className="text-outline m-0 mt-2 text-sm leading-5 font-medium [direction:ltr]"
+                  >
                     {formatMobileForDisplay(displayMobile)}
                   </Typography>
                 </div>
@@ -773,17 +805,23 @@ function StandardAccountPage({
             <LoggedOutAccountHeader />
           )}
 
-          <AccountSection actions={isLoggedIn ? getCreatedBusinessActions(authSession, profile, agencyProfile, activeRole) : loggedOutBusinessActions} />
+          <AccountSection
+            actions={
+              isLoggedIn
+                ? getCreatedBusinessActions(authSession, profile, agencyProfile, activeRole)
+                : loggedOutBusinessActions
+            }
+          />
 
-          <div className="h-4 bg-surface-container" />
+          <div className="bg-surface-container h-4" />
 
           <AccountSection actions={isLoggedIn ? primaryAccountActions : loggedOutPrimaryActions} />
 
-          <div className="h-4 bg-surface-container" />
+          <div className="bg-surface-container h-4" />
 
           <AccountSection actions={secondaryActions} />
 
-          <div className="h-4 bg-surface-container" />
+          <div className="bg-surface-container h-4" />
 
           <section className="bg-surface-container-lowest px-4 py-1">
             <ThemeToggleRow />
@@ -791,7 +829,7 @@ function StandardAccountPage({
 
           {isLoggedIn ? (
             <>
-              <div className="h-4 bg-surface-container" />
+              <div className="bg-surface-container h-4" />
               <AccountSection
                 actions={[
                   {
@@ -814,9 +852,9 @@ function StandardAccountSkeleton() {
     <>
       <AccountHeaderSkeleton />
       <AccountMenuSkeleton count={1} />
-      <div className="h-4 bg-surface-container" />
+      <div className="bg-surface-container h-4" />
       <AccountMenuSkeleton count={6} />
-      <div className="h-4 bg-surface-container" />
+      <div className="bg-surface-container h-4" />
       <AccountMenuSkeleton count={3} />
     </>
   );
@@ -827,7 +865,7 @@ function BusinessAccountSkeleton() {
     <>
       <AccountHeaderSkeleton />
       <AccountMenuSkeleton count={3} />
-      <div className="h-4 bg-surface-container" />
+      <div className="bg-surface-container h-4" />
       <AccountMenuSkeleton count={6} />
     </>
   );
@@ -866,7 +904,7 @@ function AccountMenuSkeleton({ count }: { count: number }) {
 }
 
 function AccountSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-surface-container-high ${className}`} />;
+  return <div className={`bg-surface-container-high animate-pulse rounded-lg ${className}`} />;
 }
 
 function clearBusinessSuccessQuery() {
@@ -874,7 +912,11 @@ function clearBusinessSuccessQuery() {
   if (!url.searchParams.has("businessSuccess")) return;
 
   url.searchParams.delete("businessSuccess");
-  window.history.replaceState(window.history.state ?? {}, "", `${url.pathname}${url.search}${url.hash}`);
+  window.history.replaceState(
+    window.history.state ?? {},
+    "",
+    `${url.pathname}${url.search}${url.hash}`,
+  );
 }
 
 function AccountBusinessSuccessSheet({
@@ -898,36 +940,72 @@ function AccountBusinessSuccessSheet({
       showHeaderDivider={false}
       zIndexClassName="z-[999]"
     >
-      <div className="text-center px-4">
+      <div className="px-4 text-center">
         <div className="mx-auto grid h-[132px] w-[132px] place-items-center rounded-full">
           <img src="/vectors/States.svg" alt="" />
         </div>
-        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 mt-2 text-sm font-semibold leading-5 text-tertiary">
+        <Typography
+          as="h2"
+          variant="title"
+          size="small"
+          weight="semibold"
+          className="text-tertiary m-0 mt-2 text-sm leading-5 font-semibold"
+        >
           حساب شما با موفقیت ثبت شد
         </Typography>
-        <div className="flex flex-col gap-2.5 mt-2 space-y-1 text-right text-sm font-normal leading-5 text-on-surface-var">
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex gap-2">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-tertiary" />
-            <Typography as="span" variant="body" size="medium" weight="regular">برای دسترسی کامل به امکانات سامانه ابتدا اعتبار زمانی پنل خود را فعال کنید.</Typography>
+        <div className="text-on-surface-var mt-2 flex flex-col gap-2.5 space-y-1 text-right text-sm leading-5 font-normal">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="m-0 flex gap-2"
+          >
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="bg-tertiary mt-2 h-1.25 w-1.25 shrink-0 rounded-full"
+            />
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              برای دسترسی کامل به امکانات سامانه ابتدا اعتبار زمانی پنل خود را فعال کنید.
+            </Typography>
           </Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex gap-2">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 h-1.25 w-1.25 shrink-0 rounded-full bg-tertiary" />
-            <Typography as="span" variant="body" size="medium" weight="regular">سپس یکی از بسته‌های اعتباری را خریداری کنید.</Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="m-0 flex gap-2"
+          >
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="bg-tertiary mt-2 h-1.25 w-1.25 shrink-0 rounded-full"
+            />
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              سپس یکی از بسته‌های اعتباری را خریداری کنید.
+            </Typography>
           </Typography>
         </div>
-        <Button unstyled
-          className="mt-4 inline-flex h-10 rounded-xl w-full items-center justify-center gap-2 bg-primary px-4 text-sm font-semibold leading-5 text-on-primary"
+        <Button
+          unstyled
+          className="bg-primary text-on-primary mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm leading-5 font-semibold"
           onClick={() => navigate("/account/credit/panel")}
           type="button"
         >
-          <LinearWalletAdd color="white" className="w-5 h-5 text-on-primary" />
-          <Typography as="span" variant="body" size="medium" weight="regular">افزایش اعتبار</Typography>
+          <LinearWalletAdd color="white" className="text-on-primary h-5 w-5" />
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            افزایش اعتبار
+          </Typography>
         </Button>
       </div>
     </BottomSheet>
   );
 }
-
 
 function AccountLogoutConfirmSheet({
   isOpen,
@@ -960,21 +1038,29 @@ function AccountLogoutConfirmSheet({
       showHeaderDivider={false}
       zIndexClassName="z-[1001]"
     >
-      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-center font-medium leading-5 text-on-surface">
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="medium"
+        className="text-on-surface m-0 text-center leading-5 font-medium"
+      >
         مایل به خروج از حساب خود هستید؟
       </Typography>
 
       <div className="mt-3 grid grid-cols-2 gap-3 [direction:ltr]">
-        <Button unstyled
-          className="inline-flex py-2.5 items-center justify-center rounded-lg border border-primary bg-surface-container-lowest px-4 text-xs font-semibold leading-4 text-primary disabled:opacity-60"
+        <Button
+          unstyled
+          className="border-primary bg-surface-container-lowest text-primary inline-flex items-center justify-center rounded-lg border px-4 py-2.5 text-xs leading-4 font-semibold disabled:opacity-60"
           disabled={isPending}
           onClick={onConfirm}
           type="button"
         >
           {isPending ? "..." : "بله"}
         </Button>
-        <Button unstyled
-          className="inline-flex py-2.5 items-center justify-center rounded-lg border border-primary bg-surface-container-lowest px-4 text-xs font-semibold leading-4 text-primary disabled:opacity-60"
+        <Button
+          unstyled
+          className="border-primary bg-surface-container-lowest text-primary inline-flex items-center justify-center rounded-lg border px-4 py-2.5 text-xs leading-4 font-semibold disabled:opacity-60"
           disabled={isPending}
           onClick={handleClose}
           type="button"
@@ -985,7 +1071,6 @@ function AccountLogoutConfirmSheet({
     </BottomSheet>
   );
 }
-
 
 function getAgencyDisplayName(agencyProfile?: MyAgencyProfile) {
   return agencyProfile?.name?.trim() || "آژانس املاک";
@@ -1040,7 +1125,7 @@ function AccountProfileAvatar({
 
   return (
     <div className={`relative shrink-0 overflow-visible ${className}`}>
-      <div className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-surface-container text-outline">
+      <div className="bg-surface-container text-outline grid h-full w-full place-items-center overflow-hidden rounded-full">
         {showAvatar ? (
           <img
             alt={label}
@@ -1108,19 +1193,31 @@ function useLogoutAccount() {
 function LoggedOutAccountHeader() {
   return (
     <section className="bg-surface-container-lowest pt-4" aria-label="ورود به حساب">
-      <div className="px-4 pb-2 pt-2">
+      <div className="px-4 pt-2 pb-2">
         <Link
-          className="flex h-14 w-full items-center gap-2 rounded-xl border border-primary px-4 text-primary [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25"
+          className="border-primary text-primary focus-visible:outline-primary/25 flex h-14 w-full items-center gap-2 rounded-xl border px-4 [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
           to="/login/phone"
         >
           <ChevronLeftIcon className="h-6 w-6 shrink-0" />
-          <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 flex-1 truncate text-right text-base font-medium leading-6 [direction:rtl]">
+          <Typography
+            as="span"
+            variant="label"
+            size="large"
+            weight="medium"
+            className="min-w-0 flex-1 truncate text-right text-base leading-6 font-medium [direction:rtl]"
+          >
             ورود به حساب کاربری
           </Typography>
-          <LinearLock className="w-5 h-5" />
+          <LinearLock className="h-5 w-5" />
         </Link>
 
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-right text-sm font-normal leading-5 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-4 text-right text-sm leading-5 font-normal"
+        >
           برای استفاده از تمام امکانات وارد حساب کاربری خود شوید.
         </Typography>
       </div>
@@ -1206,7 +1303,7 @@ function AccountMenuRow({
       <>
         <div
           aria-disabled="true"
-          className="flex h-14 w-full cursor-not-allowed items-center gap-2 bg-amber-50/50 px-4 text-on-surface [direction:ltr]"
+          className="text-on-surface flex h-14 w-full cursor-not-allowed items-center gap-2 bg-amber-50/50 px-4 [direction:ltr]"
         >
           {content}
         </div>
@@ -1219,7 +1316,7 @@ function AccountMenuRow({
     <>
       {action.to ? (
         <Link
-          className="flex w-full cursor-pointer items-center gap-2 bg-surface-container-lowest p-4 text-on-surface [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25"
+          className="bg-surface-container-lowest text-on-surface focus-visible:outline-primary/25 flex w-full cursor-pointer items-center gap-2 p-4 [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
           onClick={(event) => {
             if (action.requiresAuth && !getStoredAuthSession()) {
               event.preventDefault();
@@ -1239,8 +1336,9 @@ function AccountMenuRow({
           {content}
         </Link>
       ) : (
-        <Button unstyled
-          className="flex h-14 w-full cursor-pointer items-center gap-2 bg-surface-container-lowest px-4 text-on-surface [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25"
+        <Button
+          unstyled
+          className="bg-surface-container-lowest text-on-surface focus-visible:outline-primary/25 flex h-14 w-full cursor-pointer items-center gap-2 px-4 [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
           onClick={action.onClick}
           type="button"
         >
@@ -1255,7 +1353,7 @@ function AccountMenuRow({
 function Divider({ spaced = false }: { spaced?: boolean }) {
   return (
     <div className={spaced ? "py-0.5" : ""} aria-hidden="true">
-      <div className="mx-4 h-px bg-outline-var" />
+      <div className="bg-outline-var mx-4 h-px" />
     </div>
   );
 }
@@ -1272,27 +1370,25 @@ function AccountNotificationButton() {
   return (
     <Link
       aria-label="اعلان‌ها"
-      className="relative grid h-10 w-10 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+      className="text-on-surface focus-visible:outline-primary/25 relative grid h-10 w-10 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2"
       to="/notifications"
     >
       <LinearNotification className="h-6 w-6" />
       {unreadNotificationsCount > 0 ? (
-        <Typography as="span" variant="body" size="medium" weight="regular"
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
           aria-hidden="true"
-          className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-error ring-2 ring-surface-container-lowest"
+          className="bg-error ring-surface-container-lowest absolute top-2 right-2 h-2.5 w-2.5 rounded-full ring-2"
         />
       ) : null}
     </Link>
   );
 }
 
-function AccountIcon({
-  className = "",
-  name,
-}: {
-  className?: string;
-  name: AccountIconName;
-}) {
+function AccountIcon({ className = "", name }: { className?: string; name: AccountIconName }) {
   const Icon = accountIconMap[name];
 
   return <Icon aria-hidden="true" className={className} />;

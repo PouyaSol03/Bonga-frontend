@@ -1,7 +1,22 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { listCrmCategories, type CrmRecord, saveCrmCategory, getCrmRecordId } from "../api/crm.service";
-import { CategoryTree, EditorModal, EmptyState, ListSkeleton, Panel, PanelHeader, cleanEmptyValues, stringifyValue, useQueryErrorToast } from "../CrmLayout";
+import {
+  listCrmCategories,
+  type CrmRecord,
+  saveCrmCategory,
+  getCrmRecordId,
+} from "../api/crm.service";
+import {
+  CategoryTree,
+  EditorModal,
+  EmptyState,
+  ListSkeleton,
+  Panel,
+  PanelHeader,
+  cleanEmptyValues,
+  stringifyValue,
+  useQueryErrorToast,
+} from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
 
 export function CrmCategoriesPage({ notify, refreshNonce }: CrmRoutePageProps) {
@@ -27,9 +42,10 @@ export function CrmCategoriesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const openCategoryEditor = (category: CrmRecord = {}) => {
     const id = getCrmRecordId(category) || null;
     const parent = category.parent_id;
-    const parentId = parent && typeof parent === "object"
-      ? getCrmRecordId(parent as CrmRecord)
-      : stringifyValue(parent);
+    const parentId =
+      parent && typeof parent === "object"
+        ? getCrmRecordId(parent as CrmRecord)
+        : stringifyValue(parent);
 
     setEditor({
       fields: [
@@ -64,7 +80,12 @@ export function CrmCategoriesPage({ notify, refreshNonce }: CrmRoutePageProps) {
         </div>
       </Panel>
 
-      <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
+      <EditorModal
+        editor={editor}
+        isPending={saveMutation.isPending}
+        onClose={() => setEditor(null)}
+        notify={notify}
+      />
     </>
   );
 }

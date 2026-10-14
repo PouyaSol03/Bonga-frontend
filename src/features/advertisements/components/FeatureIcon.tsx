@@ -18,4 +18,3 @@ export function FeatureIcon({
 
   return <LinearApartment aria-hidden="true" className={resolvedClassName} />;
 }
-

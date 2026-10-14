@@ -38,7 +38,7 @@ export function BottomNavigationUnreadChatBadge({
       size="small"
       weight="medium"
       aria-hidden="true"
-      className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-error ring-2 ring-surface-container-lowest"
+      className="bg-error ring-surface-container-lowest absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2"
     />
   );
 }

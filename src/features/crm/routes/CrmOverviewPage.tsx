@@ -1,7 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import { listCrmAdvertises, listCrmUsers, listCrmAgencies, listCrmAdvertiseForms, getCrmRecordId } from "../api/crm.service";
+import {
+  listCrmAdvertises,
+  listCrmUsers,
+  listCrmAgencies,
+  listCrmAdvertiseForms,
+  getCrmRecordId,
+} from "../api/crm.service";
 import { Link } from "react-router";
-import { CrmIcon, EmptyState, ListSkeleton, Panel, PanelHeader, StatusBadge, TextLink, readText, useQueryErrorToast } from "../CrmLayout";
+import {
+  CrmIcon,
+  EmptyState,
+  ListSkeleton,
+  Panel,
+  PanelHeader,
+  StatusBadge,
+  TextLink,
+  readText,
+  useQueryErrorToast,
+} from "../CrmLayout";
 import type { CrmRoutePageProps } from "../CrmLayout";
 import { Typography } from "../../../shared/ui/Typography";
 
@@ -23,7 +39,10 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
     queryKey: ["crm", "overview", "forms", refreshNonce],
   });
 
-  useQueryErrorToast([adsQuery.error, usersQuery.error, agenciesQuery.error, formsQuery.error], notify);
+  useQueryErrorToast(
+    [adsQuery.error, usersQuery.error, agenciesQuery.error, formsQuery.error],
+    notify,
+  );
 
   const isLoading =
     adsQuery.isLoading || usersQuery.isLoading || agenciesQuery.isLoading || formsQuery.isLoading;
@@ -57,7 +76,10 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
 
   return (
     <div className="space-y-4">
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="آمار کلی">
+      <section
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
+        aria-label="آمار کلی"
+      >
         {metrics.map((metric) => (
           <Link
             className="group rounded-2xl bg-white p-5 no-underline transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,72,196,0.08)]"
@@ -65,7 +87,13 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
             to={metric.path}
           >
             <div className="flex items-center justify-between">
-              <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4] transition group-hover:bg-[#0048c4] group-hover:text-white">
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="grid h-11 w-11 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4] transition group-hover:bg-[#0048c4] group-hover:text-white"
+              >
                 <CrmIcon name={metric.icon} size={22} />
               </Typography>
               <CrmIcon name="arrow" size={18} />
@@ -73,7 +101,15 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
             <strong className="mt-5 block text-3xl font-black text-[#1e2633]">
               {isLoading ? "…" : new Intl.NumberFormat("fa-IR").format(metric.value)}
             </strong>
-            <Typography as="span" variant="label" size="medium" weight="medium" className="mt-1 block text-sm font-medium text-[#7b8493]">{metric.label}</Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="mt-1 block text-sm font-medium text-[#7b8493]"
+            >
+              {metric.label}
+            </Typography>
           </Link>
         ))}
       </section>
@@ -96,8 +132,22 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   to={`/crm/advertises/${encodeURIComponent(getCrmRecordId(ad))}`}
                 >
                   <div className="min-w-0">
-                    <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 truncate text-sm font-bold">{readText(ad, ["title"])}</Typography>
-                    <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#9098a6]">
+                    <Typography
+                      as="p"
+                      variant="body"
+                      size="medium"
+                      weight="medium"
+                      className="m-0 truncate text-sm font-bold"
+                    >
+                      {readText(ad, ["title"])}
+                    </Typography>
+                    <Typography
+                      as="p"
+                      variant="body"
+                      size="medium"
+                      weight="regular"
+                      className="m-0 mt-1 text-sm text-[#9098a6]"
+                    >
                       کد پیگیری: {readText(ad, ["track_code"])}
                     </Typography>
                   </div>
@@ -114,23 +164,70 @@ export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {
           <PanelHeader subtitle="دسترسی سریع به عملیات پرتکرار" title="ابزارهای مدیریت" />
           <div className="mt-4 grid gap-3">
             {[
-              { description: "بررسی و تعیین وضعیت آگهی‌ها", icon: "ads" as const, label: "صف بررسی آگهی", to: "/crm/advertises" },
-              { description: "ساخت و مدیریت حساب‌ها", icon: "users" as const, label: "مدیریت کاربران", to: "/crm/users" },
-              { description: "ویرایش شهر، محله و محدوده", icon: "location" as const, label: "موقعیت‌ها", to: "/crm/locations" },
-              { description: "مشاهده و پیگیری تراکنش‌های کاربران", icon: "payment" as const, label: "تاریخچه پرداخت‌ها", to: "/crm/payments" },
-              { description: "بررسی گزارش‌های آگهی و کاربران", icon: "reports" as const, label: "گزارش‌های تخلف", to: "/crm/reports" },
-              { description: "مشاهده و پاسخگویی به درخواست‌های پشتیبانی کاربران", icon: "requests" as const, label: "درخواست‌های پشتیبانی", to: "/crm/requests" },
-              { description: "بررسی درخواست‌های کاربران برای یافتن ملک یا آگهی مناسب", icon: "ads" as const, label: "درخواست‌های یافتن آگهی", to: "/crm/property-requests" },
+              {
+                description: "بررسی و تعیین وضعیت آگهی‌ها",
+                icon: "ads" as const,
+                label: "صف بررسی آگهی",
+                to: "/crm/advertises",
+              },
+              {
+                description: "ساخت و مدیریت حساب‌ها",
+                icon: "users" as const,
+                label: "مدیریت کاربران",
+                to: "/crm/users",
+              },
+              {
+                description: "ویرایش شهر، محله و محدوده",
+                icon: "location" as const,
+                label: "موقعیت‌ها",
+                to: "/crm/locations",
+              },
+              {
+                description: "مشاهده و پیگیری تراکنش‌های کاربران",
+                icon: "payment" as const,
+                label: "تاریخچه پرداخت‌ها",
+                to: "/crm/payments",
+              },
+              {
+                description: "بررسی گزارش‌های آگهی و کاربران",
+                icon: "reports" as const,
+                label: "گزارش‌های تخلف",
+                to: "/crm/reports",
+              },
+              {
+                description: "مشاهده و پاسخگویی به درخواست‌های پشتیبانی کاربران",
+                icon: "requests" as const,
+                label: "درخواست‌های پشتیبانی",
+                to: "/crm/requests",
+              },
+              {
+                description: "بررسی درخواست‌های کاربران برای یافتن ملک یا آگهی مناسب",
+                icon: "ads" as const,
+                label: "درخواست‌های یافتن آگهی",
+                to: "/crm/property-requests",
+              },
             ].map((item) => (
               <Link
                 className="flex items-center gap-3 rounded-xl border border-[#f0f0f0] p-3.5 text-[#273142] no-underline transition hover:border-[#cbd8ed] hover:bg-[#fbfcff]"
                 key={item.label}
                 to={item.to}
               >
-                <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"
+                >
                   <CrmIcon name={item.icon} size={20} />
                 </Typography>
-                <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="min-w-0 flex-1"
+                >
                   <strong className="block text-sm">{item.label}</strong>
                   <small className="mt-1 block text-sm text-[#8b94a3]">{item.description}</small>
                 </Typography>

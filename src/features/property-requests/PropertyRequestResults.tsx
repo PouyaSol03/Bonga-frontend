@@ -50,9 +50,7 @@ export function PropertyRequestResults({
   const useMatchesEndpoint = resultSource === "matches";
   const searchParams = useMemo(
     () =>
-      useMatchesEndpoint
-        ? null
-        : createPropertyRequestAdvertisementParams(request, maxResults),
+      useMatchesEndpoint ? null : createPropertyRequestAdvertisementParams(request, maxResults),
     [maxResults, request, useMatchesEndpoint],
   );
   const searchQuery = useAdvertisementListQuery(searchParams);
@@ -63,9 +61,7 @@ export function PropertyRequestResults({
     useMatchesEndpoint,
   );
   const query = useMatchesEndpoint ? matchesQuery : searchQuery;
-  const resultItems = useMatchesEndpoint
-    ? matchesQuery.data?.data
-    : searchQuery.data?.data;
+  const resultItems = useMatchesEndpoint ? matchesQuery.data?.data : searchQuery.data?.data;
   const ads = useMemo(
     () =>
       (resultItems ?? [])
@@ -73,9 +69,7 @@ export function PropertyRequestResults({
         .map((item, index) => mapAdvertisementToAdCard(item, index)),
     [maxResults, resultItems],
   );
-  const [dismissedAdIds, setDismissedAdIds] = useState<Set<string>>(
-    () => new Set(),
-  );
+  const [dismissedAdIds, setDismissedAdIds] = useState<Set<string>>(() => new Set());
   const visibleAds = useMemo(
     () => ads.filter((ad) => !dismissedAdIds.has(String(ad.id))),
     [ads, dismissedAdIds],
@@ -96,18 +90,30 @@ export function PropertyRequestResults({
 
   return (
     <section
-      className={`${bare ? "" : compact ? "border-t border-outline-var pt-3" : "rounded-2xl border border-outline-var bg-surface-container-lowest p-4"} ${className}`}
+      className={`${bare ? "" : compact ? "border-outline-var border-t pt-3" : "border-outline-var bg-surface-container-lowest rounded-2xl border p-4"} ${className}`}
       aria-label={`نتایج درخواست ${request.title}`}
     >
       {showHeading ? (
         <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2 text-on-surface">
-            <LinearAdvertisiment className="h-5 w-5 shrink-0 text-primary" />
-            <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 truncate text-sm font-bold">نتیجه درخواست</Typography>
+          <div className="text-on-surface flex min-w-0 items-center gap-2">
+            <LinearAdvertisiment className="text-primary h-5 w-5 shrink-0" />
+            <Typography
+              as="h2"
+              variant="title"
+              size="small"
+              weight="semibold"
+              className="m-0 truncate text-sm font-bold"
+            >
+              نتیجه درخواست
+            </Typography>
           </div>
 
           {!query.isLoading && !query.isError ? (
-            <Typography as="span" variant="label" size="small" weight="medium"
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
               className={`inline-flex h-6 shrink-0 items-center rounded-md px-2 text-[11px] font-medium ${
                 visibleAds.length
                   ? "bg-tertiary/10 text-tertiary"
@@ -122,16 +128,19 @@ export function PropertyRequestResults({
 
       {query.isLoading ? (
         <div className="mt-3 space-y-2" aria-live="polite">
-          <div className="h-4 w-36 animate-pulse rounded bg-surface-container-high" />
-          <div className="h-28 animate-pulse rounded-2xl bg-surface-container-high" />
+          <div className="bg-surface-container-high h-4 w-36 animate-pulse rounded" />
+          <div className="bg-surface-container-high h-28 animate-pulse rounded-2xl" />
         </div>
       ) : null}
 
       {query.isError ? (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-error/10 px-3 py-3 text-sm text-error">
-          <Typography as="span" variant="body" size="medium" weight="regular">بررسی نتیجه این درخواست با خطا مواجه شد.</Typography>
-          <Button unstyled
-            className="inline-flex h-8 items-center gap-1 rounded-lg border border-error/30 bg-surface-container-lowest px-2 text-xs font-semibold text-error transition"
+        <div className="bg-error/10 text-error mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl px-3 py-3 text-sm">
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            بررسی نتیجه این درخواست با خطا مواجه شد.
+          </Typography>
+          <Button
+            unstyled
+            className="border-error/30 bg-surface-container-lowest text-error inline-flex h-8 items-center gap-1 rounded-lg border px-2 text-xs font-semibold transition"
             onClick={() => void query.refetch()}
             type="button"
           >
@@ -142,28 +151,33 @@ export function PropertyRequestResults({
       ) : null}
 
       {!query.isLoading && !query.isError && visibleAds.length === 0 ? (
-        <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 mt-3 w-full rounded-xl bg-surface-container-low px-4 py-4 text-center text-sm font-medium leading-6 text-outline">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="medium"
+          className="bg-surface-container-low text-outline m-0 mx-auto mt-3 w-full rounded-xl px-4 py-4 text-center text-sm leading-6 font-medium"
+        >
           نتیجه ای برای این درخواست وجود ندارد
         </Typography>
       ) : null}
 
       {!query.isLoading && !query.isError && visibleAds.length > 0 ? (
         <div
-          className={`${showHeading ? "mt-3" : ""} grid gap-2 bg-surface-container-low ${
-            compact
-              ? "grid-cols-1"
-              : "grid-cols-1 xl:grid-cols-2"
+          className={`${showHeading ? "mt-3" : ""} bg-surface-container-low grid gap-2 ${
+            compact ? "grid-cols-1" : "grid-cols-1 xl:grid-cols-2"
           }`}
         >
           {visibleAds.map((ad) => (
             <AdCard
               ad={ad}
-              className="overflow-hidden bg-surface-container-lowest"
+              className="bg-surface-container-lowest overflow-hidden"
               imageAction={
                 showDismissAction ? (
-                  <Button unstyled
+                  <Button
+                    unstyled
                     aria-label={`حذف ${ad.title} از نتایج`}
-                    className="absolute left-2 top-2 z-3 grid h-9 w-9 place-items-center rounded-lg bg-surface-container-lowest text-on-surface-var shadow-sm focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 active:bg-surface-container-high"
+                    className="bg-surface-container-lowest text-on-surface-var focus-visible:outline-primary/25 active:bg-surface-container-high absolute top-2 left-2 z-3 grid h-9 w-9 place-items-center rounded-lg shadow-sm focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
                     onClick={() =>
                       setDismissedAdIds((current) => {
                         const next = new Set(current);

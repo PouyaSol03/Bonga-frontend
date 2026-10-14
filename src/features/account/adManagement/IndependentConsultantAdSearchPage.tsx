@@ -49,15 +49,14 @@ export function IndependentConsultantAdSearchPage() {
             .join(" ")
             .includes(normalizedQuery),
         );
-  const isLoading = isAssignedTab
-    ? assignmentsQuery.isLoading
-    : activeAdsQuery.isLoading;
-  const isError = isAssignedTab
-    ? assignmentsQuery.isError
-    : activeAdsQuery.isError;
+  const isLoading = isAssignedTab ? assignmentsQuery.isLoading : activeAdsQuery.isLoading;
+  const isError = isAssignedTab ? assignmentsQuery.isError : activeAdsQuery.isError;
 
   return (
-    <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest" variant="flush">
+    <PageFrame
+      className="bg-surface-container-lowest relative flex min-h-0 flex-col overflow-hidden"
+      variant="flush"
+    >
       <TopBar
         backState={{ tab }}
         backTo={adManagementPaths.root}
@@ -78,14 +77,14 @@ export function IndependentConsultantAdSearchPage() {
         }
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container">
+      <main className="bg-surface-container flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
         {normalizedQuery.length > 0 ? (
           isLoading ? (
-            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm text-outline">
+            <div className="text-outline flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm">
               در حال دریافت آگهی‌ها...
             </div>
           ) : isError ? (
-            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm text-outline">
+            <div className="text-outline flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm">
               دریافت آگهی‌ها با خطا مواجه شد.
             </div>
           ) : matchedAds.length > 0 ? (

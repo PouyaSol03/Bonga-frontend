@@ -39,9 +39,7 @@ import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
 import { SearchInputBar } from "../../../shared/ui/SearchBar";
 
 export type AgencyAssignedDeletedVariant =
-  | "deal_confirmation"
-  | "user_stopped"
-  | "recovery_expired";
+  "deal_confirmation" | "user_stopped" | "recovery_expired";
 
 export type AgencyAssignedUserAdViewProps = {
   ad?: Record<string, unknown>;
@@ -57,7 +55,6 @@ export type AgencyAssignedUserAdViewProps = {
   onNavigateToStopPublish?: () => void;
   onNavigateToDealResult?: () => void;
 };
-
 
 function formatHistoryDate(dateStr?: string): string {
   if (!dateStr) return "";
@@ -152,8 +149,8 @@ export function renderDateWithRelative(text: string) {
     const date = match1[2].trim();
     return (
       <span className="inline-flex items-center gap-1.5 [direction:rtl]">
-        <span className="text-sm font-medium text-outline">{relative}</span>
-        <span className="text-sm font-medium text-on-surface">{date}</span>
+        <span className="text-outline text-sm font-medium">{relative}</span>
+        <span className="text-on-surface text-sm font-medium">{date}</span>
       </span>
     );
   }
@@ -165,18 +162,23 @@ export function renderDateWithRelative(text: string) {
     const relative = `(${match2[2].trim()})`;
     return (
       <span className="inline-flex items-center gap-1.5 [direction:rtl]">
-        <span className="text-sm font-medium text-on-surface">{date}</span>
-        <span className="text-sm font-medium text-outline">{relative}</span>
+        <span className="text-on-surface text-sm font-medium">{date}</span>
+        <span className="text-outline text-sm font-medium">{relative}</span>
       </span>
     );
   }
 
   // Pattern 3: Relative only
-  if (text.includes("پیش") || text.includes("دیگر") || text.includes("قبل") || text.includes("مانده")) {
-    return <span className="text-sm font-medium text-outline">{text}</span>;
+  if (
+    text.includes("پیش") ||
+    text.includes("دیگر") ||
+    text.includes("قبل") ||
+    text.includes("مانده")
+  ) {
+    return <span className="text-outline text-sm font-medium">{text}</span>;
   }
 
-  return <span className="text-sm font-medium text-on-surface">{text}</span>;
+  return <span className="text-on-surface text-sm font-medium">{text}</span>;
 }
 
 function formatPersianDateNumber(d: Date): string {
@@ -192,7 +194,8 @@ function formatPersianDateNumber(d: Date): string {
 }
 
 function resolvePublishedDateText(ad?: Record<string, unknown>): string {
-  const explicitText = typeof ad?.published_date_text === "string" ? ad.published_date_text.trim() : "";
+  const explicitText =
+    typeof ad?.published_date_text === "string" ? ad.published_date_text.trim() : "";
   if (explicitText) return explicitText;
 
   const rawDate =
@@ -262,7 +265,8 @@ function resolveExpirationDateText(ad?: Record<string, unknown>): string {
       ? (ad.expire as { expires_at?: unknown }).expires_at
       : undefined);
 
-  let timestamp = typeof rawExpire === "string" && rawExpire.trim() ? Date.parse(rawExpire.trim()) : NaN;
+  let timestamp =
+    typeof rawExpire === "string" && rawExpire.trim() ? Date.parse(rawExpire.trim()) : NaN;
 
   if (!Number.isFinite(timestamp)) {
     const rawPublished =
@@ -332,7 +336,9 @@ export function AgencyAssignedUserAdView({
     (ad?.agencyName as string) ||
     (ad?.assigned_agency_name as string) ||
     (ad?.assignedAgencyName as string) ||
-    (typeof ad?.agency === "object" && ad?.agency && "name" in ad.agency ? String((ad.agency as { name?: unknown }).name ?? "") : "") ||
+    (typeof ad?.agency === "object" && ad?.agency && "name" in ad.agency
+      ? String((ad.agency as { name?: unknown }).name ?? "")
+      : "") ||
     (typeof ad?.agency === "string" ? ad.agency : "") ||
     (card.agency ? card.agency : "") ||
     "آژانس املاک";
@@ -343,7 +349,9 @@ export function AgencyAssignedUserAdView({
     (ad?.categoryTitle as string) ||
     (ad?.category_name as string) ||
     (ad?.categoryName as string) ||
-    (typeof ad?.category_object === "object" && ad?.category_object && "title" in ad.category_object ? String((ad.category_object as { title?: unknown }).title ?? "") : "") ||
+    (typeof ad?.category_object === "object" && ad?.category_object && "title" in ad.category_object
+      ? String((ad.category_object as { title?: unknown }).title ?? "")
+      : "") ||
     "—";
 
   const publishedDateText = resolvePublishedDateText(ad);
@@ -384,7 +392,7 @@ export function AgencyAssignedUserAdView({
   const showSubmitResultSection =
     submitResultStatusQuery.data !== undefined
       ? Boolean(submitResultStatusQuery.data?.data?.status ?? submitResultStatusQuery.data?.status)
-      : ((isDeleted || isWaitForDeal) && effectiveDeletedVariant === "deal_confirmation");
+      : (isDeleted || isWaitForDeal) && effectiveDeletedVariant === "deal_confirmation";
 
   const handlePreview = () => {
     if (currentAdId) {
@@ -392,35 +400,32 @@ export function AgencyAssignedUserAdView({
         state: {
           ad,
           previewFlow: "agency-allocation",
-        userContact: {
-          name:
-            (ad?.owner_name as string) ??
-            (ad?.user_name as string) ??
-            (ad?.advertiser_name as string) ??
-            undefined,
-          phone:
-            (ad?.phone as string) ??
-            (ad?.user_phone as string) ??
-            (ad?.mobile as string) ??
-            undefined,
-          smsPhone:
-            (ad?.sms_phone as string) ??
-            (ad?.phone as string) ??
-            (ad?.user_phone as string) ??
-            undefined,
-          address:
-            (ad?.address as string) ??
-            (ad?.location_address as string) ??
-            undefined,
-          social:
-            (ad?.social as Record<string, string>) ??
-            (ad?.contacts as Record<string, string>) ??
-            undefined,
+          userContact: {
+            name:
+              (ad?.owner_name as string) ??
+              (ad?.user_name as string) ??
+              (ad?.advertiser_name as string) ??
+              undefined,
+            phone:
+              (ad?.phone as string) ??
+              (ad?.user_phone as string) ??
+              (ad?.mobile as string) ??
+              undefined,
+            smsPhone:
+              (ad?.sms_phone as string) ??
+              (ad?.phone as string) ??
+              (ad?.user_phone as string) ??
+              undefined,
+            address: (ad?.address as string) ?? (ad?.location_address as string) ?? undefined,
+            social:
+              (ad?.social as Record<string, string>) ??
+              (ad?.contacts as Record<string, string>) ??
+              undefined,
+          },
         },
-      },
-    });
-  }
-};
+      });
+    }
+  };
 
   const handleGoToStopPublish = () => {
     if (onNavigateToStopPublish) {
@@ -439,45 +444,45 @@ export function AgencyAssignedUserAdView({
   };
 
   return (
-    <div className="flex flex-col bg-surface-container [direction:rtl]">
+    <div className="bg-surface-container flex flex-col [direction:rtl]">
       {/* Section 1: Badge + Ad Card + Expiration/Dates or Notice */}
       <section className="bg-surface-container-lowest px-4 pt-4 pb-4">
         {/* Status Badge */}
         <div className="flex justify-start">
           {isPublished && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-tertiary-container/30 px-4 text-sm font-medium text-tertiary">
+            <span className="bg-tertiary-container/30 text-tertiary inline-flex h-10 items-center rounded-lg px-4 text-sm font-medium">
               منتشر شده
             </span>
           )}
           {isWaitForAdmin && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container px-4 text-sm font-medium text-on-warning-container">
+            <span className="bg-warning-container text-on-warning-container inline-flex h-10 items-center rounded-lg px-4 text-sm font-medium">
               در انتظار تایید انتشار
             </span>
           )}
           {isWaitForAgency && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container px-4 text-sm font-medium text-on-warning-container">
+            <span className="bg-warning-container text-on-warning-container inline-flex h-10 items-center rounded-lg px-4 text-sm font-medium">
               در انتظار تایید آژانس
             </span>
           )}
           {isWaitForRepost && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container px-4 text-sm font-medium text-on-warning-container">
+            <span className="bg-warning-container text-on-warning-container inline-flex h-10 items-center rounded-lg px-4 text-sm font-medium">
               در انتظار ثبت مجدد
             </span>
           )}
           {isArchived && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-surface-container-high px-4 text-sm font-medium text-on-surface-var">
+            <span className="bg-surface-container-high text-on-surface-var inline-flex h-10 items-center rounded-lg px-4 text-sm font-medium">
               بایگانی شده
             </span>
           )}
           {(isDeleted || isWaitForDeal || isWaitForStop) && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-error-container/40 px-4 text-sm font-medium text-error">
+            <span className="bg-error-container/40 text-error inline-flex h-10 items-center rounded-lg px-4 text-sm font-medium">
               حذف شده
             </span>
           )}
         </div>
 
         {/* Ad Summary Card: Image FIRST (on right in RTL), Infos text to the LEFT */}
-        <div className="mt-4 flex h-[79px] items-center gap-3 rounded-2xl border border-surface-container-high bg-surface-container-low px-4 [direction:rtl]">
+        <div className="border-surface-container-high bg-surface-container-low mt-4 flex h-[79px] items-center gap-3 rounded-2xl border px-4 [direction:rtl]">
           {/* 1. Image first: renders on the RIGHT in RTL */}
           <div
             aria-hidden="true"
@@ -491,10 +496,22 @@ export function AgencyAssignedUserAdView({
 
           {/* 2. Infos text: renders to the LEFT of image */}
           <div className="min-w-0 flex-1 text-right">
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs text-on-surface-var">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-on-surface-var m-0 truncate text-xs"
+            >
               {categoryBreadcrumb}
             </Typography>
-            <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-semibold text-on-surface">
+            <Typography
+              as="h2"
+              variant="title"
+              size="small"
+              weight="medium"
+              className="text-on-surface m-0 mt-1 truncate text-sm font-semibold"
+            >
               {card.title}
             </Typography>
           </div>
@@ -502,14 +519,14 @@ export function AgencyAssignedUserAdView({
 
         {/* Metadata for Published state: Title on RIGHT, Value on LEFT */}
         {isPublished && (
-          <div className="mt-4 text-sm font-medium leading-5">
+          <div className="mt-4 text-sm leading-5 font-medium">
             <div className="flex h-11 items-center justify-between [direction:rtl]">
-              <span className="text-sm text-on-surface-var">انتشار</span>
+              <span className="text-on-surface-var text-sm">انتشار</span>
               {renderDateWithRelative(publishedDateText)}
             </div>
-            <div className="border-t border-dashed border-outline-var/30" />
+            <div className="border-outline-var/30 border-t border-dashed" />
             <div className="flex h-11 items-center justify-between [direction:rtl]">
-              <span className="text-sm text-on-surface-var">انقضا</span>
+              <span className="text-on-surface-var text-sm">انقضا</span>
               {renderDateWithRelative(expirationDateText)}
             </div>
           </div>
@@ -517,18 +534,38 @@ export function AgencyAssignedUserAdView({
 
         {/* Notice for Pending Admin Review */}
         {isWaitForAdmin && (
-          <div className="mt-4 rounded-lg border border-warning bg-warning-container px-4 py-3 text-right">
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-on-surface">
+          <div className="border-warning bg-warning-container mt-4 rounded-lg border px-4 py-3 text-right">
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-on-surface m-0 text-sm leading-7 font-normal"
+            >
               این آگهی در صف بررسی سامانه قرار دارد.
             </Typography>
             <Typography as="p" variant="body" size="medium" weight="regular">
               پس از تایید، آگهی به صورت خودکار منتشر می‌شود.
             </Typography>
 
-            <div className="mt-3 border-t border-dashed border-outline-var pt-3">
-              <div className="flex h-6 items-center justify-between gap-4 text-xs font-normal leading-4 [direction:ltr]">
-                <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface [direction:rtl]">بین ۱ تا ۶ ساعت</Typography>
-                <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-on-surface-var [direction:rtl]">
+            <div className="border-outline-var mt-3 border-t border-dashed pt-3">
+              <div className="flex h-6 items-center justify-between gap-4 text-xs leading-4 font-normal [direction:ltr]">
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="text-on-surface [direction:rtl]"
+                >
+                  بین ۱ تا ۶ ساعت
+                </Typography>
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="text-on-surface-var inline-flex items-center gap-2 [direction:rtl]"
+                >
                   <LinearClock className="h-5 w-5" />
                   زمان تقریبی بررسی:
                 </Typography>
@@ -536,28 +573,27 @@ export function AgencyAssignedUserAdView({
             </div>
           </div>
         )}
-
       </section>
 
       {/* Section Divider 1 */}
-      <div className="h-2 shrink-0 bg-surface-container" aria-hidden="true" />
+      <div className="bg-surface-container h-2 shrink-0" aria-hidden="true" />
 
       {/* Section 2: Action list items */}
       <section className="bg-surface-container-lowest px-4">
-        <div className="divide-y divide-outline-var/20">
+        <div className="divide-outline-var/20 divide-y">
           {/* Action 1: پیش‌نمایش */}
           <button
             type="button"
             onClick={handlePreview}
-            className="flex h-14 w-full items-center justify-between text-right transition-colors active:bg-surface-container-low [direction:rtl]"
+            className="active:bg-surface-container-low flex h-14 w-full items-center justify-between text-right transition-colors [direction:rtl]"
           >
             <div className="flex items-center gap-3">
-              <LinearPreview className="h-6 w-6 text-on-surface-var" />
+              <LinearPreview className="text-on-surface-var h-6 w-6" />
               <Typography variant="label" size="large" weight="medium" className="text-on-surface">
                 پیش‌نمایش
               </Typography>
             </div>
-            <LinearArrowLeft1 className="h-6 w-6 text-outline" />
+            <LinearArrowLeft1 className="text-outline h-6 w-6" />
           </button>
 
           {/* Action: ویرایش */}
@@ -578,15 +614,20 @@ export function AgencyAssignedUserAdView({
                   },
                 });
               }}
-              className="flex h-14 w-full items-center justify-between text-right transition-colors active:bg-surface-container-low [direction:rtl]"
+              className="active:bg-surface-container-low flex h-14 w-full items-center justify-between text-right transition-colors [direction:rtl]"
             >
               <div className="flex items-center gap-3">
-                <LinearEdit2 className="h-6 w-6 text-on-surface-var" />
-                <Typography variant="label" size="large" weight="medium" className="text-on-surface">
+                <LinearEdit2 className="text-on-surface-var h-6 w-6" />
+                <Typography
+                  variant="label"
+                  size="large"
+                  weight="medium"
+                  className="text-on-surface"
+                >
                   ویرایش
                 </Typography>
               </div>
-              <LinearArrowLeft1 className="h-6 w-6 text-outline" />
+              <LinearArrowLeft1 className="text-outline h-6 w-6" />
             </button>
           )}
 
@@ -595,15 +636,20 @@ export function AgencyAssignedUserAdView({
             <button
               type="button"
               onClick={handleGoToStopPublish}
-              className="flex h-14 w-full items-center justify-between text-right transition-colors active:bg-surface-container-low [direction:rtl]"
+              className="active:bg-surface-container-low flex h-14 w-full items-center justify-between text-right transition-colors [direction:rtl]"
             >
               <div className="flex items-center gap-3">
-                <LinearCancel className="h-6 w-6 text-on-surface-var" />
-                <Typography variant="label" size="large" weight="medium" className="text-on-surface">
+                <LinearCancel className="text-on-surface-var h-6 w-6" />
+                <Typography
+                  variant="label"
+                  size="large"
+                  weight="medium"
+                  className="text-on-surface"
+                >
                   درخواست توقف انتشار
                 </Typography>
               </div>
-              <LinearArrowLeft1 className="h-6 w-6 text-outline" />
+              <LinearArrowLeft1 className="text-outline h-6 w-6" />
             </button>
           )}
 
@@ -612,45 +658,75 @@ export function AgencyAssignedUserAdView({
             <button
               type="button"
               onClick={() => setIsCancelAssignmentOpen(true)}
-              className="flex h-14 w-full items-center justify-between text-right transition-colors active:bg-surface-container-low [direction:rtl]"
+              className="active:bg-surface-container-low flex h-14 w-full items-center justify-between text-right transition-colors [direction:rtl]"
             >
               <div className="flex items-center gap-3">
-                <LinearCancel className="h-6 w-6 text-on-surface-var" />
-                <Typography variant="label" size="large" weight="medium" className="text-on-surface">
+                <LinearCancel className="text-on-surface-var h-6 w-6" />
+                <Typography
+                  variant="label"
+                  size="large"
+                  weight="medium"
+                  className="text-on-surface"
+                >
                   لغو واگذاری آگهی به آژانس
                 </Typography>
               </div>
-              <LinearArrowLeft1 className="h-6 w-6 text-outline" />
+              <LinearArrowLeft1 className="text-outline h-6 w-6" />
             </button>
           )}
         </div>
       </section>
 
       {/* Section Divider 2 */}
-      <div className="h-2 shrink-0 bg-surface-container" aria-hidden="true" />
+      <div className="bg-surface-container h-2 shrink-0" aria-hidden="true" />
 
       {/* Section 3: آخرین تغییرات (Timeline History) */}
-      <section className="flex-1 bg-surface-container-lowest px-4 pt-6 pb-8">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mb-6 text-base font-bold text-on-surface">
+      <section className="bg-surface-container-lowest flex-1 px-4 pt-6 pb-8">
+        <Typography
+          as="h3"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-on-surface m-0 mb-6 text-base font-bold"
+        >
           آخرین تغییرات
         </Typography>
 
         {/* Specialized Action Area: Wait for Repost */}
         {showRepostSection && (
           <div className="m-0 mb-6 text-right">
-            <Typography as="h3" variant="body" size="medium" weight="regular" className="m-0 text-on-surface">
+            <Typography
+              as="h3"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-on-surface m-0"
+            >
               فرصت ثبت مجدد آگهی
             </Typography>
-            <div className="mt-3 rounded-lg border border-tertiary bg-surface-container-lowest p-2 text-right">
-              <Typography as="p" variant="body" size="medium" weight="regular" className="text-tertiary">
+            <div className="border-tertiary bg-surface-container-lowest mt-3 rounded-lg border p-2 text-right">
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="text-tertiary"
+              >
                 {formatExpireDuration(
                   reRegisterStatusQuery.data?.expire,
                   reRegisterStatusQuery.data?.expires_at,
-                  reRegisterStatusQuery.data?.reason || "تا ۶ روز و ۱۲ ساعت دیگر می‌توانید این آگهی را مجدداً فعال کنید.",
+                  reRegisterStatusQuery.data?.reason ||
+                    "تا ۶ روز و ۱۲ ساعت دیگر می‌توانید این آگهی را مجدداً فعال کنید.",
                 )}
               </Typography>
             </div>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-on-surface-var">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-on-surface-var m-0 mt-2"
+            >
               پس از پایان این مهلت، وضعیت آگهی به بایگانی شده تغییر خواهد کرد.
             </Typography>
 
@@ -673,15 +749,28 @@ export function AgencyAssignedUserAdView({
         {/* Specialized Action Area: Archived */}
         {showArchiveSection && (
           <div className="m-0 mb-6 text-right">
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm leading-6 text-on-surface">
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-on-surface m-0 text-sm leading-6"
+            >
               مهلت ثبت مجدد این آگهی به پایان رسیده و آگهی به حالت بایگانی شده منتقل شده است.
             </Typography>
-            <div className="mt-3 rounded-lg border border-tertiary bg-surface-container-lowest p-2 text-right">
-              <Typography as="p" variant="body" size="medium" weight="regular" className="text-tertiary">
+            <div className="border-tertiary bg-surface-container-lowest mt-3 rounded-lg border p-2 text-right">
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="text-tertiary"
+              >
                 {formatExpireDuration(
                   archiveStatusQuery.data?.expire,
                   archiveStatusQuery.data?.expires_at,
-                  archiveStatusQuery.data?.reason || "تا ۲۳ روز و ۸ ساعت دیگر می‌توانید این آگهی را بازیابی کنید.",
+                  archiveStatusQuery.data?.reason ||
+                    "تا ۲۳ روز و ۸ ساعت دیگر می‌توانید این آگهی را بازیابی کنید.",
                 )}
               </Typography>
             </div>
@@ -704,7 +793,15 @@ export function AgencyAssignedUserAdView({
                 }}
                 className="gap-2 [direction:rtl]"
                 leadingIcon={
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M3 10h10a5 5 0 0 1 5 5v2" />
                     <path d="M7 6 3 10l4 4" />
                   </svg>
@@ -719,15 +816,29 @@ export function AgencyAssignedUserAdView({
         {/* Specialized Action Area: Deleted Variant 1 (Agency closed deal -> Submit Result in separate page) */}
         {showSubmitResultSection && (
           <div className="m-0 text-right">
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm leading-6 text-on-surface">
-              {(submitResultStatusQuery.data?.agency?.name ?? agencyName)} این درخواست را بسته است. لطفاً نتیجه نهایی این درخواست را ثبت کنید.
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-on-surface m-0 text-sm leading-6"
+            >
+              {submitResultStatusQuery.data?.agency?.name ?? agencyName} این درخواست را بسته است.
+              لطفاً نتیجه نهایی این درخواست را ثبت کنید.
             </Typography>
-            <div className="mt-3 rounded-lg border border-tertiary bg-surface-container-lowest p-2 text-right">
-              <Typography as="p" variant="body" size="medium" weight="regular" className="text-tertiary">
+            <div className="border-tertiary bg-surface-container-lowest mt-3 rounded-lg border p-2 text-right">
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="text-tertiary"
+              >
                 {formatExpireDuration(
                   submitResultStatusQuery.data?.expire,
                   submitResultStatusQuery.data?.expires_at,
-                  submitResultStatusQuery.data?.reason || "تا پایان مهلت پاسخگویی ۶ روز و ۱۲ ساعت فرصت دارید.",
+                  submitResultStatusQuery.data?.reason ||
+                    "تا پایان مهلت پاسخگویی ۶ روز و ۱۲ ساعت فرصت دارید.",
                 )}
               </Typography>
             </div>
@@ -746,31 +857,33 @@ export function AgencyAssignedUserAdView({
               <LinearArrowLeft1 className="h-5 w-5" />
             </Button>
 
-            <div className="mt-4 border-b border-outline-var/20" />
+            <div className="border-outline-var/20 mt-4 border-b" />
           </div>
         )}
 
         {/* Live Timeline Items from GET /api/history/{advertiseId} */}
         {historyQuery.isLoading ? (
-          <div className="py-8 text-center text-xs text-on-surface-var">
+          <div className="text-on-surface-var py-8 text-center text-xs">
             در حال دریافت آخرین تغییرات...
           </div>
         ) : historyQuery.data && historyQuery.data.length > 0 ? (
-          <div className="divide-y divide-outline-var/20">
-            {historyQuery.data.map((item: { action?: string; created_at?: string; message?: string }, index: number) => (
-              <TimelineItem
-                key={`${item.action}-${item.created_at}-${index}`}
-                time={formatHistoryDate(item.created_at)}
-                description={item.message}
-              />
-            ))}
+          <div className="divide-outline-var/20 divide-y">
+            {historyQuery.data.map(
+              (item: { action?: string; created_at?: string; message?: string }, index: number) => (
+                <TimelineItem
+                  key={`${item.action}-${item.created_at}-${index}`}
+                  time={formatHistoryDate(item.created_at)}
+                  description={item.message}
+                />
+              ),
+            )}
           </div>
         ) : historyQuery.data && historyQuery.data.length === 0 ? (
-          <div className="py-8 text-center text-xs text-on-surface-var">
+          <div className="text-on-surface-var py-8 text-center text-xs">
             تغییری برای این آگهی ثبت نشده است.
           </div>
         ) : (
-          <div className="divide-y divide-outline-var/20">
+          <div className="divide-outline-var/20 divide-y">
             {/* Fallback mock cases for storybook / offline tests */}
             {isPublished && (
               <>
@@ -779,8 +892,7 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت توسط {agencyName} به{" "}
-                      <span className="font-medium text-tertiary">منتشر شده</span>{" "}
-                      تغییر یافت.
+                      <span className="text-tertiary font-medium">منتشر شده</span> تغییر یافت.
                     </>
                   }
                 />
@@ -789,8 +901,8 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت به{" "}
-                      <span className="font-medium text-warning">در انتظار تایید آژانس</span>{" "}
-                      تغییر یافت.
+                      <span className="text-warning font-medium">در انتظار تایید آژانس</span> تغییر
+                      یافت.
                     </>
                   }
                 />
@@ -798,8 +910,7 @@ export function AgencyAssignedUserAdView({
                   time="دیروز ۱۲:۲۰"
                   description={
                     <>
-                      درخواست به{" "}
-                      <span className="font-medium text-primary">{agencyName}</span>{" "}
+                      درخواست به <span className="text-primary font-medium">{agencyName}</span>{" "}
                       ارسال شد.
                     </>
                   }
@@ -814,8 +925,8 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت به{" "}
-                      <span className="font-medium text-warning">در انتظار تایید انتشار</span>{" "}
-                      تغییر یافت.
+                      <span className="text-warning font-medium">در انتظار تایید انتشار</span> تغییر
+                      یافت.
                     </>
                   }
                 />
@@ -823,8 +934,7 @@ export function AgencyAssignedUserAdView({
                   time="دیروز ۱۲:۲۰"
                   description={
                     <>
-                      درخواست به{" "}
-                      <span className="font-medium text-primary">{agencyName}</span>{" "}
+                      درخواست به <span className="text-primary font-medium">{agencyName}</span>{" "}
                       ارسال شد.
                     </>
                   }
@@ -839,8 +949,8 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت به{" "}
-                      <span className="font-medium text-warning">در انتظار تایید آژانس</span>{" "}
-                      تغییر یافت.
+                      <span className="text-warning font-medium">در انتظار تایید آژانس</span> تغییر
+                      یافت.
                     </>
                   }
                 />
@@ -848,8 +958,7 @@ export function AgencyAssignedUserAdView({
                   time="دیروز ۱۲:۲۰"
                   description={
                     <>
-                      درخواست به{" "}
-                      <span className="font-medium text-primary">{agencyName}</span>{" "}
+                      درخواست به <span className="text-primary font-medium">{agencyName}</span>{" "}
                       ارسال شد.
                     </>
                   }
@@ -864,8 +973,7 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       کاربر واگذاری آگهی به آژانس را به{" "}
-                      <span className="font-medium text-error">لغو شده</span>{" "}
-                      تغییر داد.
+                      <span className="text-error font-medium">لغو شده</span> تغییر داد.
                     </>
                   }
                 />
@@ -874,8 +982,8 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت به{" "}
-                      <span className="font-medium text-warning">در انتظار تایید آژانس</span>{" "}
-                      تغییر یافت.
+                      <span className="text-warning font-medium">در انتظار تایید آژانس</span> تغییر
+                      یافت.
                     </>
                   }
                 />
@@ -889,8 +997,7 @@ export function AgencyAssignedUserAdView({
                   time="دیروز ۱۲:۲۰"
                   description={
                     <>
-                      آگهی به{" "}
-                      <span className="font-medium text-on-surface-var">بایگانی شده</span>{" "}
+                      آگهی به <span className="text-on-surface-var font-medium">بایگانی شده</span>{" "}
                       منتقل شد.
                     </>
                   }
@@ -900,8 +1007,7 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       کاربر واگذاری آگهی به آژانس را به{" "}
-                      <span className="font-medium text-error">لغو شده</span>{" "}
-                      تغییر داد.
+                      <span className="text-error font-medium">لغو شده</span> تغییر داد.
                     </>
                   }
                 />
@@ -910,8 +1016,8 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت به{" "}
-                      <span className="font-medium text-warning">در انتظار تایید آژانس</span>{" "}
-                      تغییر یافت.
+                      <span className="text-warning font-medium">در انتظار تایید آژانس</span> تغییر
+                      یافت.
                     </>
                   }
                 />
@@ -919,8 +1025,7 @@ export function AgencyAssignedUserAdView({
                   time="دیروز ۱۲:۲۰"
                   description={
                     <>
-                      درخواست به{" "}
-                      <span className="font-medium text-primary">{agencyName}</span>{" "}
+                      درخواست به <span className="text-primary font-medium">{agencyName}</span>{" "}
                       ارسال شد.
                     </>
                   }
@@ -935,8 +1040,7 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت توسط {agencyName} به{" "}
-                      <span className="font-medium text-error">حذف شده</span>{" "}
-                      تغییر یافت.
+                      <span className="text-error font-medium">حذف شده</span> تغییر یافت.
                     </>
                   }
                 />
@@ -945,8 +1049,7 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت توسط {agencyName} به{" "}
-                      <span className="font-medium text-tertiary">منتشر شده</span>{" "}
-                      تغییر یافت.
+                      <span className="text-tertiary font-medium">منتشر شده</span> تغییر یافت.
                     </>
                   }
                 />
@@ -961,8 +1064,8 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       این آگهی بنا به درخواست شما توسط{" "}
-                      <span className="font-medium text-primary">{agencyName}</span>{" "}
-                      از انتشار خارج شده است.
+                      <span className="text-primary font-medium">{agencyName}</span> از انتشار خارج
+                      شده است.
                     </>
                   }
                 />
@@ -975,8 +1078,7 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت توسط {agencyName} به{" "}
-                      <span className="font-medium text-tertiary">منتشر شده</span>{" "}
-                      تغییر یافت.
+                      <span className="text-tertiary font-medium">منتشر شده</span> تغییر یافت.
                     </>
                   }
                 />
@@ -985,8 +1087,8 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت به{" "}
-                      <span className="font-medium text-warning">در انتظار تایید آژانس</span>{" "}
-                      تغییر یافت.
+                      <span className="text-warning font-medium">در انتظار تایید آژانس</span> تغییر
+                      یافت.
                     </>
                   }
                 />
@@ -994,8 +1096,7 @@ export function AgencyAssignedUserAdView({
                   time="دیروز ۱۲:۲۰"
                   description={
                     <>
-                      درخواست به{" "}
-                      <span className="font-medium text-primary">{agencyName}</span>{" "}
+                      درخواست به <span className="text-primary font-medium">{agencyName}</span>{" "}
                       ارسال شد.
                     </>
                   }
@@ -1005,14 +1106,16 @@ export function AgencyAssignedUserAdView({
 
             {isDeleted && effectiveDeletedVariant === "recovery_expired" && (
               <>
-                <TimelineItem time="دیروز ۱۲:۲۰" description="مهلت بازیابی این آگهی به پایان رسیده است." />
+                <TimelineItem
+                  time="دیروز ۱۲:۲۰"
+                  description="مهلت بازیابی این آگهی به پایان رسیده است."
+                />
                 <TimelineItem time="دیروز ۱۲:۲۰" description="مهلت بازیابی تا ۳۰ روز فعال شد." />
                 <TimelineItem
                   time="دیروز ۱۲:۲۰"
                   description={
                     <>
-                      آگهی به{" "}
-                      <span className="font-medium text-on-surface-var">بایگانی شده</span>{" "}
+                      آگهی به <span className="text-on-surface-var font-medium">بایگانی شده</span>{" "}
                       منتقل شد.
                     </>
                   }
@@ -1022,8 +1125,7 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       کاربر واگذاری آگهی به آژانس را به{" "}
-                      <span className="font-medium text-error">لغو شده</span>{" "}
-                      تغییر داد.
+                      <span className="text-error font-medium">لغو شده</span> تغییر داد.
                     </>
                   }
                 />
@@ -1032,8 +1134,8 @@ export function AgencyAssignedUserAdView({
                   description={
                     <>
                       وضعیت به{" "}
-                      <span className="font-medium text-warning">در انتظار تایید آژانس</span>{" "}
-                      تغییر یافت.
+                      <span className="text-warning font-medium">در انتظار تایید آژانس</span> تغییر
+                      یافت.
                     </>
                   }
                 />
@@ -1041,8 +1143,7 @@ export function AgencyAssignedUserAdView({
                   time="دیروز ۱۲:۲۰"
                   description={
                     <>
-                      درخواست به{" "}
-                      <span className="font-medium text-primary">{agencyName}</span>{" "}
+                      درخواست به <span className="text-primary font-medium">{agencyName}</span>{" "}
                       ارسال شد.
                     </>
                   }
@@ -1125,16 +1226,22 @@ function TimelineItem({
 }) {
   return (
     <div className="py-3.5 text-right">
-      <div className="flex items-center gap-1.5 text-xs text-on-surface-var">
-        <LinearClock className="h-4 w-4 shrink-0 text-outline" />
+      <div className="text-on-surface-var flex items-center gap-1.5 text-xs">
+        <LinearClock className="text-outline h-4 w-4 shrink-0" />
         <span>{time}</span>
       </div>
       {title && (
-        <Typography as="h4" variant="title" size="small" weight="semibold" className="m-0 mt-2 text-sm font-semibold text-on-surface">
+        <Typography
+          as="h4"
+          variant="title"
+          size="small"
+          weight="semibold"
+          className="text-on-surface m-0 mt-2 text-sm font-semibold"
+        >
           {title}
         </Typography>
       )}
-      <div className="mt-1.5 text-xs leading-5 text-on-surface-var">{description}</div>
+      <div className="text-on-surface-var mt-1.5 text-xs leading-5">{description}</div>
     </div>
   );
 }
@@ -1167,38 +1274,74 @@ export function AgencyCancelAssignmentBottomSheet({
       zIndexClassName="z-2000"
     >
       <div className="px-5 pt-4 text-right [direction:rtl]">
-        <Typography as="h3" variant="body" size="large" weight="medium" className="m-0 text-on-surface">
+        <Typography
+          as="h3"
+          variant="body"
+          size="large"
+          weight="medium"
+          className="text-on-surface m-0"
+        >
           با لغو این درخواست، آژانس دیگر آگهی شما را مدیریت نخواهد کرد.
         </Typography>
 
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-3"
+        >
           آگهی شما تا ۷ روز در وضعیت «در انتظار ثبت مجدد» باقی می‌ماند و در این مدت می‌توانید:
         </Typography>
 
         <div className="flex flex-col gap-y-2">
-          <div className="flex gap-2 items-center">
-            <div className="w-1.25 h-1.25 bg-outline rounded-full" />
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-on-surface-var">
+          <div className="flex items-center gap-2">
+            <div className="bg-outline h-1.25 w-1.25 rounded-full" />
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-on-surface-var m-0 mt-2"
+            >
               آگهی را به آژانس دیگری واگذار کنید.
             </Typography>
           </div>
 
-          <div className="flex gap-2 items-center">
-            <div className="w-1.25 h-1.25 bg-outline rounded-full" />
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-on-surface-var">
+          <div className="flex items-center gap-2">
+            <div className="bg-outline h-1.25 w-1.25 rounded-full" />
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-on-surface-var m-0"
+            >
               آگهی را به صورت شخصی منتشر کنید.
             </Typography>
           </div>
         </div>
 
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-4"
+        >
           پس از پایان مهلت، آگهی به بایگانی منتقل خواهد شد.
         </Typography>
 
         {/* Green notice banner */}
-        <div className="mt-4 flex items-center gap-1 rounded-xl bg-tertiary-container/30 px-2 py-1 text-xs font-medium text-tertiary">
-          <LinearInfoCircle className="h-4 w-4 shrink-0 text-tertiary" />
-          <Typography as="span" variant="body" size="small" weight="medium" className="text-tertiary">
+        <div className="bg-tertiary-container/30 text-tertiary mt-4 flex items-center gap-1 rounded-xl px-2 py-1 text-xs font-medium">
+          <LinearInfoCircle className="text-tertiary h-4 w-4 shrink-0" />
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="medium"
+            className="text-tertiary"
+          >
             اطلاعات و تصاویر آگهی حذف نخواهند شد.
           </Typography>
         </div>
@@ -1257,30 +1400,41 @@ function RepostChoiceBottomSheet({
       zIndexClassName="z-2000"
     >
       <div className="px-4 pb-2 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs leading-5 text-on-surface-var">
-          تمایل دارید همین آگهی را به چه صورت مجدداً فعال و منتشر نمایید؟ تمامی مشخصات ثبت‌شده ملک حفظ می‌شود.
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var m-0 text-xs leading-5"
+        >
+          تمایل دارید همین آگهی را به چه صورت مجدداً فعال و منتشر نمایید؟ تمامی مشخصات ثبت‌شده ملک
+          حفظ می‌شود.
         </Typography>
       </div>
 
-      <div className="divide-y divide-outline-var/20">
+      <div className="divide-outline-var/20 divide-y">
         <ListItem
           description="پرداخت هزینه انتشار و انتشار فوری آگهی به صورت شخصی"
           disabled={isPersonalPending}
-          leading={<LinearUserSolid aria-hidden="true" className="h-6 w-6 text-on-surface-var" />}
+          leading={<LinearUserSolid aria-hidden="true" className="text-on-surface-var h-6 w-6" />}
           onClick={onSelectPersonal}
           tabIndex={isOpen ? 0 : -1}
-          title={isPersonalPending ? "در حال انتقال به پرداخت..." : "انتشار شخصی و مستقیم (پرداخت آنلاین)"}
-          trailing={<LinearArrowLeft1 aria-hidden="true" className="h-6 w-6 text-outline" />}
+          title={
+            isPersonalPending
+              ? "در حال انتقال به پرداخت..."
+              : "انتشار شخصی و مستقیم (پرداخت آنلاین)"
+          }
+          trailing={<LinearArrowLeft1 aria-hidden="true" className="text-outline h-6 w-6" />}
         />
 
         <ListItem
           description="ارسال و واگذاری این آگهی به آژانس املاک برای مدیریت و انتشار"
           disabled={isPersonalPending}
-          leading={<LinearBuilding2 aria-hidden="true" className="h-6 w-6 text-on-surface-var" />}
+          leading={<LinearBuilding2 aria-hidden="true" className="text-on-surface-var h-6 w-6" />}
           onClick={onSelectAgency}
           tabIndex={isOpen ? 0 : -1}
           title="ارسال و واگذاری به آژانس املاک دیگر"
-          trailing={<LinearArrowLeft1 aria-hidden="true" className="h-6 w-6 text-outline" />}
+          trailing={<LinearArrowLeft1 aria-hidden="true" className="text-outline h-6 w-6" />}
         />
       </div>
     </BottomSheet>
@@ -1307,12 +1461,14 @@ function AgencyReassignBottomSheet({
     perPage: 20,
   });
 
-  const agencies = (data?.pages.flatMap((page) => page.data) ?? []) as Array<Record<string, unknown>>;
+  const agencies = (data?.pages.flatMap((page) => page.data) ?? []) as Array<
+    Record<string, unknown>
+  >;
 
   return (
     <BottomSheet
       ariaLabel="انتخاب آژانس املاک جدید"
-      className="rounded-t-[24px]! max-h-[85svh]"
+      className="max-h-[85svh] rounded-t-[24px]!"
       contentClassName="min-h-0 overflow-y-auto overscroll-contain"
       headerButtonAriaLabel="بستن"
       headerClassName="h-10! gap-1! px-2!"
@@ -1323,8 +1479,8 @@ function AgencyReassignBottomSheet({
       variant="actions"
       zIndexClassName="z-2000"
     >
-      <div className="flex flex-col h-full [direction:rtl]">
-        <div className="p-4 border-b border-outline-var/20">
+      <div className="flex h-full flex-col [direction:rtl]">
+        <div className="border-outline-var/20 border-b p-4">
           <SearchInputBar
             value={searchValue}
             onValueChange={(val) => setSearchValue(val)}
@@ -1333,11 +1489,16 @@ function AgencyReassignBottomSheet({
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 space-y-3 overflow-y-auto p-4">
           {isLoading ? (
-            <div className="py-8 text-center text-xs text-on-surface-var">در حال بارگذاری آژانس‌ها...</div>
+            <div className="text-on-surface-var py-8 text-center text-xs">
+              در حال بارگذاری آژانس‌ها...
+            </div>
           ) : agencies.length === 0 ? (
-            <SearchEmptyState title="آژانسی یافت نشد" description="لطفاً عبارت دیگری را جستجو کنید." />
+            <SearchEmptyState
+              title="آژانسی یافت نشد"
+              description="لطفاً عبارت دیگری را جستجو کنید."
+            />
           ) : (
             agencies.map((agency) => {
               const id = String(agency.id ?? "");
@@ -1346,18 +1507,31 @@ function AgencyReassignBottomSheet({
                 <div
                   key={id}
                   onClick={() => setSelectedAgencyId(id)}
-                  className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${isSelected ? "border-primary bg-primary-container/30" : "border-outline-var/30"
-                    }`}
+                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-all ${
+                    isSelected ? "border-primary bg-primary-container/30" : "border-outline-var/30"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-on-surface-var">
-                      <LinearBuilding2 className="w-5 h-5 text-on-surface-var" />
+                    <div className="bg-surface-container-high text-on-surface-var flex h-10 w-10 items-center justify-center rounded-full font-bold">
+                      <LinearBuilding2 className="text-on-surface-var h-5 w-5" />
                     </div>
                     <div>
-                      <Typography as="h4" variant="title" size="small" weight="medium" className="m-0 text-sm font-semibold text-on-surface">
+                      <Typography
+                        as="h4"
+                        variant="title"
+                        size="small"
+                        weight="medium"
+                        className="text-on-surface m-0 text-sm font-semibold"
+                      >
                         {String(agency.title ?? agency.name ?? "آژانس املاک")}
                       </Typography>
-                      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-0.5 text-xs text-on-surface-var">
+                      <Typography
+                        as="p"
+                        variant="body"
+                        size="small"
+                        weight="regular"
+                        className="text-on-surface-var m-0 mt-0.5 text-xs"
+                      >
                         {String(agency.address ?? agency.location ?? "")}
                       </Typography>
                     </div>
@@ -1369,7 +1543,7 @@ function AgencyReassignBottomSheet({
           )}
         </div>
 
-        <div className="border-t border-outline-var/20 p-4 bg-surface-container-lowest mt-auto">
+        <div className="border-outline-var/20 bg-surface-container-lowest mt-auto border-t p-4">
           <Button
             fullWidth
             variant="primary"

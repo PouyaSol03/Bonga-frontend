@@ -18,14 +18,14 @@ export function ConsultantAdsStatusSheet({
 
   return (
     <div>
-      <div className="relative flex h-14 w-full items-center rounded-xl border border-[#CCCCCC] bg-surface-container-lowest px-3 [direction:ltr]">
+      <div className="bg-surface-container-lowest relative flex h-14 w-full items-center rounded-xl border border-[#CCCCCC] px-3 [direction:ltr]">
         {value ? (
           <Typography
             as="span"
             variant="label"
             size="small"
             weight="medium"
-            className="absolute -top-2 right-3 bg-surface-container-lowest px-1 text-outline [direction:rtl]"
+            className="bg-surface-container-lowest text-outline absolute -top-2 right-3 px-1 [direction:rtl]"
           >
             وضعیت آگهی
           </Typography>
@@ -35,19 +35,19 @@ export function ConsultantAdsStatusSheet({
           <Button
             unstyled
             aria-label="پاک کردن"
-            className="grid h-5 w-5 shrink-0 place-items-center text-outline"
+            className="text-outline grid h-5 w-5 shrink-0 place-items-center"
             onClick={() => onChange(undefined)}
             type="button"
           >
             <LinearCancelCircle className="h-5 w-5" />
           </Button>
         ) : (
-          <LinearArrowDown1 className="h-5 w-5 text-on-surface-var" />
+          <LinearArrowDown1 className="text-on-surface-var h-5 w-5" />
         )}
 
         <Button
           unstyled
-          className="min-w-0 flex-1 truncate text-right text-sm font-normal leading-5 [direction:rtl]"
+          className="min-w-0 flex-1 truncate text-right text-sm leading-5 font-normal [direction:rtl]"
           onClick={() => setIsOpen(true)}
           type="button"
         >
@@ -79,7 +79,7 @@ export function ConsultantAdsStatusSheet({
               <Button
                 unstyled
                 aria-pressed={isSelected}
-                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right transition-colors active:bg-primary-container/20 [direction:ltr] ${
+                className={`active:bg-primary-container/20 flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right transition-colors [direction:ltr] ${
                   isSelected ? "text-primary" : "text-on-surface"
                 }`}
                 key={option}

@@ -3,7 +3,14 @@ import { useAdvertiseBadgesQuery, useDeleteAdvertiseBadgeMutation } from "../api
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { Button } from "../../../shared/ui/Button";
-import { AccountAdCardsSkeleton, AccountPageShell, AccountRetryState, BookmarkAdCard, EmptyAccountState, getBadgeAdvertiseId } from "../accountPageViews";
+import {
+  AccountAdCardsSkeleton,
+  AccountPageShell,
+  AccountRetryState,
+  BookmarkAdCard,
+  EmptyAccountState,
+  getBadgeAdvertiseId,
+} from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountBookmarksPage() {
@@ -20,10 +27,7 @@ export function AccountBookmarksPage() {
     refetch,
   } = useAdvertiseBadgesQuery({ perPage: 10 });
   const deleteBadge = useDeleteAdvertiseBadgeMutation();
-  const bookmarks = useMemo(
-    () => data?.pages.flatMap((page) => page.data) ?? [],
-    [data],
-  );
+  const bookmarks = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
   const prefetchIndex = Math.max(bookmarks.length - 6, 0);
 
   useEffect(() => {
@@ -60,9 +64,10 @@ export function AccountBookmarksPage() {
   return (
     <AccountPageShell
       action={
-        <Button unstyled
+        <Button
+          unstyled
           aria-label="حذف همه نشان‌ها"
-          className="grid h-12 w-12 place-items-center text-on-surface disabled:opacity-40"
+          className="text-on-surface grid h-12 w-12 place-items-center disabled:opacity-40"
           disabled={bookmarks.length === 0 || deleteBadge.isPending}
           onClick={() => setIsConfirmDeleteAllOpen(true)}
           type="button"
@@ -72,8 +77,12 @@ export function AccountBookmarksPage() {
       }
       title="نشان‌ها"
     >
-      <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && bookmarks.length === 0 ? "bg-surface-container-lowest" : "bg-surface-container"}`}>
-        <div className={`${!isLoading && !isError && bookmarks.length === 0 ? "flex min-h-0 flex-1 flex-col bg-surface-container-lowest" : "space-y-2 bg-surface-container"}`}>
+      <main
+        className={`flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto ${!isLoading && !isError && bookmarks.length === 0 ? "bg-surface-container-lowest" : "bg-surface-container"}`}
+      >
+        <div
+          className={`${!isLoading && !isError && bookmarks.length === 0 ? "bg-surface-container-lowest flex min-h-0 flex-1 flex-col" : "bg-surface-container space-y-2"}`}
+        >
           {isLoading ? <AccountAdCardsSkeleton showDeleteButton /> : null}
           {isError ? (
             <AccountRetryState
@@ -82,18 +91,20 @@ export function AccountBookmarksPage() {
               onRetry={() => void refetch()}
             />
           ) : null}
-          {!isLoading && !isError && bookmarks.map((bookmark, index) => (
-            <div
-              key={getBadgeAdvertiseId(bookmark) || index}
-              ref={hasNextPage && index === prefetchIndex ? loadMoreRef : undefined}
-            >
-              <BookmarkAdCard
-                badge={bookmark}
-                disabled={deleteBadge.isPending}
-                onDelete={deleteBookmark}
-              />
-            </div>
-          ))}
+          {!isLoading &&
+            !isError &&
+            bookmarks.map((bookmark, index) => (
+              <div
+                key={getBadgeAdvertiseId(bookmark) || index}
+                ref={hasNextPage && index === prefetchIndex ? loadMoreRef : undefined}
+              >
+                <BookmarkAdCard
+                  badge={bookmark}
+                  disabled={deleteBadge.isPending}
+                  onDelete={deleteBookmark}
+                />
+              </div>
+            ))}
           {isFetchingNextPage ? <AccountAdCardsSkeleton count={1} showDeleteButton /> : null}
           {!isLoading && !isError && bookmarks.length === 0 ? (
             <EmptyAccountState
@@ -114,7 +125,13 @@ export function AccountBookmarksPage() {
         showHeader={false}
         variant="confirm"
       >
-        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-semibold leading-7 text-on-surface">
+        <Typography
+          as="p"
+          variant="body"
+          size="large"
+          weight="medium"
+          className="text-on-surface m-0 text-center text-base leading-7 font-semibold"
+        >
           آیا از حذف همه نشان‌ها مطمئن هستید؟
         </Typography>
         <div className="mt-9 grid grid-cols-2 gap-4 [direction:ltr]">

@@ -6,7 +6,12 @@ import LinearAnalytics from "../../../../shared/icons/LinearAnalytics";
 import LinearDelete from "../../../../shared/icons/LinearDelete";
 import { LinearMonitorCheck } from "../../../../shared/icons/LinearMonitorCheck";
 import { Typography } from "../../../../shared/ui/Typography";
-import { adManagementPaths, getAdEditPath, getAdPreviewPath, getAdStatePath } from "../adManagementData";
+import {
+  adManagementPaths,
+  getAdEditPath,
+  getAdPreviewPath,
+  getAdStatePath,
+} from "../adManagementData";
 import { getMyAdStatusInfo } from "../../myAdsStatus";
 import type { ManagementAdCardProps } from "./types";
 
@@ -50,13 +55,9 @@ export const ManagementAdActions: React.FC<Props> = ({
   const effectiveDeskPath = deskTo || to || getAdStatePath(ad.id);
   const effectivePreviewPath = previewTo || getAdPreviewPath(ad.id);
   const effectiveEditPath = editTo || getAdEditPath(ad.id, adManagementPaths.root);
-  const effectiveAnalyticsPath =
-    analyticsTo || `${getAdStatePath(ad.id)}?businessTab=performance`;
+  const effectiveAnalyticsPath = analyticsTo || `${getAdStatePath(ad.id)}?businessTab=performance`;
 
-  const deskState =
-    state && typeof state === "object"
-      ? { ...state }
-      : { ad: sourceAd, card: ad };
+  const deskState = state && typeof state === "object" ? { ...state } : { ad: sourceAd, card: ad };
   const analyticsState =
     state && typeof state === "object"
       ? { ...state, activeBusinessTab: "performance" as const }
@@ -70,7 +71,7 @@ export const ManagementAdActions: React.FC<Props> = ({
       {/* Main button: ad workspace */}
       {onDeskClick ? (
         <button
-          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-primary px-4 text-xs font-semibold text-on-primary shadow-sm transition active:scale-95 cursor-pointer border-none"
+          className="bg-primary text-on-primary flex h-10 w-[136px] cursor-pointer items-center justify-between rounded-[10px] border-none px-4 text-xs font-semibold shadow-sm transition active:scale-95"
           onClick={onDeskClick}
           type="button"
         >
@@ -79,7 +80,7 @@ export const ManagementAdActions: React.FC<Props> = ({
             variant="label"
             size="small"
             weight="semibold"
-            className="text-xs font-semibold text-on-primary"
+            className="text-on-primary text-xs font-semibold"
           >
             میزکار آگهی
           </Typography>
@@ -87,7 +88,7 @@ export const ManagementAdActions: React.FC<Props> = ({
         </button>
       ) : (
         <Link
-          className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-primary px-4 text-xs font-semibold text-on-primary shadow-sm transition active:scale-95 no-underline"
+          className="bg-primary text-on-primary flex h-10 w-[136px] items-center justify-between rounded-[10px] px-4 text-xs font-semibold no-underline shadow-sm transition active:scale-95"
           state={deskState}
           to={effectiveDeskPath}
         >
@@ -96,7 +97,7 @@ export const ManagementAdActions: React.FC<Props> = ({
             variant="label"
             size="small"
             weight="semibold"
-            className="text-xs font-semibold text-on-primary"
+            className="text-on-primary text-xs font-semibold"
           >
             میزکار آگهی
           </Typography>
@@ -168,11 +169,7 @@ export const ManagementAdActions: React.FC<Props> = ({
             <LinearMonitorCheck className="h-5 w-5" />
           </button>
         ) : (
-          <Link
-            aria-label="پیش‌نمایش آگهی"
-            className={iconBtnClass}
-            to={effectivePreviewPath}
-          >
+          <Link aria-label="پیش‌نمایش آگهی" className={iconBtnClass} to={effectivePreviewPath}>
             <LinearMonitorCheck className="h-5 w-5" />
           </Link>
         )}

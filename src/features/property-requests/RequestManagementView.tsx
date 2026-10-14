@@ -59,8 +59,7 @@ type RequestToast = {
   variant: "error" | "success" | "info" | "warning";
 };
 
-const receivedRequestsGuideStorageKey =
-  "bonga-received-requests-guide-dismissed";
+const receivedRequestsGuideStorageKey = "bonga-received-requests-guide-dismissed";
 
 function getRequestCreatedAt(request: PropertySearchRequest) {
   const createdAt = new Date(request.createdAt);
@@ -103,11 +102,7 @@ function formatReceivedRequestDate(request: PropertySearchRequest) {
 function getReceivedRequestDetailPriority(detail: string) {
   if (detail.includes("خوابه") || detail === "بدون اتاق") return 0;
   if (detail.startsWith("سال ساخت")) return 1;
-  if (
-    detail.startsWith("قیمت") ||
-    detail.startsWith("رهن") ||
-    detail.startsWith("اجاره")
-  ) {
+  if (detail.startsWith("قیمت") || detail.startsWith("رهن") || detail.startsWith("اجاره")) {
     return 2;
   }
   if (detail.startsWith("متراژ")) return 3;
@@ -115,17 +110,13 @@ function getReceivedRequestDetailPriority(detail: string) {
   return 5;
 }
 
-function getReceivedRequestDetails(
-  request: PropertySearchRequest,
-  maxVisibleItems = 6,
-) {
+function getReceivedRequestDetails(request: PropertySearchRequest, maxVisibleItems = 6) {
   const details = getPropertyRequestDetails(request)
     .map((detail, index) => ({ detail, index }))
     .sort(
       (left, right) =>
         getReceivedRequestDetailPriority(left.detail) -
-          getReceivedRequestDetailPriority(right.detail) ||
-        left.index - right.index,
+          getReceivedRequestDetailPriority(right.detail) || left.index - right.index,
     )
     .map(({ detail }) => detail);
   const safeMaxVisibleItems = Math.max(1, Math.floor(maxVisibleItems));
@@ -192,10 +183,7 @@ export function RequestManagementView({
   const requestsQuery = usePropertyRequestsQuery(1, 20);
   const renameRequestMutation = useRenamePropertyRequestMutation();
   const deleteRequestMutation = useDeletePropertyRequestMutation();
-  const requests = useMemo(
-    () => requestsQuery.data?.data ?? [],
-    [requestsQuery.data?.data],
-  );
+  const requests = useMemo(() => requestsQuery.data?.data ?? [], [requestsQuery.data?.data]);
   const requestLoadState = requestsQuery.isLoading
     ? {
         description: "در حال دریافت درخواست‌های شما هستیم.",
@@ -213,14 +201,12 @@ export function RequestManagementView({
   const [editingRequestId, setEditingRequestId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [toast, setToast] = useState<RequestToast | null>(null);
-  const [dismissedReceivedRequestIds, setDismissedReceivedRequestIds] = useState<
-    Set<string>
-  >(() => new Set());
+  const [dismissedReceivedRequestIds, setDismissedReceivedRequestIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [isReceivedGuideVisible, setIsReceivedGuideVisible] = useState(() => {
     try {
-      return (
-        window.sessionStorage.getItem(receivedRequestsGuideStorageKey) !== "1"
-      );
+      return window.sessionStorage.getItem(receivedRequestsGuideStorageKey) !== "1";
     } catch {
       return true;
     }
@@ -232,13 +218,9 @@ export function RequestManagementView({
   const activeFilterId = filters[activeTab];
   const activeFilterTitle = useMemo(() => {
     if (activeFilterId === "all") return "همه درخواست‌ها";
-    return (
-      requests.find((request) => request.id === activeFilterId)?.title ||
-      "همه درخواست‌ها"
-    );
+    return requests.find((request) => request.id === activeFilterId)?.title || "همه درخواست‌ها";
   }, [activeFilterId, requests]);
-  const editingRequest =
-    requests.find((request) => request.id === editingRequestId) ?? null;
+  const editingRequest = requests.find((request) => request.id === editingRequestId) ?? null;
   const filteredRequests = useMemo(
     () =>
       activeFilterId === "all"
@@ -255,36 +237,27 @@ export function RequestManagementView({
   const hasVisibleResults = filteredRequests.some(
     (request) => (resultStatuses[request.id]?.visibleCount ?? 0) > 0,
   );
-  const hasResultErrors = filteredRequests.some(
-    (request) => resultStatuses[request.id]?.isError,
-  );
+  const hasResultErrors = filteredRequests.some((request) => resultStatuses[request.id]?.isError);
   const showResultsEmpty =
-    filteredRequests.length === 0 ||
-    (resultsAreSettled && !hasVisibleResults && !hasResultErrors);
-  const handleResultStatusChange = useCallback(
-    (status: PropertyRequestResultsStatus) => {
-      setResultStatuses((current) => {
-        const previous = current[status.requestId];
+    filteredRequests.length === 0 || (resultsAreSettled && !hasVisibleResults && !hasResultErrors);
+  const handleResultStatusChange = useCallback((status: PropertyRequestResultsStatus) => {
+    setResultStatuses((current) => {
+      const previous = current[status.requestId];
 
-        if (
-          previous &&
-          previous.isError === status.isError &&
-          previous.isLoading === status.isLoading &&
-          previous.visibleCount === status.visibleCount
-        ) {
-          return current;
-        }
+      if (
+        previous &&
+        previous.isError === status.isError &&
+        previous.isLoading === status.isLoading &&
+        previous.visibleCount === status.visibleCount
+      ) {
+        return current;
+      }
 
-        return { ...current, [status.requestId]: status };
-      });
-    },
-    [],
-  );
+      return { ...current, [status.requestId]: status };
+    });
+  }, []);
   const receivedRequests = useMemo(
-    () =>
-      requests.filter(
-        (request) => !dismissedReceivedRequestIds.has(String(request.id)),
-      ),
+    () => requests.filter((request) => !dismissedReceivedRequestIds.has(String(request.id))),
     [dismissedReceivedRequestIds, requests],
   );
   const hasNewReceivedRequests = receivedRequests.some(isReceivedRequestNew);
@@ -301,10 +274,7 @@ export function RequestManagementView({
   }, [filteredRequests]);
 
   useEffect(() => {
-    if (
-      activeFilterId === "all" ||
-      requests.some((request) => request.id === activeFilterId)
-    ) {
+    if (activeFilterId === "all" || requests.some((request) => request.id === activeFilterId)) {
       return;
     }
 
@@ -329,21 +299,24 @@ export function RequestManagementView({
     setIsRefreshing(true);
     setDismissedReceivedRequestIds(new Set<string>());
 
-    void requestsQuery.refetch().then((result) => {
-      setTimeout(() => setIsRefreshing(false), 600);
-      if (result.isError) {
-        showToast(
-          getApiErrorMessage(result.error, "بروزرسانی درخواست‌ها با خطا مواجه شد."),
-          "خطا",
-          "error",
-        );
-        return;
-      }
+    void requestsQuery
+      .refetch()
+      .then((result) => {
+        setTimeout(() => setIsRefreshing(false), 600);
+        if (result.isError) {
+          showToast(
+            getApiErrorMessage(result.error, "بروزرسانی درخواست‌ها با خطا مواجه شد."),
+            "خطا",
+            "error",
+          );
+          return;
+        }
 
-      showToast("درخواست‌ها بروزرسانی شدند.");
-    }).catch(() => {
-      setTimeout(() => setIsRefreshing(false), 600);
-    });
+        showToast("درخواست‌ها بروزرسانی شدند.");
+      })
+      .catch(() => {
+        setTimeout(() => setIsRefreshing(false), 600);
+      });
   };
 
   const changeTab = (tab: RequestManagementTab) => {
@@ -383,11 +356,7 @@ export function RequestManagementView({
       { id: editingRequest.id, name: nextTitle },
       {
         onError: (error) => {
-          showToast(
-            getApiErrorMessage(error, "ویرایش درخواست با خطا مواجه شد."),
-            "خطا",
-            "error",
-          );
+          showToast(getApiErrorMessage(error, "ویرایش درخواست با خطا مواجه شد."), "خطا", "error");
         },
         onSuccess: () => {
           closeEditSheet();
@@ -402,11 +371,7 @@ export function RequestManagementView({
 
     deleteRequestMutation.mutate(requestId, {
       onError: (error) => {
-        showToast(
-          getApiErrorMessage(error, "لغو درخواست با خطا مواجه شد."),
-          "خطا",
-          "error",
-        );
+        showToast(getApiErrorMessage(error, "لغو درخواست با خطا مواجه شد."), "خطا", "error");
       },
       onSuccess: () => {
         showToast("درخواست لغو شد.");
@@ -454,7 +419,7 @@ export function RequestManagementView({
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -475,7 +440,7 @@ export function RequestManagementView({
         backTo={backTo}
         className={
           variant === "account"
-            ? "border-b border-outline-var bg-surface-container"
+            ? "border-outline-var bg-surface-container border-b"
             : "bg-surface-container"
         }
         contentClassName="px-2"
@@ -486,15 +451,17 @@ export function RequestManagementView({
             variant="title"
             size="medium"
             weight="semibold"
-            className="m-0 truncate text-right text-on-surface"
+            className="text-on-surface m-0 truncate text-right"
           >
             درخواست‌ها
           </Typography>
         }
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
-        <div className={variant === "account" ? "bg-surface-container" : "bg-surface-container-lowest"}>
+      <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+        <div
+          className={variant === "account" ? "bg-surface-container" : "bg-surface-container-lowest"}
+        >
           <RequestTabs
             activeTab={activeTab}
             hasReceivedIndicator={hasNewReceivedRequests}
@@ -507,11 +474,11 @@ export function RequestManagementView({
             isPersonal ? (
               <HorizontalFilterBar
                 ariaLabel="فیلتر نتایج بر اساس درخواست"
-                className="border-t border-outline-var bg-surface-container-lowest py-2"
+                className="border-outline-var bg-surface-container-lowest border-t py-2"
               >
                 <Button
                   unstyled
-                  className={`inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
+                  className={`focus-visible:outline-primary/40 inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-3 py-1.5 text-sm leading-5 font-medium transition focus-visible:outline-[3px] focus-visible:outline-offset-2 ${
                     activeFilterId === "all"
                       ? "border-primary bg-primary/16 text-primary"
                       : "border-outline-var bg-surface-container-lowest text-on-surface"
@@ -529,7 +496,7 @@ export function RequestManagementView({
                     <Button
                       unstyled
                       key={request.id}
-                      className={`inline-flex shrink-0 cursor-pointer items-center justify-center max-w-[200px] rounded-[10px] border px-3 py-1.5 text-sm font-medium leading-5 transition focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
+                      className={`focus-visible:outline-primary/40 inline-flex max-w-[200px] shrink-0 cursor-pointer items-center justify-center rounded-[10px] border px-3 py-1.5 text-sm leading-5 font-medium transition focus-visible:outline-[3px] focus-visible:outline-offset-2 ${
                         isSelected
                           ? "border-primary bg-primary/16 text-primary"
                           : "border-outline-var bg-surface-container-lowest text-on-surface"
@@ -551,22 +518,31 @@ export function RequestManagementView({
                 })}
               </HorizontalFilterBar>
             ) : (
-                <div className="bg-surface-container-lowest px-4 py-2 shadow-[0_4px_16px_rgba(26,26,26,0.08)]">
-                  <Button
-                    unstyled
-                    aria-label="انتخاب درخواست"
-                    aria-haspopup="dialog"
-                    aria-expanded={isFilterSheetOpen}
-                    onClick={() => setIsFilterSheetOpen(true)}
-                    className="flex h-10 w-full items-center justify-between gap-3 rounded-xl border border-outline-var px-3 text-on-surface [direction:rtl] focus-visible:outline-2 focus-visible:outline-primary"
-                    type="button"
+              <div className="bg-surface-container-lowest px-4 py-2 shadow-[0_4px_16px_rgba(26,26,26,0.08)]">
+                <Button
+                  unstyled
+                  aria-label="انتخاب درخواست"
+                  aria-haspopup="dialog"
+                  aria-expanded={isFilterSheetOpen}
+                  onClick={() => setIsFilterSheetOpen(true)}
+                  className="border-outline-var text-on-surface focus-visible:outline-primary flex h-10 w-full items-center justify-between gap-3 rounded-xl border px-3 [direction:rtl] focus-visible:outline-2"
+                  type="button"
+                >
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="medium"
+                    weight="regular"
+                    className="min-w-0 truncate"
                   >
-                    <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate">
-                      {activeFilterId === "all" ? "همه" : activeFilterTitle}
-                    </Typography>
-                    <LinearArrowDown1 aria-hidden="true" className="h-6 w-6 shrink-0 text-on-surface-var opacity-40" />
-                  </Button>
-                </div>
+                    {activeFilterId === "all" ? "همه" : activeFilterTitle}
+                  </Typography>
+                  <LinearArrowDown1
+                    aria-hidden="true"
+                    className="text-on-surface-var h-6 w-6 shrink-0 opacity-40"
+                  />
+                </Button>
+              </div>
             )
           ) : null}
         </div>
@@ -587,7 +563,7 @@ export function RequestManagementView({
             <div
               className={
                 requests.length > 0
-                  ? "space-y-2 bg-surface-container"
+                  ? "bg-surface-container space-y-2"
                   : "bg-surface-container-lowest"
               }
             >
@@ -623,9 +599,7 @@ export function RequestManagementView({
           ) : (
             <div
               className={
-                showResultsEmpty
-                  ? "bg-surface-container-lowest"
-                  : "space-y-2 bg-surface-container"
+                showResultsEmpty ? "bg-surface-container-lowest" : "bg-surface-container space-y-2"
               }
             >
               {filteredRequests.map((request) => (
@@ -666,8 +640,7 @@ export function RequestManagementView({
             ) : requestsQuery.isError ? (
               <EmptyRequestState
                 description={
-                  requestLoadState?.description ??
-                  "دریافت درخواست‌های دریافتی با خطا مواجه شد."
+                  requestLoadState?.description ?? "دریافت درخواست‌های دریافتی با خطا مواجه شد."
                 }
                 title={requestLoadState?.title ?? "دریافت درخواست‌ها ناموفق بود"}
                 variant={variant}
@@ -710,7 +683,6 @@ export function RequestManagementView({
         requests={requests}
         selectedId={activeFilterId}
       />
-
     </PageFrame>
   );
 }
@@ -728,13 +700,16 @@ function RequestTabs({
   tabs: RequestTabItem[];
   variant: "account" | "default";
 }) {
-  const activeIndex = Math.max(0, tabs.findIndex((tab) => tab.id === activeTab));
+  const activeIndex = Math.max(
+    0,
+    tabs.findIndex((tab) => tab.id === activeTab),
+  );
   const count = tabs.length || 1;
 
   return (
     <section className={variant === "account" ? "px-4 py-2" : "bg-surface-container px-4 py-4"}>
       <div
-        className={`relative grid overflow-hidden border border-outline bg-surface-container-lowest [direction:rtl] ${
+        className={`border-outline bg-surface-container-lowest relative grid overflow-hidden border [direction:rtl] ${
           variant === "account"
             ? "h-10 rounded-xl"
             : "h-10 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.18)]"
@@ -743,7 +718,7 @@ function RequestTabs({
       >
         <motion.div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 bg-primary-container"
+          className="bg-primary-container pointer-events-none absolute inset-y-0 right-0"
           style={{ width: `${100 / count}%` }}
           animate={{ x: `${-activeIndex * 100}%` }}
           transition={{ type: "spring", stiffness: 400, damping: 32, mass: 0.8 }}
@@ -752,29 +727,36 @@ function RequestTabs({
           const isActive = activeTab === tab.id;
 
           return (
-            <Button unstyled
+            <Button
+              unstyled
               aria-current={isActive ? "page" : undefined}
-              className={`relative inline-flex min-w-0 items-center justify-center px-2 leading-5 transition-colors duration-200 focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 ${
-                variant === "account"
-                  ? "text-sm font-medium"
-                  : "text-base font-semibold"
-              } ${
-                isActive
-                  ? "text-primary font-semibold"
-                  : "text-on-surface-var"
-              }`}
+              className={`focus-visible:outline-primary/40 relative inline-flex min-w-0 items-center justify-center px-2 leading-5 transition-colors duration-200 focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-[-3px] ${
+                variant === "account" ? "text-sm font-medium" : "text-base font-semibold"
+              } ${isActive ? "text-primary font-semibold" : "text-on-surface-var"}`}
               key={tab.id}
               onClick={() => onChange(tab.id)}
               type="button"
             >
-              <Typography as="span" variant="body" size="medium" weight="regular" className="relative z-10 inline-flex min-w-0 items-center justify-center gap-1">
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="relative z-10 inline-flex min-w-0 items-center justify-center gap-1"
+              >
                 {tab.id === "received" && hasReceivedIndicator ? (
-                  <Typography as="span" variant="body" size="medium" weight="regular"
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="medium"
+                    weight="regular"
                     aria-hidden="true"
-                    className="h-1.5 w-1.5 shrink-0 rounded-full bg-error"
+                    className="bg-error h-1.5 w-1.5 shrink-0 rounded-full"
                   />
                 ) : null}
-                <Typography as="span" variant="label" size="large" weight="medium">{tab.label}</Typography>
+                <Typography as="span" variant="label" size="large" weight="medium">
+                  {tab.label}
+                </Typography>
               </Typography>
             </Button>
           );
@@ -818,7 +800,7 @@ function RequestEditBottomSheet({
         <input
           aria-label="نام درخواست"
           autoFocus
-          className="h-14 w-full rounded-xl border-2 border-primary bg-surface-container-lowest px-3 text-right text-base font-normal leading-6 text-on-surface outline-none transition placeholder:text-outline focus:ring-3 focus:ring-primary/20"
+          className="border-primary bg-surface-container-lowest text-on-surface placeholder:text-outline focus:ring-primary/20 h-14 w-full rounded-xl border-2 px-3 text-right text-base leading-6 font-normal transition outline-none focus:ring-3"
           onChange={(event) => onValueChange(event.target.value)}
           placeholder="نام درخواست"
           type="text"
@@ -826,15 +808,17 @@ function RequestEditBottomSheet({
         />
 
         <div className="grid grid-cols-2 gap-4">
-          <Button unstyled
-            className="h-10 rounded-xl border border-primary bg-surface-container-lowest text-sm font-semibold leading-5 text-primary transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 active:bg-surface-container"
+          <Button
+            unstyled
+            className="border-primary bg-surface-container-lowest text-primary focus-visible:outline-primary/40 active:bg-surface-container h-10 rounded-xl border text-sm leading-5 font-semibold transition focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
             onClick={onClose}
             type="button"
           >
             انصراف
           </Button>
-          <Button unstyled
-            className="h-10 rounded-xl bg-primary text-sm font-semibold leading-5 text-on-primary transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:opacity-80"
+          <Button
+            unstyled
+            className="bg-primary text-on-primary focus-visible:outline-primary/40 h-10 rounded-xl text-sm leading-5 font-semibold transition focus-visible:outline-3 focus-visible:outline-offset-2 active:opacity-80"
             type="submit"
           >
             تایید
@@ -854,31 +838,38 @@ function CriteriaRequestCard({
   onEdit: () => void;
   request: PropertySearchRequest;
 }) {
-  const { hiddenCount, visibleDetails } = getCollapsedPropertyRequestDetails(
-    request,
-    6,
-  );
+  const { hiddenCount, visibleDetails } = getCollapsedPropertyRequestDetails(request, 6);
 
   return (
-    <article className="min-h-[148px] overflow-hidden bg-surface-container-lowest p-4 text-right">
+    <article className="bg-surface-container-lowest min-h-[148px] overflow-hidden p-4 text-right">
       <div className="flex min-h-7 items-center justify-between gap-3 [direction:ltr]">
-        <Button unstyled
-          className="inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-lg px-0.5 font-medium leading-4 text-error focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-error/40 active:bg-error-container/30"
+        <Button
+          unstyled
+          className="text-error focus-visible:outline-error/40 active:bg-error-container/30 inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-lg px-0.5 leading-4 font-medium focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
           onClick={onCancel}
           type="button"
         >
-          <Typography as="span" variant="label" size="medium" weight="medium">لغو</Typography>
-          <LinearCancel className="h-5 w-5 text-on-surface-var" />
+          <Typography as="span" variant="label" size="medium" weight="medium">
+            لغو
+          </Typography>
+          <LinearCancel className="text-on-surface-var h-5 w-5" />
         </Button>
 
-        <Button unstyled
+        <Button
+          unstyled
           aria-label={`ویرایش ${request.title}`}
-          className="flex min-w-0 flex-1 items-center justify-end gap-1.5 rounded-lg text-right focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-primary/40 [direction:ltr]"
+          className="focus-visible:outline-primary/40 flex min-w-0 flex-1 items-center justify-end gap-1.5 rounded-lg text-right [direction:ltr] focus-visible:outline-3 focus-visible:outline-offset-4"
           onClick={onEdit}
           type="button"
         >
-          <LinearEdit2 className="h-4 w-4 text-on-surface-var" />
-          <Typography as="span" variant="title" size="medium" weight="semibold" className="text-right text-on-surface [direction:rtl]">
+          <LinearEdit2 className="text-on-surface-var h-4 w-4" />
+          <Typography
+            as="span"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="text-on-surface text-right [direction:rtl]"
+          >
             {request.title}
           </Typography>
         </Button>
@@ -887,16 +878,34 @@ function CriteriaRequestCard({
       {visibleDetails.length ? (
         <div className="mt-3 flex flex-wrap justify-start gap-2 [direction:rtl]">
           {visibleDetails.map((detail) => (
-            <Typography as="span" variant="label" size="medium" weight="semibold"
-              className="inline-flex max-w-full items-center rounded-lg border border-outline-var bg-surface-container-lowest text-sm font-semibold leading-4 text-on-surface-var"
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="semibold"
+              className="border-outline-var bg-surface-container-lowest text-on-surface-var inline-flex max-w-full items-center rounded-lg border text-sm leading-4 font-semibold"
               title={detail}
               key={detail}
             >
-              <Typography as="span" variant="label" size="medium" weight="semibold" className="py-1.5 px-2">{detail}</Typography>
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="semibold"
+                className="px-2 py-1.5"
+              >
+                {detail}
+              </Typography>
             </Typography>
           ))}
           {hiddenCount > 0 ? (
-            <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex h-[25px] items-center rounded-[7px] border border-outline-var bg-surface-container px-2 text-[11px] font-medium leading-4 text-on-surface-var">
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="border-outline-var bg-surface-container text-on-surface-var inline-flex h-[25px] items-center rounded-[7px] border px-2 text-[11px] leading-4 font-medium"
+            >
               و {toPersianDigits(hiddenCount)} مورد بیشتر
             </Typography>
           ) : null}
@@ -908,29 +917,43 @@ function CriteriaRequestCard({
 
 function ReceivedRequestsGuide({ onClose }: { onClose: () => void }) {
   return (
-    <section className="border-b-8 border-surface-container bg-surface-container-lowest px-4 py-4">
-      <div className="rounded-2xl bg-primary-container px-4 pb-4 pt-5 text-primary">
+    <section className="border-surface-container bg-surface-container-lowest border-b-8 px-4 py-4">
+      <div className="bg-primary-container text-primary rounded-2xl px-4 pt-5 pb-4">
         <div className="flex items-center justify-between [direction:ltr]">
-          <Button unstyled
+          <Button
+            unstyled
             aria-label="بستن راهنما"
-            className="grid h-8 w-8 place-items-center rounded-full text-on-surface-var transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 active:bg-surface-container-lowest/60"
+            className="text-on-surface-var focus-visible:outline-primary/40 active:bg-surface-container-lowest/60 grid h-8 w-8 place-items-center rounded-full transition focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
             onClick={onClose}
             type="button"
           >
             <LinearCancel className="h-5 w-5" />
           </Button>
 
-          <div className="flex items-center gap-2 text-primary [direction:rtl]">
+          <div className="text-primary flex items-center gap-2 [direction:rtl]">
             <LinearInfoCircle className="h-6 w-6 shrink-0" />
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">راهنما</Typography>
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="m-0 text-base leading-6 font-semibold"
+            >
+              راهنما
+            </Typography>
           </div>
         </div>
 
-        <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-3 text-right text-[15px] font-normal leading-7 [direction:rtl]">
-          در این بخش، درخواست‌های ملکی کاربران نمایش داده می‌شود. شما می‌توانید
-          براساس نیازهای اعلام‌شده، ملک مناسب را پیدا کرده و فایل مرتبط را برای
-          مشتری منتشر کنید. این بخش به شما کمک می‌کند سریع‌تر و دقیق‌تر نیاز
-          مشتری را برطرف کنید.
+        <Typography
+          as="p"
+          variant="body"
+          size="large"
+          weight="regular"
+          className="m-0 mt-3 text-right text-[15px] leading-7 font-normal [direction:rtl]"
+        >
+          در این بخش، درخواست‌های ملکی کاربران نمایش داده می‌شود. شما می‌توانید براساس نیازهای
+          اعلام‌شده، ملک مناسب را پیدا کرده و فایل مرتبط را برای مشتری منتشر کنید. این بخش به شما
+          کمک می‌کند سریع‌تر و دقیق‌تر نیاز مشتری را برطرف کنید.
         </Typography>
       </div>
     </section>
@@ -950,17 +973,24 @@ function ReceivedRequestCard({
   const requestDate = formatReceivedRequestDate(request);
 
   return (
-    <article className="relative border-b-8 border-surface-container bg-surface-container-lowest px-4 pb-6 pt-7 text-right">
+    <article className="border-surface-container bg-surface-container-lowest relative border-b-8 px-4 pt-7 pb-6 text-right">
       {isNew ? (
-        <Typography as="span" variant="label" size="small" weight="medium" className="absolute left-4 top-2 inline-flex h-6 items-center rounded-full bg-error px-2.5 text-xs font-medium leading-6 text-on-error">
+        <Typography
+          as="span"
+          variant="label"
+          size="small"
+          weight="medium"
+          className="bg-error text-on-error absolute top-2 left-4 inline-flex h-6 items-center rounded-full px-2.5 text-xs leading-6 font-medium"
+        >
           جدید
         </Typography>
       ) : null}
 
       <div className="flex items-start justify-between gap-4 [direction:ltr]">
-        <Button unstyled
+        <Button
+          unstyled
           aria-label={`حذف ${request.title}`}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-on-surface-var transition focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 active:bg-surface-container"
+          className="text-on-surface-var focus-visible:outline-primary/40 active:bg-surface-container grid h-10 w-10 shrink-0 place-items-center rounded-lg transition focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
           onClick={onDelete}
           type="button"
         >
@@ -969,13 +999,19 @@ function ReceivedRequestCard({
 
         <div className="min-w-0 flex-1 [direction:rtl]">
           <div className="flex min-h-10 flex-wrap items-center gap-2">
-            <LinearCity className="h-6 w-6 shrink-0 text-on-surface-var" />
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 min-w-0 text-[17px] font-bold leading-7 text-on-surface">
+            <LinearCity className="text-on-surface-var h-6 w-6 shrink-0" />
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="text-on-surface m-0 min-w-0 text-[17px] leading-7 font-bold"
+            >
               {request.title}
             </Typography>
             {requestDate ? (
               <time
-                className="inline-flex h-8 shrink-0 items-center rounded-[10px] bg-surface-container px-3 text-xs font-normal leading-5 text-on-surface"
+                className="bg-surface-container text-on-surface inline-flex h-8 shrink-0 items-center rounded-[10px] px-3 text-xs leading-5 font-normal"
                 dateTime={request.createdAt}
               >
                 {requestDate}
@@ -986,8 +1022,12 @@ function ReceivedRequestCard({
           {visibleDetails.length ? (
             <div className="mt-3 flex flex-wrap justify-start gap-2 [direction:rtl]">
               {visibleDetails.map((detail) => (
-                <Typography as="span" variant="label" size="medium" weight="semibold"
-                  className="inline-flex max-w-full items-center rounded-[9px] border border-outline-var bg-surface-container-lowest px-2.5 py-1.5 text-sm font-semibold leading-5 text-on-surface-var"
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="semibold"
+                  className="border-outline-var bg-surface-container-lowest text-on-surface-var inline-flex max-w-full items-center rounded-[9px] border px-2.5 py-1.5 text-sm leading-5 font-semibold"
                   key={detail}
                   title={detail}
                 >
@@ -995,7 +1035,13 @@ function ReceivedRequestCard({
                 </Typography>
               ))}
               {hiddenCount > 0 ? (
-                <Typography as="span" variant="label" size="small" weight="medium" className="inline-flex items-center rounded-[9px] border border-outline-var bg-surface-container px-2.5 py-1.5 text-xs font-medium leading-5 text-on-surface-var">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="small"
+                  weight="medium"
+                  className="border-outline-var bg-surface-container text-on-surface-var inline-flex items-center rounded-[9px] border px-2.5 py-1.5 text-xs leading-5 font-medium"
+                >
                   و {toPersianDigits(hiddenCount)} مورد بیشتر
                 </Typography>
               ) : null}
@@ -1009,21 +1055,24 @@ function ReceivedRequestCard({
 
 function CriteriaRequestsSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <div className="space-y-2 bg-surface-container" aria-label="در حال دریافت درخواست‌ها">
+    <div className="bg-surface-container space-y-2" aria-label="در حال دریافت درخواست‌ها">
       {Array.from({ length: count }).map((_, index) => (
-        <article key={index} className="min-h-[148px] overflow-hidden bg-surface-container-lowest p-4 text-right">
+        <article
+          key={index}
+          className="bg-surface-container-lowest min-h-[148px] overflow-hidden p-4 text-right"
+        >
           <div className="flex min-h-7 items-center justify-between gap-3 [direction:ltr]">
-            <div className="h-6 w-12 rounded-lg animate-skeleton" />
+            <div className="animate-skeleton h-6 w-12 rounded-lg" />
             <div className="flex items-center gap-2">
-              <div className="h-5 w-32 rounded-md animate-skeleton" />
-              <div className="h-5 w-5 rounded-md animate-skeleton" />
+              <div className="animate-skeleton h-5 w-32 rounded-md" />
+              <div className="animate-skeleton h-5 w-5 rounded-md" />
             </div>
           </div>
           <div className="mt-4 flex flex-wrap gap-2 [direction:rtl]">
-            <div className="h-8 w-20 rounded-[10px] animate-skeleton" />
-            <div className="h-8 w-28 rounded-[10px] animate-skeleton" />
-            <div className="h-8 w-24 rounded-[10px] animate-skeleton" />
-            <div className="h-8 w-32 rounded-[10px] animate-skeleton" />
+            <div className="animate-skeleton h-8 w-20 rounded-[10px]" />
+            <div className="animate-skeleton h-8 w-28 rounded-[10px]" />
+            <div className="animate-skeleton h-8 w-24 rounded-[10px]" />
+            <div className="animate-skeleton h-8 w-32 rounded-[10px]" />
           </div>
         </article>
       ))}
@@ -1036,22 +1085,22 @@ function ReceivedRequestsSkeleton() {
     <div aria-label="در حال بارگذاری درخواست‌های دریافتی" aria-live="polite">
       {Array.from({ length: 3 }, (_, index) => (
         <article
-          className="border-b-8 border-surface-container bg-surface-container-lowest px-4 pb-6 pt-7"
+          className="border-surface-container bg-surface-container-lowest border-b-8 px-4 pt-7 pb-6"
           key={index}
         >
           <div className="flex items-start justify-between gap-4 [direction:ltr]">
-            <div className="h-10 w-10 shrink-0 rounded-lg animate-skeleton" />
+            <div className="animate-skeleton h-10 w-10 shrink-0 rounded-lg" />
             <div className="min-w-0 flex-1 [direction:rtl]">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 shrink-0 rounded animate-skeleton" />
-                <div className="h-6 w-36 rounded animate-skeleton" />
-                <div className="h-8 w-16 rounded-[10px] animate-skeleton" />
+                <div className="animate-skeleton h-6 w-6 shrink-0 rounded" />
+                <div className="animate-skeleton h-6 w-36 rounded" />
+                <div className="animate-skeleton h-8 w-16 rounded-[10px]" />
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <div className="h-8 w-24 rounded-[9px] animate-skeleton" />
-                <div className="h-8 w-32 rounded-[9px] animate-skeleton" />
-                <div className="h-8 w-28 rounded-[9px] animate-skeleton" />
-                <div className="h-8 w-40 rounded-[9px] animate-skeleton" />
+                <div className="animate-skeleton h-8 w-24 rounded-[9px]" />
+                <div className="animate-skeleton h-8 w-32 rounded-[9px]" />
+                <div className="animate-skeleton h-8 w-28 rounded-[9px]" />
+                <div className="animate-skeleton h-8 w-40 rounded-[9px]" />
               </div>
             </div>
           </div>
@@ -1074,22 +1123,29 @@ function EmptyRequestState({
 
   return (
     <section
-      className={`mx-auto flex w-full flex-col items-center justify-center bg-surface-container-lowest text-center ${
+      className={`bg-surface-container-lowest mx-auto flex w-full flex-col items-center justify-center text-center ${
         isAccount
           ? "min-h-[calc(100dvh-112px)] px-5 pb-10"
           : "min-h-[calc(100dvh-183px)] px-8 pb-16"
       }`}
     >
-      <img
-        src="/vectors/NoRequest.svg"
-        className="h-16.5 w-16.5"
-        alt=""
-        aria-hidden="true"
-      />
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold mt-4 text-on-surface">
+      <img src="/vectors/NoRequest.svg" className="h-16.5 w-16.5" alt="" aria-hidden="true" />
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0 mt-4 text-base font-semibold"
+      >
         {title}
       </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[320px] text-sm font-normal text-on-surface-var">
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-on-surface-var m-0 mt-2 max-w-[320px] text-sm font-normal"
+      >
         {description}
       </Typography>
     </section>

@@ -1,22 +1,22 @@
-import { useCallback, useEffect, useState } from 'react';
-import { getToken, onMessage } from 'firebase/messaging';
-import { getFirebaseMessaging, isMessagingSupported } from '../../shared/config/firebase';
-import { registerFcmToken, unregisterFcmToken } from './api/notification.service';
-import { getStoredAuthSession } from '../../shared/auth/auth-storage';
+import { useCallback, useEffect, useState } from "react";
+import { getToken, onMessage } from "firebase/messaging";
+import { getFirebaseMessaging, isMessagingSupported } from "../../shared/config/firebase";
+import { registerFcmToken, unregisterFcmToken } from "./api/notification.service";
+import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 
-const FCM_TOKEN_STORAGE_KEY = 'bonga_fcm_token';
+const FCM_TOKEN_STORAGE_KEY = "bonga_fcm_token";
 
-export type FcmPermissionState = NotificationPermission | 'unsupported';
+export type FcmPermissionState = NotificationPermission | "unsupported";
 
 export function useFcm() {
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState<string | null>(() => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === "undefined") return null;
     return window.localStorage.getItem(FCM_TOKEN_STORAGE_KEY);
   });
   const [permission, setPermission] = useState<FcmPermissionState>(() => {
-    if (typeof window === 'undefined' || !('Notification' in window)) {
-      return 'unsupported';
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      return "unsupported";
     }
     return Notification.permission;
   });
@@ -46,61 +46,53 @@ export function useFcm() {
 
       try {
         unsubscribe = onMessage(messagingInstance, (payload) => {
-        const title =
-          payload.notification?.title ||
-          payload.data?.title ||
-          'اعلان جدید بنگاه';
-        const body =
-          payload.notification?.body ||
-          payload.data?.body ||
-          '';
+          const title = payload.notification?.title || payload.data?.title || "اعلان جدید بنگاه";
+          const body = payload.notification?.body || payload.data?.body || "";
 
-        const targetUrl =
-          payload.data?.url ||
-          payload.data?.target ||
-          (payload.fcmOptions && payload.fcmOptions.link) ||
-          '/notifications';
+          const targetUrl =
+            payload.data?.url ||
+            payload.data?.target ||
+            (payload.fcmOptions && payload.fcmOptions.link) ||
+            "/notifications";
 
-        // Dispatch app-level event so header badges and lists can react in real time
-        window.dispatchEvent(
-          new CustomEvent('bonga:fcm:message', { detail: payload }),
-        );
+          // Dispatch app-level event so header badges and lists can react in real time
+          window.dispatchEvent(new CustomEvent("bonga:fcm:message", { detail: payload }));
 
-        // Show foreground notification if permission is granted
-        if (Notification.permission === 'granted') {
-          const options = {
-            body,
-            icon: payload.notification?.icon || payload.data?.icon || '/icon-192.png',
-            badge: '/icon-192.png',
-            dir: 'rtl' as NotificationDirection,
-            lang: 'fa',
-            data: {
-              ...payload.data,
-              url: targetUrl,
-            },
-          };
+          // Show foreground notification if permission is granted
+          if (Notification.permission === "granted") {
+            const options = {
+              body,
+              icon: payload.notification?.icon || payload.data?.icon || "/icon-192.png",
+              badge: "/icon-192.png",
+              dir: "rtl" as NotificationDirection,
+              lang: "fa",
+              data: {
+                ...payload.data,
+                url: targetUrl,
+              },
+            };
 
-          if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.ready
-              .then((reg) => reg.showNotification(title, options))
-              .catch(() => {
-                try {
-                  new Notification(title, options);
-                } catch {
-                  // Ignore fallback error
-                }
-              });
-          } else {
-            try {
-              new Notification(title, options);
-            } catch {
-              // Ignore fallback error
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+              navigator.serviceWorker.ready
+                .then((reg) => reg.showNotification(title, options))
+                .catch(() => {
+                  try {
+                    new Notification(title, options);
+                  } catch {
+                    // Ignore fallback error
+                  }
+                });
+            } else {
+              try {
+                new Notification(title, options);
+              } catch {
+                // Ignore fallback error
+              }
             }
           }
-        }
-      });
-    } catch (error) {
-        console.warn('خطا در تنظیم گوش‌دهنده پیام‌های پیش‌زمینه FCM:', error);
+        });
+      } catch (error) {
+        console.warn("خطا در تنظیم گوش‌دهنده پیام‌های پیش‌زمینه FCM:", error);
       }
     });
 
@@ -115,34 +107,34 @@ export function useFcm() {
   const requestToken = useCallback(async () => {
     const supported = await isMessagingSupported();
     if (!supported) {
-      console.warn('پوش‌نوتیفیکیشن در این مرورگر یا محیط پشتیبانی نمی‌شود.');
+      console.warn("پوش‌نوتیفیکیشن در این مرورگر یا محیط پشتیبانی نمی‌شود.");
       return null;
     }
 
     const messagingInstance = await getFirebaseMessaging();
     if (!messagingInstance) {
-      console.warn('پوش‌نوتیفیکیشن در این مرورگر یا محیط پشتیبانی نمی‌شود.');
+      console.warn("پوش‌نوتیفیکیشن در این مرورگر یا محیط پشتیبانی نمی‌شود.");
       return null;
     }
 
     const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
     if (!vapidKey) {
       console.warn(
-        'کلید VAPID تعریف نشده است (VITE_FIREBASE_VAPID_KEY در فایل .env). پوش نوتیفیکیشن وب به کلید VAPID نیاز دارد.',
+        "کلید VAPID تعریف نشده است (VITE_FIREBASE_VAPID_KEY در فایل .env). پوش نوتیفیکیشن وب به کلید VAPID نیاز دارد.",
       );
     }
 
     try {
       setLoading(true);
-      console.log('[FCM] Calling Notification.requestPermission()...');
+      console.log("[FCM] Calling Notification.requestPermission()...");
       const perm = await Notification.requestPermission();
-      console.log('[FCM] Permission result:', perm);
+      console.log("[FCM] Permission result:", perm);
       setPermission(perm);
 
-      if (perm !== 'granted') {
-        if (perm === 'denied') {
+      if (perm !== "granted") {
+        if (perm === "denied") {
           console.warn(
-            '[FCM] دسترسی نوتیفیکیشن در مرورگر مسدود (Block / Denied) است. برای تست مجدد، روی آیکون کنار آدرس سایت در مرورگر کلیک کنید و Notifications را ریست یا مجاز (Allow) کنید.',
+            "[FCM] دسترسی نوتیفیکیشن در مرورگر مسدود (Block / Denied) است. برای تست مجدد، روی آیکون کنار آدرس سایت در مرورگر کلیک کنید و Notifications را ریست یا مجاز (Allow) کنید.",
           );
         }
         setLoading(false);
@@ -150,9 +142,7 @@ export function useFcm() {
       }
 
       // Register service worker from public folder
-      const registration = await navigator.serviceWorker.register(
-        '/firebase-messaging-sw.js',
-      );
+      const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
       await navigator.serviceWorker.ready;
 
       const currentToken = await getToken(messagingInstance, {
@@ -168,9 +158,9 @@ export function useFcm() {
         const hasSession = Boolean(getStoredAuthSession());
         if (hasSession) {
           try {
-            await registerFcmToken(currentToken, 'web');
+            await registerFcmToken(currentToken, "web");
           } catch (apiError) {
-            console.warn('خطا در ارسال توکن به بک‌اند:', apiError);
+            console.warn("خطا در ارسال توکن به بک‌اند:", apiError);
           }
         }
       }
@@ -178,7 +168,7 @@ export function useFcm() {
       setLoading(false);
       return currentToken;
     } catch (error) {
-      console.error('خطا در گرفتن توکن FCM:', error);
+      console.error("خطا در گرفتن توکن FCM:", error);
       setLoading(false);
       return null;
     }
@@ -190,7 +180,7 @@ export function useFcm() {
       try {
         await unregisterFcmToken(savedToken);
       } catch (err) {
-        console.warn('خطا در حذف توکن از بک‌اند:', err);
+        console.warn("خطا در حذف توکن از بک‌اند:", err);
       }
       window.localStorage.removeItem(FCM_TOKEN_STORAGE_KEY);
       setToken(null);

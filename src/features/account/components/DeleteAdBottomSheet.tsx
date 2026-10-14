@@ -49,7 +49,7 @@ export const DeleteAdBottomSheet: FC<DeleteAdBottomSheetProps> = ({
         variant="body"
         size="medium"
         weight="medium"
-        className="m-0 text-center font-medium leading-5 text-on-surface"
+        className="text-on-surface m-0 text-center leading-5 font-medium"
       >
         {title}
       </Typography>
@@ -60,7 +60,7 @@ export const DeleteAdBottomSheet: FC<DeleteAdBottomSheetProps> = ({
           variant="body"
           size="small"
           weight="regular"
-          className="m-0 mt-1.5 text-center text-xs leading-5 text-on-surface-var"
+          className="text-on-surface-var m-0 mt-1.5 text-center text-xs leading-5"
         >
           {description}
         </Typography>
@@ -69,7 +69,7 @@ export const DeleteAdBottomSheet: FC<DeleteAdBottomSheetProps> = ({
       <div className="mt-3 grid grid-cols-2 gap-3 [direction:ltr]">
         <Button
           unstyled
-          className="inline-flex py-2.5 items-center justify-center rounded-lg border border-error bg-error px-4 text-xs font-semibold leading-4 text-white active:bg-error/90 disabled:opacity-60"
+          className="border-error bg-error active:bg-error/90 inline-flex items-center justify-center rounded-lg border px-4 py-2.5 text-xs leading-4 font-semibold text-white disabled:opacity-60"
           disabled={isDeleting}
           onClick={onConfirm}
           type="button"
@@ -78,7 +78,7 @@ export const DeleteAdBottomSheet: FC<DeleteAdBottomSheetProps> = ({
         </Button>
         <Button
           unstyled
-          className="inline-flex py-2.5 items-center justify-center rounded-lg border border-primary bg-surface-container-lowest px-4 text-xs font-semibold leading-4 text-primary disabled:opacity-60"
+          className="border-primary bg-surface-container-lowest text-primary inline-flex items-center justify-center rounded-lg border px-4 py-2.5 text-xs leading-4 font-semibold disabled:opacity-60"
           disabled={isDeleting}
           onClick={handleClose}
           type="button"

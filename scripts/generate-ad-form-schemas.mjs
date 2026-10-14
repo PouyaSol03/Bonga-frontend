@@ -1,11 +1,11 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const targetDir = path.resolve(__dirname, '../src/features/advertisements/forms');
+const targetDir = path.resolve(__dirname, "../src/features/advertisements/forms");
 if (!fs.existsSync(targetDir)) {
   fs.mkdirSync(targetDir, { recursive: true });
 }
@@ -13,30 +13,91 @@ if (!fs.existsSync(targetDir)) {
 // Common options from PDF
 const roomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵ و بیشتر"];
 const floorOptions = [
-  "زیرهمکف", "همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "بالاتر از ۱۰"
+  "زیرهمکف",
+  "همکف",
+  "۱",
+  "۲",
+  "۳",
+  "۴",
+  "۵",
+  "۶",
+  "۷",
+  "۸",
+  "۹",
+  "۱۰",
+  "بالاتر از ۱۰",
 ];
 const ageOptions = [
   "نوساز",
-  "۱ سال", "۲ سال", "۳ سال", "۴ سال", "۵ سال",
-  "۶ سال", "۷ سال", "۸ سال", "۹ سال", "۱۰ سال",
-  "۱۱ سال", "۱۲ سال", "۱۳ سال", "۱۴ سال", "۱۵ سال",
-  "۱۶ سال", "۱۷ سال", "۱۸ سال", "۱۹ سال", "۲۰ سال",
-  "بیشتر از ۲۰ سال"
+  "۱ سال",
+  "۲ سال",
+  "۳ سال",
+  "۴ سال",
+  "۵ سال",
+  "۶ سال",
+  "۷ سال",
+  "۸ سال",
+  "۹ سال",
+  "۱۰ سال",
+  "۱۱ سال",
+  "۱۲ سال",
+  "۱۳ سال",
+  "۱۴ سال",
+  "۱۵ سال",
+  "۱۶ سال",
+  "۱۷ سال",
+  "۱۸ سال",
+  "۱۹ سال",
+  "۲۰ سال",
+  "بیشتر از ۲۰ سال",
 ];
-const totalFloorsOptions = ["۱ طبقه", "۲ طبقه", "۳ طبقه", "۴ طبقه", "۵ طبقه", "۶ طبقه", "۷ طبقه", "۸ طبقه و بیشتر"];
-const unitsPerFloorOptions = Array.from({ length: 30 }, (_, index) =>
-  `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`
+const totalFloorsOptions = [
+  "۱ طبقه",
+  "۲ طبقه",
+  "۳ طبقه",
+  "۴ طبقه",
+  "۵ طبقه",
+  "۶ طبقه",
+  "۷ طبقه",
+  "۸ طبقه و بیشتر",
+];
+const unitsPerFloorOptions = Array.from(
+  { length: 30 },
+  (_, index) => `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`,
 );
 const buildingPositionOptions = ["شمالی", "جنوبی", "شرقی", "غربی", "دونبش", "سه نبش", "دوممر"];
-const landPositionOptions = ["شمالی", "جنوبی", "غربی", "شرقی", "دوممر", "دونبش", "سه نبش", "چهارنبش"];
+const landPositionOptions = [
+  "شمالی",
+  "جنوبی",
+  "غربی",
+  "شرقی",
+  "دوممر",
+  "دونبش",
+  "سه نبش",
+  "چهارنبش",
+];
 const unitPositionOptions = ["جلو", "عقب", "وسط", "کنج", "دوبلکس", "پنت هاوس"];
 const standardDocumentOptions = [
-  "تک برگ", "منگوله دار", "آستانه", "اوقافی", "موقوفه",
-  "وکالت محضری", "قولنامه", "مشاع", "در دست اقدام", "آماده انتقال"
+  "تک برگ",
+  "منگوله دار",
+  "آستانه",
+  "اوقافی",
+  "موقوفه",
+  "وکالت محضری",
+  "قولنامه",
+  "مشاع",
+  "در دست اقدام",
+  "آماده انتقال",
 ];
 const commercialDocumentOptions = [
-  "تک برگ", "منگوله دار", "سرقفلی", "وکالت محضری",
-  "قولنامه", "مشاع", "در دست اقدام", "آماده انتقال"
+  "تک برگ",
+  "منگوله دار",
+  "سرقفلی",
+  "وکالت محضری",
+  "قولنامه",
+  "مشاع",
+  "در دست اقدام",
+  "آماده انتقال",
 ];
 const occupancyStatusOptions = ["تخلیه", "مالک", "مستاجر دارد"];
 const kitchenTypeOptions = ["اپن", "جزیره", "بسته", "نیمه اپن"];
@@ -59,7 +120,7 @@ const commonHeatingItems = [
   { id: "fireplace", label: "شومینه" },
   { id: "water-heater", label: "آبگرم کن" },
   { id: "package", label: "پکیج" },
-  { id: "central-boiler", label: "موتورخانه" }
+  { id: "central-boiler", label: "موتورخانه" },
 ];
 
 // Residential facilities (Page 2)
@@ -84,14 +145,14 @@ const residentialFacilities = [
   { id: "roof-garden", label: "روف گاردن" },
   { id: "pool", label: "استخر" },
   { id: "jacuzzi", label: "جکوزی" },
-  { id: "sauna", label: "سونا" }
+  { id: "sauna", label: "سونا" },
 ];
 
 // Villa facilities (Page 4)
 const villaFacilities = [
   ...residentialFacilities,
   { id: "gym", label: "سالن ورزشی" },
-  { id: "playground", label: "زمین بازی" }
+  { id: "playground", label: "زمین بازی" },
 ];
 
 // Land facilities (Page 3)
@@ -103,14 +164,11 @@ const landFacilities = [
   { id: "walled", label: "دور دیوار/حصار" },
   { id: "old-building", label: "بنا کلنگی" },
   { id: "guard", label: "نگهبانی" },
-  { id: "well", label: "چاه آب" }
+  { id: "well", label: "چاه آب" },
 ];
 
 // Office facilities (Page 5)
-const officeFacilities = [
-  ...residentialFacilities,
-  { id: "gym", label: "سالن ورزشی" }
-];
+const officeFacilities = [...residentialFacilities, { id: "gym", label: "سالن ورزشی" }];
 
 // Commercial facilities (Page 6)
 const commercialFacilities = [
@@ -125,7 +183,7 @@ const commercialFacilities = [
   { id: "guard", label: "نگهبانی" },
   { id: "cctv", label: "دوربین امنیتی" },
   { id: "smart-home", label: "سیستم هوشمند" },
-  { id: "yard", label: "حیاط" }
+  { id: "yard", label: "حیاط" },
 ];
 
 // Commercial Rent facilities (Page 13)
@@ -136,7 +194,7 @@ const commercialRentFacilities = [
   { id: "three-phase-power", label: "برق سه فاز" },
   { id: "water", label: "امتیاز آب" },
   { id: "gas", label: "امتیاز گاز" },
-  { id: "telephone", label: "امتیاز تلفن" }
+  { id: "telephone", label: "امتیاز تلفن" },
 ];
 
 // Industrial facilities (Page 7 & Page 14)
@@ -149,7 +207,7 @@ const industrialFacilities = [
   { id: "walled", label: "دور دیوار/حصار" },
   { id: "old-building", label: "بنا کلنگی" },
   { id: "guard", label: "نگهبانی" },
-  { id: "well", label: "چاه آب" }
+  { id: "well", label: "چاه آب" },
 ];
 
 // Hotel facilities (Page 8 & Page 11)
@@ -169,7 +227,7 @@ const hotelFacilities = [
   { id: "cinema", label: "سینما" },
   { id: "cafe", label: "کافی شاپ" },
   { id: "restaurant", label: "رستوران" },
-  { id: "shop", label: "فروشگاه" }
+  { id: "shop", label: "فروشگاه" },
 ];
 
 // Daily apartment/villa facilities (Page 15 & 16)
@@ -224,7 +282,7 @@ const dailyStayFacilities = [
   { id: "master-bedroom", label: "اتاق مستر" },
   { id: "barbecue", label: "باربیکیو" },
   { id: "gazebo", label: "آلاچیق" },
-  { id: "green-space", label: "فضا سبز/باغ" }
+  { id: "green-space", label: "فضا سبز/باغ" },
 ];
 
 // Daily office/booth facilities (Page 19)
@@ -259,7 +317,7 @@ const dailyWorkspaceFacilities = [
   { id: "telephone", label: "امتیاز تلفن" },
   { id: "voip", label: "VoIP" },
   { id: "private-phone-booth", label: "اتاق تلفن خصوصی" },
-  { id: "phone-system", label: "سیستم تلفن" }
+  { id: "phone-system", label: "سیستم تلفن" },
 ];
 
 const forms = [
@@ -272,10 +330,43 @@ const forms = [
     create: {
       specsTitle: "مشخصات آپارتمان",
       basicFields: [
-        { key: "meterage", title: "متراژ آپارتمان", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۸۵", required: true },
-        { key: "floor", title: "طبقه", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: floorOptions },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: roomOptions },
-        { key: "age", title: "سن ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: ageOptions }
+        {
+          key: "meterage",
+          title: "متراژ آپارتمان",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۸۵",
+          required: true,
+        },
+        {
+          key: "floor",
+          title: "طبقه",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: floorOptions,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: roomOptions,
+        },
+        {
+          key: "age",
+          title: "سن ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "sale", loan: true, exchange: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -283,21 +374,81 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "totalFloors", title: "تعداد طبقات آپارتمان", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
-          { key: "unitsPerFloor", title: "تعداد واحد در طبقه", input: "select", ui: "bottomSheet", options: unitsPerFloorOptions },
-          { key: "unitType", title: "موقعیت ساختمان", input: "select", ui: "bottomSheet", options: buildingPositionOptions },
-          { key: "unitPosition", title: "موقعیت واحد", input: "select", ui: "bottomSheet", options: unitPositionOptions },
-          { key: "documentType", title: "سند", input: "select", ui: "bottomSheet", options: standardDocumentOptions },
-          { key: "occupancyStatus", title: "وضعیت سکونت", input: "select", ui: "bottomSheet", options: occupancyStatusOptions },
+          {
+            key: "totalFloors",
+            title: "تعداد طبقات آپارتمان",
+            input: "select",
+            ui: "bottomSheet",
+            options: totalFloorsOptions,
+          },
+          {
+            key: "unitsPerFloor",
+            title: "تعداد واحد در طبقه",
+            input: "select",
+            ui: "bottomSheet",
+            options: unitsPerFloorOptions,
+          },
+          {
+            key: "unitType",
+            title: "موقعیت ساختمان",
+            input: "select",
+            ui: "bottomSheet",
+            options: buildingPositionOptions,
+          },
+          {
+            key: "unitPosition",
+            title: "موقعیت واحد",
+            input: "select",
+            ui: "bottomSheet",
+            options: unitPositionOptions,
+          },
+          {
+            key: "documentType",
+            title: "سند",
+            input: "select",
+            ui: "bottomSheet",
+            options: standardDocumentOptions,
+          },
+          {
+            key: "occupancyStatus",
+            title: "وضعیت سکونت",
+            input: "select",
+            ui: "bottomSheet",
+            options: occupancyStatusOptions,
+          },
           { key: "renovated", title: "بازسازی", input: "toggle", ui: "toggle" },
           { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
-          { key: "kitchenType", title: "نوع آشپزخانه", input: "select", ui: "bottomSheet", options: kitchenTypeOptions },
-          { key: "facadeMaterial", title: "جنس نما", input: "select", ui: "bottomSheet", options: facadeOptions },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions },
-          { key: "cabinetMaterial", title: "جنس کابینت", input: "select", ui: "bottomSheet", options: cabinetOptions }
-        ]
-      }
-    }
+          {
+            key: "kitchenType",
+            title: "نوع آشپزخانه",
+            input: "select",
+            ui: "bottomSheet",
+            options: kitchenTypeOptions,
+          },
+          {
+            key: "facadeMaterial",
+            title: "جنس نما",
+            input: "select",
+            ui: "bottomSheet",
+            options: facadeOptions,
+          },
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+          {
+            key: "cabinetMaterial",
+            title: "جنس کابینت",
+            input: "select",
+            ui: "bottomSheet",
+            options: cabinetOptions,
+          },
+        ],
+      },
+    },
   },
 
   // 2. فروش مسکونی: زمین، ملک کلنگی (Page 3)
@@ -309,8 +460,25 @@ const forms = [
     create: {
       specsTitle: "مشخصات ملک",
       basicFields: [
-        { key: "meterage", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۳۰۰", required: true },
-        { key: "documentType", title: "سند", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: standardDocumentOptions }
+        {
+          key: "meterage",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۳۰۰",
+          required: true,
+        },
+        {
+          key: "documentType",
+          title: "سند",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: standardDocumentOptions,
+        },
       ],
       pricing: { mode: "sale", loan: true, exchange: true },
       heatingCooling: { enabled: false },
@@ -324,19 +492,50 @@ const forms = [
             input: "select",
             ui: "bottomSheet",
             options: [
-              "مسکونی", "اداری", "تجاری", "صنعتی", "کشاورزی", "باغی", "آموزشی",
-              "درمانی", "مذهبی", "ورزشی", "خدماتی", "گردشگری و توریستی", "پارکینگ", "حریم", "فاقد کاربری"
-            ]
+              "مسکونی",
+              "اداری",
+              "تجاری",
+              "صنعتی",
+              "کشاورزی",
+              "باغی",
+              "آموزشی",
+              "درمانی",
+              "مذهبی",
+              "ورزشی",
+              "خدماتی",
+              "گردشگری و توریستی",
+              "پارکینگ",
+              "حریم",
+              "فاقد کاربری",
+            ],
           },
-          { key: "landPosition", title: "موقعیت زمین", input: "select", ui: "bottomSheet", options: landPositionOptions },
-          { key: "density", title: "تراکم زمین", input: "select", ui: "bottomSheet", options: ["کم", "متوسط", "زیاد"] },
-          { key: "suitableFor", title: "مناسب برای", input: "multiSelect", ui: "bottomSheet", options: ["ساخت آپارتمان", "ساخت ویلا", "سرمایه گذاری", "تجمیع با ملک مجاور"] },
+          {
+            key: "landPosition",
+            title: "موقعیت زمین",
+            input: "select",
+            ui: "bottomSheet",
+            options: landPositionOptions,
+          },
+          {
+            key: "density",
+            title: "تراکم زمین",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["کم", "متوسط", "زیاد"],
+          },
+          {
+            key: "suitableFor",
+            title: "مناسب برای",
+            input: "multiSelect",
+            ui: "bottomSheet",
+            options: ["ساخت آپارتمان", "ساخت ویلا", "سرمایه گذاری", "تجمیع با ملک مجاور"],
+          },
           { key: "landWidth", title: "عرض زمین", input: "number", leftText: "متر", numeric: true },
           { key: "streetWidth", title: "عرض گذر", input: "number", leftText: "متر", numeric: true },
-          { key: "constructionPermit", title: "مجوز ساخت", input: "toggle", ui: "toggle" }
-        ]
-      }
-    }
+          { key: "constructionPermit", title: "مجوز ساخت", input: "toggle", ui: "toggle" },
+        ],
+      },
+    },
   },
 
   // 3. فروش مسکونی: خانه، ویلا (Page 4)
@@ -348,10 +547,44 @@ const forms = [
     create: {
       specsTitle: "مشخصات بنا",
       basicFields: [
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۲۵۰", required: true },
-        { key: "meterage", title: "متراژ زیربنا", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۱۲۰", required: true },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: roomOptions },
-        { key: "age", title: "سن ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: ageOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۲۵۰",
+          required: true,
+        },
+        {
+          key: "meterage",
+          title: "متراژ زیربنا",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۱۲۰",
+          required: true,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: roomOptions,
+        },
+        {
+          key: "age",
+          title: "سن ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "sale", loan: true, exchange: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -359,21 +592,81 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "landPosition", title: "موقعیت زمین", input: "select", ui: "bottomSheet", options: landPositionOptions },
-          { key: "buildingType", title: "نوع بنا", input: "select", ui: "bottomSheet", options: ["ویلایی مستقل", "شهرکی", "آپارتمانی"] },
-          { key: "villaType", title: "تیپ بنا", input: "select", ui: "bottomSheet", options: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"] },
-          { key: "documentType", title: "سند", input: "select", ui: "bottomSheet", options: standardDocumentOptions },
-          { key: "totalFloors", title: "تعداد طبقات", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
-          { key: "streetWidth", title: "عرض گذر (متر)", input: "number", leftText: "متر", numeric: true },
+          {
+            key: "landPosition",
+            title: "موقعیت زمین",
+            input: "select",
+            ui: "bottomSheet",
+            options: landPositionOptions,
+          },
+          {
+            key: "buildingType",
+            title: "نوع بنا",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["ویلایی مستقل", "شهرکی", "آپارتمانی"],
+          },
+          {
+            key: "villaType",
+            title: "تیپ بنا",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"],
+          },
+          {
+            key: "documentType",
+            title: "سند",
+            input: "select",
+            ui: "bottomSheet",
+            options: standardDocumentOptions,
+          },
+          {
+            key: "totalFloors",
+            title: "تعداد طبقات",
+            input: "select",
+            ui: "bottomSheet",
+            options: totalFloorsOptions,
+          },
+          {
+            key: "streetWidth",
+            title: "عرض گذر (متر)",
+            input: "number",
+            leftText: "متر",
+            numeric: true,
+          },
           { key: "renovated", title: "بازسازی", input: "toggle", ui: "toggle" },
           { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
-          { key: "kitchenType", title: "نوع آشپزخانه", input: "select", ui: "bottomSheet", options: kitchenTypeOptions },
-          { key: "facadeMaterial", title: "جنس نما", input: "select", ui: "bottomSheet", options: facadeOptions },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions },
-          { key: "cabinetMaterial", title: "جنس کابینت", input: "select", ui: "bottomSheet", options: cabinetOptions }
-        ]
-      }
-    }
+          {
+            key: "kitchenType",
+            title: "نوع آشپزخانه",
+            input: "select",
+            ui: "bottomSheet",
+            options: kitchenTypeOptions,
+          },
+          {
+            key: "facadeMaterial",
+            title: "جنس نما",
+            input: "select",
+            ui: "bottomSheet",
+            options: facadeOptions,
+          },
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+          {
+            key: "cabinetMaterial",
+            title: "جنس کابینت",
+            input: "select",
+            ui: "bottomSheet",
+            options: cabinetOptions,
+          },
+        ],
+      },
+    },
   },
 
   // فروش باغ و ویلا (همسو با خانه و ویلا)
@@ -385,10 +678,44 @@ const forms = [
     create: {
       specsTitle: "مشخصات باغ ویلا",
       basicFields: [
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۵۰۰", required: true },
-        { key: "meterage", title: "متراژ زیربنا", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۱۲۰", required: true },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: roomOptions },
-        { key: "age", title: "سن ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: ageOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۵۰۰",
+          required: true,
+        },
+        {
+          key: "meterage",
+          title: "متراژ زیربنا",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۱۲۰",
+          required: true,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: roomOptions,
+        },
+        {
+          key: "age",
+          title: "سن ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "sale", loan: true, exchange: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -396,21 +723,81 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "landPosition", title: "موقعیت زمین", input: "select", ui: "bottomSheet", options: landPositionOptions },
-          { key: "buildingType", title: "نوع بنا", input: "select", ui: "bottomSheet", options: ["ویلایی مستقل", "شهرکی", "آپارتمانی"] },
-          { key: "villaType", title: "تیپ بنا", input: "select", ui: "bottomSheet", options: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"] },
-          { key: "documentType", title: "سند", input: "select", ui: "bottomSheet", options: standardDocumentOptions },
-          { key: "totalFloors", title: "تعداد طبقات", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
-          { key: "streetWidth", title: "عرض گذر (متر)", input: "number", leftText: "متر", numeric: true },
+          {
+            key: "landPosition",
+            title: "موقعیت زمین",
+            input: "select",
+            ui: "bottomSheet",
+            options: landPositionOptions,
+          },
+          {
+            key: "buildingType",
+            title: "نوع بنا",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["ویلایی مستقل", "شهرکی", "آپارتمانی"],
+          },
+          {
+            key: "villaType",
+            title: "تیپ بنا",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"],
+          },
+          {
+            key: "documentType",
+            title: "سند",
+            input: "select",
+            ui: "bottomSheet",
+            options: standardDocumentOptions,
+          },
+          {
+            key: "totalFloors",
+            title: "تعداد طبقات",
+            input: "select",
+            ui: "bottomSheet",
+            options: totalFloorsOptions,
+          },
+          {
+            key: "streetWidth",
+            title: "عرض گذر (متر)",
+            input: "number",
+            leftText: "متر",
+            numeric: true,
+          },
           { key: "renovated", title: "بازسازی", input: "toggle", ui: "toggle" },
           { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
-          { key: "kitchenType", title: "نوع آشپزخانه", input: "select", ui: "bottomSheet", options: kitchenTypeOptions },
-          { key: "facadeMaterial", title: "جنس نما", input: "select", ui: "bottomSheet", options: facadeOptions },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions },
-          { key: "cabinetMaterial", title: "جنس کابینت", input: "select", ui: "bottomSheet", options: cabinetOptions }
-        ]
-      }
-    }
+          {
+            key: "kitchenType",
+            title: "نوع آشپزخانه",
+            input: "select",
+            ui: "bottomSheet",
+            options: kitchenTypeOptions,
+          },
+          {
+            key: "facadeMaterial",
+            title: "جنس نما",
+            input: "select",
+            ui: "bottomSheet",
+            options: facadeOptions,
+          },
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+          {
+            key: "cabinetMaterial",
+            title: "جنس کابینت",
+            input: "select",
+            ui: "bottomSheet",
+            options: cabinetOptions,
+          },
+        ],
+      },
+    },
   },
 
   // 4. فروش اداری (Page 5)
@@ -422,10 +809,43 @@ const forms = [
     create: {
       specsTitle: "مشخصات اداری",
       basicFields: [
-        { key: "meterage", title: "متراژ", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۷۵", required: true },
-        { key: "floor", title: "طبقه", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: floorOptions },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: roomOptions },
-        { key: "age", title: "سال ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: ageOptions }
+        {
+          key: "meterage",
+          title: "متراژ",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۷۵",
+          required: true,
+        },
+        {
+          key: "floor",
+          title: "طبقه",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: floorOptions,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: roomOptions,
+        },
+        {
+          key: "age",
+          title: "سال ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "sale", loan: true, exchange: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -433,29 +853,79 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "totalFloors", title: "تعداد کل طبقات", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
+          {
+            key: "totalFloors",
+            title: "تعداد کل طبقات",
+            input: "select",
+            ui: "bottomSheet",
+            options: totalFloorsOptions,
+          },
           {
             key: "suitableFor",
             title: "مناسب برای",
             input: "multiSelect",
             ui: "bottomSheet",
             options: [
-              "مهندسین", "شرکت ها", "وکلا", "مطب", "موسسه", "آموزشگاه", "آتلیه",
-              "مزون", "اسناد رسمی", "دفاتر دولت", "صنایع", "خدماتی", "ورزشی", "فرهنگی", "مذهبی", "همه مشاغل"
-            ]
+              "مهندسین",
+              "شرکت ها",
+              "وکلا",
+              "مطب",
+              "موسسه",
+              "آموزشگاه",
+              "آتلیه",
+              "مزون",
+              "اسناد رسمی",
+              "دفاتر دولت",
+              "صنایع",
+              "خدماتی",
+              "ورزشی",
+              "فرهنگی",
+              "مذهبی",
+              "همه مشاغل",
+            ],
           },
-          { key: "currentStatus", title: "وضعیت فعلی", input: "select", ui: "bottomSheet", options: ["تخلیه", "فعال", "درحال بازسازی"] },
+          {
+            key: "currentStatus",
+            title: "وضعیت فعلی",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["تخلیه", "فعال", "درحال بازسازی"],
+          },
           {
             key: "officePosition",
             title: "موقعیت اداری",
             input: "select",
             ui: "bottomSheet",
-            options: ["مجتمع اداری", "برج اداری", "برخیابان اصلی", "موقعیت مسکونی", "مجتمع پزشکان"]
+            options: ["مجتمع اداری", "برج اداری", "برخیابان اصلی", "موقعیت مسکونی", "مجتمع پزشکان"],
           },
-          { key: "officeDocumentType", title: "سند اداری", input: "select", ui: "bottomSheet", options: ["دائم", "موقت"] },
-          { key: "facadeMaterial", title: "جنس نما", input: "select", ui: "bottomSheet", options: facadeOptions },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions },
-          { key: "cabinetMaterial", title: "جنس کابینت", input: "select", ui: "bottomSheet", options: cabinetOptions },
+          {
+            key: "officeDocumentType",
+            title: "سند اداری",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["دائم", "موقت"],
+          },
+          {
+            key: "facadeMaterial",
+            title: "جنس نما",
+            input: "select",
+            ui: "bottomSheet",
+            options: facadeOptions,
+          },
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+          {
+            key: "cabinetMaterial",
+            title: "جنس کابینت",
+            input: "select",
+            ui: "bottomSheet",
+            options: cabinetOptions,
+          },
           { key: "managementRoom", title: "اتاق مدیریت", input: "toggle", ui: "toggle" },
           { key: "conferenceRoom", title: "اتاق کنفرانس", input: "toggle", ui: "toggle" },
           { key: "receptionHall", title: "سالن پذیرش", input: "toggle", ui: "toggle" },
@@ -463,10 +933,10 @@ const forms = [
           { key: "kitchen", title: "آشپزخانه", input: "toggle", ui: "toggle" },
           { key: "separateEntrance", title: "ورودی مجزا", input: "toggle", ui: "toggle" },
           { key: "renovated", title: "بازسازی شده", input: "toggle", ui: "toggle" },
-          { key: "furnished", title: "مبله با لوازم", input: "toggle", ui: "toggle" }
-        ]
-      }
-    }
+          { key: "furnished", title: "مبله با لوازم", input: "toggle", ui: "toggle" },
+        ],
+      },
+    },
   },
 
   // 5. فروش واحد تجاری (Page 6)
@@ -478,24 +948,40 @@ const forms = [
     create: {
       specsTitle: "مشخصات تجاری",
       basicFields: [
-        { key: "meterage", title: "متراژ", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۴۰", required: true },
+        {
+          key: "meterage",
+          title: "متراژ",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۴۰",
+          required: true,
+        },
         {
           key: "commercialPosition",
           title: "موقعیت تجاری",
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["برخیابان اصلی", "داخل پاساژ", "داخل کوچه", "بازار محله", "غرفه"]
+          options: ["برخیابان اصلی", "داخل پاساژ", "داخل کوچه", "بازار محله", "غرفه"],
         },
-        { key: "documentType", title: "سند", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: commercialDocumentOptions },
+        {
+          key: "documentType",
+          title: "سند",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: commercialDocumentOptions,
+        },
         {
           key: "ownershipStatus",
           title: "وضعیت مالکیت",
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["مالکیت کامل", "فقط سرقفلی", "فقط مالکیت", "مالکیت مشترک"]
-        }
+          options: ["مالکیت کامل", "فقط سرقفلی", "فقط مالکیت", "مالکیت مشترک"],
+        },
       ],
       pricing: { mode: "sale", loan: true, exchange: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -503,22 +989,68 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "age", title: "سال ساخت", input: "select", ui: "bottomSheet", options: ageOptions },
-          { key: "floor", title: "طبقه", input: "select", ui: "bottomSheet", options: floorOptions },
-          { key: "totalFloors", title: "تعداد کل طبقات", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
-          { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", options: roomOptions },
+          {
+            key: "age",
+            title: "سال ساخت",
+            input: "select",
+            ui: "bottomSheet",
+            options: ageOptions,
+          },
+          {
+            key: "floor",
+            title: "طبقه",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorOptions,
+          },
+          {
+            key: "totalFloors",
+            title: "تعداد کل طبقات",
+            input: "select",
+            ui: "bottomSheet",
+            options: totalFloorsOptions,
+          },
+          {
+            key: "rooms",
+            title: "تعداد اتاق",
+            input: "select",
+            ui: "bottomSheet",
+            options: roomOptions,
+          },
           {
             key: "suitableFor",
             title: "مناسب برای",
             input: "multiSelect",
             ui: "bottomSheet",
-            options: ["فروشگاه", "تجاری", "خدماتی", "اداری", "صنعتی", "آموزشی", "درمانی", "انباری", "همه مشاغل"]
+            options: [
+              "فروشگاه",
+              "تجاری",
+              "خدماتی",
+              "اداری",
+              "صنعتی",
+              "آموزشی",
+              "درمانی",
+              "انباری",
+              "همه مشاغل",
+            ],
           },
-          { key: "commercialLicense", title: "مجوز تجاری", input: "select", ui: "bottomSheet", options: ["دائم", "موقت"] },
-          { key: "currentStatus", title: "وضعیت فعلی", input: "select", ui: "bottomSheet", options: ["تخلیه", "فعال"] }
-        ]
-      }
-    }
+          {
+            key: "commercialLicense",
+            title: "مجوز تجاری",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["دائم", "موقت"],
+          },
+          {
+            key: "currentStatus",
+            title: "وضعیت فعلی",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["تخلیه", "فعال"],
+          },
+        ],
+      },
+    },
   },
 
   // 6. فروش واحد صنعتی (Page 7)
@@ -530,10 +1062,40 @@ const forms = [
     create: {
       specsTitle: "مشخصات کارخانه و کارگاه",
       basicFields: [
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۲۰۰۰", required: true },
-        { key: "landPosition", title: "موقعیت زمین", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: landPositionOptions },
-        { key: "age", title: "سال ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: ageOptions },
-        { key: "documentType", title: "سند", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: standardDocumentOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۲۰۰۰",
+          required: true,
+        },
+        {
+          key: "landPosition",
+          title: "موقعیت زمین",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: landPositionOptions,
+        },
+        {
+          key: "age",
+          title: "سال ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: ageOptions,
+        },
+        {
+          key: "documentType",
+          title: "سند",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: standardDocumentOptions,
+        },
       ],
       pricing: { mode: "sale", loan: true, exchange: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -541,28 +1103,58 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", options: roomOptions },
-          { key: "meterage", title: "متراژ بنا", input: "number", leftText: "متر مربع", numeric: true },
-          { key: "ceilingHeight", title: "ارتفاع سقف", input: "number", leftText: "متر", numeric: true },
+          {
+            key: "rooms",
+            title: "تعداد اتاق",
+            input: "select",
+            ui: "bottomSheet",
+            options: roomOptions,
+          },
+          {
+            key: "meterage",
+            title: "متراژ بنا",
+            input: "number",
+            leftText: "متر مربع",
+            numeric: true,
+          },
+          {
+            key: "ceilingHeight",
+            title: "ارتفاع سقف",
+            input: "number",
+            leftText: "متر",
+            numeric: true,
+          },
           {
             key: "industrialPropertyType",
             title: "نوع ملک",
             input: "select",
             ui: "bottomSheet",
-            options: ["سوله", "انبار", "کارگاه", "کارخانه", "گلخانه", "گاوداری", "مرغداری"]
+            options: ["سوله", "انبار", "کارگاه", "کارخانه", "گلخانه", "گاوداری", "مرغداری"],
           },
           {
             key: "accessType",
             title: "دست رسی",
             input: "select",
             ui: "bottomSheet",
-            options: ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"]
+            options: ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"],
           },
-          { key: "currentStatus", title: "وضعیت فعلی", input: "select", ui: "bottomSheet", options: ["تخلیه", "فعال"] },
-          { key: "commercialLicense", title: "مجوز تجاری", input: "select", ui: "bottomSheet", options: ["دائم", "موقت"] }
-        ]
-      }
-    }
+          {
+            key: "currentStatus",
+            title: "وضعیت فعلی",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["تخلیه", "فعال"],
+          },
+          {
+            key: "commercialLicense",
+            title: "مجوز تجاری",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["دائم", "موقت"],
+          },
+        ],
+      },
+    },
   },
 
   // فروش انبار و سوله (مشابه صنعتی)
@@ -574,10 +1166,43 @@ const forms = [
     create: {
       specsTitle: "مشخصات انبار و سوله",
       basicFields: [
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۱۰۰۰", required: true },
-        { key: "meterage", title: "متراژ بنا", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۵۰۰", required: true },
-        { key: "ceilingHeight", title: "ارتفاع سقف", input: "text", ui: "input", numeric: true, leftText: "متر", placeholder: "مثلا ۶" },
-        { key: "documentType", title: "سند", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: standardDocumentOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۱۰۰۰",
+          required: true,
+        },
+        {
+          key: "meterage",
+          title: "متراژ بنا",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۵۰۰",
+          required: true,
+        },
+        {
+          key: "ceilingHeight",
+          title: "ارتفاع سقف",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر",
+          placeholder: "مثلا ۶",
+        },
+        {
+          key: "documentType",
+          title: "سند",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: standardDocumentOptions,
+        },
       ],
       pricing: { mode: "sale", loan: true, exchange: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -585,13 +1210,37 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "age", title: "سال ساخت", input: "select", ui: "bottomSheet", options: ageOptions },
-          { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", options: roomOptions },
-          { key: "accessType", title: "دست رسی", input: "select", ui: "bottomSheet", options: ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"] },
-          { key: "currentStatus", title: "وضعیت فعلی", input: "select", ui: "bottomSheet", options: ["تخلیه", "فعال"] }
-        ]
-      }
-    }
+          {
+            key: "age",
+            title: "سال ساخت",
+            input: "select",
+            ui: "bottomSheet",
+            options: ageOptions,
+          },
+          {
+            key: "rooms",
+            title: "تعداد اتاق",
+            input: "select",
+            ui: "bottomSheet",
+            options: roomOptions,
+          },
+          {
+            key: "accessType",
+            title: "دست رسی",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"],
+          },
+          {
+            key: "currentStatus",
+            title: "وضعیت فعلی",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["تخلیه", "فعال"],
+          },
+        ],
+      },
+    },
   },
 
   // 7. فروش هتل، اقامتگاه (Page 8)
@@ -609,7 +1258,7 @@ const forms = [
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["هتل", "هتل آپارتمان", "متل", "مسافر خونه", "مجتمع توریستی"]
+          options: ["هتل", "هتل آپارتمان", "متل", "مسافر خونه", "مجتمع توریستی"],
         },
         {
           key: "hotelStars",
@@ -617,11 +1266,36 @@ const forms = [
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"]
+          options: ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"],
         },
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۱۰۰۰", required: true },
-        { key: "meterage", title: "متراژ بنا", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۲۰۰۰", required: true },
-        { key: "documentType", title: "سند", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: standardDocumentOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۱۰۰۰",
+          required: true,
+        },
+        {
+          key: "meterage",
+          title: "متراژ بنا",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۲۰۰۰",
+          required: true,
+        },
+        {
+          key: "documentType",
+          title: "سند",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: standardDocumentOptions,
+        },
       ],
       pricing: { mode: "sale", loan: true, exchange: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -629,18 +1303,36 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "landPosition", title: "موقعیت زمین", input: "select", ui: "bottomSheet", options: landPositionOptions },
+          {
+            key: "landPosition",
+            title: "موقعیت زمین",
+            input: "select",
+            ui: "bottomSheet",
+            options: landPositionOptions,
+          },
           { key: "age", title: "سن ساخت", input: "select", ui: "bottomSheet", options: ageOptions },
-          { key: "totalFloors", title: "تعداد طبقات", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
+          {
+            key: "totalFloors",
+            title: "تعداد طبقات",
+            input: "select",
+            ui: "bottomSheet",
+            options: totalFloorsOptions,
+          },
           { key: "singleRoomCount", title: "تعداد اتاق یک تخته", input: "number", numeric: true },
           { key: "doubleRoomCount", title: "تعداد اتاق دو تخته", input: "number", numeric: true },
           { key: "suiteCount", title: "تعداد سوییت ها", input: "number", numeric: true },
           { key: "renovated", title: "بازسازی شده", input: "toggle", ui: "toggle" },
           { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions }
-        ]
-      }
-    }
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+        ],
+      },
+    },
   },
 
   // 8. اجاره مسکونی: اجاره آپارتمان (Page 9)
@@ -652,10 +1344,43 @@ const forms = [
     create: {
       specsTitle: "مشخصات آپارتمان",
       basicFields: [
-        { key: "meterage", title: "متراژ آپارتمان", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۸۵", required: true },
-        { key: "floor", title: "طبقه", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: floorOptions },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: roomOptions },
-        { key: "age", title: "سن ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: ageOptions }
+        {
+          key: "meterage",
+          title: "متراژ آپارتمان",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۸۵",
+          required: true,
+        },
+        {
+          key: "floor",
+          title: "طبقه",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: floorOptions,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: roomOptions,
+        },
+        {
+          key: "age",
+          title: "سن ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "rent", rentConversion: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -663,24 +1388,96 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "suitableFor", title: "مناسب برای", input: "multiSelect", ui: "bottomSheet", options: ["خانواده", "مجرد", "دانشجو", "زوج"] },
-          { key: "totalFloors", title: "تعداد طبقات آپارتمان", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
-          { key: "unitsPerFloor", title: "تعداد واحد در طبقه", input: "select", ui: "bottomSheet", options: unitsPerFloorOptions },
-          { key: "unitType", title: "موقعیت ساختمان", input: "select", ui: "bottomSheet", options: buildingPositionOptions },
-          { key: "unitPosition", title: "موقعیت واحد", input: "select", ui: "bottomSheet", options: unitPositionOptions },
-          { key: "occupancyStatus", title: "وضعیت سکونت", input: "select", ui: "bottomSheet", options: occupancyStatusOptions },
+          {
+            key: "suitableFor",
+            title: "مناسب برای",
+            input: "multiSelect",
+            ui: "bottomSheet",
+            options: ["خانواده", "مجرد", "دانشجو", "زوج"],
+          },
+          {
+            key: "totalFloors",
+            title: "تعداد طبقات آپارتمان",
+            input: "select",
+            ui: "bottomSheet",
+            options: totalFloorsOptions,
+          },
+          {
+            key: "unitsPerFloor",
+            title: "تعداد واحد در طبقه",
+            input: "select",
+            ui: "bottomSheet",
+            options: unitsPerFloorOptions,
+          },
+          {
+            key: "unitType",
+            title: "موقعیت ساختمان",
+            input: "select",
+            ui: "bottomSheet",
+            options: buildingPositionOptions,
+          },
+          {
+            key: "unitPosition",
+            title: "موقعیت واحد",
+            input: "select",
+            ui: "bottomSheet",
+            options: unitPositionOptions,
+          },
+          {
+            key: "occupancyStatus",
+            title: "وضعیت سکونت",
+            input: "select",
+            ui: "bottomSheet",
+            options: occupancyStatusOptions,
+          },
           { key: "readyDeliveryDate", title: "تاریخ آماده تحویل", input: "date" },
-          { key: "minContractMonths", title: "حداقل مدت قرارداد (ماه)", input: "number", leftText: "ماه", numeric: true },
-          { key: "petPolicy", title: "حیوان خانگی", input: "select", ui: "bottomSheet", options: petPolicyOptions },
+          {
+            key: "minContractMonths",
+            title: "حداقل مدت قرارداد (ماه)",
+            input: "number",
+            leftText: "ماه",
+            numeric: true,
+          },
+          {
+            key: "petPolicy",
+            title: "حیوان خانگی",
+            input: "select",
+            ui: "bottomSheet",
+            options: petPolicyOptions,
+          },
           { key: "renovated", title: "بازسازی", input: "toggle", ui: "toggle" },
           { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
-          { key: "kitchenType", title: "نوع آشپزخانه", input: "select", ui: "bottomSheet", options: kitchenTypeOptions },
-          { key: "facadeMaterial", title: "جنس نما", input: "select", ui: "bottomSheet", options: facadeOptions },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions },
-          { key: "cabinetMaterial", title: "جنس کابینت", input: "select", ui: "bottomSheet", options: cabinetOptions }
-        ]
-      }
-    }
+          {
+            key: "kitchenType",
+            title: "نوع آشپزخانه",
+            input: "select",
+            ui: "bottomSheet",
+            options: kitchenTypeOptions,
+          },
+          {
+            key: "facadeMaterial",
+            title: "جنس نما",
+            input: "select",
+            ui: "bottomSheet",
+            options: facadeOptions,
+          },
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+          {
+            key: "cabinetMaterial",
+            title: "جنس کابینت",
+            input: "select",
+            ui: "bottomSheet",
+            options: cabinetOptions,
+          },
+        ],
+      },
+    },
   },
 
   // 9. اجاره مسکونی: اجاره خانه ، ویلا (Page 9 & 10)
@@ -692,10 +1489,44 @@ const forms = [
     create: {
       specsTitle: "مشخصات بنا",
       basicFields: [
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۲۵۰", required: true },
-        { key: "meterage", title: "متراژ بنا", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۱۲۰", required: true },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: roomOptions },
-        { key: "age", title: "سن ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: ageOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۲۵۰",
+          required: true,
+        },
+        {
+          key: "meterage",
+          title: "متراژ بنا",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۱۲۰",
+          required: true,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: roomOptions,
+        },
+        {
+          key: "age",
+          title: "سن ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "rent", rentConversion: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -703,22 +1534,88 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "suitableFor", title: "مناسب برای", input: "multiSelect", ui: "bottomSheet", options: ["خانواده", "برگزاری مراسم", "چند خانواده"] },
-          { key: "landPosition", title: "موقعیت زمین", input: "select", ui: "bottomSheet", options: landPositionOptions },
-          { key: "buildingType", title: "نوع بنا", input: "select", ui: "bottomSheet", options: ["ویلایی مستقل", "شهرکی", "آپارتمانی"] },
-          { key: "villaType", title: "تیپ بنا", input: "select", ui: "bottomSheet", options: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"] },
-          { key: "totalFloors", title: "تعداد طبقات", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
-          { key: "streetWidth", title: "عرض گذر (متر)", input: "number", leftText: "متر", numeric: true },
-          { key: "petPolicy", title: "حیوان خانگی", input: "select", ui: "bottomSheet", options: petPolicyOptions },
+          {
+            key: "suitableFor",
+            title: "مناسب برای",
+            input: "multiSelect",
+            ui: "bottomSheet",
+            options: ["خانواده", "برگزاری مراسم", "چند خانواده"],
+          },
+          {
+            key: "landPosition",
+            title: "موقعیت زمین",
+            input: "select",
+            ui: "bottomSheet",
+            options: landPositionOptions,
+          },
+          {
+            key: "buildingType",
+            title: "نوع بنا",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["ویلایی مستقل", "شهرکی", "آپارتمانی"],
+          },
+          {
+            key: "villaType",
+            title: "تیپ بنا",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"],
+          },
+          {
+            key: "totalFloors",
+            title: "تعداد طبقات",
+            input: "select",
+            ui: "bottomSheet",
+            options: totalFloorsOptions,
+          },
+          {
+            key: "streetWidth",
+            title: "عرض گذر (متر)",
+            input: "number",
+            leftText: "متر",
+            numeric: true,
+          },
+          {
+            key: "petPolicy",
+            title: "حیوان خانگی",
+            input: "select",
+            ui: "bottomSheet",
+            options: petPolicyOptions,
+          },
           { key: "renovated", title: "بازسازی", input: "toggle", ui: "toggle" },
           { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
-          { key: "kitchenType", title: "نوع آشپزخانه", input: "select", ui: "bottomSheet", options: kitchenTypeOptions },
-          { key: "facadeMaterial", title: "جنس نما", input: "select", ui: "bottomSheet", options: facadeOptions },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions },
-          { key: "cabinetMaterial", title: "جنس کابینت", input: "select", ui: "bottomSheet", options: cabinetOptions }
-        ]
-      }
-    }
+          {
+            key: "kitchenType",
+            title: "نوع آشپزخانه",
+            input: "select",
+            ui: "bottomSheet",
+            options: kitchenTypeOptions,
+          },
+          {
+            key: "facadeMaterial",
+            title: "جنس نما",
+            input: "select",
+            ui: "bottomSheet",
+            options: facadeOptions,
+          },
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+          {
+            key: "cabinetMaterial",
+            title: "جنس کابینت",
+            input: "select",
+            ui: "bottomSheet",
+            options: cabinetOptions,
+          },
+        ],
+      },
+    },
   },
 
   // اجاره باغ و ویلا
@@ -730,10 +1627,44 @@ const forms = [
     create: {
       specsTitle: "مشخصات باغ ویلا",
       basicFields: [
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۵۰۰", required: true },
-        { key: "meterage", title: "متراژ بنا", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۱۲۰", required: true },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: roomOptions },
-        { key: "age", title: "سن ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: ageOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۵۰۰",
+          required: true,
+        },
+        {
+          key: "meterage",
+          title: "متراژ بنا",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۱۲۰",
+          required: true,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: roomOptions,
+        },
+        {
+          key: "age",
+          title: "سن ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "rent", rentConversion: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -741,22 +1672,88 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "suitableFor", title: "مناسب برای", input: "multiSelect", ui: "bottomSheet", options: ["خانواده", "برگزاری مراسم", "چند خانواده"] },
-          { key: "landPosition", title: "موقعیت زمین", input: "select", ui: "bottomSheet", options: landPositionOptions },
-          { key: "buildingType", title: "نوع بنا", input: "select", ui: "bottomSheet", options: ["ویلایی مستقل", "شهرکی", "آپارتمانی"] },
-          { key: "villaType", title: "تیپ بنا", input: "select", ui: "bottomSheet", options: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"] },
-          { key: "totalFloors", title: "تعداد طبقات", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
-          { key: "streetWidth", title: "عرض گذر (متر)", input: "number", leftText: "متر", numeric: true },
-          { key: "petPolicy", title: "حیوان خانگی", input: "select", ui: "bottomSheet", options: petPolicyOptions },
+          {
+            key: "suitableFor",
+            title: "مناسب برای",
+            input: "multiSelect",
+            ui: "bottomSheet",
+            options: ["خانواده", "برگزاری مراسم", "چند خانواده"],
+          },
+          {
+            key: "landPosition",
+            title: "موقعیت زمین",
+            input: "select",
+            ui: "bottomSheet",
+            options: landPositionOptions,
+          },
+          {
+            key: "buildingType",
+            title: "نوع بنا",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["ویلایی مستقل", "شهرکی", "آپارتمانی"],
+          },
+          {
+            key: "villaType",
+            title: "تیپ بنا",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"],
+          },
+          {
+            key: "totalFloors",
+            title: "تعداد طبقات",
+            input: "select",
+            ui: "bottomSheet",
+            options: totalFloorsOptions,
+          },
+          {
+            key: "streetWidth",
+            title: "عرض گذر (متر)",
+            input: "number",
+            leftText: "متر",
+            numeric: true,
+          },
+          {
+            key: "petPolicy",
+            title: "حیوان خانگی",
+            input: "select",
+            ui: "bottomSheet",
+            options: petPolicyOptions,
+          },
           { key: "renovated", title: "بازسازی", input: "toggle", ui: "toggle" },
           { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
-          { key: "kitchenType", title: "نوع آشپزخانه", input: "select", ui: "bottomSheet", options: kitchenTypeOptions },
-          { key: "facadeMaterial", title: "جنس نما", input: "select", ui: "bottomSheet", options: facadeOptions },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions },
-          { key: "cabinetMaterial", title: "جنس کابینت", input: "select", ui: "bottomSheet", options: cabinetOptions }
-        ]
-      }
-    }
+          {
+            key: "kitchenType",
+            title: "نوع آشپزخانه",
+            input: "select",
+            ui: "bottomSheet",
+            options: kitchenTypeOptions,
+          },
+          {
+            key: "facadeMaterial",
+            title: "جنس نما",
+            input: "select",
+            ui: "bottomSheet",
+            options: facadeOptions,
+          },
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+          {
+            key: "cabinetMaterial",
+            title: "جنس کابینت",
+            input: "select",
+            ui: "bottomSheet",
+            options: cabinetOptions,
+          },
+        ],
+      },
+    },
   },
 
   // 10. اجاره هتل، اقامتگاه (Page 11)
@@ -774,7 +1771,7 @@ const forms = [
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["هتل", "هتل آپارتمان", "متل", "مسافر خونه", "مجتمع توریستی"]
+          options: ["هتل", "هتل آپارتمان", "متل", "مسافر خونه", "مجتمع توریستی"],
         },
         {
           key: "hotelStars",
@@ -782,11 +1779,36 @@ const forms = [
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"]
+          options: ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"],
         },
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۱۰۰۰", required: true },
-        { key: "meterage", title: "متراژ بنا", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۲۰۰۰", required: true },
-        { key: "age", title: "سن ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: ageOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۱۰۰۰",
+          required: true,
+        },
+        {
+          key: "meterage",
+          title: "متراژ بنا",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۲۰۰۰",
+          required: true,
+        },
+        {
+          key: "age",
+          title: "سن ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "rent", rentConversion: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -794,17 +1816,35 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "landPosition", title: "موقعیت زمین", input: "select", ui: "bottomSheet", options: landPositionOptions },
-          { key: "totalFloors", title: "تعداد طبقات", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
+          {
+            key: "landPosition",
+            title: "موقعیت زمین",
+            input: "select",
+            ui: "bottomSheet",
+            options: landPositionOptions,
+          },
+          {
+            key: "totalFloors",
+            title: "تعداد طبقات",
+            input: "select",
+            ui: "bottomSheet",
+            options: totalFloorsOptions,
+          },
           { key: "singleRoomCount", title: "تعداد اتاق یک تخته", input: "number", numeric: true },
           { key: "doubleRoomCount", title: "تعداد اتاق دو تخته", input: "number", numeric: true },
           { key: "suiteCount", title: "تعداد سوییت ها", input: "number", numeric: true },
           { key: "renovated", title: "بازسازی شده", input: "toggle", ui: "toggle" },
           { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions }
-        ]
-      }
-    }
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+        ],
+      },
+    },
   },
 
   // 11. اجاره واحد اداری (Page 11 & 12)
@@ -816,10 +1856,43 @@ const forms = [
     create: {
       specsTitle: "مشخصات اداری",
       basicFields: [
-        { key: "meterage", title: "متراژ", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۷۵", required: true },
-        { key: "floor", title: "طبقه", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: floorOptions },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: roomOptions },
-        { key: "age", title: "سال ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: ageOptions }
+        {
+          key: "meterage",
+          title: "متراژ",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۷۵",
+          required: true,
+        },
+        {
+          key: "floor",
+          title: "طبقه",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: floorOptions,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: roomOptions,
+        },
+        {
+          key: "age",
+          title: "سال ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "rent", rentConversion: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -833,21 +1906,60 @@ const forms = [
             input: "multiSelect",
             ui: "bottomSheet",
             options: [
-              "تجاری", "خدماتی", "اداری", "صنعتی", "آموزشی", "درمانی", "انباری", "مهندسین", "شرکت ها", "وکلا", "مطب",
-              "موسسه", "آموزشگاه", "آتلیه", "مزون", "اسناد رسمی", "دفاتر دولت", "صنایع", "خدماتی", "ورزشی", "فرهنگی", "مذهبی", "همه مشاغل"
-            ]
+              "تجاری",
+              "خدماتی",
+              "اداری",
+              "صنعتی",
+              "آموزشی",
+              "درمانی",
+              "انباری",
+              "مهندسین",
+              "شرکت ها",
+              "وکلا",
+              "مطب",
+              "موسسه",
+              "آموزشگاه",
+              "آتلیه",
+              "مزون",
+              "اسناد رسمی",
+              "دفاتر دولت",
+              "صنایع",
+              "خدماتی",
+              "ورزشی",
+              "فرهنگی",
+              "مذهبی",
+              "همه مشاغل",
+            ],
           },
           {
             key: "officePosition",
             title: "موقعیت اداری",
             input: "select",
             ui: "bottomSheet",
-            options: ["مجتمع اداری", "برج اداری", "برخیابان اصلی", "موقعیت مسکونی", "مجتمع پزشکان"]
+            options: ["مجتمع اداری", "برج اداری", "برخیابان اصلی", "موقعیت مسکونی", "مجتمع پزشکان"],
           },
-          { key: "currentStatus", title: "وضعیت فعلی", input: "select", ui: "bottomSheet", options: ["تخلیه", "فعال"] },
+          {
+            key: "currentStatus",
+            title: "وضعیت فعلی",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["تخلیه", "فعال"],
+          },
           { key: "readyDeliveryDate", title: "تاریخ آماده تحویل", input: "date" },
-          { key: "minContractMonths", title: "حداقل مدت قرارداد (ماه)", input: "number", leftText: "ماه", numeric: true },
-          { key: "officeDocumentType", title: "سند اداری", input: "select", ui: "bottomSheet", options: ["دائم", "موقت"] },
+          {
+            key: "minContractMonths",
+            title: "حداقل مدت قرارداد (ماه)",
+            input: "number",
+            leftText: "ماه",
+            numeric: true,
+          },
+          {
+            key: "officeDocumentType",
+            title: "سند اداری",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["دائم", "موقت"],
+          },
           { key: "managementRoom", title: "اتاق مدیریت", input: "toggle", ui: "toggle" },
           { key: "conferenceRoom", title: "اتاق کنفرانس", input: "toggle", ui: "toggle" },
           { key: "receptionHall", title: "سالن پذیرش", input: "toggle", ui: "toggle" },
@@ -856,12 +1968,30 @@ const forms = [
           { key: "separateEntrance", title: "ورودی مجزا", input: "toggle", ui: "toggle" },
           { key: "renovated", title: "بازسازی شده", input: "toggle", ui: "toggle" },
           { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
-          { key: "facadeMaterial", title: "جنس نما", input: "select", ui: "bottomSheet", options: facadeOptions },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions },
-          { key: "cabinetMaterial", title: "جنس کابینت", input: "select", ui: "bottomSheet", options: cabinetOptions }
-        ]
-      }
-    }
+          {
+            key: "facadeMaterial",
+            title: "جنس نما",
+            input: "select",
+            ui: "bottomSheet",
+            options: facadeOptions,
+          },
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+          {
+            key: "cabinetMaterial",
+            title: "جنس کابینت",
+            input: "select",
+            ui: "bottomSheet",
+            options: cabinetOptions,
+          },
+        ],
+      },
+    },
   },
 
   // 12. اجاره واحد تجاری (Page 12 & 13)
@@ -873,17 +2003,40 @@ const forms = [
     create: {
       specsTitle: "مشخصات تجاری",
       basicFields: [
-        { key: "meterage", title: "متراژ", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۴۰", required: true },
+        {
+          key: "meterage",
+          title: "متراژ",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۴۰",
+          required: true,
+        },
         {
           key: "commercialPosition",
           title: "موقعیت تجاری",
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["برخیابان اصلی", "داخل پاساژ", "داخل کوچه", "بازار محله", "غرفه"]
+          options: ["برخیابان اصلی", "داخل پاساژ", "داخل کوچه", "بازار محله", "غرفه"],
         },
-        { key: "age", title: "سال ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: ageOptions },
-        { key: "floor", title: "طبقه", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: floorOptions }
+        {
+          key: "age",
+          title: "سال ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: ageOptions,
+        },
+        {
+          key: "floor",
+          title: "طبقه",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: floorOptions,
+        },
       ],
       pricing: { mode: "rent", rentConversion: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -891,22 +2044,63 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", options: roomOptions },
-          { key: "openingCount", title: "تعداد دهنه", input: "select", ui: "bottomSheet", options: ["۱ دهنه", "۲ دهنه", "۳ دهنه", "۴ دهنه و بیشتر"] },
-          { key: "ceilingHeight", title: "ارتفاع سقف", input: "number", leftText: "متر", numeric: true },
+          {
+            key: "rooms",
+            title: "تعداد اتاق",
+            input: "select",
+            ui: "bottomSheet",
+            options: roomOptions,
+          },
+          {
+            key: "openingCount",
+            title: "تعداد دهنه",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["۱ دهنه", "۲ دهنه", "۳ دهنه", "۴ دهنه و بیشتر"],
+          },
+          {
+            key: "ceilingHeight",
+            title: "ارتفاع سقف",
+            input: "number",
+            leftText: "متر",
+            numeric: true,
+          },
           {
             key: "suitableFor",
             title: "مناسب برای",
             input: "multiSelect",
             ui: "bottomSheet",
-            options: ["فروشگاه", "تجاری", "خدماتی", "اداری", "صنعتی", "آموزشی", "درمانی", "انباری", "همه مشاغل", "سایر"]
+            options: [
+              "فروشگاه",
+              "تجاری",
+              "خدماتی",
+              "اداری",
+              "صنعتی",
+              "آموزشی",
+              "درمانی",
+              "انباری",
+              "همه مشاغل",
+              "سایر",
+            ],
           },
-          { key: "currentStatus", title: "وضعیت فعلی", input: "select", ui: "bottomSheet", options: ["تخلیه", "فعال"] },
+          {
+            key: "currentStatus",
+            title: "وضعیت فعلی",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["تخلیه", "فعال"],
+          },
           { key: "readyDeliveryDate", title: "تاریخ آماده تحویل", input: "date" },
-          { key: "minContractMonths", title: "حداقل مدت قرارداد (ماه)", input: "number", leftText: "ماه", numeric: true }
-        ]
-      }
-    }
+          {
+            key: "minContractMonths",
+            title: "حداقل مدت قرارداد (ماه)",
+            input: "number",
+            leftText: "ماه",
+            numeric: true,
+          },
+        ],
+      },
+    },
   },
 
   // 13. اجاره واحد صنعتی (Page 14)
@@ -918,10 +2112,42 @@ const forms = [
     create: {
       specsTitle: "مشخصات کارخانه و کارگاه",
       basicFields: [
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۲۰۰۰", required: true },
-        { key: "meterage", title: "متراژ بنا", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۵۰۰", required: true },
-        { key: "landPosition", title: "موقعیت زمین", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: landPositionOptions },
-        { key: "age", title: "سال ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: ageOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۲۰۰۰",
+          required: true,
+        },
+        {
+          key: "meterage",
+          title: "متراژ بنا",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۵۰۰",
+          required: true,
+        },
+        {
+          key: "landPosition",
+          title: "موقعیت زمین",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: landPositionOptions,
+        },
+        {
+          key: "age",
+          title: "سال ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "rent", rentConversion: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -929,29 +2155,69 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", options: roomOptions },
-          { key: "ceilingHeight", title: "ارتفاع سقف", input: "number", leftText: "متر", numeric: true },
+          {
+            key: "rooms",
+            title: "تعداد اتاق",
+            input: "select",
+            ui: "bottomSheet",
+            options: roomOptions,
+          },
+          {
+            key: "ceilingHeight",
+            title: "ارتفاع سقف",
+            input: "number",
+            leftText: "متر",
+            numeric: true,
+          },
           {
             key: "industrialPropertyType",
             title: "نوع ملک",
             input: "select",
             ui: "bottomSheet",
-            options: ["سوله", "انبار", "کارگاه", "کارخانه", "گلخانه", "سردخانه", "گاوداری", "مرغداری", "سالن صنعتی"]
+            options: [
+              "سوله",
+              "انبار",
+              "کارگاه",
+              "کارخانه",
+              "گلخانه",
+              "سردخانه",
+              "گاوداری",
+              "مرغداری",
+              "سالن صنعتی",
+            ],
           },
           {
             key: "accessType",
             title: "دست رسی",
             input: "select",
             ui: "bottomSheet",
-            options: ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"]
+            options: ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"],
           },
-          { key: "currentStatus", title: "وضعیت فعلی", input: "select", ui: "bottomSheet", options: ["تخلیه", "فعال"] },
-          { key: "commercialLicense", title: "مجوز تجاری", input: "select", ui: "bottomSheet", options: ["دائم", "موقت"] },
+          {
+            key: "currentStatus",
+            title: "وضعیت فعلی",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["تخلیه", "فعال"],
+          },
+          {
+            key: "commercialLicense",
+            title: "مجوز تجاری",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["دائم", "موقت"],
+          },
           { key: "readyDeliveryDate", title: "تاریخ آماده تحویل", input: "date" },
-          { key: "minContractMonths", title: "حداقل مدت قرارداد (ماه)", input: "number", leftText: "ماه", numeric: true }
-        ]
-      }
-    }
+          {
+            key: "minContractMonths",
+            title: "حداقل مدت قرارداد (ماه)",
+            input: "number",
+            leftText: "ماه",
+            numeric: true,
+          },
+        ],
+      },
+    },
   },
 
   // اجاره انبار و سوله
@@ -963,10 +2229,43 @@ const forms = [
     create: {
       specsTitle: "مشخصات انبار و سوله",
       basicFields: [
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۱۰۰۰", required: true },
-        { key: "meterage", title: "متراژ بنا", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۴۰۰", required: true },
-        { key: "ceilingHeight", title: "ارتفاع سقف", input: "text", ui: "input", numeric: true, leftText: "متر", placeholder: "مثلا ۵" },
-        { key: "age", title: "سال ساخت", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: ageOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۱۰۰۰",
+          required: true,
+        },
+        {
+          key: "meterage",
+          title: "متراژ بنا",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۴۰۰",
+          required: true,
+        },
+        {
+          key: "ceilingHeight",
+          title: "ارتفاع سقف",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر",
+          placeholder: "مثلا ۵",
+        },
+        {
+          key: "age",
+          title: "سال ساخت",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: ageOptions,
+        },
       ],
       pricing: { mode: "rent", rentConversion: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -974,14 +2273,38 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", options: roomOptions },
-          { key: "accessType", title: "دست رسی", input: "select", ui: "bottomSheet", options: ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"] },
-          { key: "currentStatus", title: "وضعیت فعلی", input: "select", ui: "bottomSheet", options: ["تخلیه", "فعال"] },
+          {
+            key: "rooms",
+            title: "تعداد اتاق",
+            input: "select",
+            ui: "bottomSheet",
+            options: roomOptions,
+          },
+          {
+            key: "accessType",
+            title: "دست رسی",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"],
+          },
+          {
+            key: "currentStatus",
+            title: "وضعیت فعلی",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["تخلیه", "فعال"],
+          },
           { key: "readyDeliveryDate", title: "تاریخ آماده تحویل", input: "date" },
-          { key: "minContractMonths", title: "حداقل مدت قرارداد (ماه)", input: "number", leftText: "ماه", numeric: true }
-        ]
-      }
-    }
+          {
+            key: "minContractMonths",
+            title: "حداقل مدت قرارداد (ماه)",
+            input: "number",
+            leftText: "ماه",
+            numeric: true,
+          },
+        ],
+      },
+    },
   },
 
   // 14. اجاره روزانه: آپارتمان، سویئت (Page 15)
@@ -999,18 +2322,35 @@ const forms = [
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["سوئیت", "آپارتمان", "اتاق", "خوابگاه یا پانسیون", "بوم گردی"]
+          options: ["سوئیت", "آپارتمان", "اتاق", "خوابگاه یا پانسیون", "بوم گردی"],
         },
-        { key: "meterage", title: "متراژ", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۵۰", required: true },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: roomOptions },
+        {
+          key: "meterage",
+          title: "متراژ",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۵۰",
+          required: true,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: roomOptions,
+        },
         {
           key: "standardCapacity",
           title: "ظرفیت استاندارد",
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر", "۶ نفر", "۷ نفر", "۸ نفر و بیشتر"]
-        }
+          options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر", "۶ نفر", "۷ نفر", "۸ نفر و بیشتر"],
+        },
       ],
       pricing: { mode: "dailyRent" },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -1018,18 +2358,54 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "extraPeopleCapacity", title: "ظرفیت اضافه", input: "select", ui: "bottomSheet", options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر و بیشتر"] },
-          { key: "floor", title: "طبقه", input: "select", ui: "bottomSheet", options: floorOptions },
-          { key: "rentalPeriod", title: "دوره اجاره", input: "select", ui: "bottomSheet", options: ["روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"] },
+          {
+            key: "extraPeopleCapacity",
+            title: "ظرفیت اضافه",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر و بیشتر"],
+          },
+          {
+            key: "floor",
+            title: "طبقه",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorOptions,
+          },
+          {
+            key: "rentalPeriod",
+            title: "دوره اجاره",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"],
+          },
           { key: "checkInTime", title: "ساعت ورود", input: "time", ui: "bottomSheet" },
           { key: "checkOutTime", title: "ساعت خروج", input: "time", ui: "bottomSheet" },
-          { key: "minStayDays", title: "حداقل مدت اقامت (روز)", input: "number", leftText: "روز", numeric: true },
-          { key: "evacuationGuarantee", title: "تضمین تخلیه (تومان)", input: "currency", leftText: "تومان", numeric: true },
+          {
+            key: "minStayDays",
+            title: "حداقل مدت اقامت (روز)",
+            input: "number",
+            leftText: "روز",
+            numeric: true,
+          },
+          {
+            key: "evacuationGuarantee",
+            title: "تضمین تخلیه (تومان)",
+            input: "currency",
+            leftText: "تومان",
+            numeric: true,
+          },
           { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
-          { key: "petPolicy", title: "حیوان خانگی", input: "select", ui: "bottomSheet", options: petPolicyOptions }
-        ]
-      }
-    }
+          {
+            key: "petPolicy",
+            title: "حیوان خانگی",
+            input: "select",
+            ui: "bottomSheet",
+            options: petPolicyOptions,
+          },
+        ],
+      },
+    },
   },
 
   // 15. اجاره روزانه: باغ، ویلا (Page 16)
@@ -1041,17 +2417,43 @@ const forms = [
     create: {
       specsTitle: "مشخصات ویلا",
       basicFields: [
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۵۰۰", required: true },
-        { key: "buildingArea", title: "متراژ بنا", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۱۲۰", required: true },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", required: true, options: roomOptions },
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۵۰۰",
+          required: true,
+        },
+        {
+          key: "buildingArea",
+          title: "متراژ بنا",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۱۲۰",
+          required: true,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          required: true,
+          options: roomOptions,
+        },
         {
           key: "standardCapacity",
           title: "ظرفیت استاندارد",
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر", "۶ نفر", "۷ نفر", "۸ نفر و بیشتر"]
-        }
+          options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر", "۶ نفر", "۷ نفر", "۸ نفر و بیشتر"],
+        },
       ],
       pricing: { mode: "dailyRent" },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -1059,25 +2461,61 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "extraPeopleCapacity", title: "ظرفیت اضافه", input: "select", ui: "bottomSheet", options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر و بیشتر"] },
+          {
+            key: "extraPeopleCapacity",
+            title: "ظرفیت اضافه",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر و بیشتر"],
+          },
           {
             key: "viewType",
             title: "چشم انداز",
             input: "select",
             ui: "bottomSheet",
-            options: ["جنگلی", "کوهستان", "دریا", "رودخانه", "شهر", "دشت", "باغ", "بیابان"]
+            options: ["جنگلی", "کوهستان", "دریا", "رودخانه", "شهر", "دشت", "باغ", "بیابان"],
           },
-          { key: "villaType", title: "تیپ بنا", input: "select", ui: "bottomSheet", options: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"] },
-          { key: "rentalPeriod", title: "دوره اجاره", input: "select", ui: "bottomSheet", options: ["روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"] },
+          {
+            key: "villaType",
+            title: "تیپ بنا",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"],
+          },
+          {
+            key: "rentalPeriod",
+            title: "دوره اجاره",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"],
+          },
           { key: "checkInTime", title: "ساعت ورود", input: "time", ui: "bottomSheet" },
           { key: "checkOutTime", title: "ساعت خروج", input: "time", ui: "bottomSheet" },
-          { key: "minStayDays", title: "حداقل مدت اقامت (روز)", input: "number", leftText: "روز", numeric: true },
-          { key: "evacuationGuarantee", title: "تضمین تخلیه (تومان)", input: "currency", leftText: "تومان", numeric: true },
-          { key: "petPolicy", title: "حیوان خانگی", input: "select", ui: "bottomSheet", options: petPolicyOptions },
-          { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" }
-        ]
-      }
-    }
+          {
+            key: "minStayDays",
+            title: "حداقل مدت اقامت (روز)",
+            input: "number",
+            leftText: "روز",
+            numeric: true,
+          },
+          {
+            key: "evacuationGuarantee",
+            title: "تضمین تخلیه (تومان)",
+            input: "currency",
+            leftText: "تومان",
+            numeric: true,
+          },
+          {
+            key: "petPolicy",
+            title: "حیوان خانگی",
+            input: "select",
+            ui: "bottomSheet",
+            options: petPolicyOptions,
+          },
+          { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
+        ],
+      },
+    },
   },
 
   // 16. اجاره روزانه: هتل، اقامتگاه (Page 17 & 18)
@@ -1095,7 +2533,7 @@ const forms = [
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["هتل", "هتل آپارتمان", "متل", "مسافر خونه"]
+          options: ["هتل", "هتل آپارتمان", "متل", "مسافر خونه"],
         },
         {
           key: "hotelStars",
@@ -1103,8 +2541,8 @@ const forms = [
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"]
-        }
+          options: ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"],
+        },
       ],
       pricing: { mode: "dailyRent" },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -1112,14 +2550,32 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "rentalPeriod", title: "دوره اجاره", input: "select", ui: "bottomSheet", options: ["روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"] },
+          {
+            key: "rentalPeriod",
+            title: "دوره اجاره",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"],
+          },
           { key: "checkInTime", title: "ساعت ورود", input: "time", ui: "bottomSheet" },
-          { key: "minStayDays", title: "حداقل مدت اقامت (روز)", input: "number", leftText: "روز", numeric: true },
+          {
+            key: "minStayDays",
+            title: "حداقل مدت اقامت (روز)",
+            input: "number",
+            leftText: "روز",
+            numeric: true,
+          },
           { key: "checkOutTime", title: "ساعت خروج", input: "time", ui: "bottomSheet" },
-          { key: "petPolicy", title: "حیوان خانگی", input: "select", ui: "bottomSheet", options: petPolicyOptions }
-        ]
-      }
-    }
+          {
+            key: "petPolicy",
+            title: "حیوان خانگی",
+            input: "select",
+            ui: "bottomSheet",
+            options: petPolicyOptions,
+          },
+        ],
+      },
+    },
   },
 
   // 17. اجاره روزانه: دفترکار، غرفه (Page 18 & 19)
@@ -1137,18 +2593,42 @@ const forms = [
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["اتاق کار اشتراکی", "اتاق کار خصوصی", "اتاق جلسه", "کلاس آموزشی", "سالن همایش", "غرفه نمایشگاه", "کانتر"]
+          options: [
+            "اتاق کار اشتراکی",
+            "اتاق کار خصوصی",
+            "اتاق جلسه",
+            "کلاس آموزشی",
+            "سالن همایش",
+            "غرفه نمایشگاه",
+            "کانتر",
+          ],
         },
-        { key: "meterage", title: "متراژ (متر مربع)", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۲۵", required: true },
-        { key: "rooms", title: "تعداد اتاق", input: "select", ui: "bottomSheet", placeholder: "انتخاب کنید", options: roomOptions },
+        {
+          key: "meterage",
+          title: "متراژ (متر مربع)",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۲۵",
+          required: true,
+        },
+        {
+          key: "rooms",
+          title: "تعداد اتاق",
+          input: "select",
+          ui: "bottomSheet",
+          placeholder: "انتخاب کنید",
+          options: roomOptions,
+        },
         {
           key: "standardCapacity",
           title: "ظرفیت استاندارد",
           input: "select",
           ui: "bottomSheet",
           placeholder: "انتخاب کنید",
-          options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر", "۶ نفر", "۷ نفر", "۸ نفر و بیشتر"]
-        }
+          options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر", "۶ نفر", "۷ نفر", "۸ نفر و بیشتر"],
+        },
       ],
       pricing: { mode: "dailyRent" },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -1156,16 +2636,46 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "extraPeopleCapacity", title: "ظرفیت اضافه", input: "select", ui: "bottomSheet", options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر و بیشتر"] },
-          { key: "floor", title: "طبقه", input: "select", ui: "bottomSheet", options: floorOptions },
-          { key: "rentalPeriod", title: "دوره اجاره", input: "select", ui: "bottomSheet", options: ["ساعتی", "روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"] },
+          {
+            key: "extraPeopleCapacity",
+            title: "ظرفیت اضافه",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر و بیشتر"],
+          },
+          {
+            key: "floor",
+            title: "طبقه",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorOptions,
+          },
+          {
+            key: "rentalPeriod",
+            title: "دوره اجاره",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["ساعتی", "روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"],
+          },
           { key: "checkInTime", title: "ساعت ورود", input: "time", ui: "bottomSheet" },
           { key: "checkOutTime", title: "ساعت خروج", input: "time", ui: "bottomSheet" },
-          { key: "minStayDays", title: "حداقل مدت اقامت (روز)", input: "number", leftText: "روز", numeric: true },
-          { key: "evacuationGuarantee", title: "تضمین تخلیه (تومان)", input: "currency", leftText: "تومان", numeric: true }
-        ]
-      }
-    }
+          {
+            key: "minStayDays",
+            title: "حداقل مدت اقامت (روز)",
+            input: "number",
+            leftText: "روز",
+            numeric: true,
+          },
+          {
+            key: "evacuationGuarantee",
+            title: "تضمین تخلیه (تومان)",
+            input: "currency",
+            leftText: "تومان",
+            numeric: true,
+          },
+        ],
+      },
+    },
   },
 
   // 18. پیش فروش، فروش پروژه (Page 20)
@@ -1177,11 +2687,41 @@ const forms = [
     create: {
       specsTitle: "مشخصات پیش فروش، فروش ویژه",
       basicFields: [
-        { key: "builderCompanyName", title: "نام سازنده/شرکت", input: "text", ui: "input", placeholder: "نام شرکت یا سازنده" },
-        { key: "projectType", title: "نوع پروژه", input: "select", ui: "bottomSheet", options: ["مسکونی", "تجاری", "اداری"] },
-        { key: "projectTotalFloors", title: "تعداد کل طبقات", input: "select", ui: "bottomSheet", options: totalFloorsOptions },
-        { key: "projectTotalUnits", title: "تعداد کل واحد ها", input: "number", numeric: true, placeholder: "مثلا ۲۰" },
-        { key: "documentType", title: "سند", input: "select", ui: "bottomSheet", options: standardDocumentOptions }
+        {
+          key: "builderCompanyName",
+          title: "نام سازنده/شرکت",
+          input: "text",
+          ui: "input",
+          placeholder: "نام شرکت یا سازنده",
+        },
+        {
+          key: "projectType",
+          title: "نوع پروژه",
+          input: "select",
+          ui: "bottomSheet",
+          options: ["مسکونی", "تجاری", "اداری"],
+        },
+        {
+          key: "projectTotalFloors",
+          title: "تعداد کل طبقات",
+          input: "select",
+          ui: "bottomSheet",
+          options: totalFloorsOptions,
+        },
+        {
+          key: "projectTotalUnits",
+          title: "تعداد کل واحد ها",
+          input: "number",
+          numeric: true,
+          placeholder: "مثلا ۲۰",
+        },
+        {
+          key: "documentType",
+          title: "سند",
+          input: "select",
+          ui: "bottomSheet",
+          options: standardDocumentOptions,
+        },
       ],
       pricing: { mode: "project", saleTerms: true, exchange: true },
       heatingCooling: { enabled: true, items: commonHeatingItems },
@@ -1189,16 +2729,46 @@ const forms = [
       moreFeatures: {
         enabled: true,
         fields: [
-          { key: "projectStatus", title: "وضعیت پروژه", input: "select", ui: "bottomSheet", options: ["در حال ساخت", "آماده تحویل"] },
+          {
+            key: "projectStatus",
+            title: "وضعیت پروژه",
+            input: "select",
+            ui: "bottomSheet",
+            options: ["در حال ساخت", "آماده تحویل"],
+          },
           { key: "projectDeliveryDate", title: "تاریخ تحویل", input: "date" },
-          { key: "kitchenType", title: "نوع آشپزخانه", input: "select", ui: "bottomSheet", options: kitchenTypeOptions },
-          { key: "facadeMaterial", title: "جنس نما", input: "select", ui: "bottomSheet", options: facadeOptions },
-          { key: "floorMaterial", title: "جنس کف", input: "select", ui: "bottomSheet", options: floorMaterialOptions },
-          { key: "cabinetMaterial", title: "جنس کابینت", input: "select", ui: "bottomSheet", options: cabinetOptions },
-          { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" }
-        ]
-      }
-    }
+          {
+            key: "kitchenType",
+            title: "نوع آشپزخانه",
+            input: "select",
+            ui: "bottomSheet",
+            options: kitchenTypeOptions,
+          },
+          {
+            key: "facadeMaterial",
+            title: "جنس نما",
+            input: "select",
+            ui: "bottomSheet",
+            options: facadeOptions,
+          },
+          {
+            key: "floorMaterial",
+            title: "جنس کف",
+            input: "select",
+            ui: "bottomSheet",
+            options: floorMaterialOptions,
+          },
+          {
+            key: "cabinetMaterial",
+            title: "جنس کابینت",
+            input: "select",
+            ui: "bottomSheet",
+            options: cabinetOptions,
+          },
+          { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
+        ],
+      },
+    },
   },
 
   // 19. مشارکت (Page 20 & 21)
@@ -1215,17 +2785,37 @@ const forms = [
           title: "نوع مشارکت",
           input: "select",
           ui: "bottomSheet",
-          options: ["مشارکت در ساخت", "تهاتر", "سرمایه گذاری در خرید", "سرمایه گذاری مشترک در ساخت"]
+          options: [
+            "مشارکت در ساخت",
+            "تهاتر",
+            "سرمایه گذاری در خرید",
+            "سرمایه گذاری مشترک در ساخت",
+          ],
         },
         {
           key: "currentStatus",
           title: "وضعیت فعلی ملک",
           input: "select",
           ui: "bottomSheet",
-          options: ["بنا قدیمی", "زمین خالی", "درحال ساخت", "ساختمان نوساز"]
+          options: ["بنا قدیمی", "زمین خالی", "درحال ساخت", "ساختمان نوساز"],
         },
-        { key: "landArea", title: "متراژ زمین", input: "text", ui: "input", numeric: true, leftText: "متر مربع", placeholder: "مثلا ۴۰۰", required: true },
-        { key: "landPosition", title: "موقعیت زمین", input: "select", ui: "bottomSheet", options: landPositionOptions }
+        {
+          key: "landArea",
+          title: "متراژ زمین",
+          input: "text",
+          ui: "input",
+          numeric: true,
+          leftText: "متر مربع",
+          placeholder: "مثلا ۴۰۰",
+          required: true,
+        },
+        {
+          key: "landPosition",
+          title: "موقعیت زمین",
+          input: "select",
+          ui: "bottomSheet",
+          options: landPositionOptions,
+        },
       ],
       pricing: { mode: "partnership" },
       heatingCooling: { enabled: false },
@@ -1234,32 +2824,38 @@ const forms = [
         enabled: true,
         fields: [
           { key: "constructionPermit", title: "مجوز ساخت", input: "toggle", ui: "toggle" },
-          { key: "documentType", title: "نوع سند", input: "select", ui: "bottomSheet", options: standardDocumentOptions },
+          {
+            key: "documentType",
+            title: "نوع سند",
+            input: "select",
+            ui: "bottomSheet",
+            options: standardDocumentOptions,
+          },
           { key: "landWidth", title: "عرض زمین", input: "number", leftText: "متر", numeric: true },
-          { key: "streetWidth", title: "عرض گذر", input: "number", leftText: "متر", numeric: true }
-        ]
-      }
-    }
-  }
+          { key: "streetWidth", title: "عرض گذر", input: "number", leftText: "متر", numeric: true },
+        ],
+      },
+    },
+  },
 ];
 
 for (const form of forms) {
   if (form.create?.moreFeatures?.fields) {
-    const endKeys = ['facadeMaterial', 'floorMaterial', 'cabinetMaterial'];
-    const otherFields = form.create.moreFeatures.fields.filter(f => !endKeys.includes(f.key));
-    const endFields = form.create.moreFeatures.fields.filter(f => endKeys.includes(f.key));
-    
+    const endKeys = ["facadeMaterial", "floorMaterial", "cabinetMaterial"];
+    const otherFields = form.create.moreFeatures.fields.filter((f) => !endKeys.includes(f.key));
+    const endFields = form.create.moreFeatures.fields.filter((f) => endKeys.includes(f.key));
+
     // Also if kitchenType was after toggles, make sure toggles come after kitchenType:
-    const nonToggleOthers = otherFields.filter(f => f.input !== 'toggle' && f.ui !== 'toggle');
-    const toggleOthers = otherFields.filter(f => f.input === 'toggle' || f.ui === 'toggle');
-    
+    const nonToggleOthers = otherFields.filter((f) => f.input !== "toggle" && f.ui !== "toggle");
+    const toggleOthers = otherFields.filter((f) => f.input === "toggle" || f.ui === "toggle");
+
     form.create.moreFeatures.fields = [...nonToggleOthers, ...toggleOthers, ...endFields];
   }
   const filePath = path.join(targetDir, `${form.formCode}.json`);
   let existingFilter = { sections: [] };
   if (fs.existsSync(filePath)) {
     try {
-      const existingData = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      const existingData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
       if (existingData.filter?.sections?.length > 0) {
         existingFilter = existingData.filter;
       }
@@ -1274,11 +2870,13 @@ for (const form of forms) {
     category: form.category,
     create: form.create,
     view: { sections: [] },
-    filter: existingFilter
+    filter: existingFilter,
   };
 
-  fs.writeFileSync(filePath, JSON.stringify(schema, null, 2), 'utf-8');
+  fs.writeFileSync(filePath, JSON.stringify(schema, null, 2), "utf-8");
   console.log(`Generated: ${form.formCode}.json`);
 }
 
-console.log(`\nSuccessfully updated all ${forms.length} JSON form schemas strictly from the PDF document.`);
+console.log(
+  `\nSuccessfully updated all ${forms.length} JSON form schemas strictly from the PDF document.`,
+);

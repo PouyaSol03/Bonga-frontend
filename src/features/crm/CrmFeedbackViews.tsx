@@ -68,7 +68,7 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
       queryClient.invalidateQueries({ queryKey: ["publicProfileFeedbackItems"] });
       notify(
         draft.id ? "معیار بازخورد با موفقیت ویرایش شد." : "معیار بازخورد جدید افزوده شد.",
-        "success"
+        "success",
       );
       setEditingItem(null);
     },
@@ -86,7 +86,7 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
       queryClient.invalidateQueries({ queryKey: ["publicProfileFeedbackItems"] });
       notify(
         `وضعیت «${updated.title}» به ${updated.is_active ? "فعال" : "غیرفعال"} تغییر یافت.`,
-        "success"
+        "success",
       );
     },
     onError: (err) => {
@@ -115,10 +115,22 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
       {/* Top Header Card */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#e8ecf4] bg-white p-5 shadow-xs">
         <div>
-          <Typography as="h2" variant="title" size="large" weight="semibold" className="text-lg text-[#1e293b]">
+          <Typography
+            as="h2"
+            variant="title"
+            size="large"
+            weight="semibold"
+            className="text-lg text-[#1e293b]"
+          >
             معیارهای بازخورد پروفایل
           </Typography>
-          <Typography as="p" variant="body" size="small" weight="regular" className="mt-1 text-sm text-[#64748b]">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="mt-1 text-sm text-[#64748b]"
+          >
             تعریف و ویرایش سوالات بازخورد کیفی کاربران از مشاورین و آژانس‌ها
           </Typography>
         </div>
@@ -135,11 +147,18 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
       {/* Main Table Card */}
       <div className="overflow-hidden rounded-2xl border border-[#e8ecf4] bg-white shadow-xs">
         {isLoading ? (
-          <div className="p-8 text-center text-sm text-[#64748b]">در حال بارگذاری لیست معیارها...</div>
+          <div className="p-8 text-center text-sm text-[#64748b]">
+            در حال بارگذاری لیست معیارها...
+          </div>
         ) : isError ? (
           <div className="p-8 text-center text-sm text-[#d93645]">
             خطا در دریافت لیست معیارها.
-            <Button unstyled className="mr-2 text-primary underline" onClick={() => refetch()} type="button">
+            <Button
+              unstyled
+              className="text-primary mr-2 underline"
+              onClick={() => refetch()}
+              type="button"
+            >
               تلاش مجدد
             </Button>
           </div>
@@ -160,7 +179,9 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
               <tbody className="divide-y divide-[#f1f5f9]">
                 {sortedItems.map((item) => (
                   <tr key={item.id} className="transition-colors hover:bg-[#f8fafc]/80">
-                    <td className="px-5 py-4 font-mono text-xs text-[#64748b]">{toPersianDigits(item.id)}</td>
+                    <td className="px-5 py-4 font-mono text-xs text-[#64748b]">
+                      {toPersianDigits(item.id)}
+                    </td>
                     <td className="px-5 py-4 font-medium text-[#1e293b]">{item.title}</td>
                     <td className="px-5 py-4 text-center font-mono text-xs text-[#64748b]">
                       {toPersianDigits(item.sort_order)}
@@ -172,7 +193,9 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
                           disabled={toggleStatusMutation.isPending}
                           onChange={() => toggleStatusMutation.mutate(item)}
                         />
-                        <span className={`text-xs ${item.is_active ? "text-tertiary" : "text-outline"}`}>
+                        <span
+                          className={`text-xs ${item.is_active ? "text-tertiary" : "text-outline"}`}
+                        >
                           {item.is_active ? "فعال" : "غیرفعال"}
                         </span>
                       </div>
@@ -222,7 +245,13 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
               exit={{ scale: 0.95, opacity: 0 }}
               className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl [direction:rtl]"
             >
-              <Typography as="h3" variant="title" size="medium" weight="semibold" className="text-base text-[#1e293b]">
+              <Typography
+                as="h3"
+                variant="title"
+                size="medium"
+                weight="semibold"
+                className="text-base text-[#1e293b]"
+              >
                 {editingItem.id ? "ویرایش معیار بازخورد" : "افزودن معیار بازخورد"}
               </Typography>
 
@@ -245,17 +274,21 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
                     value={editingItem.title}
                     onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
                     placeholder="مانند: سرعت پاسخگویی"
-                    className="mt-1 h-10 w-full rounded-xl border border-[#cbd5e1] px-3 text-sm outline-none focus:border-primary"
+                    className="focus:border-primary mt-1 h-10 w-full rounded-xl border border-[#cbd5e1] px-3 text-sm outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[#475569]">ترتیب نمایش (Sort Order)</label>
+                  <label className="block text-xs font-medium text-[#475569]">
+                    ترتیب نمایش (Sort Order)
+                  </label>
                   <input
                     type="number"
                     value={editingItem.sort_order}
-                    onChange={(e) => setEditingItem({ ...editingItem, sort_order: Number(e.target.value) || 0 })}
-                    className="mt-1 h-10 w-full rounded-xl border border-[#cbd5e1] px-3 text-sm outline-none focus:border-primary"
+                    onChange={(e) =>
+                      setEditingItem({ ...editingItem, sort_order: Number(e.target.value) || 0 })
+                    }
+                    className="focus:border-primary mt-1 h-10 w-full rounded-xl border border-[#cbd5e1] px-3 text-sm outline-none"
                   />
                 </div>
 
@@ -306,10 +339,22 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
               exit={{ scale: 0.95, opacity: 0 }}
               className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl [direction:rtl]"
             >
-              <Typography as="h3" variant="title" size="medium" weight="semibold" className="text-base text-[#1e293b]">
+              <Typography
+                as="h3"
+                variant="title"
+                size="medium"
+                weight="semibold"
+                className="text-base text-[#1e293b]"
+              >
                 حذف معیار بازخورد
               </Typography>
-              <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 text-sm text-[#64748b]">
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="mt-2 text-sm text-[#64748b]"
+              >
                 آیا از حذف این معیار اطمینان دارید؟ این عملیات غیرقابل بازگشت است.
               </Typography>
 
@@ -319,7 +364,7 @@ export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
                   onClick={() => deleteMutation.mutate(deletingId)}
                   size="medium"
                   variant="primary"
-                  className="flex-1 bg-error hover:bg-error/90"
+                  className="bg-error hover:bg-error/90 flex-1"
                 >
                   حذف قطعی
                 </Button>

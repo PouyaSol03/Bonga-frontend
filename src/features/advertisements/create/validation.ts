@@ -193,10 +193,13 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
 
   // 7. Partnership & Project Flow
   if (isPartnership) {
-    if (!hasRequiredText(values.participationType)) errors.participationType = "لطفا نوع مشارکت را انتخاب کنید.";
-    if (!hasRequiredText(values.currentStatus)) errors.currentStatus = "لطفا وضعیت فعلی ملک را انتخاب کنید.";
+    if (!hasRequiredText(values.participationType))
+      errors.participationType = "لطفا نوع مشارکت را انتخاب کنید.";
+    if (!hasRequiredText(values.currentStatus))
+      errors.currentStatus = "لطفا وضعیت فعلی ملک را انتخاب کنید.";
     if (!hasRequiredText(values.landArea)) errors.landArea = "لطفا متراژ زمین را وارد کنید.";
-    if (!hasRequiredText(values.landPosition)) errors.landPosition = "لطفا موقعیت زمین را انتخاب کنید.";
+    if (!hasRequiredText(values.landPosition))
+      errors.landPosition = "لطفا موقعیت زمین را انتخاب کنید.";
 
     const shareNum = parseNumericValue(values.builderSharePercent);
     if (shareNum !== null && (shareNum <= 0 || shareNum > 100)) {
@@ -395,7 +398,8 @@ export function getMediaValidationErrors(
 
   // 5. Contact Methods & Phone Number
   if (shouldRequirePersonalContactFields && !values.chatEnabled && !values.phoneEnabled) {
-    errors.contactMethods = "لطفا حداقل یکی از روش‌های ارتباطی چت با کاربران یا شماره تماس را انتخاب کنید.";
+    errors.contactMethods =
+      "لطفا حداقل یکی از روش‌های ارتباطی چت با کاربران یا شماره تماس را انتخاب کنید.";
   }
 
   if (hasRequiredText(values.phoneNumber)) {
@@ -407,7 +411,11 @@ export function getMediaValidationErrors(
 
   if (hasRequiredText(values.ownerPhone)) {
     const cleanOwnerPhone = toLatinDigits(values.ownerPhone).replace(/[\s-]/g, "");
-    if (!/^0\d{10}$/.test(cleanOwnerPhone) && !/^\+?98\d{10}$/.test(cleanOwnerPhone) && !/^09\d{9}$/.test(cleanOwnerPhone)) {
+    if (
+      !/^0\d{10}$/.test(cleanOwnerPhone) &&
+      !/^\+?98\d{10}$/.test(cleanOwnerPhone) &&
+      !/^09\d{9}$/.test(cleanOwnerPhone)
+    ) {
       errors.ownerPhone = "شماره تلفن مالک معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹ یا ۰۲۱۸۸۸۸۸۸۸۸).";
     }
   }

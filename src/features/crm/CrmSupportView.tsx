@@ -11,9 +11,7 @@ import LinearRefresh from "../../shared/icons/LinearRefresh";
 import LinearSearch from "../../shared/icons/LinearSearch";
 import LinearSent from "../../shared/icons/LinearSent";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
-import {
-  useInfiniteChatMessagesQuery,
-} from "../chat/api/chat.hooks";
+import { useInfiniteChatMessagesQuery } from "../chat/api/chat.hooks";
 import { usePanelSupportChatsQuery } from "../support/api/support.hooks";
 import type { ChatMessage, ChatThread } from "../chat/api/chat.service";
 import {
@@ -74,9 +72,7 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
       threads.filter((thread) => {
         if (!normalizedSearch) return true;
         const participant = readParticipant(thread);
-        const lastMessage = readSupportMessageBody(
-          (thread.last_message ?? {}) as ChatMessage,
-        );
+        const lastMessage = readSupportMessageBody((thread.last_message ?? {}) as ChatMessage);
         const haystack = [
           participant.name,
           participant.mobile,
@@ -113,12 +109,7 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
       .sort((first, second) => messageTimestamp(first) - messageTimestamp(second));
 
     return rawMessages.flatMap((message, index) => {
-      const mapped = mapAccountSupportMessage(
-        message,
-        index,
-        currentUserId,
-        selectedThreadId,
-      );
+      const mapped = mapAccountSupportMessage(message, index, currentUserId, selectedThreadId);
       return mapped ? [mapped] : [];
     });
   }, [currentUserId, messagesQuery.data?.pages, selectedThreadId]);
@@ -233,12 +224,27 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
     <section className="flex h-full min-h-0 flex-col gap-4" dir="rtl">
       <header className="flex shrink-0 items-center justify-between gap-4 rounded-xl bg-white px-5 py-4">
         <div>
-          <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold text-[#1a1a1a]">گفتگوهای پشتیبانی</Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#808080]">
+          <Typography
+            as="h1"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="m-0 text-lg font-bold text-[#1a1a1a]"
+          >
+            گفتگوهای پشتیبانی
+          </Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="m-0 mt-1 text-sm text-[#808080]"
+          >
             پاسخگویی زنده به گفتگوهای فعال کاربران
           </Typography>
         </div>
-        <Button unstyled
+        <Button
+          unstyled
           className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#dce3ef] bg-white px-4 text-sm font-semibold text-[#4d4d4d] hover:border-[#0048c4] hover:text-[#0048c4]"
           onClick={() => {
             void chatsQuery.refetch().then(() => notify?.("فهرست گفتگوها بروزرسانی شد."));
@@ -265,11 +271,28 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
 
           <div className="min-h-0 flex-1 overflow-y-auto border-t border-[#f0f0f0] p-3">
             {chatsQuery.isLoading ? (
-              <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">در حال دریافت گفتگوها...</Typography>
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="py-16 text-center text-sm text-[#808080]"
+              >
+                در حال دریافت گفتگوها...
+              </Typography>
             ) : chatsQuery.isError ? (
               <div className="px-4 py-16 text-center">
-                <Typography as="p" variant="body" size="medium" weight="regular" className="text-sm text-[#d92d20]">دریافت گفتگوها با خطا مواجه شد.</Typography>
-                <Button unstyled
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="text-sm text-[#d92d20]"
+                >
+                  دریافت گفتگوها با خطا مواجه شد.
+                </Typography>
+                <Button
+                  unstyled
                   className="mt-3 h-9 rounded-lg bg-[#0048c4] px-4 text-xs font-semibold text-white"
                   onClick={() => void chatsQuery.refetch()}
                   type="button"
@@ -291,7 +314,8 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
                   const unreadCount = Number(thread.unread_count ?? 0) || 0;
 
                   return (
-                    <Button unstyled
+                    <Button
+                      unstyled
                       className={`w-full rounded-xl border px-3 py-3 text-right transition ${
                         isActive
                           ? "border-[#0048c4] bg-[#f3f7ff]"
@@ -301,7 +325,13 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
                       onClick={() => setSelectedThreadId(threadId)}
                       type="button"
                     >
-                      <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-start gap-3">
+                      <Typography
+                        as="span"
+                        variant="body"
+                        size="medium"
+                        weight="regular"
+                        className="flex items-start gap-3"
+                      >
                         {participant.avatar ? (
                           <img
                             alt=""
@@ -309,25 +339,61 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
                             src={participant.avatar}
                           />
                         ) : (
-                          <Typography as="span" variant="label" size="medium" weight="semibold" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#eaf1ff] text-sm font-bold text-[#0048c4]">
+                          <Typography
+                            as="span"
+                            variant="label"
+                            size="medium"
+                            weight="semibold"
+                            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#eaf1ff] text-sm font-bold text-[#0048c4]"
+                          >
                             {participant.name.slice(0, 1)}
                           </Typography>
                         )}
-                        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
-                          <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center justify-between gap-2">
+                        <Typography
+                          as="span"
+                          variant="body"
+                          size="medium"
+                          weight="regular"
+                          className="min-w-0 flex-1"
+                        >
+                          <Typography
+                            as="span"
+                            variant="body"
+                            size="medium"
+                            weight="regular"
+                            className="flex items-center justify-between gap-2"
+                          >
                             <strong className="truncate text-sm text-[#1a1a1a]">
                               {participant.name}
                             </strong>
                             {unreadCount > 0 ? (
-                              <Typography as="span" variant="label" size="small" weight="semibold" className="rounded-full bg-[#0048c4] px-2 py-0.5 text-[10px] font-bold text-white">
+                              <Typography
+                                as="span"
+                                variant="label"
+                                size="small"
+                                weight="semibold"
+                                className="rounded-full bg-[#0048c4] px-2 py-0.5 text-[10px] font-bold text-white"
+                              >
                                 {new Intl.NumberFormat("fa-IR").format(unreadCount)}
                               </Typography>
                             ) : null}
                           </Typography>
-                          <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block truncate text-xs text-[#808080]">
+                          <Typography
+                            as="span"
+                            variant="body"
+                            size="small"
+                            weight="regular"
+                            className="mt-1 block truncate text-xs text-[#808080]"
+                          >
                             {lastMessage || "گفتگوی پشتیبانی"}
                           </Typography>
-                          <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-[10px] text-[#a6a6a6]">
+                          <Typography
+                            as="span"
+                            variant="body"
+                            size="small"
+                            weight="regular"
+                            className="mt-1 block text-[10px] text-[#a6a6a6]"
+                          >
                             {formatSupportConversationDate(thread.updated_at ?? thread.created_at)}
                           </Typography>
                         </Typography>
@@ -351,19 +417,37 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
             <>
               <div className="flex shrink-0 items-center justify-between border-b border-[#eeeeee] px-5 py-4">
                 <div className="flex min-w-0 items-center gap-3">
-                  <Typography as="span" variant="label" size="medium" weight="semibold" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#eaf1ff] font-bold text-[#0048c4]">
+                  <Typography
+                    as="span"
+                    variant="label"
+                    size="medium"
+                    weight="semibold"
+                    className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#eaf1ff] font-bold text-[#0048c4]"
+                  >
                     {selectedParticipant.name.slice(0, 1)}
                   </Typography>
                   <div className="min-w-0">
                     <strong className="block truncate text-sm text-[#1a1a1a]">
                       {selectedParticipant.name}
                     </strong>
-                    <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block truncate text-xs text-[#808080]">
+                    <Typography
+                      as="span"
+                      variant="body"
+                      size="small"
+                      weight="regular"
+                      className="mt-1 block truncate text-xs text-[#808080]"
+                    >
                       {selectedParticipant.mobile || `شناسه گفتگو: ${selectedThreadId}`}
                     </Typography>
                   </div>
                 </div>
-                <Typography as="span" variant="label" size="small" weight="semibold" className="rounded-full bg-[#e8f7ef] px-3 py-1.5 text-xs font-semibold text-[#079455]">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="small"
+                  weight="semibold"
+                  className="rounded-full bg-[#e8f7ef] px-3 py-1.5 text-xs font-semibold text-[#079455]"
+                >
                   گفتگوی فعال
                 </Typography>
               </div>
@@ -373,19 +457,51 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
                 onScroll={handleMessagesScroll}
               >
                 {messagesQuery.isFetchingNextPage ? (
-                  <Typography as="p" variant="body" size="small" weight="regular" className="text-center text-xs text-[#808080]">در حال دریافت پیام‌های قبلی...</Typography>
+                  <Typography
+                    as="p"
+                    variant="body"
+                    size="small"
+                    weight="regular"
+                    className="text-center text-xs text-[#808080]"
+                  >
+                    در حال دریافت پیام‌های قبلی...
+                  </Typography>
                 ) : null}
                 {messagesQuery.isLoading ? (
-                  <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-[#808080]">در حال دریافت پیام‌ها...</Typography>
+                  <Typography
+                    as="p"
+                    variant="body"
+                    size="medium"
+                    weight="regular"
+                    className="py-16 text-center text-sm text-[#808080]"
+                  >
+                    در حال دریافت پیام‌ها...
+                  </Typography>
                 ) : messages.length === 0 ? (
-                  <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto w-full py-16 text-center text-sm text-[#808080]">هنوز پیامی در این گفتگو وجود ندارد.</Typography>
+                  <Typography
+                    as="p"
+                    variant="body"
+                    size="medium"
+                    weight="regular"
+                    className="mx-auto w-full py-16 text-center text-sm text-[#808080]"
+                  >
+                    هنوز پیامی در این گفتگو وجود ندارد.
+                  </Typography>
                 ) : (
                   messages.map((message) => (
                     <SupportMessageBubble key={message.id} message={message} />
                   ))
                 )}
                 {isCustomerTyping ? (
-                  <Typography as="p" variant="body" size="small" weight="regular" className="text-right text-xs text-[#808080]">کاربر در حال نوشتن است...</Typography>
+                  <Typography
+                    as="p"
+                    variant="body"
+                    size="small"
+                    weight="regular"
+                    className="text-right text-xs text-[#808080]"
+                  >
+                    کاربر در حال نوشتن است...
+                  </Typography>
                 ) : null}
                 <div ref={messagesEndRef} />
               </main>
@@ -400,7 +516,8 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
                   placeholder="پیام خود را بنویسید..."
                   value={draft}
                 />
-                <Button unstyled
+                <Button
+                  unstyled
                   aria-label="ارسال پیام"
                   className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#0048c4] text-white disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={!draft.trim()}

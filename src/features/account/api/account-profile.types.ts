@@ -2,12 +2,7 @@ import type { AuthRole } from "../../../shared/auth/auth-storage";
 
 export type ProfileContextItem = {
   context:
-    | "personal"
-    | "agency"
-    | "independent-consultant"
-    | "agency-consultant"
-    | "superadmin"
-    | string;
+    "personal" | "agency" | "independent-consultant" | "agency-consultant" | "superadmin" | string;
   id?: number | string;
   _id?: number | string;
   name?: string | null;
@@ -16,12 +11,7 @@ export type ProfileContextItem = {
 
 export type ProfileAccountItem = {
   context?:
-    | "personal"
-    | "agency"
-    | "independent-consultant"
-    | "agency-consultant"
-    | "superadmin"
-    | string;
+    "personal" | "agency" | "independent-consultant" | "agency-consultant" | "superadmin" | string;
   type?: "user" | "agency" | "agent" | string;
   role_slug?: string;
   id?: number | string;

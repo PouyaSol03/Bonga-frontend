@@ -77,10 +77,7 @@ function escapeMarkerText(value: string) {
     .replace(/'/g, "&#039;");
 }
 
-function createSearchDotIcon(
-  isSelected: boolean,
-  isSeen: boolean,
-) {
+function createSearchDotIcon(isSelected: boolean, isSeen: boolean) {
   const dotClasses = [
     "search-map-dot",
     isSelected ? "search-map-dot--selected" : "",
@@ -101,11 +98,7 @@ function createSearchDotIcon(
   });
 }
 
-function createSearchPricePillIcon(
-  priceValue: string,
-  isSelected: boolean,
-  isSeen: boolean,
-) {
+function createSearchPricePillIcon(priceValue: string, isSelected: boolean, isSeen: boolean) {
   const safePriceValue = escapeMarkerText(priceValue);
   const pillClasses = [
     "search-map-marker",

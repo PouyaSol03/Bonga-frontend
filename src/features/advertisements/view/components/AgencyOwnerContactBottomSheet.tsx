@@ -3,7 +3,10 @@ import { BottomSheet } from "../../../../shared/components/BottomSheet";
 import LinearCall from "../../../../shared/icons/LinearCall";
 import LinearLocation from "../../../../shared/icons/LinearLocation";
 import LinearUserSolid from "../../../../shared/icons/LinearUserSolid";
-import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../../shared/lib/numberUtils";
+import {
+  toEnglishDigits,
+  toPersianNumber as toPersianDigits,
+} from "../../../../shared/lib/numberUtils";
 import { Typography } from "../../../../shared/ui/Typography";
 import { updateOwnerContact } from "../../api/advertisement.service";
 
@@ -21,12 +24,7 @@ type EditableField = "name" | "phone" | "address";
 
 function PencilIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="currentColor"
-      viewBox="24 92 12 12"
-    >
+    <svg aria-hidden="true" className={className} fill="currentColor" viewBox="24 92 12 12">
       <path d="M31.3988 92.4767C31.8031 92.0638 32.4632 92.0638 32.8675 92.4767L35.3135 94.9741C35.7119 95.3811 35.7118 96.0365 35.3135 96.4435L28.2236 103.683C28.1296 103.779 28.0006 103.833 27.8662 103.833H24.667C24.3908 103.833 24.167 103.61 24.167 103.333V100.066C24.167 99.9352 24.2182 99.8097 24.3096 99.7163L31.3988 92.4767ZM35.3337 102.833C35.6098 102.833 35.8337 103.057 35.8337 103.333C35.8337 103.61 35.6098 103.833 35.3337 103.833H31.0667C30.7907 103.833 30.5667 103.61 30.5667 103.333C30.5667 103.057 30.7907 102.834 31.0667 102.833H35.3337ZM25.167 100.27V102.833H27.6566L32.4997 97.8868L29.9997 95.3341L25.167 100.27ZM32.124 93.1687C32.1215 93.1698 32.1179 93.1716 32.1136 93.1759L30.6995 94.6193L33.2002 97.172L34.5986 95.7443C34.6065 95.7362 34.6122 95.7245 34.6123 95.7091C34.6123 95.6936 34.6066 95.6814 34.5986 95.6733L32.1533 93.1759C32.1491 93.1716 32.1454 93.1698 32.1429 93.1687C32.14 93.1676 32.1365 93.1668 32.1331 93.1668C32.1299 93.1668 32.1268 93.1676 32.124 93.1687Z" />
     </svg>
   );
@@ -150,26 +148,32 @@ export function AgencyOwnerContactBottomSheet({
           {editingField === "name" ? (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium text-on-surface-var">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="small"
+                  weight="medium"
+                  className="text-on-surface-var text-xs font-medium"
+                >
                   ویرایش نام مالک
                 </Typography>
               </div>
               <input
                 autoFocus
-                className="w-full rounded-lg border border-outline-var bg-surface-container px-3 py-2 text-sm text-on-surface outline-none focus:border-primary"
+                className="border-outline-var bg-surface-container text-on-surface focus:border-primary w-full rounded-lg border px-3 py-2 text-sm outline-none"
                 onChange={(e) => setDraftValue(e.target.value)}
                 placeholder="نام و نام خانوادگی مالک"
                 type="text"
                 value={draftValue}
               />
               {errorMessage ? (
-                <Typography as="span" variant="label" size="small" className="text-xs text-error">
+                <Typography as="span" variant="label" size="small" className="text-error text-xs">
                   {errorMessage}
                 </Typography>
               ) : null}
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
-                  className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var"
+                  className="text-on-surface-var rounded-md px-3 py-1 text-xs font-medium"
                   disabled={isSaving}
                   onClick={handleCancelEdit}
                   type="button"
@@ -177,7 +181,7 @@ export function AgencyOwnerContactBottomSheet({
                   انصراف
                 </button>
                 <button
-                  className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-on-primary disabled:opacity-50"
+                  className="bg-primary text-on-primary rounded-md px-3 py-1 text-xs font-medium disabled:opacity-50"
                   disabled={isSaving}
                   onClick={handleSaveEdit}
                   type="button"
@@ -190,7 +194,7 @@ export function AgencyOwnerContactBottomSheet({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <LinearUserSolid className="h-5 w-5 text-[#4D4D4D]" />
-                <Typography as="span" className="text-sm font-medium text-on-surface-var">
+                <Typography as="span" className="text-on-surface-var text-sm font-medium">
                   نام مالک
                 </Typography>
               </div>
@@ -204,7 +208,7 @@ export function AgencyOwnerContactBottomSheet({
                   <PencilIcon />
                 </button>
                 {name.trim() ? (
-                  <Typography as="span" className="text-sm font-semibold text-on-surface">
+                  <Typography as="span" className="text-on-surface text-sm font-semibold">
                     {name.trim()}
                   </Typography>
                 ) : (
@@ -224,26 +228,32 @@ export function AgencyOwnerContactBottomSheet({
           {editingField === "phone" ? (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium text-on-surface-var">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="small"
+                  weight="medium"
+                  className="text-on-surface-var text-xs font-medium"
+                >
                   ویرایش شماره همراه
                 </Typography>
               </div>
               <input
                 autoFocus
-                className="w-full rounded-lg border border-outline-var bg-surface-container px-3 py-2 text-sm text-on-surface outline-none focus:border-primary [direction:ltr]"
+                className="border-outline-var bg-surface-container text-on-surface focus:border-primary w-full rounded-lg border px-3 py-2 text-sm outline-none [direction:ltr]"
                 onChange={(e) => setDraftValue(e.target.value)}
                 placeholder="۰۹۱۲۳۴۵۶۷۸۹"
                 type="tel"
                 value={draftValue}
               />
               {errorMessage ? (
-                <Typography as="span" variant="label" size="small" className="text-xs text-error">
+                <Typography as="span" variant="label" size="small" className="text-error text-xs">
                   {errorMessage}
                 </Typography>
               ) : null}
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
-                  className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var"
+                  className="text-on-surface-var rounded-md px-3 py-1 text-xs font-medium"
                   disabled={isSaving}
                   onClick={handleCancelEdit}
                   type="button"
@@ -251,7 +261,7 @@ export function AgencyOwnerContactBottomSheet({
                   انصراف
                 </button>
                 <button
-                  className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-on-primary disabled:opacity-50"
+                  className="bg-primary text-on-primary rounded-md px-3 py-1 text-xs font-medium disabled:opacity-50"
                   disabled={isSaving}
                   onClick={handleSaveEdit}
                   type="button"
@@ -264,7 +274,7 @@ export function AgencyOwnerContactBottomSheet({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <LinearCall className="h-5 w-5 text-[#4D4D4D]" />
-                <Typography as="span" className="text-sm font-medium text-on-surface-var">
+                <Typography as="span" className="text-on-surface-var text-sm font-medium">
                   شماره همراه
                 </Typography>
               </div>
@@ -279,7 +289,7 @@ export function AgencyOwnerContactBottomSheet({
                 </button>
                 {phone.trim() ? (
                   <a
-                    className="text-sm font-semibold text-on-surface no-underline"
+                    className="text-on-surface text-sm font-semibold no-underline"
                     href={`tel:${phoneHref}`}
                   >
                     {phoneDisplay}
@@ -301,26 +311,32 @@ export function AgencyOwnerContactBottomSheet({
           {editingField === "address" ? (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium text-on-surface-var">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="small"
+                  weight="medium"
+                  className="text-on-surface-var text-xs font-medium"
+                >
                   ویرایش نشانی دقیق
                 </Typography>
               </div>
               <textarea
                 autoFocus
-                className="w-full rounded-lg border border-outline-var bg-surface-container px-3 py-2 text-sm text-on-surface outline-none focus:border-primary"
+                className="border-outline-var bg-surface-container text-on-surface focus:border-primary w-full rounded-lg border px-3 py-2 text-sm outline-none"
                 onChange={(e) => setDraftValue(e.target.value)}
                 placeholder="نشانی دقیق ملک"
                 rows={2}
                 value={draftValue}
               />
               {errorMessage ? (
-                <Typography as="span" variant="label" size="small" className="text-xs text-error">
+                <Typography as="span" variant="label" size="small" className="text-error text-xs">
                   {errorMessage}
                 </Typography>
               ) : null}
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
-                  className="rounded-md px-3 py-1 text-xs font-medium text-on-surface-var"
+                  className="text-on-surface-var rounded-md px-3 py-1 text-xs font-medium"
                   disabled={isSaving}
                   onClick={handleCancelEdit}
                   type="button"
@@ -328,7 +344,7 @@ export function AgencyOwnerContactBottomSheet({
                   انصراف
                 </button>
                 <button
-                  className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-on-primary disabled:opacity-50"
+                  className="bg-primary text-on-primary rounded-md px-3 py-1 text-xs font-medium disabled:opacity-50"
                   disabled={isSaving}
                   onClick={handleSaveEdit}
                   type="button"
@@ -342,7 +358,7 @@ export function AgencyOwnerContactBottomSheet({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <LinearLocation className="h-5 w-5 text-[#4D4D4D]" />
-                  <Typography as="span" className="text-sm font-medium text-on-surface-var">
+                  <Typography as="span" className="text-on-surface-var text-sm font-medium">
                     نشانی دقیق آگهی
                   </Typography>
                 </div>
@@ -356,7 +372,10 @@ export function AgencyOwnerContactBottomSheet({
                 </button>
               </div>
               {address.trim() ? (
-                <Typography as="p" className="mt-2 text-right text-sm font-medium leading-6 text-on-surface">
+                <Typography
+                  as="p"
+                  className="text-on-surface mt-2 text-right text-sm leading-6 font-medium"
+                >
                   {address.trim()}
                 </Typography>
               ) : (

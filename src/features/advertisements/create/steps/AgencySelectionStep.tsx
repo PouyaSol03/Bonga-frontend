@@ -79,13 +79,15 @@ function SearchIcon() {
 function LocationIcon() {
   return (
     <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 20 20">
-      <path d="M15.8 8.2c0 3.9-5.8 8.3-5.8 8.3S4.2 12.1 4.2 8.2a5.8 5.8 0 1 1 11.6 0Z" stroke="currentColor" strokeWidth="1.45" />
+      <path
+        d="M15.8 8.2c0 3.9-5.8 8.3-5.8 8.3S4.2 12.1 4.2 8.2a5.8 5.8 0 1 1 11.6 0Z"
+        stroke="currentColor"
+        strokeWidth="1.45"
+      />
       <circle cx="10" cy="8.1" r="2" stroke="currentColor" strokeWidth="1.45" />
     </svg>
   );
 }
-
-
 
 function AgencyCard({
   agency,
@@ -107,38 +109,108 @@ function AgencyCard({
       className={`mx-4 overflow-hidden rounded-[13px] border transition-colors ${selected ? "border-primary bg-primary-container/20" : "border-outline-var bg-surface-container-lowest"}`}
       ref={loadMoreRef}
     >
-      <Button unstyled className="flex w-full gap-4 px-4 pb-4 pt-4 text-right" onClick={onSelect} type="button">
+      <Button
+        unstyled
+        className="flex w-full gap-4 px-4 pt-4 pb-4 text-right"
+        onClick={onSelect}
+        type="button"
+      >
         {image ? (
           <img alt="" className="h-[72px] w-[72px] shrink-0 rounded-xl object-cover" src={image} />
         ) : (
-          <Typography as="span" variant="headline" size="small" className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl bg-primary-container text-2xl font-bold text-primary">
+          <Typography
+            as="span"
+            variant="headline"
+            size="small"
+            className="bg-primary-container text-primary grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl text-2xl font-bold"
+          >
             {agency.name.trim().charAt(0) || "آ"}
           </Typography>
         )}
 
-        <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 flex-col justify-between py-1.5">
-          <strong className="truncate text-base font-medium text-on-surface-var">{agency.name}</strong>
-          <Typography as="span" variant="body" size="small" weight="regular" className="flex items-center justify-between text-xs text-on-surface">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1"><LinearStar className="w-4 h-4 text-on-surface-var"/><Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography><b className="font-semibold text-tertiary px-2">{agency.score}</b></Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1"><LinearRanking className="w-4 h-4 text-on-surface-var"/><Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography><b className="font-semibold text-tertiary px-2">{agency.rank}</b></Typography>
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="flex min-w-0 flex-1 flex-col justify-between py-1.5"
+        >
+          <strong className="text-on-surface-var truncate text-base font-medium">
+            {agency.name}
+          </strong>
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-on-surface flex items-center justify-between text-xs"
+          >
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="flex items-center gap-1"
+            >
+              <LinearStar className="text-on-surface-var h-4 w-4" />
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                امتیاز
+              </Typography>
+              <b className="text-tertiary px-2 font-semibold">{agency.score}</b>
+            </Typography>
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="flex items-center gap-1"
+            >
+              <LinearRanking className="text-on-surface-var h-4 w-4" />
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                رتبه
+              </Typography>
+              <b className="text-tertiary px-2 font-semibold">{agency.rank}</b>
+            </Typography>
           </Typography>
         </Typography>
       </Button>
 
-      <div className="mx-4 h-px bg-outline-var" />
+      <div className="bg-outline-var mx-4 h-px" />
 
       <div className="flex h-[58px] items-center justify-between gap-3 px-4" dir="rtl">
-        <Button unstyled className="flex items-center gap-3 text-on-surface-var" onClick={onSelect} type="button">
+        <Button
+          unstyled
+          className="text-on-surface-var flex items-center gap-3"
+          onClick={onSelect}
+          type="button"
+        >
           <RadioIndicator checked={selected} />
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">انتخاب</Typography>
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-sm font-medium"
+          >
+            انتخاب
+          </Typography>
         </Button>
-        <Button unstyled
-          className={`flex h-10 px-4 py-2.5 items-center justify-center gap-2 rounded-xl border ${selected ? "border-primary text-primary" : "border-outline-var text-on-surface"}`}
+        <Button
+          unstyled
+          className={`flex h-10 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 ${selected ? "border-primary text-primary" : "border-outline-var text-on-surface"}`}
           onClick={onOpenProfile}
           type="button"
         >
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">مشاهده پروفایل آژانس</Typography>
-          <LinearArrowLeft2 className="text-on-surface-var w-5 h-5"/>
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-sm font-medium"
+          >
+            مشاهده پروفایل آژانس
+          </Typography>
+          <LinearArrowLeft2 className="text-on-surface-var h-5 w-5" />
         </Button>
       </div>
     </article>
@@ -147,13 +219,29 @@ function AgencyCard({
 
 function Notice({ onClose }: { onClose: () => void }) {
   return (
-    <aside className="mx-4 rounded-[13px] border border-warning bg-warning-container/30 px-4 py-4 text-on-surface-var">
+    <aside className="border-warning bg-warning-container/30 text-on-surface-var mx-4 rounded-[13px] border px-4 py-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-warning">
-          <Typography as="span" variant="label" size="small" weight="semibold" className="grid h-5 w-5 place-items-center rounded-full border border-current text-xs font-bold">!</Typography>
+        <div className="text-warning flex items-center gap-2">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="semibold"
+            className="grid h-5 w-5 place-items-center rounded-full border border-current text-xs font-bold"
+          >
+            !
+          </Typography>
           <strong className="text-base">توجه!</strong>
         </div>
-        <Button unstyled aria-label="بستن پیام" className="grid h-8 w-8 place-items-center text-xl" onClick={onClose} type="button">×</Button>
+        <Button
+          unstyled
+          aria-label="بستن پیام"
+          className="grid h-8 w-8 place-items-center text-xl"
+          onClick={onClose}
+          type="button"
+        >
+          ×
+        </Button>
       </div>
       <ul className="m-0 mt-3 list-disc space-y-2 pr-5 text-sm leading-7">
         <li>پس از انتخاب آژانس، امکان ویرایش آگهی وجود نخواهد داشت.</li>
@@ -165,9 +253,16 @@ function Notice({ onClose }: { onClose: () => void }) {
 
 function LoadingCard() {
   return (
-    <div className="mx-4 h-[164px] animate-pulse rounded-[13px] border border-outline-var bg-surface-container-lowest p-4">
-      <div className="flex gap-4"><div className="h-[72px] w-[72px] rounded-xl bg-surface-container" /><div className="flex-1"><div className="h-5 w-2/3 rounded bg-surface-container" /><div className="mt-5 h-4 w-full rounded bg-surface-container" /></div></div>
-      <div className="mt-4 h-px bg-outline-var" /><div className="mt-3 h-9 rounded-xl bg-surface-container" />
+    <div className="border-outline-var bg-surface-container-lowest mx-4 h-[164px] animate-pulse rounded-[13px] border p-4">
+      <div className="flex gap-4">
+        <div className="bg-surface-container h-[72px] w-[72px] rounded-xl" />
+        <div className="flex-1">
+          <div className="bg-surface-container h-5 w-2/3 rounded" />
+          <div className="bg-surface-container mt-5 h-4 w-full rounded" />
+        </div>
+      </div>
+      <div className="bg-outline-var mt-4 h-px" />
+      <div className="bg-surface-container mt-3 h-9 rounded-xl" />
     </div>
   );
 }
@@ -219,27 +314,22 @@ export function AgencySelectionStep({
     () => agenciesQuery.data?.pages.flatMap((page) => page.data) ?? [],
     [agenciesQuery.data],
   );
-  const selectedAgency = useMemo(
-    () => {
-      if (selectedAgencyCache?.id === selectedAgencyId) {
-        return selectedAgencyCache;
-      }
+  const selectedAgency = useMemo(() => {
+    if (selectedAgencyCache?.id === selectedAgencyId) {
+      return selectedAgencyCache;
+    }
 
-      const agencyFromCurrentResults = agencies.find(
-        (agency) => agency.id === selectedAgencyId,
-      );
+    const agencyFromCurrentResults = agencies.find((agency) => agency.id === selectedAgencyId);
 
-      if (agencyFromCurrentResults) return agencyFromCurrentResults;
+    if (agencyFromCurrentResults) return agencyFromCurrentResults;
 
-      if (!selectedAgencyId || !selectedAgencyName?.trim()) return null;
+    if (!selectedAgencyId || !selectedAgencyName?.trim()) return null;
 
-      return {
-        id: selectedAgencyId,
-        name: selectedAgencyName.trim(),
-      } satisfies SelectedAgency;
-    },
-    [agencies, selectedAgencyCache, selectedAgencyId, selectedAgencyName],
-  );
+    return {
+      id: selectedAgencyId,
+      name: selectedAgencyName.trim(),
+    } satisfies SelectedAgency;
+  }, [agencies, selectedAgencyCache, selectedAgencyId, selectedAgencyName]);
   const mapItems = useMemo(() => agencies.map(agencyToMapItem), [agencies]);
   const preloadIndex = Math.max(agencies.length - loadMoreRemainingCount - 1, 0);
 
@@ -269,10 +359,9 @@ export function AgencySelectionStep({
   };
 
   const openProfile = (agency: PublicAgencyDto) => {
-    navigate(
-      `/agencies/${encodeURIComponent(agency.id)}`,
-      { state: { [preserveNewAdDraftStateKey]: true } },
-    );
+    navigate(`/agencies/${encodeURIComponent(agency.id)}`, {
+      state: { [preserveNewAdDraftStateKey]: true },
+    });
   };
 
   if (isNeighborhoodOpen) {
@@ -334,27 +423,54 @@ export function AgencySelectionStep({
   return (
     <>
       <TopBar onBack={onBack} title="ثبت آگهی / انتخاب آژانس" />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-28" dir="rtl">
-        <div className="sticky top-0 z-20 bg-surface-container px-4 pb-3 pt-4 shadow-[0_1px_0_rgba(0,0,0,0.02)]">
-          <label className="flex h-12 items-center gap-3 rounded-xl border border-outline bg-surface-container-lowest px-4 text-on-surface-var focus-within:border-primary">
+      <main
+        className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-28"
+        dir="rtl"
+      >
+        <div className="bg-surface-container sticky top-0 z-20 px-4 pt-4 pb-3 shadow-[0_1px_0_rgba(0,0,0,0.02)]">
+          <label className="border-outline bg-surface-container-lowest text-on-surface-var focus-within:border-primary flex h-12 items-center gap-3 rounded-xl border px-4">
             <SearchIcon />
             <input
-              className="min-w-0 flex-1 border-0 bg-transparent text-right text-base outline-none placeholder:text-outline"
+              className="placeholder:text-outline min-w-0 flex-1 border-0 bg-transparent text-right text-base outline-none"
               onChange={(event) => setSearch(event.target.value)}
               placeholder="جستجوی آژانس"
               value={search}
             />
           </label>
           <div className="mt-2 flex items-center justify-start gap-2">
-            <Button unstyled className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${selectedNeighborhood ? "border-primary bg-primary-container text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface-var"}`} onClick={() => {
+            <Button
+              unstyled
+              className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${selectedNeighborhood ? "border-primary bg-primary-container text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface-var"}`}
+              onClick={() => {
                 setPendingNeighborhood(selectedNeighborhood);
                 setNeighborhoodSearch("");
                 setIsNeighborhoodOpen(true);
-              }} type="button">
-              <LocationIcon /><Typography as="span" variant="body" size="medium" weight="regular" className="max-w-28 truncate">{selectedNeighborhood?.name ?? "محله"}</Typography>
+              }}
+              type="button"
+            >
+              <LocationIcon />
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="max-w-28 truncate"
+              >
+                {selectedNeighborhood?.name ?? "محله"}
+              </Typography>
             </Button>
-            <Button unstyled className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${sort !== "score" ? "border-primary bg-primary-container text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface-var"}`} onClick={() => setIsSortOpen(true)} type="button">
-              <SortIcon className="h-5 w-5 text-on-surface-var" /><Typography as="span" variant="body" size="medium" weight="regular">{sort === "score" ? "مرتب سازی" : sortOptions.find((item) => item.id === sort)?.title}</Typography>
+            <Button
+              unstyled
+              className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm ${sort !== "score" ? "border-primary bg-primary-container text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface-var"}`}
+              onClick={() => setIsSortOpen(true)}
+              type="button"
+            >
+              <SortIcon className="text-on-surface-var h-5 w-5" />
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                {sort === "score"
+                  ? "مرتب سازی"
+                  : sortOptions.find((item) => item.id === sort)?.title}
+              </Typography>
             </Button>
           </div>
         </div>
@@ -363,11 +479,22 @@ export function AgencySelectionStep({
           {showNotice ? <Notice onClose={() => setShowNotice(false)} /> : null}
 
           {agenciesQuery.isLoading ? (
-            <><LoadingCard /><LoadingCard /><LoadingCard /></>
+            <>
+              <LoadingCard />
+              <LoadingCard />
+              <LoadingCard />
+            </>
           ) : agenciesQuery.isError ? (
-            <div className="mx-4 rounded-xl border border-error/30 bg-error-container/30 px-4 py-6 text-center text-sm leading-6 text-error">
+            <div className="border-error/30 bg-error-container/30 text-error mx-4 rounded-xl border px-4 py-6 text-center text-sm leading-6">
               دریافت فهرست آژانس‌ها با خطا مواجه شد.
-              <Button unstyled className="mt-3 block w-full font-semibold text-primary" onClick={() => void agenciesQuery.refetch()} type="button">تلاش دوباره</Button>
+              <Button
+                unstyled
+                className="text-primary mt-3 block w-full font-semibold"
+                onClick={() => void agenciesQuery.refetch()}
+                type="button"
+              >
+                تلاش دوباره
+              </Button>
             </div>
           ) : agencies.length === 0 ? (
             <SearchEmptyState />
@@ -388,12 +515,24 @@ export function AgencySelectionStep({
         </div>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-30 flex h-[76px] items-center gap-3 border-t border-outline-var bg-surface-container-lowest px-4" dir="rtl">
-        <Button unstyled className="flex h-12 w-[100px] shrink-0 items-center justify-center gap-2 rounded-xl border border-outline-var bg-surface-container-lowest text-base font-semibold text-on-surface active:bg-surface-container" onClick={() => setView("map")} type="button">
-          <LinearMapsLocation className="w-6 h-6 text-on-surface-var" /><Typography as="span" variant="body" size="medium" weight="regular">نقشه</Typography>
+      <footer
+        className="border-outline-var bg-surface-container-lowest absolute inset-x-0 bottom-0 z-30 flex h-[76px] items-center gap-3 border-t px-4"
+        dir="rtl"
+      >
+        <Button
+          unstyled
+          className="border-outline-var bg-surface-container-lowest text-on-surface active:bg-surface-container flex h-12 w-[100px] shrink-0 items-center justify-center gap-2 rounded-xl border text-base font-semibold"
+          onClick={() => setView("map")}
+          type="button"
+        >
+          <LinearMapsLocation className="text-on-surface-var h-6 w-6" />
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            نقشه
+          </Typography>
         </Button>
-        <Button unstyled
-          className="h-12 min-w-0 flex-1 rounded-xl bg-primary px-4 text-base font-semibold text-on-primary disabled:bg-surface-container-high disabled:text-outline"
+        <Button
+          unstyled
+          className="bg-primary text-on-primary disabled:bg-surface-container-high disabled:text-outline h-12 min-w-0 flex-1 rounded-xl px-4 text-base font-semibold"
           disabled={!selectedAgency || submitDisabled}
           onClick={() => {
             if (!submitDisabled && selectedAgency) onConfirm(selectedAgency);
@@ -415,23 +554,33 @@ export function AgencySelectionStep({
       >
         <div className="px-4 pt-4" dir="rtl">
           <div className="flex h-14 items-center gap-2">
-            <Button unstyled
+            <Button
+              unstyled
               aria-label="بازگشت"
-              className="grid h-10 w-10 shrink-0 place-items-center text-on-surface-var"
+              className="text-on-surface-var grid h-10 w-10 shrink-0 place-items-center"
               onClick={() => setIsSortOpen(false)}
               type="button"
             >
               <LinearArrowRight2 aria-hidden="true" className="h-6 w-6" />
             </Button>
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-semibold leading-7 text-on-surface">مرتب سازی بر اساس:</Typography>
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="text-on-surface m-0 text-lg leading-7 font-semibold"
+            >
+              مرتب سازی بر اساس:
+            </Typography>
           </div>
 
           <div className="pt-1">
             {sortOptions.map((item) => {
               const checked = sort === item.id;
               return (
-                <Button unstyled
-                  className="flex h-[64px] w-full items-center justify-between text-right text-base font-normal text-on-surface active:bg-surface-container"
+                <Button
+                  unstyled
+                  className="text-on-surface active:bg-surface-container flex h-[64px] w-full items-center justify-between text-right text-base font-normal"
                   key={item.id}
                   onClick={() => {
                     setSort(item.id);
@@ -439,7 +588,9 @@ export function AgencySelectionStep({
                   }}
                   type="button"
                 >
-                  <Typography as="span" variant="body" size="medium" weight="regular">{item.title}</Typography>
+                  <Typography as="span" variant="body" size="medium" weight="regular">
+                    {item.title}
+                  </Typography>
                   <RadioIndicator checked={checked} />
                 </Button>
               );

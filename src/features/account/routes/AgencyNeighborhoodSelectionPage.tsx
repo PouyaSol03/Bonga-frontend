@@ -15,10 +15,7 @@ import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { SearchInputBar } from "../../../shared/ui/SearchBar";
 import { Typography } from "../../../shared/ui/Typography";
 import { useToast } from "../../../shared/hooks/useToast";
-import {
-  readAgencyCreationDraft,
-  writeAgencyCreationDraft,
-} from "../agencyCreationDraft";
+import { readAgencyCreationDraft, writeAgencyCreationDraft } from "../agencyCreationDraft";
 import { getNeighborhoodId } from "../businessCreationShared";
 
 const AGENCY_CREATE_PATH = "/account/business/create/agency";
@@ -35,20 +32,15 @@ function useDebouncedValue(value: string, delay: number) {
   return debouncedValue;
 }
 
-
-
 function NeighborhoodSkeleton() {
   return (
     <div className="pt-2">
       {Array.from({ length: 6 }, (_, index) => (
-        <div
-          className="flex min-h-[88px] items-center gap-5 px-9 py-2 [direction:ltr]"
-          key={index}
-        >
-          <div className="h-[18px] w-[18px] shrink-0 animate-pulse rounded-[4px] bg-surface-container-high" />
+        <div className="flex min-h-[88px] items-center gap-5 px-9 py-2 [direction:ltr]" key={index}>
+          <div className="bg-surface-container-high h-[18px] w-[18px] shrink-0 animate-pulse rounded-[4px]" />
           <div className="min-w-0 flex-1 space-y-2 [direction:rtl]">
-            <div className="mr-auto h-5 w-28 animate-pulse rounded bg-surface-container-high" />
-            <div className="mr-auto h-4 w-4/5 animate-pulse rounded bg-surface-container" />
+            <div className="bg-surface-container-high mr-auto h-5 w-28 animate-pulse rounded" />
+            <div className="bg-surface-container mr-auto h-4 w-4/5 animate-pulse rounded" />
           </div>
         </div>
       ))}
@@ -121,11 +113,13 @@ export function AgencyNeighborhoodSelectionPage() {
 
   return (
     <div
-      className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface relative flex h-full min-h-0 flex-1 flex-col overflow-hidden"
       dir="rtl"
     >
-      <header className={`${pendingNeighborhoods.length > 0 ? "h-28" : "h-14"} shrink-0 bg-surface-container`}>
-        <div className="flex h-14 items-end gap-2 pl-4 pr-2 [direction:ltr]">
+      <header
+        className={`${pendingNeighborhoods.length > 0 ? "h-28" : "h-14"} bg-surface-container shrink-0`}
+      >
+        <div className="flex h-14 items-end gap-2 pr-2 pl-4 [direction:ltr]">
           <SearchInputBar
             aria-label="جستجو محله"
             containerClassName="h-12 flex-1 border-outline px-4 [&_input::placeholder]:text-outline"
@@ -139,7 +133,7 @@ export function AgencyNeighborhoodSelectionPage() {
           <Button
             unstyled
             aria-label="بازگشت"
-            className="grid h-12 w-8 shrink-0 place-items-center text-on-surface [-webkit-tap-highlight-color:transparent]"
+            className="text-on-surface grid h-12 w-8 shrink-0 place-items-center [-webkit-tap-highlight-color:transparent]"
             onClick={returnToAgencyForm}
             type="button"
           >
@@ -150,7 +144,7 @@ export function AgencyNeighborhoodSelectionPage() {
         {pendingNeighborhoods.length > 0 ? (
           <div className="flex h-14 items-start overflow-hidden px-4 pt-3">
             <div
-              className="flex w-full items-center gap-2 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex w-full [scrollbar-width:none] items-center gap-2 overflow-x-auto overscroll-x-contain [&::-webkit-scrollbar]:hidden"
               dir="rtl"
             >
               {pendingNeighborhoods.map((neighborhood) => {
@@ -171,14 +165,14 @@ export function AgencyNeighborhoodSelectionPage() {
         ) : null}
       </header>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-[68px] pt-2 [-webkit-overflow-scrolling:touch]">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-2 pb-[68px] [-webkit-overflow-scrolling:touch]">
         {!cityId ? (
           <Typography
             as="p"
             variant="body"
             size="medium"
             weight="regular"
-            className="mx-auto flex min-h-[320px] w-full items-center justify-center px-8 text-center text-outline"
+            className="text-outline mx-auto flex min-h-[320px] w-full items-center justify-center px-8 text-center"
           >
             ابتدا شهر خود را از صفحه خانه انتخاب کنید.
           </Typography>
@@ -191,13 +185,13 @@ export function AgencyNeighborhoodSelectionPage() {
               variant="body"
               size="medium"
               weight="regular"
-              className="m-0 text-error"
+              className="text-error m-0"
             >
               دریافت محله‌ها با خطا مواجه شد.
             </Typography>
             <Button
               unstyled
-              className="mt-3 text-primary"
+              className="text-primary mt-3"
               onClick={() => void neighborhoodsQuery.refetch()}
               type="button"
             >
@@ -215,7 +209,7 @@ export function AgencyNeighborhoodSelectionPage() {
               variant="body"
               size="medium"
               weight="regular"
-              className="mx-auto m-0 w-full px-8 py-10 text-center text-outline"
+              className="text-outline m-0 mx-auto w-full px-8 py-10 text-center"
             >
               محله‌ای برای این شهر ثبت نشده است.
             </Typography>
@@ -231,7 +225,7 @@ export function AgencyNeighborhoodSelectionPage() {
                 <Button
                   unstyled
                   aria-pressed={isSelected}
-                  className="flex min-h-[88px] w-full items-center gap-5 px-9 py-2 text-right [-webkit-tap-highlight-color:transparent] active:bg-surface-container [direction:ltr]"
+                  className="active:bg-surface-container flex min-h-[88px] w-full items-center gap-5 px-9 py-2 text-right [-webkit-tap-highlight-color:transparent] [direction:ltr]"
                   key={neighborhoodId}
                   onClick={() => toggleNeighborhood(neighborhood)}
                   type="button"
@@ -247,7 +241,7 @@ export function AgencyNeighborhoodSelectionPage() {
                       variant="body"
                       size="large"
                       weight="regular"
-                      className="block truncate text-right text-on-surface"
+                      className="text-on-surface block truncate text-right"
                     >
                       {neighborhood.name}
                     </Typography>
@@ -257,7 +251,7 @@ export function AgencyNeighborhoodSelectionPage() {
                         variant="body"
                         size="medium"
                         weight="regular"
-                        className="mt-1 block line-clamp-2 text-right text-outline"
+                        className="text-outline mt-1 line-clamp-2 block text-right"
                       >
                         {description}
                       </Typography>
@@ -270,14 +264,8 @@ export function AgencyNeighborhoodSelectionPage() {
         )}
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 h-[68px] bg-surface-container-lowest px-4 py-[14px] shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
-        <Button
-          fullWidth
-          onClick={handleConfirm}
-          size="x-medium"
-          type="button"
-          variant="primary"
-        >
+      <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 z-20 h-[68px] px-4 py-[14px] shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
+        <Button fullWidth onClick={handleConfirm} size="x-medium" type="button" variant="primary">
           تایید
         </Button>
       </footer>

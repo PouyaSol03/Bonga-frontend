@@ -38,18 +38,18 @@ export function DashboardInactiveConsultantsPage() {
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white text-on-surface [direction:rtl]"
+      className="text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-white [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backTo="/account/dashboard"
         backIconDirection="right"
-        className="bg-[#F0F0F0] border-b border-[#E0E0E0]"
+        className="border-b border-[#E0E0E0] bg-[#F0F0F0]"
         contentClassName="px-3"
         title="مشاور بدون فعالیت"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto p-4 bg-white">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-white p-4">
         {/* Notice Box */}
         {showNotice && (
           <div className="relative mb-4 flex flex-col rounded-[16px] bg-[#0048C4]/[0.08] p-4 text-right">
@@ -85,7 +85,7 @@ export function DashboardInactiveConsultantsPage() {
               <button
                 type="button"
                 onClick={() => setShowNotice(false)}
-                className="text-[#0048C4] transition-opacity p-0.5"
+                className="p-0.5 text-[#0048C4] transition-opacity"
                 aria-label="بستن پیام"
               >
                 <svg
@@ -110,7 +110,7 @@ export function DashboardInactiveConsultantsPage() {
               variant="label"
               size="small"
               weight="medium"
-              className="mt-2 text-[#002099] text-xs leading-5"
+              className="mt-2 text-xs leading-5 text-[#002099]"
             >
               در ۷ روز گذشته هیچگونه فعالیت موثری از این مشاوران مشاهده نشده
             </Typography>
@@ -120,7 +120,7 @@ export function DashboardInactiveConsultantsPage() {
               variant="label"
               size="small"
               weight="semibold"
-              className="mt-2 font-bold text-[#002099] text-xs"
+              className="mt-2 text-xs font-bold text-[#002099]"
             >
               نوع فعالیت های موثر:
             </Typography>
@@ -130,7 +130,7 @@ export function DashboardInactiveConsultantsPage() {
               variant="label"
               size="small"
               weight="medium"
-              className="mt-1 text-[#002099] text-[11px] leading-relaxed"
+              className="mt-1 text-[11px] leading-relaxed text-[#002099]"
             >
               • ثبت آگهی • بازدید سرنخ • پیگیری سرنخ • پاسخ به مشتری
             </Typography>
@@ -150,7 +150,7 @@ export function DashboardInactiveConsultantsPage() {
                 <img
                   src={consultant.avatarUrl}
                   alt={consultant.name}
-                  className="h-14 w-14 shrink-0 rounded-full object-cover bg-gray-100"
+                  className="h-14 w-14 shrink-0 rounded-full bg-gray-100 object-cover"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src =
                       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80";
@@ -163,7 +163,7 @@ export function DashboardInactiveConsultantsPage() {
                     variant="label"
                     size="medium"
                     weight="semibold"
-                    className="font-bold text-sm text-[#1A1A1A]"
+                    className="text-sm font-bold text-[#1A1A1A]"
                   >
                     {consultant.name}
                   </Typography>

@@ -24,7 +24,9 @@ export function syncEditLocationStorage(
   }
 
   const lat = numericInputText(ad.lat ?? ad.latitude ?? (ad.location as any)?.coordinates?.[1]);
-  const lng = numericInputText(ad.lng ?? ad.long ?? ad.longitude ?? (ad.location as any)?.coordinates?.[0]);
+  const lng = numericInputText(
+    ad.lng ?? ad.long ?? ad.longitude ?? (ad.location as any)?.coordinates?.[0],
+  );
   const neighborhoodId =
     readTextValue(ad, features, ["neighborhood_id"], ["neighborhood_id"]) ||
     readText((ad.neighborhood as any)?.id) ||
@@ -36,7 +38,8 @@ export function syncEditLocationStorage(
 
   if (!existingLat && lat) window.localStorage.setItem(locationLatKey, lat);
   if (!existingLng && lng) window.localStorage.setItem(locationLngKey, lng);
-  if (!existingNeighborhoodId && neighborhoodId) window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
+  if (!existingNeighborhoodId && neighborhoodId)
+    window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
   if (!window.localStorage.getItem(subNeighborhoodIdKey) && subNeighborhoodId) {
     window.localStorage.setItem(subNeighborhoodIdKey, subNeighborhoodId);
   }

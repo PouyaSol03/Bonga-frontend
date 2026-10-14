@@ -52,7 +52,14 @@ import {
   getParams,
 } from "../utils";
 import { getFormSchemaByListing } from "../../forms";
-import type { MoreFeatureFormKey, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues, SelectKey, SheetState } from "../types";
+import type {
+  MoreFeatureFormKey,
+  NewAdFieldErrorKey,
+  NewAdFieldErrors,
+  NewAdFormValues,
+  SelectKey,
+  SheetState,
+} from "../types";
 import {
   Chip,
   Footer,
@@ -75,9 +82,7 @@ import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
 
 function toggleArray(current: string[], id: string) {
-  return current.includes(id)
-    ? current.filter((item) => item !== id)
-    : [...current, id];
+  return current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
 }
 
 function moneySupportingText(value: string, includeCurrency = true) {
@@ -98,14 +103,13 @@ function formatFacilityChipLabel(label: string, countStr?: string) {
   if (!countStr) return undefined;
   const num = parseInt(
     countStr.replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))),
-    10
+    10,
   );
   if (num > 1) {
     return `${label} (${formatPersianCount(num)})`;
   }
   return label;
 }
-
 
 function ExchangeCheckIcon({ checked }: { checked: boolean }) {
   return <ChoiceIndicator checked={checked} />;
@@ -129,7 +133,7 @@ function PriceToggleRow({
         variant="label"
         size="large"
         weight="semibold"
-        className="text-right text-on-surface [direction:rtl]"
+        className="text-on-surface text-right [direction:rtl]"
       >
         {label}
       </Typography>
@@ -170,7 +174,8 @@ export function DetailsStep({
   const isProject = transaction === "project";
   const isPartnership = isProject && category === "project-partnership";
   const isRent = formSchema?.create?.pricing?.mode === "rent" || transaction === "rent";
-  const isDailyRent = formSchema?.create?.pricing?.mode === "dailyRent" || (isRent && category.startsWith("daily-"));
+  const isDailyRent =
+    formSchema?.create?.pricing?.mode === "dailyRent" || (isRent && category.startsWith("daily-"));
   const isDailyHotelRent = isRent && category === "daily-hotel-apartment";
   const isDailyApartmentRent = isRent && category === "daily-apartment-suite";
   const isDailyVillaRent = isRent && category === "daily-garden-villa";
@@ -189,13 +194,17 @@ export function DetailsStep({
   const isRentHotel = transaction === "rent" && category === "hotel-apartment";
   const isRentCommercial = transaction === "rent" && category === "commercial-unit";
   const isRentFactory = transaction === "rent" && category === "factory-workshop";
-  const isSaleResidential = transaction === "sale" && ["apartment", "villa-house", "land"].includes(category);
-  const isRentResidential = transaction === "rent" && ["apartment", "villa-house", "garden-villa"].includes(category);
-  const hideHeatingCooling = formSchema?.create?.heatingCooling?.enabled === false || isPartnership || category === "land";
+  const isSaleResidential =
+    transaction === "sale" && ["apartment", "villa-house", "land"].includes(category);
+  const isRentResidential =
+    transaction === "rent" && ["apartment", "villa-house", "garden-villa"].includes(category);
+  const hideHeatingCooling =
+    formSchema?.create?.heatingCooling?.enabled === false || isPartnership || category === "land";
   const showFacilitiesSection = formSchema?.create?.facilities?.enabled !== false && !isPartnership;
   const allowLoan = formSchema?.create?.pricing?.loan ?? !isSaleGardenVilla;
   const allowExchange = formSchema?.create?.pricing?.exchange ?? true;
-  const allowRentConversion = formSchema?.create?.pricing?.rentConversion !== false && !isPartnership && isRent;
+  const allowRentConversion =
+    formSchema?.create?.pricing?.rentConversion !== false && !isPartnership && isRent;
 
   const values = watch();
 
@@ -218,15 +227,12 @@ export function DetailsStep({
 
       if (Array.isArray(value) && value.length) {
         const displayValue = value.filter(Boolean).join("، ");
-        return displayValue
-          ? { key: field.key, label: `${field.label}: ${displayValue}` }
-          : null;
+        return displayValue ? { key: field.key, label: `${field.label}: ${displayValue}` } : null;
       }
 
       if (typeof value === "string" && value.trim()) {
-        const displayValue = field.key === "unitsPerFloor"
-          ? formatUnitsPerFloorLabel(value)
-          : value;
+        const displayValue =
+          field.key === "unitsPerFloor" ? formatUnitsPerFloorLabel(value) : value;
 
         if (!displayValue) return null;
 
@@ -255,57 +261,80 @@ export function DetailsStep({
     }
   }, [errors, extraMoreFeatureTags]);
 
-  const heatingItemsForListing = formSchema?.create?.heatingCooling?.items ?? (
-    isProject
+  const heatingItemsForListing =
+    formSchema?.create?.heatingCooling?.items ??
+    (isProject
       ? projectHeatingItems
       : isSaleApartment
-      ? saleApartmentHeatingItems
-      : isSaleVillaHouse
-        ? saleVillaHouseHeatingItems
-        : isSaleOffice
-          ? saleOfficeHeatingItems
-        : isSaleCommercial
-          ? saleCommercialHeatingItems
-          : isSaleFactory
-            ? saleFactoryHeatingItems
-            : isSaleHotel
-              ? saleHotelHeatingItems
-                : isDailyRent
-                  ? dailyRentHeatingItems
-                : isRentApartment || isRentVillaHouse || isRentOffice || isRentHotel || isRentCommercial || isRentFactory
-                  ? rentHeatingItems
-              : heatingItems
-  );
+        ? saleApartmentHeatingItems
+        : isSaleVillaHouse
+          ? saleVillaHouseHeatingItems
+          : isSaleOffice
+            ? saleOfficeHeatingItems
+            : isSaleCommercial
+              ? saleCommercialHeatingItems
+              : isSaleFactory
+                ? saleFactoryHeatingItems
+                : isSaleHotel
+                  ? saleHotelHeatingItems
+                  : isDailyRent
+                    ? dailyRentHeatingItems
+                    : isRentApartment ||
+                        isRentVillaHouse ||
+                        isRentOffice ||
+                        isRentHotel ||
+                        isRentCommercial ||
+                        isRentFactory
+                      ? rentHeatingItems
+                      : heatingItems);
 
-  const facilityItemsForCategory = useMemo(
-    () => {
-      if (formSchema?.create?.facilities?.items) {
-        return formSchema.create.facilities.items;
-      }
-      if (isProject) return projectFacilityItems;
-      if (isSaleApartment) return saleApartmentFacilityItems;
-      if (isSaleVillaHouse) return saleVillaHouseFacilityItems;
-      if (isSaleLand) return saleLandFacilityItems;
-      if (isSaleOffice) return saleOfficeFacilityItems;
-      if (isSaleCommercial) return saleCommercialFacilityItems;
-      if (isSaleFactory) return saleFactoryFacilityItems;
-      if (isSaleHotel) return saleHotelFacilityItems;
-      if (isRentApartment) return rentApartmentFacilityItems;
-      if (isRentVillaHouse) return rentVillaHouseFacilityItems;
-      if (isRentOffice) return rentOfficeFacilityItems;
-      if (isRentHotel) return rentHotelFacilityItems;
-      if (isRentCommercial) return rentCommercialFacilityItems;
-      if (isRentFactory) return rentFactoryFacilityItems;
-      if (isDailyApartmentRent || isDailyVillaRent) return dailyStayFacilityItems;
-      if (isDailyHotelRent) return dailyHotelFacilityItems;
-      if (isDailyWorkspaceRent) return dailyWorkspaceFacilityItems;
+  const facilityItemsForCategory = useMemo(() => {
+    if (formSchema?.create?.facilities?.items) {
+      return formSchema.create.facilities.items;
+    }
+    if (isProject) return projectFacilityItems;
+    if (isSaleApartment) return saleApartmentFacilityItems;
+    if (isSaleVillaHouse) return saleVillaHouseFacilityItems;
+    if (isSaleLand) return saleLandFacilityItems;
+    if (isSaleOffice) return saleOfficeFacilityItems;
+    if (isSaleCommercial) return saleCommercialFacilityItems;
+    if (isSaleFactory) return saleFactoryFacilityItems;
+    if (isSaleHotel) return saleHotelFacilityItems;
+    if (isRentApartment) return rentApartmentFacilityItems;
+    if (isRentVillaHouse) return rentVillaHouseFacilityItems;
+    if (isRentOffice) return rentOfficeFacilityItems;
+    if (isRentHotel) return rentHotelFacilityItems;
+    if (isRentCommercial) return rentCommercialFacilityItems;
+    if (isRentFactory) return rentFactoryFacilityItems;
+    if (isDailyApartmentRent || isDailyVillaRent) return dailyStayFacilityItems;
+    if (isDailyHotelRent) return dailyHotelFacilityItems;
+    if (isDailyWorkspaceRent) return dailyWorkspaceFacilityItems;
 
-      return category === "land" || category === "factory-workshop"
-        ? landFacilityItems
-        : facilityItems;
-    },
-    [formSchema, category, isProject, isDailyApartmentRent, isDailyHotelRent, isDailyVillaRent, isDailyWorkspaceRent, isRentApartment, isRentCommercial, isRentFactory, isRentHotel, isRentOffice, isRentVillaHouse, isSaleApartment, isSaleCommercial, isSaleFactory, isSaleHotel, isSaleLand, isSaleOffice, isSaleVillaHouse],
-  );
+    return category === "land" || category === "factory-workshop"
+      ? landFacilityItems
+      : facilityItems;
+  }, [
+    formSchema,
+    category,
+    isProject,
+    isDailyApartmentRent,
+    isDailyHotelRent,
+    isDailyVillaRent,
+    isDailyWorkspaceRent,
+    isRentApartment,
+    isRentCommercial,
+    isRentFactory,
+    isRentHotel,
+    isRentOffice,
+    isRentVillaHouse,
+    isSaleApartment,
+    isSaleCommercial,
+    isSaleFactory,
+    isSaleHotel,
+    isSaleLand,
+    isSaleOffice,
+    isSaleVillaHouse,
+  ]);
 
   const heatingMeasureRef = useRef<HTMLDivElement>(null);
   const facilitiesMeasureRef = useRef<HTMLDivElement>(null);
@@ -325,10 +354,7 @@ export function DetailsStep({
   const initialFacilities = facilityItemsForCategory.slice(0, visibleFacilitiesCount);
   const extraFacilities = facilityItemsForCategory.slice(visibleFacilitiesCount);
 
-  const setField = <T extends keyof NewAdFormValues>(
-    key: T,
-    value: NewAdFormValues[T],
-  ) => {
+  const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => {
     setValue(key as never, value as never, { shouldDirty: true });
     onClearError?.(key);
   };
@@ -413,11 +439,8 @@ export function DetailsStep({
   const removeMoreFeature = (key: MoreFeatureFormKey) => {
     const field = moreFeatureFields.find((item) => item.key === key);
 
-    const emptyValue = field?.control === "toggle"
-      ? false
-      : field?.control === "multiSelect"
-        ? []
-        : "";
+    const emptyValue =
+      field?.control === "toggle" ? false : field?.control === "multiSelect" ? [] : "";
 
     setValue(key as never, emptyValue as never, {
       shouldDirty: true,
@@ -479,11 +502,11 @@ export function DetailsStep({
               supportingText={moneySupportingText(values.maxPrice)}
               value={values.maxPrice}
             />
-            <div className="border-t border-outline-var">
+            <div className="border-outline-var border-t">
               <ProjectSaleTermsFields errors={errors} values={values} setField={setField} />
             </div>
 
-            <div className="border-t border-outline-var">
+            <div className="border-outline-var border-t">
               <PriceToggleRow
                 checked={values.exchangeEnabled}
                 label="معاوضه"
@@ -492,16 +515,22 @@ export function DetailsStep({
             </div>
 
             {values.exchangeEnabled ? (
-              <div className="rounded-[14px] border border-outline-var px-4 py-4">
-                <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
-                  <Typography as="span" variant="body" size="medium" weight="regular">معاوضه با</Typography>
+              <div className="border-outline-var rounded-[14px] border px-4 py-4">
+                <div className="mb-4 flex items-center justify-between text-base leading-6 font-medium [direction:rtl]">
+                  <Typography as="span" variant="body" size="medium" weight="regular">
+                    معاوضه با
+                  </Typography>
                   <Button
                     unstyled
-                    className="flex items-center gap-1 text-primary"
-                    onClick={() => setSheet({ kind: "exchange", title: "معاوضه با", options: exchangeTargets })}
+                    className="text-primary flex items-center gap-1"
+                    onClick={() =>
+                      setSheet({ kind: "exchange", title: "معاوضه با", options: exchangeTargets })
+                    }
                     type="button"
                   >
-                    <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
+                    <Typography as="span" variant="body" size="medium" weight="regular">
+                      انتخاب
+                    </Typography>
                     <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5" />
                   </Button>
                 </div>
@@ -512,14 +541,25 @@ export function DetailsStep({
                       <Tag
                         key={target}
                         label={target}
-                        onRemove={() => setField("exchangeTargets", values.exchangeTargets.filter((item) => item !== target))}
+                        onRemove={() =>
+                          setField(
+                            "exchangeTargets",
+                            values.exchangeTargets.filter((item) => item !== target),
+                          )
+                        }
                       />
                     ))}
                   </div>
                 ) : null}
 
                 {errors.exchangeTargets ? (
-                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs text-error">
+                  <Typography
+                    as="p"
+                    variant="body"
+                    size="small"
+                    weight="regular"
+                    className="text-error m-0 mt-3 text-right text-xs"
+                  >
                     {errors.exchangeTargets}
                   </Typography>
                 ) : null}
@@ -535,21 +575,83 @@ export function DetailsStep({
         <Section icon="money.svg" title="اطلاعات قیمت">
           <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
             <div data-field-key="minPrice">
-              <InputBox error={errors.minPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("minPrice", value)} placeholder="حداقل قیمت *" supportingText={moneySupportingText(values.minPrice)} value={values.minPrice} />
+              <InputBox
+                error={errors.minPrice}
+                formatNumeric
+                numeric
+                leftText="تومان"
+                onChange={(value) => setField("minPrice", value)}
+                placeholder="حداقل قیمت *"
+                supportingText={moneySupportingText(values.minPrice)}
+                value={values.minPrice}
+              />
             </div>
             <div data-field-key="maxPrice">
-              <InputBox error={errors.maxPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("maxPrice", value)} placeholder="حداکثر قیمت *" supportingText={moneySupportingText(values.maxPrice)} value={values.maxPrice} />
+              <InputBox
+                error={errors.maxPrice}
+                formatNumeric
+                numeric
+                leftText="تومان"
+                onChange={(value) => setField("maxPrice", value)}
+                placeholder="حداکثر قیمت *"
+                supportingText={moneySupportingText(values.maxPrice)}
+                value={values.maxPrice}
+              />
             </div>
           </div>
 
           {!isDailyHotelRent ? (
             <>
-              <div className="my-5 border-t border-dashed border-outline-var" />
+              <div className="border-outline-var my-5 border-t border-dashed" />
               <div className={desktop ? "grid grid-cols-2 gap-4" : "space-y-4"}>
-                <div data-field-key="normalDailyPrice"><InputBox error={errors.normalDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("normalDailyPrice", value)} placeholder="روزهای عادی (شنبه تا چهارشنبه) *" supportingText={moneySupportingText(values.normalDailyPrice)} value={values.normalDailyPrice} /></div>
-                <div data-field-key="weekendDailyPrice"><InputBox error={errors.weekendDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("weekendDailyPrice", value)} placeholder="آخر هفته (چهار شنبه تا جمعه) *" supportingText={moneySupportingText(values.weekendDailyPrice)} value={values.weekendDailyPrice} /></div>
-                <div data-field-key="specialDailyPrice"><InputBox error={errors.specialDailyPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("specialDailyPrice", value)} placeholder="روزهای خاص (تعطیلات و مناسبت ها) *" supportingText={moneySupportingText(values.specialDailyPrice)} value={values.specialDailyPrice} /></div>
-                <div data-field-key="extraPersonPrice"><InputBox error={errors.extraPersonPrice} formatNumeric numeric leftText="تومان" onChange={(value) => setField("extraPersonPrice", value)} placeholder="هزینه هر نفر اضافه" supportingText={moneySupportingText(values.extraPersonPrice)} value={values.extraPersonPrice} /></div>
+                <div data-field-key="normalDailyPrice">
+                  <InputBox
+                    error={errors.normalDailyPrice}
+                    formatNumeric
+                    numeric
+                    leftText="تومان"
+                    onChange={(value) => setField("normalDailyPrice", value)}
+                    placeholder="روزهای عادی (شنبه تا چهارشنبه) *"
+                    supportingText={moneySupportingText(values.normalDailyPrice)}
+                    value={values.normalDailyPrice}
+                  />
+                </div>
+                <div data-field-key="weekendDailyPrice">
+                  <InputBox
+                    error={errors.weekendDailyPrice}
+                    formatNumeric
+                    numeric
+                    leftText="تومان"
+                    onChange={(value) => setField("weekendDailyPrice", value)}
+                    placeholder="آخر هفته (چهار شنبه تا جمعه) *"
+                    supportingText={moneySupportingText(values.weekendDailyPrice)}
+                    value={values.weekendDailyPrice}
+                  />
+                </div>
+                <div data-field-key="specialDailyPrice">
+                  <InputBox
+                    error={errors.specialDailyPrice}
+                    formatNumeric
+                    numeric
+                    leftText="تومان"
+                    onChange={(value) => setField("specialDailyPrice", value)}
+                    placeholder="روزهای خاص (تعطیلات و مناسبت ها) *"
+                    supportingText={moneySupportingText(values.specialDailyPrice)}
+                    value={values.specialDailyPrice}
+                  />
+                </div>
+                <div data-field-key="extraPersonPrice">
+                  <InputBox
+                    error={errors.extraPersonPrice}
+                    formatNumeric
+                    numeric
+                    leftText="تومان"
+                    onChange={(value) => setField("extraPersonPrice", value)}
+                    placeholder="هزینه هر نفر اضافه"
+                    supportingText={moneySupportingText(values.extraPersonPrice)}
+                    value={values.extraPersonPrice}
+                  />
+                </div>
               </div>
             </>
           ) : null}
@@ -625,11 +727,7 @@ export function DetailsStep({
 
             {allowLoan ? (
               <>
-                <Toggle
-                  checked={isLoanActive}
-                  label="وام دارد"
-                  onChange={handleLoanToggle}
-                />
+                <Toggle checked={isLoanActive} label="وام دارد" onChange={handleLoanToggle} />
 
                 {isLoanActive ? (
                   <div className="space-y-3">
@@ -672,13 +770,24 @@ export function DetailsStep({
             ) : null}
 
             {allowExchange && values.exchangeEnabled ? (
-              <div data-field-key="exchangeTargets" className="rounded-[14px] border border-outline-var px-4 py-4">
-                <div className="mb-4 flex items-center justify-between text-base font-medium leading-6 [direction:rtl]">
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">معاوضه با</Typography>
+              <div
+                data-field-key="exchangeTargets"
+                className="border-outline-var rounded-[14px] border px-4 py-4"
+              >
+                <div className="mb-4 flex items-center justify-between text-base leading-6 font-medium [direction:rtl]">
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="medium"
+                    weight="regular"
+                    className="[direction:rtl]"
+                  >
+                    معاوضه با
+                  </Typography>
 
                   <Button
                     unstyled
-                    className="flex items-center gap-1 text-primary"
+                    className="text-primary flex items-center gap-1"
                     onClick={() =>
                       setSheet({
                         kind: "exchange",
@@ -688,7 +797,9 @@ export function DetailsStep({
                     }
                     type="button"
                   >
-                    <Typography as="span" variant="body" size="medium" weight="regular">انتخاب</Typography>
+                    <Typography as="span" variant="body" size="medium" weight="regular">
+                      انتخاب
+                    </Typography>
                     <LinearArrowLeft1 aria-hidden="true" className="h-5 w-5" />
                   </Button>
                 </div>
@@ -710,7 +821,13 @@ export function DetailsStep({
                   </div>
                 ) : null}
                 {errors.exchangeTargets ? (
-                  <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-3 text-right text-xs font-normal leading-5 text-error">
+                  <Typography
+                    as="p"
+                    variant="body"
+                    size="small"
+                    weight="regular"
+                    className="text-error m-0 mt-3 text-right text-xs leading-5 font-normal"
+                  >
                     {errors.exchangeTargets}
                   </Typography>
                 ) : null}
@@ -745,13 +862,9 @@ export function DetailsStep({
         {allowLoan ? (
           <>
             <div
-              className={`${priceHasSupportingText ? "mt-4" : "mt-5"} border-t border-outline-var`}
+              className={`${priceHasSupportingText ? "mt-4" : "mt-5"} border-outline-var border-t`}
             >
-              <PriceToggleRow
-                checked={isLoanActive}
-                label="وام دارد"
-                onChange={handleLoanToggle}
-              />
+              <PriceToggleRow checked={isLoanActive} label="وام دارد" onChange={handleLoanToggle} />
             </div>
 
             {isLoanActive ? (
@@ -793,14 +906,8 @@ export function DetailsStep({
         {allowExchange ? (
           <div
             className={`${
-              !allowLoan
-                ? priceHasSupportingText
-                  ? "mt-4"
-                  : "mt-5"
-                : isLoanActive
-                  ? "mt-4"
-                  : ""
-            } border-t border-outline-var`}
+              !allowLoan ? (priceHasSupportingText ? "mt-4" : "mt-5") : isLoanActive ? "mt-4" : ""
+            } border-outline-var border-t`}
           >
             <PriceToggleRow
               checked={values.exchangeEnabled}
@@ -811,7 +918,10 @@ export function DetailsStep({
         ) : null}
 
         {allowExchange && values.exchangeEnabled ? (
-          <div data-field-key="exchangeTargets" className="mt-3 rounded-2xl border border-outline-var px-4 py-6">
+          <div
+            data-field-key="exchangeTargets"
+            className="border-outline-var mt-3 rounded-2xl border px-4 py-6"
+          >
             <div className="mb-4 flex items-center justify-between [direction:rtl]">
               <Typography
                 as="span"
@@ -825,7 +935,7 @@ export function DetailsStep({
 
               <Button
                 unstyled
-                className="flex items-center gap-1 text-primary"
+                className="text-primary flex items-center gap-1"
                 onClick={() =>
                   setSheet({
                     kind: "exchange",
@@ -866,7 +976,7 @@ export function DetailsStep({
                 variant="body"
                 size="small"
                 weight="regular"
-                className="m-0 mt-3 text-right text-error"
+                className="text-error m-0 mt-3 text-right"
               >
                 {errors.exchangeTargets}
               </Typography>
@@ -879,14 +989,27 @@ export function DetailsStep({
 
   return (
     <>
-      <main className={desktop
-        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
-        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-3"} dir="rtl">
-        <Section icon="location.svg" title={isSaleResidential || isRentResidential ? "موقعیت آگهی" : "موقعیت ملک"}>
+      <main
+        className={
+          desktop
+            ? "bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
+            : "bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-3"
+        }
+        dir="rtl"
+      >
+        <Section
+          icon="location.svg"
+          title={isSaleResidential || isRentResidential ? "موقعیت آگهی" : "موقعیت ملک"}
+        >
           <div data-field-key="location">
             <LocationBox
               label={label ?? ""}
-              value={values.location || (typeof window !== "undefined" ? window.localStorage.getItem(locationKey)?.trim() ?? "" : "")}
+              value={
+                values.location ||
+                (typeof window !== "undefined"
+                  ? (window.localStorage.getItem(locationKey)?.trim() ?? "")
+                  : "")
+              }
             />
           </div>
         </Section>
@@ -991,7 +1114,9 @@ export function DetailsStep({
                 <>
                   <SelectBox
                     onClear={() => setField("rentalPeriod", "")}
-                    onClick={() => openSelectSheet("rentalPeriod", "دوره اجاره", dailyRentalPeriodOptions)}
+                    onClick={() =>
+                      openSelectSheet("rentalPeriod", "دوره اجاره", dailyRentalPeriodOptions)
+                    }
                     placeholder="دوره اجاره"
                     value={values.rentalPeriod}
                   />
@@ -1016,7 +1141,9 @@ export function DetailsStep({
                   />
                   <SelectBox
                     onClear={() => setField("petPolicy", "")}
-                    onClick={() => openSelectSheet("petPolicy", "حیوان خانگی", rentPetPolicyOptions)}
+                    onClick={() =>
+                      openSelectSheet("petPolicy", "حیوان خانگی", rentPetPolicyOptions)
+                    }
                     placeholder="حیوان خانگی"
                     value={values.petPolicy}
                   />
@@ -1042,7 +1169,7 @@ export function DetailsStep({
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
-                        className="overflow-hidden w-full"
+                        className="w-full overflow-hidden"
                       >
                         <div className="flex flex-wrap justify-start gap-2 pt-1">
                           {extraMoreFeatureTags.map((item) => (
@@ -1058,8 +1185,9 @@ export function DetailsStep({
                   </AnimatePresence>
 
                   {hiddenMoreFeatureCount > 0 ? (
-                    <Button unstyled
-                      className="flex h-8 items-center justify-start gap-1.5 text-sm font-normal leading-5 text-outline active:text-primary"
+                    <Button
+                      unstyled
+                      className="text-outline active:text-primary flex h-8 items-center justify-start gap-1.5 text-sm leading-5 font-normal"
                       onClick={() => setShowRegisteredMoreFeatures((current) => !current)}
                       type="button"
                     >
@@ -1071,7 +1199,7 @@ export function DetailsStep({
                       <motion.div
                         animate={{ rotate: showRegisteredMoreFeatures ? 180 : 0 }}
                         transition={{ duration: 0.24, ease: "easeInOut" }}
-                        className="inline-flex items-center justify-center shrink-0"
+                        className="inline-flex shrink-0 items-center justify-center"
                       >
                         <svg
                           aria-hidden="true"
@@ -1091,29 +1219,65 @@ export function DetailsStep({
                     </Button>
                   ) : null}
 
-                  <Button unstyled
-                    className="mx-auto flex py-2.5 items-center justify-center gap-2 text-base font-medium leading-6 text-primary active:opacity-80"
+                  <Button
+                    unstyled
+                    className="text-primary mx-auto flex items-center justify-center gap-2 py-2.5 text-base leading-6 font-medium active:opacity-80"
                     onClick={onMoreFeatures}
                     type="button"
                   >
-                    <Typography variant="label" size="medium" weight="medium">ویرایش مشخصات</Typography>
-                    <Typography as="span" variant="title" size="large" weight="medium" className="text-lg leading-none">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="currentColor" />
+                    <Typography variant="label" size="medium" weight="medium">
+                      ویرایش مشخصات
+                    </Typography>
+                    <Typography
+                      as="span"
+                      variant="title"
+                      size="large"
+                      weight="medium"
+                      className="text-lg leading-none"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                      >
+                        <path
+                          d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z"
+                          fill="currentColor"
+                        />
                       </svg>
                     </Typography>
                   </Button>
                 </div>
               ) : moreFeatureFields.length ? (
-                <Button unstyled
-                  className="mx-auto py-2.5 flex items-center justify-center gap-2 text-base font-medium leading-6 text-primary active:opacity-80"
+                <Button
+                  unstyled
+                  className="text-primary mx-auto flex items-center justify-center gap-2 py-2.5 text-base leading-6 font-medium active:opacity-80"
                   onClick={onMoreFeatures}
                   type="button"
                 >
-                  <Typography variant="label" size="medium" weight="medium">ثبت {formatPersianCount(moreFeatureFields.length)} مشخصات دیگر</Typography>
-                  <Typography as="span" variant="title" size="large" weight="medium" className="text-lg leading-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z" fill="currentColor" />
+                  <Typography variant="label" size="medium" weight="medium">
+                    ثبت {formatPersianCount(moreFeatureFields.length)} مشخصات دیگر
+                  </Typography>
+                  <Typography
+                    as="span"
+                    variant="title"
+                    size="large"
+                    weight="medium"
+                    className="text-lg leading-none"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                    >
+                      <path
+                        d="M11.2249 6.22456C11.469 5.98048 11.8646 5.98049 12.1087 6.22456C12.3528 6.46864 12.3528 6.86427 12.1087 7.10835L9.21729 9.99979L12.1087 12.8912C12.3528 13.1353 12.3528 13.5309 12.1087 13.775C11.8646 14.0191 11.469 14.0191 11.2249 13.775L7.8916 10.4417C7.77441 10.3245 7.7085 10.1655 7.7085 9.99979C7.70851 9.83405 7.77441 9.67509 7.8916 9.55789L11.2249 6.22456Z"
+                        fill="currentColor"
+                      />
                     </svg>
                   </Typography>
                 </Button>
@@ -1133,7 +1297,7 @@ export function DetailsStep({
             <div className="relative w-full">
               <div
                 ref={heatingMeasureRef}
-                className="invisible pointer-events-none absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
+                className="pointer-events-none invisible absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
                 aria-hidden="true"
                 dir="rtl"
               >
@@ -1148,10 +1312,7 @@ export function DetailsStep({
                     item={item}
                     selected={values.heatingCooling.includes(item.id)}
                     onClick={() =>
-                      setField(
-                        "heatingCooling",
-                        toggleArray(values.heatingCooling, item.id),
-                      )
+                      setField("heatingCooling", toggleArray(values.heatingCooling, item.id))
                     }
                   />
                 ))}
@@ -1164,7 +1325,7 @@ export function DetailsStep({
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
-                  className="overflow-hidden w-full"
+                  className="w-full overflow-hidden"
                 >
                   <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
                     {extraHeating.map((item) => (
@@ -1173,10 +1334,7 @@ export function DetailsStep({
                         item={item}
                         selected={values.heatingCooling.includes(item.id)}
                         onClick={() =>
-                          setField(
-                            "heatingCooling",
-                            toggleArray(values.heatingCooling, item.id),
-                          )
+                          setField("heatingCooling", toggleArray(values.heatingCooling, item.id))
                         }
                       />
                     ))}
@@ -1199,7 +1357,7 @@ export function DetailsStep({
             <div className="relative w-full">
               <div
                 ref={facilitiesMeasureRef}
-                className="invisible pointer-events-none absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
+                className="pointer-events-none invisible absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
                 aria-hidden="true"
                 dir="rtl"
               >
@@ -1248,7 +1406,7 @@ export function DetailsStep({
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
-                  className="overflow-hidden w-full"
+                  className="w-full overflow-hidden"
                 >
                   <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
                     {extraFacilities.map((item) => (
@@ -1285,16 +1443,21 @@ export function DetailsStep({
         {isCrm && (
           <Section icon="personal-card.svg" title="انتخاب مالک آگهی (پنل مدیریت)">
             <div className="flex flex-col gap-4">
-              <div className="grid h-11 grid-cols-2 overflow-hidden rounded-xl border border-outline-var" dir="ltr">
-                <Button unstyled
+              <div
+                className="border-outline-var grid h-11 grid-cols-2 overflow-hidden rounded-xl border"
+                dir="ltr"
+              >
+                <Button
+                  unstyled
                   className={`text-sm font-bold transition ${values.targetOwnerType === "agency" ? "bg-primary text-on-primary" : "bg-surface-container-lowest text-on-surface-var"}`}
                   onClick={() => setValue("targetOwnerType", "agency")}
                   type="button"
                 >
                   آژانس املاک
                 </Button>
-                <Button unstyled
-                  className={`border-r border-outline-var text-sm font-bold transition ${values.targetOwnerType === "user" ? "bg-primary text-on-primary" : "bg-surface-container-lowest text-on-surface-var"}`}
+                <Button
+                  unstyled
+                  className={`border-outline-var border-r text-sm font-bold transition ${values.targetOwnerType === "user" ? "bg-primary text-on-primary" : "bg-surface-container-lowest text-on-surface-var"}`}
                   onClick={() => setValue("targetOwnerType", "user")}
                   type="button"
                 >
@@ -1327,9 +1490,7 @@ export function DetailsStep({
         ariaLabel={sheet?.title ?? "انتخاب"}
         className={sheet?.kind === "exchange" ? "!rounded-t-[24px]" : "rounded-t-[14px]"}
         contentClassName={
-          sheet?.kind === "exchange"
-            ? "min-h-0 flex-1 overflow-y-auto pt-1"
-            : "pb-6 pt-0"
+          sheet?.kind === "exchange" ? "min-h-0 flex-1 overflow-y-auto pt-1" : "pb-6 pt-0"
         }
         handleClassName={
           sheet?.kind === "exchange"
@@ -1339,9 +1500,7 @@ export function DetailsStep({
         headerButtonAriaLabel="بازگشت"
         headerClassName={sheet?.kind === "exchange" ? "!gap-0 !px-2" : ""}
         heightClassName={
-          sheet?.kind === "exchange"
-            ? "h-[min(660px,calc(100svh-24px))]"
-            : "h-auto max-h-[50svh]"
+          sheet?.kind === "exchange" ? "h-[min(660px,calc(100svh-24px))]" : "h-auto max-h-[50svh]"
         }
         maxHeight={sheet?.kind === "exchange" ? undefined : "50svh"}
         isOpen={Boolean(sheet)}
@@ -1353,7 +1512,9 @@ export function DetailsStep({
         showHeader
         showHeaderDivider={sheet?.kind !== "exchange" && sheet?.kind !== "multiSelect"}
         title={sheet?.title ?? "انتخاب"}
-        titleAlign={sheet?.kind === "exchange" || sheet?.kind === "multiSelect" ? "right" : "center"}
+        titleAlign={
+          sheet?.kind === "exchange" || sheet?.kind === "multiSelect" ? "right" : "center"
+        }
       >
         {sheet?.kind === "exchange" ? (
           <div className="px-4" dir="rtl">
@@ -1361,14 +1522,12 @@ export function DetailsStep({
               const checked = values.exchangeTargets.includes(option);
 
               return (
-                <Button unstyled
-                  className="flex h-[72px] w-full items-center justify-between gap-3 pl-5 pr-4 text-right text-on-surface"
+                <Button
+                  unstyled
+                  className="text-on-surface flex h-[72px] w-full items-center justify-between gap-3 pr-4 pl-5 text-right"
                   key={option}
                   onClick={() =>
-                    setField(
-                      "exchangeTargets",
-                      toggleArray(values.exchangeTargets, option),
-                    )
+                    setField("exchangeTargets", toggleArray(values.exchangeTargets, option))
                   }
                   type="button"
                 >
@@ -1381,18 +1540,16 @@ export function DetailsStep({
             })}
           </div>
         ) : sheet?.kind === "multiSelect" ? (
-          <div className="px-5 pb-4 pt-3" dir="rtl">
+          <div className="px-5 pt-3 pb-4" dir="rtl">
             {sheet.options.map((option) => {
               const checked = values[sheet.key].includes(option);
 
               return (
                 <Button
                   unstyled
-                  className="flex h-[72px] w-full items-center justify-between gap-3 text-right text-on-surface"
+                  className="text-on-surface flex h-[72px] w-full items-center justify-between gap-3 text-right"
                   key={option}
-                  onClick={() =>
-                    setField(sheet.key, toggleArray(values[sheet.key], option))
-                  }
+                  onClick={() => setField(sheet.key, toggleArray(values[sheet.key], option))}
                   type="button"
                 >
                   <Typography as="span" variant="body" size="large" weight="regular">

@@ -196,13 +196,7 @@ export type ProjectDetailItem = {
   maxMeterage?: string;
 };
 
-export type DailyHotelRoomTypeId =
-  | "single"
-  | "double"
-  | "triple"
-  | "quad"
-  | "quint"
-  | "suite";
+export type DailyHotelRoomTypeId = "single" | "double" | "triple" | "quad" | "quint" | "suite";
 
 export type DailyHotelRoomConfig = {
   id: DailyHotelRoomTypeId;
@@ -231,22 +225,22 @@ export type SelectKey =
 
 export type SheetState =
   | {
-    kind: "select";
-    key: SelectKey;
-    title: string;
-    options: string[];
-  }
+      kind: "select";
+      key: SelectKey;
+      title: string;
+      options: string[];
+    }
   | {
-    kind: "multiSelect";
-    key: BasicPropertyMultiSelectKey;
-    title: string;
-    options: string[];
-  }
+      kind: "multiSelect";
+      key: BasicPropertyMultiSelectKey;
+      title: string;
+      options: string[];
+    }
   | {
-    kind: "exchange";
-    title: string;
-    options: string[];
-  };
+      kind: "exchange";
+      title: string;
+      options: string[];
+    };
 
 /* ------------------------------- Form Values ------------------------------ */
 
@@ -395,7 +389,4 @@ export type NewAdFormValues = {
   targetOwnerId: string;
 };
 
-export type MoreFeaturesFormValues = Pick<
-  NewAdFormValues,
-  MoreFeatureFormKey
->;
+export type MoreFeaturesFormValues = Pick<NewAdFormValues, MoreFeatureFormKey>;

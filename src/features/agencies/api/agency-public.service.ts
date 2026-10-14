@@ -64,9 +64,7 @@ export function normalizePublicAgencyDetail(
       firstNumber(0, item.active_advertises_count, item.active_advertise_count),
     ),
     about_us: firstText(item.about_us, item.about, item.description) || undefined,
-    agency_type: Number.isFinite(Number(item.agency_type))
-      ? Number(item.agency_type)
-      : undefined,
+    agency_type: Number.isFinite(Number(item.agency_type)) ? Number(item.agency_type) : undefined,
     consultants,
     instagram: readSocialValue(item, "instagram") || undefined,
     lat: toOptionalNumber(item.lat),
@@ -74,21 +72,17 @@ export function normalizePublicAgencyDetail(
     phone1: firstText(item.phone1, item.phone) || undefined,
     phone2: firstText(item.phone2) || undefined,
     phone3: firstText(item.phone3, item.landline) || undefined,
-    recent_advertises: readAdvertises(
-      item.recent_advertises,
-      item.recent_ads,
-      item.advertises,
-    ),
-    badges: Array.isArray(item.badges) ? (item.badges as PublicAgencyDetailDto["badges"]) : undefined,
+    recent_advertises: readAdvertises(item.recent_advertises, item.recent_ads, item.advertises),
+    badges: Array.isArray(item.badges)
+      ? (item.badges as PublicAgencyDetailDto["badges"])
+      : undefined,
     badge_window_days: toOptionalNumber(item.badge_window_days),
     working_hours: firstText(item.working_hours) || undefined,
   };
 }
 
 export async function getPublicTrustedAgencies(): Promise<PublicAgencyDto[]> {
-  const response = await publicApi
-    .get("public/agencies/trusted")
-    .json<PublicAgencyApiResponse>();
+  const response = await publicApi.get("public/agencies/trusted").json<PublicAgencyApiResponse>();
 
   return (response.data ?? [])
     .map(normalizeAgency)
@@ -130,9 +124,7 @@ export async function getPublicAgencies({
   };
 }
 
-export async function getPublicAgencyDetail(
-  id: number | string,
-): Promise<PublicAgencyDetailDto> {
+export async function getPublicAgencyDetail(id: number | string): Promise<PublicAgencyDetailDto> {
   const response = await publicApiV2
     .get(`public/agencies/${encodeURIComponent(String(id))}`)
     .json<PublicAgencyDetailApiResponse>();

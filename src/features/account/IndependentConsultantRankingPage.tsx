@@ -1,6 +1,9 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
-import { useV2RankingBadgesQuery, useV2RankingSummaryQuery } from "../dashboard/api/v2/ranking-v2.hooks";
+import {
+  useV2RankingBadgesQuery,
+  useV2RankingSummaryQuery,
+} from "../dashboard/api/v2/ranking-v2.hooks";
 import { usePublicAgentsQuery } from "../agencies/api/agency.hooks";
 import type { V2RankingBadge } from "../dashboard/api/v2/ranking-v2.service";
 import { TopBar } from "../../shared/components/TopBar";
@@ -32,9 +35,7 @@ type RankIndicator = {
 type RankingPeriod = "هفته" | "ماه";
 
 function formatOptionalNumber(value: number | null | undefined) {
-  return value === null || value === undefined
-    ? "—"
-    : new Intl.NumberFormat("fa-IR").format(value);
+  return value === null || value === undefined ? "—" : new Intl.NumberFormat("fa-IR").format(value);
 }
 
 export function IndependentConsultantRankingPage() {
@@ -66,7 +67,12 @@ export function IndependentConsultantRankingPage() {
         message: rankingQuery.data.message,
       });
     }
-  }, [rankingQuery.error, rankingQuery.isError, rankingQuery.isSuccess, rankingQuery.data?.message]);
+  }, [
+    rankingQuery.error,
+    rankingQuery.isError,
+    rankingQuery.isSuccess,
+    rankingQuery.data?.message,
+  ]);
 
   const indicators: RankIndicator[] = [
     {
@@ -93,7 +99,7 @@ export function IndependentConsultantRankingPage() {
 
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -110,25 +116,25 @@ export function IndependentConsultantRankingPage() {
         title="نشان‌ها و رتبه"
       />
 
-      <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-surface-container px-4 py-4">
+      <main className="bg-surface-container min-h-0 flex-1 space-y-4 overflow-x-hidden overflow-y-auto px-4 py-4">
         {rankingQuery.isLoading ? (
-          <div className="space-y-4 animate-pulse [direction:rtl]">
-            <div className="flex h-20 items-center justify-between rounded-2xl bg-surface-container-lowest px-4 [direction:ltr]">
-              <div className="h-12 w-28 rounded bg-surface-container-high" />
-              <div className="h-12 w-12 rounded-full bg-surface-container-high" />
+          <div className="animate-pulse space-y-4 [direction:rtl]">
+            <div className="bg-surface-container-lowest flex h-20 items-center justify-between rounded-2xl px-4 [direction:ltr]">
+              <div className="bg-surface-container-high h-12 w-28 rounded" />
+              <div className="bg-surface-container-high h-12 w-12 rounded-full" />
             </div>
-            <div className="flex h-20 items-center justify-between rounded-2xl bg-surface-container-lowest px-4 [direction:ltr]">
-              <div className="h-7 w-12 rounded bg-surface-container-high" />
+            <div className="bg-surface-container-lowest flex h-20 items-center justify-between rounded-2xl px-4 [direction:ltr]">
+              <div className="bg-surface-container-high h-7 w-12 rounded" />
               <div className="flex items-center gap-2 [direction:rtl]">
-                <div className="h-10 w-10 rounded-2xl bg-surface-container-high" />
-                <div className="h-5 w-20 rounded bg-surface-container-high" />
+                <div className="bg-surface-container-high h-10 w-10 rounded-2xl" />
+                <div className="bg-surface-container-high h-5 w-20 rounded" />
               </div>
             </div>
-            <div className="flex h-20 items-center justify-between rounded-2xl bg-surface-container-lowest px-4 [direction:ltr]">
-              <div className="h-7 w-12 rounded bg-surface-container-high" />
+            <div className="bg-surface-container-lowest flex h-20 items-center justify-between rounded-2xl px-4 [direction:ltr]">
+              <div className="bg-surface-container-high h-7 w-12 rounded" />
               <div className="flex items-center gap-2 [direction:rtl]">
-                <div className="h-10 w-10 rounded-2xl bg-surface-container-high" />
-                <div className="h-5 w-20 rounded bg-surface-container-high" />
+                <div className="bg-surface-container-high h-10 w-10 rounded-2xl" />
+                <div className="bg-surface-container-high h-5 w-20 rounded" />
               </div>
             </div>
           </div>
@@ -155,13 +161,13 @@ export function IndependentConsultantRankingPage() {
               );
             })()}
             <MetricSummaryCard
-              icon={<LinearRanking className="h-6 w-6 text-tertiary" />}
+              icon={<LinearRanking className="text-tertiary h-6 w-6" />}
               iconClassName="bg-tertiary-container/30"
               label="رتبه مشاور"
               value={formatOptionalNumber(ranking?.rank ?? ranking?.current?.rank)}
             />
             <MetricSummaryCard
-              icon={<LinearStar className="h-6 w-6 text-warning" />}
+              icon={<LinearStar className="text-warning h-6 w-6" />}
               iconClassName="bg-warning-container/30"
               label="امتیاز مشاور"
               value={formatOptionalNumber(ranking?.current?.totalScore)}
@@ -170,27 +176,29 @@ export function IndependentConsultantRankingPage() {
         )}
         <BadgesPanel />
         {rankingQuery.isLoading ? (
-          <section className="rounded-2xl bg-surface-container-lowest p-4 animate-pulse" aria-label="بارگذاری شاخص‌ها">
+          <section
+            className="bg-surface-container-lowest animate-pulse rounded-2xl p-4"
+            aria-label="بارگذاری شاخص‌ها"
+          >
             <div className="flex h-7 items-center justify-between [direction:ltr]">
-              <div className="h-6 w-16 rounded bg-surface-container-high" />
-              <div className="h-5 w-28 rounded bg-surface-container-high" />
+              <div className="bg-surface-container-high h-6 w-16 rounded" />
+              <div className="bg-surface-container-high h-5 w-28 rounded" />
             </div>
             <div className="mt-6 space-y-4">
               {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="flex min-h-20 items-center justify-between rounded-lg border border-outline-var px-4 py-3 [direction:ltr]">
-                  <div className="h-6 w-10 rounded bg-surface-container-high" />
-                  <div className="h-5 w-32 rounded bg-surface-container-high" />
-                  <div className="h-12 w-12 rounded-2xl bg-surface-container-high" />
+                <div
+                  key={i}
+                  className="border-outline-var flex min-h-20 items-center justify-between rounded-lg border px-4 py-3 [direction:ltr]"
+                >
+                  <div className="bg-surface-container-high h-6 w-10 rounded" />
+                  <div className="bg-surface-container-high h-5 w-32 rounded" />
+                  <div className="bg-surface-container-high h-12 w-12 rounded-2xl" />
                 </div>
               ))}
             </div>
           </section>
         ) : (
-          <RankingIndicatorsPanel
-            indicators={indicators}
-            period={period}
-            setPeriod={setPeriod}
-          />
+          <RankingIndicatorsPanel indicators={indicators} period={period} setPeriod={setPeriod} />
         )}
         <TopConsultantsPanel />
       </main>
@@ -211,21 +219,39 @@ function LevelSummaryCard({
   return (
     <Link
       aria-label="سطح پیشرفت مشاور"
-      className="flex h-20 items-center justify-between rounded-2xl bg-surface-container-lowest px-4 text-on-surface no-underline [direction:ltr]"
+      className="bg-surface-container-lowest text-on-surface flex h-20 items-center justify-between rounded-2xl px-4 no-underline [direction:ltr]"
       to="/account/ranking/levels"
     >
       <div className="h-12 w-[232px]">
         <div className="flex h-6 items-center justify-between [direction:ltr]">
           <GuidePill />
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-on-surface-var [direction:rtl]">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-on-surface-var text-sm font-medium [direction:rtl]"
+          >
             {levelTitle}
           </Typography>
         </div>
         <div className="mt-2 flex h-4 items-center justify-end gap-1 text-xs [direction:ltr]">
-          <Typography as="span" variant="body" size="small" weight="regular" className="text-outline [direction:rtl]">
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline [direction:rtl]"
+          >
             امتیاز فعلی
           </Typography>
-          <Typography as="span" variant="label" size="small" weight="medium" className="font-medium text-primary [direction:rtl]">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-primary font-medium [direction:rtl]"
+          >
             {score}
           </Typography>
         </div>
@@ -247,19 +273,44 @@ function MetricSummaryCard({
   value: string;
 }) {
   return (
-    <section className="flex h-20 items-center justify-end gap-x-4 rounded-2xl bg-surface-container-lowest px-4 [direction:ltr]" aria-label={label}>
+    <section
+      className="bg-surface-container-lowest flex h-20 items-center justify-end gap-x-4 rounded-2xl px-4 [direction:ltr]"
+      aria-label={label}
+    >
       <div className="h-12 w-[232px] flex-1">
         <div className="flex h-6 items-center justify-between [direction:ltr]">
-          <Typography variant="title" size="medium" weight="semibold" className="text-on-surface">{value}</Typography>
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-on-surface-var [direction:rtl]">{label}</Typography>
+          <Typography variant="title" size="medium" weight="semibold" className="text-on-surface">
+            {value}
+          </Typography>
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-on-surface-var text-sm font-medium [direction:rtl]"
+          >
+            {label}
+          </Typography>
         </div>
         <div className="mt-2 flex h-4 items-center justify-end [direction:ltr]">
-          <Typography as="span" variant="body" size="small" weight="regular" className="text-outline [direction:rtl]">
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline [direction:rtl]"
+          >
             اطلاعات مقایسه‌ای از سرور دریافت نشده است
           </Typography>
         </div>
       </div>
-      <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconClassName}`}>
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconClassName}`}
+      >
         {icon}
       </Typography>
     </section>
@@ -278,53 +329,64 @@ const slugToConsultantPath: Record<string, string> = {
 
 function BadgesPanel() {
   const { data, isError, isLoading } = useV2RankingBadgesQuery();
-  const rawBadges: V2RankingBadge[] = data?.badges ?? data?.data ?? (Array.isArray(data) ? data : []);
+  const rawBadges: V2RankingBadge[] =
+    data?.badges ?? data?.data ?? (Array.isArray(data) ? data : []);
 
   return (
-    <section className="rounded-2xl bg-surface-container-lowest p-4" aria-label="نشان‌ها">
+    <section className="bg-surface-container-lowest rounded-2xl p-4" aria-label="نشان‌ها">
       <SectionHeader title="نشان‌ها" />
       {isLoading ? (
-        <div className="mt-6 grid grid-cols-2 gap-4 [direction:ltr] animate-pulse">
+        <div className="mt-6 grid animate-pulse grid-cols-2 gap-4 [direction:ltr]">
           {[0, 1].map((i) => (
-            <div key={i} className="flex h-[186px] w-full flex-col items-center rounded-lg border border-outline-var bg-surface-container-lowest pt-6">
-              <div className="h-[72px] w-[72px] rounded-full bg-surface-container-high" />
-              <div className="mt-2 h-6 w-20 rounded bg-surface-container-high" />
-              <div className="mt-2 h-3 w-14 rounded bg-surface-container-high" />
-              <div className="mt-4 h-1 w-[92px] rounded-full bg-surface-container-high" />
+            <div
+              key={i}
+              className="border-outline-var bg-surface-container-lowest flex h-[186px] w-full flex-col items-center rounded-lg border pt-6"
+            >
+              <div className="bg-surface-container-high h-[72px] w-[72px] rounded-full" />
+              <div className="bg-surface-container-high mt-2 h-6 w-20 rounded" />
+              <div className="bg-surface-container-high mt-2 h-3 w-14 rounded" />
+              <div className="bg-surface-container-high mt-4 h-1 w-[92px] rounded-full" />
             </div>
           ))}
         </div>
       ) : null}
       {isError ? (
-        <div className="py-8 text-center text-sm text-outline">
-          خطا در دریافت نشان‌ها
-        </div>
+        <div className="text-outline py-8 text-center text-sm">خطا در دریافت نشان‌ها</div>
       ) : null}
       {!isLoading && !isError && rawBadges.length === 0 ? (
-        <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-8 text-center text-outline">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline m-0 mx-auto w-full py-8 text-center"
+        >
           نشانی از سرور دریافت نشده است.
         </Typography>
       ) : null}
       <div className="mt-6 grid grid-cols-2 gap-4 [direction:ltr]">
-        {!isLoading && !isError && rawBadges.map((badge, index) => (
-          <BadgeCard
-            badge={badge}
-            key={`${badge.slug ?? badge.id ?? index}`}
-          />
-        ))}
+        {!isLoading &&
+          !isError &&
+          rawBadges.map((badge, index) => (
+            <BadgeCard badge={badge} key={`${badge.slug ?? badge.id ?? index}`} />
+          ))}
       </div>
     </section>
   );
 }
 
-function BadgeCard({
-  badge,
-}: {
-  badge: V2RankingBadge;
-}) {
-  const isEarned = Boolean(badge.earned ?? badge.is_earned ?? (badge.level && badge.level > 0) ?? badge.status === "earned");
+function BadgeCard({ badge }: { badge: V2RankingBadge }) {
+  const isEarned = Boolean(
+    badge.earned ??
+    badge.is_earned ??
+    (badge.level && badge.level > 0) ??
+    badge.status === "earned",
+  );
   const levelCount = Number(badge.level ?? (isEarned ? 1 : 0));
-  const progressVal = Math.max(0, Math.min(100, Number(badge.progress ?? badge.progress_value ?? 0)));
+  const progressVal = Math.max(
+    0,
+    Math.min(100, Number(badge.progress ?? badge.progress_value ?? 0)),
+  );
   const slug = typeof badge.slug === "string" ? badge.slug.trim().toLowerCase() : "";
   const badgeSrc = badge.src || badge.image || (slug ? BADGE_IMAGES[slug] : undefined);
   const title = badge.title || badge.label || badge.name || "نشان";
@@ -333,17 +395,27 @@ function BadgeCard({
   return (
     <Link
       aria-label={`جزییات نشان ${title}`}
-      className={`flex h-[186px] w-full flex-col items-center rounded-lg border border-outline-var pt-6 text-inherit no-underline transition active:scale-[0.99] ${!isEarned ? "grayscale" : ""}`}
+      className={`border-outline-var flex h-[186px] w-full flex-col items-center rounded-lg border pt-6 text-inherit no-underline transition active:scale-[0.99] ${!isEarned ? "grayscale" : ""}`}
       to={detailPath}
     >
       {badgeSrc ? (
         <img alt="" className="h-[72px] w-[72px] object-contain" src={badgeSrc} />
       ) : (
-        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-[72px] w-[72px] place-items-center rounded-full bg-surface-container text-outline">
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="bg-surface-container text-outline grid h-[72px] w-[72px] place-items-center rounded-full"
+        >
           <LinearStar className="h-8 w-8" />
         </Typography>
       )}
-      <Typography as="span" variant="label" size="medium" weight="semibold"
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="semibold"
         className={`mt-2 inline-flex h-6 min-w-[92px] items-center justify-center rounded-lg px-2 text-sm font-semibold ${isEarned ? "bg-primary-container text-primary" : "bg-surface-container-high text-outline"}`}
       >
         {title}
@@ -356,8 +428,8 @@ function BadgeCard({
           />
         ))}
       </div>
-      <div className="mt-4 h-1 w-[92px] rounded-full bg-warning-container/30">
-        <div className="h-1 rounded-full bg-warning" style={{ width: `${progressVal}%` }} />
+      <div className="bg-warning-container/30 mt-4 h-1 w-[92px] rounded-full">
+        <div className="bg-warning h-1 rounded-full" style={{ width: `${progressVal}%` }} />
       </div>
     </Link>
   );
@@ -373,17 +445,34 @@ function RankingIndicatorsPanel({
   setPeriod: (period: RankingPeriod) => void;
 }) {
   return (
-    <section className="rounded-2xl bg-surface-container-lowest p-4" aria-label="خلاصه فعالیت">
+    <section className="bg-surface-container-lowest rounded-2xl p-4" aria-label="خلاصه فعالیت">
       <div className="flex h-7 items-center justify-between [direction:ltr]">
-        <Button unstyled
-          className="inline-flex h-7 items-center gap-2 text-xs font-medium text-on-surface"
+        <Button
+          unstyled
+          className="text-on-surface inline-flex h-7 items-center gap-2 text-xs font-medium"
           onClick={() => setPeriod(period === "هفته" ? "ماه" : "هفته")}
           type="button"
         >
-          <LinearArrowDown1 className="h-4 w-4 text-on-surface-var" />
-          <Typography as="span" variant="body" size="small" weight="regular" className="[direction:rtl]">{period}</Typography>
+          <LinearArrowDown1 className="text-on-surface-var h-4 w-4" />
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="[direction:rtl]"
+          >
+            {period}
+          </Typography>
         </Button>
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold [direction:rtl]">خلاصه فعالیت</Typography>
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="m-0 text-base font-semibold [direction:rtl]"
+        >
+          خلاصه فعالیت
+        </Typography>
       </div>
       <div className="mt-6 space-y-4">
         {indicators.map((indicator) => (
@@ -396,12 +485,32 @@ function RankingIndicatorsPanel({
 
 function RankIndicatorRow({ indicator }: { indicator: RankIndicator }) {
   return (
-    <div className="flex h-20 items-center rounded-lg border border-outline-var px-4 [direction:ltr]">
-      <Typography as="strong" variant="label" size="large" weight="semibold" className="shrink-0 text-primary [direction:rtl]">{indicator.value}</Typography>
-      <Typography as="span" variant="label" size="medium" weight="semibold" className="min-w-0 flex-1 px-2.5 text-right text-sm font-semibold text-on-surface-var [direction:rtl]">
+    <div className="border-outline-var flex h-20 items-center rounded-lg border px-4 [direction:ltr]">
+      <Typography
+        as="strong"
+        variant="label"
+        size="large"
+        weight="semibold"
+        className="text-primary shrink-0 [direction:rtl]"
+      >
+        {indicator.value}
+      </Typography>
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface-var min-w-0 flex-1 px-2.5 text-right text-sm font-semibold [direction:rtl]"
+      >
         {indicator.label}
       </Typography>
-      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary-container text-primary">
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="bg-primary-container text-primary grid h-12 w-12 shrink-0 place-items-center rounded-2xl"
+      >
         {indicator.icon}
       </Typography>
     </div>
@@ -413,40 +522,91 @@ function TopConsultantsPanel() {
   const consultants = consultantsQuery.data?.data ?? [];
 
   return (
-    <section className="h-[509px] rounded-2xl bg-surface-container-lowest p-4" aria-label="10 مشاور برتر">
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right">10 مشاور برتر</Typography>
+    <section
+      className="bg-surface-container-lowest h-[509px] rounded-2xl p-4"
+      aria-label="10 مشاور برتر"
+    >
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="m-0 text-right"
+      >
+        10 مشاور برتر
+      </Typography>
       <div className="mt-4">
-        <div className="flex h-9.25 items-start pt-1 text-sm font-normal text-outline [direction:ltr]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="w-[41px] text-center">امتیاز</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="flex-1 text-right [direction:rtl]">رتبه و نام مشاور</Typography>
+        <div className="text-outline flex h-9.25 items-start pt-1 text-sm font-normal [direction:ltr]">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="w-[41px] text-center"
+          >
+            امتیاز
+          </Typography>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="flex-1 text-right [direction:rtl]"
+          >
+            رتبه و نام مشاور
+          </Typography>
         </div>
-        <div className="h-px bg-outline-var" aria-hidden="true" />
+        <div className="bg-outline-var h-px" aria-hidden="true" />
         {consultantsQuery.isPending ? (
-          <div className="space-y-2 py-2 animate-pulse">
+          <div className="animate-pulse space-y-2 py-2">
             {[0, 1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-9 w-full rounded-lg bg-surface-container-high/40" />
+              <div key={i} className="bg-surface-container-high/40 h-9 w-full rounded-lg" />
             ))}
           </div>
         ) : (
           consultants.map((consultant, index) => (
             <div
-              className={`flex h-10 p-2 items-center gap-1 text-sm [direction:ltr] ${index % 2 === 1 ? "rounded-lg bg-surface-container" : ""}`}
+              className={`flex h-10 items-center gap-1 p-2 text-sm [direction:ltr] ${index % 2 === 1 ? "bg-surface-container rounded-lg" : ""}`}
               key={consultant.id}
             >
-              <Typography as="span" variant="label" size="medium" weight="medium" className="w-6.25 text-center font-medium">
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="medium"
+                className="w-6.25 text-center font-medium"
+              >
                 {formatOptionalNumber(consultant.score)}
               </Typography>
-              <Typography as="span" variant="body" size="medium" weight="regular" className="flex-1 text-right font-normal [direction:rtl]">
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="flex-1 text-right font-normal [direction:rtl]"
+              >
                 {consultant.fullName}
               </Typography>
-              <Typography as="span" variant="body" size="medium" weight="regular" className="w-5 text-center font-normal [direction:ltr]">
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="w-5 text-center font-normal [direction:ltr]"
+              >
                 .{formatOptionalNumber(consultant.rank)}
               </Typography>
             </div>
           ))
         )}
         {!consultantsQuery.isPending && consultants.length === 0 ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-6 text-center text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline m-0 mx-auto w-full py-6 text-center"
+          >
             اطلاعات مشاوران برتر از سرور دریافت نشده است.
           </Typography>
         ) : null}
@@ -459,7 +619,15 @@ function SectionHeader({ title }: { title: string }) {
   return (
     <div className="flex h-6 items-center justify-between [direction:ltr]">
       <GuidePill to="/account/ranking/badges/guide" />
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 [direction:rtl]">{title}</Typography>
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="m-0 text-base leading-6 font-semibold [direction:rtl]"
+      >
+        {title}
+      </Typography>
     </div>
   );
 }
@@ -469,7 +637,15 @@ function GuidePill({ to }: { to?: string } = {}) {
     "inline-flex px-2 py-1 items-center gap-1 rounded-full bg-primary-container text-primary no-underline [direction:ltr]";
   const content = (
     <>
-      <Typography as="span" variant="label" size="small" weight="medium" className="[direction:rtl]">راهنما</Typography>
+      <Typography
+        as="span"
+        variant="label"
+        size="small"
+        weight="medium"
+        className="[direction:rtl]"
+      >
+        راهنما
+      </Typography>
       <LinearInfoCircle className="h-4 w-4" />
     </>
   );

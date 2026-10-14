@@ -75,17 +75,28 @@ const managerChartSections: Array<Pick<ChartConfig, "label" | "metric" | "title"
 
 export function AdVisitStatisticsPage() {
   const routeState = getAdManagementRouteState();
-  const adId = readAdIdFromPath() ?? readQueryAdId() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
+  const adId =
+    readAdIdFromPath() ??
+    readQueryAdId() ??
+    readEntityId(routeState.ad) ??
+    readEntityId(routeState.card);
   const query = useMyAdvertisementDetailQuery(adId ?? null);
   const dailyViewsQuery = useAdvertisementDailyViewsQuery(adId ?? null);
   const card = routeState.card ?? getSelectedConsultantAd(adId);
   const ad = query.data ?? routeState.ad ?? card;
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const isUserRole = activeRole === USER;
-  const backTo = routeState.visitStatisticsReturnTo ?? (adId ? getAdStatePath(adId) : adManagementPaths.root);
+  const backTo =
+    routeState.visitStatisticsReturnTo ?? (adId ? getAdStatePath(adId) : adManagementPaths.root);
   const summary = useMemo(() => createAdSummary(ad, card), [ad, card]);
-  const userChart = useMemo(() => createUserChartConfig(ad, dailyViewsQuery.data), [ad, dailyViewsQuery.data]);
-  const managerCharts = useMemo(() => createManagerChartConfigs(ad, dailyViewsQuery.data), [ad, dailyViewsQuery.data]);
+  const userChart = useMemo(
+    () => createUserChartConfig(ad, dailyViewsQuery.data),
+    [ad, dailyViewsQuery.data],
+  );
+  const managerCharts = useMemo(
+    () => createManagerChartConfigs(ad, dailyViewsQuery.data),
+    [ad, dailyViewsQuery.data],
+  );
   const isLoading = query.isLoading || dailyViewsQuery.isLoading;
   const isError = query.isError || dailyViewsQuery.isError;
   const retry = () => {
@@ -145,7 +156,7 @@ function UserAdVisitStatisticsView({
 }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -155,7 +166,7 @@ function UserAdVisitStatisticsView({
         title="آمار بازدید"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-[92px]">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-[92px]">
         {isLoading ? <InlineNotice text="در حال دریافت آمار آگهی..." /> : null}
         {isError ? <ErrorNotice onRetry={onRetry} /> : null}
 
@@ -163,22 +174,57 @@ function UserAdVisitStatisticsView({
           <VisitBarChart chart={chart} mode="user" />
         </section>
 
-        <div className="h-2 bg-surface-container" aria-hidden="true" />
+        <div className="bg-surface-container h-2" aria-hidden="true" />
 
-        <section className="flex min-h-[292px] flex-col bg-surface-container-lowest px-7 pb-8 pt-8">
-          <Typography as="h2" variant="headline" size="small" className="m-0 text-[26px] font-extrabold leading-10 tracking-[-0.04em]">
-            <Typography as="span" variant="title" size="large" className="font-black text-tertiary">دیده شو، </Typography>
-            <Typography as="span" variant="title" size="large" className="font-black text-primary">سریع‌تر بفروش!</Typography>
+        <section className="bg-surface-container-lowest flex min-h-[292px] flex-col px-7 pt-8 pb-8">
+          <Typography
+            as="h2"
+            variant="headline"
+            size="small"
+            className="m-0 text-[26px] leading-10 font-extrabold tracking-[-0.04em]"
+          >
+            <Typography as="span" variant="title" size="large" className="text-tertiary font-black">
+              دیده شو،{" "}
+            </Typography>
+            <Typography as="span" variant="title" size="large" className="text-primary font-black">
+              سریع‌تر بفروش!
+            </Typography>
           </Typography>
-          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-2 text-on-surface-var">
-            با بسته‌های <Typography as="span" variant="body" size="medium" weight="medium" className="text-primary">«بروزرسانی»</Typography> و <Typography as="span" variant="body" size="medium" weight="medium" className="text-primary">«ویژه»</Typography>، آگهی‌ات را در صدر نتایج و جلوی چشم خریداران قرار بده.
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="medium"
+            className="text-on-surface-var m-0 mt-2"
+          >
+            با بسته‌های{" "}
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="medium"
+              className="text-primary"
+            >
+              «بروزرسانی»
+            </Typography>{" "}
+            و{" "}
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="medium"
+              className="text-primary"
+            >
+              «ویژه»
+            </Typography>
+            ، آگهی‌ات را در صدر نتایج و جلوی چشم خریداران قرار بده.
           </Typography>
         </section>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-4 pt-3 pb-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <Link
-          className="flex h-14 w-full items-center justify-between rounded-xl bg-primary px-5 text-base font-medium leading-6 text-on-primary no-underline shadow-md [direction:ltr]"
+          className="bg-primary text-on-primary flex h-14 w-full items-center justify-between rounded-xl px-5 text-base leading-6 font-medium no-underline shadow-md [direction:ltr]"
           state={{
             ad,
             card,
@@ -189,7 +235,13 @@ function UserAdVisitStatisticsView({
           to={adId ? getAdIncreaseVisitsPath(adId) : adManagementPaths.payment}
         >
           <LinearArrowLeft1 className="h-6 w-6" />
-          <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 [direction:rtl]">
+          <Typography
+            as="span"
+            variant="label"
+            size="large"
+            weight="medium"
+            className="inline-flex items-center gap-2 [direction:rtl]"
+          >
             <LinearChartUp className="h-6 w-6" />
             افزایش بازدید
           </Typography>
@@ -218,7 +270,7 @@ function ManagerAdVisitStatisticsView({
 }) {
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -228,15 +280,15 @@ function ManagerAdVisitStatisticsView({
         title="جزییات آمار آگهی"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
+      <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         <AdSummaryHeader summary={summary} />
         {isLoading ? <InlineNotice text="در حال دریافت آمار آگهی..." /> : null}
         {isError ? <ErrorNotice onRetry={onRetry} /> : null}
 
-        <div className="h-2 bg-surface-container" aria-hidden="true" />
+        <div className="bg-surface-container h-2" aria-hidden="true" />
         {charts.map((chart, index) => (
           <div key={chart.title}>
-            {index > 0 ? <div className="h-2 bg-surface-container" aria-hidden="true" /> : null}
+            {index > 0 ? <div className="bg-surface-container h-2" aria-hidden="true" /> : null}
             <VisitBarChart chart={chart} mode="manager" />
           </div>
         ))}
@@ -247,11 +299,25 @@ function ManagerAdVisitStatisticsView({
 
 function AdSummaryHeader({ summary }: { summary: AdSummary }) {
   return (
-    <section className="h-[104px] bg-surface-container-lowest px-4 py-4" aria-label={summary.title}>
+    <section className="bg-surface-container-lowest h-[104px] px-4 py-4" aria-label={summary.title}>
       <div className="flex h-[72px] items-center justify-between gap-4 [direction:ltr]">
         <div className="min-w-0 flex-1 text-right [direction:rtl]">
-          <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 truncate text-sm font-medium leading-5 text-on-surface">{summary.title}</Typography>
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 truncate text-xs font-normal leading-4 text-outline">
+          <Typography
+            as="h2"
+            variant="title"
+            size="small"
+            weight="medium"
+            className="text-on-surface m-0 truncate text-sm leading-5 font-medium"
+          >
+            {summary.title}
+          </Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline m-0 mt-2 truncate text-xs leading-4 font-normal"
+          >
             {summary.timeAndLocation || summary.category}
           </Typography>
         </div>
@@ -291,7 +357,10 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
   }, [visibleChartData]);
   const [selectedIndex, setSelectedIndex] = useState(defaultSelectedIndex);
   const isUserMode = mode === "user";
-  const selectedColumn = visibleChartData[selectedIndex] ?? visibleChartData[defaultSelectedIndex] ?? visibleChartData[0];
+  const selectedColumn =
+    visibleChartData[selectedIndex] ??
+    visibleChartData[defaultSelectedIndex] ??
+    visibleChartData[0];
   const tooltipText = selectedColumn?.tooltip ?? chart.selectedTooltip;
   const chartInfo = getChartInfo(chart.metric);
 
@@ -305,17 +374,28 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
 
   return (
     <section
-      className={`${isUserMode ? "bg-surface-container-lowest" : "h-[283px] bg-surface-container-low px-4 py-4"}`}
+      className={`${isUserMode ? "bg-surface-container-lowest" : "bg-surface-container-low h-[283px] px-4 py-4"}`}
       aria-label={chart.title}
     >
       <div className="flex h-12 items-center justify-between [direction:ltr]">
-        {chartData.length > rangeSize ? <ChartRangeControls maxOffset={maxOffset} offset={offset} setOffset={setOffset} /> : <div className="h-12 w-24" aria-hidden="true" />}
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 inline-flex items-center gap-2 text-base font-semibold leading-6 text-on-surface [direction:rtl]">
-          <LinearAnalytics className="h-6 w-6 text-on-surface-var" />
+        {chartData.length > rangeSize ? (
+          <ChartRangeControls maxOffset={maxOffset} offset={offset} setOffset={setOffset} />
+        ) : (
+          <div className="h-12 w-24" aria-hidden="true" />
+        )}
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-on-surface m-0 inline-flex items-center gap-2 text-base leading-6 font-semibold [direction:rtl]"
+        >
+          <LinearAnalytics className="text-on-surface-var h-6 w-6" />
           {chart.title}
-          <Button unstyled
+          <Button
+            unstyled
             aria-label={`توضیحات ${chart.title}`}
-            className="grid h-4 w-4 place-items-center rounded-full text-on-surface-var transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/20"
+            className="text-on-surface-var focus-visible:outline-primary/20 grid h-4 w-4 place-items-center rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-2"
             onClick={() => setIsInfoSheetOpen(true)}
             type="button"
           >
@@ -326,16 +406,28 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
 
       <div className={`${isUserMode ? "mt-3" : "mt-4"}`}>
         <div className="flex h-6 items-center justify-start gap-2 [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal leading-5 text-on-surface-var">{chart.label}</Typography>
-          <strong className="text-base font-semibold leading-6 text-primary">
-            {chart.total}
-          </strong>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var text-sm leading-5 font-normal"
+          >
+            {chart.label}
+          </Typography>
+          <strong className="text-primary text-base leading-6 font-semibold">{chart.total}</strong>
         </div>
 
         <div className={`${isUserMode ? "mt-3 h-[190px]" : "mt-2 h-[155px]"} [direction:ltr]`}>
           {visibleChartData.length === 0 ? (
-            <div className="flex h-full items-center justify-center border-b border-outline-var px-6 text-center [direction:rtl]">
-              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-outline">
+            <div className="border-outline-var flex h-full items-center justify-center border-b px-6 text-center [direction:rtl]">
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-outline m-0 text-xs"
+              >
                 داده نموداری از سرور دریافت نشده است.
               </Typography>
             </div>
@@ -348,8 +440,23 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
                 style={{ outline: "none" }}
               >
                 <CartesianGrid stroke="var(--outline-var)" strokeDasharray="4 4" vertical={false} />
-                <XAxis axisLine={{ stroke: "var(--outline-var)" }} dataKey="date" height={24} interval={0} tick={{ fill: "var(--on-surface-var)", fontSize: 12 }} tickLine={false} />
-                <YAxis axisLine={false} domain={[0, 100]} tick={{ fill: "var(--outline)", fontSize: 12 }} tickFormatter={createYAxisTickFormatter(chart.yAxisLabels)} tickLine={false} ticks={createYAxisTicks(chart.yAxisLabels)} width={34} />
+                <XAxis
+                  axisLine={{ stroke: "var(--outline-var)" }}
+                  dataKey="date"
+                  height={24}
+                  interval={0}
+                  tick={{ fill: "var(--on-surface-var)", fontSize: 12 }}
+                  tickLine={false}
+                />
+                <YAxis
+                  axisLine={false}
+                  domain={[0, 100]}
+                  tick={{ fill: "var(--outline)", fontSize: 12 }}
+                  tickFormatter={createYAxisTickFormatter(chart.yAxisLabels)}
+                  tickLine={false}
+                  ticks={createYAxisTicks(chart.yAxisLabels)}
+                  width={34}
+                />
                 <Bar
                   dataKey="value"
                   fill="var(--tertiary)"
@@ -373,7 +480,16 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
                   <LabelList
                     content={(props) => {
                       const labelProps = props as Record<string, unknown>;
-                      return <SelectedVisitBarLabel index={typeof labelProps.index === "number" ? labelProps.index : -1} selectedIndex={selectedIndex} tooltipText={tooltipText} width={toChartNumber(labelProps.width)} x={toChartNumber(labelProps.x)} y={toChartNumber(labelProps.y)} />;
+                      return (
+                        <SelectedVisitBarLabel
+                          index={typeof labelProps.index === "number" ? labelProps.index : -1}
+                          selectedIndex={selectedIndex}
+                          tooltipText={tooltipText}
+                          width={toChartNumber(labelProps.width)}
+                          x={toChartNumber(labelProps.x)}
+                          y={toChartNumber(labelProps.y)}
+                        />
+                      );
                     }}
                     dataKey="value"
                   />
@@ -394,7 +510,13 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
         showBackButton={false}
         title={chartInfo.title}
       >
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var m-0 text-sm leading-7 font-normal"
+        >
           {chartInfo.description}
         </Typography>
       </BottomSheet>
@@ -413,7 +535,8 @@ function ChartRangeControls({
 }) {
   return (
     <div className="flex items-center">
-      <Button unstyled
+      <Button
+        unstyled
         aria-label="بازه قبلی"
         className={`grid h-12 w-12 place-items-center ${offset >= maxOffset ? "text-outline-var" : "text-on-surface-var"}`}
         disabled={offset >= maxOffset}
@@ -422,7 +545,8 @@ function ChartRangeControls({
       >
         <LinearArrowLeft1 className="h-5 w-5" />
       </Button>
-      <Button unstyled
+      <Button
+        unstyled
         aria-label="بازه بعدی"
         className={`grid h-12 w-12 place-items-center ${offset === 0 ? "text-outline-var" : "text-on-surface-var"}`}
         disabled={offset === 0}
@@ -460,8 +584,18 @@ function SelectedVisitBarLabel({
 
   return (
     <g aria-hidden="true" pointerEvents="none">
-      <rect fill="var(--on-surface-var)" height={labelHeight} rx={6} width={labelWidth} x={labelX} y={labelY} />
-      <path d={`M ${centerX - 5} ${labelY + labelHeight - 1} L ${centerX} ${labelY + labelHeight + 6} L ${centerX + 5} ${labelY + labelHeight - 1} Z`} fill="var(--on-surface-var)" />
+      <rect
+        fill="var(--on-surface-var)"
+        height={labelHeight}
+        rx={6}
+        width={labelWidth}
+        x={labelX}
+        y={labelY}
+      />
+      <path
+        d={`M ${centerX - 5} ${labelY + labelHeight - 1} L ${centerX} ${labelY + labelHeight + 6} L ${centerX + 5} ${labelY + labelHeight - 1} Z`}
+        fill="var(--on-surface-var)"
+      />
       <text
         direction="rtl"
         dominantBaseline="middle"
@@ -501,19 +635,23 @@ function createYAxisTickFormatter(labels: string[]) {
 function getChartInfo(metric: ChartMetric) {
   const infoByMetric: Record<ChartMetric, { description: string; title: string }> = {
     calls: {
-      description: "تعداد دفعاتی که کاربران از داخل آگهی برای تماس با شما اقدام کرده‌اند. این عدد کمک می‌کند بفهمید آگهی چقدر به سرنخ واقعی نزدیک شده است.",
+      description:
+        "تعداد دفعاتی که کاربران از داخل آگهی برای تماس با شما اقدام کرده‌اند. این عدد کمک می‌کند بفهمید آگهی چقدر به سرنخ واقعی نزدیک شده است.",
       title: "اقدام به تماس",
     },
     chats: {
-      description: "تعداد گفتگوهایی که کاربران از طریق بخش چت برای این آگهی شروع کرده‌اند. افزایش این عدد معمولاً یعنی عنوان، عکس و توضیحات آگهی برای کاربر جذاب بوده است.",
+      description:
+        "تعداد گفتگوهایی که کاربران از طریق بخش چت برای این آگهی شروع کرده‌اند. افزایش این عدد معمولاً یعنی عنوان، عکس و توضیحات آگهی برای کاربر جذاب بوده است.",
       title: "گفتگوها (چت‌ها)",
     },
     searchDisplays: {
-      description: "تعداد دفعاتی که آگهی شما در نتایج جستجو به کاربران نمایش داده شده است. با بروزرسانی یا ویژه کردن آگهی می‌توانید این عدد را بیشتر کنید.",
+      description:
+        "تعداد دفعاتی که آگهی شما در نتایج جستجو به کاربران نمایش داده شده است. با بروزرسانی یا ویژه کردن آگهی می‌توانید این عدد را بیشتر کنید.",
       title: "نمایش در صفحه جستجو",
     },
     views: {
-      description: "تعداد دفعاتی که کاربران وارد صفحه آگهی شده‌اند و جزئیات آن را دیده‌اند. این آمار برای سنجش جذابیت آگهی و اثرگذاری افزایش بازدید استفاده می‌شود.",
+      description:
+        "تعداد دفعاتی که کاربران وارد صفحه آگهی شده‌اند و جزئیات آن را دیده‌اند. این آمار برای سنجش جذابیت آگهی و اثرگذاری افزایش بازدید استفاده می‌شود.",
       title: "بازدید از آگهی",
     },
   };
@@ -536,12 +674,17 @@ function createUserChartConfig(ad: unknown, dailyViews?: AdvertisementDailyViews
     metric: "views",
     selectedTooltip: dailyChart.selectedTooltip,
     title: "آمار بازدید",
-    total: dailyViews ? formatFaNumber(dailyViews.totalView) : readStatistic(ad, ["total_views", "views_count", "views", "visit_count", "view_count"]),
+    total: dailyViews
+      ? formatFaNumber(dailyViews.totalView)
+      : readStatistic(ad, ["total_views", "views_count", "views", "visit_count", "view_count"]),
     yAxisLabels: dailyChart.yAxisLabels,
   };
 }
 
-function createManagerChartConfigs(ad: unknown, dailyViews?: AdvertisementDailyViews): ChartConfig[] {
+function createManagerChartConfigs(
+  ad: unknown,
+  dailyViews?: AdvertisementDailyViews,
+): ChartConfig[] {
   const dailyChart = createDailyViewsChart(dailyViews);
 
   return managerChartSections.map((section) => {
@@ -551,9 +694,10 @@ function createManagerChartConfigs(ad: unknown, dailyViews?: AdvertisementDailyV
       ...section,
       columns: isViewsChart ? dailyChart.columns : [],
       selectedTooltip: isViewsChart ? dailyChart.selectedTooltip : "",
-      total: isViewsChart && dailyViews
-        ? formatFaNumber(dailyViews.totalView)
-        : readStatistic(ad, statisticKeysByMetric[section.metric]),
+      total:
+        isViewsChart && dailyViews
+          ? formatFaNumber(dailyViews.totalView)
+          : readStatistic(ad, statisticKeysByMetric[section.metric]),
       yAxisLabels: isViewsChart ? dailyChart.yAxisLabels : [],
     };
   });
@@ -580,18 +724,21 @@ function createDailyViewsYAxisLabels(maxCount: number) {
   if (maxCount <= 0) return ["۰", "۰"];
   if (maxCount <= 3) return [formatFaNumber(maxCount), "۰"];
 
-  return [
-    maxCount,
-    Math.round((maxCount * 2) / 3),
-    Math.round(maxCount / 3),
-    0,
-  ].map(formatFaNumber);
+  return [maxCount, Math.round((maxCount * 2) / 3), Math.round(maxCount / 3), 0].map(
+    formatFaNumber,
+  );
 }
 
 const statisticKeysByMetric: Record<ChartMetric, string[]> = {
   calls: ["call_count", "calls_count", "calls", "phone_clicks", "contact_count"],
   chats: ["chat_count", "chats_count", "chats", "conversation_count", "message_count"],
-  searchDisplays: ["search_display_count", "impressions", "impression_count", "display_count", "shown_count"],
+  searchDisplays: [
+    "search_display_count",
+    "impressions",
+    "impression_count",
+    "display_count",
+    "shown_count",
+  ],
   views: ["total_views", "views_count", "views", "visit_count", "view_count"],
 };
 
@@ -602,7 +749,10 @@ function createAdSummary(ad: unknown, card: ReturnType<typeof getSelectedConsult
     record.category_title ?? record.categoryTitle ?? record.category_name ?? record.categoryName,
     "—",
   );
-  const timeAndLocation = readText(record.timeAndLocation ?? record.time_and_location, card.timeAndLocation);
+  const timeAndLocation = readText(
+    record.timeAndLocation ?? record.time_and_location,
+    card.timeAndLocation,
+  );
 
   return {
     category,
@@ -616,7 +766,9 @@ function createAdSummary(ad: unknown, card: ReturnType<typeof getSelectedConsult
 function readStatistic(ad: unknown, keys: string[]) {
   if (!isRecord(ad)) return "—";
 
-  const statisticsContainers = [ad, ad.statistics, ad.stats, ad.report, ad.analytics].filter(isRecord);
+  const statisticsContainers = [ad, ad.statistics, ad.stats, ad.report, ad.analytics].filter(
+    isRecord,
+  );
 
   for (const container of statisticsContainers) {
     for (const key of keys) {
@@ -672,7 +824,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function InlineNotice({ text }: { text: string }) {
   return (
-    <div className="bg-surface-container-lowest px-4 py-3 text-center text-xs font-medium leading-5 text-outline">
+    <div className="bg-surface-container-lowest text-outline px-4 py-3 text-center text-xs leading-5 font-medium">
       {text}
     </div>
   );
@@ -680,9 +832,16 @@ function InlineNotice({ text }: { text: string }) {
 
 function ErrorNotice({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="mx-4 my-3 rounded-lg bg-warning-container/30 px-3 py-2 text-center text-xs font-medium leading-5 text-warning">
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">دریافت آمار آگهی با خطا مواجه شد.</Typography>
-      <Button unstyled className="mt-1 border-0 text-xs font-semibold text-primary" onClick={onRetry} type="button">
+    <div className="bg-warning-container/30 text-warning mx-4 my-3 rounded-lg px-3 py-2 text-center text-xs leading-5 font-medium">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">
+        دریافت آمار آگهی با خطا مواجه شد.
+      </Typography>
+      <Button
+        unstyled
+        className="text-primary mt-1 border-0 text-xs font-semibold"
+        onClick={onRetry}
+        type="button"
+      >
         تلاش دوباره
       </Button>
     </div>

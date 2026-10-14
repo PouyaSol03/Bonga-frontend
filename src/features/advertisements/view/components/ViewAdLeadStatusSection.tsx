@@ -50,14 +50,8 @@ export function ViewAdLeadStatusSection({
   };
 
   return (
-    <section className="bg-surface-container-lowest p-4 flex flex-col gap-4">
-      <Typography
-        as="h3"
-        variant="label"
-        size="large"
-        weight="medium"
-        className="text-on-surface"
-      >
+    <section className="bg-surface-container-lowest flex flex-col gap-4 p-4">
+      <Typography as="h3" variant="label" size="large" weight="medium" className="text-on-surface">
         انتخاب وضعیت سرنخ
       </Typography>
 
@@ -77,9 +71,9 @@ export function ViewAdLeadStatusSection({
         })}
       </div>
 
-      <div className="rounded-2xl border border-surface-container bg-surface-container-lowest p-4 flex flex-col gap-4 shadow-2xs">
+      <div className="border-surface-container bg-surface-container-lowest flex flex-col gap-4 rounded-2xl border p-4 shadow-2xs">
         <div className="flex items-center gap-2.5">
-          <LinearCalendar className="h-5 w-5 text-on-surface-var" />
+          <LinearCalendar className="text-on-surface-var h-5 w-5" />
           <Typography
             as="span"
             variant="label"
@@ -101,7 +95,7 @@ export function ViewAdLeadStatusSection({
               <button
                 type="button"
                 onClick={() => setIsDatePickerOpen(true)}
-                className="p-1 text-on-surface-var transition cursor-pointer"
+                className="text-on-surface-var cursor-pointer p-1 transition"
                 title="انتخاب از تقویم"
               >
                 <LinearCalendar className="h-5 w-5" />
@@ -122,7 +116,7 @@ export function ViewAdLeadStatusSection({
             variant="body"
             size="small"
             weight="regular"
-            className="flex-1 text-on-surface-var text-xs leading-5"
+            className="text-on-surface-var flex-1 text-xs leading-5"
           >
             درصورتی که بازدید را انجام دادید دکمه «بازدید شد» را بفشارید
           </Typography>

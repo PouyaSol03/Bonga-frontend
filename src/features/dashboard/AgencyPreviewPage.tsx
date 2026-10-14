@@ -28,7 +28,11 @@ import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { SearchInputBar } from "../../shared/ui/SearchBar";
 import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
-import { getActiveAuthRole, getStoredAuthSession, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
+import {
+  getActiveAuthRole,
+  getStoredAuthSession,
+  storeLoginRedirectPath,
+} from "../../shared/auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../shared/constants/roles.constants";
 import { useNavigate } from "react-router";
 import { useCreateAgencyChatMutation } from "../chat/api/chat.hooks";
@@ -43,10 +47,7 @@ import { useAgencyDashboardQuery } from "./api/dashboard.hooks";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import type { MyAgencyProfile } from "../account/api/account.service";
-import type {
-  AgencyConsultantDto,
-  PublicAgentAgencySummary,
-} from "../agencies/api/agency.service";
+import type { AgencyConsultantDto, PublicAgentAgencySummary } from "../agencies/api/agency.service";
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
@@ -204,8 +205,6 @@ function getInitialAgencyTab(): AgencyPreviewTab {
   return tab === "ads" || tab === "consultants" || tab === "info" ? tab : "info";
 }
 
-
-
 function isPublicAgencyPreviewPath() {
   return (
     typeof window !== "undefined" &&
@@ -263,9 +262,10 @@ function getAbsoluteAgencyPreviewUrl(
 ) {
   if (typeof window === "undefined") return agencyPreviewPath;
 
-  const path = !isPublicAgencyPreviewPath() && agencyId
-    ? `/agencies/${encodeURIComponent(agencyId)}`
-    : getCurrentAgencyPreviewPath();
+  const path =
+    !isPublicAgencyPreviewPath() && agencyId
+      ? `/agencies/${encodeURIComponent(agencyId)}`
+      : getCurrentAgencyPreviewPath();
   const url = new URL(path, window.location.origin);
 
   if (data?.name) url.searchParams.set("name", data.name);
@@ -348,8 +348,7 @@ export function AgencyPreviewPage() {
   const isAgentPreview = isPublicAgentPreviewPath();
   const previewPath = getCurrentAgencyPreviewPath();
   const publicPreviewId = getPublicPreviewId();
-  const isRealEstateManager =
-    getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
+  const isRealEstateManager = getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
   const publicAgencyQuery = usePublicAgencyDetailQuery({
     enabled: isPublicPreview && !isAgentPreview,
     id: publicPreviewId,
@@ -371,8 +370,7 @@ export function AgencyPreviewPage() {
     type: "active",
   });
   const agencyConsultantsQuery = useAgencyConsultantsQuery({
-    enabled:
-      !isPublicPreview && isRealEstateManager && activeTab === "consultants",
+    enabled: !isPublicPreview && isRealEstateManager && activeTab === "consultants",
     perPage: 100,
   });
   const profile = agencyProfileQuery.data;
@@ -380,8 +378,8 @@ export function AgencyPreviewPage() {
   const publicAgent = publicAgentQuery.data;
   const selectedCity = readStoredSelectedCity();
   const entityId = isAgentPreview
-    ? publicAgent?.id ?? publicPreviewId
-    : publicAgency?.id ?? String(profile?.id ?? profile?._id ?? "").trim();
+    ? (publicAgent?.id ?? publicPreviewId)
+    : (publicAgency?.id ?? String(profile?.id ?? profile?._id ?? "").trim());
   const entityName = isAgentPreview
     ? publicAgent?.name || getAgencyDisplayName() || "مشاور املاک"
     : publicAgency?.name || profile?.name?.trim() || getAgencyDisplayName() || "آژانس املاک";
@@ -389,10 +387,7 @@ export function AgencyPreviewPage() {
     profile?.city_id || getPreviewSearchParam("city_id") || selectedCity?.id || "",
   ).trim();
   const cityName =
-    profile?.city_name?.trim() ||
-    getPreviewSearchParam("city_name") ||
-    selectedCity?.name ||
-    "";
+    profile?.city_name?.trim() || getPreviewSearchParam("city_name") || selectedCity?.name || "";
   const entityLocation = isAgentPreview
     ? publicAgent?.agency?.address ||
       publicAgent?.agency?.name ||
@@ -411,9 +406,9 @@ export function AgencyPreviewPage() {
       profile?.about_us?.trim() ||
       (isPublicPreview ? getPreviewSearchParam("about_us") : "");
   const activityAreaIds = isAgentPreview
-    ? publicAgent?.neighborhood_ids ?? getPreviewNeighborhoodIds()
-    : publicAgency?.neighborhood_ids ??
-      (profile ? getProfileNeighborhoodIds(profile) : getPreviewNeighborhoodIds());
+    ? (publicAgent?.neighborhood_ids ?? getPreviewNeighborhoodIds())
+    : (publicAgency?.neighborhood_ids ??
+      (profile ? getProfileNeighborhoodIds(profile) : getPreviewNeighborhoodIds()));
   const neighborhoodsQuery = useNeighborhoodListQuery({
     cityId,
     enabled: Boolean(cityId) && activityAreaIds.length > 0,
@@ -427,9 +422,7 @@ export function AgencyPreviewPage() {
       neighborhood.name,
     ]),
   );
-  const activityAreas = activityAreaIds.map(
-    (id) => neighborhoodNameById.get(id) ?? id,
-  );
+  const activityAreas = activityAreaIds.map((id) => neighborhoodNameById.get(id) ?? id);
   const contactInfo: AgencyPreviewContactInfo = isAgentPreview
     ? {
         phone: publicAgent?.mobile ?? getPreviewSearchParam("phone1"),
@@ -459,10 +452,10 @@ export function AgencyPreviewPage() {
   const publicActiveAds = isAgentPreview
     ? publicAgent?.active_advertises_count
     : publicAgency?.active_advertises_count;
-  const entityLevel = isAgentPreview
-    ? publicAgent?.level_slug
-    : publicAgency?.level_slug;
-  const workingHours = isAgentPreview ? "" : publicAgency?.working_hours ?? profile?.working_hours ?? "";
+  const entityLevel = isAgentPreview ? publicAgent?.level_slug : publicAgency?.level_slug;
+  const workingHours = isAgentPreview
+    ? ""
+    : (publicAgency?.working_hours ?? profile?.working_hours ?? "");
   const entityStats = [
     {
       icon: <LinearStar className="h-4 w-4" />,
@@ -493,8 +486,8 @@ export function AgencyPreviewPage() {
     },
   ];
   const recentAdvertises = isAgentPreview
-    ? publicAgent?.recent_advertises ?? []
-    : publicAgency?.recent_advertises ?? [];
+    ? (publicAgent?.recent_advertises ?? [])
+    : (publicAgency?.recent_advertises ?? []);
   const previewAds = isPublicPreview
     ? recentAdvertises.map((advertise, index) => ({
         ...mapAdvertisementToAdCard(advertise, index),
@@ -507,8 +500,8 @@ export function AgencyPreviewPage() {
           agency: entityName,
         }));
   const consultants = isPublicPreview
-    ? publicAgency?.consultants ?? []
-    : agencyConsultantsQuery.data?.data ?? [];
+    ? (publicAgency?.consultants ?? [])
+    : (agencyConsultantsQuery.data?.data ?? []);
   const availableTabs = isAgentPreview
     ? agencyTabs.filter((tab) => tab.id !== "consultants")
     : agencyTabs;
@@ -524,9 +517,7 @@ export function AgencyPreviewPage() {
     ? getCurrentPageUrl()
     : getAbsoluteAgencyPreviewUrl(entityId, {
         aboutUs: entityAbout,
-        activeAds: dashboard
-          ? String(dashboard.publishedAdvertises.total)
-          : undefined,
+        activeAds: dashboard ? String(dashboard.publishedAdvertises.total) : undefined,
         cityId,
         cityName,
         location: entityLocation,
@@ -537,16 +528,12 @@ export function AgencyPreviewPage() {
         phone2: contactInfo.secondPhone,
         phone3: contactInfo.landline,
         rank: dashboard ? String(dashboard.ranking.rank) : undefined,
-        score: dashboard
-          ? String(dashboard.ranking.current.totalScore)
-          : undefined,
+        score: dashboard ? String(dashboard.ranking.current.totalScore) : undefined,
       });
   const publicPreviewLoading = isAgentPreview
     ? publicAgentQuery.isLoading
     : publicAgencyQuery.isLoading;
-  const publicPreviewError = isAgentPreview
-    ? publicAgentQuery.error
-    : publicAgencyQuery.error;
+  const publicPreviewError = isAgentPreview ? publicAgentQuery.error : publicAgencyQuery.error;
   const hasPublicPreviewData = isAgentPreview ? Boolean(publicAgent) : Boolean(publicAgency);
 
   useEffect(() => {
@@ -612,7 +599,11 @@ export function AgencyPreviewPage() {
 
     const params = new URLSearchParams(window.location.search);
     params.set("tab", tab);
-    window.history.replaceState(window.history.state ?? {}, "", `${previewPath}?${params.toString()}`);
+    window.history.replaceState(
+      window.history.state ?? {},
+      "",
+      `${previewPath}?${params.toString()}`,
+    );
   }
 
   const retryPublicPreview = () => {
@@ -624,7 +615,7 @@ export function AgencyPreviewPage() {
   };
 
   return (
-    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface [direction:rtl]">
+    <div className="bg-surface-container-low text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden [direction:rtl]">
       <SEO
         title={seoTitle}
         description={seoDescription}
@@ -676,7 +667,7 @@ export function AgencyPreviewPage() {
         contentClassName="px-2"
         title={pageTitle}
       />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-15">
+      <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-15">
         {isPublicPreview && publicPreviewLoading ? (
           <PublicPreviewLoadingState />
         ) : isPublicPreview && (!hasPublicPreviewData || publicPreviewError) ? (
@@ -701,11 +692,7 @@ export function AgencyPreviewPage() {
               isAgent={isAgentPreview}
               levelSlug={entityLevel}
             />
-            <AgencySegmentedTabs
-              activeTab={activeTab}
-              onChange={changeTab}
-              tabs={availableTabs}
-            />
+            <AgencySegmentedTabs activeTab={activeTab} onChange={changeTab} tabs={availableTabs} />
             {activeTab === "ads" ? (
               <AgencyAdsTab
                 ads={previewAds}
@@ -744,7 +731,7 @@ export function AgencyPreviewPage() {
           </>
         )}
       </main>
-      {(!isPublicPreview || hasPublicPreviewData) ? (
+      {!isPublicPreview || hasPublicPreviewData ? (
         <AgencyPreviewFooter
           entityLabel={entityLabel}
           isChatLoading={createAgencyChatMutation.isPending}
@@ -775,7 +762,6 @@ export function AgencyPreviewPage() {
           />
         </>
       ) : null}
-
     </div>
   );
 }
@@ -785,8 +771,7 @@ export function AgencyQrCodePage() {
   const isPublicPreview = isPublicAgencyPreviewPath();
   const isAgentPreview = isPublicAgentPreviewPath();
   const publicPreviewId = getPublicPreviewId();
-  const isRealEstateManager =
-    getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
+  const isRealEstateManager = getActiveAuthRole(getStoredAuthSession()) === REAL_ESTATE_MANAGER;
 
   const publicAgencyQuery = usePublicAgencyDetailQuery({
     enabled: isPublicPreview && !isAgentPreview && Boolean(publicPreviewId),
@@ -854,7 +839,7 @@ export function AgencyQrCodePage() {
   }
 
   return (
-    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]">
+    <div className="bg-surface-container-lowest text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden [direction:rtl]">
       <SEO title={`${pageTitle} ${agencyName}`} />
       <TopBar
         backTo={backTo}
@@ -863,20 +848,26 @@ export function AgencyQrCodePage() {
         title={pageTitle}
       />
 
-      <main className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto bg-surface-container-lowest px-4 pb-14">
+      <main className="bg-surface-container-lowest flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-4 pb-14">
         <AgencyQrCard agencyUrl={agencyUrl} qrLabel={agencyName} />
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-2">
+      <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-4 pt-2 pb-[max(16px,env(safe-area-inset-bottom))]">
         <Button
-          className="flex w-full items-center justify-center gap-2 border border-primary bg-surface-container-lowest text-primary transition-colors active:bg-primary/10"
+          className="border-primary bg-surface-container-lowest text-primary active:bg-primary/10 flex w-full items-center justify-center gap-2 border transition-colors"
           onClick={() => void handleShareClick()}
           type="button"
           size="x-medium"
           radius="medium"
         >
-          <LinearShare className="h-5 w-5 shrink-0 text-on-surface-var" />
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary">
+          <LinearShare className="text-on-surface-var h-5 w-5 shrink-0" />
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-primary"
+          >
             اشتراک گذاری
           </Typography>
         </Button>
@@ -885,16 +876,10 @@ export function AgencyQrCodePage() {
   );
 }
 
-function AgencyQrCard({
-  agencyUrl,
-  qrLabel,
-}: {
-  agencyUrl: string;
-  qrLabel: string;
-}) {
+function AgencyQrCard({ agencyUrl, qrLabel }: { agencyUrl: string; qrLabel: string }) {
   return (
     <section className="flex w-full flex-col items-center justify-center text-center">
-      <div className="relative h-[240px] w-[240px] overflow-hidden bg-surface-container-lowest">
+      <div className="bg-surface-container-lowest relative h-[240px] w-[240px] overflow-hidden">
         <QRCodeSVG
           bgColor="var(--surface-container-lowest)"
           className="block h-[240px] w-[240px]"
@@ -907,11 +892,16 @@ function AgencyQrCard({
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary to-secondary mix-blend-screen"
+          className="from-primary to-secondary pointer-events-none absolute inset-0 bg-gradient-to-b mix-blend-screen"
         />
       </div>
 
-      <Typography as="p" variant="headline" size="small" className="m-0 mt-4 text-center text-2xl font-semibold leading-9 text-secondary">
+      <Typography
+        as="p"
+        variant="headline"
+        size="small"
+        className="text-secondary m-0 mt-4 text-center text-2xl leading-9 font-semibold"
+      >
         {qrLabel}
       </Typography>
     </section>
@@ -921,36 +911,49 @@ function AgencyQrCard({
 function PublicPreviewLoadingState() {
   return (
     <div className="animate-pulse space-y-2">
-      <section className="bg-surface-container-lowest px-4 pb-5 pt-5 text-center">
-        <div className="mx-auto h-20 w-20 rounded-full bg-surface-container-high" />
-        <div className="mx-auto mt-4 h-7 w-40 rounded-lg bg-surface-container-high" />
-        <div className="mx-auto mt-3 h-6 w-28 rounded-full bg-surface-container" />
+      <section className="bg-surface-container-lowest px-4 pt-5 pb-5 text-center">
+        <div className="bg-surface-container-high mx-auto h-20 w-20 rounded-full" />
+        <div className="bg-surface-container-high mx-auto mt-4 h-7 w-40 rounded-lg" />
+        <div className="bg-surface-container mx-auto mt-3 h-6 w-28 rounded-full" />
         <div className="mt-6 grid grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div className="h-12 rounded-lg bg-surface-container" key={index} />
+            <div className="bg-surface-container h-12 rounded-lg" key={index} />
           ))}
         </div>
       </section>
-      <div className="h-14 bg-surface-container-lowest" />
-      <div className="h-48 bg-surface-container-lowest" />
+      <div className="bg-surface-container-lowest h-14" />
+      <div className="bg-surface-container-lowest h-48" />
     </div>
   );
 }
 
-function PublicPreviewErrorState({
-  message,
-  onRetry,
-}: {
-  message: string;
-  onRetry: () => void;
-}) {
+function PublicPreviewErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <div className="mx-auto flex min-h-[420px] w-full flex-col items-center justify-center px-6 text-center">
-      <div className="grid h-14 w-14 place-items-center rounded-full bg-error-container/20 text-2xl text-error">!</div>
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-base font-bold text-on-surface">دریافت اطلاعات ناموفق بود</Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-sm text-sm leading-6 text-outline">{message}</Typography>
-      <Button unstyled
-        className="mt-5 h-10 rounded-xl bg-primary px-6 text-sm font-semibold text-on-primary"
+      <div className="bg-error-container/20 text-error grid h-14 w-14 place-items-center rounded-full text-2xl">
+        !
+      </div>
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0 mt-4 text-base font-bold"
+      >
+        دریافت اطلاعات ناموفق بود
+      </Typography>
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-outline m-0 mt-2 max-w-sm text-sm leading-6"
+      >
+        {message}
+      </Typography>
+      <Button
+        unstyled
+        className="bg-primary text-on-primary mt-5 h-10 rounded-xl px-6 text-sm font-semibold"
         onClick={onRetry}
         type="button"
       >
@@ -976,7 +979,7 @@ function AgencyHero({
   levelSlug?: string;
 }) {
   return (
-    <section className="bg-surface-container-lowest px-4 pb-4 pt-3 text-center">
+    <section className="bg-surface-container-lowest px-4 pt-3 pb-4 text-center">
       {agencyLogo ? (
         <img
           alt={agencyName}
@@ -984,41 +987,66 @@ function AgencyHero({
           src={agencyLogo}
         />
       ) : (
-        <div className="mx-auto grid h-19 w-19 place-items-center rounded-full bg-surface-container text-outline">
+        <div className="bg-surface-container text-outline mx-auto grid h-19 w-19 place-items-center rounded-full">
           <LinearBuilding2 className="h-10 w-10" />
         </div>
       )}
-      <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 mt-2 text-on-surface-var">{agencyName}</Typography>
+      <Typography
+        as="h2"
+        variant="title"
+        size="large"
+        weight="semibold"
+        className="text-on-surface-var m-0 mt-2"
+      >
+        {agencyName}
+      </Typography>
       <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
         {agencyLocation ? (
-          <div className="inline-flex items-center gap-1 rounded-full bg-surface-container-high px-2 py-0.5 text-on-surface-var">
-            <LinearLocation className="h-4 w-4 text-on-surface-var" />
+          <div className="bg-surface-container-high text-on-surface-var inline-flex items-center gap-1 rounded-full px-2 py-0.5">
+            <LinearLocation className="text-on-surface-var h-4 w-4" />
             <Typography variant="body" size="small" weight="medium">
-            {agencyLocation}
+              {agencyLocation}
             </Typography>
           </div>
         ) : null}
         {levelSlug ? (
-          <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex min-h-7 items-center rounded-full bg-primary-container px-2.5 py-1 text-xs font-semibold text-primary">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="semibold"
+            className="bg-primary-container text-primary inline-flex min-h-7 items-center rounded-full px-2.5 py-1 text-xs font-semibold"
+          >
             {formatRankingLevelTitle({ isAgency: !isAgent, levelSlug })}
           </Typography>
         ) : null}
       </div>
 
-      <div className="mt-4 flex items-center text-on-surface-var">
+      <div className="text-on-surface-var mt-4 flex items-center">
         {agencyStats.map((item, index) => (
           <div className="contents" key={item.label}>
             <div className="grid flex-1 gap-1 text-center">
-              <Typography as="span" variant="body" size="small" weight="regular" className="mx-auto inline-flex items-center gap-1 text-on-surface">
+              <Typography
+                as="span"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-on-surface mx-auto inline-flex items-center gap-1"
+              >
                 {item.icon}
                 {item.label}
               </Typography>
-              <Typography variant="title" size="small" weight="semibold" className="text-on-surface">
+              <Typography
+                variant="title"
+                size="small"
+                weight="semibold"
+                className="text-on-surface"
+              >
                 {item.value}
               </Typography>
             </div>
             {index < agencyStats.length - 1 ? (
-              <div aria-hidden="true" className="h-7 w-px shrink-0 bg-outline-var" />
+              <div aria-hidden="true" className="bg-outline-var h-7 w-px shrink-0" />
             ) : null}
           </div>
         ))}
@@ -1037,9 +1065,9 @@ function AgencySegmentedTabs({
   tabs?: Array<{ id: AgencyPreviewTab; label: string }>;
 }) {
   return (
-    <div className="relative z-10 bg-surface-container-lowest px-4 pb-4 shadow-[0_4px_12px_rgba(0,0,0,0.10)]">
+    <div className="bg-surface-container-lowest relative z-10 px-4 pb-4 shadow-[0_4px_12px_rgba(0,0,0,0.10)]">
       <div
-        className="relative grid h-10 overflow-hidden rounded-xl border border-outline bg-surface-container-lowest text-sm font-semibold leading-5 text-on-surface-var"
+        className="border-outline bg-surface-container-lowest text-on-surface-var relative grid h-10 overflow-hidden rounded-xl border text-sm leading-5 font-semibold"
         style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       >
         {tabs.map((tab) => {
@@ -1048,7 +1076,7 @@ function AgencySegmentedTabs({
           return (
             <button
               aria-pressed={isActive}
-              className={`relative z-10 flex h-full items-center justify-center transition-colors duration-200 cursor-pointer ${
+              className={`relative z-10 flex h-full cursor-pointer items-center justify-center transition-colors duration-200 ${
                 isActive ? "text-primary" : "text-on-surface-var"
               }`}
               key={tab.id}
@@ -1060,7 +1088,7 @@ function AgencySegmentedTabs({
               </Typography>
               {isActive && (
                 <motion.div
-                  className="absolute inset-0 -z-10 bg-primary-container"
+                  className="bg-primary-container absolute inset-0 -z-10"
                   layoutId="agency-preview-tab-active-indicator"
                   transition={{ type: "spring", stiffness: 450, damping: 35 }}
                 />
@@ -1115,9 +1143,17 @@ function AgencyInfoTab({
   const aboutText = aboutUs || `توضیحی برای این ${entityLabel} ثبت نشده است.`;
 
   return (
-    <div className="space-y-2 bg-surface-container-low">
+    <div className="bg-surface-container-low space-y-2">
       <section className="bg-surface-container-lowest px-4 py-4">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right">نشان‌ها</Typography>
+        <Typography
+          as="h3"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="m-0 text-right"
+        >
+          نشان‌ها
+        </Typography>
         {badges && badges.length > 0 ? (
           <div className="mt-4 grid grid-cols-3 gap-3">
             {badges.map((b, idx) => {
@@ -1131,8 +1167,8 @@ function AgencyInfoTab({
                   key={b.slug ?? idx}
                   onClick={() => onBadgeClick?.(b)}
                   type="button"
-                  className={`flex flex-col items-center rounded-xl border border-outline-var bg-surface-container-lowest p-3 text-center transition active:scale-[0.98] ${
-                    !b.earned ? "grayscale opacity-60" : ""
+                  className={`border-outline-var bg-surface-container-lowest flex flex-col items-center rounded-xl border p-3 text-center transition active:scale-[0.98] ${
+                    !b.earned ? "opacity-60 grayscale" : ""
                   }`}
                 >
                   <div className="grid h-12 w-12 place-items-center">
@@ -1142,7 +1178,13 @@ function AgencyInfoTab({
                       src={badgeImage}
                     />
                   </div>
-                  <Typography as="span" variant="label" size="small" weight="medium" className="mt-1 truncate text-xs font-medium text-on-surface">
+                  <Typography
+                    as="span"
+                    variant="label"
+                    size="small"
+                    weight="medium"
+                    className="text-on-surface mt-1 truncate text-xs font-medium"
+                  >
                     {b.title || "نشان"}
                   </Typography>
                   <div className="mt-1 flex h-3 items-center justify-center [direction:ltr]">
@@ -1154,9 +1196,9 @@ function AgencyInfoTab({
                       />
                     ))}
                   </div>
-                  <div className="mt-2 h-1 w-full rounded-full bg-warning-container/30">
+                  <div className="bg-warning-container/30 mt-2 h-1 w-full rounded-full">
                     <div
-                      className="h-1 rounded-full bg-warning"
+                      className="bg-warning h-1 rounded-full"
                       style={{ width: `${Math.min(100, Math.max(0, b.progress ?? 0))}%` }}
                     />
                   </div>
@@ -1165,22 +1207,43 @@ function AgencyInfoTab({
             })}
           </div>
         ) : (
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-4 text-center text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline m-0 mt-4 text-center"
+          >
             اطلاعات نشان‌ها از سرور دریافت نشده است.
           </Typography>
         )}
       </section>
 
       <section className="bg-surface-container-lowest p-4">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">محدوده فعالیت</Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-7 text-on-surface-var">
+        <Typography
+          as="h3"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="m-0 text-base leading-6 font-semibold"
+        >
+          محدوده فعالیت
+        </Typography>
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-4 text-sm leading-7 font-normal"
+        >
           {activityAreaText}
         </Typography>
       </section>
 
       {agentAgency?.name ? (
-        <Button unstyled
-          className="flex w-full items-center gap-3 bg-surface-container-lowest p-4 text-right"
+        <Button
+          unstyled
+          className="bg-surface-container-lowest flex w-full items-center gap-3 p-4 text-right"
           onClick={() => {
             if (agentAgency.id) {
               navigate(`/agencies/${encodeURIComponent(agentAgency.id)}`);
@@ -1195,30 +1258,60 @@ function AgencyInfoTab({
               src={agentAgency.logo}
             />
           ) : (
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-surface-container text-outline">
+            <div className="bg-surface-container text-outline grid h-12 w-12 shrink-0 place-items-center rounded-xl">
               <LinearUserSolid className="h-6 w-6" />
             </div>
           )}
-          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
-            <strong className="block truncate text-sm text-on-surface">{agentAgency.name}</strong>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="min-w-0 flex-1"
+          >
+            <strong className="text-on-surface block truncate text-sm">{agentAgency.name}</strong>
             {agentAgency.address ? (
-              <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block truncate text-xs text-outline">{agentAgency.address}</Typography>
+              <Typography
+                as="span"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-outline mt-1 block truncate text-xs"
+              >
+                {agentAgency.address}
+              </Typography>
             ) : null}
           </Typography>
-          {agentAgency.id ? <LinearArrowLeft1 className="h-5 w-5 text-on-surface-var" /> : null}
+          {agentAgency.id ? <LinearArrowLeft1 className="text-on-surface-var h-5 w-5" /> : null}
         </Button>
       ) : null}
 
       {workingHours ? (
         <section className="bg-surface-container-lowest p-4">
-          <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">ساعات کاری</Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-sm leading-6 text-on-surface-var">{workingHours}</Typography>
+          <Typography
+            as="h3"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="m-0 text-base leading-6 font-semibold"
+          >
+            ساعات کاری
+          </Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var m-0 mt-3 text-sm leading-6"
+          >
+            {workingHours}
+          </Typography>
         </section>
       ) : null}
 
       {!isAgent ? (
         <AgencyActionRow
-          icon={<LinearAdd className="h-6 w-6 text-on-surface-var" />}
+          icon={<LinearAdd className="text-on-surface-var h-6 w-6" />}
           onClick={() => {
             const params = new URLSearchParams({
               registrantType: "personal",
@@ -1230,30 +1323,46 @@ function AgencyInfoTab({
         />
       ) : null}
       <AgencyActionRow
-        icon={<LinearAddToList className="h-6 w-6 text-on-surface-var" />}
+        icon={<LinearAddToList className="text-on-surface-var h-6 w-6" />}
         onClick={onFeedbackClick}
         title="ثبت بازخورد"
       />
 
       <section className="bg-surface-container-lowest p-4 text-center">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">درباره {agencyName}</Typography>
+        <Typography
+          as="h3"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="m-0 text-right text-base leading-6 font-semibold"
+        >
+          درباره {agencyName}
+        </Typography>
         <img alt="" src="/vectors/Bonga.svg" />
-        <Typography as="p" variant="body" size="medium" weight="regular" className={`m-0 mt-5 text-right font-normal leading-8 text-on-surface-var ${isAboutExpanded ? "" : "line-clamp-5"}`}>
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className={`text-on-surface-var m-0 mt-5 text-right leading-8 font-normal ${isAboutExpanded ? "" : "line-clamp-5"}`}
+        >
           {aboutText}
         </Typography>
         {aboutText.length > 220 ? (
-          <Button unstyled
+          <Button
+            unstyled
             aria-expanded={isAboutExpanded}
-            className="mx-auto mt-2 inline-flex items-center gap-1 text-xs font-semibold leading-4 text-primary"
+            className="text-primary mx-auto mt-2 inline-flex items-center gap-1 text-xs leading-4 font-semibold"
             onClick={() => setIsAboutExpanded((prev) => !prev)}
             type="button"
           >
-            <LinearArrowDown1 className={`h-4 w-4 transition-transform duration-300 ${isAboutExpanded ? "rotate-180" : ""}`} />
+            <LinearArrowDown1
+              className={`h-4 w-4 transition-transform duration-300 ${isAboutExpanded ? "rotate-180" : ""}`}
+            />
             {isAboutExpanded ? "نمایش کمتر" : "نمایش بیشتر"}
           </Button>
         ) : null}
       </section>
-
     </div>
   );
 }
@@ -1270,13 +1379,29 @@ function AgencyActionRow({
   return (
     <Button
       unstyled
-      className="flex w-full items-center gap-3 bg-surface-container-lowest p-4 text-right"
+      className="bg-surface-container-lowest flex w-full items-center gap-3 p-4 text-right"
       onClick={onClick}
       type="button"
     >
-      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 place-items-center text-on-surface-var">{icon}</Typography>
-      <Typography as="span" variant="label" size="large" weight="medium" className="min-w-0 flex-1 text-on-surface">{title}</Typography>
-      <LinearArrowLeft1 className="h-6 w-6 text-on-surface-var" />
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-on-surface-var grid h-6 w-6 place-items-center"
+      >
+        {icon}
+      </Typography>
+      <Typography
+        as="span"
+        variant="label"
+        size="large"
+        weight="medium"
+        className="text-on-surface min-w-0 flex-1"
+      >
+        {title}
+      </Typography>
+      <LinearArrowLeft1 className="text-on-surface-var h-6 w-6" />
     </Button>
   );
 }
@@ -1308,12 +1433,13 @@ function AgencyAdsTab({
   );
 
   return (
-    <div className="space-y-2 bg-surface-container-lowest px-0 pb-3 pt-5">
+    <div className="bg-surface-container-lowest space-y-2 px-0 pt-5 pb-3">
       <div className="flex items-center gap-2 px-4 [direction:ltr]">
         {showFilter ? (
-          <Button unstyled
+          <Button
+            unstyled
             aria-label="فیلتر آگهی‌ها"
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-primary bg-primary-container text-primary"
+            className="border-primary bg-primary-container text-primary grid h-12 w-12 shrink-0 place-items-center rounded-xl border"
             onClick={() => navigate(`${agencyPreviewPath}/filter?returnTo=${filterReturnTo}`)}
             type="button"
           >
@@ -1337,7 +1463,7 @@ function AgencyAdsTab({
         {visibleAds.length ? (
           visibleAds.map((ad) => (
             <AdCard
-              className="shrink-0 border-b-[12px] border-surface-container last:border-b-0"
+              className="border-surface-container shrink-0 border-b-[12px] last:border-b-0"
               key={ad.id}
               ad={ad}
               showAgency={false}
@@ -1348,7 +1474,7 @@ function AgencyAdsTab({
         ) : normalizedQuery ? (
           <SearchEmptyState />
         ) : (
-          <div className="bg-surface-container-lowest px-4 py-12 text-center text-sm text-outline">
+          <div className="bg-surface-container-lowest text-outline px-4 py-12 text-center text-sm">
             آگهی فعالی برای نمایش وجود ندارد.
           </div>
         )}
@@ -1362,8 +1488,9 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
   return (
     <section className="flex flex-col gap-y-2">
       {consultants.map((consultant, index) => (
-        <Button unstyled
-          className={`flex w-full items-center justify-center gap-4 bg-surface-container-lowest px-4 py-4 text-center transition active:bg-surface-container-low ${index < consultants.length - 1 ? "border-b border-outline-var" : ""}`}
+        <Button
+          unstyled
+          className={`bg-surface-container-lowest active:bg-surface-container-low flex w-full items-center justify-center gap-4 px-4 py-4 text-center transition ${index < consultants.length - 1 ? "border-outline-var border-b" : ""}`}
           key={consultant.agentId ?? consultant.userId}
           onClick={() => {
             if (consultant.agentId === undefined) return;
@@ -1377,19 +1504,79 @@ function AgencyConsultantsTab({ consultants }: { consultants: AgencyConsultantDt
               name={consultant.name}
               src={consultant.avatar}
             />
-            <Typography as="h3" variant="title" size="medium" weight="medium" className="m-0 mt-2 text-on-surface-var">{consultant.name}</Typography>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 px-2 py-0.5 rounded-lg bg-surface-container text-outline">{getAgencyConsultantRoleLabel(consultant.role)}</Typography>
-            <div className="mt-4 flex items-center justify-center gap-5 text-xs font-medium leading-4 text-on-surface-var">
-              <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1">
+            <Typography
+              as="h3"
+              variant="title"
+              size="medium"
+              weight="medium"
+              className="text-on-surface-var m-0 mt-2"
+            >
+              {consultant.name}
+            </Typography>
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="bg-surface-container text-outline m-0 mt-1 rounded-lg px-2 py-0.5"
+            >
+              {getAgencyConsultantRoleLabel(consultant.role)}
+            </Typography>
+            <div className="text-on-surface-var mt-4 flex items-center justify-center gap-5 text-xs leading-4 font-medium">
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="inline-flex items-center gap-1"
+              >
                 <LinearStar className="h-4 w-4" />
-                <Typography as="p" variant="body" size="small" weight="medium" className="text-xs font-medium text-on-surface">امتیاز</Typography>
-                <Typography as="span" variant="label" size="medium" weight="semibold" className="mr-3 font-semibold text-sm text-tertiary">{toPersianDigits(consultant.metrics.rankingScore)}</Typography>
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="small"
+                  weight="medium"
+                  className="text-on-surface text-xs font-medium"
+                >
+                  امتیاز
+                </Typography>
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="semibold"
+                  className="text-tertiary mr-3 text-sm font-semibold"
+                >
+                  {toPersianDigits(consultant.metrics.rankingScore)}
+                </Typography>
               </Typography>
-              <div className="h-4.75 w-px bg-outline-var"></div>
-              <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1">
+              <div className="bg-outline-var h-4.75 w-px"></div>
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="inline-flex items-center gap-1"
+              >
                 <LinearRanking className="h-4 w-4" />
-                <Typography as="p" variant="body" size="small" weight="medium" className="text-xs font-medium text-on-surface">رتبه</Typography>
-                <Typography as="span" variant="label" size="medium" weight="semibold" className="mr-3 font-semibold text-sm text-tertiary">—</Typography>
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="small"
+                  weight="medium"
+                  className="text-on-surface text-xs font-medium"
+                >
+                  رتبه
+                </Typography>
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="semibold"
+                  className="text-tertiary mr-3 text-sm font-semibold"
+                >
+                  —
+                </Typography>
               </Typography>
             </div>
           </div>
@@ -1412,9 +1599,7 @@ function ConsultantAvatar({
   const shouldShowImage = Boolean(src) && !hasImageError;
 
   return (
-    <div
-      className="grid h-18 w-18 place-items-center overflow-hidden rounded-full bg-gradient-to-br bg-surface-container-low"
-    >
+    <div className="bg-surface-container-low grid h-18 w-18 place-items-center overflow-hidden rounded-full bg-gradient-to-br">
       {shouldShowImage ? (
         <img
           alt={name}
@@ -1423,7 +1608,7 @@ function ConsultantAvatar({
           src={src}
         />
       ) : (
-        <LinearUserSolid className="h-9 w-9 text-outline" />
+        <LinearUserSolid className="text-outline h-9 w-9" />
       )}
     </div>
   );
@@ -1458,7 +1643,9 @@ function AgencyContactBottomSheet({
     },
   ].filter((item) => item.href);
   const hasMap = contactInfo.lat !== undefined && contactInfo.lng !== undefined;
-  const contactRowCount = [contactInfo.phone, contactInfo.secondPhone, contactInfo.landline].filter(Boolean).length;
+  const contactRowCount = [contactInfo.phone, contactInfo.secondPhone, contactInfo.landline].filter(
+    Boolean,
+  ).length;
   const hasAnyContactInfo = contactRowCount > 0 || hasMap || socialLinks.length > 0;
   const hasRichContactInfo = contactRowCount === 3 && hasMap && socialLinks.length > 0;
 
@@ -1467,9 +1654,7 @@ function AgencyContactBottomSheet({
       ariaLabel="اطلاعات تماس"
       contentClassName="mx-4 mt-2 pb-5"
       heightClassName={
-        hasRichContactInfo
-          ? "h-[min(571px,calc(100dvh-56px))]"
-          : "h-auto max-h-[calc(100dvh-56px)]"
+        hasRichContactInfo ? "h-[min(571px,calc(100dvh-56px))]" : "h-auto max-h-[calc(100dvh-56px)]"
       }
       isOpen={isOpen}
       onClose={onClose}
@@ -1481,7 +1666,11 @@ function AgencyContactBottomSheet({
           <ContactRow href={`tel:${phoneHref}`} label="شماره اصلی" value={contactInfo.phone} />
         ) : null}
         {contactInfo.secondPhone ? (
-          <ContactRow href={`tel:${secondPhoneHref}`} label="شماره دوم" value={contactInfo.secondPhone} />
+          <ContactRow
+            href={`tel:${secondPhoneHref}`}
+            label="شماره دوم"
+            value={contactInfo.secondPhone}
+          />
         ) : null}
         {contactInfo.landline ? (
           <ContactRow
@@ -1494,7 +1683,9 @@ function AgencyContactBottomSheet({
       </div>
 
       {hasMap ? (
-        <div className={`${contactRowCount ? "mt-4" : "mt-2"} overflow-hidden rounded-2xl bg-surface-container-low`}>
+        <div
+          className={`${contactRowCount ? "mt-4" : "mt-2"} bg-surface-container-low overflow-hidden rounded-2xl`}
+        >
           <AgencyMiniMap lat={contactInfo.lat as number} lng={contactInfo.lng as number} />
         </div>
       ) : null}
@@ -1506,7 +1697,7 @@ function AgencyContactBottomSheet({
             variant="label"
             size="medium"
             weight="medium"
-            className="m-0 text-right text-sm font-medium leading-5 text-on-surface-var"
+            className="text-on-surface-var m-0 text-right text-sm leading-5 font-medium"
           >
             شبکه‌های اجتماعی
           </Typography>
@@ -1533,7 +1724,7 @@ function AgencyContactBottomSheet({
           variant="body"
           size="medium"
           weight="regular"
-          className="m-0 py-6 text-center text-sm text-outline"
+          className="text-outline m-0 py-6 text-center text-sm"
         >
           اطلاعات تماسی ثبت نشده است.
         </Typography>
@@ -1590,7 +1781,7 @@ function ContactRow({
 }) {
   return (
     <a
-      className="flex h-14 items-center justify-between gap-3 border-b border-outline-var text-on-surface no-underline [direction:ltr]"
+      className="border-outline-var text-on-surface flex h-14 items-center justify-between gap-3 border-b no-underline [direction:ltr]"
       href={href}
     >
       <Typography
@@ -1598,22 +1789,22 @@ function ContactRow({
         variant="label"
         size="large"
         weight="medium"
-        className="text-left text-base font-medium leading-6 text-on-surface"
+        className="text-on-surface text-left text-base leading-6 font-medium"
       >
         {toPersianDigits(value)}
       </Typography>
       <span className="inline-flex min-w-0 items-center gap-2 [direction:rtl]">
         {icon === "message" ? (
-          <ContactMessageIcon className="h-6 w-6 shrink-0 text-on-surface-var" />
+          <ContactMessageIcon className="text-on-surface-var h-6 w-6 shrink-0" />
         ) : (
-          <ContactPhoneIcon className="h-6 w-6 shrink-0 text-on-surface-var" />
+          <ContactPhoneIcon className="text-on-surface-var h-6 w-6 shrink-0" />
         )}
         <Typography
           as="span"
           variant="body"
           size="medium"
           weight="regular"
-          className="text-right text-sm font-normal leading-5 text-outline"
+          className="text-outline text-right text-sm leading-5 font-normal"
         >
           {label}
         </Typography>
@@ -1652,11 +1843,7 @@ function AgencyMiniMap({ lat, lng }: { lat: number; lng: number }) {
       zoomControl={false}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <Marker
-        icon={createAgencyContactMapMarkerIcon()}
-        interactive={false}
-        position={[lat, lng]}
-      />
+      <Marker icon={createAgencyContactMapMarkerIcon()} interactive={false} position={[lat, lng]} />
     </MapContainer>
   );
 }
@@ -1695,10 +1882,11 @@ function AgencyPreviewFooter({
   isChatLoading?: boolean;
 }) {
   return (
-    <footer className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+    <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 z-20 px-4 pt-3 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
       <div className="grid h-10 grid-cols-2 gap-4 [direction:ltr]">
-        <Button unstyled
-          className="cursor-pointer rounded-lg bg-primary text-sm font-semibold leading-5 text-on-primary"
+        <Button
+          unstyled
+          className="bg-primary text-on-primary cursor-pointer rounded-lg text-sm leading-5 font-semibold"
           onClick={onContactClick}
           type="button"
         >
@@ -1707,7 +1895,7 @@ function AgencyPreviewFooter({
         <Button
           unstyled
           disabled={isChatLoading}
-          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-primary bg-surface-container-lowest text-sm font-semibold leading-5 text-primary disabled:opacity-60"
+          className="border-primary bg-surface-container-lowest text-primary inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border text-sm leading-5 font-semibold disabled:opacity-60"
           onClick={onChatClick}
           type="button"
         >

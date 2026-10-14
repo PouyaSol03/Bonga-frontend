@@ -15,12 +15,19 @@ import {
   useV2RankingProgressQuery,
 } from "./api/v2/ranking-v2.hooks";
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
-import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT } from "../../shared/constants/roles.constants";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+} from "../../shared/constants/roles.constants";
 import { IndependentConsultantRankingPage } from "../account/IndependentConsultantRankingPage";
 import { getAgencyRankingLevel, formatRankingLevelTitle } from "./utils/rankingLevels";
 import { LevelSummaryCard, MetricSummaryCard } from "./ranking/LevelSummaryCards";
 import { AgencyBadgesPanel } from "./ranking/AgencyBadgesPanel";
-import { RankingIndicatorsPanel, type AgencyIndicator, type RankingPeriod } from "./ranking/RankingIndicatorsPanel";
+import {
+  RankingIndicatorsPanel,
+  type AgencyIndicator,
+  type RankingPeriod,
+} from "./ranking/RankingIndicatorsPanel";
 import { TopAgenciesPanel } from "./ranking/TopAgenciesPanel";
 import type { V2LeaderboardItem } from "./api/v2/ranking-v2.service";
 
@@ -34,18 +41,24 @@ const DASHBOARD_BADGES_GUIDE_PATH = "/account/dashboard/ranking/badges/guide";
 
 export function BadgesPanelSkeleton() {
   return (
-    <section className="rounded-2xl bg-surface-container-lowest p-4 animate-pulse" aria-label="بارگذاری نشان‌ها">
+    <section
+      className="bg-surface-container-lowest animate-pulse rounded-2xl p-4"
+      aria-label="بارگذاری نشان‌ها"
+    >
       <div className="flex h-7 items-center justify-between [direction:ltr]">
-        <div className="h-4 w-12 rounded bg-surface-container-high" />
-        <div className="h-5 w-20 rounded bg-surface-container-high" />
+        <div className="bg-surface-container-high h-4 w-12 rounded" />
+        <div className="bg-surface-container-high h-5 w-20 rounded" />
       </div>
       <div className="mt-6 grid grid-cols-2 gap-4 [direction:ltr]">
         {[0, 1].map((i) => (
-          <div key={i} className="flex h-[186px] w-full flex-col items-center rounded-lg border border-outline-var bg-surface-container-lowest pt-6">
-            <div className="h-[72px] w-[72px] rounded-full bg-surface-container-high" />
-            <div className="mt-2 h-6 w-20 rounded bg-surface-container-high" />
-            <div className="mt-2 h-3 w-14 rounded bg-surface-container-high" />
-            <div className="mt-4 h-1 w-[92px] rounded-full bg-surface-container-high" />
+          <div
+            key={i}
+            className="border-outline-var bg-surface-container-lowest flex h-[186px] w-full flex-col items-center rounded-lg border pt-6"
+          >
+            <div className="bg-surface-container-high h-[72px] w-[72px] rounded-full" />
+            <div className="bg-surface-container-high mt-2 h-6 w-20 rounded" />
+            <div className="bg-surface-container-high mt-2 h-3 w-14 rounded" />
+            <div className="bg-surface-container-high mt-4 h-1 w-[92px] rounded-full" />
           </div>
         ))}
       </div>
@@ -55,17 +68,23 @@ export function BadgesPanelSkeleton() {
 
 export function RankingIndicatorsPanelSkeleton() {
   return (
-    <section className="rounded-2xl bg-surface-container-lowest p-4 animate-pulse" aria-label="بارگذاری شاخص‌ها">
+    <section
+      className="bg-surface-container-lowest animate-pulse rounded-2xl p-4"
+      aria-label="بارگذاری شاخص‌ها"
+    >
       <div className="flex h-7 items-center justify-between [direction:ltr]">
-        <div className="h-6 w-16 rounded bg-surface-container-high" />
-        <div className="h-5 w-28 rounded bg-surface-container-high" />
+        <div className="bg-surface-container-high h-6 w-16 rounded" />
+        <div className="bg-surface-container-high h-5 w-28 rounded" />
       </div>
       <div className="mt-6 space-y-4">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="flex min-h-20 items-center justify-between rounded-lg border border-outline-var px-4 py-3 [direction:ltr]">
-            <div className="h-6 w-10 rounded bg-surface-container-high" />
-            <div className="h-5 w-32 rounded bg-surface-container-high" />
-            <div className="h-12 w-12 rounded-2xl bg-surface-container-high" />
+          <div
+            key={i}
+            className="border-outline-var flex min-h-20 items-center justify-between rounded-lg border px-4 py-3 [direction:ltr]"
+          >
+            <div className="bg-surface-container-high h-6 w-10 rounded" />
+            <div className="bg-surface-container-high h-5 w-32 rounded" />
+            <div className="bg-surface-container-high h-12 w-12 rounded-2xl" />
           </div>
         ))}
       </div>
@@ -75,15 +94,18 @@ export function RankingIndicatorsPanelSkeleton() {
 
 export function TopEntitiesPanelSkeleton({ title = "۱۰ برتر" }: { title?: string } = {}) {
   return (
-    <section className="rounded-2xl bg-surface-container-lowest p-4 animate-pulse" aria-label="بارگذاری لیست برتر">
-      <div className="h-5 w-28 rounded bg-surface-container-high">
+    <section
+      className="bg-surface-container-lowest animate-pulse rounded-2xl p-4"
+      aria-label="بارگذاری لیست برتر"
+    >
+      <div className="bg-surface-container-high h-5 w-28 rounded">
         <span className="sr-only">{title}</span>
       </div>
       <div className="mt-4 space-y-2">
-        <div className="h-7 w-full rounded bg-surface-container-high/60" />
-        <div className="h-px bg-outline-var" />
+        <div className="bg-surface-container-high/60 h-7 w-full rounded" />
+        <div className="bg-outline-var h-px" />
         {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-10 w-full rounded-lg bg-surface-container-high/40" />
+          <div key={i} className="bg-surface-container-high/40 h-10 w-full rounded-lg" />
         ))}
       </div>
     </section>
@@ -92,23 +114,23 @@ export function TopEntitiesPanelSkeleton({ title = "۱۰ برتر" }: { title?: 
 
 export function SummaryCardsSkeleton() {
   return (
-    <div className="space-y-4 animate-pulse [direction:rtl]">
-      <div className="flex h-20 items-center justify-between rounded-2xl bg-surface-container-lowest px-4 [direction:ltr]">
-        <div className="h-12 w-28 rounded bg-surface-container-high" />
-        <div className="h-12 w-12 rounded-full bg-surface-container-high" />
+    <div className="animate-pulse space-y-4 [direction:rtl]">
+      <div className="bg-surface-container-lowest flex h-20 items-center justify-between rounded-2xl px-4 [direction:ltr]">
+        <div className="bg-surface-container-high h-12 w-28 rounded" />
+        <div className="bg-surface-container-high h-12 w-12 rounded-full" />
       </div>
-      <div className="flex h-20 items-center justify-between rounded-2xl bg-surface-container-lowest px-4 [direction:ltr]">
-        <div className="h-7 w-12 rounded bg-surface-container-high" />
+      <div className="bg-surface-container-lowest flex h-20 items-center justify-between rounded-2xl px-4 [direction:ltr]">
+        <div className="bg-surface-container-high h-7 w-12 rounded" />
         <div className="flex items-center gap-2 [direction:rtl]">
-          <div className="h-10 w-10 rounded-2xl bg-surface-container-high" />
-          <div className="h-5 w-20 rounded bg-surface-container-high" />
+          <div className="bg-surface-container-high h-10 w-10 rounded-2xl" />
+          <div className="bg-surface-container-high h-5 w-20 rounded" />
         </div>
       </div>
-      <div className="flex h-20 items-center justify-between rounded-2xl bg-surface-container-lowest px-4 [direction:ltr]">
-        <div className="h-7 w-12 rounded bg-surface-container-high" />
+      <div className="bg-surface-container-lowest flex h-20 items-center justify-between rounded-2xl px-4 [direction:ltr]">
+        <div className="bg-surface-container-high h-7 w-12 rounded" />
         <div className="flex items-center gap-2 [direction:rtl]">
-          <div className="h-10 w-10 rounded-2xl bg-surface-container-high" />
-          <div className="h-5 w-20 rounded bg-surface-container-high" />
+          <div className="bg-surface-container-high h-10 w-10 rounded-2xl" />
+          <div className="bg-surface-container-high h-5 w-20 rounded" />
         </div>
       </div>
     </div>
@@ -154,7 +176,12 @@ function AgencyDashboardRankingPage() {
         message: v2SummaryQuery.data.message,
       });
     }
-  }, [v2SummaryQuery.error, v2SummaryQuery.isError, v2SummaryQuery.isSuccess, v2SummaryQuery.data?.message]);
+  }, [
+    v2SummaryQuery.error,
+    v2SummaryQuery.isError,
+    v2SummaryQuery.isSuccess,
+    v2SummaryQuery.data?.message,
+  ]);
 
   const v2Summary = v2SummaryQuery.data?.data;
   const workSummary = v2Summary?.workSummary;
@@ -176,7 +203,8 @@ function AgencyDashboardRankingPage() {
     levelSlug: currentLevelSlug,
   });
 
-  const rawLeaderboard: V2LeaderboardItem[] | undefined = v2LeaderboardQuery.data?.data ?? v2LeaderboardQuery.data?.list;
+  const rawLeaderboard: V2LeaderboardItem[] | undefined =
+    v2LeaderboardQuery.data?.data ?? v2LeaderboardQuery.data?.list;
   const leaderboard = rawLeaderboard
     ? rawLeaderboard.map((item: V2LeaderboardItem, idx: number) => {
         const name = item.agency_name || item.agent_name || item.name || `آژانس ${idx + 1}`;
@@ -226,7 +254,7 @@ function AgencyDashboardRankingPage() {
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -244,7 +272,7 @@ function AgencyDashboardRankingPage() {
         title="نشان‌ها و رتبه"
       />
 
-      <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-surface-container px-4 pb-6 pt-4">
+      <main className="bg-surface-container min-h-0 flex-1 space-y-4 overflow-x-hidden overflow-y-auto px-4 pt-4 pb-6">
         {v2SummaryQuery.isLoading ? (
           <SummaryCardsSkeleton />
         ) : (
@@ -255,13 +283,13 @@ function AgencyDashboardRankingPage() {
               score={formatOptionalNumber(currentTotalScore)}
             />
             <MetricSummaryCard
-              icon={<LinearRanking className="h-6 w-6 text-tertiary" />}
+              icon={<LinearRanking className="text-tertiary h-6 w-6" />}
               iconClassName="bg-tertiary-container/30"
               label="رتبه آژانس"
               value={formatOptionalNumber(currentRank)}
             />
             <MetricSummaryCard
-              icon={<LinearStar className="h-6 w-6 text-warning" />}
+              icon={<LinearStar className="text-warning h-6 w-6" />}
               iconClassName="bg-warning-container/30"
               label="امتیاز آژانس"
               value={formatOptionalNumber(currentTotalScore)}

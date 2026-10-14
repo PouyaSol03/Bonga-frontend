@@ -74,33 +74,28 @@ export function NewAdFlowPage() {
     });
   };
 
-  const {
-    createAdvertisement,
-    crmSaveMutation,
-    saveDraftMutation,
-    submit,
-    updateAdvertisement,
-  } = useNewAdSubmit({
-    activeRole,
-    advertiseFormQuery,
-    categoriesQuery,
-    crmEditRecord,
-    currentFormCode,
-    draftAdId,
-    editAdData,
-    editAdId,
-    editAdState,
-    initialEditValuesRef,
-    isCrmSource,
-    isEditMode,
-    isEditingIncomplete,
-    methods,
-    routeParams,
-    setFieldErrors,
-    setStep,
-    setSubmitError,
-    submitLockRef,
-  });
+  const { createAdvertisement, crmSaveMutation, saveDraftMutation, submit, updateAdvertisement } =
+    useNewAdSubmit({
+      activeRole,
+      advertiseFormQuery,
+      categoriesQuery,
+      crmEditRecord,
+      currentFormCode,
+      draftAdId,
+      editAdData,
+      editAdId,
+      editAdState,
+      initialEditValuesRef,
+      isCrmSource,
+      isEditMode,
+      isEditingIncomplete,
+      methods,
+      routeParams,
+      setFieldErrors,
+      setStep,
+      setSubmitError,
+      submitLockRef,
+    });
 
   const actions = useNewAdStepActions({
     advertiseFormQuery,
@@ -129,7 +124,7 @@ export function NewAdFlowPage() {
 
   return (
     <PageFrame
-      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex h-full min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <FormProvider {...methods}>
@@ -145,12 +140,12 @@ export function NewAdFlowPage() {
             />
 
             {submitError ? (
-              <div className="mx-4 mt-2 flex items-center justify-between rounded-lg border border-error/30 bg-error-container p-3 text-right text-sm text-error">
+              <div className="border-error/30 bg-error-container text-error mx-4 mt-2 flex items-center justify-between rounded-lg border p-3 text-right text-sm">
                 <span>{submitError}</span>
                 <button
                   type="button"
                   onClick={() => setSubmitError("")}
-                  className="mr-2 text-xs font-bold text-error"
+                  className="text-error mr-2 text-xs font-bold"
                 >
                   ✕
                 </button>

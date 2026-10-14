@@ -18,10 +18,7 @@ type ToastProps = {
   toast: ToastItem | null;
 };
 
-const toastStyles: Record<
-  ToastVariant,
-  { background: string; border: string; text: string }
-> = {
+const toastStyles: Record<ToastVariant, { background: string; border: string; text: string }> = {
   success: {
     background: "bg-tertiary-container",
     border: "border-tertiary",

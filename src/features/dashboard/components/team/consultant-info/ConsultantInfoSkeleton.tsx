@@ -2,12 +2,12 @@ import { TopBar } from "../../../../../shared/components/TopBar";
 import { Typography } from "../../../../../shared/ui/Typography";
 
 function ConsultantInfoSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-surface-container-high ${className}`} />;
+  return <div className={`bg-surface-container-high animate-pulse rounded-lg ${className}`} />;
 }
 
 export function ConsultantInfoRowsSkeleton({ rows }: { rows: number }) {
   return (
-    <article className="rounded-2xl bg-surface-container-lowest px-4 py-5">
+    <article className="bg-surface-container-lowest rounded-2xl px-4 py-5">
       <div className="grid gap-8">
         {Array.from({ length: rows }, (_, index) => (
           <div className="flex items-center justify-between" key={index}>
@@ -28,7 +28,7 @@ export function ConsultantInfoPageSkeleton() {
     <section
       aria-busy="true"
       aria-label="در حال دریافت اطلاعات مشاور"
-      className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface"
+      className="bg-surface-container-low text-on-surface mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden"
       dir="rtl"
       role="status"
     >
@@ -41,7 +41,7 @@ export function ConsultantInfoPageSkeleton() {
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
-        <article className="mt-4 rounded-2xl bg-surface-container-lowest p-4">
+        <article className="bg-surface-container-lowest mt-4 rounded-2xl p-4">
           <div className="flex items-center gap-4">
             <ConsultantInfoSkeletonBlock className="h-16 w-16 shrink-0 rounded-full" />
             <div className="min-w-0 flex-1 space-y-3">
@@ -61,7 +61,7 @@ export function ConsultantInfoPageSkeleton() {
           <ConsultantInfoRowsSkeleton rows={3} />
 
           {Array.from({ length: 3 }, (_, index) => (
-            <article className="rounded-2xl bg-surface-container-lowest p-4" key={index}>
+            <article className="bg-surface-container-lowest rounded-2xl p-4" key={index}>
               <div className="flex items-center justify-between">
                 <ConsultantInfoSkeletonBlock className="h-5 w-40" />
                 <ConsultantInfoSkeletonBlock className="h-7 w-16" />
@@ -78,14 +78,16 @@ export function ConsultantInfoPageSkeleton() {
             </article>
           ))}
 
-          <article className="rounded-2xl bg-surface-container-lowest p-4">
+          <article className="bg-surface-container-lowest rounded-2xl p-4">
             <ConsultantInfoSkeletonBlock className="ml-auto h-5 w-40" />
             <ConsultantInfoSkeletonBlock className="mt-7 h-[220px] w-full" />
           </article>
         </section>
       </main>
 
-      <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">در حال دریافت اطلاعات مشاور...</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">
+        در حال دریافت اطلاعات مشاور...
+      </Typography>
     </section>
   );
 }

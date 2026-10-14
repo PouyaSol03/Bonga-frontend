@@ -1,18 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { queryKeys } from "../../../shared/api/query-keys";
-import {
-  getMostVisitedCityList,
-  searchCities,
-} from "./city.service";
+import { getMostVisitedCityList, searchCities } from "./city.service";
 
-export function useCitySearchQuery({
-  enabled = true,
-  q = "",
-}: {
-  enabled?: boolean;
-  q?: string;
-}) {
+export function useCitySearchQuery({ enabled = true, q = "" }: { enabled?: boolean; q?: string }) {
   return useQuery({
     enabled,
     queryFn: () => searchCities(q),

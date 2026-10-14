@@ -79,13 +79,13 @@ function PricingCardsSkeleton({ count = 3 }: { count?: number }) {
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: count }).map((_, index) => (
         <div
-          className="h-[238px] rounded-xl border border-outline-var bg-surface-container-lowest p-5"
+          className="border-outline-var bg-surface-container-lowest h-[238px] rounded-xl border p-5"
           key={index}
         >
-          <div className="mb-8 h-6 w-28 rounded-md bg-surface-container-high" />
-          <div className="mb-4 h-4 w-20 rounded-md bg-surface-container-high" />
-          <div className="mb-10 h-8 w-36 rounded-md bg-surface-container-high" />
-          <div className="mt-auto h-11 w-full rounded-lg bg-surface-container-high" />
+          <div className="bg-surface-container-high mb-8 h-6 w-28 rounded-md" />
+          <div className="bg-surface-container-high mb-4 h-4 w-20 rounded-md" />
+          <div className="bg-surface-container-high mb-10 h-8 w-36 rounded-md" />
+          <div className="bg-surface-container-high mt-auto h-11 w-full rounded-lg" />
         </div>
       ))}
     </div>
@@ -94,7 +94,9 @@ function PricingCardsSkeleton({ count = 3 }: { count?: number }) {
 
 function EmptyPackagesState({ className = "" }: { className?: string }) {
   return (
-    <div className={`mx-auto w-full rounded-xl border border-dashed border-outline-var bg-surface-container-low px-4 py-10 text-center text-sm font-medium text-on-surface-var ${className}`}>
+    <div
+      className={`border-outline-var bg-surface-container-low text-on-surface-var mx-auto w-full rounded-xl border border-dashed px-4 py-10 text-center text-sm font-medium ${className}`}
+    >
       بسته‌ای برای نمایش وجود ندارد.
     </div>
   );
@@ -109,12 +111,18 @@ function toFaNumber(value: number | string) {
 }
 
 function getGiftBenefits(plan: PackageItem) {
-  const benefits = getCreditItems(plan).map((item) => `${item.value.toLocaleString("fa-IR")} ${item.label}`);
+  const benefits = getCreditItems(plan).map(
+    (item) => `${item.value.toLocaleString("fa-IR")} ${item.label}`,
+  );
 
   return benefits;
 }
 
-function mapMobilePanelPlan(plan: PackageItem, index: number, hasManagerGift: boolean): MobileCreditPlan {
+function mapMobilePanelPlan(
+  plan: PackageItem,
+  index: number,
+  hasManagerGift: boolean,
+): MobileCreditPlan {
   const giftBenefits = hasManagerGift ? getGiftBenefits(plan) : [];
 
   return {
@@ -130,7 +138,9 @@ function mapMobilePanelPlan(plan: PackageItem, index: number, hasManagerGift: bo
 
 function mapMobilePackagePlan(plan: PackageItem, index: number): MobileCreditPlan {
   return {
-    benefits: getCreditItems(plan).map((item) => `${item.value.toLocaleString("fa-IR")} اعتبار ${item.label}`),
+    benefits: getCreditItems(plan).map(
+      (item) => `${item.value.toLocaleString("fa-IR")} اعتبار ${item.label}`,
+    ),
     currentPrice: plan.final_price,
     discount: plan.discount_percent,
     id: String(plan.id),
@@ -140,22 +150,34 @@ function mapMobilePackagePlan(plan: PackageItem, index: number): MobileCreditPla
   };
 }
 
-function MobileCreditTabs({ activeTab, onChange }: { activeTab: MobilePaymentTab; onChange: (tab: MobilePaymentTab) => void }) {
+function MobileCreditTabs({
+  activeTab,
+  onChange,
+}: {
+  activeTab: MobilePaymentTab;
+  onChange: (tab: MobilePaymentTab) => void;
+}) {
   return (
-    <nav className="shrink-0 bg-surface-container-lowest px-4 py-4" aria-label="نوع افزایش اعتبار">
-      <div className="flex h-11 overflow-hidden rounded-xl border border-primary [direction:ltr]">
-        <Button unstyled
-          className={`flex flex-1 items-center justify-center text-base font-medium leading-6 [direction:rtl] ${
-            activeTab === "panel" ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface-var"
+    <nav className="bg-surface-container-lowest shrink-0 px-4 py-4" aria-label="نوع افزایش اعتبار">
+      <div className="border-primary flex h-11 overflow-hidden rounded-xl border [direction:ltr]">
+        <Button
+          unstyled
+          className={`flex flex-1 items-center justify-center text-base leading-6 font-medium [direction:rtl] ${
+            activeTab === "panel"
+              ? "bg-primary-container text-primary"
+              : "bg-surface-container-lowest text-on-surface-var"
           }`}
           onClick={() => onChange("panel")}
           type="button"
         >
           اعتبار پنل
         </Button>
-        <Button unstyled
-          className={`flex flex-1 items-center justify-center border-l border-primary text-base font-medium leading-6 [direction:rtl] ${
-            activeTab === "packages" ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface-var"
+        <Button
+          unstyled
+          className={`border-primary flex flex-1 items-center justify-center border-l text-base leading-6 font-medium [direction:rtl] ${
+            activeTab === "packages"
+              ? "bg-primary-container text-primary"
+              : "bg-surface-container-lowest text-on-surface-var"
           }`}
           onClick={() => onChange("packages")}
           type="button"
@@ -171,7 +193,13 @@ function MobileDiscountBadge({ discount }: { discount: number }) {
   if (!discount) return null;
 
   return (
-    <Typography as="p" variant="body" size="medium" weight="medium" className="rounded-full bg-error/8 px-3 py-1 text-error">
+    <Typography
+      as="p"
+      variant="body"
+      size="medium"
+      weight="medium"
+      className="bg-error/8 text-error rounded-full px-3 py-1"
+    >
       {toFaNumber(discount)}٪ تخفیف
     </Typography>
   );
@@ -181,20 +209,32 @@ function MobilePrice({ plan }: { plan: MobileCreditPlan }) {
   return (
     <>
       <div className="flex h-6 items-center">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-primary [direction:rtl]">
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-primary m-0 [direction:rtl]"
+        >
           {plan.title}
         </Typography>
       </div>
       <div className="mt-8 flex items-end gap-x-6">
         <div className="text-right">
-          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-semibold leading-6 text-outline line-through">
+          <Typography
+            as="p"
+            variant="body"
+            size="large"
+            weight="medium"
+            className="text-outline m-0 text-base leading-6 font-semibold line-through"
+          >
             {toFaNumber(plan.originalPrice)}
           </Typography>
           <div className="mt-0.5 flex items-center justify-end gap-1 [direction:rtl]">
-            <strong className="text-[22px] font-semibold leading-7 text-on-surface">
+            <strong className="text-on-surface text-[22px] leading-7 font-semibold">
               {toFaNumber(plan.currentPrice)}
             </strong>
-            <LinearTooman className="h-6 w-6 text-on-surface-var"/>
+            <LinearTooman className="text-on-surface-var h-6 w-6" />
           </div>
         </div>
         <MobileDiscountBadge discount={plan.discount} />
@@ -207,14 +247,30 @@ function MobileCheckSealIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 20 20">
       <path d="M10 1.4 12.4 3l2.9-.1.8 2.8 2 2-1.3 2.6.4 2.9-2.8 1-1.8 2.2-2.6-1.2-2.6 1.2-1.8-2.2-2.8-1 .4-2.9-1.3-2.6 2-2 .8-2.8 2.9.1L10 1.4Z" />
-      <path d="m6.2 10 2.4 2.3 5.1-5.2" fill="none" stroke="var(--surface-container-lowest)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+      <path
+        d="m6.2 10 2.4 2.3 5.1-5.2"
+        fill="none"
+        stroke="var(--surface-container-lowest)"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.6"
+      />
     </svg>
   );
 }
 
 function MobileGiftIcon({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" viewBox="0 0 20 20">
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.6"
+      viewBox="0 0 20 20"
+    >
       <path d="M3 8h14v3H3V8ZM4.5 11h11v6h-11v-6ZM10 8v9" />
       <path d="M10 8H7.2a2.1 2.1 0 1 1 0-4.2C9.1 3.8 10 8 10 8Zm0 0h2.8a2.1 2.1 0 1 0 0-4.2C10.9 3.8 10 8 10 8Z" />
     </svg>
@@ -227,12 +283,14 @@ function MobilePackageContent({ plan }: { plan: MobileCreditPlan }) {
       <div className="">
         <MobilePrice plan={plan} />
       </div>
-      <div className="my-4 h-px border-t border-dashed border-outline-var" />
+      <div className="border-outline-var my-4 h-px border-t border-dashed" />
       <ul className="space-y-4">
         {(plan.benefits ?? []).map((benefit) => (
-          <li className="flex h-6 items-center gap-2 text-base font-medium leading-6" key={benefit}>
-            <MobileCheckSealIcon className="h-5 w-5 shrink-0 text-tertiary" />
-            <Typography as="span" variant="body" size="medium" weight="regular">{benefit}</Typography>
+          <li className="flex h-6 items-center gap-2 text-base leading-6 font-medium" key={benefit}>
+            <MobileCheckSealIcon className="text-tertiary h-5 w-5 shrink-0" />
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              {benefit}
+            </Typography>
           </li>
         ))}
       </ul>
@@ -242,15 +300,21 @@ function MobilePackageContent({ plan }: { plan: MobileCreditPlan }) {
 
 function MobileGiftBenefits({ benefits }: { benefits: string[] }) {
   return (
-    <div className="h-16 rounded-lg border border-tertiary bg-tertiary-container/20 px-4 py-2 text-tertiary">
-      <div className="flex h-5 items-center justify-end gap-1 text-sm font-medium leading-5 text-tertiary">
+    <div className="border-tertiary bg-tertiary-container/20 text-tertiary h-16 rounded-lg border px-4 py-2">
+      <div className="text-tertiary flex h-5 items-center justify-end gap-1 text-sm leading-5 font-medium">
         <MobileGiftIcon className="h-5 w-5" />
-        <Typography as="span" variant="body" size="medium" weight="regular">بسته هدیه</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular">
+          بسته هدیه
+        </Typography>
       </div>
-      <div className="mt-2 flex h-5 items-center justify-between text-sm font-medium leading-5">
+      <div className="mt-2 flex h-5 items-center justify-between text-sm leading-5 font-medium">
         {benefits.map((benefit, index) => (
-          <Typography as="span" variant="body" size="medium" weight="regular"
-            className={index < benefits.length - 1 ? "border-l border-tertiary/20 pl-4" : ""}
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className={index < benefits.length - 1 ? "border-tertiary/20 border-l pl-4" : ""}
             key={benefit}
           >
             {benefit}
@@ -289,7 +353,7 @@ function MobilePlanCard({
 }) {
   return (
     <article
-      className={`rounded-2xl border bg-gradient-to-b from-surface-container-lowest to-surface-container-low p-4 ${
+      className={`from-surface-container-lowest to-surface-container-low rounded-2xl border bg-gradient-to-b p-4 ${
         plan.selected ? "border-primary" : "border-outline-var"
       }`}
     >
@@ -300,7 +364,7 @@ function MobilePlanCard({
       )}
 
       <Button
-        className="mt-8 bg-primary text-on-primary disabled:cursor-not-allowed disabled:opacity-60"
+        className="bg-primary text-on-primary mt-8 disabled:cursor-not-allowed disabled:opacity-60"
         disabled={paymentPending}
         onClick={onPay}
         size="x-medium"
@@ -319,12 +383,12 @@ function MobilePlansSkeleton({ showGift = false }: { showGift?: boolean }) {
     <div className="space-y-4">
       {Array.from({ length: 3 }).map((_, index) => (
         <div
-          className={`${showGift ? "h-[284px]" : "h-[204px]"} animate-pulse rounded-2xl border border-outline-var bg-surface-container-low p-4`}
+          className={`${showGift ? "h-[284px]" : "h-[204px]"} border-outline-var bg-surface-container-low animate-pulse rounded-2xl border p-4`}
           key={index}
         >
-          <div className="mr-auto h-5 w-16 rounded bg-surface-container-high" />
-          <div className="mt-7 mr-auto h-6 w-28 rounded bg-surface-container-high" />
-          <div className="mt-9 h-10 rounded-lg bg-surface-container-high" />
+          <div className="bg-surface-container-high mr-auto h-5 w-16 rounded" />
+          <div className="bg-surface-container-high mt-7 mr-auto h-6 w-28 rounded" />
+          <div className="bg-surface-container-high mt-9 h-10 rounded-lg" />
         </div>
       ))}
     </div>
@@ -347,9 +411,7 @@ function DashboardPaymentMobilePage({
   const navigate = useNavigate();
   const returnTo =
     window.history.state?.returnTo ||
-    (typeof window !== "undefined"
-      ? sessionStorage.getItem("bonga:paymentReturnTo")
-      : null) ||
+    (typeof window !== "undefined" ? sessionStorage.getItem("bonga:paymentReturnTo") : null) ||
     undefined;
   const initialPaymentTab =
     window.history.state?.initialPaymentTab === "packages" ? "packages" : "panel";
@@ -386,7 +448,7 @@ function DashboardPaymentMobilePage({
   }, [activeTab, packages]);
 
   const selectedPackage = selectedPackageId
-    ? packages.find((p) => String(p.id) === String(selectedPackageId)) ?? null
+    ? (packages.find((p) => String(p.id) === String(selectedPackageId)) ?? null)
     : null;
 
   const ErrorState = getRequestErrorState(error);
@@ -394,10 +456,7 @@ function DashboardPaymentMobilePage({
   function handlePay(packageId: string | number) {
     if (packagePaymentMutation.isPending) return;
     const strId = String(packageId);
-    window.history.pushState(
-      { ...window.history.state, paymentPackageId: strId },
-      "",
-    );
+    window.history.pushState({ ...window.history.state, paymentPackageId: strId }, "");
     setSelectedPackageId(strId);
   }
 
@@ -410,10 +469,7 @@ function DashboardPaymentMobilePage({
     }
   }
 
-  function handleSubmitPayment(
-    paymentType: PackagePaymentType,
-    discountCode?: string,
-  ) {
+  function handleSubmitPayment(paymentType: PackagePaymentType, discountCode?: string) {
     if (!selectedPackage || packagePaymentMutation.isPending) return;
 
     packagePaymentMutation.mutate(
@@ -463,10 +519,7 @@ function DashboardPaymentMobilePage({
         walletCredit={walletQuery.data?.credit}
         walletError={
           walletQuery.isError
-            ? getApiErrorMessage(
-                walletQuery.error,
-                "دریافت موجودی کیف پول با خطا مواجه شد.",
-              )
+            ? getApiErrorMessage(walletQuery.error, "دریافت موجودی کیف پول با خطا مواجه شد.")
             : null
         }
         walletLoading={walletQuery.isLoading}
@@ -476,7 +529,7 @@ function DashboardPaymentMobilePage({
 
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -501,7 +554,7 @@ function DashboardPaymentMobilePage({
         }}
         startSlot={
           <Link
-            className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-primary no-underline"
+            className="text-primary inline-flex h-12 items-center px-3 text-sm leading-5 font-medium no-underline"
             to="/account/credit/history"
           >
             تاریخچه پرداخت
@@ -511,7 +564,7 @@ function DashboardPaymentMobilePage({
       />
       <MobileCreditTabs activeTab={activeTab} onChange={setActiveTab} />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pb-4">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pb-4">
         {isError ? <ErrorState className="min-h-[420px]" onRetry={() => void refetch()} /> : null}
 
         {!isError && isLoading ? <MobilePlansSkeleton showGift={showGift} /> : null}
@@ -573,21 +626,16 @@ function DashboardPaymentDesktopPage({
   const panelCreditPlans = packages
     .filter((plan) => plan.kind === "panel_subscription")
     .map(mapPanelPlan);
-  const packagePlans = packages
-    .filter((plan) => plan.kind === "credit_bundle")
-    .map(mapBundlePlan);
+  const packagePlans = packages.filter((plan) => plan.kind === "credit_bundle").map(mapBundlePlan);
   const selectedPackage = selectedPackageId
-    ? packages.find((p) => String(p.id) === String(selectedPackageId)) ?? null
+    ? (packages.find((p) => String(p.id) === String(selectedPackageId)) ?? null)
     : null;
   const ErrorState = getRequestErrorState(error);
 
   function handlePay(packageId: string | number) {
     if (packagePaymentMutation.isPending) return;
     const strId = String(packageId);
-    window.history.pushState(
-      { ...window.history.state, paymentPackageId: strId },
-      "",
-    );
+    window.history.pushState({ ...window.history.state, paymentPackageId: strId }, "");
     setSelectedPackageId(strId);
   }
 
@@ -600,10 +648,7 @@ function DashboardPaymentDesktopPage({
     }
   }
 
-  function handleSubmitPayment(
-    paymentType: PackagePaymentType,
-    discountCode?: string,
-  ) {
+  function handleSubmitPayment(paymentType: PackagePaymentType, discountCode?: string) {
     if (!selectedPackage || packagePaymentMutation.isPending) return;
 
     packagePaymentMutation.mutate(
@@ -653,10 +698,7 @@ function DashboardPaymentDesktopPage({
           walletCredit={walletQuery.data?.credit}
           walletError={
             walletQuery.isError
-              ? getApiErrorMessage(
-                  walletQuery.error,
-                  "دریافت موجودی کیف پول با خطا مواجه شد.",
-                )
+              ? getApiErrorMessage(walletQuery.error, "دریافت موجودی کیف پول با خطا مواجه شد.")
               : null
           }
           walletLoading={walletQuery.isLoading}
@@ -666,35 +708,49 @@ function DashboardPaymentDesktopPage({
   }
 
   return (
-    <div dir="rtl" className="rounded-xl bg-surface-container-lowest p-6">
-
-      <div className="mb-6 flex items-center justify-between border-b border-dashed border-outline-var pb-5">
+    <div dir="rtl" className="bg-surface-container-lowest rounded-xl p-6">
+      <div className="border-outline-var mb-6 flex items-center justify-between border-b border-dashed pb-5">
         <div className="flex items-center gap-2">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-9 w-9 place-items-center rounded-full bg-primary-container">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="bg-primary-container grid h-9 w-9 place-items-center rounded-full"
+          >
             <img className="h-5 w-5" src="/icons/walletPlus.svg" alt="" />
           </Typography>
 
-          <Typography as="h1" variant="display" size="large" className="text-[22px] font-medium text-on-surface">
+          <Typography
+            as="h1"
+            variant="display"
+            size="large"
+            className="text-on-surface text-[22px] font-medium"
+          >
             افزایش اعتبار
           </Typography>
         </div>
 
         <Link
-          className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-primary no-underline"
+          className="text-primary inline-flex h-12 items-center px-3 text-sm leading-5 font-medium no-underline"
           to="/account/credit/history"
         >
           تاریخچه پرداخت
         </Link>
       </div>
 
-      {isError ? (
-        <ErrorState className="min-h-[420px]" onRetry={() => void refetch()} />
-      ) : null}
+      {isError ? <ErrorState className="min-h-[420px]" onRetry={() => void refetch()} /> : null}
 
       {!isError ? (
         <>
           <section>
-            <Typography as="h2" variant="title" size="large" weight="medium" className="mb-4 text-[22px] font-medium text-on-surface">
+            <Typography
+              as="h2"
+              variant="title"
+              size="large"
+              weight="medium"
+              className="text-on-surface mb-4 text-[22px] font-medium"
+            >
               اعتبار پنل
             </Typography>
 
@@ -715,13 +771,17 @@ function DashboardPaymentDesktopPage({
               </div>
             ) : null}
 
-            {!isLoading && panelCreditPlans.length === 0 ? (
-              <EmptyPackagesState />
-            ) : null}
+            {!isLoading && panelCreditPlans.length === 0 ? <EmptyPackagesState /> : null}
           </section>
 
           <section className="mt-10">
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="mb-4 text-right text-base font-semibold text-on-surface">
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="text-on-surface mb-4 text-right text-base font-semibold"
+            >
               بسته‌ها
             </Typography>
 

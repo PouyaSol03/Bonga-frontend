@@ -1,11 +1,6 @@
 export type GeofenceCoordinate = [longitude: number, latitude: number];
 
-export type DrawingState =
-  | "idle"
-  | "drawing"
-  | "preview"
-  | "invalid"
-  | "confirmed";
+export type DrawingState = "idle" | "drawing" | "preview" | "invalid" | "confirmed";
 
 export type GeofenceResult = {
   type: "Polygon";

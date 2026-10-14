@@ -53,7 +53,13 @@ export function CitySelectionScreen({
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query.trim(), 300);
 
-  const { data: apiCities = [], error, isError, isLoading, refetch } = useCitySearchQuery({
+  const {
+    data: apiCities = [],
+    error,
+    isError,
+    isLoading,
+    refetch,
+  } = useCitySearchQuery({
     enabled: isOpen,
     q: isSearching ? debouncedQuery : "",
   });
@@ -63,9 +69,7 @@ export function CitySelectionScreen({
       return [];
     }
 
-    return apiCities
-      .map(mapCityDtoToOption)
-      .filter((city) => city.id && city.name);
+    return apiCities.map(mapCityDtoToOption).filter((city) => city.id && city.name);
   }, [apiCities, isError]);
 
   const normalizedQuery = query.trim();
@@ -133,20 +137,25 @@ export function CitySelectionScreen({
   if (isError) {
     return (
       <section
-        className={"absolute inset-0 z-40 overflow-hidden bg-surface-container-lowest " + (isOpen ? "visible" : "invisible")}
+        className={
+          "bg-surface-container-lowest absolute inset-0 z-40 overflow-hidden " +
+          (isOpen ? "visible" : "invisible")
+        }
         aria-hidden={!isOpen}
       >
-        <CityErrorState
-          className="h-full"
-          onRetry={() => void refetch()}
-        />
+        <CityErrorState className="h-full" onRetry={() => void refetch()} />
       </section>
     );
   }
 
   return (
     <section
-      className={"absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl] transition-all duration-200 " + (isOpen ? "visible translate-y-0 opacity-100" : "invisible pointer-events-none translate-y-3 opacity-0")}
+      className={
+        "bg-surface-container-lowest text-on-surface absolute inset-0 z-40 flex min-h-0 flex-col overflow-hidden transition-all duration-200 [direction:rtl] " +
+        (isOpen
+          ? "visible translate-y-0 opacity-100"
+          : "pointer-events-none invisible translate-y-3 opacity-0")
+      }
       aria-hidden={!isOpen}
     >
       <TopBar
@@ -177,15 +186,12 @@ export function CitySelectionScreen({
         title={isSearching ? undefined : "انتخاب شهر"}
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         {isSearching ? (
           isLoading ? (
             <div className="flex flex-col gap-4 px-4 py-4">
               {Array.from({ length: 5 }).map((_, index) => (
-                <div
-                  className="h-12 w-full rounded-xl bg-surface-container"
-                  key={index}
-                />
+                <div className="bg-surface-container h-12 w-full rounded-xl" key={index} />
               ))}
             </div>
           ) : visibleSearchResults.length > 0 ? (
@@ -202,24 +208,26 @@ export function CitySelectionScreen({
           ) : normalizedQuery.length > 0 ? (
             <SearchErrors variant="not-found" />
           ) : (
-            <div className="h-full bg-surface-container-lowest" />
+            <div className="bg-surface-container-lowest h-full" />
           )
         ) : (
           <div className="flex flex-col gap-2 px-4 pt-4">
             {isLoading &&
               Array.from({ length: 6 }).map((_, index) => (
-                <div
-                  className="h-14 w-full rounded-xl bg-surface-container"
-                  key={index}
-                />
+                <div className="bg-surface-container h-14 w-full rounded-xl" key={index} />
               ))}
 
-            {!isLoading &&
-              isError && (
-                <Typography as="p" variant="body" size="small" weight="medium" className="px-2 py-3 text-right text-xs font-medium text-error">
-                  دریافت شهرها با خطا مواجه شد.
-                </Typography>
-              )}
+            {!isLoading && isError && (
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="medium"
+                className="text-error px-2 py-3 text-right text-xs font-medium"
+              >
+                دریافت شهرها با خطا مواجه شد.
+              </Typography>
+            )}
 
             {!isLoading &&
               cityList.map((city) => (
@@ -234,10 +242,10 @@ export function CitySelectionScreen({
         )}
       </main>
 
-      <footer className="shrink-0 border-t border-outline-var bg-surface-container-lowest px-4 py-3 shadow-[0_-12px_24px_rgba(26,26,26,0.06)] min-[390px]:py-3.5">
+      <footer className="border-outline-var bg-surface-container-lowest shrink-0 border-t px-4 py-3 shadow-[0_-12px_24px_rgba(26,26,26,0.06)] min-[390px]:py-3.5">
         <Button
           unstyled
-          className="h-10 w-full rounded-[10px] bg-primary text-sm font-medium leading-5 text-on-primary active:opacity-80 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+          className="bg-primary text-on-primary focus-visible:outline-primary/40 h-10 w-full rounded-[10px] text-sm leading-5 font-medium focus-visible:outline-3 focus-visible:outline-offset-2 active:opacity-80"
           type="button"
           tabIndex={isOpen ? 0 : -1}
           onClick={confirmCity}
@@ -264,7 +272,7 @@ function CitySearchField({
     <input
       ref={inputRef}
       aria-label="جستجوی شهر"
-      className="home-search-input h-12 w-full appearance-none border-0 bg-transparent px-2 text-right text-base font-semibold leading-6 text-on-surface caret-primary outline-none placeholder:text-outline"
+      className="home-search-input text-on-surface caret-primary placeholder:text-outline h-12 w-full appearance-none border-0 bg-transparent px-2 text-right text-base leading-6 font-semibold outline-none"
       type="search"
       value={query}
       tabIndex={isOpen ? 0 : -1}
@@ -300,7 +308,7 @@ function CityOptionRow({
     <Button
       unstyled
       aria-pressed={isSelected}
-      className="flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl bg-surface-container-lowest pb-2 pl-5 pr-4 pt-2 text-right [direction:ltr]"
+      className="bg-surface-container-lowest flex h-14 w-full shrink-0 cursor-pointer items-center justify-between rounded-xl pt-2 pr-4 pb-2 pl-5 text-right [direction:ltr]"
       type="button"
       onClick={onSelect}
     >
@@ -313,7 +321,13 @@ function CityOptionRow({
         aria-hidden="true"
       />
 
-      <Typography as="span" variant="body" size="large" weight="regular" className="text-base font-normal leading-6 text-on-surface [direction:rtl]">
+      <Typography
+        as="span"
+        variant="body"
+        size="large"
+        weight="regular"
+        className="text-on-surface text-base leading-6 font-normal [direction:rtl]"
+      >
         {city.name}
       </Typography>
     </Button>

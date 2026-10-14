@@ -32,22 +32,36 @@ const QUOTA_CONFIG = [
 
 export function ConsultantQuotasCard({ consultant }: { consultant: TeamConsultant }) {
   return (
-    <article className="w-full bg-surface-container-lowest px-4 py-2">
+    <article className="bg-surface-container-lowest w-full px-4 py-2">
       {QUOTA_CONFIG.map(({ icon: Icon, iconBgClass, label, key, defaultVal }, index) => {
         const val = consultant[key] ?? defaultVal;
         return (
           <Fragment key={key}>
-            {index > 0 && <div className="my-1.5 h-px w-full bg-outline-var/40" />}
+            {index > 0 && <div className="bg-outline-var/40 my-1.5 h-px w-full" />}
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center gap-4">
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${iconBgClass}`}>
+                <div
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${iconBgClass}`}
+                >
                   <Icon className="h-6 w-6" />
                 </div>
-                <Typography as="span" variant="label" size="large" weight="medium" className="text-on-surface-var">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="large"
+                  weight="medium"
+                  className="text-on-surface-var"
+                >
                   {label}
                 </Typography>
               </div>
-              <Typography as="span" variant="title" size="medium" weight="semibold" className="text-on-surface">
+              <Typography
+                as="span"
+                variant="title"
+                size="medium"
+                weight="semibold"
+                className="text-on-surface"
+              >
                 {toPersianNumber(val)}
               </Typography>
             </div>

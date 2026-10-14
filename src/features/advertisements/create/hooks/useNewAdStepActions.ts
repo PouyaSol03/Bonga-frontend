@@ -67,7 +67,9 @@ export function useNewAdStepActions({
 
   const goToAgencySelection = () => {
     const values = methods.getValues();
-    const validation = validateNewAd(values, { forceFullEditFields: isEditMode && !isEditingIncomplete });
+    const validation = validateNewAd(values, {
+      forceFullEditFields: isEditMode && !isEditingIncomplete,
+    });
 
     if (validation) {
       setFieldErrors(validation.errors);
@@ -85,9 +87,7 @@ export function useNewAdStepActions({
   const handleMediaPrimary = () => {
     const values = methods.getValues();
     const shouldChooseAgency =
-      (!isEditMode || isEditingIncomplete) &&
-      !isCrmSource &&
-      values.registrantType === "agency";
+      (!isEditMode || isEditingIncomplete) && !isCrmSource && values.registrantType === "agency";
 
     if (shouldChooseAgency) {
       goToAgencySelection();
@@ -114,8 +114,14 @@ export function useNewAdStepActions({
     window.queueMicrotask(() => void submit());
   };
 
-  const confirmPublisher = (publisher: { id: string; name: string; type: "agency" | "consultant" }) => {
-    methods.setValue("consultantAssignmentSelected", publisher.type === "consultant", { shouldDirty: true });
+  const confirmPublisher = (publisher: {
+    id: string;
+    name: string;
+    type: "agency" | "consultant";
+  }) => {
+    methods.setValue("consultantAssignmentSelected", publisher.type === "consultant", {
+      shouldDirty: true,
+    });
     methods.setValue("registrantType", "personal", { shouldDirty: true });
     methods.setValue("agencyId", "", { shouldDirty: true });
     methods.setValue("publisherName", publisher.name, { shouldDirty: true });

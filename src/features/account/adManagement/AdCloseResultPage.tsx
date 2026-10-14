@@ -27,12 +27,14 @@ export type AdCloseResultPageProps = {
 export function AdCloseResultPage(props?: AdCloseResultPageProps) {
   const navigate = useNavigate();
   const routeState = getAdManagementRouteState();
-  const adId = props?.adId ?? readAdIdFromCloseResultPath() ?? readEntityId(routeState.card) ?? readEntityId(routeState.ad);
+  const adId =
+    props?.adId ??
+    readAdIdFromCloseResultPath() ??
+    readEntityId(routeState.card) ??
+    readEntityId(routeState.ad);
   const returnTo =
     normalizeLocalPath(routeState.returnTo) ??
-    (adId
-      ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad`
-      : adManagementPaths.root);
+    (adId ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad` : adManagementPaths.root);
   const [selectedReason, setSelectedReason] = useState<CloseResultReason | null>(
     props?.initialReason ?? null,
   );
@@ -67,7 +69,7 @@ export function AdCloseResultPage(props?: AdCloseResultPageProps) {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -78,19 +80,37 @@ export function AdCloseResultPage(props?: AdCloseResultPageProps) {
         titleClassName="text-sm font-semibold leading-5"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pb-28 pt-4">
-        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-on-surface">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-4 pb-28">
+        <Typography
+          as="p"
+          variant="body"
+          size="large"
+          weight="medium"
+          className="text-on-surface m-0"
+        >
           این آگهی از لیست آگهی‌های تخصیصی آژانس خارج خواهد شد.
         </Typography>
 
-        <section className="mt-3 rounded-xl border border-warning bg-warning-container/30 px-4 py-3 text-right" aria-label="هشدار">
-          <div className="flex items-center justify-start gap-2 text-warning">
+        <section
+          className="border-warning bg-warning-container/30 mt-3 rounded-xl border px-4 py-3 text-right"
+          aria-label="هشدار"
+        >
+          <div className="text-warning flex items-center justify-start gap-2">
             <LinearDanger className="h-5 w-5 shrink-0" />
-            <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold leading-5">توجه!</Typography>
+            <Typography
+              as="h2"
+              variant="title"
+              size="small"
+              weight="semibold"
+              className="m-0 text-sm leading-5 font-semibold"
+            >
+              توجه!
+            </Typography>
           </div>
-          <ul className="m-0 mt-2 list-disc space-y-1 pr-5 text-sm font-normal text-on-surface-var marker:text-outline">
+          <ul className="text-on-surface-var marker:text-outline m-0 mt-2 list-disc space-y-1 pr-5 text-sm font-normal">
             <li>
-              فقط در صورت انتخاب گزینه «معامله انجام شد»، از کاربر درباره نتیجه نهایی معامله استعلام گرفته می‌شود. نتیجه ثبت‌شده توسط کاربر در بخش «وضعیت آگهی» قابل مشاهده خواهد بود.
+              فقط در صورت انتخاب گزینه «معامله انجام شد»، از کاربر درباره نتیجه نهایی معامله استعلام
+              گرفته می‌شود. نتیجه ثبت‌شده توسط کاربر در بخش «وضعیت آگهی» قابل مشاهده خواهد بود.
             </li>
             <li className="mt-4">
               در غیر این صورت درخواست حذف شده و به عنوان معامله ناموفق یا آگهی بدون پاسخ ثبت می‌شود.
@@ -99,22 +119,37 @@ export function AdCloseResultPage(props?: AdCloseResultPageProps) {
         </section>
 
         <section className="mt-5" aria-label="دلیل بستن آگهی">
-          <Typography as="h2" variant="body" size="large" weight="medium" className="m-0 text-on-surface">دلیل بستن آگهی</Typography>
+          <Typography
+            as="h2"
+            variant="body"
+            size="large"
+            weight="medium"
+            className="text-on-surface m-0"
+          >
+            دلیل بستن آگهی
+          </Typography>
           <div className="mt-4 grid gap-4" role="radiogroup" aria-label="دلیل بستن آگهی">
             {closeResultReasons.map((reason) => {
               const selected = selectedReason === reason.value;
 
               return (
-                <Button unstyled
+                <Button
+                  unstyled
                   aria-checked={selected}
-                  className="flex h-9 w-full items-center justify-between rounded-lg bg-surface-container-lowest p-0 text-right [direction:ltr] active:bg-surface-container"
+                  className="bg-surface-container-lowest active:bg-surface-container flex h-9 w-full items-center justify-between rounded-lg p-0 text-right [direction:ltr]"
                   key={reason.value}
                   onClick={() => setSelectedReason(reason.value)}
                   role="radio"
                   type="button"
                 >
                   <RadioIndicator checked={selected} />
-                  <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 flex-1 pr-3 text-right text-on-surface [direction:rtl]">
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="large"
+                    weight="regular"
+                    className="text-on-surface min-w-0 flex-1 pr-3 text-right [direction:rtl]"
+                  >
                     {reason.label}
                   </Typography>
                 </Button>
@@ -124,20 +159,23 @@ export function AdCloseResultPage(props?: AdCloseResultPageProps) {
         </section>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-3 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] [direction:ltr]">
-        <Button unstyled
-          className={`inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium leading-5 transition-colors ${selectedReason && !submitMutation.isPending
-            ? "bg-primary text-on-primary active:opacity-80"
-            : "bg-surface-container-high text-outline"
-            }`}
+      <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 grid grid-cols-2 gap-3 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] [direction:ltr]">
+        <Button
+          unstyled
+          className={`inline-flex h-10 items-center justify-center rounded-lg text-sm leading-5 font-medium transition-colors ${
+            selectedReason && !submitMutation.isPending
+              ? "bg-primary text-on-primary active:opacity-80"
+              : "bg-surface-container-high text-outline"
+          }`}
           disabled={!selectedReason || submitMutation.isPending}
           onClick={handleSubmit}
           type="button"
         >
           {submitMutation.isPending ? "در حال ثبت..." : "ثبت نتیجه"}
         </Button>
-        <Button unstyled
-          className="inline-flex h-10 items-center justify-center rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium leading-5 text-primary active:bg-primary-container"
+        <Button
+          unstyled
+          className="border-primary bg-surface-container-lowest text-primary active:bg-primary-container inline-flex h-10 items-center justify-center rounded-lg border text-sm leading-5 font-medium"
           onClick={goBack}
           type="button"
         >

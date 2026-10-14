@@ -11,9 +11,7 @@ export function buildAdvertisementMapRequestPath(
       if (key === "geofence") {
         // The API contract uses latitude,longitude pairs separated by literal
         // pipes. URLSearchParams changes those separators to %7C.
-        encodedValue = encodedValue
-          .replace(/%7C/gi, "|")
-          .replace(/%2C/gi, ",");
+        encodedValue = encodedValue.replace(/%7C/gi, "|").replace(/%2C/gi, ",");
       }
 
       return `${encodedKey}=${encodedValue}`;

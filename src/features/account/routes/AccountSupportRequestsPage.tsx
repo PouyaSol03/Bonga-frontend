@@ -7,7 +7,14 @@ import { TopBar } from "../../../shared/components/TopBar";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
 import { Link } from "react-router";
 import LinearAdd from "../../../shared/icons/LinearAdd";
-import { NEW_REQUEST_PATH, SUPPORT_PATH, SupportRequestCard, SupportRequestTabs, SupportRequestsEmptyState, mapSupportRequest } from "../accountSupportRequestViews";
+import {
+  NEW_REQUEST_PATH,
+  SUPPORT_PATH,
+  SupportRequestCard,
+  SupportRequestTabs,
+  SupportRequestsEmptyState,
+  mapSupportRequest,
+} from "../accountSupportRequestViews";
 import type { SupportRequestFilter } from "../accountSupportRequestViews";
 import { Typography } from "../../../shared/ui/Typography";
 
@@ -34,31 +41,36 @@ export function AccountSupportRequestsPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden"
       variant="flush"
     >
       <TopBar
         backTo={SUPPORT_PATH}
-        className="border-b border-outline-var"
+        className="border-outline-var border-b"
         heightClassName="h-[52px]"
-       
+
         reserveStartSpace
         title="درخواست‌های من"
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
-      <SupportRequestTabs
-        activeFilter={activeFilter}
-        onChange={setActiveFilter}
-      />
+      <SupportRequestTabs activeFilter={activeFilter} onChange={setActiveFilter} />
 
       <main
-        className={`flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-container-lowest px-3 pb-[76px] ${
+        className={`bg-surface-container-lowest flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-[76px] ${
           requests.length === 0 ? "pt-0" : "pt-3"
         }`}
       >
         {requestsQuery.isLoading ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="w-full py-16 text-center text-sm text-outline">در حال دریافت درخواست‌ها...</Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline w-full py-16 text-center text-sm"
+          >
+            در حال دریافت درخواست‌ها...
+          </Typography>
         ) : RequestErrorState ? (
           <RequestErrorState onRetry={() => void requestsQuery.refetch()} />
         ) : requests.length === 0 ? (
@@ -78,13 +90,15 @@ export function AccountSupportRequestsPage() {
         )}
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-3 pb-2.5 pt-2">
+      <div className="bg-surface-container-lowest absolute inset-x-0 bottom-0 z-20 px-3 pt-2 pb-2.5">
         <Link
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold leading-5 text-on-primary no-underline outline-none active:opacity-80 focus-visible:ring-3 focus-visible:ring-primary/20"
+          className="bg-primary text-on-primary focus-visible:ring-primary/20 flex h-10 w-full items-center justify-center gap-2 rounded-lg px-4 text-sm leading-5 font-semibold no-underline outline-none focus-visible:ring-3 active:opacity-80"
           to={NEW_REQUEST_PATH}
         >
           <LinearAdd className="h-4.5 w-4.5" />
-          <Typography as="span" variant="body" size="medium" weight="regular">ایجاد درخواست جدید</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            ایجاد درخواست جدید
+          </Typography>
         </Link>
       </div>
     </PageFrame>

@@ -23,7 +23,13 @@ export function ViewAdEquipmentFacilitiesPage() {
   const previewQuery = useAdvertisementPreviewQuery(
     isPreview && (!useAgencyAllocationPreview || agencyPreviewQuery.isError) ? adId : null,
   );
-  const { data: ad, error, isError, isLoading, refetch } = isPreview
+  const {
+    data: ad,
+    error,
+    isError,
+    isLoading,
+    refetch,
+  } = isPreview
     ? useAgencyAllocationPreview && !agencyPreviewQuery.isError
       ? agencyPreviewQuery
       : previewQuery

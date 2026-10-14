@@ -4,7 +4,10 @@ import { useNavigate } from "react-router";
 import { getApiErrorMessage } from "../../shared/api/api";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { useVerifyPaymentCallbackMutation } from "../account/api/account.hooks";
-import { clearPaymentReturnTarget, readPaymentReturnTarget } from "../../shared/utils/payment-return";
+import {
+  clearPaymentReturnTarget,
+  readPaymentReturnTarget,
+} from "../../shared/utils/payment-return";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 
@@ -82,7 +85,7 @@ export function PaymentVerifyPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest px-5 text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden px-5 [direction:rtl]"
       variant="flush"
     >
       <main className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center px-5 py-8 text-center">
@@ -98,19 +101,30 @@ export function PaymentVerifyPage() {
           {isChecking ? <LoadingIcon /> : isSuccess ? <SuccessIcon /> : <FailedIcon />}
         </div>
 
-        <Typography as="h1" variant="title" size="large" weight="semibold" className="m-0 mt-6 text-xl font-bold leading-8">
+        <Typography
+          as="h1"
+          variant="title"
+          size="large"
+          weight="semibold"
+          className="m-0 mt-6 text-xl leading-8 font-bold"
+        >
           {isChecking ? "در حال بررسی پرداخت" : isSuccess ? "پرداخت موفق" : "پرداخت ناموفق"}
         </Typography>
 
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 max-w-[330px] text-sm font-normal leading-7 text-on-surface-var">
-          {isChecking
-            ? "لطفاً این صفحه را نبندید؛ نتیجه پرداخت در حال ثبت و بررسی است."
-            : detail}
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-3 max-w-[330px] text-sm leading-7 font-normal"
+        >
+          {isChecking ? "لطفاً این صفحه را نبندید؛ نتیجه پرداخت در حال ثبت و بررسی است." : detail}
         </Typography>
 
         {!isChecking ? (
-          <Button unstyled
-            className="mt-8 h-11 w-full max-w-[340px] rounded-xl bg-primary px-5 text-sm font-semibold leading-5 text-on-primary active:opacity-80"
+          <Button
+            unstyled
+            className="bg-primary text-on-primary mt-8 h-11 w-full max-w-[340px] rounded-xl px-5 text-sm leading-5 font-semibold active:opacity-80"
             onClick={() => {
               clearPaymentReturnTarget();
               navigate(returnTarget.path, { replace: true });
@@ -127,14 +141,14 @@ export function PaymentVerifyPage() {
 
 function LoadingIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      className="h-12 w-12 animate-spin"
-      fill="none"
-      viewBox="0 0 48 48"
-    >
+    <svg aria-hidden="true" className="h-12 w-12 animate-spin" fill="none" viewBox="0 0 48 48">
       <circle cx="24" cy="24" r="18" stroke="currentColor" strokeOpacity="0.2" strokeWidth="4" />
-      <path d="M42 24A18 18 0 0 0 24 6" stroke="currentColor" strokeLinecap="round" strokeWidth="4" />
+      <path
+        d="M42 24A18 18 0 0 0 24 6"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="4"
+      />
     </svg>
   );
 }
@@ -142,7 +156,13 @@ function LoadingIcon() {
 function SuccessIcon() {
   return (
     <svg aria-hidden="true" className="h-13 w-13" fill="none" viewBox="0 0 52 52">
-      <path d="m15 27 7 7 15-17" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" />
+      <path
+        d="m15 27 7 7 15-17"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="4"
+      />
     </svg>
   );
 }
@@ -150,7 +170,12 @@ function SuccessIcon() {
 function FailedIcon() {
   return (
     <svg aria-hidden="true" className="h-13 w-13" fill="none" viewBox="0 0 52 52">
-      <path d="m18 18 16 16m0-16L18 34" stroke="currentColor" strokeLinecap="round" strokeWidth="4" />
+      <path
+        d="m18 18 16 16m0-16L18 34"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="4"
+      />
     </svg>
   );
 }

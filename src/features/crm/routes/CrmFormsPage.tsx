@@ -1,7 +1,15 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { listCrmAdvertiseForms, getCrmRecordId } from "../api/crm.service";
-import { AdvertiseFormCard, EmptyState, FormCardSkeleton, Panel, PanelHeader, readText, useQueryErrorToast } from "../CrmLayout";
+import {
+  AdvertiseFormCard,
+  EmptyState,
+  FormCardSkeleton,
+  Panel,
+  PanelHeader,
+  readText,
+  useQueryErrorToast,
+} from "../CrmLayout";
 import type { CrmRoutePageProps } from "../CrmLayout";
 
 export function CrmFormsPage({ notify, refreshNonce }: CrmRoutePageProps) {
@@ -23,14 +31,18 @@ export function CrmFormsPage({ notify, refreshNonce }: CrmRoutePageProps) {
       <PanelHeader
         action={
           <select
-            className="h-10 min-w-[240px] rounded-xl border border-[#dce3ef] bg-white px-3 text-sm text-[#384457] outline-none transition focus:border-[#0048c4]"
+            className="h-10 min-w-[240px] rounded-xl border border-[#dce3ef] bg-white px-3 text-sm text-[#384457] transition outline-none focus:border-[#0048c4]"
             onChange={(event) => setSelectedForm(event.target.value)}
             value={selectedForm}
           >
             <option value="">همه فرم‌ها</option>
             {(query.data ?? []).map((form) => {
               const code = readText(form, ["code"], getCrmRecordId(form));
-              return <option key={code} value={code}>{readText(form, ["title"], code)}</option>;
+              return (
+                <option key={code} value={code}>
+                  {readText(form, ["title"], code)}
+                </option>
+              );
             })}
           </select>
         }
@@ -42,9 +54,13 @@ export function CrmFormsPage({ notify, refreshNonce }: CrmRoutePageProps) {
         {query.isLoading ? (
           Array.from({ length: 4 }).map((_, index) => <FormCardSkeleton key={index} />)
         ) : forms.length ? (
-          forms.map((form) => <AdvertiseFormCard form={form} key={readText(form, ["code"], getCrmRecordId(form))} />)
+          forms.map((form) => (
+            <AdvertiseFormCard form={form} key={readText(form, ["code"], getCrmRecordId(form))} />
+          ))
         ) : (
-          <div className="col-span-full"><EmptyState description="فرم آگهی‌ای برای نمایش پیدا نشد." /></div>
+          <div className="col-span-full">
+            <EmptyState description="فرم آگهی‌ای برای نمایش پیدا نشد." />
+          </div>
         )}
       </div>
     </Panel>

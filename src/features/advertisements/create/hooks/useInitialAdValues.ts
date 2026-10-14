@@ -9,7 +9,8 @@ import type { FlowStep, NewAdFormValues } from "../types";
 import { getDefaultValues } from "../utils";
 
 function resolveRestoredSession(isEditMode: boolean) {
-  const isPreserved = typeof window !== "undefined" && shouldPreserveNewAdDraft(window.history.state);
+  const isPreserved =
+    typeof window !== "undefined" && shouldPreserveNewAdDraft(window.history.state);
 
   // In edit mode without explicit preserve flag, edit ad from fresh record
   if (isEditMode && !isPreserved) {
@@ -37,7 +38,10 @@ function resolveRestoredSession(isEditMode: boolean) {
   return null;
 }
 
-export function useInitialAdValues(editAdState: ReturnType<typeof getEditAdRouteState>, editAdId: string | null) {
+export function useInitialAdValues(
+  editAdState: ReturnType<typeof getEditAdRouteState>,
+  editAdId: string | null,
+) {
   const isEditMode = editAdState.isEditMode === true;
   const isInitialIncomplete =
     isEditMode &&
@@ -65,9 +69,7 @@ export function useInitialAdValues(editAdState: ReturnType<typeof getEditAdRoute
 
     const confirmedLocation = window.localStorage.getItem(locationKey)?.trim();
     const storedNeighborhoodId =
-      restoredValues?.neighborhoodId ||
-      window.localStorage.getItem(neighborhoodIdKey) ||
-      undefined;
+      restoredValues?.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey) || undefined;
     const storedSubNeighborhoodId =
       restoredValues?.subNeighborhoodId ||
       window.localStorage.getItem(subNeighborhoodIdKey) ||
@@ -87,14 +89,22 @@ export function useInitialAdValues(editAdState: ReturnType<typeof getEditAdRoute
         Array.isArray(restoredValues.dailyHotelRooms) && restoredValues.dailyHotelRooms.length
           ? restoredValues.dailyHotelRooms
           : blankValues.dailyHotelRooms,
-      exchangeTargets: Array.isArray(restoredValues.exchangeTargets) ? restoredValues.exchangeTargets : [],
+      exchangeTargets: Array.isArray(restoredValues.exchangeTargets)
+        ? restoredValues.exchangeTargets
+        : [],
       facilities: Array.isArray(restoredValues.facilities) ? restoredValues.facilities : [],
-      heatingCooling: Array.isArray(restoredValues.heatingCooling) ? restoredValues.heatingCooling : [],
+      heatingCooling: Array.isArray(restoredValues.heatingCooling)
+        ? restoredValues.heatingCooling
+        : [],
       location: confirmedLocation || restoredValues.location || blankValues.location,
       neighborhoodId: storedNeighborhoodId,
       photos: Array.isArray(restoredValues.photos) ? restoredValues.photos : [],
-      projectDetails: Array.isArray(restoredValues.projectDetails) ? restoredValues.projectDetails : [],
-      selectedSpecs: Array.isArray(restoredValues.selectedSpecs) ? restoredValues.selectedSpecs : [],
+      projectDetails: Array.isArray(restoredValues.projectDetails)
+        ? restoredValues.projectDetails
+        : [],
+      selectedSpecs: Array.isArray(restoredValues.selectedSpecs)
+        ? restoredValues.selectedSpecs
+        : [],
       subNeighborhoodId: storedSubNeighborhoodId,
       suitableFor: readArrayValue(restoredValues.suitableFor),
       usageType: readArrayValue(restoredValues.usageType),

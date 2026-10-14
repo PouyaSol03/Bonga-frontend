@@ -1,0 +1,12 @@
+dist
+build
+coverage
+storybook-static
+playwright-report
+test-results
+blob-report
+graphify-out
+.freebuff
+node_modules
+package-lock.json
+public

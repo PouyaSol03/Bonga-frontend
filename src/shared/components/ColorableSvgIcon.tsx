@@ -7,7 +7,11 @@ type ColorableSvgIconProps = {
 
 export function ColorableSvgIcon({ className = "", src }: ColorableSvgIconProps) {
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular"
+    <Typography
+      as="span"
+      variant="body"
+      size="medium"
+      weight="regular"
       aria-hidden="true"
       className={`inline-block shrink-0 ${className}`}
       style={{

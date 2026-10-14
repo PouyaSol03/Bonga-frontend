@@ -51,11 +51,14 @@ export function AgencyBadgesPanel() {
   const rawBadges: V2RankingBadge[] = v2BadgesQuery.data?.badges ?? v2BadgesQuery.data?.data ?? [];
 
   const badges: AgencyBadge[] = rawBadges.map((item: V2RankingBadge, index: number) => {
-    const isEarned = Boolean(item.is_earned ?? item.earned ?? (item.level && item.level > 0) ?? item.status === "earned");
+    const isEarned = Boolean(
+      item.is_earned ?? item.earned ?? (item.level && item.level > 0) ?? item.status === "earned",
+    );
     const progressVal = Number(item.progress ?? item.progress_value ?? 0);
     const slug = typeof item.slug === "string" ? item.slug.trim().toLowerCase() : "";
     const resolvedSrc = item.src || item.image || (slug ? BADGE_IMAGES[slug] : undefined);
-    const detailPath = slugToDashboardPath[slug] || `/account/dashboard/ranking/badges/${slug || item.id || index}`;
+    const detailPath =
+      slugToDashboardPath[slug] || `/account/dashboard/ranking/badges/${slug || item.id || index}`;
 
     return {
       ariaLabel: item.title || item.label || item.name || `نشان ${index + 1}`,
@@ -71,22 +74,31 @@ export function AgencyBadgesPanel() {
   });
 
   return (
-    <section className="rounded-2xl bg-surface-container-lowest p-4" aria-label="نشان‌ها">
+    <section className="bg-surface-container-lowest rounded-2xl p-4" aria-label="نشان‌ها">
       <SectionHeader guideTo={DASHBOARD_BADGES_GUIDE_PATH} title="نشان‌ها" />
       {v2BadgesQuery.isLoading ? (
-        <div className="mt-6 grid grid-cols-2 gap-4 [direction:ltr] animate-pulse">
+        <div className="mt-6 grid animate-pulse grid-cols-2 gap-4 [direction:ltr]">
           {[0, 1].map((i) => (
-            <div key={i} className="flex h-[186px] w-full flex-col items-center rounded-lg border border-outline-var bg-surface-container-lowest pt-6">
-              <div className="h-[72px] w-[72px] rounded-full bg-surface-container-high" />
-              <div className="mt-2 h-6 w-20 rounded bg-surface-container-high" />
-              <div className="mt-2 h-3 w-14 rounded bg-surface-container-high" />
-              <div className="mt-4 h-1 w-[92px] rounded-full bg-surface-container-high" />
+            <div
+              key={i}
+              className="border-outline-var bg-surface-container-lowest flex h-[186px] w-full flex-col items-center rounded-lg border pt-6"
+            >
+              <div className="bg-surface-container-high h-[72px] w-[72px] rounded-full" />
+              <div className="bg-surface-container-high mt-2 h-6 w-20 rounded" />
+              <div className="bg-surface-container-high mt-2 h-3 w-14 rounded" />
+              <div className="bg-surface-container-high mt-4 h-1 w-[92px] rounded-full" />
             </div>
           ))}
         </div>
       ) : null}
       {!v2BadgesQuery.isLoading && badges.length === 0 ? (
-        <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-8 text-center text-outline">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline m-0 mx-auto w-full py-8 text-center"
+        >
           نشانی از سرور دریافت نشده است.
         </Typography>
       ) : null}
@@ -104,12 +116,12 @@ function BadgeCard({ badge }: { badge: AgencyBadge }) {
   const className = `flex h-[186px] w-full flex-col items-center rounded-lg border border-outline-var bg-surface-container-lowest pt-6 text-inherit no-underline transition active:scale-[0.99] focus-visible:outline-3 focus-visible:outline-primary/40 ${!isActive ? "grayscale" : ""}`;
 
   return (
-    <Link
-      aria-label={badge.ariaLabel}
-      className={className}
-      to={badge.detailPath}
-    >
-      <Typography as="span" variant="body" size="medium" weight="regular"
+    <Link aria-label={badge.ariaLabel} className={className} to={badge.detailPath}>
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
         className={`grid h-[72px] w-[72px] place-items-center ${isActive ? "text-warning" : "text-outline"}`}
       >
         {badge.src ? (
@@ -119,8 +131,12 @@ function BadgeCard({ badge }: { badge: AgencyBadge }) {
         )}
       </Typography>
 
-      <Typography as="span" variant="label" size="medium" weight="semibold"
-        className={`mt-2 inline-flex h-6 min-w-[92px] items-center justify-center rounded-lg px-2 text-sm font-semibold leading-5 ${
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="semibold"
+        className={`mt-2 inline-flex h-6 min-w-[92px] items-center justify-center rounded-lg px-2 text-sm leading-5 font-semibold ${
           isActive ? "bg-primary-container text-primary" : "bg-surface-container text-outline"
         }`}
       >
@@ -137,11 +153,8 @@ function BadgeCard({ badge }: { badge: AgencyBadge }) {
         ))}
       </div>
 
-      <div className="mt-4 h-1 w-[92px] rounded-full bg-warning-container/30">
-        <div
-          className="h-1 rounded-full bg-warning"
-          style={{ width: `${badge.progress}%` }}
-        />
+      <div className="bg-warning-container/30 mt-4 h-1 w-[92px] rounded-full">
+        <div className="bg-warning h-1 rounded-full" style={{ width: `${badge.progress}%` }} />
       </div>
     </Link>
   );

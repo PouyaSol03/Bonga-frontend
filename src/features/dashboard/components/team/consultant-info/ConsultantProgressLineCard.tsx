@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { Typography } from "../../../../../shared/ui/Typography";
 import { toPersianNumber } from "../../../../../shared/lib/numberUtils";
 import { ChevronDownIcon } from "../ConsultantCardWidgets";
@@ -30,31 +23,49 @@ export function ConsultantProgressLineCard({
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   return (
-    <article className="w-full bg-surface-container-lowest p-4">
+    <article className="bg-surface-container-lowest w-full p-4">
       <div className="mb-4 grid gap-1">
         <div className="flex items-center justify-between">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">
+          <Typography
+            as="h2"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="text-on-surface m-0 text-base leading-6 font-semibold"
+          >
             نمودار پیشرفت ثبت آگهی
           </Typography>
           <label className="relative flex h-7 items-center rounded-lg bg-transparent transition">
             <select
               aria-label="بازه زمانی نمودار پیشرفت"
-              className="h-7 cursor-pointer appearance-none rounded-lg bg-transparent py-1 pl-7 pr-2 text-xs font-medium text-on-surface outline-none"
+              className="text-on-surface h-7 cursor-pointer appearance-none rounded-lg bg-transparent py-1 pr-2 pl-7 text-xs font-medium outline-none"
               onChange={(e) => onPeriodChange?.(e.target.value as PeriodKey)}
               value={period}
             >
               <option value="year">در سال</option>
               <option value="month">در ماه</option>
             </select>
-            <ChevronDownIcon className="pointer-events-none absolute left-1.5 h-3.5 w-3.5 text-on-surface-var" />
+            <ChevronDownIcon className="text-on-surface-var pointer-events-none absolute left-1.5 h-3.5 w-3.5" />
           </label>
         </div>
         {increasePercent !== undefined && data.length > 0 ? (
           <div className="flex items-center gap-1">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M11.5 4.5L4.5 11.5M11.5 4.5H6.5M11.5 4.5V9.5" stroke="var(--tertiary-400)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M11.5 4.5L4.5 11.5M11.5 4.5H6.5M11.5 4.5V9.5"
+                stroke="var(--tertiary-400)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
-            <Typography as="span" variant="label" size="medium" weight="medium" style={{ color: "var(--tertiary-400)" }}>
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              style={{ color: "var(--tertiary-400)" }}
+            >
               {toPersianNumber(increasePercent)}٪ افزایش ثبت
             </Typography>
           </div>
@@ -63,15 +74,12 @@ export function ConsultantProgressLineCard({
 
       {isLoading ? (
         <div className="flex h-[260px] w-full items-center justify-center">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
         </div>
       ) : data && data.length > 0 ? (
         <div className="h-[260px] w-full" dir="ltr">
           <ResponsiveContainer height="100%" width="100%">
-            <LineChart
-              data={data}
-              margin={{ bottom: 20, left: -20, right: 15, top: 45 }}
-            >
+            <LineChart data={data} margin={{ bottom: 20, left: -20, right: 15, top: 45 }}>
               <CartesianGrid
                 horizontal
                 stroke="var(--outline-var)"
@@ -165,7 +173,13 @@ export function ConsultantProgressLineCard({
         </div>
       ) : (
         <div className="flex h-[260px] w-full flex-col items-center justify-center text-center">
-          <Typography as="span" variant="body" size="small" weight="medium" className="text-outline">
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="medium"
+            className="text-outline"
+          >
             داده‌ای برای این بازه ثبت نشده است.
           </Typography>
         </div>

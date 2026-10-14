@@ -8,14 +8,11 @@ interface UseNewAdBackNavigationProps {
   editAdState: ReturnType<typeof getEditAdRouteState>;
 }
 
-export function useNewAdBackNavigation({
-  editAdId,
-  editAdState,
-}: UseNewAdBackNavigationProps) {
+export function useNewAdBackNavigation({ editAdId, editAdState }: UseNewAdBackNavigationProps) {
   const navigate = useNavigate();
 
   const crmReturnTo = editAdId
-    ? editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`
+    ? (editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`)
     : "/crm/advertises";
 
   const leaveCrmEditor = () => {

@@ -37,16 +37,13 @@ function getCreditBenefits(plan: PackageItem, withCreditLabel = false) {
     { label: "بروزرسانی", value: plan.renew_credit },
   ]
     .filter((item) => item.value > 0)
-    .map((item) =>
-      `${formatCreditNumber(item.value)} ${withCreditLabel ? "اعتبار " : ""}${item.label}`,
+    .map(
+      (item) =>
+        `${formatCreditNumber(item.value)} ${withCreditLabel ? "اعتبار " : ""}${item.label}`,
     );
 }
 
-function mapPackageToCreditPlan(
-  plan: PackageItem,
-  index: number,
-  view: CreditView,
-): CreditPlan {
+function mapPackageToCreditPlan(plan: PackageItem, index: number, view: CreditView): CreditPlan {
   const isBundle = view === "packages";
   const showGiftBenefits = view === "panel-bonus";
 
@@ -61,7 +58,6 @@ function mapPackageToCreditPlan(
     selected: index === 0,
   };
 }
-
 
 export function IndependentConsultantCreditPage({ view }: { view: CreditView }) {
   const { showToast } = useToast();
@@ -78,13 +74,10 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
     )
     .map((plan, index) => mapPackageToCreditPlan(plan, index, view));
   const selectedPackage = selectedPackageId
-    ? sourcePackages.find((item) => item.id === selectedPackageId) ?? null
+    ? (sourcePackages.find((item) => item.id === selectedPackageId) ?? null)
     : null;
 
-  function submitPackagePayment(
-    paymentType: PackagePaymentType,
-    discountCode?: string,
-  ) {
+  function submitPackagePayment(paymentType: PackagePaymentType, discountCode?: string) {
     if (!selectedPackage || packagePaymentMutation.isPending) return;
 
     packagePaymentMutation.mutate(
@@ -104,9 +97,7 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
         },
         onSuccess: ({ paymentUrl }) => {
           if (paymentUrl) {
-            const returnPath = isPackages
-              ? "/account/credit/packages"
-              : "/account/credit/panel";
+            const returnPath = isPackages ? "/account/credit/packages" : "/account/credit/panel";
             storePaymentReturnTarget({
               kind: "package",
               label: "بازگشت به افزایش اعتبار",
@@ -135,10 +126,7 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
         walletCredit={walletQuery.data?.credit}
         walletError={
           walletQuery.isError
-            ? getApiErrorMessage(
-                walletQuery.error,
-                "دریافت موجودی کیف پول با خطا مواجه شد.",
-              )
+            ? getApiErrorMessage(walletQuery.error, "دریافت موجودی کیف پول با خطا مواجه شد.")
             : null
         }
         walletLoading={walletQuery.isLoading}
@@ -148,13 +136,13 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
 
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <CreditTopBar />
       <CreditTabs activeTab={isPackages ? "packages" : "panel"} />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pb-4">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pb-4">
         {packagesQuery.isLoading ? (
           <CreditPlansSkeleton count={3} />
         ) : packagesQuery.isError ? (
@@ -189,9 +177,7 @@ function CreditTopBar() {
   const navigate = useNavigate();
   const returnTo =
     window.history.state?.returnTo ||
-    (typeof window !== "undefined"
-      ? sessionStorage.getItem("bonga:paymentReturnTo")
-      : null) ||
+    (typeof window !== "undefined" ? sessionStorage.getItem("bonga:paymentReturnTo") : null) ||
     undefined;
 
   return (
@@ -213,7 +199,7 @@ function CreditTopBar() {
       }}
       startSlot={
         <Link
-          className="inline-flex h-12 items-center px-3 text-sm font-medium leading-5 text-primary no-underline"
+          className="text-primary inline-flex h-12 items-center px-3 text-sm leading-5 font-medium no-underline"
           to="/account/credit/history"
         >
           تاریخچه پرداخت
@@ -226,19 +212,23 @@ function CreditTopBar() {
 
 function CreditTabs({ activeTab }: { activeTab: "packages" | "panel" }) {
   return (
-    <nav className="shrink-0 bg-surface-container-lowest px-4 py-4" aria-label="نوع افزایش اعتبار">
-      <div className="flex h-11 overflow-hidden rounded-xl border border-primary [direction:ltr]">
+    <nav className="bg-surface-container-lowest shrink-0 px-4 py-4" aria-label="نوع افزایش اعتبار">
+      <div className="border-primary flex h-11 overflow-hidden rounded-xl border [direction:ltr]">
         <Link
-          className={`flex flex-1 items-center justify-center text-base font-medium leading-6 [direction:rtl] ${
-            activeTab === "panel" ? "bg-primary-container text-primary font-semibold" : "bg-surface-container-lowest text-on-surface-var"
+          className={`flex flex-1 items-center justify-center text-base leading-6 font-medium [direction:rtl] ${
+            activeTab === "panel"
+              ? "bg-primary-container text-primary font-semibold"
+              : "bg-surface-container-lowest text-on-surface-var"
           }`}
           to="/account/credit/panel"
         >
           اعتبار پنل
         </Link>
         <Link
-          className={`flex flex-1 items-center justify-center border-l border-primary text-base font-medium leading-6 [direction:rtl] ${
-            activeTab === "packages" ? "bg-primary-container text-primary font-semibold" : "bg-surface-container-lowest text-on-surface-var"
+          className={`border-primary flex flex-1 items-center justify-center border-l text-base leading-6 font-medium [direction:rtl] ${
+            activeTab === "packages"
+              ? "bg-primary-container text-primary font-semibold"
+              : "bg-surface-container-lowest text-on-surface-var"
           }`}
           to="/account/credit/packages"
         >
@@ -262,7 +252,7 @@ function CreditPlanCard({
 }) {
   return (
     <article
-      className={`rounded-2xl border bg-surface-container-lowest p-4 ${
+      className={`bg-surface-container-lowest rounded-2xl border p-4 ${
         plan.selected ? "border-primary" : "border-outline-var"
       }`}
     >
@@ -274,8 +264,9 @@ function CreditPlanCard({
         <PanelCardContent plan={plan} />
       )}
 
-      <Button unstyled
-        className="mt-4 h-10 w-full rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary"
+      <Button
+        unstyled
+        className="bg-primary text-on-primary mt-4 h-10 w-full rounded-lg text-sm leading-5 font-medium"
         onClick={onPay}
         type="button"
       >
@@ -310,12 +301,14 @@ function PackageCardContent({ plan }: { plan: CreditPlan }) {
       <div className="h-[108px]">
         <CreditPrice plan={plan} />
       </div>
-      <div className="my-4 h-px border-t border-dashed border-outline-var" />
+      <div className="border-outline-var my-4 h-px border-t border-dashed" />
       <ul className="space-y-4">
         {(plan.benefits ?? []).map((benefit) => (
-          <li className="flex h-6 items-center gap-2 text-base font-medium leading-6" key={benefit}>
-            <CheckSealIcon className="h-5 w-5 shrink-0 text-tertiary" />
-            <Typography as="span" variant="body" size="medium" weight="regular">{benefit}</Typography>
+          <li className="flex h-6 items-center gap-2 text-base leading-6 font-medium" key={benefit}>
+            <CheckSealIcon className="text-tertiary h-5 w-5 shrink-0" />
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              {benefit}
+            </Typography>
           </li>
         ))}
       </ul>
@@ -327,21 +320,53 @@ function CreditPrice({ plan }: { plan: CreditPlan }) {
   return (
     <>
       <div className="flex h-6 items-center justify-end">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-primary [direction:rtl]">{plan.name}</Typography>
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-primary m-0 text-base leading-6 font-semibold [direction:rtl]"
+        >
+          {plan.name}
+        </Typography>
       </div>
       <div className="mt-4 flex h-[68px] items-end justify-between">
         {plan.discountPercent > 0 ? (
-          <Typography as="span" variant="body" size="small" weight="regular" className="mb-1 rounded-lg border border-error bg-surface-container-lowest px-2 py-1 text-xs font-normal leading-4 text-error">
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="border-error bg-surface-container-lowest text-error mb-1 rounded-lg border px-2 py-1 text-xs leading-4 font-normal"
+          >
             {formatCreditNumber(plan.discountPercent)}٪ تخفیف
           </Typography>
         ) : (
           <span />
         )}
         <div className="text-right [direction:rtl]">
-          <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-base font-semibold leading-6 text-outline line-through">{plan.originalPrice}</Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="large"
+            weight="medium"
+            className="text-outline m-0 text-base leading-6 font-semibold line-through"
+          >
+            {plan.originalPrice}
+          </Typography>
           <div className="mt-0.5 flex items-center justify-end gap-1 [direction:rtl]">
-            <strong className="text-[22px] font-semibold leading-7 text-on-surface">{plan.currentPrice}</strong>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4 text-on-surface">تومان</Typography>
+            <strong className="text-on-surface text-[22px] leading-7 font-semibold">
+              {plan.currentPrice}
+            </strong>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-on-surface text-xs leading-4 font-medium"
+            >
+              تومان
+            </Typography>
           </div>
         </div>
       </div>
@@ -351,15 +376,21 @@ function CreditPrice({ plan }: { plan: CreditPlan }) {
 
 function GiftBenefits({ benefits }: { benefits: string[] }) {
   return (
-    <div className="h-16 rounded-lg border border-tertiary bg-tertiary-container/30 px-4 py-2 text-tertiary">
-      <div className="flex h-5 items-center justify-end gap-1 text-sm font-medium leading-5 text-tertiary">
+    <div className="border-tertiary bg-tertiary-container/30 text-tertiary h-16 rounded-lg border px-4 py-2">
+      <div className="text-tertiary flex h-5 items-center justify-end gap-1 text-sm leading-5 font-medium">
         <GiftIcon className="h-5 w-5" />
-        <Typography as="span" variant="body" size="medium" weight="regular">بسته هدیه</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular">
+          بسته هدیه
+        </Typography>
       </div>
-      <div className="mt-2 flex h-5 items-center justify-between text-sm font-medium leading-5">
+      <div className="mt-2 flex h-5 items-center justify-between text-sm leading-5 font-medium">
         {benefits.map((benefit, index) => (
-          <Typography as="span" variant="body" size="medium" weight="regular"
-            className={`${index < benefits.length - 1 ? "border-l border-tertiary/20 pl-4" : ""}`}
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className={`${index < benefits.length - 1 ? "border-tertiary/20 border-l pl-4" : ""}`}
             key={benefit}
           >
             {benefit}
@@ -375,7 +406,7 @@ function CreditPlansSkeleton({ count }: { count: number }) {
     <div className="space-y-4" aria-label="در حال دریافت بسته‌های اعتبار" role="status">
       {Array.from({ length: count }, (_, index) => (
         <div
-          className="h-[204px] animate-pulse rounded-2xl border border-outline-var bg-surface-container"
+          className="border-outline-var bg-surface-container h-[204px] animate-pulse rounded-2xl border"
           key={index}
         />
       ))}
@@ -393,14 +424,14 @@ function CreditPlansStatus({
   onAction?: () => void;
 }) {
   return (
-    <div className="mx-auto w-full rounded-2xl border border-dashed border-outline-var px-4 py-10 text-center">
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-outline">
+    <div className="border-outline-var mx-auto w-full rounded-2xl border border-dashed px-4 py-10 text-center">
+      <Typography as="p" variant="body" size="medium" weight="regular" className="text-outline m-0">
         {message}
       </Typography>
       {actionLabel && onAction ? (
         <Button
           unstyled
-          className="mt-4 h-10 rounded-lg border border-primary px-5 text-sm font-medium text-primary"
+          className="border-primary text-primary mt-4 h-10 rounded-lg border px-5 text-sm font-medium"
           onClick={onAction}
           type="button"
         >
@@ -415,14 +446,31 @@ function CheckSealIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 20 20">
       <path d="M10 1.4 12.4 3l2.9-.1.8 2.8 2 2-1.3 2.6.4 2.9-2.8 1-1.8 2.2-2.6-1.2-2.6 1.2-1.8-2.2-2.8-1 .4-2.9-1.3-2.6 2-2 .8-2.8 2.9.1L10 1.4Z" />
-      <path d="m6.2 10 2.4 2.3 5.1-5.2" fill="none" stroke="currentColor" className="text-on-primary" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+      <path
+        d="m6.2 10 2.4 2.3 5.1-5.2"
+        fill="none"
+        stroke="currentColor"
+        className="text-on-primary"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.6"
+      />
     </svg>
   );
 }
 
 function GiftIcon({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" viewBox="0 0 20 20">
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.6"
+      viewBox="0 0 20 20"
+    >
       <path d="M3 8h14v3H3V8ZM4.5 11h11v6h-11v-6ZM10 8v9" />
       <path d="M10 8H7.2a2.1 2.1 0 1 1 0-4.2C9.1 3.8 10 8 10 8Zm0 0h2.8a2.1 2.1 0 1 0 0-4.2C10.9 3.8 10 8 10 8Z" />
     </svg>

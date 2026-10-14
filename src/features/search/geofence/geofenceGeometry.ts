@@ -1,8 +1,4 @@
-import type {
-  GeofenceCoordinate,
-  GeofenceResult,
-  GeofenceValidationResult,
-} from "./geofenceTypes";
+import type { GeofenceCoordinate, GeofenceResult, GeofenceValidationResult } from "./geofenceTypes";
 
 export const MIN_CAPTURE_DISTANCE_PX = 5;
 export const CLOSE_SNAP_DISTANCE_METERS = 3;
@@ -34,10 +30,7 @@ function copyCoordinate(coordinate: GeofenceCoordinate): GeofenceCoordinate {
   return [coordinate[0], coordinate[1]];
 }
 
-function coordinatesExactlyEqual(
-  first: GeofenceCoordinate,
-  second: GeofenceCoordinate,
-) {
+function coordinatesExactlyEqual(first: GeofenceCoordinate, second: GeofenceCoordinate) {
   return first[0] === second[0] && first[1] === second[1];
 }
 
@@ -63,23 +56,16 @@ function shortestLongitudeDeltaDegrees(from: number, to: number) {
   return delta;
 }
 
-export function geographicDistanceMeters(
-  first: GeofenceCoordinate,
-  second: GeofenceCoordinate,
-) {
+export function geographicDistanceMeters(first: GeofenceCoordinate, second: GeofenceCoordinate) {
   const latitudeOne = first[1] * DEGREES_TO_RADIANS;
   const latitudeTwo = second[1] * DEGREES_TO_RADIANS;
   const latitudeDelta = (second[1] - first[1]) * DEGREES_TO_RADIANS;
-  const longitudeDelta =
-    shortestLongitudeDeltaDegrees(first[0], second[0]) * DEGREES_TO_RADIANS;
+  const longitudeDelta = shortestLongitudeDeltaDegrees(first[0], second[0]) * DEGREES_TO_RADIANS;
   const sinLatitude = Math.sin(latitudeDelta / 2);
   const sinLongitude = Math.sin(longitudeDelta / 2);
   const haversine =
     sinLatitude * sinLatitude +
-    Math.cos(latitudeOne) *
-      Math.cos(latitudeTwo) *
-      sinLongitude *
-      sinLongitude;
+    Math.cos(latitudeOne) * Math.cos(latitudeTwo) * sinLongitude * sinLongitude;
 
   return (
     2 *
@@ -153,8 +139,7 @@ function unwrapLongitudes(coordinates: GeofenceCoordinate[]) {
     const previousLongitude = unwrapped[index - 1][0];
     const coordinate = coordinates[index];
     const longitude =
-      previousLongitude +
-      shortestLongitudeDeltaDegrees(previousLongitude, coordinate[0]);
+      previousLongitude + shortestLongitudeDeltaDegrees(previousLongitude, coordinate[0]);
 
     unwrapped.push([longitude, coordinate[1]]);
   }
@@ -162,31 +147,18 @@ function unwrapLongitudes(coordinates: GeofenceCoordinate[]) {
   return unwrapped;
 }
 
-function projectCoordinatesToMeters(
-  coordinates: GeofenceCoordinate[],
-): ProjectedCoordinate[] {
+function projectCoordinatesToMeters(coordinates: GeofenceCoordinate[]): ProjectedCoordinate[] {
   if (coordinates.length === 0) return [];
 
   const unwrapped = unwrapLongitudes(coordinates);
   const referenceLatitude =
-    unwrapped.reduce((sum, coordinate) => sum + coordinate[1], 0) /
-    unwrapped.length;
+    unwrapped.reduce((sum, coordinate) => sum + coordinate[1], 0) / unwrapped.length;
   const referenceLongitude = unwrapped[0][0];
-  const cosineLatitude = Math.max(
-    1e-8,
-    Math.cos(referenceLatitude * DEGREES_TO_RADIANS),
-  );
+  const cosineLatitude = Math.max(1e-8, Math.cos(referenceLatitude * DEGREES_TO_RADIANS));
 
   return unwrapped.map(([longitude, latitude]) => ({
-    x:
-      EARTH_RADIUS_METERS *
-      (longitude - referenceLongitude) *
-      DEGREES_TO_RADIANS *
-      cosineLatitude,
-    y:
-      EARTH_RADIUS_METERS *
-      (latitude - referenceLatitude) *
-      DEGREES_TO_RADIANS,
+    x: EARTH_RADIUS_METERS * (longitude - referenceLongitude) * DEGREES_TO_RADIANS * cosineLatitude,
+    y: EARTH_RADIUS_METERS * (latitude - referenceLatitude) * DEGREES_TO_RADIANS,
   }));
 }
 
@@ -220,10 +192,7 @@ function squaredDistanceToSegment(
   return x * x + y * y;
 }
 
-function ramerDouglasPeuckerIndices(
-  points: ProjectedCoordinate[],
-  toleranceMeters: number,
-) {
+function ramerDouglasPeuckerIndices(points: ProjectedCoordinate[], toleranceMeters: number) {
   if (points.length <= 2) {
     return points.map((_, index) => index);
   }
@@ -232,9 +201,7 @@ function ramerDouglasPeuckerIndices(
   const keep = new Uint8Array(points.length);
   keep[0] = 1;
   keep[points.length - 1] = 1;
-  const stack: Array<[startIndex: number, endIndex: number]> = [
-    [0, points.length - 1],
-  ];
+  const stack: Array<[startIndex: number, endIndex: number]> = [[0, points.length - 1]];
 
   while (stack.length > 0) {
     const segment = stack.pop();
@@ -257,10 +224,7 @@ function ramerDouglasPeuckerIndices(
       }
     }
 
-    if (
-      maximumIndex !== -1 &&
-      maximumDistanceSquared > toleranceSquared
-    ) {
+    if (maximumIndex !== -1 && maximumDistanceSquared > toleranceSquared) {
       keep[maximumIndex] = 1;
       stack.push([startIndex, maximumIndex], [maximumIndex, endIndex]);
     }
@@ -280,9 +244,7 @@ export function simplifyGeofenceCoordinates(
     return closedRing.map(copyCoordinate);
   }
 
-  const openRing = removeEffectivelyDuplicateCoordinates(
-    closedRing.slice(0, -1),
-  );
+  const openRing = removeEffectivelyDuplicateCoordinates(closedRing.slice(0, -1));
   if (openRing.length < 3) return closedRing.map(copyCoordinate);
 
   const projected = projectCoordinatesToMeters(openRing);
@@ -306,9 +268,7 @@ export function simplifyGeofenceCoordinates(
   return [...simplified.map(copyCoordinate), copyCoordinate(simplified[0])];
 }
 
-export function calculatePolygonAreaSquareMeters(
-  coordinates: GeofenceCoordinate[],
-) {
+export function calculatePolygonAreaSquareMeters(coordinates: GeofenceCoordinate[]) {
   const closedRing = closePolygonRing(coordinates, 0);
   if (closedRing.length < 4) return 0;
 
@@ -324,17 +284,12 @@ export function calculatePolygonAreaSquareMeters(
   return Math.abs(twiceArea) / 2;
 }
 
-export function calculatePolygonPerimeterMeters(
-  coordinates: GeofenceCoordinate[],
-) {
+export function calculatePolygonPerimeterMeters(coordinates: GeofenceCoordinate[]) {
   const closedRing = closePolygonRing(coordinates, 0);
   let perimeter = 0;
 
   for (let index = 0; index < closedRing.length - 1; index += 1) {
-    perimeter += geographicDistanceMeters(
-      closedRing[index],
-      closedRing[index + 1],
-    );
+    perimeter += geographicDistanceMeters(closedRing[index], closedRing[index + 1]);
   }
 
   return perimeter;
@@ -345,10 +300,7 @@ function orientation(
   second: ProjectedCoordinate,
   third: ProjectedCoordinate,
 ) {
-  return (
-    (second.x - first.x) * (third.y - first.y) -
-    (second.y - first.y) * (third.x - first.x)
-  );
+  return (second.x - first.x) * (third.y - first.y) - (second.y - first.y) * (third.x - first.x);
 }
 
 function isPointOnSegment(
@@ -393,9 +345,7 @@ function segmentsIntersect(
   );
 }
 
-export function polygonHasSelfIntersections(
-  coordinates: GeofenceCoordinate[],
-) {
+export function polygonHasSelfIntersections(coordinates: GeofenceCoordinate[]) {
   const closedRing = closePolygonRing(coordinates, 0);
   if (closedRing.length < 5) return false;
 
@@ -406,24 +356,14 @@ export function polygonHasSelfIntersections(
     const firstStart = projected[firstIndex];
     const firstEnd = projected[firstIndex + 1];
 
-    for (
-      let secondIndex = firstIndex + 1;
-      secondIndex < segmentCount;
-      secondIndex += 1
-    ) {
+    for (let secondIndex = firstIndex + 1; secondIndex < segmentCount; secondIndex += 1) {
       const areAdjacent = secondIndex === firstIndex + 1;
-      const areClosingNeighbors =
-        firstIndex === 0 && secondIndex === segmentCount - 1;
+      const areClosingNeighbors = firstIndex === 0 && secondIndex === segmentCount - 1;
 
       if (areAdjacent || areClosingNeighbors) continue;
 
       if (
-        segmentsIntersect(
-          firstStart,
-          firstEnd,
-          projected[secondIndex],
-          projected[secondIndex + 1],
-        )
+        segmentsIntersect(firstStart, firstEnd, projected[secondIndex], projected[secondIndex + 1])
       ) {
         return true;
       }
@@ -433,18 +373,12 @@ export function polygonHasSelfIntersections(
   return false;
 }
 
-function countUniqueVertices(
-  coordinates: GeofenceCoordinate[],
-  thresholdMeters: number,
-) {
+function countUniqueVertices(coordinates: GeofenceCoordinate[], thresholdMeters: number) {
   const unique: GeofenceCoordinate[] = [];
 
   coordinates.forEach((coordinate) => {
     if (
-      !unique.some(
-        (existing) =>
-          geographicDistanceMeters(existing, coordinate) <= thresholdMeters,
-      )
+      !unique.some((existing) => geographicDistanceMeters(existing, coordinate) <= thresholdMeters)
     ) {
       unique.push(coordinate);
     }
@@ -515,9 +449,7 @@ export function validateGeofencePolygon(
     };
   }
 
-  if (
-    calculatePolygonAreaSquareMeters(coordinates) < minimumAreaSquareMeters
-  ) {
+  if (calculatePolygonAreaSquareMeters(coordinates) < minimumAreaSquareMeters) {
     return {
       isValid: false,
       code: "zero_area",
@@ -528,9 +460,7 @@ export function validateGeofencePolygon(
   return { isValid: true };
 }
 
-export function calculateGeofenceMeasurements(
-  coordinates: GeofenceCoordinate[],
-) {
+export function calculateGeofenceMeasurements(coordinates: GeofenceCoordinate[]) {
   return {
     areaSquareMeters: calculatePolygonAreaSquareMeters(coordinates),
     perimeterMeters: calculatePolygonPerimeterMeters(coordinates),
@@ -544,10 +474,7 @@ export function finalizeGeofenceDrawing(
   const duplicateDistanceMeters =
     options.duplicateDistanceMeters ?? EFFECTIVE_DUPLICATE_DISTANCE_METERS;
   const rawCoordinates = closePolygonRing(
-    removeEffectivelyDuplicateCoordinates(
-      coordinates,
-      duplicateDistanceMeters,
-    ),
+    removeEffectivelyDuplicateCoordinates(coordinates, duplicateDistanceMeters),
     options.closeSnapDistanceMeters ?? CLOSE_SNAP_DISTANCE_METERS,
   );
   const rawValidation = validateGeofencePolygon(rawCoordinates, {

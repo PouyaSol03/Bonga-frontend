@@ -12,11 +12,7 @@ import {
   type PropertyRequestCreateInput,
 } from "./property-request.service";
 
-export function usePropertyRequestsQuery(
-  page = 1,
-  perPage = 20,
-  options?: { enabled?: boolean },
-) {
+export function usePropertyRequestsQuery(page = 1, perPage = 20, options?: { enabled?: boolean }) {
   const scope = getPropertyRequestScope();
 
   return useQuery({
@@ -39,8 +35,7 @@ export function useCreatePropertyRequestMutation() {
 
 export function useRenamePropertyRequestMutation() {
   return useMutation({
-    mutationFn: ({ id, name }: { id: string; name: string }) =>
-      renamePropertyRequest(id, name),
+    mutationFn: ({ id, name }: { id: string; name: string }) => renamePropertyRequest(id, name),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.propertyRequests.all,
@@ -71,11 +66,6 @@ export function usePropertyRequestMatchesQuery(
   return useQuery({
     enabled: enabled && Boolean(requestId),
     queryFn: () => getPropertyRequestMatches(requestId ?? "", page, perPage),
-    queryKey: queryKeys.propertyRequests.matches(
-      scope.ownerType,
-      requestId ?? "",
-      page,
-      perPage,
-    ),
+    queryKey: queryKeys.propertyRequests.matches(scope.ownerType, requestId ?? "", page, perPage),
   });
 }

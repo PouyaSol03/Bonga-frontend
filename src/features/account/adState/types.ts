@@ -11,19 +11,10 @@ export type AssignedAdVariant =
   | "waiting-agency"
   | "waiting-repost";
 
-export type AssignedAdFlow =
-  | "cancel-assignment"
-  | "deal-result"
-  | "details"
-  | "stop-publish";
+export type AssignedAdFlow = "cancel-assignment" | "deal-result" | "details" | "stop-publish";
 
 export type AssignedAdPrimaryAction =
-  | "cancel-assignment"
-  | "none"
-  | "repost"
-  | "restore"
-  | "stop-publish"
-  | "submit-result";
+  "cancel-assignment" | "none" | "repost" | "restore" | "stop-publish" | "submit-result";
 
 export type TimelineTone = "danger" | "neutral" | "primary" | "success" | "warning";
 

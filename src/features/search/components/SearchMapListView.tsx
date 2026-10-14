@@ -56,7 +56,8 @@ function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
     builderShare: listing.builderShare,
     currentStatus: listing.currentStatus,
     title: listing.title,
-    timeAndLocation: listing.postedAt || (listing.locationLabel ? `در ${listing.locationLabel}` : ""),
+    timeAndLocation:
+      listing.postedAt || (listing.locationLabel ? `در ${listing.locationLabel}` : ""),
     imageClassName: listing.imageClassName ?? "",
     imageUrl: listing.imageSrc,
     badges: listing.badges ?? [],
@@ -73,44 +74,48 @@ export function SearchMapListView({
   return (
     <>
       <main
-        className="absolute inset-0 z-0 flex min-h-0 flex-col overflow-y-auto overscroll-contain bg-surface-container pb-20 pt-[60px]"
+        className="bg-surface-container absolute inset-0 z-0 flex min-h-0 flex-col overflow-y-auto overscroll-contain pt-[60px] pb-20"
         aria-label="لیست آگهی‌ها"
         dir="rtl"
       >
-        <div className={`flex min-h-full flex-col ${hasEmptyResults ? "bg-surface-container-lowest" : "bg-surface-container"}`}>
-          {isLoading
-            ? Array.from({ length: 3 }).map((_, index) => (
-                <AdCardSkeleton
-                  className="shrink-0 border-b-[12px] border-surface-container last:border-b-0"
-                  key={index}
-                />
-              ))
-            : hasEmptyResults
-              ? (
-                <div className="flex flex-1 flex-col bg-surface-container-lowest pt-3">
-                  <SearchNoResultsRequestCard className="mx-4" onSubmit={onRequestSubmit} />
-                </div>
-              )
-            : listings.map((listing) => (
-                <AdCard
-                  className="shrink-0 border-b-[12px] border-surface-container last:border-b-0"
-                  key={listing.id}
-                  ad={listing.adCard ?? searchMapListingToAdCardData(listing)}
-                  to={`/ads/${listing.id}`}
-                />
-              ))}
+        <div
+          className={`flex min-h-full flex-col ${hasEmptyResults ? "bg-surface-container-lowest" : "bg-surface-container"}`}
+        >
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <AdCardSkeleton
+                className="border-surface-container shrink-0 border-b-[12px] last:border-b-0"
+                key={index}
+              />
+            ))
+          ) : hasEmptyResults ? (
+            <div className="bg-surface-container-lowest flex flex-1 flex-col pt-3">
+              <SearchNoResultsRequestCard className="mx-4" onSubmit={onRequestSubmit} />
+            </div>
+          ) : (
+            listings.map((listing) => (
+              <AdCard
+                className="border-surface-container shrink-0 border-b-[12px] last:border-b-0"
+                key={listing.id}
+                ad={listing.adCard ?? searchMapListingToAdCardData(listing)}
+                to={`/ads/${listing.id}`}
+              />
+            ))
+          )}
         </div>
       </main>
 
-      <Button unstyled
-        className="absolute bottom-4 left-1/2 z-[520] flex -translate-x-1/2 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold leading-5 text-on-primary shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+      <Button
+        unstyled
+        className="bg-primary text-on-primary focus-visible:outline-primary/25 absolute bottom-4 left-1/2 z-[520] flex -translate-x-1/2 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm leading-5 font-bold shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2"
         type="button"
         onClick={onMapClick}
       >
         <LinearMapsLocation className="h-6 w-6" />
-        <Typography as="span" variant="label" size="large" weight="medium">نقشه</Typography>
+        <Typography as="span" variant="label" size="large" weight="medium">
+          نقشه
+        </Typography>
       </Button>
     </>
   );
 }
-

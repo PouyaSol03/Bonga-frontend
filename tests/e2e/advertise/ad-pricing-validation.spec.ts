@@ -25,15 +25,27 @@ test.describe("Ad pricing and section expansion validations", () => {
     expect(values.loanEnabled).toBe(true);
 
     // Exchange error triggers exchange section expansion
-    expandErrorSections({ exchangeTargets: "لطفا مورد معاوضه را انتخاب کنید" }, setValue as any, getValues as any);
+    expandErrorSections(
+      { exchangeTargets: "لطفا مورد معاوضه را انتخاب کنید" },
+      setValue as any,
+      getValues as any,
+    );
     expect(values.exchangeEnabled).toBe(true);
 
     // Sale terms error triggers sale terms section expansion
-    expandErrorSections({ saleTermsPercent: "درصد نامعتبر است" }, setValue as any, getValues as any);
+    expandErrorSections(
+      { saleTermsPercent: "درصد نامعتبر است" },
+      setValue as any,
+      getValues as any,
+    );
     expect(values.saleTermsEnabled).toBe(true);
 
     // Rent conversion error triggers conversion expansion
-    expandErrorSections({ rentConversionMortgagePrice: "تبدیل رهن غیرمجاز است" }, setValue as any, getValues as any);
+    expandErrorSections(
+      { rentConversionMortgagePrice: "تبدیل رهن غیرمجاز است" },
+      setValue as any,
+      getValues as any,
+    );
     expect(values.rentConversionEnabled).toBe(true);
   });
 

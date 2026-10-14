@@ -47,7 +47,7 @@ export function AddConsultantPage() {
     search: debouncedSearch,
   });
   const isSearchReady = hasSearch && searchValue.trim() === debouncedSearch;
-  const visibleResults = isSearchReady ? publicAgentsQuery.data?.data ?? [] : [];
+  const visibleResults = isSearchReady ? (publicAgentsQuery.data?.data ?? []) : [];
 
   const toggleManagerAccess = (id: string) => {
     setManagerAccess((current) =>
@@ -96,24 +96,39 @@ export function AddConsultantPage() {
   };
 
   return (
-    <section className="relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container text-on-surface" dir="rtl">
-      <TopBar backTo="/account/dashboard/team" centerClassName="px-0" reserveStartSpace title="انتخاب مشاور" titleClassName="text-center text-sm font-semibold leading-5" />
+    <section
+      className="bg-surface-container text-on-surface relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden"
+      dir="rtl"
+    >
+      <TopBar
+        backTo="/account/dashboard/team"
+        centerClassName="px-0"
+        reserveStartSpace
+        title="انتخاب مشاور"
+        titleClassName="text-center text-sm font-semibold leading-5"
+      />
 
       <main className="min-h-0 flex-1 overflow-y-auto pb-14">
-        <div className="bg-surface-container-lowest px-4 pb-2.5 pt-4">
+        <div className="bg-surface-container-lowest px-4 pt-4 pb-2.5">
           <TextField
             onChange={(event) => {
               setSearchValue(event.target.value);
               setSelectedAgentId(null);
             }}
             placeholder="شماره تلفن مشاور مورد نظر را وارد کنید"
-            trailingSlot={<LinearSearch className="h-6 w-6 text-outline" />}
+            trailingSlot={<LinearSearch className="text-outline h-6 w-6" />}
             type="search"
             value={searchValue}
           />
 
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 flex items-start gap-1 text-right text-sm text-outline">
-            <LinearInfoCircle className="mt-0.5 h-4 w-4 shrink-0 text-on-surface-var" />
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline m-0 mt-3 flex items-start gap-1 text-right text-sm"
+          >
+            <LinearInfoCircle className="text-on-surface-var mt-0.5 h-4 w-4 shrink-0" />
             <Typography as="span" variant="body" size="medium" weight="regular">
               برای یافتن مشاور، لازم است قبلاً به عنوان مشاور مستقل در سایت فعالیت کرده باشد.
             </Typography>
@@ -139,10 +154,20 @@ export function AddConsultantPage() {
         </div>
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
+      <div className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-4 pt-3 pb-[max(8px,env(safe-area-inset-bottom))] shadow-sm">
         <Button
           fullWidth
-          leadingIcon={<Typography as="span" variant="body" size="medium" weight="regular" className="text-[13px] leading-none">+</Typography>}
+          leadingIcon={
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-[13px] leading-none"
+            >
+              +
+            </Typography>
+          }
           loading={addConsultantMutation.isPending}
           onClick={handleAddConsultant}
           size="x-medium"

@@ -18,10 +18,10 @@ export function AgencyBusinessCreationPage() {
   const { data: profile } = useMyProfileQuery();
   const isAgencyPending = Boolean(
     profile?.agency_id &&
-      (profile?.agency_status === 0 ||
-        profile?.agency_status === "0" ||
-        profile?.agency_status === "wait" ||
-        String(profile?.agency_status).toLowerCase() === "wait"),
+    (profile?.agency_status === 0 ||
+      profile?.agency_status === "0" ||
+      profile?.agency_status === "wait" ||
+      String(profile?.agency_status).toLowerCase() === "wait"),
   );
   const initialDraft = useMemo(() => readAgencyCreationDraft(), []);
   const [agencyName, setAgencyName] = useState(initialDraft.agencyName);
@@ -36,8 +36,7 @@ export function AgencyBusinessCreationPage() {
     [selectedNeighborhoods],
   );
   const trimmedAgencyName = agencyName.trim();
-  const agencyNameError =
-    hasSubmitted && !trimmedAgencyName ? "نام آژانس املاک الزامی است." : null;
+  const agencyNameError = hasSubmitted && !trimmedAgencyName ? "نام آژانس املاک الزامی است." : null;
   const neighborhoodsError =
     hasSubmitted && neighborhoodIds.length === 0 ? "انتخاب محدوده فعالیت الزامی است." : null;
   useEffect(() => {
@@ -48,7 +47,11 @@ export function AgencyBusinessCreationPage() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  const showToast = (message: string, title = "خطا", variant: "error" | "success" | "info" | "warning" = "error") => {
+  const showToast = (
+    message: string,
+    title = "خطا",
+    variant: "error" | "success" | "info" | "warning" = "error",
+  ) => {
     setToast({ message, title, variant });
     showGlobalToast(message, title, variant);
   };

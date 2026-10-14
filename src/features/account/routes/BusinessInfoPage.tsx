@@ -18,7 +18,7 @@ export function BusinessInfoPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -27,9 +27,9 @@ export function BusinessInfoPage() {
         title="معرفی کسب و کار"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-8 [-webkit-overflow-scrolling:touch]">
-        <div className="sticky top-0 z-10 bg-surface-container px-4 pb-2 pt-1">
-          <div className="grid h-10 grid-cols-2 overflow-hidden rounded-[16px] border border-outline bg-surface-container-lowest text-sm font-medium leading-5">
+      <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-8 [-webkit-overflow-scrolling:touch]">
+        <div className="bg-surface-container sticky top-0 z-10 px-4 pt-1 pb-2">
+          <div className="border-outline bg-surface-container-lowest grid h-10 grid-cols-2 overflow-hidden rounded-[16px] border text-sm leading-5 font-medium">
             <Button
               unstyled
               aria-pressed={activeType === "agency"}

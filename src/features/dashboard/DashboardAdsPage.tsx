@@ -62,7 +62,7 @@ export function DashboardAdsPage() {
   }, [activeTab, adsQuery.data, searchTerm, showMineOnly]);
 
   return (
-    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl bg-surface-container-lowest px-6 pb-6 pt-3 text-on-surface [direction:rtl]">
+    <section className="bg-surface-container-lowest text-on-surface flex h-full min-h-0 flex-col overflow-hidden rounded-xl px-6 pt-3 pb-6 [direction:rtl]">
       <div className="shrink-0">
         <nav aria-label="بخش‌های مدیریت آگهی‌ها" className="flex justify-end">
           <div className="inline-flex items-center gap-12">
@@ -70,17 +70,25 @@ export function DashboardAdsPage() {
               const isActive = activeTab === tab.id;
 
               return (
-                <Button unstyled
+                <Button
+                  unstyled
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative h-10 whitespace-nowrap border-0 bg-transparent px-0 text-sm font-semibold transition ${isActive ? "text-primary" : "text-on-surface-var"
-                    }`}
+                  className={`relative h-10 border-0 bg-transparent px-0 text-sm font-semibold whitespace-nowrap transition ${
+                    isActive ? "text-primary" : "text-on-surface-var"
+                  }`}
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   type="button"
                 >
                   {tab.label}
                   {isActive ? (
-                    <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-px right-0 h-0.5 w-full rounded-full bg-primary" />
+                    <Typography
+                      as="span"
+                      variant="body"
+                      size="medium"
+                      weight="regular"
+                      className="bg-primary absolute right-0 -bottom-px h-0.5 w-full rounded-full"
+                    />
                   ) : null}
                 </Button>
               );
@@ -90,12 +98,15 @@ export function DashboardAdsPage() {
 
         <div className="mt-9 flex items-center justify-between gap-6">
           <div className="flex items-center gap-6">
-            <Button unstyled
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-sm font-semibold text-on-surface transition"
+            <Button
+              unstyled
+              className="border-outline-var bg-surface-container-lowest text-on-surface inline-flex h-10 items-center gap-2 rounded-xl border px-4 text-sm font-semibold transition"
               type="button"
             >
               <FilterIcon className="h-5 w-5" />
-              <Typography as="span" variant="body" size="medium" weight="regular">فیلترها</Typography>
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                فیلترها
+              </Typography>
             </Button>
 
             <div className="w-[360px]">
@@ -113,17 +124,27 @@ export function DashboardAdsPage() {
 
           <div className="flex items-center gap-4">
             <Link
-              className="inline-flex h-10 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-on-surface no-underline transition"
+              className="text-on-surface inline-flex h-10 items-center gap-2 rounded-xl px-2 text-sm font-semibold no-underline transition"
               to="/account/ad-management/statistics"
             >
-              <AnalyticsIcon className="h-5 w-5 text-on-surface-var" />
-              <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">آمار آگهی‌ها</Typography>
+              <AnalyticsIcon className="text-on-surface-var h-5 w-5" />
+              <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">
+                آمار آگهی‌ها
+              </Typography>
             </Link>
 
-            <Typography as="span" variant="body" size="medium" weight="regular" className="h-8 w-px bg-outline-var" />
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="bg-outline-var h-8 w-px"
+            />
 
-            <label className="inline-flex h-10 items-center gap-3 text-sm font-semibold text-on-surface">
-              <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">آگهی‌های من</Typography>
+            <label className="text-on-surface inline-flex h-10 items-center gap-3 text-sm font-semibold">
+              <Typography as="span" variant="body" size="medium" weight="regular" dir="rtl">
+                آگهی‌های من
+              </Typography>
               <SwitchButton
                 ariaLabel="نمایش آگهی های من"
                 checked={showMineOnly}
@@ -134,9 +155,12 @@ export function DashboardAdsPage() {
         </div>
       </div>
 
-      <div className="mt-6 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pl-1">
+      <div className="mt-6 min-h-0 flex-1 overflow-x-hidden overflow-y-auto pl-1">
         {adsQuery.isPending ? (
-          <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2 xl:grid-cols-3" aria-label="در حال دریافت آگهی‌ها">
+          <div
+            className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2 xl:grid-cols-3"
+            aria-label="در حال دریافت آگهی‌ها"
+          >
             {Array.from({ length: 6 }).map((_, index) => (
               <AdCardSkeleton key={index} />
             ))}
@@ -164,7 +188,12 @@ function DashboardAdsEmptyState() {
         className="mb-4 h-[66px] w-[66px] object-contain"
         src="/vectors/NoAdd.svg"
       />
-      <Typography as="h2" variant="headline" size="large" className="m-0 font-semibold text-on-surface">
+      <Typography
+        as="h2"
+        variant="headline"
+        size="large"
+        className="text-on-surface m-0 font-semibold"
+      >
         هیچ آگهی‌ای برای نمایش وجود ندارد!
       </Typography>
       <Typography
@@ -172,12 +201,12 @@ function DashboardAdsEmptyState() {
         variant="body"
         size="medium"
         weight="regular"
-        className="m-0 mt-2 text-sm font-normal text-on-surface-var"
+        className="text-on-surface-var m-0 mt-2 text-sm font-normal"
       >
         می‌توانید همین حالا آگهی جدید ثبت کنید و وضعیت آن را از این بخش پیگیری نمایید.
       </Typography>
       <Link
-        className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary"
+        className="bg-primary text-on-primary mt-4 inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm leading-5 font-medium"
         to="/new-ad/category"
       >
         <PlusIcon className="h-5 w-5" />

@@ -1,4 +1,11 @@
-import { useState, type ComponentType, type Dispatch, type ReactNode, type SetStateAction, type SVGProps } from "react";
+import {
+  useState,
+  type ComponentType,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+  type SVGProps,
+} from "react";
 import { Link, useNavigate } from "react-router";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
@@ -47,8 +54,6 @@ type InfoCard = {
   title: string;
 };
 
-
-
 export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
   agency: [
     {
@@ -58,8 +63,7 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
         "اعتبار را مدیریت کنید",
         "تصویر شفافی از وضعیت آژانس داشته باشید",
       ],
-      description:
-        "داشبورد، نقطه شروع مدیریت هوشمند است. اینجا می‌توانید در چند ثانیه:",
+      description: "داشبورد، نقطه شروع مدیریت هوشمند است. اینجا می‌توانید در چند ثانیه:",
       Icon: Dashboard,
       subtitle: "تصمیم‌گیری سریع، بر پایه داده‌های واقعی",
       title: "مدیریت سیستم",
@@ -71,8 +75,7 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
         "لیست مشاورین فعال",
         "آگهی‌های منتشرشده",
       ],
-      description:
-        "هر آژانس دارای یک صفحه اختصاصی مشابه یک وب‌سایت حرفه‌ای است که شامل:",
+      description: "هر آژانس دارای یک صفحه اختصاصی مشابه یک وب‌سایت حرفه‌ای است که شامل:",
       Icon: LinearCity,
       subtitle: "ویترین دیجیتال شما",
       title: "صفحه آژانس",
@@ -81,8 +84,7 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
       Icon: LinearTag,
       sections: [
         {
-          description:
-            "تمام آگهی‌های منتشرشده و فعال شما به‌صورت متمرکز قابل مدیریت هستند.",
+          description: "تمام آگهی‌های منتشرشده و فعال شما به‌صورت متمرکز قابل مدیریت هستند.",
           title: "آگهی‌های فعال",
         },
         {
@@ -95,11 +97,7 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
           title: "آگهی‌های تخصیصی",
         },
         {
-          bullets: [
-            "استفاده از اعتبار پنل",
-            "پرداخت از کیف پول",
-            "پرداخت آنلاین",
-          ],
+          bullets: ["استفاده از اعتبار پنل", "پرداخت از کیف پول", "پرداخت آنلاین"],
           description: "پرداخت هزینه آگهی کاملاً ساده و منعطف است:",
           title: "پرداخت منعطف",
         },
@@ -116,13 +114,11 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
           title: "دریافتی کاربران",
         },
         {
-          description:
-            "درخواست‌هایی که توسط خود آژانس ثبت می‌شود، در این بخش مدیریت می‌گردد.",
+          description: "درخواست‌هایی که توسط خود آژانس ثبت می‌شود، در این بخش مدیریت می‌گردد.",
           title: "درخواست‌های آژانس",
         },
         {
-          description:
-            "تمام نتایج درخواست‌های ثبت‌شده آژانس به‌صورت شفاف در دسترس است.",
+          description: "تمام نتایج درخواست‌های ثبت‌شده آژانس به‌صورت شفاف در دسترس است.",
           title: "نتایج درخواست‌ها",
         },
       ],
@@ -147,11 +143,7 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
         },
         {
           afterBullets: "استفاده کند.",
-          bullets: [
-            "ثبت آگهی",
-            "بروزرسانی آگهی",
-            "ویژه‌سازی آگهی‌ها",
-          ],
+          bullets: ["ثبت آگهی", "بروزرسانی آگهی", "ویژه‌سازی آگهی‌ها"],
           description: "به هر مشاور اعتبار اختصاص دهید تا از آن برای:",
           title: "تخصیص اعتبار به مشاورین",
         },
@@ -186,8 +178,7 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
       Icon: LinearRanking,
       sections: [
         {
-          afterBullets:
-            "به آژانس شما امتیاز داده می‌شود و رتبه آن در سیستم مشخص خواهد شد.",
+          afterBullets: "به آژانس شما امتیاز داده می‌شود و رتبه آن در سیستم مشخص خواهد شد.",
           bullets: [
             "کیفیت و تعداد آگهی‌ها",
             "میزان فعالیت و عملکرد مشاورین",
@@ -214,8 +205,7 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
         "نمودارهای عملکرد آگهی‌ها را تحلیل کنید.",
         "روند فعالیت و بازدهی خود را در بازه‌های زمانی مختلف ببینید.",
       ],
-      description:
-        "داشبورد، مرکز کنترل فعالیت شماست. در این بخش می‌توانید به‌صورت لحظه‌ای:",
+      description: "داشبورد، مرکز کنترل فعالیت شماست. در این بخش می‌توانید به‌صورت لحظه‌ای:",
       Icon: Dashboard,
       subtitle: "تصمیم‌گیری سریع، بر پایه داده‌های واقعی",
       title: "مدیریت سیستم",
@@ -227,8 +217,7 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
         "رتبه، امتیاز و نشان‌های دریافتی",
         "سابقه و میزان فعالیت",
       ],
-      description:
-        "هر مشاور یک صفحه اختصاصی عمومی دارد؛ مثل یک پروفایل حرفه‌ای آنلاین:",
+      description: "هر مشاور یک صفحه اختصاصی عمومی دارد؛ مثل یک پروفایل حرفه‌ای آنلاین:",
       Icon: LinearCity,
       subtitle: "برند شخصی شما",
       title: "صفحه مشاور",
@@ -240,8 +229,7 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
         "ویرایش، بروزرسانی و نوسازی آگهی‌ها",
         "تحلیل عملکرد هر آگهی از طریق نمودارها",
       ],
-      description:
-        "در پنل مشاور، مدیریت آگهی‌ها کاملاً شفاف و بدون پیچیدگی انجام می‌شود.",
+      description: "در پنل مشاور، مدیریت آگهی‌ها کاملاً شفاف و بدون پیچیدگی انجام می‌شود.",
       Icon: LinearTag,
       subtitle: "ساده و متمرکز",
       title: "مدیریت آگهی‌ها",
@@ -271,12 +259,7 @@ export const businessInfoCards: Record<BusinessType, InfoCard[]> = {
       title: "افزایش اعتبار",
     },
     {
-      bullets: [
-        "میزان فعالیت",
-        "تجربه و تعامل کاربران",
-        "سرعت پاسخ‌گویی",
-        "بازدید حضور",
-      ],
+      bullets: ["میزان فعالیت", "تجربه و تعامل کاربران", "سرعت پاسخ‌گویی", "بازدید حضور"],
       description:
         "عملکرد شما به‌صورت کاملاً سیستمی و شفاف ارزیابی می‌شود و امتیاز و رتبه مشاور براساس شاخص‌های مشخص محاسبه می‌شود.",
       Icon: LinearRanking,
@@ -343,52 +326,68 @@ export function BusinessFormPage({
 
     await getMyProfile();
     setStoredActiveRole(USER);
-    navigate("/account?businessSuccess=1", { replace: true, state: { businessSuccess: true, businessType } });
+    navigate("/account?businessSuccess=1", {
+      replace: true,
+      state: { businessSuccess: true, businessType },
+    });
   };
 
   return (
     <BusinessCreationShell
       bottomBar={
-        <div className="grid grid-cols-2 gap-4 px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3">
-          <Button unstyled
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] border border-primary bg-surface-container-lowest px-4 text-sm font-semibold leading-5 text-primary"
+        <div className="grid grid-cols-2 gap-4 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+          <Button
+            unstyled
+            className="border-primary bg-surface-container-lowest text-primary inline-flex h-10 items-center justify-center gap-2 rounded-[10px] border px-4 text-sm leading-5 font-semibold"
             onClick={() => navigate("/account/business/create")}
             type="button"
           >
             <LinearArrowRight1 className="h-5 w-5" />
-            <Typography as="span" variant="body" size="medium" weight="regular">مرحله قبل</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              مرحله قبل
+            </Typography>
           </Button>
-          <Button unstyled
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-primary px-4 text-sm font-semibold leading-5 text-on-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          <Button
+            unstyled
+            className="bg-primary text-on-primary inline-flex h-10 items-center justify-center gap-2 rounded-[10px] px-4 text-sm leading-5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isSubmitting || disabledSubmit}
             onClick={handleSubmit}
             type="button"
           >
             <LinearTick className="h-5 w-5" />
-            <Typography as="span" variant="body" size="medium" weight="regular">{isSubmitting ? "در حال ثبت..." : "ثبت نام"}</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              {isSubmitting ? "در حال ثبت..." : "ثبت نام"}
+            </Typography>
           </Button>
         </div>
       }
     >
-      <form
-        className="flex min-h-full flex-col"
-        onSubmit={(event) => event.preventDefault()}
-      >
-        <BusinessHero
-          infoType={businessType}
-          showInfoButton
-        />
+      <form className="flex min-h-full flex-col" onSubmit={(event) => event.preventDefault()}>
+        <BusinessHero infoType={businessType} showInfoButton />
 
         <div className="mt-4 space-y-6 px-4 pb-32">
           {lockedMessage ? (
             <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-right">
-              <LinearInformation className="h-6 w-6 shrink-0 text-amber-600 mt-0.5" />
+              <LinearInformation className="mt-0.5 h-6 w-6 shrink-0 text-amber-600" />
               <div className="min-w-0 flex-1">
-                <Typography as="p" variant="title" size="small" weight="semibold" className="m-0 text-sm font-semibold text-amber-800">
+                <Typography
+                  as="p"
+                  variant="title"
+                  size="small"
+                  weight="semibold"
+                  className="m-0 text-sm font-semibold text-amber-800"
+                >
                   {lockedMessage}
                 </Typography>
-                <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs leading-5 text-amber-700">
-                  درخواست قبلی شما برای ثبت کسب‌وکار در انتظار تایید ادمین است. تا زمان تایید، امکان ارسال فرم جدید وجود ندارد.
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="small"
+                  weight="regular"
+                  className="m-0 mt-1 text-xs leading-5 text-amber-700"
+                >
+                  درخواست قبلی شما برای ثبت کسب‌وکار در انتظار تایید ادمین است. تا زمان تایید، امکان
+                  ارسال فرم جدید وجود ندارد.
                 </Typography>
               </div>
             </div>
@@ -402,12 +401,21 @@ export function BusinessFormPage({
 
           {fields}
 
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-6 text-on-surface-var">
-            با ثبت‌نام در کسب‌وکار ایران شناسا <Link className="font-semibold text-primary underline" to="/account/about">قوانین و مقررات</Link> سایت را قبول کرده‌اید.
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var m-0 text-sm leading-6 font-normal"
+          >
+            با ثبت‌نام در کسب‌وکار ایران شناسا{" "}
+            <Link className="text-primary font-semibold underline" to="/account/about">
+              قوانین و مقررات
+            </Link>{" "}
+            سایت را قبول کرده‌اید.
           </Typography>
         </div>
       </form>
-
     </BusinessCreationShell>
   );
 }
@@ -441,13 +449,19 @@ export function AgencyFields({
         <RequiredLabel>نام آژانس املاک</RequiredLabel>
         <input
           aria-invalid={Boolean(agencyNameError)}
-          className={`mt-2 h-14 w-full rounded-xl border bg-surface-container-lowest px-4 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline focus:border-primary ${agencyNameError ? "border-error" : "border-outline-var"}`}
+          className={`bg-surface-container-lowest text-on-surface placeholder:text-outline focus:border-primary mt-2 h-14 w-full rounded-xl border px-4 text-right text-base leading-6 font-normal outline-none ${agencyNameError ? "border-error" : "border-outline-var"}`}
           onChange={(event) => setAgencyName(event.target.value)}
           placeholder="مثال: املاک نوروزیان"
           value={agencyName}
         />
         {agencyNameError ? (
-          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 text-right text-xs font-medium leading-5 text-error">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="medium"
+            className="text-error m-0 mt-2 text-right text-xs leading-5 font-medium"
+          >
             {agencyNameError}
           </Typography>
         ) : null}
@@ -465,12 +479,17 @@ export function AgencyFields({
           />
         </div>
         {neighborhoodsError ? (
-          <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 text-right text-xs font-medium leading-5 text-error">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="medium"
+            className="text-error m-0 mt-2 text-right text-xs leading-5 font-medium"
+          >
             {neighborhoodsError}
           </Typography>
         ) : null}
       </div>
-
     </>
   );
 }
@@ -494,8 +513,9 @@ function ActivityAreaSelect({
   return (
     <div
       aria-invalid={Boolean(error)}
-      className={`flex min-h-14 w-full cursor-pointer items-center gap-2 rounded-[16px] border bg-surface-container-lowest py-3 pl-3 pr-4 text-base font-normal leading-6 transition focus-within:border-primary focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-primary/40 ${error ? "border-error" : "border-outline"
-        }`}
+      className={`bg-surface-container-lowest focus-within:border-primary focus-within:outline-primary/40 flex min-h-14 w-full cursor-pointer items-center gap-2 rounded-[16px] border py-3 pr-4 pl-3 text-base leading-6 font-normal transition focus-within:outline-3 focus-within:outline-offset-2 ${
+        error ? "border-error" : "border-outline"
+      }`}
       onClick={onClick}
       onKeyDown={(event) => {
         if (event.key !== "Enter" && event.key !== " ") return;
@@ -512,9 +532,10 @@ function ActivityAreaSelect({
             const neighborhoodId = getNeighborhoodId(neighborhood);
 
             return (
-              <Button unstyled
+              <Button
+                unstyled
                 aria-label={`حذف ${neighborhood.name}`}
-                className="inline-flex h-9 max-w-[132px] shrink-0 items-center gap-2 rounded-[8px] bg-primary-container px-3 text-sm font-semibold leading-5 text-primary active:bg-primary-container/80"
+                className="bg-primary-container text-primary active:bg-primary-container/80 inline-flex h-9 max-w-[132px] shrink-0 items-center gap-2 rounded-[8px] px-3 text-sm leading-5 font-semibold"
                 key={neighborhoodId}
                 onClick={(event) => {
                   event.preventDefault();
@@ -523,25 +544,51 @@ function ActivityAreaSelect({
                 }}
                 type="button"
               >
-                <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate">{neighborhood.name}</Typography>
-                <LinearCancelSmall className="w-5 h-5 text-on-surface-var" />
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="min-w-0 truncate"
+                >
+                  {neighborhood.name}
+                </Typography>
+                <LinearCancelSmall className="text-on-surface-var h-5 w-5" />
               </Button>
             );
           })
         ) : (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate text-right text-outline">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline min-w-0 flex-1 truncate text-right"
+          >
             {placeholder}
           </Typography>
         )}
       </div>
 
       {hasValue ? (
-        <Typography as="span" variant="label" size="large" weight="semibold" className="grid w-8 h-8 shrink-0 place-items-center rounded-[8px] bg-primary text-base font-semibold leading-6 text-on-primary">
+        <Typography
+          as="span"
+          variant="label"
+          size="large"
+          weight="semibold"
+          className="bg-primary text-on-primary grid h-8 w-8 shrink-0 place-items-center rounded-[8px] text-base leading-6 font-semibold"
+        >
           {selectedNeighborhoods.length}
         </Typography>
       ) : null}
 
-      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-8 w-8 shrink-0 place-items-center text-on-surface-var">
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-on-surface-var grid h-8 w-8 shrink-0 place-items-center"
+      >
         <LinearArrowLeft1 className="h-5 w-5" />
       </Typography>
     </div>
@@ -557,14 +604,14 @@ export function BusinessCreationShell({
 }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account" title="ایجاد کسب و کار" />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-4 pt-4 [-webkit-overflow-scrolling:touch]">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-4 pb-4 [-webkit-overflow-scrolling:touch]">
         {children}
       </main>
-      <div className="relative z-20 shrink-0 bg-surface-container-lowest shadow-sm">
+      <div className="bg-surface-container-lowest relative z-20 shrink-0 shadow-sm">
         {bottomBar}
       </div>
     </PageFrame>
@@ -580,23 +627,23 @@ export function BusinessHero({
 }) {
   const navigate = useNavigate();
   return (
-    <section className="mx-4 rounded-[24px] bg-surface-container-lowest px-6 pb-6 pt-7 shadow-sm">
+    <section className="bg-surface-container-lowest mx-4 rounded-[24px] px-6 pt-7 pb-6 shadow-sm">
       <div className="relative overflow-hidden pb-1 text-right">
         <div
           aria-hidden="true"
-          className="absolute bottom-2 left-1 h-8 w-44 opacity-80 [background-image:radial-gradient(var(--outline-var)_1.4px,transparent_1.4px)] [background-size:8px_8px]"
+          className="absolute bottom-2 left-1 h-8 w-44 [background-image:radial-gradient(var(--outline-var)_1.4px,transparent_1.4px)] [background-size:8px_8px] opacity-80"
         />
         <Typography
           as="p"
           variant="headline"
           size="large"
-          className="relative m-0 flex items-baseline justify-start gap-2 text-[32px] font-black tracking-[-0.04em] text-primary"
+          className="text-primary relative m-0 flex items-baseline justify-start gap-2 text-[32px] font-black tracking-[-0.04em]"
         >
           <Typography
             as="span"
             variant="headline"
             size="large"
-            className="rounded-sm bg-tertiary-container/30 px-1 text-[32px] font-black text-tertiary"
+            className="bg-tertiary-container/30 text-tertiary rounded-sm px-1 text-[32px] font-black"
           >
             کسب و کار
           </Typography>
@@ -604,7 +651,7 @@ export function BusinessHero({
             as="span"
             variant="headline"
             size="large"
-            className="text-[32px] font-black text-primary"
+            className="text-primary text-[32px] font-black"
           >
             خودتو
           </Typography>
@@ -613,15 +660,16 @@ export function BusinessHero({
           as="p"
           variant="headline"
           size="large"
-          className="relative m-0 mt-1 text-[32px] font-black tracking-[-0.04em] text-primary"
+          className="text-primary relative m-0 mt-1 text-[32px] font-black tracking-[-0.04em]"
         >
           راه بنداز!
         </Typography>
       </div>
 
       {showInfoButton && infoType ? (
-        <Button unstyled
-          className="mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-lg border border-primary bg-surface-container-lowest px-3 text-primary"
+        <Button
+          unstyled
+          className="border-primary bg-surface-container-lowest text-primary mt-4 flex h-10 w-full items-center justify-center gap-3 rounded-lg border px-3"
           onClick={() => navigate(getBusinessInfoPath(infoType))}
           type="button"
         >
@@ -649,12 +697,14 @@ export function BusinessTypeCard({
   onClick: () => void;
 }) {
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-pressed={isSelected}
-      className={`flex h-[76px] w-full items-center rounded-2xl border px-4 text-right transition-colors ${isSelected
-        ? "border-primary bg-primary-container text-primary"
-        : "border-outline-var bg-surface-container-lowest text-on-surface-var"
-        }`}
+      className={`flex h-[76px] w-full items-center rounded-2xl border px-4 text-right transition-colors ${
+        isSelected
+          ? "border-primary bg-primary-container text-primary"
+          : "border-outline-var bg-surface-container-lowest text-on-surface-var"
+      }`}
       onClick={onClick}
       type="button"
     >
@@ -680,7 +730,7 @@ export function BusinessTypeCard({
             variant="label"
             size="small"
             weight="medium"
-            className="shrink-0 rounded-md border border-tertiary bg-tertiary-container/30 px-2 py-1 text-tertiary"
+            className="border-tertiary bg-tertiary-container/30 text-tertiary shrink-0 rounded-md border px-2 py-1"
           >
             {badge}
           </Typography>
@@ -700,33 +750,52 @@ function ActivationNotice({
   const isAgency = businessType === "agency";
 
   return (
-    <section className="rounded-2xl border border-tertiary bg-tertiary-container/20 p-4 text-right text-tertiary">
+    <section className="border-tertiary bg-tertiary-container/20 text-tertiary rounded-2xl border p-4 text-right">
       <div className="flex items-start gap-3 [direction:ltr]">
         <div className="min-w-0 flex-1 [direction:rtl]">
           <div className="flex items-center justify-between gap-2">
             <div className="flex gap-2.5">
-              <Dashboard className="w-6 h-6"/>
-              <Typography as="h2" variant="body" size="large" weight="medium" className="m-0 text-tertiary">
+              <Dashboard className="h-6 w-6" />
+              <Typography
+                as="h2"
+                variant="body"
+                size="large"
+                weight="medium"
+                className="text-tertiary m-0"
+              >
                 پنل شما آماده فعال‌سازی است!
               </Typography>
             </div>
 
-            <Button unstyled
+            <Button
+              unstyled
               aria-label="بستن پیام"
-              className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-on-surface-var active:bg-surface-container"
+              className="text-on-surface-var active:bg-surface-container grid h-6 w-6 shrink-0 place-items-center rounded-full"
               onClick={onClose}
               type="button"
             >
-              <LinearCancelSmall className="w-6 h-6" />
+              <LinearCancelSmall className="h-6 w-6" />
             </Button>
           </div>
 
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-sm font-normal leading-6 text-tertiary">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-tertiary m-0 mt-3 text-sm leading-6 font-normal"
+          >
             {isAgency
               ? "پس از ورود به پنل آژانس، پرداخت اشتراک پنل آژانس خود را به مدت ۱ سال فعال کنید و از بسته‌های پیش‌فرض حرفه‌ای بهره‌مند شوید."
               : "با ایجاد کسب‌وکار مشاور، پروفایل حرفه‌ای خود را فعال کنید و به ابزارهای تخصصی مدیریت فایل‌ها، مشتریان و فعالیت‌های روزانه دسترسی داشته باشید."}
           </Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal leading-6 text-tertiary">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-tertiary m-0 mt-4 text-sm leading-6 font-normal"
+          >
             {isAgency
               ? "همین حالا ثبت‌نام را انجام دهید و وارد دنیای حرفه‌ای املاک شوید!"
               : "همین حالا کسب‌وکار خود را ایجاد کنید و فعالیت حرفه‌ای خود را در بازار املاک آغاز کنید!"}
@@ -736,7 +805,6 @@ function ActivationNotice({
     </section>
   );
 }
-
 
 export function BusinessInfoCard({
   businessType,
@@ -752,22 +820,40 @@ export function BusinessInfoCard({
   const Icon = card.Icon;
 
   return (
-    <article className="bg-surface-container-lowest px-4 pb-5 pt-6 text-right">
+    <article className="bg-surface-container-lowest px-4 pt-6 pb-5 text-right">
       <div className="flex items-start gap-2.5">
-        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 shrink-0 place-items-center rounded-[8px] bg-primary text-on-primary">
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="bg-primary text-on-primary grid h-10 w-10 shrink-0 place-items-center rounded-[8px]"
+        >
           <Icon aria-hidden="true" className="h-6 w-6" />
         </Typography>
         <div className="min-w-0">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-primary">
+          <Typography
+            as="h2"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="text-primary m-0"
+          >
             {card.title}
           </Typography>
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-on-surface-var">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-on-surface-var m-0"
+          >
             {card.subtitle}
           </Typography>
         </div>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-2xl bg-surface-container">
+      <div className="bg-surface-container mt-4 overflow-hidden rounded-2xl">
         <img
           alt=""
           className="h-[250px] w-full object-cover object-center"
@@ -786,7 +872,7 @@ export function BusinessInfoCard({
                   variant="label"
                   size="large"
                   weight="semibold"
-                  className="m-0 text-on-surface"
+                  className="text-on-surface m-0"
                 >
                   {section.title}
                 </Typography>
@@ -798,14 +884,14 @@ export function BusinessInfoCard({
                   variant="body"
                   size="large"
                   weight="regular"
-                  className={`m-0 text-on-surface ${section.title ? "mt-1" : ""}`}
+                  className={`text-on-surface m-0 ${section.title ? "mt-1" : ""}`}
                 >
                   {section.description}
                 </Typography>
               ) : null}
 
               {section.bullets?.length ? (
-                <ul className="m-0 mt-2 list-disc space-y-1.5 pr-6 text-base font-normal leading-7 text-on-surface marker:text-tertiary">
+                <ul className="text-on-surface marker:text-tertiary m-0 mt-2 list-disc space-y-1.5 pr-6 text-base leading-7 font-normal">
                   {section.bullets.map((bullet) => (
                     <li key={bullet} className="pr-1">
                       {bullet}
@@ -820,7 +906,7 @@ export function BusinessInfoCard({
                   variant="body"
                   size="large"
                   weight="regular"
-                  className="m-0 mt-1 text-on-surface"
+                  className="text-on-surface m-0 mt-1"
                 >
                   {section.afterBullets}
                 </Typography>
@@ -831,13 +917,19 @@ export function BusinessInfoCard({
       ) : (
         <>
           {card.description ? (
-            <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-on-surface">
+            <Typography
+              as="p"
+              variant="body"
+              size="large"
+              weight="regular"
+              className="text-on-surface m-0 mt-4"
+            >
               {card.description}
             </Typography>
           ) : null}
 
           {card.bullets?.length ? (
-            <ul className="m-0 mt-2 list-disc space-y-1.5 pr-6 text-base font-normal leading-7 text-on-surface marker:text-tertiary">
+            <ul className="text-on-surface marker:text-tertiary m-0 mt-2 list-disc space-y-1.5 pr-6 text-base leading-7 font-normal">
               {card.bullets.map((bullet) => (
                 <li key={bullet} className="pr-1">
                   {bullet}
@@ -853,9 +945,17 @@ export function BusinessInfoCard({
 
 export function RequiredLabel({ children }: { children: ReactNode }) {
   return (
-    <label className="block text-right text-base font-semibold leading-6 text-on-surface">
+    <label className="text-on-surface block text-right text-base leading-6 font-semibold">
       {children}
-      <Typography as="span" variant="body" size="medium" weight="regular" className="mr-1 text-error">*</Typography>
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-error mr-1"
+      >
+        *
+      </Typography>
     </label>
   );
 }

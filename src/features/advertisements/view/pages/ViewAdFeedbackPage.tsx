@@ -31,8 +31,8 @@ function FeedbackThumbIcon({
   className?: string;
   direction: FeedbackValue;
 }) {
-  if (direction == "positive") return <LinearLike className={className} />
-  return <LinearDislike className={className} />
+  if (direction == "positive") return <LinearLike className={className} />;
+  return <LinearDislike className={className} />;
 }
 
 function FeedbackIconButton({
@@ -45,14 +45,13 @@ function FeedbackIconButton({
   onClick: () => void;
 }) {
   const activeClassName =
-    type === "positive"
-      ? "bg-tertiary-container text-tertiary"
-      : "bg-error-container text-error";
+    type === "positive" ? "bg-tertiary-container text-tertiary" : "bg-error-container text-error";
 
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-label={type === "positive" ? "بازخورد مثبت" : "بازخورد منفی"}
-      className={`grid h-10 w-10 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${active ? activeClassName : "bg-transparent text-outline-var"}`}
+      className={`focus-visible:outline-primary/40 grid h-10 w-10 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 ${active ? activeClassName : "text-outline-var bg-transparent"}`}
       onClick={onClick}
       type="button"
     >
@@ -103,17 +102,23 @@ export function ViewAdFeedbackPage({
   };
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col bg-surface-container-lowest text-on-surface [direction:rtl]">
+    <div className="bg-surface-container-lowest text-on-surface absolute inset-0 z-40 flex flex-col [direction:rtl]">
       <ViewAdActionPageTopBar onBack={onClose} title="ثبت بازخورد" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pt-2">
-        <div className="divide-y divide-outline-var">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-2">
+        <div className="divide-outline-var divide-y">
           {feedbackOptions.map((option) => (
             <div
               className="flex min-h-[60px] items-center justify-between gap-4 text-right [direction:rtl]"
               key={option.key}
             >
-              <Typography as="span" variant="body" size="large" weight="regular" className="text-on-surface">
+              <Typography
+                as="span"
+                variant="body"
+                size="large"
+                weight="regular"
+                className="text-on-surface"
+              >
                 {option.label}
               </Typography>
 

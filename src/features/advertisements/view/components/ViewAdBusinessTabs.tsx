@@ -61,7 +61,7 @@ export function ViewAdBusinessTabs({
   return (
     <nav
       aria-label="تب‌های مدیریتی آگهی"
-      className={`relative z-10 w-full h-[72px] grid grid-cols-3 bg-surface-container-lowest border-b border-outline-variant/60 shadow-[0_4px_16px_0_rgba(26,26,26,0.08)] [direction:rtl] ${className}`}
+      className={`bg-surface-container-lowest border-outline-variant/60 relative z-10 grid h-[72px] w-full grid-cols-3 border-b shadow-[0_4px_16px_0_rgba(26,26,26,0.08)] [direction:rtl] ${className}`}
     >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.key;
@@ -72,10 +72,8 @@ export function ViewAdBusinessTabs({
             key={tab.key}
             type="button"
             onClick={() => onTabChange?.(tab.key)}
-            className={`relative flex flex-col items-center justify-center gap-1.5 h-full w-full bg-transparent border-none cursor-pointer transition select-none ${
-              isActive
-                ? "text-primary"
-                : "text-on-surface-var/70"
+            className={`relative flex h-full w-full cursor-pointer flex-col items-center justify-center gap-1.5 border-none bg-transparent transition select-none ${
+              isActive ? "text-primary" : "text-on-surface-var/70"
             }`}
           >
             <IconComponent
@@ -94,7 +92,7 @@ export function ViewAdBusinessTabs({
             {isActive && (
               <span
                 aria-hidden="true"
-                className="absolute bottom-0 right-0 left-0 h-[2px] bg-primary rounded-t-full"
+                className="bg-primary absolute right-0 bottom-0 left-0 h-[2px] rounded-t-full"
               />
             )}
           </button>

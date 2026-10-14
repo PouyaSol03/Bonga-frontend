@@ -36,29 +36,44 @@ export function ConsultantProfileHeader({
   const isInactive = !consultant.isActive || consultant.status === "pending";
 
   return (
-    <div className="w-full bg-surface-container-lowest px-4 pt-3 pb-4">
+    <div className="bg-surface-container-lowest w-full px-4 pt-3 pb-4">
       {isInactive && (
         <div className="mb-2 flex justify-end">
-          <span className="inline-flex items-center rounded-lg bg-error/8 px-3 py-1 text-xs font-medium text-error">
+          <span className="bg-error/8 text-error inline-flex items-center rounded-lg px-3 py-1 text-xs font-medium">
             ۷ روز بدون فعالیت
           </span>
         </div>
       )}
 
-      <div className="relative flex w-full items-center justify-between border border-surface-container p-4 rounded-2xl">
+      <div className="border-surface-container relative flex w-full items-center justify-between rounded-2xl border p-4">
         <div className="flex min-w-0 items-center gap-3">
-          <ConsultantAvatar consultant={consultant} sizeClassName="h-14 w-14 shrink-0 rounded-full" />
+          <ConsultantAvatar
+            consultant={consultant}
+            sizeClassName="h-14 w-14 shrink-0 rounded-full"
+          />
           <div className="min-w-0">
-            <Typography as="h1" variant="label" size="large" weight="medium" className="text-on-surface">
+            <Typography
+              as="h1"
+              variant="label"
+              size="large"
+              weight="medium"
+              className="text-on-surface"
+            >
               {consultant.name}
             </Typography>
             <div className="mt-1 flex items-center gap-2">
-              <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="text-outline"
+              >
                 {consultant.roleLabel || "مشاور"}
               </Typography>
               {consultant.phone ? (
                 <>
-                  <span className="h-5 w-px bg-outline-var" />
+                  <span className="bg-outline-var h-5 w-px" />
                   <Typography
                     as="span"
                     dir="ltr"
@@ -80,29 +95,29 @@ export function ConsultantProfileHeader({
             type="button"
             aria-label="گزینه‌های مشاور"
             onClick={() => setMenuOpen(!menuOpen)}
-            className="flex h-10 w-10 items-center justify-center left-0 top-0 rounded-full text-on-surface-var"
+            className="text-on-surface-var top-0 left-0 flex h-10 w-10 items-center justify-center rounded-full"
           >
             <LinearMoreVertical className="h-6 w-6" />
           </button>
 
           {menuOpen && (
-            <div className="absolute left-0 top-11 z-30 min-w-[150px] rounded-xl border border-outline-var/40 bg-surface-container-lowest p-1.5 shadow-lg">
+            <div className="border-outline-var/40 bg-surface-container-lowest absolute top-11 left-0 z-30 min-w-[150px] rounded-xl border p-1.5 shadow-lg">
               <Link
                 to={`${consultantTeamPaths.edit}/${consultantId}`}
                 state={{ consultant }}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface"
+                className="text-on-surface flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
                 onClick={() => setMenuOpen(false)}
               >
-                <LinearEdit2 className="h-4 w-4 text-on-surface-var" />
+                <LinearEdit2 className="text-on-surface-var h-4 w-4" />
                 <span>ویرایش مشاور</span>
               </Link>
               <Link
                 to={`${consultantTeamPaths.remove}/${consultantId}`}
                 state={{ consultant }}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-error"
+                className="text-error flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
                 onClick={() => setMenuOpen(false)}
               >
-                <LinearDelete className="h-4 w-4 text-error" />
+                <LinearDelete className="text-error h-4 w-4" />
                 <span>حذف مشاور</span>
               </Link>
             </div>

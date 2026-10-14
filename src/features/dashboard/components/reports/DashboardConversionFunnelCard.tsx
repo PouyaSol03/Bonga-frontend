@@ -92,22 +92,22 @@ export function DashboardConversionFunnelCard({
   const currentStages = stages && stages.length > 0 ? stages : [];
 
   return (
-    <section className="w-full bg-surface-container-lowest p-4 [direction:rtl]">
+    <section className="bg-surface-container-lowest w-full p-4 [direction:rtl]">
       <Typography
         as="h2"
         variant="title"
         size="small"
         weight="semibold"
-        className="mb-3 text-on-surface font-bold"
+        className="text-on-surface mb-3 font-bold"
       >
         نرخ تبدیل آگهی‌ها
       </Typography>
 
       {isLoading ? (
         <div className="flex flex-col gap-2 py-4">
-          <div className="h-4 w-full animate-pulse rounded bg-surface-container" />
-          <div className="h-4 w-5/6 animate-pulse rounded bg-surface-container" />
-          <div className="h-4 w-4/6 animate-pulse rounded bg-surface-container" />
+          <div className="bg-surface-container h-4 w-full animate-pulse rounded" />
+          <div className="bg-surface-container h-4 w-5/6 animate-pulse rounded" />
+          <div className="bg-surface-container h-4 w-4/6 animate-pulse rounded" />
         </div>
       ) : currentStages.length === 0 ? (
         <DashboardChartEmptyState
@@ -124,15 +124,11 @@ export function DashboardConversionFunnelCard({
             const height = st.height || fallbackShape.height;
             const badgeColor = st.badgeColor || fallbackShape.badgeColor;
             const badgeText =
-              st.badgeText ||
-              (st.percentage != null ? `${toPersianNumber(st.percentage)}٪` : "");
+              st.badgeText || (st.percentage != null ? `${toPersianNumber(st.percentage)}٪` : "");
             const displayValue = st.value ?? (st.count != null ? String(st.count) : "");
 
             return (
-              <div
-                key={st.id}
-                className="flex h-5 items-center justify-between"
-              >
+              <div key={st.id} className="flex h-5 items-center justify-between">
                 {/* Right: Funnel Trapezoid SVG */}
                 <div className="flex w-[100px] shrink-0 items-center justify-center">
                   <div className="relative flex items-center justify-center">
@@ -144,14 +140,11 @@ export function DashboardConversionFunnelCard({
                     >
                       <path d={pathD} fill={badgeColor} />
                       {st.isCheckmark ? (
-                        <path
-                          d={st.checkmarkPath || DEFAULT_CHECKMARK_PATH}
-                          fill="white"
-                        />
+                        <path d={st.checkmarkPath || DEFAULT_CHECKMARK_PATH} fill="white" />
                       ) : null}
                     </svg>
                     {!st.isCheckmark ? (
-                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white leading-none [direction:rtl]">
+                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[10px] leading-none font-bold text-white [direction:rtl]">
                         {badgeText}
                       </span>
                     ) : null}
@@ -172,14 +165,16 @@ export function DashboardConversionFunnelCard({
                 </div>
 
                 {/* Left: Value */}
-                <div className="text-left shrink-0 [direction:ltr]">
+                <div className="shrink-0 text-left [direction:ltr]">
                   <Typography
                     as="span"
                     variant="body"
                     size="small"
                     weight="medium"
                     className={`text-xs ${
-                      st.isValueGreen ? "font-bold text-tertiary" : "font-medium text-on-surface-var"
+                      st.isValueGreen
+                        ? "text-tertiary font-bold"
+                        : "text-on-surface-var font-medium"
                     }`}
                   >
                     {displayValue}

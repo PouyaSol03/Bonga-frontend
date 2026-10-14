@@ -26,9 +26,7 @@ export function DashboardHomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const isReportsView = searchParams.get("view") === "reports";
 
-  const [activeRole, setActiveRole] = useState(() =>
-    getActiveAuthRole(getStoredAuthSession()),
-  );
+  const [activeRole, setActiveRole] = useState(() => getActiveAuthRole(getStoredAuthSession()));
 
   useEffect(() => {
     function syncActiveRole() {
@@ -66,9 +64,9 @@ export function DashboardHomePage() {
   const effectiveRole =
     activeRole && DASHBOARD_ROLES.includes(activeRole as any)
       ? activeRole
-      : (sessionRoles.find((r) => DASHBOARD_ROLES.includes(r as any)) as AuthRoleSlug) ??
+      : ((sessionRoles.find((r) => DASHBOARD_ROLES.includes(r as any)) as AuthRoleSlug) ??
         activeRole ??
-        "user";
+        "user");
 
   const isRealEstateManager = effectiveRole === REAL_ESTATE_MANAGER;
   const isIndependent = effectiveRole === INDEPENDENT_CONSULTANT;

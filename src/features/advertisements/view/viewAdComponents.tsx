@@ -5,10 +5,7 @@ import { ColorableSvgIcon } from "../../../shared/components/ColorableSvgIcon";
 import { FeaturesIcons } from "../components/FeaturesIcons";
 import { TopBar } from "../../../shared/components/TopBar";
 import { ViewAdIcon } from "./ViewAdIcon";
-import type {
-  DetailItem,
-  IconName,
-} from "./viewAdTypes";
+import type { DetailItem, IconName } from "./viewAdTypes";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import LinearStar from "../../../shared/icons/LinearStar";
 import { Typography } from "../../../shared/ui/Typography";
@@ -25,12 +22,7 @@ function DetailItemIcon({
   >;
 }) {
   if (item.featureIconLabel) {
-    return (
-      <FeaturesIcons
-        className={className}
-        feature={item.featureIconLabel}
-      />
-    );
+    return <FeaturesIcons className={className} feature={item.featureIconLabel} />;
   }
 
   if (item.iconSrc) {
@@ -38,7 +30,16 @@ function DetailItemIcon({
   }
 
   if (item.hideFallbackIcon) {
-    return <Typography as="span" variant="body" size="medium" weight="regular" aria-hidden="true" className={`block ${className}`} />;
+    return (
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        aria-hidden="true"
+        className={`block ${className}`}
+      />
+    );
   }
 
   return <ViewAdIcon className={className} name={item.icon} />;
@@ -106,11 +107,16 @@ export function DetailSection({
   title: string;
 }) {
   return (
-    <section className="border-t-8 border-surface-container bg-surface-container-lowest px-4 py-4">
+    <section className="border-surface-container bg-surface-container-lowest border-t-8 px-4 py-4">
       <div className="flex h-6 items-center justify-end [direction:ltr]">
-        <Typography as="h2" variant="title" size="medium" weight="semibold"
-          className={`m-0 text-right text-lg font-semibold leading-6 ${mutedTitle ? "text-outline" : "text-on-surface"
-            }`}
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className={`m-0 text-right text-lg leading-6 font-semibold ${
+            mutedTitle ? "text-outline" : "text-on-surface"
+          }`}
         >
           {title}
         </Typography>
@@ -120,20 +126,16 @@ export function DetailSection({
   );
 }
 
-export function MoreLink({
-  children,
-  to,
-}: {
-  children: ReactNode;
-  to: string;
-}) {
+export function MoreLink({ children, to }: { children: ReactNode; to: string }) {
   return (
     <Link
-      className="mx-auto mt-4 flex h-7 w-fit items-center justify-center gap-1 px-4 text-sm font-medium text-primary no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+      className="text-primary focus-visible:outline-primary/25 mx-auto mt-4 flex h-7 w-fit items-center justify-center gap-1 px-4 text-sm font-medium no-underline focus-visible:outline-3 focus-visible:outline-offset-2"
       to={to}
     >
-      <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary">{children}</Typography>
-      <LinearArrowLeft1 className="h-4 w-4 text-primary shrink-0" />
+      <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary">
+        {children}
+      </Typography>
+      <LinearArrowLeft1 className="text-primary h-4 w-4 shrink-0" />
     </Link>
   );
 }
@@ -148,12 +150,15 @@ export function MoreButton({
   onClick?: () => void;
 }) {
   return (
-    <Button unstyled
-      className="mx-auto mt-6 flex h-7 items-center justify-center gap-2 rounded-[10px] px-4 text-xs font-medium leading-4 text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+    <Button
+      unstyled
+      className="text-primary focus-visible:outline-primary/25 mx-auto mt-6 flex h-7 items-center justify-center gap-2 rounded-[10px] px-4 text-xs leading-4 font-medium focus-visible:outline-3 focus-visible:outline-offset-2"
       onClick={onClick}
       type="button"
     >
-      <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular">
+        {children}
+      </Typography>
       <ViewAdIcon className="h-4 w-4" name={icon} />
     </Button>
   );
@@ -190,7 +195,7 @@ export function AccommodationRatingBanner({
 
   return (
     <div
-      className={`flex w-full items-center justify-start gap-3 rounded-lg border border-on-warning-container/16 bg-on-warning-container/8 p-2 [direction:rtl] ${className}`}
+      className={`border-on-warning-container/16 bg-on-warning-container/8 flex w-full items-center justify-start gap-3 rounded-lg border p-2 [direction:rtl] ${className}`}
     >
       <Typography
         as="span"
@@ -299,19 +304,23 @@ export function PropertyGrid({
   return (
     <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 [direction:rtl]">
       {items.map((item) => {
-        const isStarRating = item.icon === "star" || item.label.includes("رتبه") || item.label.includes("ستاره");
+        const isStarRating =
+          item.icon === "star" || item.label.includes("رتبه") || item.label.includes("ستاره");
         const starCount = isStarRating ? parseStarRatingCount(item.value) : null;
 
         return (
-          <div className="flex min-w-0 items-start gap-2" key={`${item.icon}-${item.label}-${item.value}`}>
-            <DetailItemIcon
-              className="h-6 w-6 shrink-0 text-on-surface-var"
-              item={item}
-            />
+          <div
+            className="flex min-w-0 items-start gap-2"
+            key={`${item.icon}-${item.label}-${item.value}`}
+          >
+            <DetailItemIcon className="text-on-surface-var h-6 w-6 shrink-0" item={item} />
             <div className="min-w-0 text-right">
               <div className="flex flex-wrap items-center justify-start gap-1 [direction:rtl]">
                 {starCount !== null ? (
-                  <div className="flex items-center gap-0.5 [direction:ltr]" aria-label={`${starCount} ستاره از ۵`}>
+                  <div
+                    className="flex items-center gap-0.5 [direction:ltr]"
+                    aria-label={`${starCount} ستاره از ۵`}
+                  >
                     {[1, 2, 3, 4, 5].map((star) => (
                       <LinearStar
                         aria-hidden="true"
@@ -322,10 +331,7 @@ export function PropertyGrid({
                     ))}
                   </div>
                 ) : (
-                  <FormattedDetailValueView
-                    tone={item.tone}
-                    value={item.value}
-                  />
+                  <FormattedDetailValueView tone={item.tone} value={item.value} />
                 )}
                 {item.inlineNote ? (
                   <Typography
@@ -344,7 +350,7 @@ export function PropertyGrid({
                     variant="label"
                     size="small"
                     weight="medium"
-                    className="rounded-md bg-error-container px-2 py-1 text-error"
+                    className="bg-error-container text-error rounded-md px-2 py-1"
                   >
                     {item.statusBadge}
                   </Typography>

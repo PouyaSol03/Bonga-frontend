@@ -49,9 +49,7 @@ export async function getPublicAgents({
   };
 }
 
-export async function getPublicAgentDetail(
-  id: number | string,
-): Promise<PublicAgentDetailDto> {
+export async function getPublicAgentDetail(id: number | string): Promise<PublicAgentDetailDto> {
   const response = await publicApiV2
     .get(`public/consultants/${encodeURIComponent(String(id))}`)
     .json<PublicAgentDetailApiResponse>();

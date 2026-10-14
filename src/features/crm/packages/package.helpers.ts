@@ -97,10 +97,7 @@ export function buildPackagePayload(
   };
 }
 
-export function packageToPayload(
-  item: CrmRecord,
-  nextActive?: boolean,
-): CrmPackagePayload {
+export function packageToPayload(item: CrmRecord, nextActive?: boolean): CrmPackagePayload {
   const id = packageRecordId(item);
   return {
     id,

@@ -27,26 +27,24 @@ function TeamFilterButton({
   isActive: boolean;
   onClick: () => void;
 }) {
-  return (
-    <FormChoiceChip label={children} onClick={onClick} selected={isActive} />
-  );
+  return <FormChoiceChip label={children} onClick={onClick} selected={isActive} />;
 }
 
 function ConsultantCardSkeleton() {
   return (
-    <div className="w-full bg-surface-container-lowest p-4 [direction:rtl] animate-pulse space-y-4">
+    <div className="bg-surface-container-lowest w-full animate-pulse space-y-4 p-4 [direction:rtl]">
       <div className="flex items-center gap-3">
-        <div className="h-12 w-12 rounded-full bg-surface-container-high shrink-0" />
+        <div className="bg-surface-container-high h-12 w-12 shrink-0 rounded-full" />
         <div className="flex-1 space-y-2">
-          <div className="h-4 w-32 rounded bg-surface-container-high" />
-          <div className="h-3 w-24 rounded bg-surface-container-high" />
+          <div className="bg-surface-container-high h-4 w-32 rounded" />
+          <div className="bg-surface-container-high h-3 w-24 rounded" />
         </div>
       </div>
-      <div className="flex items-center justify-between border-t border-outline-var/40 pt-3">
-        <div className="h-4 w-20 rounded bg-surface-container-high" />
+      <div className="border-outline-var/40 flex items-center justify-between border-t pt-3">
+        <div className="bg-surface-container-high h-4 w-20 rounded" />
         <div className="flex gap-2">
-          <div className="h-8 w-8 rounded-lg bg-surface-container-high" />
-          <div className="h-8 w-8 rounded-lg bg-surface-container-high" />
+          <div className="bg-surface-container-high h-8 w-8 rounded-lg" />
+          <div className="bg-surface-container-high h-8 w-8 rounded-lg" />
         </div>
       </div>
     </div>
@@ -55,15 +53,29 @@ function ConsultantCardSkeleton() {
 
 function ConsultantEmptyState() {
   return (
-    <div className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center bg-surface-container-lowest px-8 py-8 text-center">
+    <div className="bg-surface-container-lowest mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-8 py-8 text-center">
       <div className="mx-auto grid w-full max-w-[260px] justify-items-center">
         <img src="/vectors/NoAgent.svg" alt="" className="h-[66px] w-[66px]" />
-        <Typography as="h2" variant="title" size="small" weight="semibold" className="mt-4 text-sm font-semibold leading-5 text-on-surface">
+        <Typography
+          as="h2"
+          variant="title"
+          size="small"
+          weight="semibold"
+          className="text-on-surface mt-4 text-sm leading-5 font-semibold"
+        >
           هیچ مشاوری برای مدیریت وجود ندارد!
         </Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="mt-2 text-sm text-on-surface-var">
-          برای افزودن مشاورین جدید،<br />
-          از گزینه «افزودن مشاور»<br />
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var mt-2 text-sm"
+        >
+          برای افزودن مشاورین جدید،
+          <br />
+          از گزینه «افزودن مشاور»
+          <br />
           استفاده کنید.
         </Typography>
       </div>
@@ -77,10 +89,7 @@ export function ConsultantManagementPage() {
   const [searchValue, setSearchValue] = useState("");
   const agencyConsultantsQuery = useAgencyConsultantsQuery({ perPage: 100 });
   const consultants = useMemo(
-    () =>
-      (agencyConsultantsQuery.data?.data ?? []).map(
-        mapAgencyConsultantToTeamConsultant,
-      ),
+    () => (agencyConsultantsQuery.data?.data ?? []).map(mapAgencyConsultantToTeamConsultant),
     [agencyConsultantsQuery.data?.data],
   );
 
@@ -88,8 +97,7 @@ export function ConsultantManagementPage() {
     const normalizedSearch = searchValue.trim();
 
     return consultants.filter((consultant) => {
-      const matchesFilter =
-        activeFilter === "consultants" || consultant.status === "pending";
+      const matchesFilter = activeFilter === "consultants" || consultant.status === "pending";
       const matchesSearch =
         normalizedSearch.length === 0 ||
         `${consultant.name} ${consultant.phone}`.includes(normalizedSearch);
@@ -103,7 +111,7 @@ export function ConsultantManagementPage() {
 
   return (
     <section
-      className="mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden"
       dir="rtl"
     >
       <TopBar
@@ -120,7 +128,7 @@ export function ConsultantManagementPage() {
         }`}
       >
         {showConsultantControls ? (
-          <div className="shrink-0 bg-surface-container px-4 py-2">
+          <div className="bg-surface-container shrink-0 px-4 py-2">
             <SearchInputBar
               compact
               containerClassName="border-outline"
@@ -161,14 +169,15 @@ export function ConsultantManagementPage() {
               <ConsultantCard consultant={consultant} key={consultant.id} />
             ))}
           </div>
-        ) : agencyConsultantsQuery.isPending ? null : searchValue.trim() || activeFilter !== "consultants" ? (
+        ) : agencyConsultantsQuery.isPending ? null : searchValue.trim() ||
+          activeFilter !== "consultants" ? (
           <SearchEmptyState />
         ) : (
           <ConsultantEmptyState />
         )}
       </div>
 
-      <div className="shrink-0 bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 shadow-sm">
+      <div className="bg-surface-container-lowest shrink-0 px-4 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-sm">
         <Button
           fullWidth
           leadingIcon={<LinearUserAdd className="h-5 w-5" />}

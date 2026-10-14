@@ -8,7 +8,15 @@ export function useCrmSaveMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, original, values }: { id: string | null; original?: CrmRecord; values: NewAdFormValues }) =>
+    mutationFn: ({
+      id,
+      original,
+      values,
+    }: {
+      id: string | null;
+      original?: CrmRecord;
+      values: NewAdFormValues;
+    }) =>
       buildCrmAdvertisePayload(values, original).then((payload) =>
         saveCrmAdvertise(
           id,
@@ -21,7 +29,9 @@ export function useCrmSaveMutation() {
       await queryClient.invalidateQueries({ queryKey: ["crm", "overview", "advertises"] });
       await queryClient.invalidateQueries({ queryKey: ["crm", "advertise"] });
       if (variables.id) {
-        await queryClient.invalidateQueries({ queryKey: ["crm", "advertise", "edit", variables.id] });
+        await queryClient.invalidateQueries({
+          queryKey: ["crm", "advertise", "edit", variables.id],
+        });
       }
     },
   });

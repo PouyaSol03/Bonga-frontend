@@ -47,18 +47,11 @@ export function normalizeAuthRoleSlug(value: unknown): AuthRoleSlug {
     return "real_estate_consultant";
   }
 
-  if (
-    normalized === "agency" ||
-    normalized === "real_estate_manager" ||
-    normalized === "manager"
-  ) {
+  if (normalized === "agency" || normalized === "real_estate_manager" || normalized === "manager") {
     return "real_estate_manager";
   }
 
-  if (
-    normalized === "independent-consultant" ||
-    normalized === "independent_consultant"
-  ) {
+  if (normalized === "independent-consultant" || normalized === "independent_consultant") {
     return "independent_consultant";
   }
 
@@ -112,8 +105,9 @@ export function setStoredAuthSession(session: AuthSession) {
       name: item.name || normalizeAuthRoleSlug(item.slug),
       slug: normalizeAuthRoleSlug(item.slug),
     }))
-    .filter((item, index, items) =>
-      items.findIndex((candidate) => candidate.slug === item.slug) === index,
+    .filter(
+      (item, index, items) =>
+        items.findIndex((candidate) => candidate.slug === item.slug) === index,
     );
 
   if (!roles.some((item) => item.slug === activeRole)) {
@@ -164,7 +158,11 @@ export function getStoredAuthSession() {
       return null;
     }
 
-    if (!parsed.accessToken || typeof parsed.accessToken !== "string" || !parsed.accessToken.trim()) {
+    if (
+      !parsed.accessToken ||
+      typeof parsed.accessToken !== "string" ||
+      !parsed.accessToken.trim()
+    ) {
       clearStoredAuthSession();
       return null;
     }
@@ -188,8 +186,9 @@ export function getStoredAuthSession() {
         };
       })
       .filter((item): item is AuthRole => item !== null)
-      .filter((item, index, items) =>
-        items.findIndex((candidate) => candidate.slug === item.slug) === index,
+      .filter(
+        (item, index, items) =>
+          items.findIndex((candidate) => candidate.slug === item.slug) === index,
       );
 
     if (!roles.some((item) => item.slug === activeRole)) {
@@ -264,10 +263,7 @@ export function getPendingOtpMobile() {
 }
 
 export function startOtpResendCooldown() {
-  window.sessionStorage.setItem(
-    otpResendAtKey,
-    String(Date.now() + otpResendCooldownMilliseconds),
-  );
+  window.sessionStorage.setItem(otpResendAtKey, String(Date.now() + otpResendCooldownMilliseconds));
 }
 
 export function getOtpResendSecondsRemaining() {
@@ -282,7 +278,6 @@ export function clearPendingOtpState() {
   window.sessionStorage.removeItem(pendingMobileKey);
   window.sessionStorage.removeItem(otpResendAtKey);
 }
-
 
 export function storeLoginRedirectPath(path: string) {
   window.sessionStorage.setItem(loginRedirectPathKey, path);

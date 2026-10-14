@@ -28,7 +28,10 @@ export const dailyHotelRoomTypes: {
   { id: "suite", label: "سوییت" },
 ];
 
-export const dailyHotelRoomCapacityOptions = Array.from({ length: 20 }, (_, index) => `${index + 1}`);
+export const dailyHotelRoomCapacityOptions = Array.from(
+  { length: 20 },
+  (_, index) => `${index + 1}`,
+);
 
 export const dailyHotelMealPlanOptions = [
   "بدون وعده غذایی",
@@ -191,16 +194,9 @@ export const blankValues: NewAdFormValues = {
   dailyHotelRooms: createDefaultDailyHotelRooms(),
 };
 
-export const projectStatusOptions = [
-  "در حال ساخت",
-  "آماده تحویل",
-];
+export const projectStatusOptions = ["در حال ساخت", "آماده تحویل"];
 
-export const projectTypeOptions = [
-  "مسکونی",
-  "تجاری",
-  "اداری",
-];
+export const projectTypeOptions = ["مسکونی", "تجاری", "اداری"];
 
 export const partnershipCurrentStatusOptions = [
   "بنا قدیمی",
@@ -209,33 +205,11 @@ export const partnershipCurrentStatusOptions = [
   "ساختمان نوساز",
 ];
 
-export const projectFloorOptions = [
-  "همکف",
-  "۱",
-  "۲",
-  "۳",
-  "۴",
-  "۵",
-  "۶",
-  "۷",
-  "۸ و بیشتر",
-];
+export const projectFloorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
 
-export const projectRoomOptions = [
-  "بدون اتاق",
-  "۱",
-  "۲",
-  "۳",
-  "۴",
-  "۵+",
-];
+export const projectRoomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
 
-export const projectPositionOptions = [
-  "شمالی",
-  "جنوبی",
-  "شرقی",
-  "غربی",
-];
+export const projectPositionOptions = ["شمالی", "جنوبی", "شرقی", "غربی"];
 
 export const propertySpecs: ChipItem[] = [
   { id: "total-floors", label: "تعداد کل طبقات" },
@@ -625,36 +599,90 @@ export const dailyStayFacilityItems: ChipItem[] = [
 ];
 
 export const dailyHotelFacilityItems: ChipItem[] = [
-  { id: "elevator", label: "آسانسور" }, { id: "parking", label: "پارکینگ" }, { id: "terrace", label: "تراس" },
-  { id: "iranian", label: "سرویس ایرانی" }, { id: "western", label: "سرویس فرنگی" }, { id: "lobby", label: "لابی" },
-  { id: "roof", label: "روف گاردن" }, { id: "heated-pool", label: "استخر آب گرم" }, { id: "outdoor-pool", label: "استخرروباز" },
-  { id: "covered-pool", label: "استخر پوشیده" }, { id: "jacuzzi", label: "جکوزی" }, { id: "sauna", label: "سونا" },
-  { id: "gym", label: "سالن ورزشی" }, { id: "playground", label: "زمین بازی" }, { id: "cinema", label: "سینما" },
-  { id: "coffee-shop", label: "کافی شاپ" }, { id: "restaurant", label: "رستوران" }, { id: "shop", label: "فروشگاه" },
-  { id: "gas-stove", label: "گازرومیزی" }, { id: "hood", label: "هود" }, { id: "oven", label: "فرتوکار" },
-  { id: "guard", label: "نگهبانی" }, { id: "camera", label: "دوربین امنیتی" }, { id: "bms", label: "سیستم هوشمند" },
-  { id: "internet", label: "اینترنت پر سرعت" }, { id: "tv", label: "تلویزیون" }, { id: "audio", label: "سیستم صوتی" },
-  { id: "washing-machine", label: "ماشین لباسشویی" }, { id: "fridge", label: "یخچال" }, { id: "stove-microwave", label: "اجاق گاز مایکروفر" },
-  { id: "cookware", label: "لوازم آشپزی" }, { id: "clean-linen", label: "ملحفه و حوله تمیز" }, { id: "hairdryer", label: "سشوار" },
-  { id: "iron", label: "اتو" }, { id: "dishwasher", label: "ظرفشویی" }, { id: "outdoor-space", label: "فضا بیرونی" },
-  { id: "ventilation", label: "سیستم تهویه مطبوع" }, { id: "coffee-maker", label: "دستگاه قهوه ساز" }, { id: "security-system", label: "سیستم امنیتی" },
-  { id: "workspace", label: "فضا کار" }, { id: "bedding", label: "سرویس خواب" }, { id: "bed", label: "تخت خواب" },
-  { id: "furniture", label: "مبلمان" }, { id: "hygiene-pack", label: "پک بهداشتی" }, { id: "serving-items", label: "ظروف و لوازم پذیرایی" },
-  { id: "dining-table", label: "میزناهار خوری" }, { id: "kitchen", label: "آشپزخانه" }, { id: "master-room", label: "اتاق مستر" },
-  { id: "barbecue", label: "باربیکیو" }, { id: "gazebo", label: "آلاچیق" }, { id: "garden", label: "فضا سبز/باغ" },
+  { id: "elevator", label: "آسانسور" },
+  { id: "parking", label: "پارکینگ" },
+  { id: "terrace", label: "تراس" },
+  { id: "iranian", label: "سرویس ایرانی" },
+  { id: "western", label: "سرویس فرنگی" },
+  { id: "lobby", label: "لابی" },
+  { id: "roof", label: "روف گاردن" },
+  { id: "heated-pool", label: "استخر آب گرم" },
+  { id: "outdoor-pool", label: "استخرروباز" },
+  { id: "covered-pool", label: "استخر پوشیده" },
+  { id: "jacuzzi", label: "جکوزی" },
+  { id: "sauna", label: "سونا" },
+  { id: "gym", label: "سالن ورزشی" },
+  { id: "playground", label: "زمین بازی" },
+  { id: "cinema", label: "سینما" },
+  { id: "coffee-shop", label: "کافی شاپ" },
+  { id: "restaurant", label: "رستوران" },
+  { id: "shop", label: "فروشگاه" },
+  { id: "gas-stove", label: "گازرومیزی" },
+  { id: "hood", label: "هود" },
+  { id: "oven", label: "فرتوکار" },
+  { id: "guard", label: "نگهبانی" },
+  { id: "camera", label: "دوربین امنیتی" },
+  { id: "bms", label: "سیستم هوشمند" },
+  { id: "internet", label: "اینترنت پر سرعت" },
+  { id: "tv", label: "تلویزیون" },
+  { id: "audio", label: "سیستم صوتی" },
+  { id: "washing-machine", label: "ماشین لباسشویی" },
+  { id: "fridge", label: "یخچال" },
+  { id: "stove-microwave", label: "اجاق گاز مایکروفر" },
+  { id: "cookware", label: "لوازم آشپزی" },
+  { id: "clean-linen", label: "ملحفه و حوله تمیز" },
+  { id: "hairdryer", label: "سشوار" },
+  { id: "iron", label: "اتو" },
+  { id: "dishwasher", label: "ظرفشویی" },
+  { id: "outdoor-space", label: "فضا بیرونی" },
+  { id: "ventilation", label: "سیستم تهویه مطبوع" },
+  { id: "coffee-maker", label: "دستگاه قهوه ساز" },
+  { id: "security-system", label: "سیستم امنیتی" },
+  { id: "workspace", label: "فضا کار" },
+  { id: "bedding", label: "سرویس خواب" },
+  { id: "bed", label: "تخت خواب" },
+  { id: "furniture", label: "مبلمان" },
+  { id: "hygiene-pack", label: "پک بهداشتی" },
+  { id: "serving-items", label: "ظروف و لوازم پذیرایی" },
+  { id: "dining-table", label: "میزناهار خوری" },
+  { id: "kitchen", label: "آشپزخانه" },
+  { id: "master-room", label: "اتاق مستر" },
+  { id: "barbecue", label: "باربیکیو" },
+  { id: "gazebo", label: "آلاچیق" },
+  { id: "garden", label: "فضا سبز/باغ" },
 ];
 
 export const dailyWorkspaceFacilityItems: ChipItem[] = [
-  { id: "elevator", label: "آسانسور" }, { id: "parking", label: "پارکینگ" }, { id: "warehouse", label: "انباری" },
-  { id: "internet", label: "اینترنت پر سرعت" }, { id: "projector", label: "ویدئو پرژکتور" }, { id: "whiteboard", label: "تخته وایت برد" },
-  { id: "audio", label: "سیستم صوتی" }, { id: "printer-scanner", label: "پرینتر/اسکنر" }, { id: "office-furniture", label: "میزوصندلی اداری" },
-  { id: "reception", label: "پذیرایی" }, { id: "fax", label: "دستگاه فکس" }, { id: "conference-phone", label: "تلفن کنفرانس" },
-  { id: "computer-laptop", label: "کامپیوتر/لبتاب" }, { id: "monitor", label: "مانیتور" }, { id: "tv", label: "تلویزیون" },
-  { id: "copier", label: "دستگاه کپی" }, { id: "ventilation", label: "سیستم تهویه مطبوع" }, { id: "filing", label: "قفسه وفایلینگ" },
-  { id: "meeting-room", label: "اتاق جلسات" }, { id: "rest-room", label: "اتاق استراحت" }, { id: "coffee-maker", label: "دستگاه قهوه ساز" },
-  { id: "air-purifier", label: "دستگاه تصفیه هوا" }, { id: "camera", label: "دوربین" }, { id: "single-phase-power", label: "برق تک فاز" },
-  { id: "three-phase-power", label: "برق سه فاز" }, { id: "water", label: "امتیازآب" }, { id: "gas", label: "امتیاز گاز" },
-  { id: "phone", label: "امتیاز تلفن" }, { id: "voip-cctv", label: "voipمداربسته" }, { id: "private-phone-room", label: "اتاق تلفن خصوصی" },
+  { id: "elevator", label: "آسانسور" },
+  { id: "parking", label: "پارکینگ" },
+  { id: "warehouse", label: "انباری" },
+  { id: "internet", label: "اینترنت پر سرعت" },
+  { id: "projector", label: "ویدئو پرژکتور" },
+  { id: "whiteboard", label: "تخته وایت برد" },
+  { id: "audio", label: "سیستم صوتی" },
+  { id: "printer-scanner", label: "پرینتر/اسکنر" },
+  { id: "office-furniture", label: "میزوصندلی اداری" },
+  { id: "reception", label: "پذیرایی" },
+  { id: "fax", label: "دستگاه فکس" },
+  { id: "conference-phone", label: "تلفن کنفرانس" },
+  { id: "computer-laptop", label: "کامپیوتر/لبتاب" },
+  { id: "monitor", label: "مانیتور" },
+  { id: "tv", label: "تلویزیون" },
+  { id: "copier", label: "دستگاه کپی" },
+  { id: "ventilation", label: "سیستم تهویه مطبوع" },
+  { id: "filing", label: "قفسه وفایلینگ" },
+  { id: "meeting-room", label: "اتاق جلسات" },
+  { id: "rest-room", label: "اتاق استراحت" },
+  { id: "coffee-maker", label: "دستگاه قهوه ساز" },
+  { id: "air-purifier", label: "دستگاه تصفیه هوا" },
+  { id: "camera", label: "دوربین" },
+  { id: "single-phase-power", label: "برق تک فاز" },
+  { id: "three-phase-power", label: "برق سه فاز" },
+  { id: "water", label: "امتیازآب" },
+  { id: "gas", label: "امتیاز گاز" },
+  { id: "phone", label: "امتیاز تلفن" },
+  { id: "voip-cctv", label: "voipمداربسته" },
+  { id: "private-phone-room", label: "اتاق تلفن خصوصی" },
   { id: "phone-system", label: "سیستم تلفن" },
 ];
 
@@ -760,14 +788,53 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
 
 export const floorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
 export const roomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
-export const unitsPerFloorOptions = Array.from({ length: 30 }, (_, index) =>
-  `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`,
+export const unitsPerFloorOptions = Array.from(
+  { length: 30 },
+  (_, index) => `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`,
 );
-export const capacityOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "۱۲", "۱۵", "۲۰", "۳۰", "۴۰", "۵۰+"];
-export const roomCountOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹", "۱۰", "۱۵", "۲۰", "۳۰", "۵۰+"];
-export const openingCountOptions = Array.from({ length: 20 }, (_, index) => new Intl.NumberFormat("fa-IR").format(index + 1));
-export const elevatorCountOptions = Array.from({ length: 5 }, (_, index) => new Intl.NumberFormat("fa-IR").format(index + 1));
-export const projectCountOptions = Array.from({ length: 100 }, (_, index) => new Intl.NumberFormat("fa-IR").format(index + 1));
+export const capacityOptions = [
+  "۱",
+  "۲",
+  "۳",
+  "۴",
+  "۵",
+  "۶",
+  "۷",
+  "۸",
+  "۹",
+  "۱۰",
+  "۱۲",
+  "۱۵",
+  "۲۰",
+  "۳۰",
+  "۴۰",
+  "۵۰+",
+];
+export const roomCountOptions = [
+  "۱",
+  "۲",
+  "۳",
+  "۴",
+  "۵",
+  "۶",
+  "۷",
+  "۸",
+  "۹",
+  "۱۰",
+  "۱۵",
+  "۲۰",
+  "۳۰",
+  "۵۰+",
+];
+export const openingCountOptions = Array.from({ length: 20 }, (_, index) =>
+  new Intl.NumberFormat("fa-IR").format(index + 1),
+);
+export const elevatorCountOptions = Array.from({ length: 5 }, (_, index) =>
+  new Intl.NumberFormat("fa-IR").format(index + 1),
+);
+export const projectCountOptions = Array.from({ length: 100 }, (_, index) =>
+  new Intl.NumberFormat("fa-IR").format(index + 1),
+);
 export const timeOptions = Array.from({ length: 48 }, (_, index) => {
   const hour = String(Math.floor(index / 2)).padStart(2, "0");
   const minute = index % 2 === 0 ? "00" : "30";
@@ -821,13 +888,7 @@ const saleLandUsageTypeOptions = [
   "فاقد کاربری",
 ];
 
-export const landPositionOptions = [
-  "شمالی",
-  "جنوبی",
-  "سه نبش",
-  "دو نبش",
-  "چهار نبش",
-];
+export const landPositionOptions = ["شمالی", "جنوبی", "سه نبش", "دو نبش", "چهار نبش"];
 
 export const saleLandPositionOptions = [
   "شمالی",
@@ -904,175 +965,635 @@ const saleAccommodationTypeOptions = ["هتل", "هتل آپارتمان", "مت
 export const commercialLicenseOptions = ["دائم", "موقت", "ندارد"];
 export const constructionLicenseOptions = yesNoOptions;
 
-const saleCommercialPositionOptions = ["بر خیابان اصلی", "داخل پاساژ", "داخل کوچه", "بازار محله", "غرفه"];
+const saleCommercialPositionOptions = [
+  "بر خیابان اصلی",
+  "داخل پاساژ",
+  "داخل کوچه",
+  "بازار محله",
+  "غرفه",
+];
 const saleCommercialOwnershipOptions = ["مالکیت کامل", "فقط سرقفلی", "فقط مالکیت", "مالکیت مشترک"];
-const saleCommercialSuitableForOptions = ["فروشگاه", "تجاری", "خدماتی", "اداری", "صنعتی", "آموزشی", "درمانی", "انباری", "همه مشاغل"];
+const saleCommercialSuitableForOptions = [
+  "فروشگاه",
+  "تجاری",
+  "خدماتی",
+  "اداری",
+  "صنعتی",
+  "آموزشی",
+  "درمانی",
+  "انباری",
+  "همه مشاغل",
+];
 const currentStatusOptions = ["تخلیه", "فعال"];
 const saleOfficeCurrentStatusOptions = ["تخلیه", "فعال", "درحال بازسازی"];
 const saleOfficeSuitableForOptions = [
-  "مهندسین", "شرکت‌ها", "وکلا", "مطب", "موسسه", "آموزشگاه", "آتلیه", "مزون",
-  "اسناد رسمی", "دفاتر دولت", "صنایع", "خدماتی", "ورزشی", "فرهنگی", "مذهبی", "همه مشاغل",
+  "مهندسین",
+  "شرکت‌ها",
+  "وکلا",
+  "مطب",
+  "موسسه",
+  "آموزشگاه",
+  "آتلیه",
+  "مزون",
+  "اسناد رسمی",
+  "دفاتر دولت",
+  "صنایع",
+  "خدماتی",
+  "ورزشی",
+  "فرهنگی",
+  "مذهبی",
+  "همه مشاغل",
 ];
-const saleOfficePositionOptions = ["مجتمع اداری", "برج اداری", "بر خیابان اصلی", "موقعیت مسکونی", "مجتمع پزشکان"];
+const saleOfficePositionOptions = [
+  "مجتمع اداری",
+  "برج اداری",
+  "بر خیابان اصلی",
+  "موقعیت مسکونی",
+  "مجتمع پزشکان",
+];
 const saleOfficeDocumentTypeOptions = ["دائم", "موقت"];
-const industrialPropertyTypeOptions = ["سوله", "انبار", "کارگاه", "کارخانه", "گلخانه", "گاوداری", "مرغداری"];
-const rentIndustrialPropertyTypeOptions = ["سوله", "انبار", "کارگاه", "کارخانه", "گلخانه", "سردخانه", "گاوداری", "مرغداری", "سالن صنعتی"];
-const rentCommercialSuitableForOptions = ["فروشگاه", "تجاری", "خدماتی", "اداری", "صنعتی", "آموزشی", "درمانی", "انباری", "همه مشاغل", "سایر"];
+const industrialPropertyTypeOptions = [
+  "سوله",
+  "انبار",
+  "کارگاه",
+  "کارخانه",
+  "گلخانه",
+  "گاوداری",
+  "مرغداری",
+];
+const rentIndustrialPropertyTypeOptions = [
+  "سوله",
+  "انبار",
+  "کارگاه",
+  "کارخانه",
+  "گلخانه",
+  "سردخانه",
+  "گاوداری",
+  "مرغداری",
+  "سالن صنعتی",
+];
+const rentCommercialSuitableForOptions = [
+  "فروشگاه",
+  "تجاری",
+  "خدماتی",
+  "اداری",
+  "صنعتی",
+  "آموزشی",
+  "درمانی",
+  "انباری",
+  "همه مشاغل",
+  "سایر",
+];
 const industrialAccessTypeOptions = ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"];
 
 const rentApartmentSuitableForOptions = ["خانواده", "مجرد", "دانشجو", "زوج"];
 const rentVillaSuitableForOptions = ["خانواده", "برگزاری مراسم", "چند خانواده"];
 export const rentPetPolicyOptions = ["مجاز", "غیر مجاز"];
 const rentOfficeSuitableForOptions = [
-  "تجاری", "خدماتی", "اداری", "صنعتی", "آموزشی", "درمانی", "انباری", "مهندسین",
-  "شرکت ها", "وکلا", "مطب", "موسسه", "آموزشگاه", "آتلیه", "مزون", "اسناد رسمی",
-  "دفاتر دولت", "صنایع", "ورزشی", "فرهنگی", "مذهبی", "همه مشاغل",
+  "تجاری",
+  "خدماتی",
+  "اداری",
+  "صنعتی",
+  "آموزشی",
+  "درمانی",
+  "انباری",
+  "مهندسین",
+  "شرکت ها",
+  "وکلا",
+  "مطب",
+  "موسسه",
+  "آموزشگاه",
+  "آتلیه",
+  "مزون",
+  "اسناد رسمی",
+  "دفاتر دولت",
+  "صنایع",
+  "ورزشی",
+  "فرهنگی",
+  "مذهبی",
+  "همه مشاغل",
 ];
 const rentCurrentStatusOptions = ["تخلیه", "فعال"];
 
-export const dailyAccommodationTypeOptions = ["سویئت", "آپارتمان", "اتاق", "خوابگاه یا پانسیون", "بوم گردی"];
+export const dailyAccommodationTypeOptions = [
+  "سویئت",
+  "آپارتمان",
+  "اتاق",
+  "خوابگاه یا پانسیون",
+  "بوم گردی",
+];
 export const dailyHotelAccommodationTypeOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه"];
 export const dailyHotelStarsOptions = ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"];
 export const dailyRentalPeriodOptions = ["روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"];
-export const dailyWorkspaceRentalPeriodOptions = ["ساعتی", "روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"];
-export const dailyVillaViewOptions = ["جنگلی", "کوهستان", "دریا", "رودخانه", "شهر", "دشت", "باغ", "بیابان"];
-export const dailyWorkspaceTypeOptions = ["اتاق کار اشتراکی", "اتاق کار خصوصی", "اتاق جلسه", "کلاس آموزشی", "سالن همایش", "غرفه نمایشگاه", "کانتر"];
+export const dailyWorkspaceRentalPeriodOptions = [
+  "ساعتی",
+  "روزانه",
+  "هفتگی",
+  "ماهانه",
+  "نصف روز",
+  "بلند مدت",
+];
+export const dailyVillaViewOptions = [
+  "جنگلی",
+  "کوهستان",
+  "دریا",
+  "رودخانه",
+  "شهر",
+  "دشت",
+  "باغ",
+  "بیابان",
+];
+export const dailyWorkspaceTypeOptions = [
+  "اتاق کار اشتراکی",
+  "اتاق کار خصوصی",
+  "اتاق جلسه",
+  "کلاس آموزشی",
+  "سالن همایش",
+  "غرفه نمایشگاه",
+  "کانتر",
+];
 
 const saleApartmentBasicFields: BasicPropertyField[] = [
-  { key: "meterage", label: "متراژ آپارتمان", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "meterage",
+    label: "متراژ آپارتمان",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const saleVillaHouseBasicFields: BasicPropertyField[] = [
-  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "buildingArea", label: "متراژ زیربنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "landArea",
+    label: "متراژ زمین",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "buildingArea",
+    label: "متراژ زیربنا",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const saleLandBasicFields: BasicPropertyField[] = [
-  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "documentType", label: "سند", control: "select", options: saleLandDocumentTypeOptions, required: true },
+  {
+    key: "landArea",
+    label: "متراژ زمین",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "documentType",
+    label: "سند",
+    control: "select",
+    options: saleLandDocumentTypeOptions,
+    required: true,
+  },
 ];
 
 const saleOfficeBasicFields: BasicPropertyField[] = [
-  { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "meterage",
+    label: "متراژ",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
   { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const saleCommercialUnitBasicFields: BasicPropertyField[] = [
-  { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "commercialPosition", label: "موقعیت تجاری", control: "select", options: saleCommercialPositionOptions, required: true },
-  { key: "documentType", label: "سند", control: "select", options: saleLandDocumentTypeOptions, required: true },
-  { key: "ownershipStatus", label: "وضعیت مالکیت", control: "select", options: saleCommercialOwnershipOptions, required: true },
+  {
+    key: "meterage",
+    label: "متراژ",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "commercialPosition",
+    label: "موقعیت تجاری",
+    control: "select",
+    options: saleCommercialPositionOptions,
+    required: true,
+  },
+  {
+    key: "documentType",
+    label: "سند",
+    control: "select",
+    options: saleLandDocumentTypeOptions,
+    required: true,
+  },
+  {
+    key: "ownershipStatus",
+    label: "وضعیت مالکیت",
+    control: "select",
+    options: saleCommercialOwnershipOptions,
+    required: true,
+  },
 ];
 
 const saleWarehouseBasicFields: BasicPropertyField[] = [
-  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "buildingArea", label: "زیربنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "landPosition", label: "موقعیت زمین", control: "select", options: landPositionOptions, required: true },
-  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: suitableForOptions, required: true },
+  {
+    key: "landArea",
+    label: "متراژ زمین",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "buildingArea",
+    label: "زیربنا",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "landPosition",
+    label: "موقعیت زمین",
+    control: "select",
+    options: landPositionOptions,
+    required: true,
+  },
+  {
+    key: "suitableFor",
+    label: "مناسب برای",
+    control: "multiSelect",
+    options: suitableForOptions,
+    required: true,
+  },
 ];
 
 const saleHotelApartmentBasicFields: BasicPropertyField[] = [
-  { key: "accommodationType", label: "نوع اقامتگاه", control: "select", options: saleAccommodationTypeOptions, required: true },
-  { key: "hotelStars", label: "رتبه اقامتگاه", control: "select", options: saleHotelStarsOptions, required: true },
-  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "buildingArea", label: "متراژ بنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "documentType", label: "سند", control: "select", options: saleLandDocumentTypeOptions, required: true },
+  {
+    key: "accommodationType",
+    label: "نوع اقامتگاه",
+    control: "select",
+    options: saleAccommodationTypeOptions,
+    required: true,
+  },
+  {
+    key: "hotelStars",
+    label: "رتبه اقامتگاه",
+    control: "select",
+    options: saleHotelStarsOptions,
+    required: true,
+  },
+  {
+    key: "landArea",
+    label: "متراژ زمین",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "buildingArea",
+    label: "متراژ بنا",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "documentType",
+    label: "سند",
+    control: "select",
+    options: saleLandDocumentTypeOptions,
+    required: true,
+  },
 ];
 
 const saleFactoryWorkshopBasicFields: BasicPropertyField[] = [
-  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions, required: true },
+  {
+    key: "landArea",
+    label: "متراژ زمین",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "landPosition",
+    label: "موقعیت زمین",
+    control: "select",
+    options: saleLandPositionOptions,
+    required: true,
+  },
   { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
-  { key: "documentType", label: "سند", control: "select", options: saleLandDocumentTypeOptions, required: true },
+  {
+    key: "documentType",
+    label: "سند",
+    control: "select",
+    options: saleLandDocumentTypeOptions,
+    required: true,
+  },
 ];
 
 const rentApartmentBasicFields: BasicPropertyField[] = [
-  { key: "meterage", label: "متراژ آپارتمان", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "meterage",
+    label: "متراژ آپارتمان",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const rentVillaHouseBasicFields: BasicPropertyField[] = [
-  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "buildingArea", label: "متراژ بنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "landArea",
+    label: "متراژ زمین",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "buildingArea",
+    label: "متراژ بنا",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const rentOfficeBasicFields: BasicPropertyField[] = [
-  { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "meterage",
+    label: "متراژ",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
   { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const rentCommercialUnitBasicFields: BasicPropertyField[] = [
-  { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "commercialPosition", label: "موقعیت تجاری", control: "select", options: saleCommercialPositionOptions, required: true },
+  {
+    key: "meterage",
+    label: "متراژ",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "commercialPosition",
+    label: "موقعیت تجاری",
+    control: "select",
+    options: saleCommercialPositionOptions,
+    required: true,
+  },
   { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions, required: true },
 ];
 
 const rentWarehouseBasicFields: BasicPropertyField[] = [
-  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "buildingArea", label: "زیربنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "landPosition", label: "موقعیت زمین", control: "select", options: landPositionOptions, required: true },
-  { key: "ceilingHeight", label: "ارتفاع سقف", control: "input", numeric: true, leftText: "متر", required: true },
-  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: suitableForOptions, required: true },
-  { key: "commercialLicense", label: "مجوز تجاری", control: "select", options: commercialLicenseOptions, required: true },
+  {
+    key: "landArea",
+    label: "متراژ زمین",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "buildingArea",
+    label: "زیربنا",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "landPosition",
+    label: "موقعیت زمین",
+    control: "select",
+    options: landPositionOptions,
+    required: true,
+  },
+  {
+    key: "ceilingHeight",
+    label: "ارتفاع سقف",
+    control: "input",
+    numeric: true,
+    leftText: "متر",
+    required: true,
+  },
+  {
+    key: "suitableFor",
+    label: "مناسب برای",
+    control: "multiSelect",
+    options: suitableForOptions,
+    required: true,
+  },
+  {
+    key: "commercialLicense",
+    label: "مجوز تجاری",
+    control: "select",
+    options: commercialLicenseOptions,
+    required: true,
+  },
 ];
 
 const rentHotelApartmentBasicFields: BasicPropertyField[] = [
-  { key: "accommodationType", label: "نوع اقامتگاه", control: "select", options: saleAccommodationTypeOptions, required: true },
-  { key: "hotelStars", label: "رتبه اقامتگاه", control: "select", options: saleHotelStarsOptions, required: true },
-  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "buildingArea", label: "متراژ بنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "accommodationType",
+    label: "نوع اقامتگاه",
+    control: "select",
+    options: saleAccommodationTypeOptions,
+    required: true,
+  },
+  {
+    key: "hotelStars",
+    label: "رتبه اقامتگاه",
+    control: "select",
+    options: saleHotelStarsOptions,
+    required: true,
+  },
+  {
+    key: "landArea",
+    label: "متراژ زمین",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "buildingArea",
+    label: "متراژ بنا",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const rentFactoryWorkshopBasicFields: BasicPropertyField[] = [
-  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "buildingArea", label: "متراژ بنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions, required: true },
+  {
+    key: "landArea",
+    label: "متراژ زمین",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "buildingArea",
+    label: "متراژ بنا",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "landPosition",
+    label: "موقعیت زمین",
+    control: "select",
+    options: saleLandPositionOptions,
+    required: true,
+  },
   { key: "age", label: "سال ساخت", control: "select", options: ageOptions, required: true },
 ];
 
 const dailyApartmentBasicFields: BasicPropertyField[] = [
-  { key: "accommodationType", label: "نوع اقامتگاه", control: "select", options: dailyAccommodationTypeOptions, required: true },
-  { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "accommodationType",
+    label: "نوع اقامتگاه",
+    control: "select",
+    options: dailyAccommodationTypeOptions,
+    required: true,
+  },
+  {
+    key: "meterage",
+    label: "متراژ",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
-  { key: "standardCapacity", label: "ظرفیت استاندارد", control: "select", options: capacityOptions, required: true },
+  {
+    key: "standardCapacity",
+    label: "ظرفیت استاندارد",
+    control: "select",
+    options: capacityOptions,
+    required: true,
+  },
 ];
 
 const dailyVillaBasicFields: BasicPropertyField[] = [
-  { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-  { key: "buildingArea", label: "متراژ بنا", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "landArea",
+    label: "متراژ زمین",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
+  {
+    key: "buildingArea",
+    label: "متراژ بنا",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
-  { key: "standardCapacity", label: "ظرفیت استاندارد", control: "select", options: capacityOptions, required: true },
+  {
+    key: "standardCapacity",
+    label: "ظرفیت استاندارد",
+    control: "select",
+    options: capacityOptions,
+    required: true,
+  },
 ];
 
 const dailyWorkspaceBasicFields: BasicPropertyField[] = [
-  { key: "spaceType", label: "نوع فضا", control: "select", options: dailyWorkspaceTypeOptions, required: true },
-  { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "spaceType",
+    label: "نوع فضا",
+    control: "select",
+    options: dailyWorkspaceTypeOptions,
+    required: true,
+  },
+  {
+    key: "meterage",
+    label: "متراژ",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions, required: true },
-  { key: "standardCapacity", label: "ظرفیت استاندارد", control: "select", options: capacityOptions, required: true },
+  {
+    key: "standardCapacity",
+    label: "ظرفیت استاندارد",
+    control: "select",
+    options: capacityOptions,
+    required: true,
+  },
 ];
 
 const dailyHotelRentBasicFields: BasicPropertyField[] = [
-  { key: "hotelStars", label: "رتبه اقامتگاه", control: "select", options: dailyHotelStarsOptions, required: true },
-  { key: "accommodationType", label: "نوع اقامتگاه", control: "select", options: dailyHotelAccommodationTypeOptions, required: true },
+  {
+    key: "hotelStars",
+    label: "رتبه اقامتگاه",
+    control: "select",
+    options: dailyHotelStarsOptions,
+    required: true,
+  },
+  {
+    key: "accommodationType",
+    label: "نوع اقامتگاه",
+    control: "select",
+    options: dailyHotelAccommodationTypeOptions,
+    required: true,
+  },
 ];
 
 export const defaultBasicPropertyFields: BasicPropertyField[] = [
-  { key: "meterage", label: "متراژ", control: "input", numeric: true, leftText: "متر مربع", required: true },
+  {
+    key: "meterage",
+    label: "متراژ",
+    control: "input",
+    numeric: true,
+    leftText: "متر مربع",
+    required: true,
+  },
 ];
 
 export const basicPropertyFieldsByListingType: Record<string, BasicPropertyField[]> = {
@@ -1105,7 +1626,16 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   age: ageOptions,
   floor: floorOptions,
   rooms: roomOptions,
-  totalFloors: ["۱ طبقه", "۲ طبقه", "۳ طبقه", "۴ طبقه", "۵ طبقه", "۶ طبقه", "۷ طبقه", "۸ طبقه و بیشتر"],
+  totalFloors: [
+    "۱ طبقه",
+    "۲ طبقه",
+    "۳ طبقه",
+    "۴ طبقه",
+    "۵ طبقه",
+    "۶ طبقه",
+    "۷ طبقه",
+    "۸ طبقه و بیشتر",
+  ],
   unitsPerFloor: unitsPerFloorOptions,
   unitType: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش"],
   unitPosition: ["جلو", "عقب", "وسط", "کنج", "دوبلکس"],
@@ -1138,8 +1668,9 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   projectStatus: projectStatusOptions,
 };
 
-const saleApartmentUnitsPerFloorOptions = Array.from({ length: 30 }, (_, index) =>
-  `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`,
+const saleApartmentUnitsPerFloorOptions = Array.from(
+  { length: 30 },
+  (_, index) => `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`,
 );
 
 const saleApartmentBuildingPositionOptions = [
@@ -1152,14 +1683,7 @@ const saleApartmentBuildingPositionOptions = [
   "دوممر",
 ];
 
-const saleApartmentUnitPositionOptions = [
-  "جلو",
-  "عقب",
-  "وسط",
-  "کنج",
-  "دوبلکس",
-  "پنت هاوس",
-];
+const saleApartmentUnitPositionOptions = ["جلو", "عقب", "وسط", "کنج", "دوبلکس", "پنت هاوس"];
 
 const saleApartmentDocumentTypeOptions = [
   "تک برگ",
@@ -1179,12 +1703,42 @@ export const saleApartmentKitchenTypeOptions = ["اپن", "جزیره", "بست�
 
 const saleApartmentMoreFeatureFields: MoreFeatureField[] = [
   { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select" },
-  { key: "unitsPerFloor", label: "تعداد واحد در طبقه", control: "select", options: saleApartmentUnitsPerFloorOptions },
-  { key: "unitType", label: "موقعیت ساختمان", control: "select", options: saleApartmentBuildingPositionOptions },
-  { key: "unitPosition", label: "موقعیت واحد", control: "select", options: saleApartmentUnitPositionOptions },
-  { key: "documentType", label: "سند", control: "select", options: saleApartmentDocumentTypeOptions },
-  { key: "occupancyStatus", label: "وضعیت سکونت", control: "select", options: saleApartmentOccupancyStatusOptions },
-  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
+  {
+    key: "unitsPerFloor",
+    label: "تعداد واحد در طبقه",
+    control: "select",
+    options: saleApartmentUnitsPerFloorOptions,
+  },
+  {
+    key: "unitType",
+    label: "موقعیت ساختمان",
+    control: "select",
+    options: saleApartmentBuildingPositionOptions,
+  },
+  {
+    key: "unitPosition",
+    label: "موقعیت واحد",
+    control: "select",
+    options: saleApartmentUnitPositionOptions,
+  },
+  {
+    key: "documentType",
+    label: "سند",
+    control: "select",
+    options: saleApartmentDocumentTypeOptions,
+  },
+  {
+    key: "occupancyStatus",
+    label: "وضعیت سکونت",
+    control: "select",
+    options: saleApartmentOccupancyStatusOptions,
+  },
+  {
+    key: "kitchenType",
+    label: "نوع آشپزخانه",
+    control: "select",
+    options: saleApartmentKitchenTypeOptions,
+  },
   { key: "renovated", label: "بازسازی", control: "toggle" },
   { key: "furnished", label: "با لوازم و مبله", control: "toggle" },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
@@ -1208,7 +1762,12 @@ const apartmentMoreFeatureFields: MoreFeatureField[] = [
 const dailyApartmentMoreFeatureFields: MoreFeatureField[] = [
   { key: "extraPeopleCapacity", label: "ظرفیت اضافه", control: "select", options: capacityOptions },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions },
-  { key: "rentalPeriod", label: "دوره اجاره", control: "select", options: dailyRentalPeriodOptions },
+  {
+    key: "rentalPeriod",
+    label: "دوره اجاره",
+    control: "select",
+    options: dailyRentalPeriodOptions,
+  },
   { key: "checkInTime", label: "ساعت ورود", control: "time" },
   { key: "checkOutTime", label: "ساعت خروج", control: "time" },
   { key: "minStayDays", label: "حداقل مدت اقامت", control: "number", leftText: "روز" },
@@ -1218,16 +1777,46 @@ const dailyApartmentMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const rentApartmentMoreFeatureFields: MoreFeatureField[] = [
-  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: rentApartmentSuitableForOptions },
+  {
+    key: "suitableFor",
+    label: "مناسب برای",
+    control: "multiSelect",
+    options: rentApartmentSuitableForOptions,
+  },
   { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select" },
-  { key: "unitsPerFloor", label: "تعداد واحد در طبقه", control: "select", options: saleApartmentUnitsPerFloorOptions },
-  { key: "unitType", label: "موقعیت ساختمان", control: "select", options: saleApartmentBuildingPositionOptions },
-  { key: "unitPosition", label: "موقعیت واحد", control: "select", options: saleApartmentUnitPositionOptions },
-  { key: "occupancyStatus", label: "وضعیت سکونت", control: "select", options: saleApartmentOccupancyStatusOptions },
+  {
+    key: "unitsPerFloor",
+    label: "تعداد واحد در طبقه",
+    control: "select",
+    options: saleApartmentUnitsPerFloorOptions,
+  },
+  {
+    key: "unitType",
+    label: "موقعیت ساختمان",
+    control: "select",
+    options: saleApartmentBuildingPositionOptions,
+  },
+  {
+    key: "unitPosition",
+    label: "موقعیت واحد",
+    control: "select",
+    options: saleApartmentUnitPositionOptions,
+  },
+  {
+    key: "occupancyStatus",
+    label: "وضعیت سکونت",
+    control: "select",
+    options: saleApartmentOccupancyStatusOptions,
+  },
   { key: "readyDeliveryDate", label: "تاریخ آماده تحویل", control: "date" },
   { key: "minContractMonths", label: "حداقل مدت قرارداد", control: "number", leftText: "ماه" },
   { key: "petPolicy", label: "حیوان خانگی", control: "select", options: rentPetPolicyOptions },
-  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
+  {
+    key: "kitchenType",
+    label: "نوع آشپزخانه",
+    control: "select",
+    options: saleApartmentKitchenTypeOptions,
+  },
   { key: "renovated", label: "بازسازی", control: "toggle" },
   { key: "furnished", label: "با لوازم و مبله", control: "toggle" },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
@@ -1239,13 +1828,28 @@ const saleVillaHouseBuildingTypeOptions = ["ویلایی مستقل", "شهرک�
 const saleVillaHouseTypeOptions = ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"];
 
 const saleVillaHouseMoreFeatureFields: MoreFeatureField[] = [
-  { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions },
-  { key: "buildingType", label: "نوع بنا", control: "select", options: saleVillaHouseBuildingTypeOptions },
+  {
+    key: "landPosition",
+    label: "موقعیت زمین",
+    control: "select",
+    options: saleLandPositionOptions,
+  },
+  {
+    key: "buildingType",
+    label: "نوع بنا",
+    control: "select",
+    options: saleVillaHouseBuildingTypeOptions,
+  },
   { key: "villaType", label: "تیپ بنا", control: "select", options: saleVillaHouseTypeOptions },
   { key: "documentType", label: "سند", control: "select", options: saleLandDocumentTypeOptions },
   { key: "totalFloors", label: "تعداد طبقات", control: "select" },
   { key: "streetWidth", label: "عرض گذر", control: "number", leftText: "متر" },
-  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
+  {
+    key: "kitchenType",
+    label: "نوع آشپزخانه",
+    control: "select",
+    options: saleApartmentKitchenTypeOptions,
+  },
   { key: "renovated", label: "بازسازی", control: "toggle" },
   { key: "furnished", label: "با لوازم و مبله", control: "toggle" },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
@@ -1265,16 +1869,36 @@ const villaHouseMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const rentVillaHouseMoreFeatureFields: MoreFeatureField[] = [
-  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: rentVillaSuitableForOptions },
-  { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions },
-  { key: "buildingType", label: "نوع بنا", control: "select", options: saleVillaHouseBuildingTypeOptions },
+  {
+    key: "suitableFor",
+    label: "مناسب برای",
+    control: "multiSelect",
+    options: rentVillaSuitableForOptions,
+  },
+  {
+    key: "landPosition",
+    label: "موقعیت زمین",
+    control: "select",
+    options: saleLandPositionOptions,
+  },
+  {
+    key: "buildingType",
+    label: "نوع بنا",
+    control: "select",
+    options: saleVillaHouseBuildingTypeOptions,
+  },
   { key: "villaType", label: "تیپ بنا", control: "select", options: saleVillaHouseTypeOptions },
   { key: "totalFloors", label: "تعداد طبقات", control: "select" },
   { key: "streetWidth", label: "عرض گذر", control: "number", leftText: "متر" },
   { key: "petPolicy", label: "حیوان خانگی", control: "select", options: rentPetPolicyOptions },
   { key: "renovated", label: "بازسازی", control: "toggle" },
   { key: "furnished", label: "با لوازم و مبله", control: "toggle" },
-  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
+  {
+    key: "kitchenType",
+    label: "نوع آشپزخانه",
+    control: "select",
+    options: saleApartmentKitchenTypeOptions,
+  },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
   { key: "floorMaterial", label: "جنس کف", control: "select" },
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
@@ -1300,10 +1924,25 @@ const landMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const saleLandMoreFeatureFields: MoreFeatureField[] = [
-  { key: "usageType", label: "نوع کاربری", control: "multiSelect", options: saleLandUsageTypeOptions },
-  { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions },
+  {
+    key: "usageType",
+    label: "نوع کاربری",
+    control: "multiSelect",
+    options: saleLandUsageTypeOptions,
+  },
+  {
+    key: "landPosition",
+    label: "موقعیت زمین",
+    control: "select",
+    options: saleLandPositionOptions,
+  },
   { key: "density", label: "تراکم زمین", control: "select", options: saleLandDensityOptions },
-  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: saleLandSuitableForOptions },
+  {
+    key: "suitableFor",
+    label: "مناسب برای",
+    control: "multiSelect",
+    options: saleLandSuitableForOptions,
+  },
   { key: "landWidth", label: "عرض زمین", control: "number", leftText: "متر" },
   { key: "streetWidth", label: "عرض گذر", control: "number", leftText: "متر" },
   { key: "constructionPermit", label: "مجوز ساخت", control: "toggle" },
@@ -1323,7 +1962,12 @@ const dailyVillaMoreFeatureFields: MoreFeatureField[] = [
   { key: "extraPeopleCapacity", label: "ظرفیت اضافه", control: "select", options: capacityOptions },
   { key: "viewType", label: "چشم انداز", control: "select", options: dailyVillaViewOptions },
   { key: "villaType", label: "تیپ بنا", control: "select", options: saleVillaHouseTypeOptions },
-  { key: "rentalPeriod", label: "دوره اجاره", control: "select", options: dailyRentalPeriodOptions },
+  {
+    key: "rentalPeriod",
+    label: "دوره اجاره",
+    control: "select",
+    options: dailyRentalPeriodOptions,
+  },
   { key: "checkInTime", label: "ساعت ورود", control: "time" },
   { key: "checkOutTime", label: "ساعت خروج", control: "time" },
   { key: "minStayDays", label: "حداقل مدت اقامت", control: "number", leftText: "روز" },
@@ -1337,7 +1981,12 @@ const dailyHotelMoreFeatureFields: MoreFeatureField[] = [];
 const dailyOfficeMoreFeatureFields: MoreFeatureField[] = [
   { key: "extraPeopleCapacity", label: "ظرفیت اضافه", control: "select", options: capacityOptions },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions },
-  { key: "rentalPeriod", label: "دوره اجاره", control: "select", options: dailyWorkspaceRentalPeriodOptions },
+  {
+    key: "rentalPeriod",
+    label: "دوره اجاره",
+    control: "select",
+    options: dailyWorkspaceRentalPeriodOptions,
+  },
   { key: "checkInTime", label: "ساعت ورود", control: "time" },
   { key: "checkOutTime", label: "ساعت خروج", control: "time" },
   { key: "minStayDays", label: "حداقل مدت اقامت", control: "number", leftText: "روز" },
@@ -1346,10 +1995,30 @@ const dailyOfficeMoreFeatureFields: MoreFeatureField[] = [
 
 const saleOfficeMoreFeatureFields: MoreFeatureField[] = [
   { key: "totalFloors", label: "تعداد کل طبقات", control: "select" },
-  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: saleOfficeSuitableForOptions },
-  { key: "currentStatus", label: "وضعیت فعلی", control: "select", options: saleOfficeCurrentStatusOptions },
-  { key: "officePosition", label: "موقعیت اداری", control: "select", options: saleOfficePositionOptions },
-  { key: "officeDocumentType", label: "سند اداری", control: "select", options: saleOfficeDocumentTypeOptions },
+  {
+    key: "suitableFor",
+    label: "مناسب برای",
+    control: "multiSelect",
+    options: saleOfficeSuitableForOptions,
+  },
+  {
+    key: "currentStatus",
+    label: "وضعیت فعلی",
+    control: "select",
+    options: saleOfficeCurrentStatusOptions,
+  },
+  {
+    key: "officePosition",
+    label: "موقعیت اداری",
+    control: "select",
+    options: saleOfficePositionOptions,
+  },
+  {
+    key: "officeDocumentType",
+    label: "سند اداری",
+    control: "select",
+    options: saleOfficeDocumentTypeOptions,
+  },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
   { key: "floorMaterial", label: "جنس کف", control: "select" },
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },
@@ -1364,13 +2033,33 @@ const saleOfficeMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const rentOfficeMoreFeatureFields: MoreFeatureField[] = [
-  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: rentOfficeSuitableForOptions },
-  { key: "officePosition", label: "موقعیت اداری", control: "select", options: saleOfficePositionOptions },
-  { key: "currentStatus", label: "وضعیت فعلی", control: "select", options: rentCurrentStatusOptions },
+  {
+    key: "suitableFor",
+    label: "مناسب برای",
+    control: "multiSelect",
+    options: rentOfficeSuitableForOptions,
+  },
+  {
+    key: "officePosition",
+    label: "موقعیت اداری",
+    control: "select",
+    options: saleOfficePositionOptions,
+  },
+  {
+    key: "currentStatus",
+    label: "وضعیت فعلی",
+    control: "select",
+    options: rentCurrentStatusOptions,
+  },
   { key: "readyDeliveryDate", label: "تاریخ آماده تحویل", control: "date" },
   { key: "minContractMonths", label: "حداقل مدت قرارداد", control: "number", leftText: "ماه" },
   { key: "hasDocument", label: "دارای سند", control: "toggle" },
-  { key: "officeDocumentType", label: "سند اداری", control: "select", options: saleOfficeDocumentTypeOptions },
+  {
+    key: "officeDocumentType",
+    label: "سند اداری",
+    control: "select",
+    options: saleOfficeDocumentTypeOptions,
+  },
   { key: "managementRoom", label: "اتاق مدیریت", control: "toggle" },
   { key: "conferenceRoom", label: "اتاق کنفرانس", control: "toggle" },
   { key: "receptionHall", label: "سالن پذیرش", control: "toggle" },
@@ -1397,7 +2086,12 @@ const saleCommercialUnitMoreFeatureFields: MoreFeatureField[] = [
   { key: "totalFloors", label: "تعداد کل طبقات", control: "select" },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions },
   { key: "openingCount", label: "تعداد دهنه", control: "select", options: openingCountOptions },
-  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: saleCommercialSuitableForOptions },
+  {
+    key: "suitableFor",
+    label: "مناسب برای",
+    control: "multiSelect",
+    options: saleCommercialSuitableForOptions,
+  },
   { key: "commercialLicense", label: "مجوز تجاری", control: "select", options: ["دائم", "موقت"] },
   { key: "currentStatus", label: "وضعیت فعلی", control: "select", options: currentStatusOptions },
 ];
@@ -1406,8 +2100,18 @@ const rentCommercialUnitMoreFeatureFields: MoreFeatureField[] = [
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions },
   { key: "openingCount", label: "تعداد دهنه", control: "select", options: openingCountOptions },
   { key: "ceilingHeight", label: "ارتفاع سقف", control: "number", leftText: "متر" },
-  { key: "suitableFor", label: "مناسب برای", control: "multiSelect", options: rentCommercialSuitableForOptions },
-  { key: "currentStatus", label: "وضعیت فعلی", control: "select", options: rentCurrentStatusOptions },
+  {
+    key: "suitableFor",
+    label: "مناسب برای",
+    control: "multiSelect",
+    options: rentCommercialSuitableForOptions,
+  },
+  {
+    key: "currentStatus",
+    label: "وضعیت فعلی",
+    control: "select",
+    options: rentCurrentStatusOptions,
+  },
   { key: "readyDeliveryDate", label: "تاریخ آماده تحویل", control: "date" },
   { key: "minContractMonths", label: "حداقل مدت قرارداد", control: "number", leftText: "ماه" },
 ];
@@ -1422,9 +2126,19 @@ const warehouseMoreFeatureFields: MoreFeatureField[] = [
 const rentFactoryWorkshopMoreFeatureFields: MoreFeatureField[] = [
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions },
   { key: "ceilingHeight", label: "ارتفاع سقف", control: "number", leftText: "متر" },
-  { key: "industrialPropertyType", label: "نوع ملک", control: "select", options: rentIndustrialPropertyTypeOptions },
+  {
+    key: "industrialPropertyType",
+    label: "نوع ملک",
+    control: "select",
+    options: rentIndustrialPropertyTypeOptions,
+  },
   { key: "accessType", label: "دسترسی", control: "select", options: industrialAccessTypeOptions },
-  { key: "currentStatus", label: "وضعیت فعلی", control: "select", options: rentCurrentStatusOptions },
+  {
+    key: "currentStatus",
+    label: "وضعیت فعلی",
+    control: "select",
+    options: rentCurrentStatusOptions,
+  },
   { key: "commercialLicense", label: "مجوز تجاری", control: "select", options: ["دائم", "موقت"] },
   { key: "readyDeliveryDate", label: "تاریخ آماده تحویل", control: "date" },
   { key: "minContractMonths", label: "حداقل مدت قرارداد", control: "number", leftText: "ماه" },
@@ -1434,7 +2148,12 @@ const saleFactoryWorkshopMoreFeatureFields: MoreFeatureField[] = [
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions },
   { key: "buildingArea", label: "متراژ بنا", control: "number", leftText: "متر مربع" },
   { key: "ceilingHeight", label: "ارتفاع سقف", control: "number", leftText: "متر" },
-  { key: "industrialPropertyType", label: "نوع ملک", control: "select", options: industrialPropertyTypeOptions },
+  {
+    key: "industrialPropertyType",
+    label: "نوع ملک",
+    control: "select",
+    options: industrialPropertyTypeOptions,
+  },
   { key: "accessType", label: "دسترسی", control: "select", options: industrialAccessTypeOptions },
   { key: "currentStatus", label: "وضعیت فعلی", control: "select", options: currentStatusOptions },
   { key: "commercialLicense", label: "مجوز تجاری", control: "select", options: ["دائم", "موقت"] },
@@ -1450,7 +2169,12 @@ const hotelApartmentMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const saleHotelApartmentMoreFeatureFields: MoreFeatureField[] = [
-  { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions },
+  {
+    key: "landPosition",
+    label: "موقعیت زمین",
+    control: "select",
+    options: saleLandPositionOptions,
+  },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions },
   { key: "totalFloors", label: "تعداد طبقات", control: "select" },
   { key: "singleRoomCount", label: "تعداد اتاق یک تخته", control: "select" },
@@ -1462,7 +2186,12 @@ const saleHotelApartmentMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const rentHotelApartmentMoreFeatureFields: MoreFeatureField[] = [
-  { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions },
+  {
+    key: "landPosition",
+    label: "موقعیت زمین",
+    control: "select",
+    options: saleLandPositionOptions,
+  },
   { key: "totalFloors", label: "تعداد طبقات", control: "select" },
   { key: "singleRoomCount", label: "تعداد اتاق یک تخته", control: "select" },
   { key: "doubleRoomCount", label: "تعداد اتاق دو تخته", control: "select" },
@@ -1477,7 +2206,12 @@ const projectPresaleMoreFeatureFields: MoreFeatureField[] = [
   { key: "projectStatus", label: "وضعیت پروژه", control: "select", options: projectStatusOptions },
   { key: "projectDeliveryDate", label: "تاریخ آماده تحویل", control: "date" },
   { key: "furnished", label: "مبله با لوازم", control: "toggle" },
-  { key: "kitchenType", label: "نوع آشپزخانه", control: "select", options: saleApartmentKitchenTypeOptions },
+  {
+    key: "kitchenType",
+    label: "نوع آشپزخانه",
+    control: "select",
+    options: saleApartmentKitchenTypeOptions,
+  },
   { key: "facadeMaterial", label: "جنس نما", control: "select" },
   { key: "floorMaterial", label: "جنس کف", control: "select" },
   { key: "cabinetMaterial", label: "جنس کابینت", control: "select" },

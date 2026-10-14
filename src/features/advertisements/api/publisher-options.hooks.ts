@@ -4,20 +4,13 @@ import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { useMyAgencyProfileQuery } from "../../account/api/account.hooks";
 
 export type PublisherOptionId =
-  | "personal"
-  | "independent-consultant"
-  | "agency-manager"
-  | "agency-consultant";
+  "personal" | "independent-consultant" | "agency-manager" | "agency-consultant";
 
 export type PublisherOption = {
   description: string;
   icon: "user" | "building" | "agency";
   id: PublisherOptionId;
-  senderRole:
-    | "user"
-    | "real_estate_manager"
-    | "real_estate_consultant"
-    | "independent_consultant";
+  senderRole: "user" | "real_estate_manager" | "real_estate_consultant" | "independent_consultant";
   title: string;
 };
 
@@ -68,9 +61,7 @@ export function usePublisherOptions(enabled = true) {
       options.push({
         id: "agency-manager",
         title: agencyName || "آژانس",
-        description: agencyName
-          ? `انتشار به نام آژانس ${agencyName}`
-          : "انتشار به نام آژانس",
+        description: agencyName ? `انتشار به نام آژانس ${agencyName}` : "انتشار به نام آژانس",
         icon: "agency",
         senderRole: "real_estate_manager",
       });

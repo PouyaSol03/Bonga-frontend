@@ -70,9 +70,7 @@ function SearchMapListingSliderComponent({
       return;
     }
 
-    const activeListing = listings.find(
-      (listing) => String(listing.id) === String(activeId),
-    );
+    const activeListing = listings.find((listing) => String(listing.id) === String(activeId));
 
     if (!activeListing) return;
 
@@ -149,16 +147,14 @@ function SearchMapListingSliderComponent({
   return (
     <section
       className={`absolute inset-x-0 bottom-3 z-[500] bg-transparent ${
-        isOpen
-          ? "translate-y-0 opacity-100"
-          : "pointer-events-none translate-y-8 opacity-0"
+        isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-8 opacity-0"
       }`}
       aria-label="آگهی‌های روی نقشه"
       dir="rtl"
     >
       <div
         ref={scrollRef}
-        className="flex h-[216px] cursor-grab select-none snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain bg-transparent py-0 touch-pan-x scrollbar-none [-ms-overflow-style:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+        className="flex h-[216px] cursor-grab touch-pan-x snap-x snap-mandatory scrollbar-none gap-3 overflow-x-auto overscroll-x-contain bg-transparent py-0 select-none [-ms-overflow-style:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
         style={{
           paddingInline: `max(8px, calc((100% - ${previewCardWidth}) / 2))`,
           scrollPaddingInline: `max(8px, calc((100% - ${previewCardWidth}) / 2))`,
@@ -170,19 +166,14 @@ function SearchMapListingSliderComponent({
       >
         {isLoading
           ? Array.from({ length: 2 }).map((_, index) => (
-              <AdCardSkeleton
-                key={index}
-                className="mx-0 snap-center"
-                variant="mapPreview"
-              />
+              <AdCardSkeleton key={index} className="mx-0 snap-center" variant="mapPreview" />
             ))
           : listings.map((listing) => (
               <SearchMapPreviewCard
                 key={listing.id}
                 listing={listing}
                 isSelected={
-                  selectedListingId != null &&
-                  String(listing.id) === String(selectedListingId)
+                  selectedListingId != null && String(listing.id) === String(selectedListingId)
                 }
               />
             ))}
@@ -193,21 +184,14 @@ function SearchMapListingSliderComponent({
 
 export const SearchMapListingSlider = memo(SearchMapListingSliderComponent);
 
-function getSliderCardById(
-  scrollEl: HTMLDivElement,
-  listingId: SearchMapListingId,
-) {
-  return Array.from(
-    scrollEl.querySelectorAll<HTMLElement>("[data-map-slider-card]"),
-  ).find(
+function getSliderCardById(scrollEl: HTMLDivElement, listingId: SearchMapListingId) {
+  return Array.from(scrollEl.querySelectorAll<HTMLElement>("[data-map-slider-card]")).find(
     (candidate) => candidate.dataset.mapSliderCard === String(listingId),
   );
 }
 
 function findCenteredCardId(scrollEl: HTMLDivElement) {
-  const cards = Array.from(
-    scrollEl.querySelectorAll<HTMLElement>("[data-map-slider-card]"),
-  );
+  const cards = Array.from(scrollEl.querySelectorAll<HTMLElement>("[data-map-slider-card]"));
 
   if (cards.length === 0) return null;
 
@@ -230,10 +214,7 @@ function findCenteredCardId(scrollEl: HTMLDivElement) {
   return nearestCard.dataset.mapSliderCard ?? null;
 }
 
-function useDragScroll(
-  scrollRef: RefObject<HTMLDivElement | null>,
-  onDragStart?: () => void,
-) {
+function useDragScroll(scrollRef: RefObject<HTMLDivElement | null>, onDragStart?: () => void) {
   const dragStateRef = useRef({
     didDrag: false,
     isDragging: false,
@@ -295,9 +276,7 @@ function useDragScroll(
       }
 
       const isRtl = getComputedStyle(scrollEl).direction === "rtl";
-      scrollEl.scrollLeft = isRtl
-        ? state.startScrollLeft + deltaX
-        : state.startScrollLeft - deltaX;
+      scrollEl.scrollLeft = isRtl ? state.startScrollLeft + deltaX : state.startScrollLeft - deltaX;
     },
     onPointerUp: endDrag,
   };

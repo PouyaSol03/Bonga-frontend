@@ -1,12 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { Typography } from "../../../../shared/ui/Typography";
 import { DashboardChartEmptyState } from "./DashboardChartEmptyState";
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
@@ -95,7 +88,7 @@ export function DashboardViewsBarChartCard({
   const contentWidth = needsScroll ? Math.max(340, dataset.length * itemWidth) : "100%";
 
   return (
-    <section className="w-full bg-surface-container-lowest p-4 [direction:rtl]">
+    <section className="bg-surface-container-lowest w-full p-4 [direction:rtl]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <Typography
@@ -111,7 +104,7 @@ export function DashboardViewsBarChartCard({
         {/* Period Dropdown - Without border */}
         <div className="relative">
           <button
-            className="flex items-center gap-1 rounded-lg px-2 py-1 text-on-surface transition active:scale-95 cursor-pointer border-none bg-transparent"
+            className="text-on-surface flex cursor-pointer items-center gap-1 rounded-lg border-none bg-transparent px-2 py-1 transition active:scale-95"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             type="button"
           >
@@ -124,38 +117,34 @@ export function DashboardViewsBarChartCard({
             >
               {effectivePeriod === "year" ? "در سال" : "در ماه"}
             </Typography>
-            <LinearArrowDown1 className="h-3.5 w-3.5 text-on-surface" />
+            <LinearArrowDown1 className="text-on-surface h-3.5 w-3.5" />
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute left-0 top-full mt-1 z-30 min-w-[110px] rounded-lg border border-outline-var bg-surface-container-lowest py-1 shadow-md">
+            <div className="border-outline-var bg-surface-container-lowest absolute top-full left-0 z-30 mt-1 min-w-[110px] rounded-lg border py-1 shadow-md">
               <button
-                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition cursor-pointer border-none ${
+                className={`flex w-full cursor-pointer items-center justify-between border-none px-3 py-2 text-right text-xs transition ${
                   effectivePeriod === "year"
-                    ? "font-bold text-primary bg-primary/5"
+                    ? "text-primary bg-primary/5 font-bold"
                     : "text-on-surface-var bg-transparent"
                 }`}
                 onClick={() => handleSelectPeriod("year")}
                 type="button"
               >
                 <span>در سال</span>
-                {effectivePeriod === "year" && (
-                  <LinearTick className="h-3.5 w-3.5 text-primary" />
-                )}
+                {effectivePeriod === "year" && <LinearTick className="text-primary h-3.5 w-3.5" />}
               </button>
               <button
-                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition cursor-pointer border-none ${
+                className={`flex w-full cursor-pointer items-center justify-between border-none px-3 py-2 text-right text-xs transition ${
                   effectivePeriod === "month"
-                    ? "font-bold text-primary bg-primary/5"
+                    ? "text-primary bg-primary/5 font-bold"
                     : "text-on-surface-var bg-transparent"
                 }`}
                 onClick={() => handleSelectPeriod("month")}
                 type="button"
               >
                 <span>در ماه</span>
-                {effectivePeriod === "month" && (
-                  <LinearTick className="h-3.5 w-3.5 text-primary" />
-                )}
+                {effectivePeriod === "month" && <LinearTick className="text-primary h-3.5 w-3.5" />}
               </button>
             </div>
           )}
@@ -174,7 +163,9 @@ export function DashboardViewsBarChartCard({
               variant="label"
               size="small"
               weight="semibold"
-              className={isPositive ? "text-tertiary font-bold text-xs" : "text-error font-bold text-xs"}
+              className={
+                isPositive ? "text-tertiary text-xs font-bold" : "text-error text-xs font-bold"
+              }
             >
               {percentValue}٪
             </Typography>
@@ -199,7 +190,7 @@ export function DashboardViewsBarChartCard({
             className={`cursor-pointer border-none bg-transparent p-0 transition ${
               canScrollLeft
                 ? "text-on-surface active:scale-90"
-                : "text-outline-var opacity-20 cursor-not-allowed"
+                : "text-outline-var cursor-not-allowed opacity-20"
             }`}
             disabled={!canScrollLeft}
             onClick={() => handleScrollSmooth("prev")}
@@ -213,7 +204,7 @@ export function DashboardViewsBarChartCard({
             className={`cursor-pointer border-none bg-transparent p-0 transition ${
               canScrollRight
                 ? "text-on-surface active:scale-90"
-                : "text-outline-var opacity-20 cursor-not-allowed"
+                : "text-outline-var cursor-not-allowed opacity-20"
             }`}
             disabled={!canScrollRight}
             onClick={() => handleScrollSmooth("next")}
@@ -234,7 +225,7 @@ export function DashboardViewsBarChartCard({
         <div
           ref={chartScrollRef}
           onScroll={checkScroll}
-          className="mt-1 h-56 w-full overflow-x-auto scroll-smooth scrollbar-none [direction:ltr]"
+          className="mt-1 h-56 w-full scrollbar-none overflow-x-auto scroll-smooth [direction:ltr]"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           <div style={{ width: contentWidth, height: "100%" }}>
@@ -242,7 +233,12 @@ export function DashboardViewsBarChartCard({
               <BarChart
                 barCategoryGap={24}
                 data={dataset}
-                margin={{ top: 10, right: 10, left: -25, bottom: effectivePeriod === "month" ? 10 : 25 }}
+                margin={{
+                  top: 10,
+                  right: 10,
+                  left: -25,
+                  bottom: effectivePeriod === "month" ? 10 : 25,
+                }}
               >
                 <CartesianGrid
                   stroke="var(--outline-variant, #EBEBEB)"

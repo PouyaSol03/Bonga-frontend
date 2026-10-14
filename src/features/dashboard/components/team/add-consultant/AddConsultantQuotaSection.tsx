@@ -29,7 +29,7 @@ export function AddConsultantQuotaSection({
   const currentAgencySpecialRemaining = Math.max(0, availableSpecialBalance - specialQuota);
 
   return (
-    <section className="grid gap-4 border-t-[8px] border-surface-container bg-surface-container-lowest px-4 py-5">
+    <section className="border-surface-container bg-surface-container-lowest grid gap-4 border-t-[8px] px-4 py-5">
       <QuotaStepper
         label="سهمیه آگهی"
         max={availableAdBalance}

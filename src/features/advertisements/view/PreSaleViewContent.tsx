@@ -1,15 +1,15 @@
-import { DetailSection, MoreLink } from './viewAdComponents';
-import { Typography } from '../../../shared/ui/Typography';
-import type { ViewAdDetails, ViewAdProjectDetailVariant } from './viewAdTypes';
-import { getCurrentViewAdBasePath } from './viewAdDetails';
-import { PropertyGrid } from './viewAdComponents';
+import { DetailSection, MoreLink } from "./viewAdComponents";
+import { Typography } from "../../../shared/ui/Typography";
+import type { ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
+import { getCurrentViewAdBasePath } from "./viewAdDetails";
+import { PropertyGrid } from "./viewAdComponents";
 
 function ProjectDetailsCard({ details }: { details: ViewAdProjectDetailVariant[] }) {
   const first = details[0];
   if (!first) return null;
 
   return (
-    <div className="mt-6 rounded-xl border border-surface-container bg-surface-container-lowest p-4 [direction:rtl]">
+    <div className="border-surface-container bg-surface-container-lowest mt-6 rounded-xl border p-4 [direction:rtl]">
       <Typography as="p" variant="label" size="large" weight="semibold" className="text-on-surface">
         {first.meterageTitle}
       </Typography>
@@ -24,12 +24,15 @@ function ProjectDetailsCard({ details }: { details: ViewAdProjectDetailVariant[]
 
 function ChipRow({ label, values }: { label: string; values: string[] }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-dashed border-outline-var/40 pb-3 last:border-0 [direction:rtl]">
+    <div className="border-outline-var/40 flex flex-wrap items-center gap-2 border-b border-dashed pb-3 [direction:rtl] last:border-0">
       <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline">
         {label}
       </Typography>
       {values.filter(Boolean).map((value) => (
-        <span key={value} className="rounded-lg bg-surface-container-high px-3 py-1 text-sm text-on-surface">
+        <span
+          key={value}
+          className="bg-surface-container-high text-on-surface rounded-lg px-3 py-1 text-sm"
+        >
           {value}
         </span>
       ))}
@@ -37,19 +40,19 @@ function ChipRow({ label, values }: { label: string; values: string[] }) {
   );
 }
 
-export function PreSaleViewContent({
-  adId,
-  details,
-}: {
-  adId: string;
-  details: ViewAdDetails;
-}) {
-  const info = details.propertyInfoPreview.filter((item) => !item.label.includes('رتبه'));
+export function PreSaleViewContent({ adId, details }: { adId: string; details: ViewAdDetails }) {
+  const info = details.propertyInfoPreview.filter((item) => !item.label.includes("رتبه"));
 
   return (
     <>
-      <section className="border-t-8 border-surface-container bg-surface-container-lowest px-4 py-4 [direction:rtl]">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="text-on-surface">
+      <section className="border-surface-container bg-surface-container-lowest border-t-8 px-4 py-4 [direction:rtl]">
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-on-surface"
+        >
           اطلاعات پروژه
         </Typography>
         <PropertyGrid items={info} />
@@ -57,9 +60,13 @@ export function PreSaleViewContent({
       </section>
 
       <DetailSection icon="apartment" title="جزئیات پروژه">
-        {details.projectDetails?.length ? <ProjectDetailsCard details={details.projectDetails} /> : null}
         {details.projectDetails?.length ? (
-          <MoreLink to={`${getCurrentViewAdBasePath(adId)}/project-details`}>اطلاعات بیشتر</MoreLink>
+          <ProjectDetailsCard details={details.projectDetails} />
+        ) : null}
+        {details.projectDetails?.length ? (
+          <MoreLink to={`${getCurrentViewAdBasePath(adId)}/project-details`}>
+            اطلاعات بیشتر
+          </MoreLink>
         ) : null}
       </DetailSection>
 
@@ -68,7 +75,13 @@ export function PreSaleViewContent({
       </DetailSection>
 
       <DetailSection icon="apartment" title="توضیحات">
-        <Typography as="p" variant="body" size="medium" weight="regular" className="mt-6 whitespace-pre-line text-right text-on-surface">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface mt-6 text-right whitespace-pre-line"
+        >
           {details.description}
         </Typography>
       </DetailSection>

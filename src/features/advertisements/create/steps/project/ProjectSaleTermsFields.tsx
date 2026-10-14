@@ -4,10 +4,7 @@ import { CompactToggle, InputBox } from "../../components/NewAdControls";
 type ProjectSaleTermsFieldsProps = {
   errors?: NewAdFieldErrors;
   values: NewAdFormValues;
-  setField: <T extends keyof NewAdFormValues>(
-    key: T,
-    value: NewAdFormValues[T],
-  ) => void;
+  setField: <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => void;
 };
 
 export function ProjectSaleTermsFields({

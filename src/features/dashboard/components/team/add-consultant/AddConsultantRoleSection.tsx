@@ -18,8 +18,14 @@ export function AddConsultantRoleSection({
   const isManager = accessRole === "manager";
 
   return (
-    <section className="border-t-[8px] border-surface-container bg-surface-container-lowest px-4 py-5">
-      <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 text-on-surface">
+    <section className="border-surface-container bg-surface-container-lowest border-t-[8px] px-4 py-5">
+      <Typography
+        as="p"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0"
+      >
         انتخاب سمت
       </Typography>
 
@@ -36,7 +42,7 @@ export function AddConsultantRoleSection({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-x-5 gap-y-3 mt-3">
+      <div className="mt-3 grid grid-cols-2 gap-x-5 gap-y-3">
         {managerAccessItems.map((item) => {
           const checked = managerAccess.includes(item.id);
           const isChecked = checked && isManager;
@@ -55,11 +61,7 @@ export function AddConsultantRoleSection({
             >
               <SelectionCheckIndicator
                 className={`h-4.5 w-4.5 rounded-sm ${
-                  isChecked
-                    ? ""
-                    : isManager
-                      ? "!border-on-surface-var"
-                      : "!border-outline"
+                  isChecked ? "" : isManager ? "!border-on-surface-var" : "!border-outline"
                 }`}
                 checked={isChecked}
               />

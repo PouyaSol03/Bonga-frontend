@@ -5,9 +5,6 @@ interface ConsultantPerformanceTabProps {
   onViewCharts: () => void;
 }
 
-export function ConsultantPerformanceTab({
-  agentId,
-  onViewCharts,
-}: ConsultantPerformanceTabProps) {
+export function ConsultantPerformanceTab({ agentId, onViewCharts }: ConsultantPerformanceTabProps) {
   return <ConsultantPerformanceSummary agentId={agentId} onViewCharts={onViewCharts} />;
 }

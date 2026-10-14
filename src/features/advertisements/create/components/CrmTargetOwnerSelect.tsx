@@ -48,12 +48,12 @@ export function CrmTargetOwnerSelect({
 
   return (
     <div className="relative">
-      <label className="flex h-14 flex-col rounded-xl border border-outline-var bg-surface-container-lowest px-4 py-2 transition-colors focus-within:border-primary">
+      <label className="border-outline-var bg-surface-container-lowest focus-within:border-primary flex h-14 flex-col rounded-xl border px-4 py-2 transition-colors">
         <Typography as="span" variant="label" size="small" weight="medium" className="text-outline">
           {type === "user" ? "جستجوی کاربر (با شماره موبایل)" : "جستجوی آژانس (با نام)"}
         </Typography>
         <input
-          className="h-6 bg-transparent text-sm font-bold text-on-surface outline-none placeholder:font-normal placeholder:text-outline-var"
+          className="text-on-surface placeholder:text-outline-var h-6 bg-transparent text-sm font-bold outline-none placeholder:font-normal"
           dir={type === "user" ? "ltr" : "rtl"}
           onChange={(event) => {
             setQuery(event.target.value);
@@ -70,20 +70,21 @@ export function CrmTargetOwnerSelect({
       </label>
 
       {isFocused && (debouncedQuery || isLoading) && !value && (
-        <ul className="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-outline-var bg-surface-container-lowest py-2 shadow-2xl">
+        <ul className="border-outline-var bg-surface-container-lowest absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border py-2 shadow-2xl">
           {isLoading ? (
-            <li className="px-4 py-3 text-sm text-outline">در حال جستجو...</li>
+            <li className="text-outline px-4 py-3 text-sm">در حال جستجو...</li>
           ) : data && data.length > 0 ? (
             data.map((item) => {
               const id = getCrmRecordId(item);
-              const label = type === "user" 
-                ? `${item.name || "بدون نام"} - ${item.mobile || "بدون شماره"}`
-                : String(item.name || "بدون نام");
+              const label =
+                type === "user"
+                  ? `${item.name || "بدون نام"} - ${item.mobile || "بدون شماره"}`
+                  : String(item.name || "بدون نام");
 
               return (
                 <li
                   key={id}
-                  className="cursor-pointer border-b border-outline-var last:border-0 px-4 py-3 text-sm transition-colors"
+                  className="border-outline-var cursor-pointer border-b px-4 py-3 text-sm transition-colors last:border-0"
                   onMouseDown={(e) => {
                     e.preventDefault(); // Prevent blur
                     onChange(id);
@@ -92,13 +93,15 @@ export function CrmTargetOwnerSelect({
                     setIsFocused(false);
                   }}
                 >
-                  <div className="font-bold text-on-surface">{label}</div>
-                  <div className="mt-1 text-xs text-outline" dir="ltr">{id}</div>
+                  <div className="text-on-surface font-bold">{label}</div>
+                  <div className="text-outline mt-1 text-xs" dir="ltr">
+                    {id}
+                  </div>
                 </li>
               );
             })
           ) : (
-            <li className="px-4 py-3 text-sm text-outline">موردی یافت نشد.</li>
+            <li className="text-outline px-4 py-3 text-sm">موردی یافت نشد.</li>
           )}
         </ul>
       )}

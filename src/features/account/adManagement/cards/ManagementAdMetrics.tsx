@@ -59,17 +59,31 @@ export const ManagementAdMetrics: React.FC<Props> = ({ metrics, sourceAd }) => {
   const chats =
     metrics?.chats !== undefined
       ? toPersianNumber(metrics.chats)
-      : readStat(sourceAd, ["chat_count", "chats_count", "chats", "conversation_count", "message_count"]);
+      : readStat(sourceAd, [
+          "chat_count",
+          "chats_count",
+          "chats",
+          "conversation_count",
+          "message_count",
+        ]);
 
   const items = [
-    { icon: <LinearViewOn className="h-6 w-6 text-on-surface-var" />, label: "بازدید", value: views },
-    { icon: <LinearDocumentSearch className="h-6 w-6 text-on-surface-var" />, label: "نمایش", value: impressions },
-    { icon: <LinearCall className="h-6 w-6 text-on-surface-var" />, label: "تماس", value: calls },
-    { icon: <LinearChat className="h-6 w-6 text-on-surface-var" />, label: "چت", value: chats },
+    {
+      icon: <LinearViewOn className="text-on-surface-var h-6 w-6" />,
+      label: "بازدید",
+      value: views,
+    },
+    {
+      icon: <LinearDocumentSearch className="text-on-surface-var h-6 w-6" />,
+      label: "نمایش",
+      value: impressions,
+    },
+    { icon: <LinearCall className="text-on-surface-var h-6 w-6" />, label: "تماس", value: calls },
+    { icon: <LinearChat className="text-on-surface-var h-6 w-6" />, label: "چت", value: chats },
   ];
 
   return (
-    <div className="grid grid-cols-4 pt-6 pb-5 px-1 [direction:rtl]">
+    <div className="grid grid-cols-4 px-1 pt-6 pb-5 [direction:rtl]">
       {items.map((item, idx) => (
         <div className="flex flex-col items-center justify-center text-center" key={idx}>
           <div className="flex h-6 w-6 items-center justify-center">{item.icon}</div>
@@ -78,7 +92,7 @@ export const ManagementAdMetrics: React.FC<Props> = ({ metrics, sourceAd }) => {
             variant="body"
             size="medium"
             weight="medium"
-            className="text-[15px] font-bold text-on-surface leading-tight mt-2 mb-1"
+            className="text-on-surface mt-2 mb-1 text-[15px] leading-tight font-bold"
           >
             {item.value}
           </Typography>
@@ -87,7 +101,7 @@ export const ManagementAdMetrics: React.FC<Props> = ({ metrics, sourceAd }) => {
             variant="label"
             size="small"
             weight="medium"
-            className="text-xs text-on-surface-var font-normal"
+            className="text-on-surface-var text-xs font-normal"
           >
             {item.label}
           </Typography>

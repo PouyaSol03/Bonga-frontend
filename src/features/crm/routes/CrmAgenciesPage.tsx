@@ -1,8 +1,38 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { type CrmConsultantPayload, type CrmRecord, listCrmAgencies, listCrmAgencyAgents, getCrmRecordId, setCrmAgencyTrusted, updateCrmAgencyStatus, updateCrmConsultant } from "../api/crm.service";
+import {
+  type CrmConsultantPayload,
+  type CrmRecord,
+  listCrmAgencies,
+  listCrmAgencyAgents,
+  getCrmRecordId,
+  setCrmAgencyTrusted,
+  updateCrmAgencyStatus,
+  updateCrmConsultant,
+} from "../api/crm.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
-import { AgencyAgentsModal, CrmIcon, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, agencyStatusTextTone, consultantAgencyId, consultantApiIdentifier, ghostButtonClassName, inputClassName, normalizeAgencyStatus, readText, useQueryErrorToast } from "../CrmLayout";
+import {
+  AgencyAgentsModal,
+  CrmIcon,
+  CrmSelect,
+  EditorModal,
+  FilterField,
+  Panel,
+  PanelHeader,
+  SmallActionButton,
+  TableCell,
+  SearchTableEmptyRow,
+  TableHead,
+  TableLoadingRows,
+  agencyStatusTextTone,
+  consultantAgencyId,
+  consultantApiIdentifier,
+  ghostButtonClassName,
+  inputClassName,
+  normalizeAgencyStatus,
+  readText,
+  useQueryErrorToast,
+} from "../CrmLayout";
 import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -67,7 +97,8 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   });
 
   const agentSaveMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<CrmConsultantPayload> }) => updateCrmConsultant(id, payload),
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CrmConsultantPayload> }) =>
+      updateCrmConsultant(id, payload),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["crm", "agencies"] }),
@@ -136,7 +167,12 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
           onSubmit={(event) => event.preventDefault()}
         >
           <FilterField label="نام آژانس">
-            <input className={inputClassName} onChange={(event) => setName(event.target.value)} placeholder="جستجوی نام" value={name} />
+            <input
+              className={inputClassName}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="جستجوی نام"
+              value={name}
+            />
           </FilterField>
           <FilterField label="مورد اعتماد">
             <CrmSelect
@@ -151,7 +187,8 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
             </CrmSelect>
           </FilterField>
           {name || trustedFilter ? (
-            <Button unstyled
+            <Button
+              unstyled
               className={ghostButtonClassName}
               onClick={() => {
                 setName("");
@@ -192,14 +229,32 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   return (
                     <tr key={id}>
                       <TableCell>
-                        <Typography as="span" variant="label" size="medium" weight="semibold" className="font-bold text-[#1a1a1a]">{readText(agency, ["name"])}</Typography>
+                        <Typography
+                          as="span"
+                          variant="label"
+                          size="medium"
+                          weight="semibold"
+                          className="font-bold text-[#1a1a1a]"
+                        >
+                          {readText(agency, ["name"])}
+                        </Typography>
                         <small className="mt-1 block text-sm text-[#9aa2af]">{id}</small>
                       </TableCell>
-                      <TableCell><Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{readText(agency, ["phone1", "phone2", "phone3"])}</Typography></TableCell>
+                      <TableCell>
+                        <Typography
+                          as="span"
+                          variant="body"
+                          size="medium"
+                          weight="regular"
+                          dir="ltr"
+                        >
+                          {readText(agency, ["phone1", "phone2", "phone3"])}
+                        </Typography>
+                      </TableCell>
                       <TableCell>
                         <CrmSelect
                           aria-label={`وضعیت ${readText(agency, ["name"])}`}
-                          className={`h-10 min-w-[156px] rounded-lg border border-[#dce3ef] bg-white pr-3 text-sm font-bold outline-none transition focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10 disabled:cursor-not-allowed disabled:opacity-60 ${agencyStatusTextTone(agency.status)}`}
+                          className={`h-10 min-w-[156px] rounded-lg border border-[#dce3ef] bg-white pr-3 text-sm font-bold transition outline-none focus:border-[#0048c4] focus:ring-2 focus:ring-[#0048c4]/10 disabled:cursor-not-allowed disabled:opacity-60 ${agencyStatusTextTone(agency.status)}`}
                           disabled={!id || isUpdatingThisAgency}
                           onChange={async (event) => {
                             const status = event.target.value;
@@ -209,14 +264,31 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                             try {
                               await statusMutation.mutateAsync({ id, status });
                             } catch (error) {
-                              notify(getApiErrorMessage(error, "به‌روزرسانی وضعیت آژانس ناموفق بود."), "error");
+                              notify(
+                                getApiErrorMessage(error, "به‌روزرسانی وضعیت آژانس ناموفق بود."),
+                                "error",
+                              );
                             }
                           }}
                           value={normalizedStatus === "wait" ? "" : normalizedStatus}
                         >
-                          <option disabled hidden value="">انتخاب وضعیت</option>
-                          <option className="bg-white text-[#0b8b55]" style={{ backgroundColor: "#ffffff", color: "#0b8b55" }} value="accept">تایید</option>
-                          <option className="bg-white text-[#cc3342]" style={{ backgroundColor: "#ffffff", color: "#cc3342" }} value="reject">رد شده</option>
+                          <option disabled hidden value="">
+                            انتخاب وضعیت
+                          </option>
+                          <option
+                            className="bg-white text-[#0b8b55]"
+                            style={{ backgroundColor: "#ffffff", color: "#0b8b55" }}
+                            value="accept"
+                          >
+                            تایید
+                          </option>
+                          <option
+                            className="bg-white text-[#cc3342]"
+                            style={{ backgroundColor: "#ffffff", color: "#cc3342" }}
+                            value="reject"
+                          >
+                            رد شده
+                          </option>
                         </CrmSelect>
                       </TableCell>
                       <TableCell>
@@ -232,12 +304,28 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                             try {
                               await trustedMutation.mutateAsync({ id, isTrusted: nextTrusted });
                             } catch (error) {
-                              notify(getApiErrorMessage(error, "به‌روزرسانی آژانس مورد اعتماد ناموفق بود."), "error");
+                              notify(
+                                getApiErrorMessage(
+                                  error,
+                                  "به‌روزرسانی آژانس مورد اعتماد ناموفق بود.",
+                                ),
+                                "error",
+                              );
                             }
                           }}
                         />
                       </TableCell>
-                      <TableCell><Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{readText(agency, ["lat"])}, {readText(agency, ["lng"])}</Typography></TableCell>
+                      <TableCell>
+                        <Typography
+                          as="span"
+                          variant="body"
+                          size="medium"
+                          weight="regular"
+                          dir="ltr"
+                        >
+                          {readText(agency, ["lat"])}, {readText(agency, ["lng"])}
+                        </Typography>
+                      </TableCell>
                       <TableCell>
                         <SmallActionButton
                           icon={<CrmIcon name="users" size={16} />}

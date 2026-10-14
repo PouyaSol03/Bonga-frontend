@@ -31,13 +31,13 @@ export function ViewAdPerformanceKpiCards({
     return (
       <section
         aria-label="شاخص‌های عملکرد آگهی"
-        className={`w-full bg-surface-container-lowest p-4 [direction:rtl] ${className}`}
+        className={`bg-surface-container-lowest w-full p-4 [direction:rtl] ${className}`}
       >
         <div className="grid grid-cols-4 gap-2">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="flex h-[107px] min-w-0 animate-pulse flex-col items-center justify-center rounded-2xl bg-surface-container p-3"
+              className="bg-surface-container flex h-[107px] min-w-0 animate-pulse flex-col items-center justify-center rounded-2xl p-3"
             />
           ))}
         </div>
@@ -51,32 +51,46 @@ export function ViewAdPerformanceKpiCards({
   const chatsVal = toPersianNumber(chats ?? summary?.chats_count ?? 0);
 
   const cards = [
-    { icon: <LinearViewOn className="h-6 w-6 text-on-surface-var" />, label: "بازدید", value: viewsVal },
-    { icon: <LinearDocumentSearch className="h-6 w-6 text-on-surface-var" />, label: "نمایش", value: impressionsVal },
-    { icon: <LinearCall className="h-6 w-6 text-on-surface-var" />, label: "تماس", value: callsVal },
-    { icon: <LinearBubbleChat className="h-6 w-6 text-on-surface-var" />, label: "چت", value: chatsVal },
+    {
+      icon: <LinearViewOn className="text-on-surface-var h-6 w-6" />,
+      label: "بازدید",
+      value: viewsVal,
+    },
+    {
+      icon: <LinearDocumentSearch className="text-on-surface-var h-6 w-6" />,
+      label: "نمایش",
+      value: impressionsVal,
+    },
+    {
+      icon: <LinearCall className="text-on-surface-var h-6 w-6" />,
+      label: "تماس",
+      value: callsVal,
+    },
+    {
+      icon: <LinearBubbleChat className="text-on-surface-var h-6 w-6" />,
+      label: "چت",
+      value: chatsVal,
+    },
   ];
 
   return (
     <section
       aria-label="شاخص‌های عملکرد آگهی"
-      className={`w-full bg-surface-container-lowest p-4 [direction:rtl] ${className}`}
+      className={`bg-surface-container-lowest w-full p-4 [direction:rtl] ${className}`}
     >
       <div className="grid grid-cols-4 gap-2">
         {cards.map((card, idx) => (
           <div
             key={idx}
-            className="flex h-[107px] min-w-0 flex-col items-center justify-center rounded-2xl border border-surface-container bg-surface-container-lowest p-3 text-center shadow-2xs"
+            className="border-surface-container bg-surface-container-lowest flex h-[107px] min-w-0 flex-col items-center justify-center rounded-2xl border p-3 text-center shadow-2xs"
           >
-            <div className="flex h-6 w-6 items-center justify-center">
-              {card.icon}
-            </div>
+            <div className="flex h-6 w-6 items-center justify-center">{card.icon}</div>
             <Typography
               as="span"
               variant="body"
               size="medium"
               weight="medium"
-              className="mt-2 mb-1 text-[15px] font-bold text-on-surface leading-tight"
+              className="text-on-surface mt-2 mb-1 text-[15px] leading-tight font-bold"
             >
               {card.value}
             </Typography>
@@ -85,7 +99,7 @@ export function ViewAdPerformanceKpiCards({
               variant="label"
               size="small"
               weight="medium"
-              className="text-xs font-normal text-on-surface-var"
+              className="text-on-surface-var text-xs font-normal"
             >
               {card.label}
             </Typography>

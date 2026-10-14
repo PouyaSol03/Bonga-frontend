@@ -59,19 +59,22 @@ export function readBadgeProgressLevels(badge?: BadgeItem): BadgeProgressLevel[]
     const item = value as Record<string, unknown>;
     const progressValue = badgeProgressNumber(item.progress ?? item.percent ?? item.percentage);
     const progress = progressValue === null ? 0 : Math.max(0, Math.min(100, progressValue));
-    const done = badgeProgressText(item.done ?? item.current ?? item.value ?? item.completed) || "—";
+    const done =
+      badgeProgressText(item.done ?? item.current ?? item.value ?? item.completed) || "—";
     const total = badgeProgressText(item.total ?? item.target ?? item.required) || undefined;
     const title =
       badgeProgressText(item.title ?? item.name ?? item.label) ||
       `سطح ${formatBadgeProgressNumber(index + 1)}`;
 
-    return [{
-      done,
-      progress,
-      title,
-      total,
-      variant: normalizeLevelVariant(item.status ?? item.state, progress),
-    } satisfies BadgeProgressLevel];
+    return [
+      {
+        done,
+        progress,
+        title,
+        total,
+        variant: normalizeLevelVariant(item.status ?? item.state, progress),
+      } satisfies BadgeProgressLevel,
+    ];
   });
 
   if (levels.length > 0) return levels;
@@ -80,13 +83,15 @@ export function readBadgeProgressLevels(badge?: BadgeItem): BadgeProgressLevel[]
   if (progressValue === null) return [];
   const progress = Math.max(0, Math.min(100, progressValue));
 
-  return [{
-    done: `${formatBadgeProgressNumber(progress)}٪`,
-    progress,
-    title: "پیشرفت کلی",
-    total: "۱۰۰٪",
-    variant: progress >= 100 ? "complete" : "current",
-  }];
+  return [
+    {
+      done: `${formatBadgeProgressNumber(progress)}٪`,
+      progress,
+      title: "پیشرفت کلی",
+      total: "۱۰۰٪",
+      variant: progress >= 100 ? "complete" : "current",
+    },
+  ];
 }
 
 export function readAgentBadgeProgressLevels(badge?: AgentBadge | null): BadgeProgressLevel[] {
@@ -96,8 +101,16 @@ export function readAgentBadgeProgressLevels(badge?: AgentBadge | null): BadgePr
       const levelNumber = idx + 1;
       const isComplete = badge.level >= levelNumber;
       const isCurrent = badge.level + 1 === levelNumber;
-      const progress = isComplete ? 100 : isCurrent ? Math.max(0, Math.min(100, badge.progress)) : 0;
-      const variant: BadgeProgressVariant = isComplete ? "complete" : isCurrent ? "current" : "locked";
+      const progress = isComplete
+        ? 100
+        : isCurrent
+          ? Math.max(0, Math.min(100, badge.progress))
+          : 0;
+      const variant: BadgeProgressVariant = isComplete
+        ? "complete"
+        : isCurrent
+          ? "current"
+          : "locked";
       return {
         title: `سطح ${formatBadgeProgressNumber(levelNumber)}`,
         done: formatBadgeProgressNumber(isComplete ? threshold : badge.current_value),
@@ -107,11 +120,13 @@ export function readAgentBadgeProgressLevels(badge?: AgentBadge | null): BadgePr
       };
     });
   }
-  return [{
-    title: "پیشرفت کلی",
-    done: `${formatBadgeProgressNumber(badge.progress)}٪`,
-    total: "۱۰۰٪",
-    progress: Math.max(0, Math.min(100, badge.progress)),
-    variant: badge.progress >= 100 ? "complete" : "current",
-  }];
+  return [
+    {
+      title: "پیشرفت کلی",
+      done: `${formatBadgeProgressNumber(badge.progress)}٪`,
+      total: "۱۰۰٪",
+      progress: Math.max(0, Math.min(100, badge.progress)),
+      variant: badge.progress >= 100 ? "complete" : "current",
+    },
+  ];
 }

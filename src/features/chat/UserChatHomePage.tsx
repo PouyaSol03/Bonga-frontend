@@ -1,4 +1,13 @@
-import { memo, type ComponentType, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  type ComponentType,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
 import { getPrimaryAdvertisementImageUrl } from "../advertisements/utils/advertisement-images";
 import {
@@ -75,8 +84,7 @@ type SentChatMessage =
   | { id: string; type: "image"; imageUrl: string; attachmentUrl: string; fileName: string }
   | { id: string; type: "location"; latitude: number; longitude: number; mapsUrl: string };
 
-const createChatMessageId = () =>
-  `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+const createChatMessageId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
 function getChatRouteThreadId() {
   const [, routeId = ""] = window.location.pathname.match(/^\/chat\/([^/]+)/) ?? [];
@@ -91,9 +99,7 @@ function getChatRouteStateThreadId() {
 
   const threadId = (state as { threadId?: unknown }).threadId;
 
-  return typeof threadId === "string" || typeof threadId === "number"
-    ? String(threadId)
-    : "";
+  return typeof threadId === "string" || typeof threadId === "number" ? String(threadId) : "";
 }
 
 function getChatRouteStateThread() {
@@ -228,14 +234,7 @@ function readAdvertiseFormTitle(source: unknown) {
 }
 
 function readChatThreadId(source: unknown) {
-  return readPathText(source, [
-    "thread_id",
-    "threadId",
-    "thread.id",
-    "thread._id",
-    "id",
-    "_id",
-  ]);
+  return readPathText(source, ["thread_id", "threadId", "thread.id", "thread._id", "id", "_id"]);
 }
 
 function readChatMessageBody(message: ChatMessage) {
@@ -255,18 +254,12 @@ function readChatMessageBody(message: ChatMessage) {
       "payload.body",
       "payload.text",
       "payload.message",
-    ]) ||
-    ""
+    ]) || ""
   );
 }
 
 function readChatMessageType(message: ChatMessage) {
-  return readPathText(message, [
-    "type",
-    "message.type",
-    "data.type",
-    "payload.type",
-  ]).toLowerCase();
+  return readPathText(message, ["type", "message.type", "data.type", "payload.type"]).toLowerCase();
 }
 
 function readChatMessageAttachment(message: ChatMessage) {
@@ -293,9 +286,9 @@ function readChatMessageAttachment(message: ChatMessage) {
     attachmentUrl,
     fileName: fileName || "تصویر ارسالی",
     imageUrl: attachmentUrl
-      ? (/^https?:\/\//i.test(attachmentUrl)
+      ? /^https?:\/\//i.test(attachmentUrl)
         ? attachmentUrl
-        : getApiAssetUrl(attachmentUrl))
+        : getApiAssetUrl(attachmentUrl)
       : "",
   };
 }
@@ -517,8 +510,7 @@ function formatChatDate(value: unknown) {
 }
 
 function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
-  const ad =
-    readPathRecord(chat, ["ad", "advertise", "advertisement", "property"]) ?? {};
+  const ad = readPathRecord(chat, ["ad", "advertise", "advertisement", "property"]) ?? {};
   const lastMessage = readPathRecord(chat, ["last_message", "lastMessage", "message"]);
   const user =
     readPathRecord(chat, [
@@ -531,9 +523,7 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
       "last_message.user",
     ]) ?? {};
   const id = readChatThreadId(chat) || String(index + 1);
-  const unreadCount = readNumber(
-    chat.unread_count ?? chat.unreadCount ?? chat.messages_count,
-  );
+  const unreadCount = readNumber(chat.unread_count ?? chat.unreadCount ?? chat.messages_count);
   const apiAdLabel = readPathText(chat, ["ad_label", "adLabel"]);
   const isMine =
     readPathBoolean(chat, [
@@ -548,8 +538,7 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
       "advertisement.isMine",
       "property.is_mine",
       "property.isMine",
-    ]) === true ||
-    apiAdLabel.includes("آگهی من");
+    ]) === true || apiAdLabel.includes("آگهی من");
 
   return {
     adCategory:
@@ -567,7 +556,10 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
       readPathText(chat, ["ad_title", "adTitle"]) ||
       readPathText(ad, ["title", "label", "name"]) ||
       (readPathText(chat, ["category"]) === "agency_support" ? "پشتیبانی آژانس" : "جزئیات ملک"),
-    badgeCount: unreadCount && unreadCount > 0 ? new Intl.NumberFormat("fa-IR").format(unreadCount) : undefined,
+    badgeCount:
+      unreadCount && unreadCount > 0
+        ? new Intl.NumberFormat("fa-IR").format(unreadCount)
+        : undefined,
     category:
       readPathText(chat, ["category"]) === "support"
         ? "support"
@@ -576,17 +568,21 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
           : "advertise",
     date: formatChatDate(
       readPathText(lastMessage, ["sent_at", "sentAt", "created_at", "createdAt", "date"]) ||
-      readPathText(chat, ["last_message_at", "lastMessageAt", "updated_at", "updatedAt", "created_at", "createdAt"]),
+        readPathText(chat, [
+          "last_message_at",
+          "lastMessageAt",
+          "updated_at",
+          "updatedAt",
+          "created_at",
+          "createdAt",
+        ]),
     ),
     detailPath: `/chat/${id}`,
     detailState: { thread: chat, threadId: id },
     highlighted: unreadCount !== undefined && unreadCount > 0,
     id,
     imageUrl: readImageUrl(ad) ?? readImageUrl(chat),
-    isBlocked:
-      chat.is_blocked === true ||
-      chat.isBlocked === true ||
-      chat.blocked === true,
+    isBlocked: chat.is_blocked === true || chat.isBlocked === true || chat.blocked === true,
     message:
       readPathString(lastMessage, [
         "body",
@@ -618,8 +614,27 @@ function mapChatThreadToChatItem(chat: ChatThread, index: number): ChatItem {
       readString(chat.last_message) ||
       "",
     userName:
-      readPathText(user, ["showing_name", "showingName", "full_name", "fullName", "name", "username", "mobile", "phone"]) ||
-      readPathText(chat, ["participant.showing_name", "participant.showingName", "participant.full_name", "participant.fullName", "user_name", "userName", "full_name", "fullName", "name"]) ||
+      readPathText(user, [
+        "showing_name",
+        "showingName",
+        "full_name",
+        "fullName",
+        "name",
+        "username",
+        "mobile",
+        "phone",
+      ]) ||
+      readPathText(chat, [
+        "participant.showing_name",
+        "participant.showingName",
+        "participant.full_name",
+        "participant.fullName",
+        "user_name",
+        "userName",
+        "full_name",
+        "fullName",
+        "name",
+      ]) ||
       "کاربر",
   };
 }
@@ -644,20 +659,28 @@ function SearchIcon({ className = "" }: { className?: string }) {
 
 function MoreVerticalIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M11.9919 12.0004H12.0009M11.9829 6H11.9919M11.9921 18H12.001" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M11.9919 12.0004H12.0009M11.9829 6H11.9919M11.9921 18H12.001"
+        stroke="currentColor"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
     </svg>
   );
 }
 
 function BlockedIcon({ className = "" }: { className?: string }) {
   return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-    >
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
       <path
         d="M5.7 5.7 18.3 18.3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
         stroke="currentColor"
@@ -754,11 +777,23 @@ function ArrowDownIcon({ className = "" }: { className?: string }) {
   );
 }
 
-
 function LinkChainIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M12.0864 5.86813L13.6409 4.31357C15.358 2.59645 18.1034 2.55778 19.7728 4.22721C21.4422 5.8966 21.4036 8.64196 19.6864 10.3591L10.3591 19.6865C8.64198 21.4035 5.89659 21.4422 4.22719 19.7728C2.55777 18.1034 2.59647 15.358 4.31356 13.6409L7.81132 10.1432C8.88451 9.06998 10.6004 9.04581 11.6437 10.0892C12.6871 11.1326 12.663 12.8484 11.5898 13.9216L9.64657 15.8648" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M12.0864 5.86813L13.6409 4.31357C15.358 2.59645 18.1034 2.55778 19.7728 4.22721C21.4422 5.8966 21.4036 8.64196 19.6864 10.3591L10.3591 19.6865C8.64198 21.4035 5.89659 21.4422 4.22719 19.7728C2.55777 18.1034 2.59647 15.358 4.31356 13.6409L7.81132 10.1432C8.88451 9.06998 10.6004 9.04581 11.6437 10.0892C12.6871 11.1326 12.663 12.8484 11.5898 13.9216L9.64657 15.8648"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
     </svg>
   );
 }
@@ -783,24 +818,57 @@ function SendMessageIcon({ className = "" }: { className?: string }) {
 
 function CameraIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M8 6.5V7.25C8.32097 7.25 8.60636 7.04575 8.70991 6.74194L8 6.5ZM8.64487 4.6078L9.35478 4.84974L9.35549 4.84762L8.64487 4.6078ZM15.3551 4.6078L14.6445 4.84761L14.6452 4.84974L15.3551 4.6078ZM16 6.5L15.2901 6.74195C15.3936 7.04575 15.679 7.25 16 7.25V6.5ZM15.1526 13.7778H14.4026C14.4026 15.0728 13.3366 16.1389 12.0013 16.1389V16.8889V17.6389C14.1469 17.6389 15.9026 15.9192 15.9026 13.7778H15.1526ZM12.0013 16.8889V16.1389C10.666 16.1389 9.6 15.0727 9.6 13.7778H8.85H8.1C8.1 15.9193 9.85584 17.6389 12.0013 17.6389V16.8889ZM8.85 13.7778H9.6C9.6 12.4828 10.666 11.4167 12.0013 11.4167V10.6667V9.91667C9.85584 9.91667 8.1 11.6363 8.1 13.7778H8.85ZM12.0013 10.6667V11.4167C13.3366 11.4167 14.4026 12.4828 14.4026 13.7778H15.1526H15.9026C15.9026 11.6363 14.1469 9.91667 12.0013 9.91667V10.6667ZM5 6.5V7.25H8V6.5V5.75H5V6.5ZM8 6.5L8.70991 6.74194L9.35478 4.84973L8.64487 4.6078L7.93497 4.36586L7.29009 6.25806L8 6.5ZM8.64487 4.6078L9.35549 4.84762C9.37352 4.79422 9.42814 4.75 9.49868 4.75V4V3.25C8.79446 3.25 8.16122 3.69544 7.93425 4.36797L8.64487 4.6078ZM9.49868 4V4.75H14.5013V4V3.25H9.49868V4ZM14.5013 4V4.75C14.5719 4.75 14.6265 4.79422 14.6445 4.84761L15.3551 4.6078L16.0657 4.36798C15.8388 3.69544 15.2056 3.25 14.5013 3.25V4ZM15.3551 4.6078L14.6452 4.84974L15.2901 6.74195L16 6.5L16.7099 6.25805L16.065 4.36585L15.3551 4.6078ZM16 6.5V7.25H19V6.5V5.75H16V6.5ZM19 6.5V7.25C19.2525 7.25 19.5717 7.38504 19.843 7.65585C20.1141 7.92646 20.25 8.24527 20.25 8.5H21H21.75C21.75 7.75473 21.3829 7.07354 20.9026 6.59415C20.4225 6.11496 19.7416 5.75 19 5.75V6.5ZM21 8.5H20.25V18H21H21.75V8.5H21ZM21 18H20.25C20.25 18.2561 20.1144 18.5749 19.8447 18.8447C19.5749 19.1144 19.2561 19.25 19 19.25V20V20.75C19.7439 20.75 20.4251 20.3856 20.9053 19.9053C21.3856 19.4251 21.75 18.7439 21.75 18H21ZM19 20V19.25H5V20V20.75H19V20ZM5 20V19.25C4.74392 19.25 4.42507 19.1144 4.15533 18.8447C3.88559 18.5749 3.75 18.2561 3.75 18H3H2.25C2.25 18.7439 2.61441 19.4251 3.09467 19.9053C3.57493 20.3856 4.25608 20.75 5 20.75V20ZM3 18H3.75V8.5H3H2.25V18H3ZM3 8.5H3.75C3.75 8.24527 3.88587 7.92647 4.15702 7.65585C4.42836 7.38503 4.74751 7.25 5 7.25V6.5V5.75C4.25838 5.75 3.57752 6.11497 3.0974 6.59415C2.61707 7.07353 2.25 7.75473 2.25 8.5H3Z" fill="currentColor" />
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M8 6.5V7.25C8.32097 7.25 8.60636 7.04575 8.70991 6.74194L8 6.5ZM8.64487 4.6078L9.35478 4.84974L9.35549 4.84762L8.64487 4.6078ZM15.3551 4.6078L14.6445 4.84761L14.6452 4.84974L15.3551 4.6078ZM16 6.5L15.2901 6.74195C15.3936 7.04575 15.679 7.25 16 7.25V6.5ZM15.1526 13.7778H14.4026C14.4026 15.0728 13.3366 16.1389 12.0013 16.1389V16.8889V17.6389C14.1469 17.6389 15.9026 15.9192 15.9026 13.7778H15.1526ZM12.0013 16.8889V16.1389C10.666 16.1389 9.6 15.0727 9.6 13.7778H8.85H8.1C8.1 15.9193 9.85584 17.6389 12.0013 17.6389V16.8889ZM8.85 13.7778H9.6C9.6 12.4828 10.666 11.4167 12.0013 11.4167V10.6667V9.91667C9.85584 9.91667 8.1 11.6363 8.1 13.7778H8.85ZM12.0013 10.6667V11.4167C13.3366 11.4167 14.4026 12.4828 14.4026 13.7778H15.1526H15.9026C15.9026 11.6363 14.1469 9.91667 12.0013 9.91667V10.6667ZM5 6.5V7.25H8V6.5V5.75H5V6.5ZM8 6.5L8.70991 6.74194L9.35478 4.84973L8.64487 4.6078L7.93497 4.36586L7.29009 6.25806L8 6.5ZM8.64487 4.6078L9.35549 4.84762C9.37352 4.79422 9.42814 4.75 9.49868 4.75V4V3.25C8.79446 3.25 8.16122 3.69544 7.93425 4.36797L8.64487 4.6078ZM9.49868 4V4.75H14.5013V4V3.25H9.49868V4ZM14.5013 4V4.75C14.5719 4.75 14.6265 4.79422 14.6445 4.84761L15.3551 4.6078L16.0657 4.36798C15.8388 3.69544 15.2056 3.25 14.5013 3.25V4ZM15.3551 4.6078L14.6452 4.84974L15.2901 6.74195L16 6.5L16.7099 6.25805L16.065 4.36585L15.3551 4.6078ZM16 6.5V7.25H19V6.5V5.75H16V6.5ZM19 6.5V7.25C19.2525 7.25 19.5717 7.38504 19.843 7.65585C20.1141 7.92646 20.25 8.24527 20.25 8.5H21H21.75C21.75 7.75473 21.3829 7.07354 20.9026 6.59415C20.4225 6.11496 19.7416 5.75 19 5.75V6.5ZM21 8.5H20.25V18H21H21.75V8.5H21ZM21 18H20.25C20.25 18.2561 20.1144 18.5749 19.8447 18.8447C19.5749 19.1144 19.2561 19.25 19 19.25V20V20.75C19.7439 20.75 20.4251 20.3856 20.9053 19.9053C21.3856 19.4251 21.75 18.7439 21.75 18H21ZM19 20V19.25H5V20V20.75H19V20ZM5 20V19.25C4.74392 19.25 4.42507 19.1144 4.15533 18.8447C3.88559 18.5749 3.75 18.2561 3.75 18H3H2.25C2.25 18.7439 2.61441 19.4251 3.09467 19.9053C3.57493 20.3856 4.25608 20.75 5 20.75V20ZM3 18H3.75V8.5H3H2.25V18H3ZM3 8.5H3.75C3.75 8.24527 3.88587 7.92647 4.15702 7.65585C4.42836 7.38503 4.74751 7.25 5 7.25V6.5V5.75C4.25838 5.75 3.57752 6.11497 3.0974 6.59415C2.61707 7.07353 2.25 7.75473 2.25 8.5H3Z"
+        fill="currentColor"
+      />
     </svg>
   );
 }
 
 function AlbumIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M17.4 6.6H19.2C20.1941 6.6 21 7.40589 21 8.4V19.2C21 20.1941 20.1941 21 19.2 21H8.4C7.40589 21 6.6 20.1941 6.6 19.2V17.4M3 11.2066C3.55712 11.1358 4.12036 11.1009 4.68454 11.1021C7.07129 11.058 9.39958 11.7087 11.254 12.9382C12.9738 14.0785 14.1822 15.6477 14.7 17.4M12.8998 7.5H12.9079M17.4 15.6V4.8C17.4 3.80589 16.5941 3 15.6 3H4.8C3.80589 3 3 3.80589 3 4.8V15.6C3 16.5941 3.80589 17.4 4.8 17.4H15.6C16.5941 17.4 17.4 16.5941 17.4 15.6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M17.4 6.6H19.2C20.1941 6.6 21 7.40589 21 8.4V19.2C21 20.1941 20.1941 21 19.2 21H8.4C7.40589 21 6.6 20.1941 6.6 19.2V17.4M3 11.2066C3.55712 11.1358 4.12036 11.1009 4.68454 11.1021C7.07129 11.058 9.39958 11.7087 11.254 12.9382C12.9738 14.0785 14.1822 15.6477 14.7 17.4M12.8998 7.5H12.9079M17.4 15.6V4.8C17.4 3.80589 16.5941 3 15.6 3H4.8C3.80589 3 3 3.80589 3 4.8V15.6C3 16.5941 3.80589 17.4 4.8 17.4H15.6C16.5941 17.4 17.4 16.5941 17.4 15.6Z"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
     </svg>
   );
 }
 
 function MapLocationIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M20.25 10.3569C20.25 10.7711 20.5858 11.1069 21 11.1069C21.4142 11.1069 21.75 10.7711 21.75 10.3569H21H20.25ZM8.78367 3.16801L9.08452 2.481L9.08451 2.481L8.78367 3.16801ZM8.02665 3.19075L8.36787 3.85863L8.36788 3.85862L8.02665 3.19075ZM3.49751 5.50466L3.83872 6.17255L3.83873 6.17254L3.49751 5.50466ZM4.18461 18.2299L4.42637 18.9399L4.42642 18.9399L4.18461 18.2299ZM10.7992 18.6635C11.1786 18.8297 11.6209 18.6568 11.787 18.2773C11.9532 17.8979 11.7803 17.4556 11.4008 17.2895L11.1 17.9765L10.7992 18.6635ZM13.95 9.89707C13.95 10.3113 14.2858 10.6471 14.7 10.6471C15.1142 10.6471 15.45 10.3113 15.45 9.89707H14.7H13.95ZM16.988 20.7987L17.5771 20.3345L17.5771 20.3345L16.988 20.7987ZM17.8263 20.8093L18.407 21.2839L18.4071 21.2838L17.8263 20.8093ZM17.4 15.1245C16.9858 15.1245 16.65 15.4603 16.65 15.8745C16.65 16.2887 16.9858 16.6245 17.4 16.6245V15.8745V15.1245ZM17.4081 16.6245C17.8223 16.6245 18.1581 16.2887 18.1581 15.8745C18.1581 15.4603 17.8223 15.1245 17.4081 15.1245V15.8745V16.6245ZM21 10.3569H21.75V6.67844H21H20.25V10.3569H21ZM21 6.67844H21.75C21.75 5.77167 21.0265 5.00883 20.1 5.00883V5.75883V6.50883C20.1677 6.50883 20.25 6.56944 20.25 6.67844H21ZM20.1 5.75883V5.00883H14.7V5.75883V6.50883H20.1V5.75883ZM14.7 5.75883L15.0008 5.07181L9.08452 2.481L8.78367 3.16801L8.48282 3.85503L14.3991 6.44584L14.7 5.75883ZM8.78367 3.16801L9.08451 2.481C8.63489 2.28411 8.12231 2.29965 7.68542 2.52287L8.02665 3.19075L8.36788 3.85862C8.40456 3.83989 8.44578 3.83881 8.48283 3.85503L8.78367 3.16801ZM8.02665 3.19075L7.68543 2.52286L3.15629 4.83677L3.49751 5.50466L3.83873 6.17254L8.36787 3.85863L8.02665 3.19075ZM3.49751 5.50466L3.1563 4.83677C2.59503 5.12351 2.25 5.7033 2.25 6.32718H3H3.75C3.75 6.25441 3.79017 6.19735 3.83872 6.17255L3.49751 5.50466ZM3 6.32718H2.25V17.3575H3H3.75V6.32718H3ZM3 17.3575H2.25C2.25 18.4758 3.33522 19.3115 4.42637 18.9399L4.18461 18.2299L3.94284 17.52C3.86844 17.5453 3.75 17.4945 3.75 17.3575H3ZM4.18461 18.2299L4.42642 18.9399L8.64181 17.5041L8.4 16.7941L8.15819 16.0842L3.94279 17.52L4.18461 18.2299ZM8.4 16.7941L8.09915 17.4812L10.7992 18.6635L11.1 17.9765L11.4008 17.2895L8.70085 16.1071L8.4 16.7941ZM8.4 3H7.65V16.7941H8.4H9.15V3H8.4ZM14.7 5.75883H13.95V9.89707H14.7H15.45V5.75883H14.7ZM17.4 12.1961V11.4461C14.9754 11.4461 13.05 13.4679 13.05 15.9117H13.8H14.55C14.55 14.2513 15.8482 12.9461 17.4 12.9461V12.1961ZM13.8 15.9117H13.05C13.05 17.2717 13.6639 18.2727 14.3647 19.0898C14.7091 19.4913 15.0936 19.8697 15.4406 20.2186C15.7973 20.577 16.1219 20.9114 16.3989 21.2629L16.988 20.7987L17.5771 20.3345C17.2406 19.9075 16.8601 19.5185 16.504 19.1606C16.1383 18.7931 15.8025 18.4621 15.5032 18.1132C14.9167 17.4295 14.55 16.7655 14.55 15.9117H13.8ZM16.988 20.7987L16.3989 21.2628C16.8983 21.8967 17.8865 21.9207 18.407 21.2839L17.8263 20.8093L17.2456 20.3346C17.2998 20.2684 17.3698 20.2494 17.4158 20.25C17.4613 20.2506 17.5269 20.2708 17.5771 20.3345L16.988 20.7987ZM17.8263 20.8093L18.4071 21.2838C18.6936 20.9333 19.0236 20.5959 19.3828 20.2315C19.7335 19.8758 20.1143 19.4921 20.4565 19.0829C21.1486 18.2553 21.75 17.2461 21.75 15.9117H21H20.25C20.25 16.7479 19.8886 17.4239 19.3059 18.1206C19.0106 18.4736 18.676 18.8119 18.3146 19.1784C17.9618 19.5363 17.5831 19.9216 17.2456 20.3347L17.8263 20.8093ZM21 15.9117H21.75C21.75 13.4679 19.8246 11.4461 17.4 11.4461V12.1961V12.9461C18.9518 12.9461 20.25 14.2513 20.25 15.9117H21ZM17.4 15.8745V16.6245H17.4081V15.8745V15.1245H17.4V15.8745Z" fill="currentColor" />
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M20.25 10.3569C20.25 10.7711 20.5858 11.1069 21 11.1069C21.4142 11.1069 21.75 10.7711 21.75 10.3569H21H20.25ZM8.78367 3.16801L9.08452 2.481L9.08451 2.481L8.78367 3.16801ZM8.02665 3.19075L8.36787 3.85863L8.36788 3.85862L8.02665 3.19075ZM3.49751 5.50466L3.83872 6.17255L3.83873 6.17254L3.49751 5.50466ZM4.18461 18.2299L4.42637 18.9399L4.42642 18.9399L4.18461 18.2299ZM10.7992 18.6635C11.1786 18.8297 11.6209 18.6568 11.787 18.2773C11.9532 17.8979 11.7803 17.4556 11.4008 17.2895L11.1 17.9765L10.7992 18.6635ZM13.95 9.89707C13.95 10.3113 14.2858 10.6471 14.7 10.6471C15.1142 10.6471 15.45 10.3113 15.45 9.89707H14.7H13.95ZM16.988 20.7987L17.5771 20.3345L17.5771 20.3345L16.988 20.7987ZM17.8263 20.8093L18.407 21.2839L18.4071 21.2838L17.8263 20.8093ZM17.4 15.1245C16.9858 15.1245 16.65 15.4603 16.65 15.8745C16.65 16.2887 16.9858 16.6245 17.4 16.6245V15.8745V15.1245ZM17.4081 16.6245C17.8223 16.6245 18.1581 16.2887 18.1581 15.8745C18.1581 15.4603 17.8223 15.1245 17.4081 15.1245V15.8745V16.6245ZM21 10.3569H21.75V6.67844H21H20.25V10.3569H21ZM21 6.67844H21.75C21.75 5.77167 21.0265 5.00883 20.1 5.00883V5.75883V6.50883C20.1677 6.50883 20.25 6.56944 20.25 6.67844H21ZM20.1 5.75883V5.00883H14.7V5.75883V6.50883H20.1V5.75883ZM14.7 5.75883L15.0008 5.07181L9.08452 2.481L8.78367 3.16801L8.48282 3.85503L14.3991 6.44584L14.7 5.75883ZM8.78367 3.16801L9.08451 2.481C8.63489 2.28411 8.12231 2.29965 7.68542 2.52287L8.02665 3.19075L8.36788 3.85862C8.40456 3.83989 8.44578 3.83881 8.48283 3.85503L8.78367 3.16801ZM8.02665 3.19075L7.68543 2.52286L3.15629 4.83677L3.49751 5.50466L3.83873 6.17254L8.36787 3.85863L8.02665 3.19075ZM3.49751 5.50466L3.1563 4.83677C2.59503 5.12351 2.25 5.7033 2.25 6.32718H3H3.75C3.75 6.25441 3.79017 6.19735 3.83872 6.17255L3.49751 5.50466ZM3 6.32718H2.25V17.3575H3H3.75V6.32718H3ZM3 17.3575H2.25C2.25 18.4758 3.33522 19.3115 4.42637 18.9399L4.18461 18.2299L3.94284 17.52C3.86844 17.5453 3.75 17.4945 3.75 17.3575H3ZM4.18461 18.2299L4.42642 18.9399L8.64181 17.5041L8.4 16.7941L8.15819 16.0842L3.94279 17.52L4.18461 18.2299ZM8.4 16.7941L8.09915 17.4812L10.7992 18.6635L11.1 17.9765L11.4008 17.2895L8.70085 16.1071L8.4 16.7941ZM8.4 3H7.65V16.7941H8.4H9.15V3H8.4ZM14.7 5.75883H13.95V9.89707H14.7H15.45V5.75883H14.7ZM17.4 12.1961V11.4461C14.9754 11.4461 13.05 13.4679 13.05 15.9117H13.8H14.55C14.55 14.2513 15.8482 12.9461 17.4 12.9461V12.1961ZM13.8 15.9117H13.05C13.05 17.2717 13.6639 18.2727 14.3647 19.0898C14.7091 19.4913 15.0936 19.8697 15.4406 20.2186C15.7973 20.577 16.1219 20.9114 16.3989 21.2629L16.988 20.7987L17.5771 20.3345C17.2406 19.9075 16.8601 19.5185 16.504 19.1606C16.1383 18.7931 15.8025 18.4621 15.5032 18.1132C14.9167 17.4295 14.55 16.7655 14.55 15.9117H13.8ZM16.988 20.7987L16.3989 21.2628C16.8983 21.8967 17.8865 21.9207 18.407 21.2839L17.8263 20.8093L17.2456 20.3346C17.2998 20.2684 17.3698 20.2494 17.4158 20.25C17.4613 20.2506 17.5269 20.2708 17.5771 20.3345L16.988 20.7987ZM17.8263 20.8093L18.4071 21.2838C18.6936 20.9333 19.0236 20.5959 19.3828 20.2315C19.7335 19.8758 20.1143 19.4921 20.4565 19.0829C21.1486 18.2553 21.75 17.2461 21.75 15.9117H21H20.25C20.25 16.7479 19.8886 17.4239 19.3059 18.1206C19.0106 18.4736 18.676 18.8119 18.3146 19.1784C17.9618 19.5363 17.5831 19.9216 17.2456 20.3347L17.8263 20.8093ZM21 15.9117H21.75C21.75 13.4679 19.8246 11.4461 17.4 11.4461V12.1961V12.9461C18.9518 12.9461 20.25 14.2513 20.25 15.9117H21ZM17.4 15.8745V16.6245H17.4081V15.8745V15.1245H17.4V15.8745Z"
+        fill="currentColor"
+      />
     </svg>
   );
 }
@@ -847,16 +915,42 @@ function ClockAlarmIcon({ className = "" }: { className?: string }) {
 
 function TrashIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M18.6667 6.15L17.879 19.3089C17.8221 20.2589 17.0445 21 16.1044 21H7.89552C6.95545 21 6.17787 20.2589 6.121 19.3089L5.33333 6.15M4 6.15H8.44444M8.44444 6.15L9.54689 3.54547C9.68696 3.21456 10.0083 3 10.3639 3H13.6361C13.9916 3 14.3131 3.21456 14.4531 3.54547L15.5556 6.15M8.44444 6.15H15.5556M20 6.15H15.5556M9.77778 16.05V10.65M14.2222 16.05V10.65" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M18.6667 6.15L17.879 19.3089C17.8221 20.2589 17.0445 21 16.1044 21H7.89552C6.95545 21 6.17787 20.2589 6.121 19.3089L5.33333 6.15M4 6.15H8.44444M8.44444 6.15L9.54689 3.54547C9.68696 3.21456 10.0083 3 10.3639 3H13.6361C13.9916 3 14.3131 3.21456 14.4531 3.54547L15.5556 6.15M8.44444 6.15H15.5556M20 6.15H15.5556M9.77778 16.05V10.65M14.2222 16.05V10.65"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
     </svg>
   );
 }
 
 function InfoIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M12 16V11.5M12 8.01172V8.00172M21 15.3971V8.60294C21 8.35168 20.9001 8.11071 20.7225 7.93305L16.067 3.27747C15.8893 3.09981 15.6483 3 15.3971 3H8.60294C8.35168 3 8.11071 3.09981 7.93305 3.27747L3.27747 7.93305C3.09981 8.11071 3 8.35168 3 8.60294V15.3971C3 15.6483 3.09981 15.8893 3.27747 16.067L7.93305 20.7225C8.11071 20.9001 8.35168 21 8.60294 21H15.3971C15.6483 21 15.8893 20.9001 16.067 20.7225L20.7225 16.067C20.9001 15.8893 21 15.6483 21 15.3971Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M12 16V11.5M12 8.01172V8.00172M21 15.3971V8.60294C21 8.35168 20.9001 8.11071 20.7225 7.93305L16.067 3.27747C15.8893 3.09981 15.6483 3 15.3971 3H8.60294C8.35168 3 8.11071 3.09981 7.93305 3.27747L3.27747 7.93305C3.09981 8.11071 3 8.35168 3 8.60294V15.3971C3 15.6483 3.09981 15.8893 3.27747 16.067L7.93305 20.7225C8.11071 20.9001 8.35168 21 8.60294 21H15.3971C15.6483 21 15.8893 20.9001 16.067 20.7225L20.7225 16.067C20.9001 15.8893 21 15.6483 21 15.3971Z"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
     </svg>
   );
 }
@@ -905,7 +999,7 @@ const ChatSearchHeader = memo(function ChatSearchHeader({
         <input
           aria-label="جستجو در گفتگوها"
           autoFocus
-          className="h-10 w-full appearance-none border-0 bg-transparent p-0 text-right text-base font-medium leading-6 text-on-surface caret-primary outline-none placeholder:text-outline"
+          className="text-on-surface caret-primary placeholder:text-outline h-10 w-full appearance-none border-0 bg-transparent p-0 text-right text-base leading-6 font-medium outline-none"
           inputMode="search"
           onChange={(event) => onQueryChange(event.target.value)}
           placeholder="جستجو"
@@ -938,7 +1032,7 @@ const FilterTabs = memo(function FilterTabs({
   return (
     <HorizontalFilterBar
       ariaLabel="فیلتر چت‌ها"
-      className="h-[52px] bg-surface-container"
+      className="bg-surface-container h-[52px]"
       contentClassName="h-9"
     >
       {visibleFilters.map((filter) => (
@@ -962,16 +1056,23 @@ function ToggleSwitch({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-pressed={checked}
-      className={`relative h-6 w-11 rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${checked ? "bg-primary" : "bg-outline-var"
-        }`}
+      className={`focus-visible:outline-primary/40 relative h-6 w-11 rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 ${
+        checked ? "bg-primary" : "bg-outline-var"
+      }`}
       onClick={() => onChange(!checked)}
       type="button"
     >
-      <Typography as="span" variant="body" size="medium" weight="regular"
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-surface-container-lowest shadow-sm transition-transform ${checked ? "right-[22px]" : "right-0.5"
-          }`}
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className={`bg-surface-container-lowest absolute top-0.5 h-5 w-5 rounded-full shadow-sm transition-transform ${
+          checked ? "right-[22px]" : "right-0.5"
+        }`}
       />
     </Button>
   );
@@ -993,14 +1094,36 @@ function ChatMenuRow({
   const content = (
     <>
       {icon ? (
-        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var">
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var grid h-6 w-6 shrink-0 place-items-center"
+        >
           {icon}
         </Typography>
       ) : null}
-      <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 flex-1 text-base font-normal leading-6">
+      <Typography
+        as="span"
+        variant="body"
+        size="large"
+        weight="regular"
+        className="min-w-0 flex-1 text-base leading-6 font-normal"
+      >
         {children}
       </Typography>
-      {trailing ? <Typography as="span" variant="body" size="medium" weight="regular" className="grid shrink-0 place-items-center">{trailing}</Typography> : null}
+      {trailing ? (
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="grid shrink-0 place-items-center"
+        >
+          {trailing}
+        </Typography>
+      ) : null}
     </>
   );
 
@@ -1020,7 +1143,7 @@ function ChatMenuRow({
 function ChatMenuDivider() {
   return (
     <div className="px-4">
-      <div className="h-px bg-surface-container" />
+      <div className="bg-surface-container h-px" />
     </div>
   );
 }
@@ -1054,35 +1177,21 @@ function ChatMenuBottomSheet({
       scrimClassName="bg-black/60"
       showHeader={false}
     >
-      <ChatMenuRow
-        compact
-        icon={<ChevronRightIcon className="h-6 w-6" />}
-        onClick={onClose}
-      >
+      <ChatMenuRow compact icon={<ChevronRightIcon className="h-6 w-6" />} onClick={onClose}>
         <strong className="font-semibold">مدیریت چت</strong>
       </ChatMenuRow>
-      <ChatMenuRow
-        icon={<ClockAlarmIcon className="h-6 w-6" />}
-        onClick={() => onSelect("hours")}
-      >
+      <ChatMenuRow icon={<ClockAlarmIcon className="h-6 w-6" />} onClick={() => onSelect("hours")}>
         ساعات پاسخگویی
       </ChatMenuRow>
       <ChatMenuDivider />
-      <ChatMenuRow
-        icon={<TrashIcon className="h-6 w-6" />}
-        onClick={() => onSelect("rename")}
-      >
+      <ChatMenuRow icon={<TrashIcon className="h-6 w-6" />} onClick={() => onSelect("rename")}>
         تغییر نام چت
       </ChatMenuRow>
       <ChatMenuDivider />
-      <ChatMenuRow
-        trailing={<ToggleSwitch checked={showBlocked} onChange={onShowBlockedChange} />}
-      >
+      <ChatMenuRow trailing={<ToggleSwitch checked={showBlocked} onChange={onShowBlockedChange} />}>
         نمایش چت‌های مسدود شده
       </ChatMenuRow>
-      <ChatMenuRow
-        trailing={<ToggleSwitch checked={showMyAds} onChange={onShowMyAdsChange} />}
-      >
+      <ChatMenuRow trailing={<ToggleSwitch checked={showMyAds} onChange={onShowMyAdsChange} />}>
         نمایش آگهی‌های من
       </ChatMenuRow>
       <ChatMenuDivider />
@@ -1101,7 +1210,13 @@ function UnreadBadge({ count }: { count?: string }) {
   if (!count) return null;
 
   return (
-    <Typography as="span" variant="label" size="small" weight="medium" className="grid h-4 min-w-3.5 place-items-center rounded-full bg-primary px-1 text-xs font-medium leading-4 text-white">
+    <Typography
+      as="span"
+      variant="label"
+      size="small"
+      weight="medium"
+      className="bg-primary grid h-4 min-w-3.5 place-items-center rounded-full px-1 text-xs leading-4 font-medium text-white"
+    >
       {count}
     </Typography>
   );
@@ -1109,26 +1224,32 @@ function UnreadBadge({ count }: { count?: string }) {
 
 function BlockedBadge() {
   return (
-    <Typography as="span" variant="body" size="small" weight="regular" className="flex h-5 items-center gap-1 rounded-lg bg-error-container/30 px-2 text-xs font-normal leading-4 text-error">
-      <BlockedIcon className="h-3 w-3 text-outline" />
-      <Typography as="span" variant="body" size="medium" weight="regular">مسدود</Typography>
+    <Typography
+      as="span"
+      variant="body"
+      size="small"
+      weight="regular"
+      className="bg-error-container/30 text-error flex h-5 items-center gap-1 rounded-lg px-2 text-xs leading-4 font-normal"
+    >
+      <BlockedIcon className="text-outline h-3 w-3" />
+      <Typography as="span" variant="body" size="medium" weight="regular">
+        مسدود
+      </Typography>
     </Typography>
   );
 }
 
 function SystemChatIcon() {
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular"
+    <Typography
+      as="span"
+      variant="body"
+      size="medium"
+      weight="regular"
       aria-hidden="true"
-      className="grid h-5 w-5 shrink-0 place-items-center rounded-xl bg-primary text-white"
+      className="bg-primary grid h-5 w-5 shrink-0 place-items-center rounded-xl text-white"
     >
-      <NavHomeIcon
-        active
-        color="currentColor"
-        duotoneOpacity={0.24}
-        size={30}
-        strokeWidth={2}
-      />
+      <NavHomeIcon active color="currentColor" duotoneOpacity={0.24} size={30} strokeWidth={2} />
     </Typography>
   );
 }
@@ -1141,21 +1262,27 @@ function SelectionCheckbox({
   onToggle: () => void;
 }) {
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-pressed={isSelected}
       aria-label={isSelected ? "برداشتن انتخاب گفتگو" : "انتخاب گفتگو"}
-      className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40"
+      className="focus-visible:outline-primary/40 grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
       onClick={(event) => {
         event.stopPropagation();
         onToggle();
       }}
       type="button"
     >
-      <Typography as="span" variant="body" size="medium" weight="regular"
-        className={`grid h-[18px] w-[18px] place-items-center rounded border ${isSelected
-          ? "border-primary bg-primary text-white"
-          : "border-outline bg-surface-container-lowest text-transparent"
-          }`}
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className={`grid h-[18px] w-[18px] place-items-center rounded border ${
+          isSelected
+            ? "border-primary bg-primary text-white"
+            : "border-outline bg-surface-container-lowest text-transparent"
+        }`}
       >
         <CheckIcon className="h-[14px] w-[14px]" />
       </Typography>
@@ -1180,14 +1307,13 @@ const ChatCard = memo(function ChatCard({
 }) {
   const displayItem = item;
   const isSupportChat = displayItem.category === "support";
-  const isHighlighted = isBulkDeleteMode
-    ? isSelected
-    : Boolean(displayItem.highlighted);
+  const isHighlighted = isBulkDeleteMode ? isSelected : Boolean(displayItem.highlighted);
 
-  const cardClassName = `relative shrink-0 overflow-visible border-b px-4 text-right ${isBulkDeleteMode
+  const cardClassName = `relative shrink-0 overflow-visible border-b px-4 text-right ${
+    isBulkDeleteMode
       ? "h-[147px] border-outline-var pb-[19px] pt-5"
       : "h-[140px] border-outline-var py-4"
-    } ${isHighlighted ? "bg-primary-container/20" : "bg-surface-container-lowest"}`;
+  } ${isHighlighted ? "bg-primary-container/20" : "bg-surface-container-lowest"}`;
 
   const supportCardContent = (
     <article
@@ -1197,38 +1323,51 @@ const ChatCard = memo(function ChatCard({
       onKeyDown={
         isBulkDeleteMode
           ? (event) => {
-            if (event.key !== "Enter" && event.key !== " ") return;
+              if (event.key !== "Enter" && event.key !== " ") return;
 
-            event.preventDefault();
-            onToggleSelected(chatId);
-          }
+              event.preventDefault();
+              onToggleSelected(chatId);
+            }
           : undefined
       }
       role={isBulkDeleteMode ? "button" : undefined}
       tabIndex={isBulkDeleteMode ? 0 : undefined}
     >
-      <div className="flex items-start gap-2 border-b border-outline-var p-4 [direction:ltr]">
+      <div className="border-outline-var flex items-start gap-2 border-b p-4 [direction:ltr]">
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-4 [direction:ltr]">
-            <div className="flex shrink-0 items-center gap-2 text-xs font-normal leading-4 text-outline">
-              <Typography as="span" variant="body" size="medium" weight="regular">{displayItem.date}</Typography>
+            <div className="text-outline flex shrink-0 items-center gap-2 text-xs leading-4 font-normal">
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                {displayItem.date}
+              </Typography>
               <UnreadBadge count={displayItem.badgeCount} />
             </div>
 
             <div className="flex min-w-0 items-center gap-5.5 [direction:rtl]">
               <SystemChatIcon />
-              <div className="flex flex-col min-w-0 gap-2">
-                <Typography as="p" variant="body" size="medium" weight="medium" className="text-sm font-medium  text-on-surface">
+              <div className="flex min-w-0 flex-col gap-2">
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="medium"
+                  weight="medium"
+                  className="text-on-surface text-sm font-medium"
+                >
                   پیام سیستم
                 </Typography>
-                <Typography as="p" variant="body" size="medium" weight="regular" className="text-right text-sm font-normal text-on-surface">
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="text-on-surface text-right text-sm font-normal"
+                >
                   {displayItem.message}
                 </Typography>
                 {displayItem.isBlocked ? <BlockedBadge /> : null}
               </div>
             </div>
           </div>
-
         </div>
 
         {isBulkDeleteMode ? (
@@ -1246,37 +1385,60 @@ const ChatCard = memo(function ChatCard({
       onKeyDown={
         isBulkDeleteMode
           ? (event) => {
-            if (event.key !== "Enter" && event.key !== " ") return;
+              if (event.key !== "Enter" && event.key !== " ") return;
 
-            event.preventDefault();
-            onToggleSelected(chatId);
-          }
+              event.preventDefault();
+              onToggleSelected(chatId);
+            }
           : undefined
       }
       role={isBulkDeleteMode ? "button" : undefined}
       tabIndex={isBulkDeleteMode ? 0 : undefined}
     >
       <div
-        className={`flex items-start justify-between [direction:ltr] ${isBulkDeleteMode ? "h-12 gap-2" : "h-5"
-          }`}
+        className={`flex items-start justify-between [direction:ltr] ${
+          isBulkDeleteMode ? "h-12 gap-2" : "h-5"
+        }`}
       >
         <div className={isBulkDeleteMode ? "min-w-0 flex-1" : "w-full min-w-0"}>
           <div className="flex h-5 items-center justify-between [direction:ltr]">
-            <div className="flex items-center gap-2 text-xs font-normal leading-4 text-outline">
-              <Typography as="span" variant="body" size="medium" weight="regular">{displayItem.date}</Typography>
+            <div className="text-outline flex items-center gap-2 text-xs leading-4 font-normal">
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                {displayItem.date}
+              </Typography>
               <UnreadBadge count={displayItem.badgeCount} />
             </div>
 
             <div className="flex min-w-0 items-center gap-4 [direction:rtl]">
-              <Typography as="span" variant="label" size="medium" weight="medium" className="flex min-w-0 items-center text-sm font-medium leading-5 text-on-surface">
-                <Typography as="span" variant="body" size="medium" weight="regular" className="truncate">{displayItem.userName}</Typography>
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="medium"
+                className="text-on-surface flex min-w-0 items-center text-sm leading-5 font-medium"
+              >
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="truncate"
+                >
+                  {displayItem.userName}
+                </Typography>
               </Typography>
               {displayItem.isBlocked ? <BlockedBadge /> : null}
             </div>
           </div>
 
           {isBulkDeleteMode ? (
-            <Typography as="p" variant="body" size="small" weight="regular" className="mt-3 line-clamp-1 text-right text-xs font-normal leading-4 text-on-surface-var">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-on-surface-var mt-3 line-clamp-1 text-right text-xs leading-4 font-normal"
+            >
               {displayItem.message}
             </Typography>
           ) : null}
@@ -1288,7 +1450,13 @@ const ChatCard = memo(function ChatCard({
       </div>
 
       {!isBulkDeleteMode ? (
-        <Typography as="p" variant="body" size="small" weight="regular" className="mt-3 line-clamp-1 text-right text-xs font-normal leading-4 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var mt-3 line-clamp-1 text-right text-xs leading-4 font-normal"
+        >
           {displayItem.message}
         </Typography>
       ) : null}
@@ -1296,20 +1464,32 @@ const ChatCard = memo(function ChatCard({
       <div className="mt-3 flex h-12 items-center justify-between [direction:ltr]">
         <div className="min-w-0 flex-1 pr-2 text-right">
           <div className="flex h-5 min-w-0 items-center justify-start gap-2 [direction:rtl]">
-            <Typography as="span" variant="body" size="small" weight="regular" className="min-w-0 truncate text-xs font-normal leading-4 text-outline">
+            <Typography
+              as="span"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-outline min-w-0 truncate text-xs leading-4 font-normal"
+            >
               {displayItem.adCategory}
             </Typography>
             {displayItem.adLabel ? (
-              <Typography as="span" variant="body" size="small" weight="regular" className="shrink-0 rounded bg-primary-container/20 px-2 py-0.5 text-xs font-normal leading-4 text-primary">
+              <Typography
+                as="span"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="bg-primary-container/20 text-primary shrink-0 rounded px-2 py-0.5 text-xs leading-4 font-normal"
+              >
                 {displayItem.adLabel}
               </Typography>
             ) : null}
           </div>
-          <div className="mt-2 truncate text-sm font-medium leading-5 text-on-surface">
+          <div className="text-on-surface mt-2 truncate text-sm leading-5 font-medium">
             {displayItem.adTitle}
           </div>
         </div>
-        <div className="relative grid h-12 w-[72px] shrink-0 place-items-center overflow-hidden rounded bg-primary-container/20 text-outline">
+        <div className="bg-primary-container/20 text-outline relative grid h-12 w-[72px] shrink-0 place-items-center overflow-hidden rounded">
           <LinearImage className="h-6 w-6" aria-hidden="true" />
           {displayItem.imageUrl ? (
             <img
@@ -1334,7 +1514,7 @@ const ChatCard = memo(function ChatCard({
   return (
     <Link
       aria-label={`${displayItem.userName} - ${displayItem.adTitle}`}
-      className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
+      className="focus-visible:outline-inset focus-visible:outline-primary/40 block text-inherit no-underline focus-visible:outline-3"
       state={displayItem.detailState}
       to={displayItem.detailPath ?? `/chat/${index + 1}`}
     >
@@ -1366,17 +1546,29 @@ function ChatDetailHeader({
       backTo="/chat"
       centerSlot={
         <div className="min-w-0 text-right">
-          <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-base font-semibold leading-5 text-on-surface">
+          <Typography
+            as="h1"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="text-on-surface m-0 truncate text-base leading-5 font-semibold"
+          >
             {title}
           </Typography>
           {subtitle ? (
-            <Typography as="p" variant="body" size="small" weight="regular" className="mt-0.5 truncate text-[10px] font-normal leading-4 text-outline">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-outline mt-0.5 truncate text-[10px] leading-4 font-normal"
+            >
               {subtitle}
             </Typography>
           ) : null}
         </div>
       }
-      className="border-b border-outline-var"
+      className="border-outline-var border-b"
       contentClassName="px-0"
       heightClassName={subtitle ? "h-[60px]" : "h-[52px]"}
     />
@@ -1389,13 +1581,12 @@ function ChatPropertyStrip({ thread }: { thread?: ChatThread }) {
   if (!advertise) return null;
 
   const advertiseId = readPathText(advertise, ["id", "_id"]);
-  const advertiseTitle =
-    readPathText(advertise, ["title", "label", "name"]) || "جزئیات ملک";
+  const advertiseTitle = readPathText(advertise, ["title", "label", "name"]) || "جزئیات ملک";
   const advertiseFormTitle = readAdvertiseFormTitle(advertise);
   const imageUrl = readImageUrl(advertise);
   const content = (
-    <section className="flex h-[52px] shrink-0 items-center gap-2 bg-surface-container px-4 text-right [direction:rtl]">
-      <div className="relative grid h-10 w-[54px] shrink-0 place-items-center overflow-hidden rounded-md bg-primary-container/20 text-outline">
+    <section className="bg-surface-container flex h-[52px] shrink-0 items-center gap-2 px-4 text-right [direction:rtl]">
+      <div className="bg-primary-container/20 text-outline relative grid h-10 w-[54px] shrink-0 place-items-center overflow-hidden rounded-md">
         <LinearImage className="h-5 w-5" aria-hidden="true" />
         {imageUrl ? (
           <img
@@ -1410,11 +1601,23 @@ function ChatPropertyStrip({ thread }: { thread?: ChatThread }) {
       </div>
       <div className="min-w-0 flex-1">
         {advertiseFormTitle ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="truncate text-xs font-normal leading-4 text-on-surface">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-on-surface truncate text-xs leading-4 font-normal"
+          >
             {advertiseFormTitle}
           </Typography>
         ) : null}
-        <Typography as="p" variant="body" size="small" weight="medium" className={`${advertiseFormTitle ? "mt-1" : ""} truncate text-xs font-medium leading-4 text-on-surface`}>
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="medium"
+          className={`${advertiseFormTitle ? "mt-1" : ""} text-on-surface truncate text-xs leading-4 font-medium`}
+        >
           {advertiseTitle}
         </Typography>
       </div>
@@ -1426,7 +1629,7 @@ function ChatPropertyStrip({ thread }: { thread?: ChatThread }) {
   return (
     <Link
       aria-label={`مشاهده ${advertiseTitle}`}
-      className="block shrink-0 text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
+      className="focus-visible:outline-inset focus-visible:outline-primary/40 block shrink-0 text-inherit no-underline focus-visible:outline-3"
       to={`/ads/${encodeURIComponent(advertiseId)}`}
     >
       {content}
@@ -1452,20 +1655,30 @@ function ChatBubble({
   return (
     <div className={`flex [direction:ltr] ${isOutgoing ? "justify-end" : "justify-start"}`}>
       <div
-        className={`${wide ? "w-[168px]" : "w-fit min-w-[72px] max-w-[198px]"} rounded-lg px-3 py-2 text-right ${isOutgoing
-          ? "bg-primary-container/20 rounded-tr-none"
-          : "border border-outline-var bg-surface-container-lowest rounded-tl-none"
-          }`}
+        className={`${wide ? "w-[168px]" : "w-fit max-w-[198px] min-w-[72px]"} rounded-lg px-3 py-2 text-right ${
+          isOutgoing
+            ? "bg-primary-container/20 rounded-tr-none"
+            : "border-outline-var bg-surface-container-lowest rounded-tl-none border"
+        }`}
         dir="rtl"
       >
-        <Typography as="p" variant="body" size="medium" weight="regular" className="whitespace-pre-line break-words text-sm font-normal leading-[18px] text-on-surface [overflow-wrap:anywhere]">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface text-sm leading-[18px] font-normal [overflow-wrap:anywhere] break-words whitespace-pre-line"
+        >
           {children}
         </Typography>
         <div
-          className={`mt-1 flex items-center gap-0.5 text-[11px] font-normal leading-4 ${isOutgoing ? "justify-end [direction:ltr] text-primary" : "justify-start text-outline"
-            }`}
+          className={`mt-1 flex items-center gap-0.5 text-[11px] leading-4 font-normal ${
+            isOutgoing ? "text-primary justify-end [direction:ltr]" : "text-outline justify-start"
+          }`}
         >
-          <Typography as="span" variant="body" size="medium" weight="regular">{time}</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            {time}
+          </Typography>
           {isOutgoing ? (
             <DoubleTickIcon className={`h-4 w-4 ${isRead ? "text-primary" : "text-outline"}`} />
           ) : null}
@@ -1484,13 +1697,18 @@ function ChatDateChip() {
 
   return (
     <div className="flex justify-center py-0.5">
-      <Typography as="span" variant="body" size="small" weight="regular" className="rounded-lg bg-surface-container px-3 py-1 text-[10px] font-normal leading-4 text-outline">
+      <Typography
+        as="span"
+        variant="body"
+        size="small"
+        weight="regular"
+        className="bg-surface-container text-outline rounded-lg px-3 py-1 text-[10px] leading-4 font-normal"
+      >
         {todayPersian}
       </Typography>
     </div>
   );
 }
-
 
 function ChatImageBubble({
   direction = "outgoing",
@@ -1510,10 +1728,11 @@ function ChatImageBubble({
   return (
     <div className={`flex [direction:ltr] ${isOutgoing ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[220px] rounded-lg p-1.5 text-right ${isOutgoing
-          ? "rounded-tr-none bg-primary-container/20"
-          : "rounded-tl-none border border-outline-var bg-surface-container-lowest"
-          }`}
+        className={`max-w-[220px] rounded-lg p-1.5 text-right ${
+          isOutgoing
+            ? "bg-primary-container/20 rounded-tr-none"
+            : "border-outline-var bg-surface-container-lowest rounded-tl-none border"
+        }`}
         dir="rtl"
       >
         <a href={imageUrl} target="_blank" rel="noreferrer" aria-label={`مشاهده ${fileName}`}>
@@ -1523,9 +1742,14 @@ function ChatImageBubble({
             src={imageUrl}
           />
         </a>
-        <div className={`mt-1 flex items-center gap-1 px-1 text-[10px] leading-4 [direction:ltr] ${isOutgoing ? "justify-end text-primary" : "justify-start text-outline"
-          }`}>
-          <Typography as="span" variant="body" size="medium" weight="regular">{time}</Typography>
+        <div
+          className={`mt-1 flex items-center gap-1 px-1 text-[10px] leading-4 [direction:ltr] ${
+            isOutgoing ? "text-primary justify-end" : "text-outline justify-start"
+          }`}
+        >
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            {time}
+          </Typography>
           {isOutgoing ? (
             <DoubleTickIcon className={`h-3.5 w-3.5 ${isRead ? "text-primary" : "text-outline"}`} />
           ) : null}
@@ -1551,10 +1775,11 @@ function ChatLocationBubble({
   return (
     <div className={`flex [direction:ltr] ${isOutgoing ? "justify-end" : "justify-start"}`}>
       <a
-        className={`block w-[220px] rounded-lg px-3 py-2 text-right no-underline ${isOutgoing
-          ? "rounded-tr-none bg-primary-container/20"
-          : "rounded-tl-none border border-outline-var bg-surface-container-lowest"
-          }`}
+        className={`block w-[220px] rounded-lg px-3 py-2 text-right no-underline ${
+          isOutgoing
+            ? "bg-primary-container/20 rounded-tr-none"
+            : "border-outline-var bg-surface-container-lowest rounded-tl-none border"
+        }`}
         dir="rtl"
         href={mapsUrl}
         target="_blank"
@@ -1562,16 +1787,33 @@ function ChatLocationBubble({
       >
         <div className="flex items-center gap-2 [direction:rtl]">
           <MapLocationIcon />
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-5 text-on-surface">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-on-surface text-xs leading-5 font-medium"
+          >
             موقعیت در نقشه
           </Typography>
         </div>
-        <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 text-[11px] leading-4 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var mt-2 text-[11px] leading-4"
+        >
           برای مشاهده موقعیت روی نقشه لمس کنید.
         </Typography>
-        <div className={`mt-1 flex items-center gap-1 text-[10px] leading-4 [direction:ltr] ${isOutgoing ? "justify-end text-primary" : "justify-start text-outline"
-          }`}>
-          <Typography as="span" variant="body" size="medium" weight="regular">{time}</Typography>
+        <div
+          className={`mt-1 flex items-center gap-1 text-[10px] leading-4 [direction:ltr] ${
+            isOutgoing ? "text-primary justify-end" : "text-outline justify-start"
+          }`}
+        >
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            {time}
+          </Typography>
           {isOutgoing ? (
             <DoubleTickIcon className={`h-3.5 w-3.5 ${isRead ? "text-primary" : "text-outline"}`} />
           ) : null}
@@ -1592,7 +1834,11 @@ function SentChatMessageBubble({ message }: { message: SentChatMessage }) {
     return <ChatLocationBubble mapsUrl={message.mapsUrl} time={time} />;
   }
 
-  return <ChatBubble direction="outgoing" time={time}>{message.text}</ChatBubble>;
+  return (
+    <ChatBubble direction="outgoing" time={time}>
+      {message.text}
+    </ChatBubble>
+  );
 }
 
 function ChatApiMessageBubble({
@@ -1645,11 +1891,7 @@ function ChatApiMessageBubble({
   if (!body) return null;
 
   return (
-    <ChatBubble
-      direction={direction}
-      isRead={isRead}
-      time={time}
-    >
+    <ChatBubble direction={direction} isRead={isRead} time={time}>
       {body}
     </ChatBubble>
   );
@@ -1681,11 +1923,12 @@ function ChatComposer({
   };
 
   return (
-    <footer className="shrink-0 bg-transparent px-2 pb-4 pt-1 bg">
-      <div className="flex items-center gap-2 rounded-full border border-transparent p-1.5 [direction:ltr] shadow-sm bg-gray-100">
-        <Button unstyled
+    <footer className="bg shrink-0 bg-transparent px-2 pt-1 pb-4">
+      <div className="flex items-center gap-2 rounded-full border border-transparent bg-gray-100 p-1.5 shadow-sm [direction:ltr]">
+        <Button
+          unstyled
           aria-label="ارسال فایل"
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+          className="text-outline focus-visible:outline-primary/40 grid h-11 w-11 shrink-0 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2"
           onClick={onOpenAttach}
           type="button"
         >
@@ -1693,10 +1936,12 @@ function ChatComposer({
         </Button>
 
         <label className="min-w-0 flex-1">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">پیام خود را بنویسید</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">
+            پیام خود را بنویسید
+          </Typography>
           <input
             ref={inputRef}
-            className="h-11 w-full rounded-xl border-0 px-2 text-right text-[12px] leading-5 text-on-surface outline-none placeholder:text-outline focus:ring-0"
+            className="text-on-surface placeholder:text-outline h-11 w-full rounded-xl border-0 px-2 text-right text-[12px] leading-5 outline-none focus:ring-0"
             dir="rtl"
             placeholder="پیام خود را بنویسید"
             type="text"
@@ -1711,9 +1956,10 @@ function ChatComposer({
           />
         </label>
 
-        <Button unstyled
+        <Button
+          unstyled
           aria-label="ارسال پیام"
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:opacity-90"
+          className="bg-primary focus-visible:outline-primary/40 grid h-11 w-11 shrink-0 place-items-center rounded-full text-white focus-visible:outline-3 focus-visible:outline-offset-2 active:opacity-90"
           onPointerDown={(event) => {
             event.preventDefault();
             sentByPointerRef.current = true;
@@ -1871,25 +2117,20 @@ function BlockChatConfirmBottomSheet({
       zIndexClassName="z-[70]"
     >
       <div className="flex flex-col gap-5">
-        <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-center text-base font-medium leading-6 text-on-surface">
+        <Typography
+          as="p"
+          variant="body"
+          size="large"
+          weight="medium"
+          className="text-on-surface m-0 text-center text-base leading-6 font-medium"
+        >
           آیا از مسدود کردن کاربر مطمئن هستید؟
         </Typography>
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
-          <Button
-            disabled={isPending}
-            fullWidth
-            onClick={onConfirm}
-            size="sm"
-          >
+          <Button disabled={isPending} fullWidth onClick={onConfirm} size="sm">
             {isPending ? "در حال مسدود کردن..." : "بله مسدود کن!"}
           </Button>
-          <Button
-            disabled={isPending}
-            fullWidth
-            onClick={onCancel}
-            size="sm"
-            variant="secondary"
-          >
+          <Button disabled={isPending} fullWidth onClick={onCancel} size="sm" variant="secondary">
             انصراف
           </Button>
         </div>
@@ -1908,23 +2149,38 @@ function ChatBlockedFooter({
   onUnblock: () => void;
 }) {
   return (
-    <footer className="shrink-0 bg-surface-container-lowest px-4 pb-4 pt-2">
-      <div className="flex min-h-[52px] items-center justify-between gap-3 rounded-full bg-surface-container p-1 [direction:ltr]">
+    <footer className="bg-surface-container-lowest shrink-0 px-4 pt-2 pb-4">
+      <div className="bg-surface-container flex min-h-[52px] items-center justify-between gap-3 rounded-full p-1 [direction:ltr]">
         {blockedMe ? (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 px-3 text-right text-sm font-normal leading-5 text-outline" dir="rtl">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline min-w-0 flex-1 px-3 text-right text-sm leading-5 font-normal"
+            dir="rtl"
+          >
             این کاربر شما را مسدود کرده است
           </Typography>
         ) : (
           <>
-            <Button unstyled
-              className="h-11 min-w-[132px] shrink-0 rounded-full bg-primary px-4 text-sm font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-wait disabled:opacity-60"
+            <Button
+              unstyled
+              className="bg-primary focus-visible:outline-primary/40 h-11 min-w-[132px] shrink-0 rounded-full px-4 text-sm leading-5 font-semibold text-white focus-visible:outline-3 focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
               disabled={isPending}
               onClick={onUnblock}
               type="button"
             >
               {isPending ? "در حال انجام..." : "رفع مسدودیت"}
             </Button>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 px-2 text-right text-sm font-normal leading-5 text-outline" dir="rtl">
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-outline min-w-0 flex-1 px-2 text-right text-sm leading-5 font-normal"
+              dir="rtl"
+            >
               این کاربر را مسدود کرده اید
             </Typography>
           </>
@@ -1982,23 +2238,21 @@ function getResponseDayLabel(day: ChatDayOfWeek) {
 function sortResponseDays(days: ChatDayOfWeek[]) {
   const selectedDays = new Set(days);
 
-  return responseWeekDays
-    .map((item) => item.value)
-    .filter((day) => selectedDays.has(day));
+  return responseWeekDays.map((item) => item.value).filter((day) => selectedDays.has(day));
 }
 
 function areResponseDaysEqual(first: ChatDayOfWeek[], second: ChatDayOfWeek[]) {
   const normalizedFirst = sortResponseDays(first);
   const normalizedSecond = sortResponseDays(second);
 
-  return normalizedFirst.length === normalizedSecond.length &&
-    normalizedFirst.every((day, index) => day === normalizedSecond[index]);
+  return (
+    normalizedFirst.length === normalizedSecond.length &&
+    normalizedFirst.every((day, index) => day === normalizedSecond[index])
+  );
 }
 
 function formatParticipantAvailabilityDays(availability: ChatAvailability) {
-  const availableDays = sortResponseDays(
-    availability.days.map((day) => day.day_of_week),
-  );
+  const availableDays = sortResponseDays(availability.days.map((day) => day.day_of_week));
 
   if (availableDays.length === 0) return "";
   if (availableDays.length === responseWeekDays.length) return "همه‌روزه";
@@ -2032,27 +2286,14 @@ function formatParticipantAvailabilityTime(value: string) {
   }
 
   const twelveHourValue = hours % 12 || 12;
-  const minuteText = minutes
-    ? `:${persianTwoDigitNumber.format(minutes)}`
-    : "";
-  const dayPeriod = hours < 6
-    ? "بامداد"
-    : hours < 12
-      ? "صبح"
-      : hours === 12
-        ? "ظهر"
-        : hours < 20
-          ? "عصر"
-          : "شب";
+  const minuteText = minutes ? `:${persianTwoDigitNumber.format(minutes)}` : "";
+  const dayPeriod =
+    hours < 6 ? "بامداد" : hours < 12 ? "صبح" : hours === 12 ? "ظهر" : hours < 20 ? "عصر" : "شب";
 
   return `${persianNumber.format(twelveHourValue)}${minuteText} ${dayPeriod}`;
 }
 
-function ChatParticipantAvailabilityCard({
-  availability,
-}: {
-  availability?: ChatAvailability;
-}) {
+function ChatParticipantAvailabilityCard({ availability }: { availability?: ChatAvailability }) {
   if (!availability?.days?.length || !availability.start_time || !availability.end_time) {
     return null;
   }
@@ -2064,21 +2305,53 @@ function ChatParticipantAvailabilityCard({
   return (
     <section
       aria-label="ساعت پاسخگویی آژانس"
-      className="mb-4 h-[100px] rounded-xl border border-primary bg-primary-container/20 p-4 text-xs font-normal leading-4 text-on-surface"
+      className="border-primary bg-primary-container/20 text-on-surface mb-4 h-[100px] rounded-xl border p-4 text-xs leading-4 font-normal"
     >
-      <div className="flex h-5 items-center gap-2 text-sm font-medium leading-5 text-primary">
+      <div className="text-primary flex h-5 items-center gap-2 text-sm leading-5 font-medium">
         <LinearSupport aria-hidden="true" className="h-5 w-5" />
-        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0">ساعت پاسخگویی آژانس</Typography>
+        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0">
+          ساعت پاسخگویی آژانس
+        </Typography>
       </div>
 
       <div className="mt-2 space-y-2 [direction:rtl]">
-        <div className="flex text-xs items-center justify-between gap-4">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">روزهای هفته:</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate text-left text-on-surface">{daysText}</Typography>
+        <div className="flex items-center justify-between gap-4 text-xs">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var"
+          >
+            روزهای هفته:
+          </Typography>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface min-w-0 truncate text-left"
+          >
+            {daysText}
+          </Typography>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">ساعت:</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 truncate text-left text-on-surface">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var"
+          >
+            ساعت:
+          </Typography>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface min-w-0 truncate text-left"
+          >
             از {formatParticipantAvailabilityTime(availability.start_time)} - تا{" "}
             {formatParticipantAvailabilityTime(availability.end_time)}
           </Typography>
@@ -2102,40 +2375,78 @@ function ResponseTimeSelectBox({
   const hasValue = Boolean(value);
 
   return (
-    <div className="flex h-14 min-w-0 flex-1 items-center rounded-lg border border-outline-var bg-surface-container-lowest px-2">
-      <Button unstyled
-        className="flex h-full min-w-0 flex-1 items-center gap-2 px-1 text-right focus-visible:outline-3 focus-visible:outline-offset-[-2px] focus-visible:outline-primary/40"
+    <div className="border-outline-var bg-surface-container-lowest flex h-14 min-w-0 flex-1 items-center rounded-lg border px-2">
+      <Button
+        unstyled
+        className="focus-visible:outline-primary/40 flex h-full min-w-0 flex-1 items-center gap-2 px-1 text-right focus-visible:outline-3 focus-visible:outline-offset-[-2px]"
         onClick={onClick}
         type="button"
       >
-        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 text-right">
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="min-w-0 flex-1 text-right"
+        >
           {hasValue ? (
-            <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-col gap-0.5">
-              <Typography as="span" variant="body" size="small" weight="regular" className="truncate text-[10px] font-normal leading-4 text-outline">
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="flex min-w-0 flex-col gap-0.5"
+            >
+              <Typography
+                as="span"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-outline truncate text-[10px] leading-4 font-normal"
+              >
                 {label}
               </Typography>
-              <Typography as="span" variant="label" size="small" weight="medium" className="truncate text-xs font-medium leading-4 text-on-surface">
+              <Typography
+                as="span"
+                variant="label"
+                size="small"
+                weight="medium"
+                className="text-on-surface truncate text-xs leading-4 font-medium"
+              >
                 {value}
               </Typography>
             </Typography>
           ) : (
-            <Typography as="span" variant="body" size="small" weight="regular" className="block truncate text-xs font-normal leading-4 text-outline">
+            <Typography
+              as="span"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-outline block truncate text-xs leading-4 font-normal"
+            >
               {label}
             </Typography>
           )}
         </Typography>
 
-        {!hasValue ? <ArrowDownIcon className="h-4 w-4 shrink-0 text-on-surface-var" /> : null}
+        {!hasValue ? <ArrowDownIcon className="text-on-surface-var h-4 w-4 shrink-0" /> : null}
       </Button>
 
       {hasValue && onClear ? (
-        <Button unstyled
+        <Button
+          unstyled
           aria-label={`پاک کردن ${label}`}
-          className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-outline focus-visible:outline-2 focus-visible:outline-primary"
+          className="text-outline focus-visible:outline-primary grid h-7 w-7 shrink-0 place-items-center rounded-full focus-visible:outline-2"
           onClick={onClear}
           type="button"
         >
-          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-5 w-5 place-items-center rounded-full border border-outline-var">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="border-outline-var grid h-5 w-5 place-items-center rounded-full border"
+          >
             <CloseIcon className="h-3 w-3" />
           </Typography>
         </Button>
@@ -2173,18 +2484,26 @@ function ResponseTimeDaysSheet({
           const isSelected = selectedDays.includes(day.value);
 
           return (
-            <Button unstyled
-              className="flex h-[54px] w-full items-center justify-between text-right text-sm leading-5 text-on-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+            <Button
+              unstyled
+              className="text-on-surface focus-visible:outline-primary/40 flex h-[54px] w-full items-center justify-between text-right text-sm leading-5 focus-visible:outline-3 focus-visible:outline-offset-2"
               key={day.value}
               onClick={() => onToggleDay(day.value)}
               type="button"
             >
-              <Typography as="span" variant="body" size="medium" weight="regular">{day.label}</Typography>
-              <Typography as="span" variant="body" size="medium" weight="regular"
-                className={`grid h-[18px] w-[18px] place-items-center rounded border ${isSelected
-                  ? "border-primary bg-primary text-white"
-                  : "border-outline bg-surface-container-lowest text-transparent"
-                  }`}
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                {day.label}
+              </Typography>
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className={`grid h-[18px] w-[18px] place-items-center rounded border ${
+                  isSelected
+                    ? "border-primary bg-primary text-white"
+                    : "border-outline bg-surface-container-lowest text-transparent"
+                }`}
               >
                 <CheckIcon className="h-[14px] w-[14px]" />
               </Typography>
@@ -2224,8 +2543,9 @@ function ResponseTimeHourSheet({
     >
       <div className="px-4 py-2">
         {responseHourOptions.map((hour) => (
-          <Button unstyled
-            className="flex h-[70px] w-full items-center justify-center text-center text-base leading-6 text-on-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+          <Button
+            unstyled
+            className="text-on-surface focus-visible:outline-primary/40 flex h-[70px] w-full items-center justify-center text-center text-base leading-6 focus-visible:outline-3 focus-visible:outline-offset-2"
             key={hour}
             onClick={() => {
               onSelect(hour);
@@ -2258,8 +2578,10 @@ export function UserChatResponseTimePage() {
     );
 
     setSelectedDays(availableDays);
-    setStartHour(availableDays.length ? availabilityQuery.data.start_time ?? undefined : undefined);
-    setEndHour(availableDays.length ? availabilityQuery.data.end_time ?? undefined : undefined);
+    setStartHour(
+      availableDays.length ? (availabilityQuery.data.start_time ?? undefined) : undefined,
+    );
+    setEndHour(availableDays.length ? (availabilityQuery.data.end_time ?? undefined) : undefined);
   }, [availabilityQuery.data]);
 
   const toggleDay = (day: ChatDayOfWeek) => {
@@ -2315,9 +2637,7 @@ export function UserChatResponseTimePage() {
 
     try {
       await updateAvailabilityMutation.mutateAsync(payload);
-      showNotice(selectedDays.length === 0
-        ? "ساعت پاسخگویی پاک شد"
-        : "ساعت پاسخگویی ثبت شد");
+      showNotice(selectedDays.length === 0 ? "ساعت پاسخگویی پاک شد" : "ساعت پاسخگویی ثبت شد");
     } catch (error) {
       showNotice(getApiErrorMessage(error, "ثبت ساعت پاسخگویی با خطا مواجه شد"));
     }
@@ -2327,30 +2647,35 @@ export function UserChatResponseTimePage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backLabel="بازگشت به چت‌ها"
         backTo="/chat"
-        className="border-b border-outline-var"
+        className="border-outline-var border-b"
         contentClassName="px-0"
         heightClassName="h-[60px]"
         title="ساعت پاسخگویی"
         titleClassName="text-base font-semibold leading-6"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest pb-28">
-        <section className="px-4 pb-4 pt-5 text-right text-xs font-normal leading-5 text-on-surface">
-          <Typography as="p" variant="body" size="medium" weight="regular">ساعت پاسخگویی خود را در چت مشخص کنید.</Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular">این ساعت زیر اسم شما در چت و برای کاربران نمایش داده می‌شود.</Typography>
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto pb-28">
+        <section className="text-on-surface px-4 pt-5 pb-4 text-right text-xs leading-5 font-normal">
+          <Typography as="p" variant="body" size="medium" weight="regular">
+            ساعت پاسخگویی خود را در چت مشخص کنید.
+          </Typography>
+          <Typography as="p" variant="body" size="medium" weight="regular">
+            این ساعت زیر اسم شما در چت و برای کاربران نمایش داده می‌شود.
+          </Typography>
         </section>
 
         {availabilityQuery.isError ? (
-          <div className="mx-4 mb-3 rounded-lg bg-error-container/30 px-3 py-2 text-xs leading-5 text-error">
+          <div className="bg-error-container/30 text-error mx-4 mb-3 rounded-lg px-3 py-2 text-xs leading-5">
             دریافت ساعت پاسخگویی با خطا مواجه شد.
-            <Button unstyled
-              className="mr-2 font-semibold text-primary"
+            <Button
+              unstyled
+              className="text-primary mr-2 font-semibold"
               onClick={() => void availabilityQuery.refetch()}
               type="button"
             >
@@ -2359,40 +2684,62 @@ export function UserChatResponseTimePage() {
           </div>
         ) : null}
 
-        <Button unstyled
-          className="flex h-14 w-full items-center gap-3 px-4 text-right focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40 disabled:cursor-wait disabled:opacity-60"
+        <Button
+          unstyled
+          className="focus-visible:outline-inset focus-visible:outline-primary/40 flex h-14 w-full items-center gap-3 px-4 text-right focus-visible:outline-3 disabled:cursor-wait disabled:opacity-60"
           disabled={availabilityQuery.isLoading}
           onClick={() => setOpenSheet("days")}
           type="button"
         >
-          <Typography as="span" variant="label" size="small" weight="semibold" className="min-w-0 flex-1 text-xs font-semibold leading-5 text-on-surface">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="semibold"
+            className="text-on-surface min-w-0 flex-1 text-xs leading-5 font-semibold"
+          >
             روزهای هفته
           </Typography>
-          <ChevronLeftIcon className="h-4 w-4 shrink-0 text-on-surface-var" />
+          <ChevronLeftIcon className="text-on-surface-var h-4 w-4 shrink-0" />
         </Button>
 
         {selectedDays.length ? (
-          <div className="flex flex-wrap justify-start gap-2 px-4 pb-4 pt-1 [direction:rtl]">
+          <div className="flex flex-wrap justify-start gap-2 px-4 pt-1 pb-4 [direction:rtl]">
             {selectedDays.map((day) => (
-              <Button unstyled
-                className="flex h-8 items-center gap-1.5 rounded-md border border-primary bg-primary-container/20 px-2.5 text-[11px] font-medium leading-4 text-primary"
+              <Button
+                unstyled
+                className="border-primary bg-primary-container/20 text-primary flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-[11px] leading-4 font-medium"
                 key={day}
                 onClick={() => toggleDay(day)}
                 type="button"
               >
-                <Typography as="span" variant="body" size="medium" weight="regular">{getResponseDayLabel(day)}</Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  {getResponseDayLabel(day)}
+                </Typography>
                 <CloseIcon className="h-3 w-3" />
               </Button>
             ))}
           </div>
         ) : (
-          <Typography as="p" variant="body" size="small" weight="regular" className="px-4 pb-4 text-[11px] leading-4 text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline px-4 pb-4 text-[11px] leading-4"
+          >
             با ثبت بدون انتخاب روز، ساعت پاسخگویی پاک می‌شود.
           </Typography>
         )}
 
-        <section className="border-t border-outline-var px-4 pt-5">
-          <Typography as="h2" variant="title" size="small" weight="semibold" className="mb-4 text-right text-xs font-semibold leading-5 text-on-surface">
+        <section className="border-outline-var border-t px-4 pt-5">
+          <Typography
+            as="h2"
+            variant="title"
+            size="small"
+            weight="semibold"
+            className="text-on-surface mb-4 text-right text-xs leading-5 font-semibold"
+          >
             تعیین ساعت شروع و پایان
           </Typography>
           <div className="flex gap-2 [direction:rtl]">
@@ -2412,9 +2759,10 @@ export function UserChatResponseTimePage() {
         </section>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-4 pb-4 pt-3 shadow-[0_-8px_22px_rgba(0,0,0,0.05)]">
-        <Button unstyled
-          className="h-11 w-full rounded-lg bg-primary text-sm font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:opacity-90 disabled:cursor-wait disabled:opacity-60"
+      <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 z-20 px-4 pt-3 pb-4 shadow-[0_-8px_22px_rgba(0,0,0,0.05)]">
+        <Button
+          unstyled
+          className="bg-primary focus-visible:outline-primary/40 h-11 w-full rounded-lg text-sm leading-5 font-semibold text-white focus-visible:outline-3 focus-visible:outline-offset-2 active:opacity-90 disabled:cursor-wait disabled:opacity-60"
           disabled={isBusy}
           onClick={() => void saveAvailability()}
           type="button"
@@ -2484,34 +2832,38 @@ export function UserChatRenamePage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backLabel="بازگشت به چت‌ها"
         backTo="/chat"
-        className="border-b border-outline-var"
+        className="border-outline-var border-b"
         contentClassName="px-1"
         heightClassName="h-[60px]"
         title="تغییر نام چت"
         titleClassName="font-semibold"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest p-4">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto p-4">
         <section className="text-right">
-          <label
-            className="block font-semibold text-on-surface"
-            htmlFor="chat-display-name"
-          >
+          <label className="text-on-surface block font-semibold" htmlFor="chat-display-name">
             نام و نام خانوادگی
           </label>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="mb-3 mt-1 text-sm font-normal text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline mt-1 mb-3 text-sm font-normal"
+          >
             کاربران در چت شما را با این نام می‌بینند
           </Typography>
           <input
             autoComplete="name"
-            className={`w-full rounded-xl border bg-surface-container-lowest px-3 py-3.75 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20 ${errorMessage ? "border-error" : "border-outline-var"
-              }`}
+            className={`bg-surface-container-lowest text-on-surface placeholder:text-outline focus:border-primary focus:ring-primary/20 w-full rounded-xl border px-3 py-3.75 text-right text-sm leading-5 font-normal outline-none focus:ring-2 ${
+              errorMessage ? "border-error" : "border-outline-var"
+            }`}
             id="chat-display-name"
             maxLength={80}
             onChange={(event) => {
@@ -2521,29 +2873,43 @@ export function UserChatRenamePage() {
             placeholder="نام خود را وارد کنید"
             value={chatName}
           />
-          <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 text-[11px] leading-4 text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline mt-2 text-[11px] leading-4"
+          >
             برای نمایش نام و نام خانوادگی اصلی، این فیلد را خالی ذخیره کنید.
           </Typography>
           {errorMessage ? (
-            <Typography as="p" variant="body" size="small" weight="regular" className="mt-1.5 text-[11px] leading-4 text-error">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-error mt-1.5 text-[11px] leading-4"
+            >
               {errorMessage}
             </Typography>
           ) : null}
         </section>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-4 pb-4 pt-3 shadow-[0_-8px_22px_rgba(0,0,0,0.05)]">
+      <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 z-20 px-4 pt-3 pb-4 shadow-[0_-8px_22px_rgba(0,0,0,0.05)]">
         <div className="flex gap-3 [direction:rtl]">
-          <Button unstyled
-            className="h-11 min-w-0 flex-1 rounded-lg bg-primary text-xs font-semibold leading-5 text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:opacity-90"
+          <Button
+            unstyled
+            className="bg-primary focus-visible:outline-primary/40 h-11 min-w-0 flex-1 rounded-lg text-xs leading-5 font-semibold text-white focus-visible:outline-3 focus-visible:outline-offset-2 active:opacity-90"
             disabled={showingNameQuery.isLoading || updateShowingNameMutation.isPending}
             onClick={() => void saveChatName()}
             type="button"
           >
             {updateShowingNameMutation.isPending ? "در حال ذخیره..." : "ذخیره نام"}
           </Button>
-          <Button unstyled
-            className="h-11 min-w-0 flex-1 rounded-lg border border-primary bg-surface-container-lowest text-xs font-semibold leading-5 text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:bg-primary-container/10"
+          <Button
+            unstyled
+            className="border-primary bg-surface-container-lowest text-primary focus-visible:outline-primary/40 active:bg-primary-container/10 h-11 min-w-0 flex-1 rounded-lg border text-xs leading-5 font-semibold focus-visible:outline-3 focus-visible:outline-offset-2"
             onClick={() => navigate("/chat", { replace: true })}
             type="button"
           >
@@ -2621,7 +2987,8 @@ export function UserChatDetailPage() {
       "user.full_name",
       "user.fullName",
       "user.name",
-    ]) || (readPathText(chatThread, ["category"]) === "agency_support" ? "پشتیبانی آژانس" : "گفتگو");
+    ]) ||
+    (readPathText(chatThread, ["category"]) === "agency_support" ? "پشتیبانی آژانس" : "گفتگو");
   const rawThreadCategory = readPathText(chatThread, ["category"]);
   const chatCategory: ChatCategory =
     rawThreadCategory === "support"
@@ -2641,10 +3008,8 @@ export function UserChatDetailPage() {
   useEffect(() => {
     if (!chatThread) return;
 
-    const nextBlockedByMe =
-      readPathBoolean(chatThread, ["blocked_by_me", "blockedByMe"]) ?? false;
-    const nextBlockedMe =
-      readPathBoolean(chatThread, ["blocked_me", "blockedMe"]) ?? false;
+    const nextBlockedByMe = readPathBoolean(chatThread, ["blocked_by_me", "blockedByMe"]) ?? false;
+    const nextBlockedMe = readPathBoolean(chatThread, ["blocked_me", "blockedMe"]) ?? false;
     const nextIsBlocked =
       readPathBoolean(chatThread, ["is_blocked", "isBlocked", "blocked"]) ??
       (nextBlockedByMe || nextBlockedMe);
@@ -2662,7 +3027,11 @@ export function UserChatDetailPage() {
       onJoined: setActiveThreadId,
       threadId: activeThreadId,
     });
-    const handleNewMessage = (payload: { data?: unknown; message?: unknown;[key: string]: unknown }) => {
+    const handleNewMessage = (payload: {
+      data?: unknown;
+      message?: unknown;
+      [key: string]: unknown;
+    }) => {
       const data = asRecord(payload.data);
       const rawMessage = payload.message ?? data?.message ?? payload.data ?? payload;
 
@@ -2819,10 +3188,7 @@ export function UserChatDetailPage() {
         text,
         (pendingOutgoingBodiesRef.current.get(text) ?? 0) + 1,
       );
-      setSentMessages((current) => [
-        ...current,
-        { id: createChatMessageId(), text, type: "text" },
-      ]);
+      setSentMessages((current) => [...current, { id: createChatMessageId(), text, type: "text" }]);
       void sendChatTextMessage({
         body: text,
         category: chatCategory,
@@ -3049,26 +3415,29 @@ export function UserChatDetailPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <ChatDetailHeader
-        onOpenMenu={() => setIsSettingsSheetOpen(true)}
-        title={participantName}
-      />
+      <ChatDetailHeader onOpenMenu={() => setIsSettingsSheetOpen(true)} title={participantName} />
       <ChatPropertyStrip thread={chatThread} />
 
-      <div className="relative min-h-0 flex-1 bg-surface-container-lowest">
+      <div className="bg-surface-container-lowest relative min-h-0 flex-1">
         <main
           ref={chatScrollRef}
           onScroll={updateScrollShadow}
-          className={`h-full overflow-y-auto bg-surface-container-lowest px-4 pt-4 ${isChatBlocked ? "pb-[84px]" : "pb-[92px]"}`}
+          className={`bg-surface-container-lowest h-full overflow-y-auto px-4 pt-4 ${isChatBlocked ? "pb-[84px]" : "pb-[92px]"}`}
         >
           <ChatParticipantAvailabilityCard availability={participantAvailability} />
 
           <div className="space-y-3">
             {messagesQuery.isLoading && apiMessages.length === 0 ? (
-              <Typography as="p" variant="body" size="small" weight="regular" className="py-6 text-center text-xs text-outline">
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-outline py-6 text-center text-xs"
+              >
                 در حال دریافت پیام‌ها...
               </Typography>
             ) : null}
@@ -3076,7 +3445,13 @@ export function UserChatDetailPage() {
             {!messagesQuery.isLoading && apiMessages.length === 0 ? (
               <>
                 <ChatDateChip />
-                <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto w-full py-6 text-center text-xs text-outline">
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="small"
+                  weight="regular"
+                  className="text-outline mx-auto w-full py-6 text-center text-xs"
+                >
                   هنوز پیامی در این گفتگو ثبت نشده است.
                 </Typography>
               </>
@@ -3233,23 +3608,26 @@ export function UserChatHomePage() {
   );
   const RequestErrorState = isChatsError ? getRequestErrorState(chatsError) : null;
 
-  const handleMenuSelect = useCallback((id: string) => {
-    setIsMenuOpen(false);
+  const handleMenuSelect = useCallback(
+    (id: string) => {
+      setIsMenuOpen(false);
 
-    if (id === "hours") {
-      navigate("/chat/response-time");
-      return;
-    }
+      if (id === "hours") {
+        navigate("/chat/response-time");
+        return;
+      }
 
-    if (id === "rename") {
-      navigate("/chat/rename");
-      return;
-    }
+      if (id === "rename") {
+        navigate("/chat/rename");
+        return;
+      }
 
-    if (id === "bulk-delete") {
-      navigate("/chat/bulk-delete");
-    }
-  }, [navigate]);
+      if (id === "bulk-delete") {
+        navigate("/chat/bulk-delete");
+      }
+    },
+    [navigate],
+  );
 
   const visibleChats = chats;
 
@@ -3294,16 +3672,9 @@ export function UserChatHomePage() {
       }
       topBar={
         isSearchOpen ? (
-          <ChatSearchHeader
-            onClose={closeSearch}
-            onQueryChange={setQuery}
-            query={query}
-          />
+          <ChatSearchHeader onClose={closeSearch} onQueryChange={setQuery} query={query} />
         ) : (
-          <ChatHeader
-            onOpenMenu={() => setIsMenuOpen(true)}
-            onOpenSearch={openSearch}
-          />
+          <ChatHeader onOpenMenu={() => setIsMenuOpen(true)} onOpenSearch={openSearch} />
         )
       }
     >
@@ -3330,7 +3701,15 @@ export function UserChatHomePage() {
         query.trim() || activeFilter ? (
           <SearchEmptyState />
         ) : (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-4 text-center text-sm text-outline">هنوز گفتگویی ندارید.</Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-4 text-center text-sm"
+          >
+            هنوز گفتگویی ندارید.
+          </Typography>
         )
       ) : null}
     </TopBarNavigationLayout>
@@ -3339,19 +3718,16 @@ export function UserChatHomePage() {
 
 function ChatListSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <div className="space-y-px bg-surface-container-lowest">
+    <div className="bg-surface-container-lowest space-y-px">
       {Array.from({ length: count }).map((_, index) => (
-        <div
-          className="h-[140px] animate-pulse border-b border-outline-var px-4 py-4"
-          key={index}
-        >
-          <div className="mb-4 h-5 w-3/4 rounded bg-surface-container" />
-          <div className="mb-5 h-4 w-full rounded bg-surface-container" />
+        <div className="border-outline-var h-[140px] animate-pulse border-b px-4 py-4" key={index}>
+          <div className="bg-surface-container mb-4 h-5 w-3/4 rounded" />
+          <div className="bg-surface-container mb-5 h-4 w-full rounded" />
           <div className="flex items-center gap-3">
-            <div className="h-12 w-[72px] rounded bg-surface-container" />
+            <div className="bg-surface-container h-12 w-[72px] rounded" />
             <div className="min-w-0 flex-1 space-y-2">
-              <div className="h-4 w-1/2 rounded bg-surface-container" />
-              <div className="h-5 w-4/5 rounded bg-surface-container" />
+              <div className="bg-surface-container h-4 w-1/2 rounded" />
+              <div className="bg-surface-container h-5 w-4/5 rounded" />
             </div>
           </div>
         </div>
@@ -3370,22 +3746,30 @@ function BulkSelectAllControl({
   onToggle: () => void;
 }) {
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-pressed={checked}
-      className="flex h-11 items-center gap-3 text-sm font-semibold leading-5 text-on-surface disabled:opacity-50"
+      className="text-on-surface flex h-11 items-center gap-3 text-sm leading-5 font-semibold disabled:opacity-50"
       disabled={disabled}
       onClick={onToggle}
       type="button"
     >
-      <Typography as="span" variant="body" size="medium" weight="regular"
-        className={`grid h-[18px] w-[18px] place-items-center rounded border ${checked
-          ? "border-outline bg-surface-container-lowest text-on-surface-var"
-          : "border-outline bg-surface-container-lowest text-transparent"
-          }`}
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className={`grid h-[18px] w-[18px] place-items-center rounded border ${
+          checked
+            ? "border-outline bg-surface-container-lowest text-on-surface-var"
+            : "border-outline bg-surface-container-lowest text-transparent"
+        }`}
       >
         <CheckIcon className="h-[14px] w-[14px]" />
       </Typography>
-      <Typography as="span" variant="body" size="medium" weight="regular">انتخاب همه</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular">
+        انتخاب همه
+      </Typography>
     </Button>
   );
 }
@@ -3400,22 +3784,18 @@ type ChatPageShellProps = {
 function ChatPageShell({ action, children, onBack, title }: ChatPageShellProps) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backTo="/chat"
         onBack={onBack}
         startSlot={
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center">
-            {action}
-          </div>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center">{action}</div>
         }
         title={title}
       />
-      <div className="min-h-0 flex flex-1 flex-col">
-        {children}
-      </div>
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
     </PageFrame>
   );
 }
@@ -3448,8 +3828,8 @@ export function UserChatBulkDeletePage() {
     () => chats.map((item) => item.id).filter((id): id is string => Boolean(id)),
     [chats],
   );
-  const areAllSelected = selectableChatIds.length > 0
-    && selectableChatIds.every((id) => selectedChatIds.has(id));
+  const areAllSelected =
+    selectableChatIds.length > 0 && selectableChatIds.every((id) => selectedChatIds.has(id));
   const RequestErrorState = isError ? getRequestErrorState(error) : null;
 
   const toggleSelectedChat = useCallback((id: string) => {
@@ -3467,8 +3847,8 @@ export function UserChatBulkDeletePage() {
 
   const toggleSelectAll = useCallback(() => {
     setSelectedChatIds((current) => {
-      const alreadySelected = selectableChatIds.length > 0
-        && selectableChatIds.every((id) => current.has(id));
+      const alreadySelected =
+        selectableChatIds.length > 0 && selectableChatIds.every((id) => current.has(id));
 
       return alreadySelected ? new Set() : new Set(selectableChatIds);
     });
@@ -3489,25 +3869,29 @@ export function UserChatBulkDeletePage() {
     });
   }, [deleteChatsMutation, navigate, selectedChatIds]);
 
-  const handleMenuSelect = useCallback((id: string) => {
-    setIsMenuOpen(false);
+  const handleMenuSelect = useCallback(
+    (id: string) => {
+      setIsMenuOpen(false);
 
-    if (id === "hours") {
-      navigate("/chat/response-time");
-      return;
-    }
+      if (id === "hours") {
+        navigate("/chat/response-time");
+        return;
+      }
 
-    if (id === "rename") {
-      navigate("/chat/rename");
-    }
-  }, [navigate]);
+      if (id === "rename") {
+        navigate("/chat/rename");
+      }
+    },
+    [navigate],
+  );
 
   return (
     <ChatPageShell
       action={
-        <Button unstyled
+        <Button
+          unstyled
           aria-label="گزینه‌های بیشتر"
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 active:bg-surface-container"
+          className="text-on-surface focus-visible:outline-primary/40 active:bg-surface-container grid h-10 w-10 shrink-0 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-[-3px]"
           onClick={() => setIsMenuOpen(true)}
           type="button"
         >
@@ -3516,7 +3900,7 @@ export function UserChatBulkDeletePage() {
       }
       title="حذف گروهی چت‌ها"
     >
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain bg-surface-container-lowest pb-[72px]">
+      <main className="bg-surface-container-lowest flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pb-[72px]">
         {isLoading && chats.length === 0 ? <ChatListSkeleton count={5} /> : null}
         {RequestErrorState && chats.length === 0 ? (
           <RequestErrorState className="h-full min-h-0 flex-1" onRetry={() => void refetch()} />
@@ -3537,19 +3921,34 @@ export function UserChatBulkDeletePage() {
           );
         })}
         {!isLoading && !isError && chats.length === 0 ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-4 text-center text-sm text-outline">گفتگویی برای حذف وجود ندارد</Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-4 text-center text-sm"
+          >
+            گفتگویی برای حذف وجود ندارد
+          </Typography>
         ) : null}
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 h-[72px] border-t border-outline-var bg-surface-container-lowest px-4 shadow-[0_-8px_22px_rgba(0,0,0,0.06)]">
+      <footer className="border-outline-var bg-surface-container-lowest absolute inset-x-0 bottom-0 z-20 h-[72px] border-t px-4 shadow-[0_-8px_22px_rgba(0,0,0,0.06)]">
         {deleteError ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="absolute inset-x-4 bottom-full mb-2 rounded-lg bg-surface-container-lowest px-3 py-2 text-center text-xs leading-5 text-error shadow-sm">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="bg-surface-container-lowest text-error absolute inset-x-4 bottom-full mb-2 rounded-lg px-3 py-2 text-center text-xs leading-5 shadow-sm"
+          >
             {deleteError}
           </Typography>
         ) : null}
         <div className="flex h-full items-center justify-between gap-4 [direction:ltr]">
-          <Button unstyled
-            className="h-[42px] w-[191px] shrink-0 rounded-lg bg-primary px-6 text-sm font-semibold leading-5 text-white disabled:cursor-not-allowed disabled:opacity-40"
+          <Button
+            unstyled
+            className="bg-primary h-[42px] w-[191px] shrink-0 rounded-lg px-6 text-sm leading-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
             disabled={selectedChatIds.size === 0 || deleteChatsMutation.isPending}
             onClick={deleteSelectedChats}
             type="button"

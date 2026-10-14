@@ -1,14 +1,8 @@
-import type {
-  AdvertisementItem,
-} from "../../advertisements/api/advertisement.service";
+import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
 
 export type PropertyRequestOwnerType = "agency" | "user" | "agency-consultant";
 
-export type PropertyRequestFilterValue =
-  | boolean
-  | number
-  | string
-  | Array<number | string>;
+export type PropertyRequestFilterValue = boolean | number | string | Array<number | string>;
 
 export type PropertyRequestApiFilter = {
   field: string;

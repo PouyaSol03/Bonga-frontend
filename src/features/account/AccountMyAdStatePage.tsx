@@ -28,7 +28,11 @@ import {
   type AdvertisementReRegisterStatusResponse,
   type AdvertisementSubmitResultStatusResponse,
 } from "../advertisements/api/agency-advertise-assignment.service";
-import { useAgencyConsultantsQuery, useAgencyInfiniteQuery, usePublicAgencyDetailQuery } from "../agencies/api/agency.hooks";
+import {
+  useAgencyConsultantsQuery,
+  useAgencyInfiniteQuery,
+  usePublicAgencyDetailQuery,
+} from "../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "./api/account.hooks";
 import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.service";
 import {
@@ -148,21 +152,21 @@ function AgencyActionsFooter({
   onCallAgency: () => void;
 }) {
   return (
-    <footer className="shrink-0 border-t border-surface-container bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)] [direction:rtl]">
+    <footer className="border-surface-container bg-surface-container-lowest shrink-0 border-t px-4 py-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)] [direction:rtl]">
       <div className="flex items-center gap-3">
         <Button
           unstyled
-          className="flex h-10 flex-1 items-center justify-center gap-2 rounded-[10px] border border-primary bg-transparent text-sm font-medium text-primary transition-colors active:bg-primary/10"
+          className="border-primary text-primary active:bg-primary/10 flex h-10 flex-1 items-center justify-center gap-2 rounded-[10px] border bg-transparent text-sm font-medium transition-colors"
           onClick={onSendMessage}
           type="button"
         >
-          <LinearChat className="h-5 w-5 shrink-0 text-primary" />
+          <LinearChat className="text-primary h-5 w-5 shrink-0" />
           <span>ارسال پیام</span>
         </Button>
 
         <Button
           unstyled
-          className="flex h-10 flex-1 items-center justify-center gap-2 rounded-[10px] bg-primary text-sm font-medium text-on-primary transition-colors active:bg-primary-600"
+          className="bg-primary text-on-primary active:bg-primary-600 flex h-10 flex-1 items-center justify-center gap-2 rounded-[10px] text-sm font-medium transition-colors"
           onClick={onCallAgency}
           type="button"
         >
@@ -176,35 +180,48 @@ function AgencyActionsFooter({
 export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const navigate = useNavigate();
   const routeState = props ? { ...readRouteState(), ...props } : readRouteState();
-  const adId = readAdIdFromPath() ?? readEntityId(props?.ad) ?? readEntityId(props?.card) ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
-  const detailQuery = useMyAdvertisementDetailQuery(props?.card || props?.ad ? null : (adId ?? null));
+  const adId =
+    readAdIdFromPath() ??
+    readEntityId(props?.ad) ??
+    readEntityId(props?.card) ??
+    readEntityId(routeState.ad) ??
+    readEntityId(routeState.card);
+  const detailQuery = useMyAdvertisementDetailQuery(
+    props?.card || props?.ad ? null : (adId ?? null),
+  );
   const statusQuery = new URLSearchParams(window.location.search).get("status") ?? undefined;
   const sourceAd = props?.ad ?? detailQuery.data ?? routeState.ad;
-  const card = props?.card
-    ?? (detailQuery.data
+  const card =
+    props?.card ??
+    (detailQuery.data
       ? mapAdvertisementToAdCard(detailQuery.data, 0)
-      : routeState.card ?? createUnavailableAdCard(adId, sourceAd));
+      : (routeState.card ?? createUnavailableAdCard(adId, sourceAd)));
   const statusInfo = getMyAdStatusInfo(
-    props?.status ?? detailQuery.data ?? statusQuery ?? routeState.status ?? routeState.ad ?? routeState.card?.status,
+    props?.status ??
+      detailQuery.data ??
+      statusQuery ??
+      routeState.status ??
+      routeState.ad ??
+      routeState.card?.status,
   );
-  const isAssigned = statusInfo.key !== "wait_for_payment" && Boolean(
-    props?.isAssigned ??
-    routeState.isAssigned ??
-    (
-      sourceAd?.assigned_agency_id ||
-      sourceAd?.assignedAgencyId ||
-      sourceAd?.assignment_id ||
-      sourceAd?.assignmentId ||
-      sourceAd?.assignment_status ||
-      sourceAd?.assignmentStatus ||
-      sourceAd?.is_assigned ||
-      sourceAd?.isAssigned ||
-      statusInfo.key === "wait_for_agency" ||
-      statusInfo.key === "wait_for_repost" ||
-      statusInfo.key === "wait_for_stop" ||
-      statusInfo.key === "wait_for_deal_confirmation"
-    )
-  );
+  const isAssigned =
+    statusInfo.key !== "wait_for_payment" &&
+    Boolean(
+      props?.isAssigned ??
+      routeState.isAssigned ??
+      (sourceAd?.assigned_agency_id ||
+        sourceAd?.assignedAgencyId ||
+        sourceAd?.assignment_id ||
+        sourceAd?.assignmentId ||
+        sourceAd?.assignment_status ||
+        sourceAd?.assignmentStatus ||
+        sourceAd?.is_assigned ||
+        sourceAd?.isAssigned ||
+        statusInfo.key === "wait_for_agency" ||
+        statusInfo.key === "wait_for_repost" ||
+        statusInfo.key === "wait_for_stop" ||
+        statusInfo.key === "wait_for_deal_confirmation"),
+    );
   const cameFromAdManagement = !isAssigned && Boolean(routeState.tab || routeState.returnTo);
   const backTo = props?.backTo ?? getStateAdBackPath(routeState, isAssigned);
   const backState = cameFromAdManagement ? { tab: routeState.tab } : undefined;
@@ -229,11 +246,13 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
 
   const agencyId = readText(
     sourceAd?.assigned_agency_id ??
-    sourceAd?.assignedAgencyId ??
-    sourceAd?.agency_id ??
-    sourceAd?.agencyId ??
-    sourceAd?.publisher_agency_id ??
-    (sourceAd?.agency && typeof sourceAd.agency === "object" ? (sourceAd.agency as Record<string, unknown>).id : undefined)
+      sourceAd?.assignedAgencyId ??
+      sourceAd?.agency_id ??
+      sourceAd?.agencyId ??
+      sourceAd?.publisher_agency_id ??
+      (sourceAd?.agency && typeof sourceAd.agency === "object"
+        ? (sourceAd.agency as Record<string, unknown>).id
+        : undefined),
   );
 
   const agencyDetailQuery = usePublicAgencyDetailQuery({
@@ -276,31 +295,40 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   }
 
   const agencyData = agencyDetailQuery.data as Record<string, unknown> | undefined;
-  const agencyObj = agencyData?.agency && typeof agencyData.agency === "object" ? (agencyData.agency as Record<string, unknown>) : undefined;
+  const agencyObj =
+    agencyData?.agency && typeof agencyData.agency === "object"
+      ? (agencyData.agency as Record<string, unknown>)
+      : undefined;
   const queryPhone = readText(
     agencyData?.phone ??
-    agencyData?.agency_phone ??
-    agencyData?.mobile ??
-    agencyObj?.phone ??
-    agencyObj?.agency_phone ??
-    agencyObj?.mobile
+      agencyData?.agency_phone ??
+      agencyData?.mobile ??
+      agencyObj?.phone ??
+      agencyObj?.agency_phone ??
+      agencyObj?.mobile,
   );
 
   const agencyPhone = readText(
     sourceAd?.assigned_agency_phone ??
-    sourceAd?.agency_phone ??
-    (sourceAd?.agency && typeof sourceAd.agency === "object" ? (sourceAd.agency as Record<string, unknown>).phone : undefined) ??
-    (sourceAd?.assigned_consultant && typeof sourceAd.assigned_consultant === "object" ? (sourceAd.assigned_consultant as Record<string, unknown>).phone : undefined) ??
-    sourceAd?.consultant_phone ??
-    queryPhone ??
-    sourceAd?.phone
+      sourceAd?.agency_phone ??
+      (sourceAd?.agency && typeof sourceAd.agency === "object"
+        ? (sourceAd.agency as Record<string, unknown>).phone
+        : undefined) ??
+      (sourceAd?.assigned_consultant && typeof sourceAd.assigned_consultant === "object"
+        ? (sourceAd.assigned_consultant as Record<string, unknown>).phone
+        : undefined) ??
+      sourceAd?.consultant_phone ??
+      queryPhone ??
+      sourceAd?.phone,
   );
 
   const consultantUserId = readText(
     sourceAd?.assigned_consultant_user_id ??
-    sourceAd?.assigned_consultant_id ??
-    sourceAd?.consultant_user_id ??
-    (sourceAd?.assigned_consultant && typeof sourceAd.assigned_consultant === "object" ? (sourceAd.assigned_consultant as Record<string, unknown>).user_id : undefined)
+      sourceAd?.assigned_consultant_id ??
+      sourceAd?.consultant_user_id ??
+      (sourceAd?.assigned_consultant && typeof sourceAd.assigned_consultant === "object"
+        ? (sourceAd.assigned_consultant as Record<string, unknown>).user_id
+        : undefined),
   );
 
   const showAgencyBottomBar = Boolean(
@@ -308,7 +336,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
       statusInfo.key === "wait_for_agency" ||
       statusInfo.key === "pending" ||
       statusInfo.key === "wait_for_stop") &&
-    statusInfo.key !== "rejected_by_agency"
+    statusInfo.key !== "rejected_by_agency",
   );
 
   const handleCallAgency = () => {
@@ -337,7 +365,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   if (isAssigned) {
     return (
       <PageFrame
-        className="relative flex min-h-0 flex-col overflow-hidden bg-white text-on-surface [direction:rtl]"
+        className="text-on-surface relative flex min-h-0 flex-col overflow-hidden bg-white [direction:rtl]"
         variant="flush"
       >
         <TopBar
@@ -347,7 +375,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
           title="مدیریت آگهی"
         />
 
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container">
+        <main className="bg-surface-container flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
           <AgencyAssignedUserAdView
             ad={sourceAd}
             card={card}
@@ -357,15 +385,14 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
             backState={backState}
             onRefetch={() => detailQuery.refetch()}
             deletedVariant={props?.deletedVariant ?? routeState.deletedVariant}
-            initialCancelAssignmentOpen={props?.initialCancelAssignmentOpen ?? routeState.initialCancelAssignmentOpen}
+            initialCancelAssignmentOpen={
+              props?.initialCancelAssignmentOpen ?? routeState.initialCancelAssignmentOpen
+            }
           />
         </main>
 
         {showAgencyBottomBar ? (
-          <AgencyActionsFooter
-            onCallAgency={handleCallAgency}
-            onSendMessage={handleSendMessage}
-          />
+          <AgencyActionsFooter onCallAgency={handleCallAgency} onSendMessage={handleSendMessage} />
         ) : null}
       </PageFrame>
     );
@@ -381,7 +408,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -391,10 +418,19 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
         title="مدیریت آگهی"
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container">
-        <section className="shrink-0 bg-surface-container-lowest px-4 pb-4 pt-4" aria-label={card.title}>
+      <main className="bg-surface-container flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
+        <section
+          className="bg-surface-container-lowest shrink-0 px-4 pt-4 pb-4"
+          aria-label={card.title}
+        >
           <div className="flex justify-start">
-            <Typography as="span" variant="label" size="medium" weight="medium" className={`inline-flex h-10 items-center rounded-lg px-4 text-sm font-medium leading-5 ${statusInfo.badgeClassName}`}>
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className={`inline-flex h-10 items-center rounded-lg px-4 text-sm leading-5 font-medium ${statusInfo.badgeClassName}`}
+            >
               {statusInfo.label}
             </Typography>
           </div>
@@ -410,7 +446,9 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
           ) : null}
           {statusInfo.key === "wait_for_repost" &&
           (reRegisterStatusQuery.data !== undefined
-            ? Boolean(reRegisterStatusQuery.data?.data?.status ?? reRegisterStatusQuery.data?.status)
+            ? Boolean(
+                reRegisterStatusQuery.data?.data?.status ?? reRegisterStatusQuery.data?.status,
+              )
             : false) ? (
             <WaitForRepostNotice
               ad={sourceAd}
@@ -453,7 +491,9 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
           ) : null}
           {statusInfo.key === "wait_for_deal_confirmation" &&
           (submitResultStatusQuery.data !== undefined
-            ? Boolean(submitResultStatusQuery.data?.data?.status ?? submitResultStatusQuery.data?.status)
+            ? Boolean(
+                submitResultStatusQuery.data?.data?.status ?? submitResultStatusQuery.data?.status,
+              )
             : false) ? (
             <WaitForDealConfirmationNotice
               ad={sourceAd}
@@ -467,16 +507,21 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
               }}
             />
           ) : null}
-          {statusInfo.key === "wait_for_payment" ? <WaitForPaymentNotice adId={adId ?? String(card.id)} /> : null}
+          {statusInfo.key === "wait_for_payment" ? (
+            <WaitForPaymentNotice adId={adId ?? String(card.id)} />
+          ) : null}
           {statusInfo.key === "pending" ? <PendingReviewNotice /> : null}
           {statusInfo.key === "needs_edit" ? (
             <NeedsEditNotice ad={sourceAd} card={card} returnTo={backTo} />
           ) : null}
         </section>
 
-        <div className="h-2 shrink-0 bg-surface-container" aria-hidden="true" />
+        <div className="bg-surface-container h-2 shrink-0" aria-hidden="true" />
 
-        <section className="min-h-[300px] flex-1 shrink-0 bg-surface-container-lowest" aria-label="عملیات آگهی">
+        <section
+          className="bg-surface-container-lowest min-h-[300px] flex-1 shrink-0"
+          aria-label="عملیات آگهی"
+        >
           {actions.map((action, index) => (
             <div key={action.label}>
               <StateAdAction
@@ -493,10 +538,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
       </main>
 
       {showAgencyBottomBar ? (
-        <AgencyActionsFooter
-          onCallAgency={handleCallAgency}
-          onSendMessage={handleSendMessage}
-        />
+        <AgencyActionsFooter onCallAgency={handleCallAgency} onSendMessage={handleSendMessage} />
       ) : null}
 
       <CancelAssignmentBottomSheet
@@ -563,7 +605,11 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
           onConfirm={async (reason: string, description?: string) => {
             if (!adId) return;
             try {
-              await createStopRequestMutation.mutateAsync({ advertiseId: adId, reason, description });
+              await createStopRequestMutation.mutateAsync({
+                advertiseId: adId,
+                reason,
+                description,
+              });
               setIsStopPublishModalOpen(false);
               await detailQuery.refetch();
             } catch (err) {
@@ -605,8 +651,7 @@ function RealEstateManagerAdStatePage({
   const navigate = useNavigate();
   const currentRole = role ?? getActiveAuthRole(getStoredAuthSession());
   const isIndependentConsultant =
-    currentRole === INDEPENDENT_CONSULTANT ||
-    currentRole === "independent-consultant";
+    currentRole === INDEPENDENT_CONSULTANT || currentRole === "independent-consultant";
 
   const agencyQuery = useMyAgencyProfileQuery({ enabled: !isIndependentConsultant });
   const consultantsQuery = useAgencyConsultantsQuery({
@@ -645,16 +690,32 @@ function RealEstateManagerAdStatePage({
   const approveStopMutation = useApproveAgencyStopRequestMutation();
   const rejectStopMutation = useRejectAgencyStopRequestMutation();
   const publisherType = String(ad?.publisher_type ?? ad?.owner_type ?? "").toLowerCase();
-  const publisherAgentId = ad?.publisher_agent_id ?? ad?.assigned_consultant_id ?? ad?.assignedConsultantId ?? ad?.consultant_id ?? ad?.consultantId;
+  const publisherAgentId =
+    ad?.publisher_agent_id ??
+    ad?.assigned_consultant_id ??
+    ad?.assignedConsultantId ??
+    ad?.consultant_id ??
+    ad?.consultantId;
   const publisherAgencyId = ad?.publisher_agency_id ?? ad?.agency_id ?? ad?.agencyId;
   const rawConsultantId = publisherType === "agency" ? undefined : publisherAgentId;
-  const assignedConsultantId = typeof rawConsultantId === "object" ? readEntityId(rawConsultantId) : (rawConsultantId ? String(rawConsultantId) : undefined);
-  const resolvedAgencyId = typeof publisherAgencyId === "object" ? readEntityId(publisherAgencyId) : (publisherAgencyId ? String(publisherAgencyId) : undefined);
+  const assignedConsultantId =
+    typeof rawConsultantId === "object"
+      ? readEntityId(rawConsultantId)
+      : rawConsultantId
+        ? String(rawConsultantId)
+        : undefined;
+  const resolvedAgencyId =
+    typeof publisherAgencyId === "object"
+      ? readEntityId(publisherAgencyId)
+      : publisherAgencyId
+        ? String(publisherAgencyId)
+        : undefined;
 
   const [publisherId, setPublisherId] = useState(() => {
     if (publisherType === "agency" && resolvedAgencyId) return `agency:${resolvedAgencyId}`;
     if (assignedConsultantId) return `consultant:${assignedConsultantId}`;
-    if (publisherType === "agency") return publisherOptions.find((o) => o.type === "agency")?.id ?? "";
+    if (publisherType === "agency")
+      return publisherOptions.find((o) => o.type === "agency")?.id ?? "";
     return "";
   });
   const publisher = useMemo(() => {
@@ -664,7 +725,9 @@ function RealEstateManagerAdStatePage({
     }
     if (publisherType === "agency") {
       if (resolvedAgencyId) {
-        const agencyOption = publisherOptions.find((option) => option.id === `agency:${resolvedAgencyId}`);
+        const agencyOption = publisherOptions.find(
+          (option) => option.id === `agency:${resolvedAgencyId}`,
+        );
         if (agencyOption) return agencyOption;
       }
       const agencyFallback = publisherOptions.find((option) => option.type === "agency");
@@ -681,13 +744,23 @@ function RealEstateManagerAdStatePage({
         const opt = publisherOptions.find((option) => option.id === `consultant:${id}`);
         if (opt) return opt;
       }
-      const directOpt = publisherOptions.find((option) => option.id === `consultant:${assignedConsultantId}`);
+      const directOpt = publisherOptions.find(
+        (option) => option.id === `consultant:${assignedConsultantId}`,
+      );
       if (directOpt) return directOpt;
     }
     return publisherOptions[0];
-  }, [publisherId, publisherType, resolvedAgencyId, assignedConsultantId, publisherOptions, consultantsQuery.data?.data]);
+  }, [
+    publisherId,
+    publisherType,
+    resolvedAgencyId,
+    assignedConsultantId,
+    publisherOptions,
+    consultantsQuery.data?.data,
+  ]);
   const [businessTab, setBusinessTab] = useState<ViewAdBusinessTabKey>(() => {
-    const queryTab = new URLSearchParams(window.location.search).get("businessTab") ||
+    const queryTab =
+      new URLSearchParams(window.location.search).get("businessTab") ||
       new URLSearchParams(window.location.search).get("tab");
     if (queryTab === "performance" || queryTab === "lead" || queryTab === "management") {
       return queryTab;
@@ -732,7 +805,7 @@ function RealEstateManagerAdStatePage({
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -742,38 +815,57 @@ function RealEstateManagerAdStatePage({
         title="مدیریت آگهی"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
-        <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label={card.title}>
+      <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <section className="bg-surface-container-lowest px-4 pt-4 pb-4" aria-label={card.title}>
           <div className="flex justify-start">
-            <Typography as="span" variant="label" size="medium" weight="medium" className={`inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium leading-5 ${statusInfo.badgeClassName}`}>
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className={`inline-flex h-9 items-center rounded-lg px-3 text-sm leading-5 font-medium ${statusInfo.badgeClassName}`}
+            >
               {statusInfo.label}
             </Typography>
           </div>
 
           <ManagerAdSummary ad={ad} card={card} />
 
-          {statusInfo.key === "wait_for_payment" ? (
-            <WaitForPaymentNotice adId={adId} />
-          ) : null}
+          {statusInfo.key === "wait_for_payment" ? <WaitForPaymentNotice adId={adId} /> : null}
 
           {["published", "wait_for_stop", "wait_for_deal_confirmation"].includes(statusInfo.key) ? (
             <PublishedMeta ad={ad} />
           ) : null}
 
           {statusInfo.key === "wait_for_stop" ? (
-            <div className="mt-4 rounded-2xl border border-warning bg-warning-container p-4 text-right">
-              <div className="flex items-center gap-2 text-warning">
+            <div className="border-warning bg-warning-container mt-4 rounded-2xl border p-4 text-right">
+              <div className="text-warning flex items-center gap-2">
                 <AlertIcon className="h-5 w-5 shrink-0" />
-                <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+                <Typography
+                  as="h3"
+                  variant="title"
+                  size="small"
+                  weight="medium"
+                  className="m-0 text-sm leading-5 font-medium"
+                >
                   درخواست توقف انتشار توسط آگهی‌دهنده
                 </Typography>
               </div>
-              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-on-surface m-0 mt-2 text-xs leading-5"
+              >
                 کاربر درخواست توقف انتشار این آگهی را ثبت کرده است.
               </Typography>
-              {ad?.delete_reason && typeof ad.delete_reason === "object" && (ad.delete_reason as Record<string, unknown>).reason ? (
-                <div className="mt-2 rounded-lg bg-surface p-2.5 text-xs font-medium text-on-surface border border-outline-var">
-                  علت درخواست: {formatStopPublishReason((ad.delete_reason as Record<string, unknown>).reason)}
+              {ad?.delete_reason &&
+              typeof ad.delete_reason === "object" &&
+              (ad.delete_reason as Record<string, unknown>).reason ? (
+                <div className="bg-surface text-on-surface border-outline-var mt-2 rounded-lg border p-2.5 text-xs font-medium">
+                  علت درخواست:{" "}
+                  {formatStopPublishReason((ad.delete_reason as Record<string, unknown>).reason)}
                 </div>
               ) : null}
               {(() => {
@@ -787,15 +879,19 @@ function RealEstateManagerAdStatePage({
                   <div className="mt-3 flex gap-2">
                     <Button
                       unstyled
-                      className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-primary text-xs font-medium text-on-primary active:opacity-90 disabled:opacity-50"
+                      className="bg-primary text-on-primary inline-flex h-9 flex-1 items-center justify-center rounded-lg text-xs font-medium active:opacity-90 disabled:opacity-50"
                       disabled={approveStopMutation.isPending || !pendingStopRequestId}
                       onClick={async () => {
                         if (!pendingStopRequestId) return;
                         try {
-                          await approveStopMutation.mutateAsync({ requestId: String(pendingStopRequestId) });
+                          await approveStopMutation.mutateAsync({
+                            requestId: String(pendingStopRequestId),
+                          });
                           window.location.reload();
                         } catch (err) {
-                          alert(getApiErrorMessage(err, "تأیید درخواست توقف انتشار با خطا مواجه شد."));
+                          alert(
+                            getApiErrorMessage(err, "تأیید درخواست توقف انتشار با خطا مواجه شد."),
+                          );
                         }
                       }}
                       type="button"
@@ -804,12 +900,14 @@ function RealEstateManagerAdStatePage({
                     </Button>
                     <Button
                       unstyled
-                      className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-error bg-surface text-xs font-medium text-error active:bg-error-container disabled:opacity-50"
+                      className="border-error bg-surface text-error active:bg-error-container inline-flex h-9 flex-1 items-center justify-center rounded-lg border text-xs font-medium disabled:opacity-50"
                       disabled={rejectStopMutation.isPending || !pendingStopRequestId}
                       onClick={async () => {
                         if (!pendingStopRequestId) return;
                         try {
-                          await rejectStopMutation.mutateAsync({ requestId: String(pendingStopRequestId) });
+                          await rejectStopMutation.mutateAsync({
+                            requestId: String(pendingStopRequestId),
+                          });
                           window.location.reload();
                         } catch (err) {
                           alert(getApiErrorMessage(err, "رد درخواست توقف انتشار با خطا مواجه شد."));
@@ -826,27 +924,35 @@ function RealEstateManagerAdStatePage({
           ) : null}
 
           {statusInfo.key === "wait_for_deal_confirmation" ? (
-            <div className="mt-4 rounded-2xl border border-primary bg-primary-container/20 p-4 text-right">
-              <div className="flex items-center gap-2 text-primary">
+            <div className="border-primary bg-primary-container/20 mt-4 rounded-2xl border p-4 text-right">
+              <div className="text-primary flex items-center gap-2">
                 <ClockIcon className="h-5 w-5 shrink-0" />
-                <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+                <Typography
+                  as="h3"
+                  variant="title"
+                  size="small"
+                  weight="medium"
+                  className="m-0 text-sm leading-5 font-medium"
+                >
                   در انتظار تایید معامله توسط مشتری
                 </Typography>
               </div>
-              <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-on-surface m-0 mt-2 text-xs leading-5"
+              >
                 نتیجه معامله ثبت شده و پیام تایید برای مشتری ارسال شده است (مهلت پاسخ مشتری: ۳ روز).
               </Typography>
             </div>
           ) : null}
         </section>
 
-        <div className="h-2 bg-surface-container" aria-hidden="true" />
+        <div className="bg-surface-container h-2" aria-hidden="true" />
 
-        <ViewAdBusinessTabs
-          activeTab={businessTab}
-          adId={adId}
-          onTabChange={setBusinessTab}
-        />
+        <ViewAdBusinessTabs activeTab={businessTab} adId={adId} onTabChange={setBusinessTab} />
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -864,21 +970,57 @@ function RealEstateManagerAdStatePage({
               <>
                 {!isIndependentConsultant ? (
                   <>
-                    <section className="bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="مسئول آگهی">
-                      <Typography as="h2" variant="label" size="large" weight="medium" className="m-0 text-on-surface">مسئول آگهی (مشاور مسئول)</Typography>
+                    <section
+                      className="bg-surface-container-lowest px-4 pt-4 pb-4"
+                      aria-label="مسئول آگهی"
+                    >
+                      <Typography
+                        as="h2"
+                        variant="label"
+                        size="large"
+                        weight="medium"
+                        className="text-on-surface m-0"
+                      >
+                        مسئول آگهی (مشاور مسئول)
+                      </Typography>
                       <div className="mt-3">
-                        <div className="flex items-center bg-surface rounded-xl p-3 justify-end gap-3 [direction:rtl]">
-                          {publisher ? <PublisherAvatar publisher={publisher} size="small" /> : <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface-container text-outline"><LinearUserSolid className="h-6 w-6" /></div>}
-                          <div className="flex-1 flex gap-1 flex-col justify-center text-right">
-                            <Typography as="p" variant="body" size="large" weight="medium" className="m-0 text-on-surface-var">{publisher?.name ?? "مسئول آگهی مشخص نیست"}</Typography>
-                            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-outline">
-                              {publisher ? (publisher.type === "agency" ? "مدیریت آژانس" : "مشاور مسئول") : "—"}
+                        <div className="bg-surface flex items-center justify-end gap-3 rounded-xl p-3 [direction:rtl]">
+                          {publisher ? (
+                            <PublisherAvatar publisher={publisher} size="small" />
+                          ) : (
+                            <div className="bg-surface-container text-outline grid h-12 w-12 shrink-0 place-items-center rounded-full">
+                              <LinearUserSolid className="h-6 w-6" />
+                            </div>
+                          )}
+                          <div className="flex flex-1 flex-col justify-center gap-1 text-right">
+                            <Typography
+                              as="p"
+                              variant="body"
+                              size="large"
+                              weight="medium"
+                              className="text-on-surface-var m-0"
+                            >
+                              {publisher?.name ?? "مسئول آگهی مشخص نیست"}
+                            </Typography>
+                            <Typography
+                              as="p"
+                              variant="body"
+                              size="small"
+                              weight="regular"
+                              className="text-outline m-0"
+                            >
+                              {publisher
+                                ? publisher.type === "agency"
+                                  ? "مدیریت آژانس"
+                                  : "مشاور مسئول"
+                                : "—"}
                             </Typography>
                           </div>
                         </div>
 
-                        <Button unstyled
-                          className="mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium text-primary active:bg-primary-container"
+                        <Button
+                          unstyled
+                          className="border-primary bg-surface-container-lowest text-primary active:bg-primary-container mt-3 inline-flex h-10 w-full items-center justify-center gap-1 rounded-lg border text-sm font-medium"
                           onClick={() => setIsPublisherPickerOpen(true)}
                           type="button"
                         >
@@ -888,11 +1030,14 @@ function RealEstateManagerAdStatePage({
                       </div>
                     </section>
 
-                    <div className="h-2 bg-surface-container" aria-hidden="true" />
+                    <div className="bg-surface-container h-2" aria-hidden="true" />
                   </>
                 ) : null}
 
-                <section className="min-h-[244px] bg-surface-container-lowest" aria-label="عملیات آگهی">
+                <section
+                  className="bg-surface-container-lowest min-h-[244px]"
+                  aria-label="عملیات آگهی"
+                >
                   {managerActions.map((action, index) => (
                     <div key={action.label}>
                       <StateAdAction
@@ -916,9 +1061,10 @@ function RealEstateManagerAdStatePage({
         <ManagerPublisherPickerPage
           onClose={() => setIsPublisherPickerOpen(false)}
           onConfirm={async (nextPublisher) => {
-            const nextConsultantId = nextPublisher.type === "consultant"
-              ? Number(nextPublisher.id.replace("consultant:", ""))
-              : null;
+            const nextConsultantId =
+              nextPublisher.type === "consultant"
+                ? Number(nextPublisher.id.replace("consultant:", ""))
+                : null;
             try {
               await changeConsultantMutation.mutateAsync({
                 advertiseId: adId,
@@ -947,15 +1093,21 @@ function RealEstateManagerAdStatePage({
         variant="confirm"
         zIndexClassName="z-2000"
       >
-        <div className="px-4 pb-4 pt-1 text-right [direction:rtl]">
-          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm leading-6 text-on-surface">
+        <div className="px-4 pt-1 pb-4 text-right [direction:rtl]">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="medium"
+            className="text-on-surface m-0 text-sm leading-6"
+          >
             آیا از حذف آگهی مطمئن هستید؟
           </Typography>
 
           <div className="mt-6 flex gap-3">
             <Button
               unstyled
-              className="inline-flex h-11 flex-1 items-center justify-center rounded-xl bg-error text-sm font-medium text-white shadow-sm active:opacity-90 disabled:opacity-50"
+              className="bg-error inline-flex h-11 flex-1 items-center justify-center rounded-xl text-sm font-medium text-white shadow-sm active:opacity-90 disabled:opacity-50"
               disabled={isDeleting}
               onClick={handleDeleteAd}
               type="button"
@@ -964,7 +1116,7 @@ function RealEstateManagerAdStatePage({
             </Button>
             <Button
               unstyled
-              className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-outline-var bg-surface text-sm font-medium text-on-surface active:bg-surface-container"
+              className="border-outline-var bg-surface text-on-surface active:bg-surface-container inline-flex h-11 flex-1 items-center justify-center rounded-xl border text-sm font-medium"
               disabled={isDeleting}
               onClick={() => setIsDeleteDialogOpen(false)}
               type="button"
@@ -985,12 +1137,28 @@ function getManagerActions(
   isAdDeleted?: boolean,
 ): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
-  const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId, getAdStatePath(adId)) };
+  const edit: StateAction = {
+    icon: "edit",
+    label: "ویرایش",
+    to: getAdEditPath(adId, getAdStatePath(adId)),
+  };
   const payment: StateAction = { icon: "payment", label: "پرداخت", to: getAdPaymentPath(adId) };
-  const result: StateAction = { icon: "result", label: "ثبت نتیجه آگهی", to: getAdCloseResultPath(adId) };
+  const result: StateAction = {
+    icon: "result",
+    label: "ثبت نتیجه آگهی",
+    to: getAdCloseResultPath(adId),
+  };
   const remove: StateAction = { icon: "delete", label: "حذف", onClick: onDelete };
-  const upgrade: StateAction = { icon: "upgrade", label: "ارتقای آگهی", to: getAdIncreaseVisitsPath(adId) };
-  const history: StateAction = { icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) };
+  const upgrade: StateAction = {
+    icon: "upgrade",
+    label: "ارتقای آگهی",
+    to: getAdIncreaseVisitsPath(adId),
+  };
+  const history: StateAction = {
+    icon: "history",
+    label: "تاریخچه پرداخت",
+    to: getAdPaymentHistoryPath(adId),
+  };
 
   if (isAdDeleted || status === "deleted" || status === "incomplete_deleted") {
     return [preview, history];
@@ -1016,20 +1184,37 @@ function getManagerActions(
   return [preview, edit, history];
 }
 
-function ManagerAdSummary({
-  ad,
-  card,
-}: {
-  ad?: Record<string, unknown>;
-  card: AdCardData;
-}) {
-  const subtitle = readText(ad?.category ?? ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
+function ManagerAdSummary({ ad, card }: { ad?: Record<string, unknown>; card: AdCardData }) {
+  const subtitle =
+    readText(
+      ad?.category ??
+        ad?.category_title ??
+        ad?.categoryTitle ??
+        ad?.category_name ??
+        ad?.categoryName,
+    ) || "—";
 
   return (
-    <div className="mt-4 flex h-[68px] items-center rounded-2xl bg-surface px-3 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]">
+    <div className="bg-surface mt-4 flex h-[68px] items-center rounded-2xl px-3 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]">
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-4 text-on-surface-var">{subtitle}</Typography>
-        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-medium leading-5 text-on-surface">{card.title}</Typography>
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var m-0 truncate text-xs leading-4 font-normal"
+        >
+          {subtitle}
+        </Typography>
+        <Typography
+          as="h2"
+          variant="title"
+          size="small"
+          weight="medium"
+          className="text-on-surface m-0 mt-1 truncate text-sm leading-5 font-medium"
+        >
+          {card.title}
+        </Typography>
       </div>
       <div
         aria-hidden="true"
@@ -1057,13 +1242,14 @@ function ManagerPublisherPickerPage({
   const visiblePublishers = normalizedSearch
     ? options.filter((publisher) => publisher.name.includes(normalizedSearch))
     : options;
-  const draftPublisher = options.find((publisher) => publisher.id === draftPublisherId) ?? selectedPublisher;
+  const draftPublisher =
+    options.find((publisher) => publisher.id === draftPublisherId) ?? selectedPublisher;
 
   return (
     <section
       aria-label="تغییر منتشرکننده"
       aria-modal="true"
-      className="fixed inset-y-0 left-1/2 z-[1200] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface fixed inset-y-0 left-1/2 z-[1200] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden [direction:rtl]"
       role="dialog"
     >
       <TopBar
@@ -1076,7 +1262,7 @@ function ManagerPublisherPickerPage({
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest px-4 pb-24 pt-3">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto px-4 pt-3 pb-24">
         <SearchInputBar
           aria-label="جستجوی مشاور"
           containerClassName="rounded-lg border-outline-var"
@@ -1090,34 +1276,56 @@ function ManagerPublisherPickerPage({
         />
 
         <div className="mt-5 grid gap-2" role="radiogroup" aria-label="انتخاب منتشرکننده">
-          {visiblePublishers.length === 0 ? <SearchEmptyState /> : visiblePublishers.map((publisher) => {
-            const selected = draftPublisherId === publisher.id;
+          {visiblePublishers.length === 0 ? (
+            <SearchEmptyState />
+          ) : (
+            visiblePublishers.map((publisher) => {
+              const selected = draftPublisherId === publisher.id;
 
-            return (
-              <Button unstyled
-                aria-checked={selected}
-                className="flex w-full py-2 px-4 items-center justify-between gap-3 rounded-lg bg-surface-container-lowest text-right [direction:ltr] active:bg-surface-container"
-                key={publisher.id}
-                onClick={() => setDraftPublisherId(publisher.id)}
-                role="radio"
-                type="button"
-              >
-                <RadioIndicator checked={selected} />
-                <Typography as="span" variant="body" size="medium" weight="regular" className="flex min-w-0 flex-1 items-center gap-3 [direction:rtl]">
-                  <PublisherAvatar publisher={publisher} size="large" />
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface">{publisher.name}</Typography>
-                </Typography>
-              </Button>
-            );
-          })}
+              return (
+                <Button
+                  unstyled
+                  aria-checked={selected}
+                  className="bg-surface-container-lowest active:bg-surface-container flex w-full items-center justify-between gap-3 rounded-lg px-4 py-2 text-right [direction:ltr]"
+                  key={publisher.id}
+                  onClick={() => setDraftPublisherId(publisher.id)}
+                  role="radio"
+                  type="button"
+                >
+                  <RadioIndicator checked={selected} />
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="medium"
+                    weight="regular"
+                    className="flex min-w-0 flex-1 items-center gap-3 [direction:rtl]"
+                  >
+                    <PublisherAvatar publisher={publisher} size="large" />
+                    <Typography
+                      as="span"
+                      variant="body"
+                      size="medium"
+                      weight="regular"
+                      className="text-on-surface"
+                    >
+                      {publisher.name}
+                    </Typography>
+                  </Typography>
+                </Button>
+              );
+            })
+          )}
         </div>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <Button unstyled
-          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary active:opacity-90"
+      <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+        <Button
+          unstyled
+          className="bg-primary text-on-primary inline-flex h-10 w-full items-center justify-center rounded-lg text-sm leading-5 font-medium active:opacity-90"
           disabled={!draftPublisher}
-          onClick={() => { if (draftPublisher) onConfirm(draftPublisher); }}
+          onClick={() => {
+            if (draftPublisher) onConfirm(draftPublisher);
+          }}
           type="button"
         >
           انتخاب
@@ -1132,7 +1340,11 @@ function getStateAdBackPath(routeState: MyAdRouteState, isAssigned = false) {
   const returnTo = normalizeLocalPath(routeState.returnTo);
 
   if (isAssigned) {
-    if (returnTo && !returnTo.startsWith("/account/manage-ads") && !returnTo.startsWith("/account/ad-management")) {
+    if (
+      returnTo &&
+      !returnTo.startsWith("/account/manage-ads") &&
+      !returnTo.startsWith("/account/ad-management")
+    ) {
       return returnTo;
     }
     return "/account/my-ads";
@@ -1182,30 +1394,47 @@ function readAdIdFromPath() {
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }
 
-function StateAdSummary({
-  ad,
-  card,
-}: {
-  ad?: Record<string, unknown>;
-  card: AdCardData;
-}) {
-  const subtitle = readText(ad?.category ?? ad?.category_title ?? ad?.categoryTitle ?? ad?.category_name ?? ad?.categoryName) || "—";
+function StateAdSummary({ ad, card }: { ad?: Record<string, unknown>; card: AdCardData }) {
+  const subtitle =
+    readText(
+      ad?.category ??
+        ad?.category_title ??
+        ad?.categoryTitle ??
+        ad?.category_name ??
+        ad?.categoryName,
+    ) || "—";
 
   return (
-    <div className="mt-4 flex h-[80px] items-center gap-3 rounded-2xl border border-surface-container-high bg-surface-container-low px-4 [direction:rtl]">
+    <div className="border-surface-container-high bg-surface-container-low mt-4 flex h-[80px] items-center gap-3 rounded-2xl border px-4 [direction:rtl]">
       {/* Ad image */}
       <div
         aria-hidden="true"
         className={`ad-card__image ${card.imageClassName} h-[52px] w-[70px] shrink-0 rounded-lg bg-cover bg-center`}
-        style={card.imageUrl ? { backgroundImage: `url(${card.imageUrl})` } : { backgroundColor: "#E0E0E0" }}
+        style={
+          card.imageUrl
+            ? { backgroundImage: `url(${card.imageUrl})` }
+            : { backgroundColor: "#E0E0E0" }
+        }
       />
 
       {/* Ad info */}
       <div className="min-w-0 flex-1 text-right">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 truncate text-xs font-normal leading-5 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var m-0 truncate text-xs leading-5 font-normal"
+        >
           {subtitle}
         </Typography>
-        <Typography as="h2" variant="title" size="small" weight="medium" className="m-0 mt-1 truncate text-sm font-semibold leading-5 text-on-surface">
+        <Typography
+          as="h2"
+          variant="title"
+          size="small"
+          weight="medium"
+          className="text-on-surface m-0 mt-1 truncate text-sm leading-5 font-semibold"
+        >
           {card.title}
         </Typography>
       </div>
@@ -1229,23 +1458,23 @@ function PublishedMeta({ ad }: { ad?: Record<string, unknown> }) {
   const published = readDateLike(publishedRaw, ad?.published_hours_ago);
   const expires = readExpirationRemaining(
     ad?.expire_date ??
-    ad?.expireDate ??
-    ad?.expires_at ??
-    ad?.expiresAt ??
-    ad?.expiration_date ??
-    ad?.expirationDate ??
-    ad?.expired_at ??
-    (typeof ad?.expire === "object" && ad?.expire && "expires_at" in ad.expire
-      ? (ad.expire as { expires_at?: unknown }).expires_at
-      : undefined) ??
-    ad?.expires_time_ago,
+      ad?.expireDate ??
+      ad?.expires_at ??
+      ad?.expiresAt ??
+      ad?.expiration_date ??
+      ad?.expirationDate ??
+      ad?.expired_at ??
+      (typeof ad?.expire === "object" && ad?.expire && "expires_at" in ad.expire
+        ? (ad.expire as { expires_at?: unknown }).expires_at
+        : undefined) ??
+      ad?.expires_time_ago,
     publishedRaw,
   );
 
   return (
-    <div className="mt-4 text-sm font-medium leading-5">
+    <div className="mt-4 text-sm leading-5 font-medium">
       <MetaRow label="انتشار" value={published} />
-      <div className="border-t border-dashed border-outline-var" aria-hidden="true" />
+      <div className="border-outline-var border-t border-dashed" aria-hidden="true" />
       <MetaRow label="انقضا" value={expires} />
     </div>
   );
@@ -1260,8 +1489,8 @@ function renderDateWithRelative(text: string) {
     const date = match1[2].trim();
     return (
       <span className="inline-flex items-center gap-1.5 [direction:rtl]">
-        <span className="text-sm font-medium text-outline">{relative}</span>
-        <span className="text-sm font-medium text-on-surface">{date}</span>
+        <span className="text-outline text-sm font-medium">{relative}</span>
+        <span className="text-on-surface text-sm font-medium">{date}</span>
       </span>
     );
   }
@@ -1272,42 +1501,75 @@ function renderDateWithRelative(text: string) {
     const relative = `(${match2[2].trim()})`;
     return (
       <span className="inline-flex items-center gap-1.5 [direction:rtl]">
-        <span className="text-sm font-medium text-on-surface">{date}</span>
-        <span className="text-sm font-medium text-outline">{relative}</span>
+        <span className="text-on-surface text-sm font-medium">{date}</span>
+        <span className="text-outline text-sm font-medium">{relative}</span>
       </span>
     );
   }
 
-  if (text.includes("پیش") || text.includes("دیگر") || text.includes("قبل") || text.includes("مانده")) {
-    return <span className="text-sm font-medium text-outline">{text}</span>;
+  if (
+    text.includes("پیش") ||
+    text.includes("دیگر") ||
+    text.includes("قبل") ||
+    text.includes("مانده")
+  ) {
+    return <span className="text-outline text-sm font-medium">{text}</span>;
   }
 
-  return <span className="text-sm font-medium text-on-surface">{text}</span>;
+  return <span className="text-on-surface text-sm font-medium">{text}</span>;
 }
 
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex h-12 items-center justify-between gap-4 [direction:ltr]">
       <div className="[direction:rtl]">{renderDateWithRelative(value)}</div>
-      <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline [direction:rtl]">{label}</Typography>
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-outline [direction:rtl]"
+      >
+        {label}
+      </Typography>
     </div>
   );
 }
 
 function PendingReviewNotice() {
   return (
-    <div className="mt-4 rounded-lg border border-warning bg-warning-container px-4 py-3 text-right">
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-on-surface">
+    <div className="border-warning bg-warning-container mt-4 rounded-lg border px-4 py-3 text-right">
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-on-surface m-0 text-sm leading-7 font-normal"
+      >
         این آگهی در صف بررسی سامانه قرار دارد.
       </Typography>
       <Typography as="p" variant="body" size="medium" weight="regular">
         پس از تایید، آگهی به صورت خودکار منتشر می‌شود.
       </Typography>
 
-      <div className="mt-3 border-t border-dashed border-outline-var pt-3">
-        <div className="flex h-6 items-center justify-between gap-4 text-xs font-normal leading-4 [direction:ltr]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface [direction:rtl]">بین 1 تا 6 ساعت</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-2 text-on-surface-var [direction:rtl]">
+      <div className="border-outline-var mt-3 border-t border-dashed pt-3">
+        <div className="flex h-6 items-center justify-between gap-4 text-xs leading-4 font-normal [direction:ltr]">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface [direction:rtl]"
+          >
+            بین 1 تا 6 ساعت
+          </Typography>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var inline-flex items-center gap-2 [direction:rtl]"
+          >
             <ClockIcon className="h-5 w-5" />
             زمان تقریبی بررسی:
           </Typography>
@@ -1327,24 +1589,40 @@ function NeedsEditNotice({
   returnTo: string;
 }) {
   return (
-    <div className="mt-4 rounded-2xl border border-warning bg-warning-container p-4 text-right">
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm font-normal leading-7 text-on-surface">
+    <div className="border-warning bg-warning-container mt-4 rounded-2xl border p-4 text-right">
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-on-surface m-0 text-sm leading-7 font-normal"
+      >
         برای انتشار مجدد آگهی، لطفا موارد زیر را اصلاح کنید.
       </Typography>
 
-      <div className="mt-3 rounded-lg border border-warning bg-surface-container-lowest px-3 py-3">
-        <div className="flex items-center justify-start gap-2 text-warning">
+      <div className="border-warning bg-surface-container-lowest mt-3 rounded-lg border px-3 py-3">
+        <div className="text-warning flex items-center justify-start gap-2">
           <AlertIcon className="h-5 w-5 shrink-0" />
-          <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">دلیل توقف انتشار</Typography>
+          <Typography
+            as="h3"
+            variant="title"
+            size="small"
+            weight="medium"
+            className="m-0 text-sm leading-5 font-medium"
+          >
+            دلیل توقف انتشار
+          </Typography>
         </div>
 
-        <ul className="m-0 mt-2 list-disc space-y-2 pr-5 text-xs font-normal leading-6 text-on-surface marker:text-outline">
-          {readModerationReasons(ad).map((reason) => <li key={reason}>{reason}</li>)}
+        <ul className="text-on-surface marker:text-outline m-0 mt-2 list-disc space-y-2 pr-5 text-xs leading-6 font-normal">
+          {readModerationReasons(ad).map((reason) => (
+            <li key={reason}>{reason}</li>
+          ))}
         </ul>
       </div>
 
       <Link
-        className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline"
+        className="bg-primary text-on-primary mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg text-sm leading-5 font-medium no-underline"
         state={{
           ad,
           card,
@@ -1363,11 +1641,13 @@ function NeedsEditNotice({
 
 function WaitForPaymentNotice({ adId }: { adId?: string }) {
   return (
-    <div className="mt-4 flex items-center justify-between rounded-xl bg-warning-container p-3 text-on-warning-container">
-      <span className="text-sm font-medium">برای ادامه فرایند انتشار آگهی، پرداخت را تکمیل کنید.</span>
+    <div className="bg-warning-container text-on-warning-container mt-4 flex items-center justify-between rounded-xl p-3">
+      <span className="text-sm font-medium">
+        برای ادامه فرایند انتشار آگهی، پرداخت را تکمیل کنید.
+      </span>
       {adId ? (
         <Link
-          className="inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3 text-xs font-medium text-on-primary no-underline"
+          className="bg-primary text-on-primary inline-flex h-8 items-center justify-center rounded-lg px-3 text-xs font-medium no-underline"
           to={getAdPaymentPath(adId)}
           state={{ paymentFlow: "new-ad" }}
         >
@@ -1386,35 +1666,59 @@ function getStateActions(
   onStopPublish?: () => void,
 ): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
-  const edit: StateAction = { icon: "edit", label: "ویرایش", to: getAdEditPath(adId, getAdStatePath(adId)) };
+  const edit: StateAction = {
+    icon: "edit",
+    label: "ویرایش",
+    to: getAdEditPath(adId, getAdStatePath(adId)),
+  };
   const remove: StateAction = {
     icon: "delete",
     label: "حذف",
     to: `${adManagementPaths.delete}?adId=${encodeURIComponent(adId)}`,
   };
-  const upgrade: StateAction = { icon: "upgrade", label: "ارتقای آگهی", to: getAdIncreaseVisitsPath(adId) };
-  const stats: StateAction = { icon: "stats", label: "آمار بازدید", to: getAdVisitStatisticsPath(adId) };
-  const history: StateAction = { icon: "history", label: "تاریخچه پرداخت", to: getAdPaymentHistoryPath(adId) };
+  const upgrade: StateAction = {
+    icon: "upgrade",
+    label: "ارتقای آگهی",
+    to: getAdIncreaseVisitsPath(adId),
+  };
+  const stats: StateAction = {
+    icon: "stats",
+    label: "آمار بازدید",
+    to: getAdVisitStatisticsPath(adId),
+  };
+  const history: StateAction = {
+    icon: "history",
+    label: "تاریخچه پرداخت",
+    to: getAdPaymentHistoryPath(adId),
+  };
   const payment: StateAction = { icon: "payment", label: "پرداخت", to: getAdPaymentPath(adId) };
 
   const rawPhone =
     ad?.assigned_agency_phone ??
     ad?.agency_phone ??
-    (ad?.assigned_consultant && typeof ad.assigned_consultant === "object" ? (ad.assigned_consultant as Record<string, unknown>).phone : undefined) ??
+    (ad?.assigned_consultant && typeof ad.assigned_consultant === "object"
+      ? (ad.assigned_consultant as Record<string, unknown>).phone
+      : undefined) ??
     ad?.consultant_phone ??
-    (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).phone : undefined) ??
+    (ad?.agency && typeof ad.agency === "object"
+      ? (ad.agency as Record<string, unknown>).phone
+      : undefined) ??
     ad?.phone;
   const contactPhone = readText(rawPhone);
   const agencyId = readText(
     ad?.assigned_agency_id ??
-    ad?.agency_id ??
-    (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).id : undefined)
+      ad?.agency_id ??
+      (ad?.agency && typeof ad.agency === "object"
+        ? (ad.agency as Record<string, unknown>).id
+        : undefined),
   );
 
   const consultantUserId = readText(
     ad?.assigned_consultant_id ??
-    ad?.user_chat_id ??
-    (ad?.assigned_consultant && typeof ad.assigned_consultant === "object" ? (ad.assigned_consultant as Record<string, unknown>).user_id : undefined)
+      ad?.user_chat_id ??
+      (ad?.assigned_consultant && typeof ad.assigned_consultant === "object"
+        ? (ad.assigned_consultant as Record<string, unknown>).user_id
+        : undefined),
   );
 
   const callAgency: StateAction = {
@@ -1459,7 +1763,8 @@ function getStateActions(
   if (status === "wait_for_agency") return [preview, edit, callAgency, chatAgency, history];
   if (status === "wait_for_stop") return [preview, edit, callAgency, chatAgency, history];
   if (status === "wait_for_deal_confirmation") return [preview, history];
-  if (status === "wait_for_repost" || status === "rejected_by_agency") return [preview, remove, history];
+  if (status === "wait_for_repost" || status === "rejected_by_agency")
+    return [preview, remove, history];
   if (status === "archived") return [preview, remove];
   if (status === "wait_for_payment") return [preview, edit, payment, remove, history];
   if (status === "pending") {
@@ -1470,7 +1775,8 @@ function getStateActions(
   }
   if (status === "needs_edit") return [edit, preview, history];
   if (status === "incomplete") return [edit, payment, remove];
-  if (status === "expired" || status === "deleted" || status === "incomplete_deleted") return [preview, history];
+  if (status === "expired" || status === "deleted" || status === "incomplete_deleted")
+    return [preview, history];
 
   return [preview, history];
 }
@@ -1490,8 +1796,14 @@ function StateAdAction({
 }) {
   const content = (
     <>
-      <ChevronLeftIcon className="h-6 w-6 text-on-surface-var" />
-      <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex gap-2 [direction:rtl]">
+      <ChevronLeftIcon className="text-on-surface-var h-6 w-6" />
+      <Typography
+        as="span"
+        variant="label"
+        size="large"
+        weight="medium"
+        className="inline-flex gap-2 [direction:rtl]"
+      >
         <StateIcon icon={action.icon} />
         {action.label}
       </Typography>
@@ -1502,7 +1814,7 @@ function StateAdAction({
     return (
       <Button
         unstyled
-        className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var active:bg-surface-container [direction:ltr]"
+        className="text-on-surface-var active:bg-surface-container flex h-14 w-full items-center justify-between px-4 [direction:ltr]"
         onClick={action.onClick}
         type="button"
       >
@@ -1518,12 +1830,12 @@ function StateAdAction({
       ad?.assignment_status === "pending" ||
       ad?.assignment_status === "accepted" ||
       ad?.status === "wait_for_agency" ||
-      ad?.status_key === "wait_for_agency"
+      ad?.status_key === "wait_for_agency",
     );
 
     return (
       <Link
-        className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var no-underline [direction:ltr]"
+        className="text-on-surface-var flex h-14 w-full items-center justify-between px-4 no-underline [direction:ltr]"
         state={{
           ad: action.icon === "upgrade" && !ad ? card : ad,
           card,
@@ -1531,10 +1843,7 @@ function StateAdAction({
           deleteReturnTo: action.icon === "delete" ? window.location.pathname : undefined,
           editReturnTo: window.location.pathname,
           isEditMode: action.icon === "edit" ? true : undefined,
-          previewFlow:
-            action.icon === "preview" && isAdAssigned
-              ? "agency-allocation"
-              : undefined,
+          previewFlow: action.icon === "preview" && isAdAssigned ? "agency-allocation" : undefined,
           paymentFlow:
             action.icon === "upgrade"
               ? "upgrade"
@@ -1553,8 +1862,9 @@ function StateAdAction({
   }
 
   return (
-    <Button unstyled
-      className="flex h-14 w-full items-center justify-between px-4 text-on-surface [direction:ltr]"
+    <Button
+      unstyled
+      className="text-on-surface flex h-14 w-full items-center justify-between px-4 [direction:ltr]"
       type="button"
     >
       {content}
@@ -1565,24 +1875,24 @@ function StateAdAction({
 function ActionDivider() {
   return (
     <div className="flex h-[5px] items-center px-4" aria-hidden="true">
-      <div className="h-px w-full bg-outline-var" />
+      <div className="bg-outline-var h-px w-full" />
     </div>
   );
 }
 
 function StateIcon({ icon }: { icon: StateActionKey }) {
-  if (icon === "preview") return <LinearPreview className="h-6 w-6"/>;
-  if (icon === "edit") return <LinearEdit2 className="h-6 w-6"/>;
-  if (icon === "delete") return <LinearDelete className="h-6 w-6"/>;
-  if (icon === "upgrade") return <LinearChartUp className="h-6 w-6"/>;
-  if (icon === "payment") return <LinearPayment className="h-6 w-6"/>;
-  if (icon === "result") return <LinearFlag className="w-6 h-6"/>;
-  if (icon === "stats") return <LinearAnalytics className="h-6 w-6"/>;
-  if (icon === "call") return <LinearCall className="h-6 w-6"/>;
-  if (icon === "chat") return <LinearChat className="h-6 w-6"/>;
-  if (icon === "stop_publish") return <LinearCancel className="h-6 w-6"/>;
+  if (icon === "preview") return <LinearPreview className="h-6 w-6" />;
+  if (icon === "edit") return <LinearEdit2 className="h-6 w-6" />;
+  if (icon === "delete") return <LinearDelete className="h-6 w-6" />;
+  if (icon === "upgrade") return <LinearChartUp className="h-6 w-6" />;
+  if (icon === "payment") return <LinearPayment className="h-6 w-6" />;
+  if (icon === "result") return <LinearFlag className="h-6 w-6" />;
+  if (icon === "stats") return <LinearAnalytics className="h-6 w-6" />;
+  if (icon === "call") return <LinearCall className="h-6 w-6" />;
+  if (icon === "chat") return <LinearChat className="h-6 w-6" />;
+  if (icon === "stop_publish") return <LinearCancel className="h-6 w-6" />;
 
-  return <LinearFactor className="h-6 w-6"/>;
+  return <LinearFactor className="h-6 w-6" />;
 }
 
 function WaitForAgencyNotice({
@@ -1592,25 +1902,51 @@ function WaitForAgencyNotice({
   ad?: Record<string, unknown>;
   onCancelAssignment: () => void;
 }) {
-  const agencyName = readText(ad?.assigned_agency_name ?? ad?.agency_name ?? (ad?.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>).name : undefined)) || "آژانس املاک";
+  const agencyName =
+    readText(
+      ad?.assigned_agency_name ??
+        ad?.agency_name ??
+        (ad?.agency && typeof ad.agency === "object"
+          ? (ad.agency as Record<string, unknown>).name
+          : undefined),
+    ) || "آژانس املاک";
   const agencyStartDate = getAgencyAssignmentStartDate(ad);
   const deadlineRemaining = readAgencyDeadlineRemaining(agencyStartDate);
 
   return (
-    <div className="mt-4 rounded-2xl border border-warning bg-warning-container/30 p-4 text-right">
-      <div className="flex items-center gap-2 text-warning">
+    <div className="border-warning bg-warning-container/30 mt-4 rounded-2xl border p-4 text-right">
+      <div className="text-warning flex items-center gap-2">
         <ClockIcon className="h-5 w-5 shrink-0" />
-        <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+        <Typography
+          as="h3"
+          variant="title"
+          size="small"
+          weight="medium"
+          className="m-0 text-sm leading-5 font-medium"
+        >
           در انتظار بررسی و تایید {agencyName}
         </Typography>
       </div>
 
-      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
-        آگهی شما با موفقیت برای این آژانس ارسال شده است. مهلت بررسی آژانس حداکثر ۲۴ ساعت است. در صورت تمایل می‌توانید پیش از تایید آژانس، با آژانس ارتباط بگیرید یا واگذاری را لغو کنید.
+      <Typography
+        as="p"
+        variant="body"
+        size="small"
+        weight="regular"
+        className="text-on-surface-var m-0 mt-2 text-xs leading-5"
+      >
+        آگهی شما با موفقیت برای این آژانس ارسال شده است. مهلت بررسی آژانس حداکثر ۲۴ ساعت است. در
+        صورت تمایل می‌توانید پیش از تایید آژانس، با آژانس ارتباط بگیرید یا واگذاری را لغو کنید.
       </Typography>
 
-      <div className="mt-3 flex items-center justify-between border-t border-dashed border-outline-var pt-3 text-xs text-outline [direction:ltr]">
-        <Typography as="span" variant="body" size="small" weight="medium" className="text-on-surface [direction:rtl]">
+      <div className="border-outline-var text-outline mt-3 flex items-center justify-between border-t border-dashed pt-3 text-xs [direction:ltr]">
+        <Typography
+          as="span"
+          variant="body"
+          size="small"
+          weight="medium"
+          className="text-on-surface [direction:rtl]"
+        >
           {deadlineRemaining}
         </Typography>
         <span className="[direction:rtl]">مهلت باقی‌مانده تایید آژانس:</span>
@@ -1618,7 +1954,7 @@ function WaitForAgencyNotice({
 
       <Button
         unstyled
-        className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-error bg-transparent text-xs font-medium text-error active:bg-error-container"
+        className="border-error text-error active:bg-error-container mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border bg-transparent text-xs font-medium"
         onClick={onCancelAssignment}
         type="button"
       >
@@ -1642,7 +1978,7 @@ function WaitForRepostNotice({
       ? (ad.delete_reason as Record<string, unknown>).repost_deadline
       : undefined,
     7,
-    ad?.updated_at ?? ad?.updatedAt
+    ad?.updated_at ?? ad?.updatedAt,
   );
   const repostRemaining =
     reRegisterData?.expire || reRegisterData?.expires_at || reRegisterData?.reason
@@ -1654,20 +1990,39 @@ function WaitForRepostNotice({
       : fallbackRemaining;
 
   return (
-    <div className="mt-4 rounded-2xl border border-warning bg-warning-container p-4 text-right">
-      <div className="flex items-center gap-2 text-warning">
+    <div className="border-warning bg-warning-container mt-4 rounded-2xl border p-4 text-right">
+      <div className="text-warning flex items-center gap-2">
         <AlertIcon className="h-5 w-5 shrink-0" />
-        <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+        <Typography
+          as="h3"
+          variant="title"
+          size="small"
+          weight="medium"
+          className="m-0 text-sm leading-5 font-medium"
+        >
           در انتظار انتشار مجدد
         </Typography>
       </div>
 
-      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
-        واگذاری این آگهی لغو شده است. شما ۷ روز فرصت دارید تا این آگهی را به آژانس دیگری واگذار کنید یا با پرداخت هزینه، مستقیماً منتشر نمایید.
+      <Typography
+        as="p"
+        variant="body"
+        size="small"
+        weight="regular"
+        className="text-on-surface m-0 mt-2 text-xs leading-5"
+      >
+        واگذاری این آگهی لغو شده است. شما ۷ روز فرصت دارید تا این آگهی را به آژانس دیگری واگذار کنید
+        یا با پرداخت هزینه، مستقیماً منتشر نمایید.
       </Typography>
 
-      <div className="mt-3 flex items-center justify-between border-t border-dashed border-outline-var pt-3 text-xs text-outline [direction:ltr]">
-        <Typography as="span" variant="body" size="small" weight="medium" className="text-on-surface [direction:rtl]">
+      <div className="border-outline-var text-outline mt-3 flex items-center justify-between border-t border-dashed pt-3 text-xs [direction:ltr]">
+        <Typography
+          as="span"
+          variant="body"
+          size="small"
+          weight="medium"
+          className="text-on-surface [direction:rtl]"
+        >
           {repostRemaining}
         </Typography>
         <span className="[direction:rtl]">مهلت انتشار مجدد:</span>
@@ -1675,7 +2030,7 @@ function WaitForRepostNotice({
 
       <Button
         unstyled
-        className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-xs font-medium text-on-primary active:opacity-90"
+        className="bg-primary text-on-primary mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg text-xs font-medium active:opacity-90"
         onClick={onRepost}
         type="button"
       >
@@ -1701,7 +2056,7 @@ function ArchivedNotice({
       ? (ad.delete_reason as Record<string, unknown>).archive_deadline
       : undefined,
     30,
-    ad?.updated_at ?? ad?.updatedAt
+    ad?.updated_at ?? ad?.updatedAt,
   );
   const archiveRemaining =
     archiveData?.expire || archiveData?.expires_at || archiveData?.reason
@@ -1713,20 +2068,39 @@ function ArchivedNotice({
       : fallbackRemaining;
 
   return (
-    <div className="mt-4 rounded-2xl border border-outline-var bg-surface p-4 text-right">
-      <div className="flex items-center gap-2 text-outline">
+    <div className="border-outline-var bg-surface mt-4 rounded-2xl border p-4 text-right">
+      <div className="text-outline flex items-center gap-2">
         <ClockIcon className="h-5 w-5 shrink-0" />
-        <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5 text-on-surface">
+        <Typography
+          as="h3"
+          variant="title"
+          size="small"
+          weight="medium"
+          className="text-on-surface m-0 text-sm leading-5 font-medium"
+        >
           آگهی بایگانی شده
         </Typography>
       </div>
 
-      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
-        مهلت انتشار مجدد این آگهی به پایان رسیده و آگهی به بایگانی منتقل شده است. تا ۱ ماه می‌توانید آگهی را بازیابی کنید. پس از آن برای همیشه حذف خواهد شد.
+      <Typography
+        as="p"
+        variant="body"
+        size="small"
+        weight="regular"
+        className="text-on-surface-var m-0 mt-2 text-xs leading-5"
+      >
+        مهلت انتشار مجدد این آگهی به پایان رسیده و آگهی به بایگانی منتقل شده است. تا ۱ ماه می‌توانید
+        آگهی را بازیابی کنید. پس از آن برای همیشه حذف خواهد شد.
       </Typography>
 
-      <div className="mt-3 flex items-center justify-between border-t border-dashed border-outline-var pt-3 text-xs text-outline [direction:ltr]">
-        <Typography as="span" variant="body" size="small" weight="medium" className="text-on-surface [direction:rtl]">
+      <div className="border-outline-var text-outline mt-3 flex items-center justify-between border-t border-dashed pt-3 text-xs [direction:ltr]">
+        <Typography
+          as="span"
+          variant="body"
+          size="small"
+          weight="medium"
+          className="text-on-surface [direction:rtl]"
+        >
           {archiveRemaining}
         </Typography>
         <span className="[direction:rtl]">مهلت بازیابی از بایگانی:</span>
@@ -1734,7 +2108,7 @@ function ArchivedNotice({
 
       <Button
         unstyled
-        className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg border border-primary bg-surface-container-lowest text-xs font-medium text-primary active:bg-primary-container disabled:opacity-50"
+        className="border-primary bg-surface-container-lowest text-primary active:bg-primary-container mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg border text-xs font-medium disabled:opacity-50"
         disabled={isPending}
         onClick={onRestore}
         type="button"
@@ -1752,34 +2126,56 @@ function RejectedByAgencyNotice({
   ad?: Record<string, unknown>;
   onRepost: () => void;
 }) {
-  const reason = (ad?.delete_reason && typeof ad.delete_reason === "object"
-    ? (ad.delete_reason as Record<string, unknown>).reason
-    : undefined) ?? ad?.reject_reason ?? ad?.rejection_reason ?? "عدم توافق در شرایط انتشار";
+  const reason =
+    (ad?.delete_reason && typeof ad.delete_reason === "object"
+      ? (ad.delete_reason as Record<string, unknown>).reason
+      : undefined) ??
+    ad?.reject_reason ??
+    ad?.rejection_reason ??
+    "عدم توافق در شرایط انتشار";
 
   return (
-    <div className="mt-4 rounded-2xl border border-error bg-error-container/30 p-4 text-right">
-      <div className="flex items-center gap-2 text-error">
+    <div className="border-error bg-error-container/30 mt-4 rounded-2xl border p-4 text-right">
+      <div className="text-error flex items-center gap-2">
         <AlertIcon className="h-5 w-5 shrink-0" />
-        <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+        <Typography
+          as="h3"
+          variant="title"
+          size="small"
+          weight="medium"
+          className="m-0 text-sm leading-5 font-medium"
+        >
           رد درخواست توسط آژانس
         </Typography>
       </div>
 
-      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
+      <Typography
+        as="p"
+        variant="body"
+        size="small"
+        weight="regular"
+        className="text-on-surface m-0 mt-2 text-xs leading-5"
+      >
         آژانس انتخابی درخواست واگذاری این آگهی را با دلیل زیر رد کرده است:
       </Typography>
 
-      <div className="mt-2 rounded-lg bg-surface p-2.5 text-xs font-medium text-on-surface border border-outline-var">
+      <div className="bg-surface text-on-surface border-outline-var mt-2 rounded-lg border p-2.5 text-xs font-medium">
         علت رد: {String(reason)}
       </div>
 
-      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
+      <Typography
+        as="p"
+        variant="body"
+        size="small"
+        weight="regular"
+        className="text-on-surface-var m-0 mt-2 text-xs leading-5"
+      >
         می‌توانید آگهی را به آژانس دیگری واگذار نمایید یا مستقیماً به عنوان آگهی شخصی منتشر کنید.
       </Typography>
 
       <Button
         unstyled
-        className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-xs font-medium text-on-primary active:opacity-90"
+        className="bg-primary text-on-primary mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg text-xs font-medium active:opacity-90"
         onClick={onRepost}
         type="button"
       >
@@ -1797,21 +2193,34 @@ function WaitForStopNotice({
   onCancelStop: () => void;
 }) {
   return (
-    <div className="mt-4 rounded-2xl border border-warning bg-warning-container p-4 text-right">
-      <div className="flex items-center gap-2 text-warning">
+    <div className="border-warning bg-warning-container mt-4 rounded-2xl border p-4 text-right">
+      <div className="text-warning flex items-center gap-2">
         <ClockIcon className="h-5 w-5 shrink-0" />
-        <Typography as="h3" variant="title" size="small" weight="medium" className="m-0 text-sm font-medium leading-5">
+        <Typography
+          as="h3"
+          variant="title"
+          size="small"
+          weight="medium"
+          className="m-0 text-sm leading-5 font-medium"
+        >
           در انتظار تایید توقف انتشار
         </Typography>
       </div>
 
-      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
-        درخواست توقف انتشار این آگهی برای آژانس ارسال شده و آگهی پس از بررسی آژانس از حالت انتشار خارج خواهد شد.
+      <Typography
+        as="p"
+        variant="body"
+        size="small"
+        weight="regular"
+        className="text-on-surface m-0 mt-2 text-xs leading-5"
+      >
+        درخواست توقف انتشار این آگهی برای آژانس ارسال شده و آگهی پس از بررسی آژانس از حالت انتشار
+        خارج خواهد شد.
       </Typography>
 
       <Button
         unstyled
-        className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container disabled:opacity-50"
+        className="border-outline-var bg-surface text-on-surface active:bg-surface-container mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border text-xs font-medium disabled:opacity-50"
         disabled={isPending}
         onClick={onCancelStop}
         type="button"
@@ -1844,22 +2253,35 @@ function WaitForDealConfirmationNotice({
       : "مهلت پاسخ: ۳ روز";
 
   return (
-    <div className="mt-4 rounded-2xl border-2 border-primary bg-primary-container/20 p-4 text-right shadow-sm">
-      <div className="flex items-center gap-2 text-primary">
+    <div className="border-primary bg-primary-container/20 mt-4 rounded-2xl border-2 p-4 text-right shadow-sm">
+      <div className="text-primary flex items-center gap-2">
         <LinearFlag className="h-5 w-5 shrink-0" />
-        <Typography as="h3" variant="title" size="small" weight="semibold" className="m-0 text-sm leading-5">
+        <Typography
+          as="h3"
+          variant="title"
+          size="small"
+          weight="semibold"
+          className="m-0 text-sm leading-5"
+        >
           آیا معامله این ملک با موفقیت انجام شد؟
         </Typography>
       </div>
 
-      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface">
-        {agencyName} وضعیت این آگهی را «معامله انجام شده» ثبت کرده است. لطفا جهت تایید نهایی و پایان فرایند، نتیجه را مشخص نمایید ({deadlineText}).
+      <Typography
+        as="p"
+        variant="body"
+        size="small"
+        weight="regular"
+        className="text-on-surface m-0 mt-2 text-xs leading-5"
+      >
+        {agencyName} وضعیت این آگهی را «معامله انجام شده» ثبت کرده است. لطفا جهت تایید نهایی و پایان
+        فرایند، نتیجه را مشخص نمایید ({deadlineText}).
       </Typography>
 
       <div className="mt-4 flex gap-2">
         <Button
           unstyled
-          className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-on-primary active:opacity-90 disabled:opacity-50"
+          className="bg-primary text-on-primary inline-flex h-10 flex-1 items-center justify-center rounded-lg text-xs font-semibold active:opacity-90 disabled:opacity-50"
           disabled={isPending}
           onClick={() => onConfirm(true)}
           type="button"
@@ -1868,7 +2290,7 @@ function WaitForDealConfirmationNotice({
         </Button>
         <Button
           unstyled
-          className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-error bg-surface text-xs font-semibold text-error active:bg-error-container disabled:opacity-50"
+          className="border-error bg-surface text-error active:bg-error-container inline-flex h-10 flex-1 items-center justify-center rounded-lg border text-xs font-semibold disabled:opacity-50"
           disabled={isPending}
           onClick={() => onConfirm(false)}
           type="button"
@@ -1904,18 +2326,31 @@ function CancelAssignmentBottomSheet({
       variant="confirm"
       zIndexClassName="z-2000"
     >
-      <div className="px-4 pb-4 pt-1 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm leading-6 text-on-surface">
+      <div className="px-4 pt-1 pb-4 text-right [direction:rtl]">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="medium"
+          className="text-on-surface m-0 text-sm leading-6"
+        >
           آیا از لغو واگذاری این آگهی به آژانس اطمینان دارید؟
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
-          پس از لغو، ۷ روز مهلت خواهید داشت تا آن را به آژانس دیگری واگذار کنید یا مستقیماً منتشر نمایید.
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-2 text-xs leading-5"
+        >
+          پس از لغو، ۷ روز مهلت خواهید داشت تا آن را به آژانس دیگری واگذار کنید یا مستقیماً منتشر
+          نمایید.
         </Typography>
 
         <div className="mt-6 flex gap-3">
           <Button
             unstyled
-            className="inline-flex h-11 flex-1 items-center justify-center rounded-xl bg-error text-sm font-medium text-white shadow-sm active:opacity-90 disabled:opacity-50"
+            className="bg-error inline-flex h-11 flex-1 items-center justify-center rounded-xl text-sm font-medium text-white shadow-sm active:opacity-90 disabled:opacity-50"
             disabled={isPending}
             onClick={onConfirm}
             type="button"
@@ -1924,7 +2359,7 @@ function CancelAssignmentBottomSheet({
           </Button>
           <Button
             unstyled
-            className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-outline-var bg-surface text-sm font-medium text-on-surface active:bg-surface-container"
+            className="border-outline-var bg-surface text-on-surface active:bg-surface-container inline-flex h-11 flex-1 items-center justify-center rounded-xl border text-sm font-medium"
             disabled={isPending}
             onClick={onCancel}
             type="button"
@@ -1964,30 +2399,41 @@ function RepostChoiceBottomSheet({
       zIndexClassName="z-2000"
     >
       <div className="px-4 pb-2 text-right [direction:rtl]">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs leading-5 text-on-surface-var">
-          تمایل دارید همین آگهی را به چه صورت مجدداً فعال و منتشر نمایید؟ تمامی مشخصات ثبت‌شده ملک حفظ می‌شود.
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var m-0 text-xs leading-5"
+        >
+          تمایل دارید همین آگهی را به چه صورت مجدداً فعال و منتشر نمایید؟ تمامی مشخصات ثبت‌شده ملک
+          حفظ می‌شود.
         </Typography>
       </div>
 
-      <div className="divide-y divide-outline-var">
+      <div className="divide-outline-var divide-y">
         <ListItem
           description="پرداخت هزینه انتشار و انتشار فوری آگهی به صورت شخصی"
           disabled={isPersonalPending}
-          leading={<LinearUserSolid aria-hidden="true" className="h-6 w-6 text-on-surface-var" />}
+          leading={<LinearUserSolid aria-hidden="true" className="text-on-surface-var h-6 w-6" />}
           onClick={onSelectPersonal}
           tabIndex={isOpen ? 0 : -1}
-          title={isPersonalPending ? "در حال انتقال به پرداخت..." : "انتشار شخصی و مستقیم (پرداخت آنلاین)"}
-          trailing={<LinearArrowLeft1 aria-hidden="true" className="h-6 w-6 text-on-surface-var" />}
+          title={
+            isPersonalPending
+              ? "در حال انتقال به پرداخت..."
+              : "انتشار شخصی و مستقیم (پرداخت آنلاین)"
+          }
+          trailing={<LinearArrowLeft1 aria-hidden="true" className="text-on-surface-var h-6 w-6" />}
         />
 
         <ListItem
           description="ارسال و واگذاری این آگهی به آژانس املاک برای مدیریت و انتشار"
           disabled={isPersonalPending}
-          leading={<LinearBuilding2 aria-hidden="true" className="h-6 w-6 text-on-surface-var" />}
+          leading={<LinearBuilding2 aria-hidden="true" className="text-on-surface-var h-6 w-6" />}
           onClick={onSelectAgency}
           tabIndex={isOpen ? 0 : -1}
           title="ارسال و واگذاری به آژانس املاک دیگر"
-          trailing={<LinearArrowLeft1 aria-hidden="true" className="h-6 w-6 text-on-surface-var" />}
+          trailing={<LinearArrowLeft1 aria-hidden="true" className="text-on-surface-var h-6 w-6" />}
         />
       </div>
     </BottomSheet>
@@ -2021,7 +2467,7 @@ function AgencyReassignBottomSheet({
   return (
     <BottomSheet
       ariaLabel="انتخاب آژانس املاک جدید"
-      className="rounded-t-[24px]! max-h-[85svh]"
+      className="max-h-[85svh] rounded-t-[24px]!"
       contentClassName="min-h-0 overflow-y-auto overscroll-contain"
       headerButtonAriaLabel="بستن"
       headerClassName="h-10! gap-1! px-2!"
@@ -2032,7 +2478,7 @@ function AgencyReassignBottomSheet({
       variant="full-height"
       zIndexClassName="z-2000"
     >
-      <div className="flex flex-col flex-1 min-h-0 [direction:rtl]">
+      <div className="flex min-h-0 flex-1 flex-col [direction:rtl]">
         <div className="px-4 pb-3">
           <SearchInputBar
             aria-label="جستجوی آژانس"
@@ -2047,9 +2493,9 @@ function AgencyReassignBottomSheet({
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-1 space-y-2 min-h-[220px]">
+        <div className="min-h-[220px] flex-1 space-y-2 overflow-y-auto px-4 py-1">
           {isLoading ? (
-            <div className="flex h-36 items-center justify-center text-xs text-outline">
+            <div className="text-outline flex h-36 items-center justify-center text-xs">
               در حال بارگذاری آژانس‌ها...
             </div>
           ) : agencies.length === 0 ? (
@@ -2062,14 +2508,12 @@ function AgencyReassignBottomSheet({
                   key={agency.id}
                   type="button"
                   onClick={() => setSelectedAgencyId(String(agency.id))}
-                  className={`flex w-full items-center justify-between gap-3 rounded-xl p-3 text-right transition-colors border ${
-                    isSelected
-                      ? "border-primary bg-primary/5"
-                      : "border-outline-var/40 bg-surface"
+                  className={`flex w-full items-center justify-between gap-3 rounded-xl border p-3 text-right transition-colors ${
+                    isSelected ? "border-primary bg-primary/5" : "border-outline-var/40 bg-surface"
                   }`}
                 >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-container text-primary overflow-hidden">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <div className="bg-surface-container text-primary flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
                       {agency.logo || agency.img ? (
                         <img
                           src={agency.logo || agency.img}
@@ -2081,11 +2525,23 @@ function AgencyReassignBottomSheet({
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <Typography as="p" variant="body" size="small" weight="medium" className="m-0 truncate text-xs text-on-surface">
+                      <Typography
+                        as="p"
+                        variant="body"
+                        size="small"
+                        weight="medium"
+                        className="text-on-surface m-0 truncate text-xs"
+                      >
                         {agency.name}
                       </Typography>
                       {agency.address && (
-                        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-0.5 truncate text-[11px] text-on-surface-var">
+                        <Typography
+                          as="p"
+                          variant="body"
+                          size="small"
+                          weight="regular"
+                          className="text-on-surface-var m-0 mt-0.5 truncate text-[11px]"
+                        >
                           {agency.address}
                         </Typography>
                       )}
@@ -2098,14 +2554,14 @@ function AgencyReassignBottomSheet({
           )}
         </div>
 
-        <div className="border-t border-outline-var/30 p-4 bg-surface-container-lowest mt-auto">
+        <div className="border-outline-var/30 bg-surface-container-lowest mt-auto border-t p-4">
           <Button
             unstyled
             disabled={!selectedAgencyId || isPending}
             onClick={() => {
               if (selectedAgencyId) onConfirm(selectedAgencyId);
             }}
-            className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-primary text-xs font-semibold text-on-primary disabled:opacity-40 active:opacity-90"
+            className="bg-primary text-on-primary inline-flex h-11 w-full items-center justify-center rounded-xl text-xs font-semibold active:opacity-90 disabled:opacity-40"
             type="button"
           >
             {isPending ? "در حال واگذاری..." : "تأیید و واگذاری به این آژانس"}
@@ -2115,7 +2571,6 @@ function AgencyReassignBottomSheet({
     </BottomSheet>
   );
 }
-
 
 const STOP_PUBLISH_REASONS = [
   { id: "deal_done", label: "معامله انجام شده است" },
@@ -2136,21 +2591,34 @@ function StopPublishModal({
   const [customReason, setCustomReason] = useState("");
 
   const handleSubmit = () => {
-    const description = selectedReason === "other" && customReason.trim() ? customReason.trim() : undefined;
+    const description =
+      selectedReason === "other" && customReason.trim() ? customReason.trim() : undefined;
     onConfirm(selectedReason, description);
   };
 
   return (
     <div
       aria-modal="true"
-      className="fixed inset-0 z-[1200] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 [direction:rtl]"
+      className="fixed inset-0 z-[1200] flex items-end justify-center bg-black/50 p-0 [direction:rtl] sm:items-center sm:p-4"
       role="dialog"
     >
-      <div className="w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-surface p-5 text-right shadow-xl">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-base text-on-surface">
+      <div className="bg-surface w-full max-w-sm rounded-t-2xl p-5 text-right shadow-xl sm:rounded-2xl">
+        <Typography
+          as="h3"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-on-surface m-0 text-base"
+        >
           درخواست توقف انتشار
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-2 text-xs leading-5"
+        >
           لطفا دلیل درخواست توقف انتشار را انتخاب کنید:
         </Typography>
 
@@ -2158,7 +2626,7 @@ function StopPublishModal({
           {STOP_PUBLISH_REASONS.map((option) => (
             <label
               key={option.id}
-              className="flex items-center justify-between rounded-xl border border-outline-var p-3 cursor-pointer"
+              className="border-outline-var flex cursor-pointer items-center justify-between rounded-xl border p-3"
             >
               <div className="flex items-center gap-2.5">
                 <input
@@ -2169,7 +2637,7 @@ function StopPublishModal({
                   onChange={() => setSelectedReason(option.id)}
                   className="accent-primary h-4 w-4"
                 />
-                <span className="text-xs font-medium text-on-surface">{option.label}</span>
+                <span className="text-on-surface text-xs font-medium">{option.label}</span>
               </div>
             </label>
           ))}
@@ -2177,7 +2645,7 @@ function StopPublishModal({
 
         {selectedReason === "other" ? (
           <textarea
-            className="mt-3 w-full rounded-xl border border-outline-var bg-surface p-3 text-xs text-on-surface focus:outline-primary"
+            className="border-outline-var bg-surface text-on-surface focus:outline-primary mt-3 w-full rounded-xl border p-3 text-xs"
             placeholder="توضیح کوتاه دلیل توقف..."
             rows={2}
             value={customReason}
@@ -2188,7 +2656,7 @@ function StopPublishModal({
         <div className="mt-5 flex gap-2">
           <Button
             unstyled
-            className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-primary text-xs font-medium text-on-primary active:opacity-90 disabled:opacity-50"
+            className="bg-primary text-on-primary inline-flex h-10 flex-1 items-center justify-center rounded-lg text-xs font-medium active:opacity-90 disabled:opacity-50"
             disabled={isPending}
             onClick={handleSubmit}
             type="button"
@@ -2197,7 +2665,7 @@ function StopPublishModal({
           </Button>
           <Button
             unstyled
-            className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-outline-var bg-surface text-xs font-medium text-on-surface active:bg-surface-container"
+            className="border-outline-var bg-surface text-on-surface active:bg-surface-container inline-flex h-10 flex-1 items-center justify-center rounded-lg border text-xs font-medium"
             disabled={isPending}
             onClick={onClose}
             type="button"
@@ -2222,10 +2690,12 @@ function getAgencyAssignmentStartDate(ad?: Record<string, unknown>): string | un
           (l as Record<string, unknown>).status === 1 ||
           String((l as Record<string, unknown>).status) === "1" ||
           String((l as Record<string, unknown>).description ?? "").includes("agency") ||
-          String((l as Record<string, unknown>).description ?? "").includes("آژانس"))
+          String((l as Record<string, unknown>).description ?? "").includes("آژانس")),
     );
     if (waitLog && typeof waitLog === "object") {
-      const logDate = (waitLog as Record<string, unknown>).date || (waitLog as Record<string, unknown>).created_at;
+      const logDate =
+        (waitLog as Record<string, unknown>).date ||
+        (waitLog as Record<string, unknown>).created_at;
       if (logDate) return String(logDate);
     }
   }
@@ -2271,10 +2741,18 @@ function readDeadlineRemaining(deadlineDate: unknown, defaultDays: number, fallb
   return `${toPersianDigits(days)} روز دیگر`;
 }
 
-
 function ChevronLeftIcon({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
       <path d="m14 7-5 5 5 5" />
     </svg>
   );
@@ -2282,7 +2760,16 @@ function ChevronLeftIcon({ className = "" }: { className?: string }) {
 
 function ClockIcon({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.7"
+      viewBox="0 0 24 24"
+    >
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3 2" />
     </svg>
@@ -2291,29 +2778,60 @@ function ClockIcon({ className = "" }: { className?: string }) {
 
 function AlertIcon({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.7"
+      viewBox="0 0 24 24"
+    >
       <path d="M10.35 4.4 2.8 17.5A2 2 0 0 0 4.55 20.5h14.9a2 2 0 0 0 1.75-3L13.65 4.4a1.9 1.9 0 0 0-3.3 0Z" />
       <path d="M12 9v4M12 17h.01" />
     </svg>
   );
 }
 
-function PublisherAvatar({ publisher, size }: { publisher: ManagerPublisher; size: "large" | "small" }) {
+function PublisherAvatar({
+  publisher,
+  size,
+}: {
+  publisher: ManagerPublisher;
+  size: "large" | "small";
+}) {
   const sizeClass = size === "large" ? "h-14 w-14" : "h-12 w-12";
   const radiusClass = publisher.type === "agency" ? "rounded-lg" : "rounded-full";
 
   if (publisher.image) {
-    return <img alt="" className={`${sizeClass} shrink-0 object-cover ${radiusClass}`} draggable={false} src={publisher.image} />;
+    return (
+      <img
+        alt=""
+        className={`${sizeClass} shrink-0 object-cover ${radiusClass}`}
+        draggable={false}
+        src={publisher.image}
+      />
+    );
   }
 
   return (
-    <div className={`grid ${sizeClass} shrink-0 place-items-center bg-surface-container text-outline ${radiusClass}`}>
-      {publisher.type === "agency" ? <LinearBuilding2 className="h-6 w-6" /> : <LinearUserSolid className="h-6 w-6" />}
+    <div
+      className={`grid ${sizeClass} bg-surface-container text-outline shrink-0 place-items-center ${radiusClass}`}
+    >
+      {publisher.type === "agency" ? (
+        <LinearBuilding2 className="h-6 w-6" />
+      ) : (
+        <LinearUserSolid className="h-6 w-6" />
+      )}
     </div>
   );
 }
 
-function createUnavailableAdCard(adId: string | undefined, ad?: Record<string, unknown>): AdCardData {
+function createUnavailableAdCard(
+  adId: string | undefined,
+  ad?: Record<string, unknown>,
+): AdCardData {
   return {
     id: adId ?? readEntityId(ad) ?? "",
     title: readText(ad?.title ?? ad?.ad_title) || "آگهی",
@@ -2373,7 +2891,11 @@ function readExpirationRemaining(value: unknown, fallbackPublishedDate?: unknown
   let raw = typeof value === "string" && value.trim() ? value.trim() : "";
   let timestamp = raw ? Date.parse(raw) : NaN;
 
-  if (!Number.isFinite(timestamp) && typeof fallbackPublishedDate === "string" && fallbackPublishedDate.trim()) {
+  if (
+    !Number.isFinite(timestamp) &&
+    typeof fallbackPublishedDate === "string" &&
+    fallbackPublishedDate.trim()
+  ) {
     const pubTime = Date.parse(fallbackPublishedDate.trim());
     if (Number.isFinite(pubTime)) {
       timestamp = pubTime + 30 * 86_400_000;
@@ -2396,9 +2918,8 @@ function readExpirationRemaining(value: unknown, fallbackPublishedDate?: unknown
 
   if (remainingDays < 0) return `منقضی شده (${expirationDate})`;
 
-  const remainingLabel = remainingDays === 0
-    ? "امروز"
-    : `${toPersianDigits(remainingDays)} روز دیگر`;
+  const remainingLabel =
+    remainingDays === 0 ? "امروز" : `${toPersianDigits(remainingDays)} روز دیگر`;
 
   return `${remainingLabel} (${expirationDate})`;
 }
@@ -2418,10 +2939,12 @@ function readModerationReasons(ad?: Record<string, unknown>) {
     ad.moderation_note,
   ];
   const reasons = values
-    .flatMap((value) => Array.isArray(value) ? value : [value])
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
     .map((value) => readText(value))
     .filter(Boolean);
-  return reasons.length > 0 ? Array.from(new Set(reasons)) : ["جزئیات اصلاح از سرور دریافت نشده است."];
+  return reasons.length > 0
+    ? Array.from(new Set(reasons))
+    : ["جزئیات اصلاح از سرور دریافت نشده است."];
 }
 
 function readText(value: unknown) {
@@ -2440,7 +2963,7 @@ function MyAdStateSkeleton({
 }) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -2450,33 +2973,39 @@ function MyAdStateSkeleton({
         title="مدیریت آگهی"
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container">
-        <section className="shrink-0 space-y-3 bg-surface-container-lowest px-4 pb-4 pt-4" aria-label="در حال بارگذاری وضعیت آگهی">
-          <div className="h-8 w-24 rounded-lg animate-skeleton" />
+      <main className="bg-surface-container flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
+        <section
+          className="bg-surface-container-lowest shrink-0 space-y-3 px-4 pt-4 pb-4"
+          aria-label="در حال بارگذاری وضعیت آگهی"
+        >
+          <div className="animate-skeleton h-8 w-24 rounded-lg" />
           <div className="flex gap-3 [direction:rtl]">
-            <div className="h-[90px] w-[120px] shrink-0 rounded-xl animate-skeleton" />
+            <div className="animate-skeleton h-[90px] w-[120px] shrink-0 rounded-xl" />
             <div className="min-w-0 flex-1 space-y-2.5">
-              <div className="h-5 w-3/4 rounded-md animate-skeleton" />
-              <div className="h-4 w-1/2 rounded-md animate-skeleton" />
-              <div className="h-4 w-2/3 rounded-md animate-skeleton" />
+              <div className="animate-skeleton h-5 w-3/4 rounded-md" />
+              <div className="animate-skeleton h-4 w-1/2 rounded-md" />
+              <div className="animate-skeleton h-4 w-2/3 rounded-md" />
             </div>
           </div>
-          <div className="flex justify-between border-t border-outline-var pt-2">
-            <div className="h-4 w-28 rounded-md animate-skeleton" />
-            <div className="h-4 w-20 rounded-md animate-skeleton" />
+          <div className="border-outline-var flex justify-between border-t pt-2">
+            <div className="animate-skeleton h-4 w-28 rounded-md" />
+            <div className="animate-skeleton h-4 w-20 rounded-md" />
           </div>
         </section>
 
-        <div className="h-2 shrink-0 bg-surface-container" aria-hidden="true" />
+        <div className="bg-surface-container h-2 shrink-0" aria-hidden="true" />
 
-        <section className="min-h-[300px] flex-1 space-y-6 bg-surface-container-lowest p-4" aria-label="در حال بارگذاری عملیات آگهی">
+        <section
+          className="bg-surface-container-lowest min-h-[300px] flex-1 space-y-6 p-4"
+          aria-label="در حال بارگذاری عملیات آگهی"
+        >
           {Array.from({ length: 4 }).map((_, index) => (
             <div key={index} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-5 w-5 rounded-md animate-skeleton" />
-                <div className="h-4 w-28 rounded-md animate-skeleton" />
+                <div className="animate-skeleton h-5 w-5 rounded-md" />
+                <div className="animate-skeleton h-4 w-28 rounded-md" />
               </div>
-              <div className="h-4 w-4 rounded-md animate-skeleton" />
+              <div className="animate-skeleton h-4 w-4 rounded-md" />
             </div>
           ))}
         </section>

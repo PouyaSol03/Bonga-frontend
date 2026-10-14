@@ -4,7 +4,11 @@ export function readText(value: unknown, fallback = "") {
   return fallback;
 }
 
-export function readFirst(record: Record<string, unknown> | undefined, keys: string[], fallback: string) {
+export function readFirst(
+  record: Record<string, unknown> | undefined,
+  keys: string[],
+  fallback: string,
+) {
   for (const key of keys) {
     const value = readText(record?.[key]);
     if (value) return value;

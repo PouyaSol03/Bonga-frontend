@@ -14,9 +14,9 @@ export function DashboardChartEmptyState({
 }: DashboardChartEmptyStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center py-10 px-4 text-center ${className}`}
+      className={`flex flex-col items-center justify-center px-4 py-10 text-center ${className}`}
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container text-on-surface-var mb-3">
+      <div className="bg-surface-container text-on-surface-var mb-3 flex h-12 w-12 items-center justify-center rounded-full">
         <LinearAnalytics className="h-6 w-6" />
       </div>
       <Typography
@@ -34,7 +34,7 @@ export function DashboardChartEmptyState({
           variant="body"
           size="small"
           weight="regular"
-          className="mt-1 text-on-surface-var text-xs max-w-[260px]"
+          className="text-on-surface-var mt-1 max-w-[260px] text-xs"
         >
           {description}
         </Typography>

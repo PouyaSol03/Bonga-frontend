@@ -45,7 +45,12 @@ export async function getMyAgencyConsultantAdvertisements({
     .get(agencyConsultantPath(agentId, "advertisements"), {
       searchParams: { page, per_page: perPage, status },
     })
-    .json<{ data?: (AdvertisementItem | Record<string, unknown>)[]; page?: number; per_page?: number; total?: number }>();
+    .json<{
+      data?: (AdvertisementItem | Record<string, unknown>)[];
+      page?: number;
+      per_page?: number;
+      total?: number;
+    }>();
 
   const list = Array.isArray(res.data) ? res.data : [];
   return {
@@ -176,8 +181,7 @@ export async function getMyAgencyConsultantMetric(
   metric: ConsultantMetricType,
   { agentId, period = "month", from, to }: ConsultantMetricParams,
 ): Promise<ConsultantMetricData> {
-  const searchParams: Record<string, string> =
-    from && to ? { from, to } : period ? { period } : {};
+  const searchParams: Record<string, string> = from && to ? { from, to } : period ? { period } : {};
 
   const res = await apiV2
     .get(agencyConsultantPath(agentId, `metrics/${metric}`), { searchParams })

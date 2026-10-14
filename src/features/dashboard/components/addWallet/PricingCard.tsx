@@ -28,7 +28,13 @@ function DiscountBadge({ value }: { value?: string | number }) {
   if (!value) return null;
 
   return (
-    <Typography as="span" variant="label" size="small" weight="medium" className="rounded-md border border-error bg-surface-container-lowest px-2 py-1 text-[10px] font-medium text-error">
+    <Typography
+      as="span"
+      variant="label"
+      size="small"
+      weight="medium"
+      className="border-error bg-surface-container-lowest text-error rounded-md border px-2 py-1 text-[10px] font-medium"
+    >
       {value}٪ تخفیف
     </Typography>
   );
@@ -37,13 +43,18 @@ function DiscountBadge({ value }: { value?: string | number }) {
 function GreenBadgeIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
-      <path d="M7.70453 0.558591C8.62277 -0.186895 9.93778 -0.186895 10.856 0.558592L11.8024 1.32696C12.1793 1.63294 12.6371 1.82257 13.12 1.87271L14.3325 1.99861C15.509 2.12076 16.4388 3.05062 16.561 4.22704L16.6869 5.43959C16.737 5.92244 16.9266 6.38025 17.2326 6.75713L18.001 7.70356C18.7465 8.62179 18.7465 9.9368 18.001 10.855L17.2326 11.8015C16.9266 12.1783 16.737 12.6362 16.6869 13.119L16.561 14.3315C16.4388 15.508 15.509 16.4378 14.3325 16.56L13.12 16.6859C12.6371 16.736 12.1793 16.9257 11.8024 17.2316L10.856 18C9.93778 18.7455 8.62277 18.7455 7.70453 18L6.75811 17.2316C6.38123 16.9257 5.92342 16.736 5.44056 16.6859L4.22802 16.56C3.05159 16.4378 2.12174 15.508 1.99959 14.3315L1.87368 13.119C1.82355 12.6362 1.63391 12.1783 1.32794 11.8015L0.559568 10.855C-0.185918 9.9368 -0.185918 8.62179 0.559568 7.70355L1.32794 6.75713C1.63392 6.38025 1.82355 5.92244 1.87368 5.43959L1.99959 4.22704C2.12174 3.05062 3.05159 2.12076 4.22802 1.99861L5.44056 1.87271C5.92342 1.82257 6.38123 1.63294 6.75811 1.32696L7.70453 0.558591Z" fill="var(--tertiary)" />
+      <path
+        d="M7.70453 0.558591C8.62277 -0.186895 9.93778 -0.186895 10.856 0.558592L11.8024 1.32696C12.1793 1.63294 12.6371 1.82257 13.12 1.87271L14.3325 1.99861C15.509 2.12076 16.4388 3.05062 16.561 4.22704L16.6869 5.43959C16.737 5.92244 16.9266 6.38025 17.2326 6.75713L18.001 7.70356C18.7465 8.62179 18.7465 9.9368 18.001 10.855L17.2326 11.8015C16.9266 12.1783 16.737 12.6362 16.6869 13.119L16.561 14.3315C16.4388 15.508 15.509 16.4378 14.3325 16.56L13.12 16.6859C12.6371 16.736 12.1793 16.9257 11.8024 17.2316L10.856 18C9.93778 18.7455 8.62277 18.7455 7.70453 18L6.75811 17.2316C6.38123 16.9257 5.92342 16.736 5.44056 16.6859L4.22802 16.56C3.05159 16.4378 2.12174 15.508 1.99959 14.3315L1.87368 13.119C1.82355 12.6362 1.63391 12.1783 1.32794 11.8015L0.559568 10.855C-0.185918 9.9368 -0.185918 8.62179 0.559568 7.70355L1.32794 6.75713C1.63392 6.38025 1.82355 5.92244 1.87368 5.43959L1.99959 4.22704C2.12174 3.05062 3.05159 2.12076 4.22802 1.99861L5.44056 1.87271C5.92342 1.82257 6.38123 1.63294 6.75811 1.32696L7.70453 0.558591Z"
+        fill="var(--tertiary)"
+      />
 
-      <path d="M5.2 9.4L8.2 12.4L13.8 6.8"
+      <path
+        d="M5.2 9.4L8.2 12.4L13.8 6.8"
         stroke="var(--surface-container-lowest)"
         stroke-width="2"
         stroke-linecap="round"
-        stroke-linejoin="round" />
+        stroke-linejoin="round"
+      />
     </svg>
   );
 }
@@ -61,27 +72,47 @@ export default function PricingCard({
   return (
     <div
       dir="rtl"
-      className="
-        group flex w-full flex-col rounded-xl border border-primary
-        bg-surface-container-lowest px-5 py-6 transition-all duration-200
-      "
+      className="group border-primary bg-surface-container-lowest flex w-full flex-col rounded-xl border px-5 py-6 transition-all duration-200"
     >
-      <Typography as="h3" variant="title" size="medium" weight="semibold" className="mb-6 text-right text-lg font-bold text-primary">
+      <Typography
+        as="h3"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-primary mb-6 text-right text-lg font-bold"
+      >
         {title}
       </Typography>
 
       <div className="mb-8 flex items-end justify-between gap-3">
         <div className="flex flex-col items-start gap-2">
-          <Typography as="span" variant="label" size="small" weight="semibold" className="text-xs font-semibold text-outline line-through">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="semibold"
+            className="text-outline text-xs font-semibold line-through"
+          >
             {formatPrice(price)}
           </Typography>
 
           <div className="flex items-center gap-1">
-            <Typography as="span" variant="headline" size="small" className="text-2xl font-semibold text-on-surface">
+            <Typography
+              as="span"
+              variant="headline"
+              size="small"
+              className="text-on-surface text-2xl font-semibold"
+            >
               {formatPrice(priceAfterDiscount)}
             </Typography>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-[11px] font-medium text-on-surface">
-              <AdCardTomanIcon className="h-5 w-5 shrink-0 text-on-surface-var" />
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-on-surface text-[11px] font-medium"
+            >
+              <AdCardTomanIcon className="text-on-surface-var h-5 w-5 shrink-0" />
             </Typography>
           </div>
         </div>
@@ -91,13 +122,13 @@ export default function PricingCard({
 
       {hasItems && (
         <>
-          <div className="mb-7 border-t border-dashed border-outline-var" />
+          <div className="border-outline-var mb-7 border-t border-dashed" />
 
           <div className="mb-10 flex flex-col gap-4">
             {items?.map((item) => (
               <div
                 key={`${item.value}-${item.label}`}
-                className="flex items-center justify-start gap-2 font-medium text-on-surface"
+                className="text-on-surface flex items-center justify-start gap-2 font-medium"
               >
                 <GreenBadgeIcon />
                 <Typography as="span" variant="body" size="medium" weight="regular">
@@ -109,14 +140,11 @@ export default function PricingCard({
         </>
       )}
 
-      <Button unstyled
+      <Button
+        unstyled
         type="button"
         onClick={onPay}
-        className="
-          mt-auto h-11 w-full rounded-lg border border-primary
-          bg-surface-container-lowest text-sm font-semibold text-primary
-          transition-all duration-200
-        "
+        className="border-primary bg-surface-container-lowest text-primary mt-auto h-11 w-full rounded-lg border text-sm font-semibold transition-all duration-200"
       >
         پرداخت
       </Button>

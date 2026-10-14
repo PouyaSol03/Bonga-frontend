@@ -11,7 +11,7 @@ const meta: Meta<typeof AgentDashboardView> = {
   component: AgentDashboardView,
   decorators: [
     (Story) => (
-      <div className="max-w-[400px] mx-auto min-h-screen bg-[#F0F0F0]">
+      <div className="mx-auto min-h-screen max-w-[400px] bg-[#F0F0F0]">
         <Story />
       </div>
     ),
@@ -40,7 +40,7 @@ export const IndependentAgent: Story = {
 
 export const TasksCardSection: StoryObj = {
   render: () => (
-    <div className="p-4 bg-[#F0F0F0] flex flex-col gap-4">
+    <div className="flex flex-col gap-4 bg-[#F0F0F0] p-4">
       <AgentTasksCard role="REAL_ESTATE_CONSULTANT" />
       <AgentTasksCard role="INDEPENDENT_CONSULTANT" />
     </div>
@@ -49,7 +49,7 @@ export const TasksCardSection: StoryObj = {
 
 export const QuickAccessSection: StoryObj = {
   render: () => (
-    <div className="p-4 bg-[#F0F0F0] flex flex-col gap-4">
+    <div className="flex flex-col gap-4 bg-[#F0F0F0] p-4">
       <AgentQuickAccessGrid role="REAL_ESTATE_CONSULTANT" />
       <AgentQuickAccessGrid role="INDEPENDENT_CONSULTANT" />
     </div>
@@ -58,7 +58,7 @@ export const QuickAccessSection: StoryObj = {
 
 export const CreditsCardSection: StoryObj = {
   render: () => (
-    <div className="p-4 bg-[#F0F0F0]">
+    <div className="bg-[#F0F0F0] p-4">
       <AgentCreditsCard />
     </div>
   ),
@@ -66,7 +66,7 @@ export const CreditsCardSection: StoryObj = {
 
 export const UrgentActionsSection: StoryObj = {
   render: () => (
-    <div className="p-4 bg-[#F0F0F0]">
+    <div className="bg-[#F0F0F0] p-4">
       <AgentUrgentActionsCard />
     </div>
   ),
@@ -74,7 +74,7 @@ export const UrgentActionsSection: StoryObj = {
 
 export const NotificationsSection: StoryObj = {
   render: () => (
-    <div className="p-4 bg-[#F0F0F0]">
+    <div className="bg-[#F0F0F0] p-4">
       <AgentNotificationsCard />
     </div>
   ),

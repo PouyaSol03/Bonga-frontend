@@ -18,10 +18,7 @@ type ProjectSpecsSectionProps = {
   errors?: NewAdFieldErrors;
   values: NewAdFormValues;
   projectDetailsError?: string;
-  setField: <T extends keyof NewAdFormValues>(
-    key: T,
-    value: NewAdFormValues[T],
-  ) => void;
+  setField: <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => void;
   onOpenSelect: (key: SelectKey, title: string, options: string[]) => void;
   onOpenProjectDetails: () => void;
   onOpenMoreFeatures: () => void;
@@ -45,14 +42,18 @@ export function ProjectSpecsSection({
         <Section icon="info.svg" title="مشخصات مشارکت">
           <div className="space-y-6">
             <SelectBox
-              onClick={() => onOpenSelect("participationType", "نوع مشارکت", participationTypeOptions)}
+              onClick={() =>
+                onOpenSelect("participationType", "نوع مشارکت", participationTypeOptions)
+              }
               error={errors.participationType}
               placeholder="نوع مشارکت *"
               value={values.participationType}
             />
 
             <SelectBox
-              onClick={() => onOpenSelect("currentStatus", "وضعیت فعلی ملک", partnershipCurrentStatusOptions)}
+              onClick={() =>
+                onOpenSelect("currentStatus", "وضعیت فعلی ملک", partnershipCurrentStatusOptions)
+              }
               error={errors.currentStatus}
               placeholder="وضعیت فعلی ملک *"
               value={values.currentStatus}
@@ -74,13 +75,18 @@ export function ProjectSpecsSection({
               value={values.landPosition}
             />
 
-            <Button unstyled
-              className="mx-auto flex py-2.5 items-center justify-center gap-2 text-base font-medium leading-6 text-primary active:opacity-80"
+            <Button
+              unstyled
+              className="text-primary mx-auto flex items-center justify-center gap-2 py-2.5 text-base leading-6 font-medium active:opacity-80"
               onClick={onOpenMoreFeatures}
               type="button"
             >
-              <Typography as="span" variant="label" size="medium" weight="medium">ثبت ۴ مشخصات دیگر</Typography>
-              <Typography as="span" variant="title" size="large" weight="medium">‹</Typography>
+              <Typography as="span" variant="label" size="medium" weight="medium">
+                ثبت ۴ مشخصات دیگر
+              </Typography>
+              <Typography as="span" variant="title" size="large" weight="medium">
+                ‹
+              </Typography>
             </Button>
           </div>
         </Section>
@@ -100,14 +106,18 @@ export function ProjectSpecsSection({
           />
 
           <SelectBox
-            onClick={() => onOpenSelect("projectTotalFloors", "تعداد کل طبقات", projectCountOptions)}
+            onClick={() =>
+              onOpenSelect("projectTotalFloors", "تعداد کل طبقات", projectCountOptions)
+            }
             error={errors.projectTotalFloors}
             placeholder="تعداد کل طبقات *"
             value={values.projectTotalFloors}
           />
 
           <SelectBox
-            onClick={() => onOpenSelect("projectTotalUnits", "تعداد کل واحدها", projectCountOptions)}
+            onClick={() =>
+              onOpenSelect("projectTotalUnits", "تعداد کل واحدها", projectCountOptions)
+            }
             error={errors.projectTotalUnits}
             placeholder="تعداد کل واحدها *"
             value={values.projectTotalUnits}
@@ -120,37 +130,44 @@ export function ProjectSpecsSection({
             value={values.documentType}
           />
 
-          <Button unstyled
-            className="mx-auto flex py-2.5 items-center justify-center gap-2 text-base font-medium leading-6 text-primary active:opacity-80"
+          <Button
+            unstyled
+            className="text-primary mx-auto flex items-center justify-center gap-2 py-2.5 text-base leading-6 font-medium active:opacity-80"
             onClick={onOpenMoreFeatures}
             type="button"
           >
-            <Typography as="span" variant="label" size="medium" weight="medium">ثبت ۸ مشخصات دیگر</Typography>
-            <LinearArrowLeft2 className="h-4 w-4 text-primary" />
+            <Typography as="span" variant="label" size="medium" weight="medium">
+              ثبت ۸ مشخصات دیگر
+            </Typography>
+            <LinearArrowLeft2 className="text-primary h-4 w-4" />
           </Button>
         </div>
       </Section>
 
-      <section
-        className="border-b-[10px] border-surface-container bg-surface-container-lowest p-4 text-right last:border-b-0 [direction:rtl]"
-      >
+      <section className="border-surface-container bg-surface-container-lowest border-b-[10px] p-4 text-right [direction:rtl] last:border-b-0">
         <button
           className="flex w-full items-center justify-between transition active:opacity-70"
           onClick={onOpenProjectDetails}
           type="button"
         >
           <div className="flex items-center gap-2">
-            <LinearBuilding className="h-6 w-6 text-on-surface-var" />
+            <LinearBuilding className="text-on-surface-var h-6 w-6" />
             <Typography variant="label" size="large" weight="medium" className="text-on-surface">
               جزییات پروژه
             </Typography>
           </div>
 
-          <div className="flex items-center gap-1 text-primary">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary">
+          <div className="text-primary flex items-center gap-1">
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-primary"
+            >
               انتخاب
             </Typography>
-            <LinearArrowLeft2 className="h-4 w-4 text-primary" />
+            <LinearArrowLeft2 className="text-primary h-4 w-4" />
           </div>
         </button>
 
@@ -159,9 +176,13 @@ export function ProjectSpecsSection({
             {values.projectDetails
               .filter((item) => item.meterage || item.minMeterage)
               .map((item, index) => (
-                <Typography as="span" variant="label" size="medium" weight="medium"
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="medium"
                   key={item.id}
-                  className="flex h-9 items-center rounded-[7px] border border-primary bg-primary-container px-3 text-sm font-medium leading-5 text-primary"
+                  className="border-primary bg-primary-container text-primary flex h-9 items-center rounded-[7px] border px-3 text-sm leading-5 font-medium"
                 >
                   {`جزئیات ${index + 1}: ${item.meterage || item.minMeterage || "-"} متر`}
                 </Typography>
@@ -170,7 +191,13 @@ export function ProjectSpecsSection({
         ) : null}
 
         {projectDetailsError ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="mt-2 text-right text-xs text-error">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-error mt-2 text-right text-xs"
+          >
             {projectDetailsError}
           </Typography>
         ) : null}

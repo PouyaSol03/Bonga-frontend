@@ -1,9 +1,6 @@
 import type { AdvertisementFeature, AdvertisementItem } from "../../api/advertisement.service";
 import type { NewAdFormValues } from "../types";
-import {
-  normalizeLookupText,
-  readText,
-} from "./featureFormatters";
+import { normalizeLookupText, readText } from "./featureFormatters";
 
 export function readFeatureValue(features: AdvertisementFeature[], labels: string[]): unknown {
   const normalizedLabels = labels.map(normalizeLookupText);
@@ -26,7 +23,8 @@ export function readFirstValue(
 ): unknown {
   const featureValue = readFeatureValue(features, labels);
 
-  if (featureValue !== undefined && featureValue !== null && featureValue !== "") return featureValue;
+  if (featureValue !== undefined && featureValue !== null && featureValue !== "")
+    return featureValue;
 
   for (const key of keys) {
     const value = ad[key];
@@ -69,29 +67,39 @@ export function readSocialValue(ad: AdvertisementItem, key: "telegram" | "whatsa
 export function readPublisherName(ad: AdvertisementItem, features: AdvertisementFeature[]): string {
   const publisherType = normalizeLookupText(ad.publisher_type ?? ad.owner_type);
   if (publisherType === "agent") {
-    const agent = ad.agent && typeof ad.agent === "object" ? (ad.agent as Record<string, unknown>) : null;
-    const consultant = ad.consultant && typeof ad.consultant === "object" ? (ad.consultant as Record<string, unknown>) : null;
-    const ownerProfile = ad.owner_profile && typeof ad.owner_profile === "object" ? (ad.owner_profile as Record<string, unknown>) : null;
+    const agent =
+      ad.agent && typeof ad.agent === "object" ? (ad.agent as Record<string, unknown>) : null;
+    const consultant =
+      ad.consultant && typeof ad.consultant === "object"
+        ? (ad.consultant as Record<string, unknown>)
+        : null;
+    const ownerProfile =
+      ad.owner_profile && typeof ad.owner_profile === "object"
+        ? (ad.owner_profile as Record<string, unknown>)
+        : null;
     const name = readText(agent?.name ?? consultant?.name ?? ownerProfile?.name);
     if (name) return name;
   }
 
   if (publisherType === "agency") {
-    const agency = ad.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>) : null;
+    const agency =
+      ad.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>) : null;
     const name = readText(agency?.name);
     if (name) return name;
   }
 
-  return readTextValue(ad, features, ["publisher", "publisher_name", "agency"], [
-    "publisher",
-    "publisherName",
-    "publisher_name",
-    "agency",
-    "agency_name",
-  ]);
+  return readTextValue(
+    ad,
+    features,
+    ["publisher", "publisher_name", "agency"],
+    ["publisher", "publisherName", "publisher_name", "agency", "agency_name"],
+  );
 }
 
-export function readRegistrantType(ad: AdvertisementItem, features: AdvertisementFeature[]): NewAdFormValues["registrantType"] {
+export function readRegistrantType(
+  ad: AdvertisementItem,
+  features: AdvertisementFeature[],
+): NewAdFormValues["registrantType"] {
   const publisherType = normalizeLookupText(ad.publisher_type);
 
   if (publisherType === "agency" || publisherType === "agent") return "personal";
@@ -99,11 +107,20 @@ export function readRegistrantType(ad: AdvertisementItem, features: Advertisemen
   const ownerType = normalizeLookupText(ad.owner_type);
   const advertiserType = normalizeLookupText(readFeatureValue(features, ["advertiser_type"]));
 
-  if (ownerType.includes("agency") || advertiserType.includes("مشاور") || advertiserType.includes("املاک") || advertiserType.includes("آژانس")) {
+  if (
+    ownerType.includes("agency") ||
+    advertiserType.includes("مشاور") ||
+    advertiserType.includes("املاک") ||
+    advertiserType.includes("آژانس")
+  ) {
     return "agency";
   }
 
-  if (ownerType.includes("owner") || ownerType.includes("personal") || advertiserType.includes("شخصی")) {
+  if (
+    ownerType.includes("owner") ||
+    ownerType.includes("personal") ||
+    advertiserType.includes("شخصی")
+  ) {
     return "personal";
   }
 
@@ -111,4 +128,3 @@ export function readRegistrantType(ad: AdvertisementItem, features: Advertisemen
 }
 
 export * from "./featureFormatters";
-

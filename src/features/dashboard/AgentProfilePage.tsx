@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
@@ -32,9 +25,7 @@ import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { useToast } from "../../shared/hooks/useToast";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
-import type {
-  UpdateConsultantProfilePayload,
-} from "../account/api/account.service";
+import type { UpdateConsultantProfilePayload } from "../account/api/account.service";
 import {
   getNeighborhoodHierarchyDescription,
   getNeighborhoodInfo,
@@ -88,67 +79,73 @@ function toSelectedNeighborhood(neighborhood: NeighborhoodDto): SelectedNeighbor
 export function AgentProfileSkeleton({ desktop = false }: { desktop?: boolean }) {
   if (desktop) {
     return (
-      <div className="space-y-8 animate-pulse [direction:rtl]" aria-label="در حال بارگذاری مشخصات مشاور">
-        <div className="h-6 w-32 rounded bg-surface-container-high" />
+      <div
+        className="animate-pulse space-y-8 [direction:rtl]"
+        aria-label="در حال بارگذاری مشخصات مشاور"
+      >
+        <div className="bg-surface-container-high h-6 w-32 rounded" />
         <div className="mt-7 flex flex-wrap items-end gap-8">
-          <div className="h-28 w-28 shrink-0 rounded-full bg-surface-container-high" />
-          <div className="min-w-[280px] max-w-[520px] flex-1 space-y-2">
-            <div className="h-4 w-20 rounded bg-surface-container-high" />
-            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+          <div className="bg-surface-container-high h-28 w-28 shrink-0 rounded-full" />
+          <div className="max-w-[520px] min-w-[280px] flex-1 space-y-2">
+            <div className="bg-surface-container-high h-4 w-20 rounded" />
+            <div className="bg-surface-container-high h-12 w-full rounded-xl" />
           </div>
         </div>
-        <div className="h-px bg-outline-var" />
+        <div className="bg-outline-var h-px" />
         <div className="space-y-4">
-          <div className="h-5 w-28 rounded bg-surface-container-high" />
+          <div className="bg-surface-container-high h-5 w-28 rounded" />
           <div className="grid grid-cols-2 gap-4">
-            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
-            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+            <div className="bg-surface-container-high h-12 w-full rounded-xl" />
+            <div className="bg-surface-container-high h-12 w-full rounded-xl" />
           </div>
         </div>
         <div className="space-y-4">
-          <div className="h-5 w-32 rounded bg-surface-container-high" />
+          <div className="bg-surface-container-high h-5 w-32 rounded" />
           <div className="grid grid-cols-3 gap-4">
-            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
-            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
-            <div className="h-12 w-full rounded-xl bg-surface-container-high" />
+            <div className="bg-surface-container-high h-12 w-full rounded-xl" />
+            <div className="bg-surface-container-high h-12 w-full rounded-xl" />
+            <div className="bg-surface-container-high h-12 w-full rounded-xl" />
           </div>
         </div>
-        <div className="h-14 w-36 rounded-xl bg-surface-container-high" />
+        <div className="bg-surface-container-high h-14 w-36 rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden pb-24 [direction:rtl]" aria-label="در حال بارگذاری مشخصات مشاور">
+    <div
+      className="min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto pb-24 [direction:rtl]"
+      aria-label="در حال بارگذاری مشخصات مشاور"
+    >
       <section className="bg-surface-container-lowest p-4">
         <div className="flex items-center justify-between gap-4">
-          <div className="h-24 w-24 shrink-0 rounded-full animate-skeleton bg-surface-container-high" />
+          <div className="animate-skeleton bg-surface-container-high h-24 w-24 shrink-0 rounded-full" />
           <div className="flex-1 space-y-2">
-            <div className="h-4 w-3/4 rounded animate-skeleton bg-surface-container-high" />
-            <div className="h-3 w-1/2 rounded animate-skeleton bg-surface-container-high" />
+            <div className="animate-skeleton bg-surface-container-high h-4 w-3/4 rounded" />
+            <div className="animate-skeleton bg-surface-container-high h-3 w-1/2 rounded" />
           </div>
         </div>
         <div className="mt-4">
-          <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+          <div className="animate-skeleton bg-surface-container-high h-14 w-full rounded-xl" />
         </div>
       </section>
 
-      <section className="bg-surface-container-lowest p-4 space-y-3">
-        <div className="h-5 w-24 rounded animate-skeleton bg-surface-container-high" />
-        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
-        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+      <section className="bg-surface-container-lowest space-y-3 p-4">
+        <div className="animate-skeleton bg-surface-container-high h-5 w-24 rounded" />
+        <div className="animate-skeleton bg-surface-container-high h-14 w-full rounded-xl" />
+        <div className="animate-skeleton bg-surface-container-high h-14 w-full rounded-xl" />
       </section>
 
-      <section className="bg-surface-container-lowest p-4 space-y-3">
-        <div className="h-5 w-32 rounded animate-skeleton bg-surface-container-high" />
-        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
-        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
-        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+      <section className="bg-surface-container-lowest space-y-3 p-4">
+        <div className="animate-skeleton bg-surface-container-high h-5 w-32 rounded" />
+        <div className="animate-skeleton bg-surface-container-high h-14 w-full rounded-xl" />
+        <div className="animate-skeleton bg-surface-container-high h-14 w-full rounded-xl" />
+        <div className="animate-skeleton bg-surface-container-high h-14 w-full rounded-xl" />
       </section>
 
-      <section className="bg-surface-container-lowest p-4 space-y-3">
-        <div className="h-5 w-28 rounded animate-skeleton bg-surface-container-high" />
-        <div className="h-14 w-full rounded-xl animate-skeleton bg-surface-container-high" />
+      <section className="bg-surface-container-lowest space-y-3 p-4">
+        <div className="animate-skeleton bg-surface-container-high h-5 w-28 rounded" />
+        <div className="animate-skeleton bg-surface-container-high h-14 w-full rounded-xl" />
       </section>
     </div>
   );
@@ -168,10 +165,7 @@ export function AgentProfilePage() {
     perPage: 200,
     q: "",
   });
-  const neighborhoods = useMemo(
-    () => neighborhoodsQuery.data ?? [],
-    [neighborhoodsQuery.data],
-  );
+  const neighborhoods = useMemo(() => neighborhoodsQuery.data ?? [], [neighborhoodsQuery.data]);
   const neighborhoodNameById = useMemo(
     () => new Map(neighborhoods.map((item) => [getNeighborhoodId(item), item.name])),
     [neighborhoods],
@@ -194,9 +188,7 @@ export function AgentProfilePage() {
   const trimmedName = name.trim();
   const nameError = hasSubmitted && !trimmedName ? "نام مشاور الزامی است." : null;
   const activityAreasError =
-    hasSubmitted && selectedActivityAreas.length === 0
-      ? "انتخاب محدوده فعالیت الزامی است."
-      : null;
+    hasSubmitted && selectedActivityAreas.length === 0 ? "انتخاب محدوده فعالیت الزامی است." : null;
 
   useEffect(() => {
     if (!avatarPreviewUrl) return undefined;
@@ -207,10 +199,7 @@ export function AgentProfilePage() {
     if (!profileQuery.isError) return;
 
     showToast(
-      getApiErrorMessage(
-        profileQuery.error,
-        "دریافت اطلاعات مشاور با خطا مواجه شد.",
-      ),
+      getApiErrorMessage(profileQuery.error, "دریافت اطلاعات مشاور با خطا مواجه شد."),
       "خطا",
       "error",
     );
@@ -363,11 +352,7 @@ export function AgentProfilePage() {
 
       showToast("اطلاعات مشاور ذخیره شد.");
     } catch (error) {
-      showToast(
-        getApiErrorMessage(error, "ذخیره اطلاعات مشاور با خطا مواجه شد."),
-        "خطا",
-        "error",
-      );
+      showToast(getApiErrorMessage(error, "ذخیره اطلاعات مشاور با خطا مواجه شد."), "خطا", "error");
     }
   };
 
@@ -407,12 +392,12 @@ export function AgentProfilePage() {
   return (
     <>
       {desktop ? (
-        <div className="min-h-full rounded-xl bg-surface-container-lowest px-6 pb-12 pt-6 text-on-surface [direction:rtl]">
+        <div className="bg-surface-container-lowest text-on-surface min-h-full rounded-xl px-6 pt-6 pb-12 [direction:rtl]">
           {formContent}
         </div>
       ) : (
         <PageFrame
-          className="relative mx-auto flex min-h-0 max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface [direction:rtl]"
+          className="bg-surface-container-low text-on-surface relative mx-auto flex min-h-0 max-w-[500px] flex-col overflow-hidden [direction:rtl]"
           variant="flush"
         >
           <TopBar
@@ -425,7 +410,6 @@ export function AgentProfilePage() {
           {formContent}
         </PageFrame>
       )}
-
 
       <NeighborhoodSelectionSheet
         cityId={cityId}
@@ -500,7 +484,13 @@ function AgentProfileForm({
       >
         <DesktopSectionTitle icon={<LinearInfoCircle className="h-5 w-5" />} title="مشخصات" />
         {isLoading ? (
-          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-5 text-right text-sm font-medium text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="medium"
+            className="text-outline m-0 mt-5 text-right text-sm font-medium"
+          >
             در حال دریافت اطلاعات مشاور...
           </Typography>
         ) : null}
@@ -512,8 +502,13 @@ function AgentProfileForm({
             desktop
             onChange={onAvatarChange}
           />
-          <div className="min-w-[280px] max-w-[520px] flex-1">
-            <DesktopField label="نام مشاور" onChange={onNameChange} placeholder="نام مشاور" value={name} />
+          <div className="max-w-[520px] min-w-[280px] flex-1">
+            <DesktopField
+              label="نام مشاور"
+              onChange={onNameChange}
+              placeholder="نام مشاور"
+              value={name}
+            />
             {nameError ? <FieldError message={nameError} /> : null}
           </div>
         </div>
@@ -521,17 +516,48 @@ function AgentProfileForm({
         <section className="mt-14">
           <DesktopSectionTitle title="اطلاعات تماس" />
           <div className="mt-7 grid grid-cols-1 gap-7 lg:grid-cols-2">
-            <DesktopField label="شماره تماس" onChange={onPhoneChange} placeholder="شماره تماس" value={phone} />
-            <DesktopField label="ایمیل" onChange={onEmailChange} placeholder="ایمیل" value={email} />
+            <DesktopField
+              label="شماره تماس"
+              onChange={onPhoneChange}
+              placeholder="شماره تماس"
+              value={phone}
+            />
+            <DesktopField
+              label="ایمیل"
+              onChange={onEmailChange}
+              placeholder="ایمیل"
+              value={email}
+            />
           </div>
 
-          <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-7 text-right text-base font-semibold leading-6 text-on-surface">
+          <Typography
+            as="h3"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="text-on-surface m-0 mt-7 text-right text-base leading-6 font-semibold"
+          >
             شبکه‌های اجتماعی
           </Typography>
           <div className="mt-4 grid grid-cols-1 gap-7 lg:grid-cols-3">
-            <DesktopField icon={<TonalTelegram className="h-6 w-6" />} onChange={onTelegramChange} placeholder="آیدی تلگرام بدون @" value={telegram} />
-            <DesktopField icon={<TonalWhatsapp className="h-6 w-6" />} onChange={onWhatsappChange} placeholder="شماره واتساپ بدون صفر" value={whatsapp} />
-            <DesktopField icon={<TonalInstagram className="h-6 w-6" />} onChange={onInstagramChange} placeholder="آیدی اینستاگرام بدون @" value={instagram} />
+            <DesktopField
+              icon={<TonalTelegram className="h-6 w-6" />}
+              onChange={onTelegramChange}
+              placeholder="آیدی تلگرام بدون @"
+              value={telegram}
+            />
+            <DesktopField
+              icon={<TonalWhatsapp className="h-6 w-6" />}
+              onChange={onWhatsappChange}
+              placeholder="شماره واتساپ بدون صفر"
+              value={whatsapp}
+            />
+            <DesktopField
+              icon={<TonalInstagram className="h-6 w-6" />}
+              onChange={onInstagramChange}
+              placeholder="آیدی اینستاگرام بدون @"
+              value={instagram}
+            />
           </div>
         </section>
 
@@ -545,8 +571,9 @@ function AgentProfileForm({
         </section>
 
         <div className="mt-14 flex justify-start">
-          <Button unstyled
-            className="h-14 rounded-xl bg-primary px-7 text-base font-semibold leading-6 text-on-primary disabled:opacity-60"
+          <Button
+            unstyled
+            className="bg-primary text-on-primary h-14 rounded-xl px-7 text-base leading-6 font-semibold disabled:opacity-60"
             disabled={isSaving}
             type="submit"
           >
@@ -559,9 +586,9 @@ function AgentProfileForm({
 
   return (
     <>
-      <main className="min-h-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden pb-24">
+      <main className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto pb-24">
         {isLoading ? (
-          <div className="bg-surface-container-lowest px-4 py-3 text-center text-sm font-medium text-outline">
+          <div className="bg-surface-container-lowest text-outline px-4 py-3 text-center text-sm font-medium">
             در حال دریافت اطلاعات مشاور...
           </div>
         ) : null}
@@ -588,10 +615,33 @@ function AgentProfileForm({
           </div>
           <Separator />
           <div className="grid gap-3">
-            <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">شبکه‌های اجتماعی</Typography>
-            <Field icon={<TonalTelegram className="h-6 w-6" />} onChange={onTelegramChange} placeholder="آیدی تلگرام بدون @" value={telegram} />
-            <Field icon={<TonalWhatsapp className="h-6 w-6" />} onChange={onWhatsappChange} placeholder="شماره واتساپ بدون صفر" value={whatsapp} />
-            <Field icon={<TonalInstagram className="h-6 w-6" />} onChange={onInstagramChange} placeholder="آیدی اینستاگرام بدون @" value={instagram} />
+            <Typography
+              as="h3"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="m-0 text-right text-base leading-6 font-semibold"
+            >
+              شبکه‌های اجتماعی
+            </Typography>
+            <Field
+              icon={<TonalTelegram className="h-6 w-6" />}
+              onChange={onTelegramChange}
+              placeholder="آیدی تلگرام بدون @"
+              value={telegram}
+            />
+            <Field
+              icon={<TonalWhatsapp className="h-6 w-6" />}
+              onChange={onWhatsappChange}
+              placeholder="شماره واتساپ بدون صفر"
+              value={whatsapp}
+            />
+            <Field
+              icon={<TonalInstagram className="h-6 w-6" />}
+              onChange={onInstagramChange}
+              placeholder="آیدی اینستاگرام بدون @"
+              value={instagram}
+            />
           </div>
         </Section>
 
@@ -603,9 +653,10 @@ function AgentProfileForm({
         />
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-10 border-t border-outline-var bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3">
-        <Button unstyled
-          className="h-10 w-full rounded-lg bg-primary text-sm font-medium text-on-primary disabled:opacity-60"
+      <footer className="border-outline-var bg-surface-container-lowest absolute inset-x-0 bottom-0 z-10 border-t px-4 pt-3 pb-[max(8px,env(safe-area-inset-bottom))]">
+        <Button
+          unstyled
+          className="bg-primary text-on-primary h-10 w-full rounded-lg text-sm font-medium disabled:opacity-60"
           disabled={isSaving}
           onClick={() => void onSave()}
           type="button"
@@ -637,24 +688,49 @@ function ProfileImageUploader({
   };
 
   return (
-    <div className={desktop ? "w-[122px] shrink-0 text-right" : "mt-4 shrink-0 text-right font-medium"}>
-      <Typography as="p" variant="body" size="large" weight="medium" className={desktop ? "m-0 mb-4 text-base font-semibold leading-6" : "m-0 mb-3 text-sm font-semibold leading-5"}>
+    <div
+      className={desktop ? "w-[122px] shrink-0 text-right" : "mt-4 shrink-0 text-right font-medium"}
+    >
+      <Typography
+        as="p"
+        variant="body"
+        size="large"
+        weight="medium"
+        className={
+          desktop
+            ? "m-0 mb-4 text-base leading-6 font-semibold"
+            : "m-0 mb-3 text-sm leading-5 font-semibold"
+        }
+      >
         تصویر مشاور
       </Typography>
-      <Button unstyled
+      <Button
+        unstyled
         aria-label="بارگذاری تصویر مشاور"
-        className={`relative grid place-items-center overflow-visible rounded-full text-on-surface-var ${desktop ? "h-[96px] w-[96px] border border-outline-var" : "mx-auto mr-3 h-22 w-22"}`}
+        className={`text-on-surface-var relative grid place-items-center overflow-visible rounded-full ${desktop ? "border-outline-var h-[96px] w-[96px] border" : "mx-auto mr-3 h-22 w-22"}`}
         onClick={() => inputRef.current?.click()}
         type="button"
       >
-        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-surface-container-high">
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="bg-surface-container-high grid h-full w-full place-items-center overflow-hidden rounded-full"
+        >
           {imageUrl ? (
             <img alt="تصویر مشاور" className="h-full w-full object-cover" src={imageUrl} />
           ) : (
             <LinearUserSolid className="h-8 w-8" />
           )}
         </Typography>
-        <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -bottom-0.5 -left-0.5 z-10 grid h-8 w-8 place-items-center rounded-full border-4 border-surface-container-lowest bg-primary text-on-primary">
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="border-surface-container-lowest bg-primary text-on-primary absolute -bottom-0.5 -left-0.5 z-10 grid h-8 w-8 place-items-center rounded-full border-4"
+        >
           <LinearEdit2 className="h-4 w-4" />
         </Typography>
       </Button>
@@ -671,12 +747,18 @@ function ProfileImageUploader({
 
 function ProfileImageHelpText() {
   return (
-    <div className="flex gap-1 text-right text-xs font-normal text-outline">
-      <LinearInfoCircle className="h-4.5 w-4.5 shrink-0 text-on-surface-var" />
+    <div className="text-outline flex gap-1 text-right text-xs font-normal">
+      <LinearInfoCircle className="text-on-surface-var h-4.5 w-4.5 shrink-0" />
       <div>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">حجم عکس کمتر از 1MB باشد</Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">بهترین ابعاد نمایش 100×100 پیکسل</Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">فرمت‌های قابل استفاده jpg, png, gif</Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">
+          حجم عکس کمتر از 1MB باشد
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">
+          بهترین ابعاد نمایش 100×100 پیکسل
+        </Typography>
+        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">
+          فرمت‌های قابل استفاده jpg, png, gif
+        </Typography>
       </div>
     </div>
   );
@@ -696,14 +778,23 @@ function ActivityAreaSection({
   return (
     <Section>
       <div className="flex items-center justify-between gap-3">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">محدوده فعالیت</Typography>
-        <Button unstyled
-          className="inline-flex h-8 shrink-0 items-center gap-1.5 text-sm font-semibold leading-5 text-primary"
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="m-0 text-right text-base leading-6 font-semibold"
+        >
+          محدوده فعالیت
+        </Typography>
+        <Button
+          unstyled
+          className="text-primary inline-flex h-8 shrink-0 items-center gap-1.5 text-sm leading-5 font-semibold"
           onClick={onOpenPicker}
           type="button"
         >
           {activityAreas.length ? `${activityAreas.length} انتخاب` : "انتخاب"}
-          <LinearArrowLeft1 className="h-5 w-5 text-on-surface-var" />
+          <LinearArrowLeft1 className="text-on-surface-var h-5 w-5" />
         </Button>
       </div>
 
@@ -720,7 +811,13 @@ function ActivityAreaSection({
           ))}
         </div>
       ) : (
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 text-right text-sm font-normal leading-6 text-outline">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-outline m-0 mt-3 text-right text-sm leading-6 font-normal"
+        >
           محله‌های محدوده فعالیت مشاور را انتخاب کنید.
         </Typography>
       )}
@@ -786,7 +883,7 @@ function NeighborhoodSelectionSheet({
       showHandle={false}
       showHeader={false}
     >
-      <div className="shrink-0 px-3 pb-2 pt-3">
+      <div className="shrink-0 px-3 pt-3 pb-2">
         <div className="flex h-11 items-center gap-2 [direction:ltr]">
           <SearchInputBar
             containerClassName="flex-1 border-outline"
@@ -798,9 +895,10 @@ function NeighborhoodSelectionSheet({
             size="dense"
             value={query}
           />
-          <Button unstyled
+          <Button
+            unstyled
             aria-label="بازگشت"
-            className="grid h-10 w-10 shrink-0 place-items-center text-on-surface-var"
+            className="text-on-surface-var grid h-10 w-10 shrink-0 place-items-center"
             onClick={onClose}
             type="button"
           >
@@ -809,16 +907,30 @@ function NeighborhoodSelectionSheet({
         </div>
 
         <div className="mt-3 flex items-center justify-between px-1">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">محدوده فعالیت</Typography>
+          <Typography
+            as="h2"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="text-on-surface m-0 text-base leading-6 font-semibold"
+          >
+            محدوده فعالیت
+          </Typography>
           {selectedNeighborhoods.length > 0 ? (
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-primary">
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-primary text-sm leading-5 font-medium"
+            >
               {selectedNeighborhoods.length} انتخاب
             </Typography>
           ) : null}
         </div>
 
         {selectedNeighborhoods.length > 0 ? (
-          <div className="-mx-3 mt-2 flex gap-2 overflow-x-auto px-3 pb-1 [direction:rtl] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="-mx-3 mt-2 flex [scrollbar-width:none] gap-2 overflow-x-auto px-3 pb-1 [direction:rtl] [&::-webkit-scrollbar]:hidden">
             {selectedNeighborhoods.map((neighborhood) => (
               <FormChoiceChip
                 key={neighborhood.id}
@@ -834,15 +946,21 @@ function NeighborhoodSelectionSheet({
         ) : null}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-2" dir="rtl">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-2 pb-3" dir="rtl">
         {!cityId ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline m-0 mx-auto w-full px-2 py-3 text-center text-sm leading-6 font-normal"
+          >
             برای انتخاب محله، ابتدا شهر را انتخاب کنید.
           </Typography>
         ) : neighborhoodsQuery.isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div className="h-12 rounded-[10px] bg-surface-container-high" key={index} />
+              <div className="bg-surface-container-high h-12 rounded-[10px]" key={index} />
             ))}
           </div>
         ) : neighborhoods.length > 0 ? (
@@ -852,20 +970,41 @@ function NeighborhoodSelectionSheet({
               const isSelected = selectedIds.has(neighborhoodId);
 
               return (
-                <Button unstyled
+                <Button
+                  unstyled
                   aria-pressed={isSelected}
-                  className={`flex min-h-[64px] w-full items-center justify-between gap-4 rounded-[10px] bg-surface-container-lowest py-2 pl-3 pr-0 text-right transition-colors active:bg-primary/5 [direction:ltr] ${isSelected ? "text-primary" : "text-on-surface"}`}
+                  className={`bg-surface-container-lowest active:bg-primary/5 flex min-h-[64px] w-full items-center justify-between gap-4 rounded-[10px] py-2 pr-0 pl-3 text-right transition-colors [direction:ltr] ${isSelected ? "text-primary" : "text-on-surface"}`}
                   key={neighborhoodId}
                   onClick={() => toggleNeighborhood(neighborhood)}
                   type="button"
                 >
                   <SelectionCheckIndicator checked={isSelected} />
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 [direction:rtl]">
-                    <Typography as="span" variant="label" size="medium" weight="medium" className="block truncate text-sm font-medium leading-5">
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="medium"
+                    weight="regular"
+                    className="min-w-0 flex-1 [direction:rtl]"
+                  >
+                    <Typography
+                      as="span"
+                      variant="label"
+                      size="medium"
+                      weight="medium"
+                      className="block truncate text-sm leading-5 font-medium"
+                    >
                       {neighborhood.name}
                     </Typography>
-                    <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs font-normal leading-5 text-outline">
-                      {getNeighborhoodHierarchyDescription(neighborhood) || cityName || "شهر انتخاب‌شده"}
+                    <Typography
+                      as="span"
+                      variant="body"
+                      size="small"
+                      weight="regular"
+                      className="text-outline mt-1 block text-xs leading-5 font-normal"
+                    >
+                      {getNeighborhoodHierarchyDescription(neighborhood) ||
+                        cityName ||
+                        "شهر انتخاب‌شده"}
                     </Typography>
                   </Typography>
                 </Button>
@@ -875,15 +1014,22 @@ function NeighborhoodSelectionSheet({
         ) : query.trim() ? (
           <SearchEmptyState compact />
         ) : (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="mx-auto m-0 w-full px-2 py-3 text-center text-sm font-normal leading-6 text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline m-0 mx-auto w-full px-2 py-3 text-center text-sm leading-6 font-normal"
+          >
             محله‌ای برای این شهر ثبت نشده است.
           </Typography>
         )}
       </div>
 
-      <footer className="shrink-0 border-t border-outline-var bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3">
-        <Button unstyled
-          className="flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary"
+      <footer className="border-outline-var bg-surface-container-lowest shrink-0 border-t px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">
+        <Button
+          unstyled
+          className="bg-primary text-on-primary flex h-10 w-full items-center justify-center rounded-lg text-sm leading-5 font-medium"
           onClick={onClose}
           type="button"
         >
@@ -898,7 +1044,15 @@ function Section({ children, title }: { children: ReactNode; title?: string }) {
   return (
     <section className="bg-surface-container-lowest px-4 py-4">
       {title ? (
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold text-on-surface">{title}</Typography>
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-on-surface m-0 text-right text-base font-semibold"
+        >
+          {title}
+        </Typography>
       ) : null}
       {children}
     </section>
@@ -918,15 +1072,31 @@ function Field({
 }) {
   return (
     <label className="block text-right">
-      <Typography as="span" variant="body" size="medium" weight="regular" className="relative flex w-full items-center rounded-xl border border-outline-var bg-surface-container-lowest px-3 py-4.5 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="border-outline-var bg-surface-container-lowest focus-within:border-primary focus-within:ring-primary/10 relative flex w-full items-center rounded-xl border px-3 py-4.5 focus-within:ring-2"
+      >
         <input
-          className={`h-full min-w-0 flex-1 border-0 bg-transparent py-0 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-sm placeholder:text-outline ${icon ? "pl-9" : ""}`}
+          className={`text-on-surface placeholder:text-outline h-full min-w-0 flex-1 border-0 bg-transparent py-0 text-right text-sm leading-5 font-normal outline-none placeholder:text-sm ${icon ? "pl-9" : ""}`}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
           type="text"
           value={value}
         />
-        {icon ? <Typography as="span" variant="body" size="medium" weight="regular" className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</Typography> : null}
+        {icon ? (
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="absolute top-1/2 left-3 -translate-y-1/2"
+          >
+            {icon}
+          </Typography>
+        ) : null}
       </Typography>
     </label>
   );
@@ -948,19 +1118,41 @@ function DesktopField({
   return (
     <label className="block min-w-0">
       {label ? (
-        <Typography as="span" variant="label" size="large" weight="semibold" className="mb-3 block text-right text-base font-semibold leading-6 text-on-surface">
+        <Typography
+          as="span"
+          variant="label"
+          size="large"
+          weight="semibold"
+          className="text-on-surface mb-3 block text-right text-base leading-6 font-semibold"
+        >
           {label}
         </Typography>
       ) : null}
-      <Typography as="span" variant="body" size="medium" weight="regular" className="relative block">
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="relative block"
+      >
         <input
-          className={`h-[60px] w-full rounded-xl border border-outline-var bg-surface-container-lowest py-0 text-right text-sm font-normal leading-5 text-on-surface outline-none transition placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/10 ${icon ? "pl-12 pr-5" : "px-5"}`}
+          className={`border-outline-var bg-surface-container-lowest text-on-surface placeholder:text-outline focus:border-primary focus:ring-primary/10 h-[60px] w-full rounded-xl border py-0 text-right text-sm leading-5 font-normal transition outline-none focus:ring-2 ${icon ? "pr-5 pl-12" : "px-5"}`}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
           type="text"
           value={value}
         />
-        {icon ? <Typography as="span" variant="body" size="medium" weight="regular" className="absolute left-4 top-1/2 -translate-y-1/2">{icon}</Typography> : null}
+        {icon ? (
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="absolute top-1/2 left-4 -translate-y-1/2"
+          >
+            {icon}
+          </Typography>
+        ) : null}
       </Typography>
     </label>
   );
@@ -968,21 +1160,45 @@ function DesktopField({
 
 function DesktopSectionTitle({ icon, title }: { icon?: ReactNode; title: string }) {
   return (
-    <div className="flex items-center gap-2 text-primary">
-      {icon ? <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">{icon}</Typography> : null}
-      <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-bold leading-8">{title}</Typography>
+    <div className="text-primary flex items-center gap-2">
+      {icon ? (
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var"
+        >
+          {icon}
+        </Typography>
+      ) : null}
+      <Typography
+        as="h2"
+        variant="title"
+        size="large"
+        weight="semibold"
+        className="m-0 text-[22px] leading-8 font-bold"
+      >
+        {title}
+      </Typography>
     </div>
   );
 }
 
 function FieldError({ message }: { message: string }) {
   return (
-    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-right text-xs font-normal leading-5 text-error">
+    <Typography
+      as="p"
+      variant="body"
+      size="small"
+      weight="regular"
+      className="text-error m-0 mt-2 text-right text-xs leading-5 font-normal"
+    >
       {message}
     </Typography>
   );
 }
 
 function Separator() {
-  return <div className="my-4 h-px bg-outline-var" />;
+  return <div className="bg-outline-var my-4 h-px" />;
 }

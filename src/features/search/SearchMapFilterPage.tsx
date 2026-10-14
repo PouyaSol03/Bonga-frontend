@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+} from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import {
@@ -18,7 +26,10 @@ import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { useNavigate } from "react-router";
 import { formatBigNumber, formatPrice } from "../../shared/lib/MoneyHandler";
-import { getNeighborhoodDescription, type NeighborhoodDto } from "../locations/api/neighborhood.service";
+import {
+  getNeighborhoodDescription,
+  type NeighborhoodDto,
+} from "../locations/api/neighborhood.service";
 import { toEnglishDigits } from "../../shared/lib/numberUtils";
 import { useAdvertisementListQuery } from "../advertisements/api/advertisement.hooks";
 import { readSearchFilters } from "./SearchMapPage";
@@ -71,7 +82,11 @@ import {
   projectFacilityItems,
   saleLandPositionOptions,
 } from "../advertisements/create/data";
-import type { BasicPropertyField, ChipItem, MoreFeatureField } from "../advertisements/create/types";
+import type {
+  BasicPropertyField,
+  ChipItem,
+  MoreFeatureField,
+} from "../advertisements/create/types";
 import { JalaliDatePickerSheet } from "../advertisements/create/steps/project/JalaliDatePickerSheet";
 import { Typography } from "../../shared/ui/Typography";
 import LinearAgreement from "../../shared/icons/LinearAgreement";
@@ -303,7 +318,9 @@ export function getAdvertiseFormCode(transaction: TransactionType, category: Cat
   return formCodeByListingKey[`${transaction}:${category}`] ?? `${transaction}-${category}`;
 }
 
-export function getListingFromFormCode(formCode: string): { transaction: TransactionType; category: CategoryKey } | null {
+export function getListingFromFormCode(
+  formCode: string,
+): { transaction: TransactionType; category: CategoryKey } | null {
   if (!formCode) return null;
 
   const mappedEntry = Object.entries(formCodeByListingKey).find(([, value]) => value === formCode);
@@ -506,8 +523,14 @@ function readInitialFiltersFromUrl(): FilterState {
     nextFilters.ranges.mortgagePrice = priceRange;
   }
 
-  const dailyPriceMinParam = params.get("daily_price_min") || params.get("normal_daily_price_min") || params.get("min_price");
-  const dailyPriceMaxParam = params.get("daily_price_max") || params.get("normal_daily_price_max") || params.get("max_price");
+  const dailyPriceMinParam =
+    params.get("daily_price_min") ||
+    params.get("normal_daily_price_min") ||
+    params.get("min_price");
+  const dailyPriceMaxParam =
+    params.get("daily_price_max") ||
+    params.get("normal_daily_price_max") ||
+    params.get("max_price");
   if (dailyPriceMinParam || dailyPriceMaxParam) {
     nextFilters.ranges.dailyPrice = {
       minimum: dailyPriceMinParam || nextFilters.ranges.dailyPrice?.minimum || "",
@@ -536,7 +559,8 @@ function readInitialFiltersFromUrl(): FilterState {
     nextFilters.neighborhoods = neighborhoods.map((id) => ({ id, name: id }));
   }
 
-  if (params.get("published_at")) nextFilters.publicationTime = params.get("published_at") ?? undefined;
+  if (params.get("published_at"))
+    nextFilters.publicationTime = params.get("published_at") ?? undefined;
   nextFilters.featured = params.get("is_special") === "true" || params.get("is_special") === "1";
   nextFilters.hasPhoto = params.get("has_image") === "true" || params.get("has_image") === "1";
   nextFilters.hasVideo = params.get("has_video") === "true" || params.get("has_video") === "1";
@@ -557,14 +581,33 @@ function readInitialFiltersFromUrl(): FilterState {
     if (!directValue) continue;
 
     const isApprovedSaleLandMulti =
-      listing?.transaction === "sale" &&
-      listing.category === "land" &&
-      fieldId === "usageType";
+      listing?.transaction === "sale" && listing.category === "land" && fieldId === "usageType";
 
-    if (fieldId === "heatingCooling" || fieldId === "facilities" || fieldId === "suitableFor" || isApprovedSaleLandMulti) {
+    if (
+      fieldId === "heatingCooling" ||
+      fieldId === "facilities" ||
+      fieldId === "suitableFor" ||
+      isApprovedSaleLandMulti
+    ) {
       nextFilters.multis[fieldId] = directValue.split(/[_،,]/).filter(Boolean);
-    } else if (["renovated", "furnished", "constructionPermit", "commercialPermit", "hasDocument", "managementRoom", "conferenceRoom", "receptionHall", "signboard", "kitchen", "separateEntrance", "saleTermsEnabled"].includes(fieldId)) {
-      nextFilters.toggles[fieldId] = directValue === "true" || directValue === "1" || directValue === "دارد";
+    } else if (
+      [
+        "renovated",
+        "furnished",
+        "constructionPermit",
+        "commercialPermit",
+        "hasDocument",
+        "managementRoom",
+        "conferenceRoom",
+        "receptionHall",
+        "signboard",
+        "kitchen",
+        "separateEntrance",
+        "saleTermsEnabled",
+      ].includes(fieldId)
+    ) {
+      nextFilters.toggles[fieldId] =
+        directValue === "true" || directValue === "1" || directValue === "دارد";
     } else {
       nextFilters.singles[fieldId] = directValue;
     }
@@ -646,7 +689,14 @@ function buildSearchUrl(filters: FilterState, applyBasePath = "/search") {
     if (multi?.length) {
       setOrDelete(paramKey, multi.join("_"));
     } else if (single) {
-      setOrDelete(paramKey, ["readyDeliveryDate", "projectDeliveryDate", "checkInTime", "checkOutTime"].includes(fieldId) ? single : normalizeExactFilterValue(single));
+      setOrDelete(
+        paramKey,
+        ["readyDeliveryDate", "projectDeliveryDate", "checkInTime", "checkOutTime"].includes(
+          fieldId,
+        )
+          ? single
+          : normalizeExactFilterValue(single),
+      );
     } else if (toggle) {
       setOrDelete(paramKey, "true");
     } else {
@@ -700,7 +750,12 @@ export const categoryGroupsByTransaction: Record<
     },
     {
       title: "روزانه",
-      items: ["daily-apartment-suite", "daily-garden-villa", "daily-hotel-apartment", "daily-workspace"],
+      items: [
+        "daily-apartment-suite",
+        "daily-garden-villa",
+        "daily-hotel-apartment",
+        "daily-workspace",
+      ],
     },
     {
       title: "اداری، تجاری، صنعتی، اقامتی",
@@ -755,7 +810,13 @@ export const transactionTabs: { label: string; value: TransactionType }[] = [
 ];
 
 const advertiserOptions = ["آژانس املاک", "شخصی", "مشاور"];
-const publicationTimeOptions = ["یک ساعت پیش", "سه ساعت پیش", "یک روز پیش", "یک هفته پیش", "یک ماه پیش"];
+const publicationTimeOptions = [
+  "یک ساعت پیش",
+  "سه ساعت پیش",
+  "یک روز پیش",
+  "یک هفته پیش",
+  "یک ماه پیش",
+];
 const removedFilterFieldKeys = new Set<string>();
 
 const filterFieldParamMap: Record<string, string> = {
@@ -841,7 +902,6 @@ const filterFieldParamMap: Record<string, string> = {
   facilities: "facilities",
 };
 
-
 const minNeighborhoodSearchLength = 2;
 const neighborhoodSearchDebounceMs = 250;
 
@@ -887,10 +947,35 @@ function getListingKey(transaction: TransactionType, category: CategoryKey) {
 function getBasicFields(transaction: TransactionType, category: CategoryKey): BasicPropertyField[] {
   if (category === "project-partnership") {
     return [
-      { key: "participationType", label: "نوع مشارکت", control: "select", options: participationTypeOptions, required: true },
-      { key: "currentStatus", label: "وضعیت فعلی ملک", control: "select", options: partnershipCurrentStatusOptions, required: true },
-      { key: "landArea", label: "متراژ زمین", control: "input", numeric: true, leftText: "متر مربع", required: true },
-      { key: "landPosition", label: "موقعیت زمین", control: "select", options: saleLandPositionOptions, required: true },
+      {
+        key: "participationType",
+        label: "نوع مشارکت",
+        control: "select",
+        options: participationTypeOptions,
+        required: true,
+      },
+      {
+        key: "currentStatus",
+        label: "وضعیت فعلی ملک",
+        control: "select",
+        options: partnershipCurrentStatusOptions,
+        required: true,
+      },
+      {
+        key: "landArea",
+        label: "متراژ زمین",
+        control: "input",
+        numeric: true,
+        leftText: "متر مربع",
+        required: true,
+      },
+      {
+        key: "landPosition",
+        label: "موقعیت زمین",
+        control: "select",
+        options: saleLandPositionOptions,
+        required: true,
+      },
     ];
   }
 
@@ -921,7 +1006,18 @@ function getHeatingItems(transaction: TransactionType, category: CategoryKey) {
   if (transaction === "sale" && category === "factory-workshop") return saleFactoryHeatingItems;
   if (transaction === "sale" && category === "hotel-apartment") return saleHotelHeatingItems;
   if (transaction === "rent" && category.startsWith("daily-")) return dailyRentHeatingItems;
-  if (transaction === "rent" && ["apartment", "villa-house", "office", "commercial-unit", "factory-workshop", "hotel-apartment"].includes(category)) return rentHeatingItems;
+  if (
+    transaction === "rent" &&
+    [
+      "apartment",
+      "villa-house",
+      "office",
+      "commercial-unit",
+      "factory-workshop",
+      "hotel-apartment",
+    ].includes(category)
+  )
+    return rentHeatingItems;
   return heatingItems;
 }
 
@@ -940,8 +1036,10 @@ function getFacilityItems(transaction: TransactionType, category: CategoryKey) {
   if (transaction === "rent" && category === "commercial-unit") return rentCommercialFacilityItems;
   if (transaction === "rent" && category === "factory-workshop") return rentFactoryFacilityItems;
   if (transaction === "rent" && category === "hotel-apartment") return rentHotelFacilityItems;
-  if (transaction === "rent" && ["daily-apartment-suite", "daily-garden-villa"].includes(category)) return dailyStayFacilityItems;
-  if (transaction === "rent" && category === "daily-hotel-apartment") return dailyHotelFacilityItems;
+  if (transaction === "rent" && ["daily-apartment-suite", "daily-garden-villa"].includes(category))
+    return dailyStayFacilityItems;
+  if (transaction === "rent" && category === "daily-hotel-apartment")
+    return dailyHotelFacilityItems;
   if (transaction === "rent" && category === "daily-workspace") return dailyWorkspaceFacilityItems;
   return category === "land" || category === "factory-workshop" ? landFacilityItems : facilityItems;
 }
@@ -955,8 +1053,20 @@ function isProjectCategory(category: CategoryKey) {
 }
 
 function getFieldIcon(key: string): IconName {
-  if (key === "floor" || key === "totalFloors" || key === "projectTotalFloors" || key === "unitsPerFloor") return "floor";
-  if (key === "rooms" || key === "singleRoomCount" || key === "doubleRoomCount" || key === "suiteCount") return "bed";
+  if (
+    key === "floor" ||
+    key === "totalFloors" ||
+    key === "projectTotalFloors" ||
+    key === "unitsPerFloor"
+  )
+    return "floor";
+  if (
+    key === "rooms" ||
+    key === "singleRoomCount" ||
+    key === "doubleRoomCount" ||
+    key === "suiteCount"
+  )
+    return "bed";
   if (
     key === "documentType" ||
     key === "constructionPermit" ||
@@ -966,7 +1076,8 @@ function getFieldIcon(key: string): IconName {
     key === "officeDocumentType" ||
     key === "hasDocument" ||
     key === "participationType"
-  ) return "agreement";
+  )
+    return "agreement";
   if (
     key === "unitType" ||
     key === "landPosition" ||
@@ -976,7 +1087,8 @@ function getFieldIcon(key: string): IconName {
     key === "commercialPosition" ||
     key.toLowerCase().includes("position") ||
     key === "accessType"
-  ) return "orientation";
+  )
+    return "orientation";
   if (key === "age" || key === "buildingAge") return "year";
   if (
     key === "density" ||
@@ -984,14 +1096,27 @@ function getFieldIcon(key: string): IconName {
     key === "spaceType" ||
     key === "accommodationType" ||
     key === "industrialPropertyType"
-  ) return "building";
+  )
+    return "building";
   if (key === "suitableFor") return "suitable";
   if (key === "buildingType") return "typeBuilding";
-  if (key === "buildingStyle" || key === "buildingTip" || key === "villaType" || key === "unitLayout") return "city02";
+  if (
+    key === "buildingStyle" ||
+    key === "buildingTip" ||
+    key === "villaType" ||
+    key === "unitLayout"
+  )
+    return "city02";
   if (key === "heatingCooling") return "temperature";
   if (key === "facilities" || key === "usageType") return "settings";
   if (key === "landWidth" || key === "width") return "houseDimensions";
-  if (key === "meterage" || key === "landArea" || key === "buildingArea" || key === "projectMeterage") return "ruler";
+  if (
+    key === "meterage" ||
+    key === "landArea" ||
+    key === "buildingArea" ||
+    key === "projectMeterage"
+  )
+    return "ruler";
   if (key === "hotelStars" || key === "stars") return "star";
 
   return "settings";
@@ -1016,7 +1141,11 @@ function createRangeBlock(
 
 function blockFromBasicField(field: BasicPropertyField): FilterBlock {
   if (field.control === "input") {
-    const isAreaField = field.leftText?.includes("متر") || field.key === "meterage" || field.key === "landArea" || field.key === "buildingArea";
+    const isAreaField =
+      field.leftText?.includes("متر") ||
+      field.key === "meterage" ||
+      field.key === "landArea" ||
+      field.key === "buildingArea";
     const isPercentField = field.leftText?.includes("درصد") || field.key === "density";
 
     return createRangeBlock(
@@ -1080,7 +1209,11 @@ function blockFromMoreFeatureField(field: MoreFeatureField): FilterBlock {
       icon: getFieldIcon(field.key),
       id: field.key,
       kind: "multi",
-      options: (field.options ?? moreFeatureOptions[field.key as keyof typeof moreFeatureOptions] ?? []).map((label) => ({ id: label, label })),
+      options: (
+        field.options ??
+        moreFeatureOptions[field.key as keyof typeof moreFeatureOptions] ??
+        []
+      ).map((label) => ({ id: label, label })),
       title: field.label,
     };
   }
@@ -1089,33 +1222,93 @@ function blockFromMoreFeatureField(field: MoreFeatureField): FilterBlock {
     icon: getFieldIcon(field.key),
     id: field.key,
     kind: "single",
-    options: field.options ?? moreFeatureOptions[field.key as keyof typeof moreFeatureOptions] ?? [],
+    options:
+      field.options ?? moreFeatureOptions[field.key as keyof typeof moreFeatureOptions] ?? [],
     title: field.label,
   };
 }
 
 function getProjectPresaleBlocks(): FilterBlock[] {
   return [
-    { icon: "settings", id: "projectType", kind: "single", options: projectTypeOptions, title: "نوع پروژه" },
+    {
+      icon: "settings",
+      id: "projectType",
+      kind: "single",
+      options: projectTypeOptions,
+      title: "نوع پروژه",
+    },
     createRangeBlock("projectTotalFloors", "تعداد کل طبقات", "number"),
     createRangeBlock("projectTotalUnits", "تعداد کل واحد ها", "number"),
-    { icon: "agreement", id: "documentType", kind: "single", options: moreFeatureOptions.documentType, title: "سند" },
-    { icon: "settings", id: "projectStatus", kind: "single", options: projectStatusOptions, title: "وضعیت پروژه" },
+    {
+      icon: "agreement",
+      id: "documentType",
+      kind: "single",
+      options: moreFeatureOptions.documentType,
+      title: "سند",
+    },
+    {
+      icon: "settings",
+      id: "projectStatus",
+      kind: "single",
+      options: projectStatusOptions,
+      title: "وضعیت پروژه",
+    },
     { id: "projectDeliveryDate", kind: "date", title: "تاریخ تحویل" },
-    { icon: "settings", id: "kitchenType", kind: "single", options: moreFeatureOptions.kitchenType, title: "نوع آشپزخانه" },
-    { icon: "settings", id: "facadeMaterial", kind: "single", options: moreFeatureOptions.facadeMaterial, title: "جنس نما" },
-    { icon: "settings", id: "floorMaterial", kind: "single", options: moreFeatureOptions.floorMaterial, title: "جنس کف" },
-    { icon: "settings", id: "cabinetMaterial", kind: "single", options: moreFeatureOptions.cabinetMaterial, title: "جنس کابینت" },
+    {
+      icon: "settings",
+      id: "kitchenType",
+      kind: "single",
+      options: moreFeatureOptions.kitchenType,
+      title: "نوع آشپزخانه",
+    },
+    {
+      icon: "settings",
+      id: "facadeMaterial",
+      kind: "single",
+      options: moreFeatureOptions.facadeMaterial,
+      title: "جنس نما",
+    },
+    {
+      icon: "settings",
+      id: "floorMaterial",
+      kind: "single",
+      options: moreFeatureOptions.floorMaterial,
+      title: "جنس کف",
+    },
+    {
+      icon: "settings",
+      id: "cabinetMaterial",
+      kind: "single",
+      options: moreFeatureOptions.cabinetMaterial,
+      title: "جنس کابینت",
+    },
     { id: "furnished", kind: "toggle", title: "با لوازم و مبله" },
     createRangeBlock("projectMeterage", "متراژ", "area", "متر مربع"),
-    { icon: "floor", id: "projectFloors", kind: "multi", options: projectFloorOptions.map((label) => ({ id: label, label })), title: "طبقه" },
-    { icon: "bed", id: "projectRooms", kind: "multi", options: projectRoomOptions.map((label) => ({ id: label, label })), title: "تعداد اتاق" },
-    { icon: "orientation", id: "projectPositions", kind: "multi", options: projectPositionOptions.map((label) => ({ id: label, label })), title: "موقعیت" },
+    {
+      icon: "floor",
+      id: "projectFloors",
+      kind: "multi",
+      options: projectFloorOptions.map((label) => ({ id: label, label })),
+      title: "طبقه",
+    },
+    {
+      icon: "bed",
+      id: "projectRooms",
+      kind: "multi",
+      options: projectRoomOptions.map((label) => ({ id: label, label })),
+      title: "تعداد اتاق",
+    },
+    {
+      icon: "orientation",
+      id: "projectPositions",
+      kind: "multi",
+      options: projectPositionOptions.map((label) => ({ id: label, label })),
+      title: "موقعیت",
+    },
     createRangeBlock("saleTermsPercent", "درصد شرایط", "percent", "درصد"),
     createRangeBlock("saleTermsInstallmentMonths", "تعداد اقساط", "number", "ماه"),
   ];
 }
-
 
 const approvedSaleFilterAgeOptions = [
   "۱ سال",
@@ -1188,20 +1381,9 @@ const approvedSaleFilterBuildingPositionOptions = [
   "دوممر",
 ];
 
-const approvedSaleFilterUnitPositionOptions = [
-  "جلو",
-  "عقب",
-  "وسط",
-  "کنج",
-  "دوبلکس",
-  "پنت هاوس",
-];
+const approvedSaleFilterUnitPositionOptions = ["جلو", "عقب", "وسط", "کنج", "دوبلکس", "پنت هاوس"];
 
-const approvedSaleFilterVillaBuildingTypeOptions = [
-  "ویلایی مستقل",
-  "شهرکی",
-  "آپارتمانی",
-];
+const approvedSaleFilterVillaBuildingTypeOptions = ["ویلایی مستقل", "شهرکی", "آپارتمانی"];
 
 const approvedSaleFilterVillaTypeOptions = [
   "تک طبقه",
@@ -1237,75 +1419,245 @@ const approvedSaleFilterExchangeTargets = [
   "آپارتمان",
   "خانه ویلایی",
   "زمین",
-  ...exchangeTargets.filter((item) => !["ویلا", "خودرو", "آپارتمان", "خانه ویلایی", "زمین"].includes(item)),
+  ...exchangeTargets.filter(
+    (item) => !["ویلا", "خودرو", "آپارتمان", "خانه ویلایی", "زمین"].includes(item),
+  ),
 ];
-
 
 // Exact filter-screen contracts transcribed from the supplied sale/rent SVG references.
 // These lists are intentionally filter-only so create/edit form contracts remain untouched.
 const approvedBusinessCurrentStatusOptions = ["تخلیه", "فعال"];
 const approvedOfficeCurrentStatusOptions = ["تخلیه", "فعال", "درحال بازسازی"];
-const approvedOfficePositionOptions = ["مجتمع اداری", "برج اداری", "بر خیابان اصلی", "موقعیت مسکونی", "مجتمع پزشکان"];
+const approvedOfficePositionOptions = [
+  "مجتمع اداری",
+  "برج اداری",
+  "بر خیابان اصلی",
+  "موقعیت مسکونی",
+  "مجتمع پزشکان",
+];
 const approvedOfficeDocumentOptions = ["دائم", "موقت"];
 const approvedCommercialLicenseOptions = ["دائم", "موقت"];
 const approvedRentIndustrialLicenseOptions = ["دائم", "موقت", "ندارد"];
-const approvedIndustrialPropertyOptions = ["سوله", "انبار", "کارگاه", "کارخانه", "گلخانه", "گاوداری", "مرغداری"];
+const approvedIndustrialPropertyOptions = [
+  "سوله",
+  "انبار",
+  "کارگاه",
+  "کارخانه",
+  "گلخانه",
+  "گاوداری",
+  "مرغداری",
+];
 const approvedIndustrialAccessOptions = ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"];
-const approvedCommercialPositionOptions = ["بر خیابان اصلی", "داخل پاساژ", "داخل کوچه", "غرفه", "مالکیت مشترک", "بازار محله"];
-const approvedCommercialOwnershipOptions = ["مالکیت کامل", "فقط سرقفلی", "فقط مالکیت", "مالکیت مشترک"];
-const approvedHotelAccommodationOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه", "مجتمع توریستی"];
+const approvedCommercialPositionOptions = [
+  "بر خیابان اصلی",
+  "داخل پاساژ",
+  "داخل کوچه",
+  "غرفه",
+  "مالکیت مشترک",
+  "بازار محله",
+];
+const approvedCommercialOwnershipOptions = [
+  "مالکیت کامل",
+  "فقط سرقفلی",
+  "فقط مالکیت",
+  "مالکیت مشترک",
+];
+const approvedHotelAccommodationOptions = [
+  "هتل",
+  "هتل آپارتمان",
+  "متل",
+  "مسافر خونه",
+  "مجتمع توریستی",
+];
 const approvedHotelStarOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷"];
 const approvedTotalFloorsOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
-export const approvedRentUnitLayoutOptions = ["تک طبقه", "دو طبقه", "سه طبقه", "دوبلکس", "فورلکس", "پنت هاوس"];
-const approvedRentApartmentBuildingPositionOptions = ["شمالی", "جنوبی", "غربی", "شرقی", "دو ممر", "دونبش", "سه نبش", "چهارنبش"];
+export const approvedRentUnitLayoutOptions = [
+  "تک طبقه",
+  "دو طبقه",
+  "سه طبقه",
+  "دوبلکس",
+  "فورلکس",
+  "پنت هاوس",
+];
+const approvedRentApartmentBuildingPositionOptions = [
+  "شمالی",
+  "جنوبی",
+  "غربی",
+  "شرقی",
+  "دو ممر",
+  "دونبش",
+  "سه نبش",
+  "چهارنبش",
+];
 const approvedRentVillaLandPositionOptions = ["شمالی", "جنوبی", "دونبش", "سه نبش", "چهارنبش"];
 const approvedRentVillaBuildingTypeOptions = ["ویلایی مستقل", "آپارتمانی", "شهرکی"];
 const approvedRentVillaTypeOptions = ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"];
 
 const approvedSaleOfficeSuitableOptions = [
-  "شرکت‌ها", "مهندسین", "بیمه", "وکلا", "آموزشگاه",
-  "مطب", "موسسه", "آتلیه", "مزون", "اسناد رسمی",
-  "دفاتر دولت", "صنایع", "خدماتی", "ورزشی", "فرهنگی",
+  "شرکت‌ها",
+  "مهندسین",
+  "بیمه",
+  "وکلا",
+  "آموزشگاه",
+  "مطب",
+  "موسسه",
+  "آتلیه",
+  "مزون",
+  "اسناد رسمی",
+  "دفاتر دولت",
+  "صنایع",
+  "خدماتی",
+  "ورزشی",
+  "فرهنگی",
 ];
 
 const approvedSaleCommercialSuitableOptions = [
-  "پوشاک", "متفرقه", "کترینگ", "ابزار آلات", "آشپزخانه", "کیف و کفش", "سوپر مارکت",
-  "موبایل و لوازم جانبی", "لوازم خانگی", "طلا و جواهر", "ساعت", "عطر و ادکلن", "آرایشی و بهداشتی",
-  "داروخانه", "تجهیزات پزشکی", "عینک", "کتاب و لوازم تحریر", "اسباب بازی", "لوازم ورزشی",
-  "دوچرخه و موتورسیکلت", "قطعات خودرو", "لوازم یدکی", "خدمات خودرو", "رستوران", "کافه", "فست فود",
-  "نانوایی", "قنادی", "میوه و تره بار", "پروتئینی", "لبنیات", "خشکبار", "گل فروشی", "مبلمان",
-  "فرش و موکت", "دکوراسیون", "پرده", "روشنایی", "الکتریکی", "تاسیسات", "مصالح ساختمانی",
-  "ابزارآلات صنعتی", "چاپ و تبلیغات", "آتلیه", "سالن زیبایی", "خیاطی", "آموزشگاه", "دفتر خدماتی",
-  "بیمه", "بانک و موسسه مالی", "املاک", "وکلا", "مطب",
+  "پوشاک",
+  "متفرقه",
+  "کترینگ",
+  "ابزار آلات",
+  "آشپزخانه",
+  "کیف و کفش",
+  "سوپر مارکت",
+  "موبایل و لوازم جانبی",
+  "لوازم خانگی",
+  "طلا و جواهر",
+  "ساعت",
+  "عطر و ادکلن",
+  "آرایشی و بهداشتی",
+  "داروخانه",
+  "تجهیزات پزشکی",
+  "عینک",
+  "کتاب و لوازم تحریر",
+  "اسباب بازی",
+  "لوازم ورزشی",
+  "دوچرخه و موتورسیکلت",
+  "قطعات خودرو",
+  "لوازم یدکی",
+  "خدمات خودرو",
+  "رستوران",
+  "کافه",
+  "فست فود",
+  "نانوایی",
+  "قنادی",
+  "میوه و تره بار",
+  "پروتئینی",
+  "لبنیات",
+  "خشکبار",
+  "گل فروشی",
+  "مبلمان",
+  "فرش و موکت",
+  "دکوراسیون",
+  "پرده",
+  "روشنایی",
+  "الکتریکی",
+  "تاسیسات",
+  "مصالح ساختمانی",
+  "ابزارآلات صنعتی",
+  "چاپ و تبلیغات",
+  "آتلیه",
+  "سالن زیبایی",
+  "خیاطی",
+  "آموزشگاه",
+  "دفتر خدماتی",
+  "بیمه",
+  "بانک و موسسه مالی",
+  "املاک",
+  "وکلا",
+  "مطب",
 ];
 
 const approvedRentApartmentSuitableOptions = [
-  "شرکت‌ها", "مهندسین", "بیمه", "وکلا", "آموزشگاه",
-  "خانواده", "مجرد", "دانشجو", "زوج", "مطب", "موسسه", "آتلیه", "مزون", "اسناد رسمی", "دفاتر دولت",
+  "شرکت‌ها",
+  "مهندسین",
+  "بیمه",
+  "وکلا",
+  "آموزشگاه",
+  "خانواده",
+  "مجرد",
+  "دانشجو",
+  "زوج",
+  "مطب",
+  "موسسه",
+  "آتلیه",
+  "مزون",
+  "اسناد رسمی",
+  "دفاتر دولت",
 ];
 
 const approvedRentVillaSuitableOptions = [
-  "خانواده", "برگزاری مراسم", "چند خانواده",
-  "مجرد", "دانشجو", "زوج", "مهمانی", "جشن تولد", "عروسی", "دورهمی", "سفر خانوادگی", "اقامت گروهی", "استراحت",
+  "خانواده",
+  "برگزاری مراسم",
+  "چند خانواده",
+  "مجرد",
+  "دانشجو",
+  "زوج",
+  "مهمانی",
+  "جشن تولد",
+  "عروسی",
+  "دورهمی",
+  "سفر خانوادگی",
+  "اقامت گروهی",
+  "استراحت",
 ];
 
 const approvedRentOfficeSuitableOptions = [
-  "تجاری", "خدماتی", "اداری", "صنعتی", "آموزشی",
-  "درمانی", "انباری", "مهندسین", "شرکت ها", "وکلا", "مطب", "موسسه", "آموزشگاه", "آتلیه", "مزون",
-  "اسناد رسمی", "دفاتر دولت", "ورزشی", "فرهنگی", "همه مشاغل",
+  "تجاری",
+  "خدماتی",
+  "اداری",
+  "صنعتی",
+  "آموزشی",
+  "درمانی",
+  "انباری",
+  "مهندسین",
+  "شرکت ها",
+  "وکلا",
+  "مطب",
+  "موسسه",
+  "آموزشگاه",
+  "آتلیه",
+  "مزون",
+  "اسناد رسمی",
+  "دفاتر دولت",
+  "ورزشی",
+  "فرهنگی",
+  "همه مشاغل",
 ];
 
 const approvedRentCommercialSuitableOptions = [
-  "وکلا", "مهندسین", "مطب", "درمانگاه", "آموزشگاه",
-  "فروشگاه", "تجاری", "خدماتی", "اداری", "صنعتی", "درمانی", "انباری", "شرکت ها", "موسسه", "آتلیه",
-  "مزون", "اسناد رسمی", "دفاتر دولت", "همه مشاغل", "سایر",
+  "وکلا",
+  "مهندسین",
+  "مطب",
+  "درمانگاه",
+  "آموزشگاه",
+  "فروشگاه",
+  "تجاری",
+  "خدماتی",
+  "اداری",
+  "صنعتی",
+  "درمانی",
+  "انباری",
+  "شرکت ها",
+  "موسسه",
+  "آتلیه",
+  "مزون",
+  "اسناد رسمی",
+  "دفاتر دولت",
+  "همه مشاغل",
+  "سایر",
 ];
 
 export const approvedRentIndustrialSuitableOptions = ["صنایع پلاستیک", "صنایع چوب"];
 
 // Exact filter-only contracts transcribed from the supplied daily-rent/project SVGs.
 // These intentionally do not change create/edit-ad field definitions.
-const approvedDailyAccommodationOptions = ["سوئیت", "آپارتمان", "اتاق", "خوابگاه یا پانسیون", "بوم گردی"];
+const approvedDailyAccommodationOptions = [
+  "سوئیت",
+  "آپارتمان",
+  "اتاق",
+  "خوابگاه یا پانسیون",
+  "بوم گردی",
+];
 const approvedDailyHotelAccommodationOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه"];
 const approvedDailyHotelRankOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷"];
 const approvedDailyWorkspaceTypeOptions = [
@@ -1318,11 +1670,32 @@ const approvedDailyWorkspaceTypeOptions = [
   "کانتر",
 ];
 const approvedDailyCapacityOptions = [
-  "۱ نفر", "۲ نفر", "۳ نفر", "۴ نفر", "۵ نفر", "۶ نفر", "۷ نفر", "۸ نفر",
-  "۹ نفر", "۱۰ نفر", "۱۲ نفر", "۱۵ نفر", "۲۰ نفر", "۳۰ نفر", "۴۰ نفر", "۵۰+ نفر",
+  "۱ نفر",
+  "۲ نفر",
+  "۳ نفر",
+  "۴ نفر",
+  "۵ نفر",
+  "۶ نفر",
+  "۷ نفر",
+  "۸ نفر",
+  "۹ نفر",
+  "۱۰ نفر",
+  "۱۲ نفر",
+  "۱۵ نفر",
+  "۲۰ نفر",
+  "۳۰ نفر",
+  "۴۰ نفر",
+  "۵۰+ نفر",
 ];
 const approvedPartnershipLandPositionOptions = [
-  "شمالی", "جنوبی", "غربی", "شرقی", "دو ممر", "دونبش", "سه نبش", "چهار نبش",
+  "شمالی",
+  "جنوبی",
+  "غربی",
+  "شرقی",
+  "دو ممر",
+  "دونبش",
+  "سه نبش",
+  "چهار نبش",
 ];
 const approvedPartnershipDocumentOptions = ["ملکی", "آستانه", "اوقاف", "موقوفه", "قولنامه، وکالت"];
 
@@ -1402,7 +1775,6 @@ export const approvedSaleHotelFacilities: ChipItem[] = (() => {
   }
   return labels.map((label) => ({ id: label, label }));
 })();
-
 
 function asChipItems(options: readonly string[]): ChipItem[] {
   return options.map((label) => ({ id: label, label }));
@@ -1605,13 +1977,53 @@ function getApprovedSaleApartmentFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ آپارتمان", "area", "متر مربع", true),
     approvedFloorBlock(),
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
+    {
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
     approvedTotalFloorsBlock("تعداد طبقات آپارتمان"),
-    { icon: "floor", id: "unitsPerFloor", kind: "single", options: approvedSaleFilterUnitsPerFloorOptions, title: "تعداد واحد در طبقه", more: false },
-    { icon: "orientation", id: "unitType", kind: "single", options: approvedSaleFilterBuildingPositionOptions, title: "موقعیت ساختمان", more: false },
-    { icon: "orientation", id: "unitPosition", kind: "single", options: approvedSaleFilterUnitPositionOptions, title: "موقعیت واحد", more: false },
-    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "سند", more: false },
+    {
+      icon: "floor",
+      id: "unitsPerFloor",
+      kind: "single",
+      options: approvedSaleFilterUnitsPerFloorOptions,
+      title: "تعداد واحد در طبقه",
+      more: false,
+    },
+    {
+      icon: "orientation",
+      id: "unitType",
+      kind: "single",
+      options: approvedSaleFilterBuildingPositionOptions,
+      title: "موقعیت ساختمان",
+      more: false,
+    },
+    {
+      icon: "orientation",
+      id: "unitPosition",
+      kind: "single",
+      options: approvedSaleFilterUnitPositionOptions,
+      title: "موقعیت واحد",
+      more: false,
+    },
+    {
+      icon: "agreement",
+      id: "documentType",
+      kind: "single",
+      options: approvedSaleFilterDocumentTypeOptions,
+      title: "سند",
+      more: false,
+    },
     approvedOccupancyStatusBlock(),
     approvedRenovatedBlock(),
     approvedFurnishedBlock(),
@@ -1634,7 +2046,14 @@ function getApprovedSaleLandFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
-    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "سند", more: false },
+    {
+      icon: "agreement",
+      id: "documentType",
+      kind: "single",
+      options: approvedSaleFilterDocumentTypeOptions,
+      title: "سند",
+      more: false,
+    },
     {
       icon: "settings",
       id: "usageType",
@@ -1646,9 +2065,29 @@ function getApprovedSaleLandFilterBlocks(): FilterBlock[] {
       moreLabel: `مشاهده ${toPersianDigits(Math.max(approvedSaleFilterLandUseOptions.length - 10, 0))} مورد دیگر`,
       moreIcon: "left",
     },
-    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین", more: false },
-    { icon: "building", id: "density", kind: "single", options: ["کم", "متوسط", "زیاد"], title: "تراکم زمین", more: false },
-    { icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleFilterSuitableForOptions), title: "مناسب برای" },
+    {
+      icon: "orientation",
+      id: "landPosition",
+      kind: "single",
+      options: approvedSaleFilterLandPositionOptions,
+      title: "موقعیت زمین",
+      more: false,
+    },
+    {
+      icon: "building",
+      id: "density",
+      kind: "single",
+      options: ["کم", "متوسط", "زیاد"],
+      title: "تراکم زمین",
+      more: false,
+    },
+    {
+      icon: "suitable",
+      id: "suitableFor",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterSuitableForOptions),
+      title: "مناسب برای",
+    },
     createRangeBlock("landWidth", "عرض زمین", "number", "متر", true),
     createRangeBlock("streetWidth", "عرض گذر", "number", "متر", true),
     { id: "constructionPermit", kind: "toggle", title: "مجوز ساخت" },
@@ -1667,12 +2106,52 @@ function getApprovedSaleGardenVillaFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ زیربنا", "area", "متر مربع", true),
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
-    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین", more: false },
-    { icon: "typeBuilding", id: "buildingType", kind: "single", options: approvedSaleFilterVillaBuildingTypeOptions, title: "نوع بنا", more: false },
-    { icon: "city02", id: "villaType", kind: "single", options: approvedSaleFilterVillaTypeOptions, title: "تیپ بنا", more: false },
-    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "سند", more: false },
+    {
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
+    {
+      icon: "orientation",
+      id: "landPosition",
+      kind: "single",
+      options: approvedSaleFilterLandPositionOptions,
+      title: "موقعیت زمین",
+      more: false,
+    },
+    {
+      icon: "typeBuilding",
+      id: "buildingType",
+      kind: "single",
+      options: approvedSaleFilterVillaBuildingTypeOptions,
+      title: "نوع بنا",
+      more: false,
+    },
+    {
+      icon: "city02",
+      id: "villaType",
+      kind: "single",
+      options: approvedSaleFilterVillaTypeOptions,
+      title: "تیپ بنا",
+      more: false,
+    },
+    {
+      icon: "agreement",
+      id: "documentType",
+      kind: "single",
+      options: approvedSaleFilterDocumentTypeOptions,
+      title: "سند",
+      more: false,
+    },
     approvedTotalFloorsBlock("تعداد طبقات"),
     createRangeBlock("streetWidth", "عرض گذر", "number", "متر", true),
     approvedRenovatedBlock(),
@@ -1697,16 +2176,53 @@ function getApprovedSaleOfficeFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
     approvedFloorBlock(),
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
+    {
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
     approvedTotalFloorsBlock("تعداد کل طبقات"),
     {
-      icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleOfficeSuitableOptions), title: "مناسب برای",
-      more: true, moreLimit: 5, moreLabel: "مشاهده ۱۰ مورد دیگر", moreIcon: "down",
+      icon: "suitable",
+      id: "suitableFor",
+      kind: "multi",
+      options: asChipItems(approvedSaleOfficeSuitableOptions),
+      title: "مناسب برای",
+      more: true,
+      moreLimit: 5,
+      moreLabel: "مشاهده ۱۰ مورد دیگر",
+      moreIcon: "down",
     },
-    { icon: "settings", id: "currentStatus", kind: "single", options: approvedOfficeCurrentStatusOptions, title: "وضعیت فعلی" },
-    { icon: "location", id: "officePosition", kind: "single", options: approvedOfficePositionOptions, title: "موقعیت اداری" },
-    { icon: "agreement", id: "officeDocumentType", kind: "single", options: approvedOfficeDocumentOptions, title: "سند اداری" },
+    {
+      icon: "settings",
+      id: "currentStatus",
+      kind: "single",
+      options: approvedOfficeCurrentStatusOptions,
+      title: "وضعیت فعلی",
+    },
+    {
+      icon: "location",
+      id: "officePosition",
+      kind: "single",
+      options: approvedOfficePositionOptions,
+      title: "موقعیت اداری",
+    },
+    {
+      icon: "agreement",
+      id: "officeDocumentType",
+      kind: "single",
+      options: approvedOfficeDocumentOptions,
+      title: "سند اداری",
+    },
     approvedFacadeMaterialBlock(),
     approvedFloorMaterialBlock(),
     approvedCabinetMaterialBlock(),
@@ -1733,19 +2249,68 @@ function getApprovedSaleCommercialFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
-    { icon: "orientation", id: "commercialPosition", kind: "single", options: approvedCommercialPositionOptions, title: "موقعیت تجاری" },
-    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "سند" },
-    { icon: "settings", id: "ownershipStatus", kind: "single", options: approvedCommercialOwnershipOptions, title: "وضعیت مالکیت" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
+    {
+      icon: "orientation",
+      id: "commercialPosition",
+      kind: "single",
+      options: approvedCommercialPositionOptions,
+      title: "موقعیت تجاری",
+    },
+    {
+      icon: "agreement",
+      id: "documentType",
+      kind: "single",
+      options: approvedSaleFilterDocumentTypeOptions,
+      title: "سند",
+    },
+    {
+      icon: "settings",
+      id: "ownershipStatus",
+      kind: "single",
+      options: approvedCommercialOwnershipOptions,
+      title: "وضعیت مالکیت",
+    },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
     approvedFloorBlock(),
     approvedTotalFloorsBlock("تعداد کل طبقات"),
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
     {
-      icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedSaleCommercialSuitableOptions), title: "مناسب برای",
-      more: true, moreLimit: 7, moreLabel: "مشاهده ۴۶ مورد دیگر", moreIcon: "left",
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
     },
-    { icon: "agreement", id: "commercialLicense", kind: "single", options: approvedCommercialLicenseOptions, title: "مجوز تجاری" },
-    { icon: "settings", id: "currentStatus", kind: "single", options: approvedBusinessCurrentStatusOptions, title: "وضعیت فعلی" },
+    {
+      icon: "suitable",
+      id: "suitableFor",
+      kind: "multi",
+      options: asChipItems(approvedSaleCommercialSuitableOptions),
+      title: "مناسب برای",
+      more: true,
+      moreLimit: 7,
+      moreLabel: "مشاهده ۴۶ مورد دیگر",
+      moreIcon: "left",
+    },
+    {
+      icon: "agreement",
+      id: "commercialLicense",
+      kind: "single",
+      options: approvedCommercialLicenseOptions,
+      title: "مجوز تجاری",
+    },
+    {
+      icon: "settings",
+      id: "currentStatus",
+      kind: "single",
+      options: approvedBusinessCurrentStatusOptions,
+      title: "وضعیت فعلی",
+    },
     approvedRenovatedBlock(),
     approvedHeatingBlock(saleCommercialHeatingItems),
     approvedFacilitiesBlock(saleCommercialFacilityItems),
@@ -1762,16 +2327,64 @@ function getApprovedSaleIndustrialFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
-    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
-    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "سند" },
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    {
+      icon: "orientation",
+      id: "landPosition",
+      kind: "single",
+      options: approvedSaleFilterLandPositionOptions,
+      title: "موقعیت زمین",
+    },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
+    {
+      icon: "agreement",
+      id: "documentType",
+      kind: "single",
+      options: approvedSaleFilterDocumentTypeOptions,
+      title: "سند",
+    },
+    {
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
     createRangeBlock("ceilingHeight", "ارتفاع سقف", "number", "متر", true),
-    { icon: "building", id: "industrialPropertyType", kind: "single", options: approvedIndustrialPropertyOptions, title: "نوع ملک" },
-    { icon: "location", id: "accessType", kind: "single", options: approvedIndustrialAccessOptions, title: "دسترسی" },
-    { icon: "settings", id: "currentStatus", kind: "single", options: approvedBusinessCurrentStatusOptions, title: "وضعیت فعلی" },
-    { icon: "agreement", id: "commercialLicense", kind: "single", options: approvedCommercialLicenseOptions, title: "مجوز تجاری" },
+    {
+      icon: "building",
+      id: "industrialPropertyType",
+      kind: "single",
+      options: approvedIndustrialPropertyOptions,
+      title: "نوع ملک",
+    },
+    {
+      icon: "location",
+      id: "accessType",
+      kind: "single",
+      options: approvedIndustrialAccessOptions,
+      title: "دسترسی",
+    },
+    {
+      icon: "settings",
+      id: "currentStatus",
+      kind: "single",
+      options: approvedBusinessCurrentStatusOptions,
+      title: "وضعیت فعلی",
+    },
+    {
+      icon: "agreement",
+      id: "commercialLicense",
+      kind: "single",
+      options: approvedCommercialLicenseOptions,
+      title: "مجوز تجاری",
+    },
     approvedHeatingBlock(saleFactoryHeatingItems),
     approvedFacilitiesBlock(saleFactoryFacilityItems),
     createRangeBlock("price", "قیمت", "money", "تومان"),
@@ -1786,13 +2399,43 @@ function getApprovedSaleIndustrialFilterBlocks(): FilterBlock[] {
 function getApprovedSaleHotelFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
-    { icon: "building", id: "accommodationType", kind: "single", options: approvedHotelAccommodationOptions, title: "نوع اقامتگاه" },
-    { icon: "star", id: "hotelStars", kind: "single", options: approvedHotelStarOptions, title: "رتبه اقامتگاه" },
+    {
+      icon: "building",
+      id: "accommodationType",
+      kind: "single",
+      options: approvedHotelAccommodationOptions,
+      title: "نوع اقامتگاه",
+    },
+    {
+      icon: "star",
+      id: "hotelStars",
+      kind: "single",
+      options: approvedHotelStarOptions,
+      title: "رتبه اقامتگاه",
+    },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
-    { icon: "agreement", id: "documentType", kind: "single", options: approvedSaleFilterDocumentTypeOptions, title: "سند" },
-    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
+    {
+      icon: "agreement",
+      id: "documentType",
+      kind: "single",
+      options: approvedSaleFilterDocumentTypeOptions,
+      title: "سند",
+    },
+    {
+      icon: "orientation",
+      id: "landPosition",
+      kind: "single",
+      options: approvedSaleFilterLandPositionOptions,
+      title: "موقعیت زمین",
+    },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
     approvedTotalFloorsBlock("تعداد طبقات"),
     createRangeBlock("singleRoomCount", "اتاق ۱ تخته", "number", "اتاق", true),
     createRangeBlock("doubleRoomCount", "اتاق ۲ تخته", "number", "اتاق", true),
@@ -1816,16 +2459,53 @@ function getApprovedRentApartmentFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ آپارتمان", "area", "متر مربع", true),
     approvedFloorBlock(),
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     {
-      icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentApartmentSuitableOptions), title: "مناسب برای",
-      more: true, moreLimit: 5, moreLabel: "مشاهده ۱۰ مورد دیگر", moreIcon: "down",
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
+    {
+      icon: "suitable",
+      id: "suitableFor",
+      kind: "multi",
+      options: asChipItems(approvedRentApartmentSuitableOptions),
+      title: "مناسب برای",
+      more: true,
+      moreLimit: 5,
+      moreLabel: "مشاهده ۱۰ مورد دیگر",
+      moreIcon: "down",
     },
     approvedTotalFloorsBlock("تعداد طبقات آپارتمان"),
-    { icon: "floor", id: "unitsPerFloor", kind: "single", options: approvedSaleFilterUnitsPerFloorOptions, title: "تعداد واحد در طبقه" },
-    { icon: "orientation", id: "unitType", kind: "single", options: approvedRentApartmentBuildingPositionOptions, title: "موقعیت ساختمان" },
-    { icon: "orientation", id: "unitPosition", kind: "single", options: approvedSaleFilterUnitPositionOptions, title: "موقعیت واحد" },
+    {
+      icon: "floor",
+      id: "unitsPerFloor",
+      kind: "single",
+      options: approvedSaleFilterUnitsPerFloorOptions,
+      title: "تعداد واحد در طبقه",
+    },
+    {
+      icon: "orientation",
+      id: "unitType",
+      kind: "single",
+      options: approvedRentApartmentBuildingPositionOptions,
+      title: "موقعیت ساختمان",
+    },
+    {
+      icon: "orientation",
+      id: "unitPosition",
+      kind: "single",
+      options: approvedSaleFilterUnitPositionOptions,
+      title: "موقعیت واحد",
+    },
     approvedOccupancyStatusBlock(),
     { id: "readyDeliveryDate", kind: "date", title: "تاریخ تحویل" },
     createRangeBlock("minContractMonths", "حداقل مدت قرارداد", "number", "ماه", true),
@@ -1852,15 +2532,52 @@ function getApprovedRentVillaHouseFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
     {
-      icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentVillaSuitableOptions), title: "مناسب برای",
-      more: true, moreLimit: 3, moreLabel: "مشاهده ۱۰ مورد دیگر", moreIcon: "down",
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
     },
-    { icon: "orientation", id: "landPosition", kind: "single", options: approvedRentVillaLandPositionOptions, title: "موقعیت زمین" },
-    { icon: "typeBuilding", id: "buildingType", kind: "single", options: approvedRentVillaBuildingTypeOptions, title: "نوع بنا" },
-    { icon: "city02", id: "villaType", kind: "single", options: approvedRentVillaTypeOptions, title: "تیپ بنا" },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
+    {
+      icon: "suitable",
+      id: "suitableFor",
+      kind: "multi",
+      options: asChipItems(approvedRentVillaSuitableOptions),
+      title: "مناسب برای",
+      more: true,
+      moreLimit: 3,
+      moreLabel: "مشاهده ۱۰ مورد دیگر",
+      moreIcon: "down",
+    },
+    {
+      icon: "orientation",
+      id: "landPosition",
+      kind: "single",
+      options: approvedRentVillaLandPositionOptions,
+      title: "موقعیت زمین",
+    },
+    {
+      icon: "typeBuilding",
+      id: "buildingType",
+      kind: "single",
+      options: approvedRentVillaBuildingTypeOptions,
+      title: "نوع بنا",
+    },
+    {
+      icon: "city02",
+      id: "villaType",
+      kind: "single",
+      options: approvedRentVillaTypeOptions,
+      title: "تیپ بنا",
+    },
     approvedTotalFloorsBlock("تعداد طبقات"),
     createRangeBlock("streetWidth", "عرض گذر", "number", "متر", true),
     approvedPetPolicyBlock(),
@@ -1886,18 +2603,55 @@ function getApprovedRentOfficeFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
     approvedFloorBlock(),
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
+    {
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
     approvedTotalFloorsBlock("تعداد کل طبقات"),
     {
-      icon: "suitable", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentOfficeSuitableOptions), title: "مناسب برای",
-      more: true, moreLimit: 5, moreLabel: "مشاهده ۱۵ مورد دیگر", moreIcon: "down",
+      icon: "suitable",
+      id: "suitableFor",
+      kind: "multi",
+      options: asChipItems(approvedRentOfficeSuitableOptions),
+      title: "مناسب برای",
+      more: true,
+      moreLimit: 5,
+      moreLabel: "مشاهده ۱۵ مورد دیگر",
+      moreIcon: "down",
     },
-    { icon: "orientation", id: "officePosition", kind: "single", options: approvedOfficePositionOptions, title: "موقعیت اداری" },
-    { icon: "settings", id: "currentStatus", kind: "single", options: approvedBusinessCurrentStatusOptions, title: "وضعیت فعلی" },
+    {
+      icon: "orientation",
+      id: "officePosition",
+      kind: "single",
+      options: approvedOfficePositionOptions,
+      title: "موقعیت اداری",
+    },
+    {
+      icon: "settings",
+      id: "currentStatus",
+      kind: "single",
+      options: approvedBusinessCurrentStatusOptions,
+      title: "وضعیت فعلی",
+    },
     { id: "readyDeliveryDate", kind: "date", title: "تاریخ تحویل" },
     createRangeBlock("minContractMonths", "حداقل مدت قرارداد", "number", "ماه", true),
-    { icon: "agreement", id: "officeDocumentType", kind: "single", options: approvedOfficeDocumentOptions, title: "سند اداری" },
+    {
+      icon: "agreement",
+      id: "officeDocumentType",
+      kind: "single",
+      options: approvedOfficeDocumentOptions,
+      title: "سند اداری",
+    },
     { id: "managementRoom", kind: "toggle", title: "اتاق مدیریت" },
     { id: "conferenceRoom", kind: "toggle", title: "اتاق کنفرانس" },
     { id: "receptionHall", kind: "toggle", title: "سالن پذیرش" },
@@ -1924,18 +2678,55 @@ function getApprovedRentCommercialFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
-    { icon: "location", id: "commercialPosition", kind: "single", options: approvedCommercialPositionOptions, title: "موقعیت تجاری" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
+    {
+      icon: "location",
+      id: "commercialPosition",
+      kind: "single",
+      options: approvedCommercialPositionOptions,
+      title: "موقعیت تجاری",
+    },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
     approvedFloorBlock(),
     approvedTotalFloorsBlock("تعداد کل طبقات"),
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
-    { icon: "building", id: "openingCount", kind: "single", options: moreFeatureOptions.openingCount, title: "تعداد دهنه" },
+    {
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
+    {
+      icon: "building",
+      id: "openingCount",
+      kind: "single",
+      options: moreFeatureOptions.openingCount,
+      title: "تعداد دهنه",
+    },
     createRangeBlock("ceilingHeight", "ارتفاع سقف", "number", "متر", true),
     {
-      icon: "settings", id: "suitableFor", kind: "multi", options: asChipItems(approvedRentCommercialSuitableOptions), title: "مناسب برای",
-      more: true, moreLimit: 5, moreLabel: "مشاهده ۱۵ مورد دیگر", moreIcon: "down",
+      icon: "settings",
+      id: "suitableFor",
+      kind: "multi",
+      options: asChipItems(approvedRentCommercialSuitableOptions),
+      title: "مناسب برای",
+      more: true,
+      moreLimit: 5,
+      moreLabel: "مشاهده ۱۵ مورد دیگر",
+      moreIcon: "down",
     },
-    { icon: "settings", id: "currentStatus", kind: "single", options: approvedBusinessCurrentStatusOptions, title: "وضعیت فعلی" },
+    {
+      icon: "settings",
+      id: "currentStatus",
+      kind: "single",
+      options: approvedBusinessCurrentStatusOptions,
+      title: "وضعیت فعلی",
+    },
     { id: "readyDeliveryDate", kind: "date", title: "تاریخ تحویل" },
     createRangeBlock("minContractMonths", "حداقل مدت قرارداد", "number", "ماه", true),
     approvedRenovatedBlock(),
@@ -1955,14 +2746,56 @@ function getApprovedRentIndustrialFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
-    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    {
+      icon: "orientation",
+      id: "landPosition",
+      kind: "single",
+      options: approvedSaleFilterLandPositionOptions,
+      title: "موقعیت زمین",
+    },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
+    {
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
     createRangeBlock("ceilingHeight", "ارتفاع سقف", "number", "متر", true),
-    { icon: "building", id: "industrialPropertyType", kind: "single", options: approvedIndustrialPropertyOptions, title: "نوع ملک" },
-    { icon: "location", id: "accessType", kind: "single", options: approvedIndustrialAccessOptions, title: "دسترسی" },
-    { icon: "settings", id: "currentStatus", kind: "single", options: approvedBusinessCurrentStatusOptions, title: "وضعیت فعلی" },
-    { icon: "agreement", id: "commercialLicense", kind: "single", options: approvedRentIndustrialLicenseOptions, title: "مجوز تجاری" },
+    {
+      icon: "building",
+      id: "industrialPropertyType",
+      kind: "single",
+      options: approvedIndustrialPropertyOptions,
+      title: "نوع ملک",
+    },
+    {
+      icon: "location",
+      id: "accessType",
+      kind: "single",
+      options: approvedIndustrialAccessOptions,
+      title: "دسترسی",
+    },
+    {
+      icon: "settings",
+      id: "currentStatus",
+      kind: "single",
+      options: approvedBusinessCurrentStatusOptions,
+      title: "وضعیت فعلی",
+    },
+    {
+      icon: "agreement",
+      id: "commercialLicense",
+      kind: "single",
+      options: approvedRentIndustrialLicenseOptions,
+      title: "مجوز تجاری",
+    },
     { id: "readyDeliveryDate", kind: "date", title: "تاریخ تحویل" },
     createRangeBlock("minContractMonths", "حداقل مدت قرارداد", "number", "ماه", true),
     approvedHeatingBlock(rentHeatingItems),
@@ -1979,12 +2812,36 @@ function getApprovedRentIndustrialFilterBlocks(): FilterBlock[] {
 function getApprovedRentHotelFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
-    { icon: "building", id: "accommodationType", kind: "single", options: approvedHotelAccommodationOptions, title: "نوع اقامتگاه" },
-    { icon: "star", id: "hotelStars", kind: "single", options: approvedHotelStarOptions, title: "رتبه اقامتگاه" },
+    {
+      icon: "building",
+      id: "accommodationType",
+      kind: "single",
+      options: approvedHotelAccommodationOptions,
+      title: "نوع اقامتگاه",
+    },
+    {
+      icon: "star",
+      id: "hotelStars",
+      kind: "single",
+      options: approvedHotelStarOptions,
+      title: "رتبه اقامتگاه",
+    },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
-    { icon: "year", id: "age", kind: "multi", options: asChipItems(approvedSaleFilterAgeOptions), title: "سن ساخت" },
-    { icon: "orientation", id: "landPosition", kind: "single", options: approvedSaleFilterLandPositionOptions, title: "موقعیت زمین" },
+    {
+      icon: "year",
+      id: "age",
+      kind: "multi",
+      options: asChipItems(approvedSaleFilterAgeOptions),
+      title: "سن ساخت",
+    },
+    {
+      icon: "orientation",
+      id: "landPosition",
+      kind: "single",
+      options: approvedSaleFilterLandPositionOptions,
+      title: "موقعیت زمین",
+    },
     approvedTotalFloorsBlock("تعداد طبقات"),
     createRangeBlock("singleRoomCount", "اتاق ۱ تخته", "number", "اتاق", true),
     createRangeBlock("doubleRoomCount", "اتاق ۲ تخته", "number", "اتاق", true),
@@ -2008,8 +2865,20 @@ function getApprovedDailyApartmentFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
     createRangeBlock("dailyPrice", "قیمت روزانه", "money", "تومان"),
-    { icon: "building", id: "accommodationType", kind: "single", options: approvedDailyAccommodationOptions, title: "نوع اقامتگاه" },
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    {
+      icon: "building",
+      id: "accommodationType",
+      kind: "single",
+      options: approvedDailyAccommodationOptions,
+      title: "نوع اقامتگاه",
+    },
+    {
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
     approvedDailyCapacityBlock(),
     approvedFloorBlock(),
     approvedHeatingBlock(dailyRentHeatingItems),
@@ -2026,7 +2895,13 @@ function getApprovedDailyVillaFilterBlocks(): FilterBlock[] {
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
     createRangeBlock("buildingArea", "متراژ بنا", "area", "متر مربع", true),
     createRangeBlock("dailyPrice", "قیمت روزانه", "money", "تومان"),
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    {
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
     approvedDailyCapacityBlock(),
     approvedHeatingBlock(dailyRentHeatingItems),
     approvedFacilitiesBlock(dailyStayFacilityItems),
@@ -2040,8 +2915,20 @@ function getApprovedDailyHotelFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
     createRangeBlock("dailyPrice", "قیمت روزانه", "money", "تومان"),
-    { icon: "building", id: "accommodationType", kind: "single", options: approvedDailyHotelAccommodationOptions, title: "نوع اقامتگاه" },
-    { icon: "star", id: "hotelStars", kind: "single", options: approvedDailyHotelRankOptions, title: "رتبه اقامتگاه" },
+    {
+      icon: "building",
+      id: "accommodationType",
+      kind: "single",
+      options: approvedDailyHotelAccommodationOptions,
+      title: "نوع اقامتگاه",
+    },
+    {
+      icon: "star",
+      id: "hotelStars",
+      kind: "single",
+      options: approvedDailyHotelRankOptions,
+      title: "رتبه اقامتگاه",
+    },
     approvedHeatingBlock(dailyRentHeatingItems),
     approvedFacilitiesBlock(dailyHotelFacilityItems),
     { kind: "advertiser" },
@@ -2055,8 +2942,20 @@ function getApprovedDailyWorkspaceFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
     createRangeBlock("dailyPrice", "قیمت روزانه", "money", "تومان"),
-    { icon: "building", id: "spaceType", kind: "single", options: approvedDailyWorkspaceTypeOptions, title: "نوع فضا" },
-    { icon: "bed", id: "rooms", kind: "multi", options: asChipItems(roomOptions), title: "تعداد اتاق" },
+    {
+      icon: "building",
+      id: "spaceType",
+      kind: "single",
+      options: approvedDailyWorkspaceTypeOptions,
+      title: "نوع فضا",
+    },
+    {
+      icon: "bed",
+      id: "rooms",
+      kind: "multi",
+      options: asChipItems(roomOptions),
+      title: "تعداد اتاق",
+    },
     approvedDailyCapacityBlock(),
     approvedFloorBlock(),
     approvedHeatingBlock(dailyRentHeatingItems),
@@ -2071,10 +2970,34 @@ function getApprovedProjectPartnershipFilterBlocks(): FilterBlock[] {
   return [
     { kind: "neighborhood" },
     createRangeBlock("landArea", "متراژ زمین", "area", "متر مربع", true),
-    { icon: "agreement", id: "participationType", kind: "single", options: participationTypeOptions, title: "نوع مشارکت" },
-    { icon: "settings", id: "currentStatus", kind: "single", options: partnershipCurrentStatusOptions, title: "وضعیت فعلی ملک" },
-    { icon: "orientation", id: "landPosition", kind: "single", options: approvedPartnershipLandPositionOptions, title: "موقعیت ورودی" },
-    { icon: "agreement", id: "documentType", kind: "single", options: approvedPartnershipDocumentOptions, title: "نوع سند" },
+    {
+      icon: "agreement",
+      id: "participationType",
+      kind: "single",
+      options: participationTypeOptions,
+      title: "نوع مشارکت",
+    },
+    {
+      icon: "settings",
+      id: "currentStatus",
+      kind: "single",
+      options: partnershipCurrentStatusOptions,
+      title: "وضعیت فعلی ملک",
+    },
+    {
+      icon: "orientation",
+      id: "landPosition",
+      kind: "single",
+      options: approvedPartnershipLandPositionOptions,
+      title: "موقعیت ورودی",
+    },
+    {
+      icon: "agreement",
+      id: "documentType",
+      kind: "single",
+      options: approvedPartnershipDocumentOptions,
+      title: "نوع سند",
+    },
     { id: "constructionPermit", kind: "toggle", title: "مجوز ساخت" },
     { kind: "advertiser" },
     { kind: "publicationTime" },
@@ -2087,8 +3010,20 @@ function getApprovedProjectPresaleFilterBlocks(): FilterBlock[] {
     { kind: "neighborhood" },
     createRangeBlock("meterage", "متراژ", "area", "متر مربع", true),
     createRangeBlock("projectPrice", "قیمت متری", "money", "تومان"),
-    { icon: "building", id: "projectType", kind: "single", options: projectTypeOptions, title: "نوع پروژه" },
-    { icon: "settings", id: "projectStatus", kind: "single", options: projectStatusOptions, title: "وضعیت پروژه" },
+    {
+      icon: "building",
+      id: "projectType",
+      kind: "single",
+      options: projectTypeOptions,
+      title: "نوع پروژه",
+    },
+    {
+      icon: "settings",
+      id: "projectStatus",
+      kind: "single",
+      options: projectStatusOptions,
+      title: "وضعیت پروژه",
+    },
     approvedRentBusinessHeatingBlock(),
     approvedRentBusinessFacilitiesBlock(),
     approvedExchangeBlock(),
@@ -2190,7 +3125,9 @@ function buildFilterBlocksFromSchema(sections: AdFormFilterSectionConfig[]): Fil
           icon,
           id: section.id!,
           kind: "single",
-          options: (section.options ?? []).map((opt) => (typeof opt === "string" ? opt : opt.label)),
+          options: (section.options ?? []).map((opt) =>
+            typeof opt === "string" ? opt : opt.label,
+          ),
           title: section.title!,
           more: section.more,
           moreLimit: section.moreLimit,
@@ -2220,7 +3157,10 @@ function buildFilterBlocksFromSchema(sections: AdFormFilterSectionConfig[]): Fil
   });
 }
 
-export function getFilterBlocks(transaction: TransactionType, category?: CategoryKey): FilterBlock[] {
+export function getFilterBlocks(
+  transaction: TransactionType,
+  category?: CategoryKey,
+): FilterBlock[] {
   if (!category) return [];
 
   const schema = getFormSchemaByListing(transaction, category);
@@ -2444,9 +3384,10 @@ function sortSaleResidentialBlocks(blocks: FilterBlock[], _category: CategoryKey
   ];
 
   const orderMap = new Map(commonOrder.map((key, index) => [key, index]));
-  return [...blocks].sort((a, b) =>
-    (orderMap.get(getBlockOrderKey(a)) ?? Number.MAX_SAFE_INTEGER) -
-    (orderMap.get(getBlockOrderKey(b)) ?? Number.MAX_SAFE_INTEGER),
+  return [...blocks].sort(
+    (a, b) =>
+      (orderMap.get(getBlockOrderKey(a)) ?? Number.MAX_SAFE_INTEGER) -
+      (orderMap.get(getBlockOrderKey(b)) ?? Number.MAX_SAFE_INTEGER),
   );
 }
 
@@ -2520,10 +3461,7 @@ export function AdvertisementFilterPage({
   const [categoryPickerInitial, setCategoryPickerInitial] = useState<CategoryKey | undefined>(
     filters.category,
   );
-  const focusTarget = useMemo(
-    () => new URLSearchParams(window.location.search).get("focus"),
-    [],
-  );
+  const focusTarget = useMemo(() => new URLSearchParams(window.location.search).get("focus"), []);
   const contentRef = useRef<HTMLElement | null>(null);
 
   const filterBlocks = useMemo(() => {
@@ -2559,7 +3497,9 @@ export function AdvertisementFilterPage({
       return (
         <span className="inline-flex items-center justify-center gap-1.5">
           <span>نمایش</span>
-          <span className="inline-flex items-center tracking-widest animate-pulse font-bold">...</span>
+          <span className="inline-flex animate-pulse items-center font-bold tracking-widest">
+            ...
+          </span>
           <span>آگهی</span>
         </span>
       );
@@ -2583,7 +3523,9 @@ export function AdvertisementFilterPage({
 
     const timer = window.setTimeout(() => {
       const container = contentRef.current;
-      const targetSection = container?.querySelector<HTMLElement>(`[data-filter-section="${target}"]`);
+      const targetSection = container?.querySelector<HTMLElement>(
+        `[data-filter-section="${target}"]`,
+      );
 
       if (!container || !targetSection) return;
 
@@ -2596,10 +3538,7 @@ export function AdvertisementFilterPage({
     return () => window.clearTimeout(timer);
   }, [filterBlocks, filters.category]);
 
-  const changeCategory = (
-    transaction: TransactionType,
-    category: CategoryKey,
-  ) => {
+  const changeCategory = (transaction: TransactionType, category: CategoryKey) => {
     setCategoryPickerInitial(category);
     setFilters({
       ...initialFilters,
@@ -2634,7 +3573,8 @@ export function AdvertisementFilterPage({
     setFilters((current) => {
       const currentValue = current.singles[id];
       const isSameValue =
-        currentValue !== undefined && normalizeExactFilterValue(currentValue) === normalizeExactFilterValue(value);
+        currentValue !== undefined &&
+        normalizeExactFilterValue(currentValue) === normalizeExactFilterValue(value);
 
       return {
         ...current,
@@ -2694,10 +3634,10 @@ export function AdvertisementFilterPage({
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <div className="shrink-0 bg-surface-container">
+      <div className="bg-surface-container shrink-0">
         <TopBar
           backTo={getBackToSearchPath(backBasePath)}
           centerClassName="px-0"
@@ -2709,16 +3649,19 @@ export function AdvertisementFilterPage({
           title={title}
         />
 
-        <div className="border-b-8 border-surface-container bg-surface-container-lowest px-4 py-3">
-          <Button unstyled
+        <div className="border-surface-container bg-surface-container-lowest border-b-8 px-4 py-3">
+          <Button
+            unstyled
             className="flex w-full items-center justify-between gap-3 text-right"
             dir="rtl"
             onClick={openCategoryPicker}
             type="button"
           >
-            <div className="flex items-center gap-2 text-sm font-medium text-on-surface">
-              <LinearCategory className="w-6 h-6" />
-              <Typography as="span" variant="label" size="large" weight="medium">انتخاب دسته</Typography>
+            <div className="text-on-surface flex items-center gap-2 text-sm font-medium">
+              <LinearCategory className="h-6 w-6" />
+              <Typography as="span" variant="label" size="large" weight="medium">
+                انتخاب دسته
+              </Typography>
             </div>
 
             <FormChoiceChip
@@ -2730,7 +3673,10 @@ export function AdvertisementFilterPage({
         </div>
       </div>
 
-      <main ref={contentRef} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-0">
+      <main
+        ref={contentRef}
+        className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-0"
+      >
         {filterBlocks.map((block, index) => (
           <FilterBlockRenderer
             key={"id" in block ? `${block.kind}-${block.id}` : block.kind}
@@ -2750,10 +3696,11 @@ export function AdvertisementFilterPage({
         ))}
       </main>
 
-      <footer className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
+      <footer className="bg-surface-container-lowest shrink-0 px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
         <div dir="rtl">
-          <Button unstyled
-            className="flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline active:opacity-90 transition-colors"
+          <Button
+            unstyled
+            className="bg-primary text-on-primary flex h-10 w-full items-center justify-center rounded-lg text-sm leading-5 font-medium no-underline transition-colors active:opacity-90"
             onClick={applyFilters}
             type="button"
           >
@@ -2772,17 +3719,22 @@ type FilterSectionProps = {
   title: ReactNode;
 };
 
-function FilterSection({
-  children,
-  icon,
-  sectionId,
-  title,
-}: FilterSectionProps) {
+function FilterSection({ children, icon, sectionId, title }: FilterSectionProps) {
   return (
-    <section className="relative scroll-mt-4 border-b-8 border-surface-container bg-surface-container-lowest p-4" data-filter-section={sectionId} dir="rtl">
-      <div className="mb-2 flex h-8 items-center justify-start gap-2 text-on-surface-var">
+    <section
+      className="border-surface-container bg-surface-container-lowest relative scroll-mt-4 border-b-8 p-4"
+      data-filter-section={sectionId}
+      dir="rtl"
+    >
+      <div className="text-on-surface-var mb-2 flex h-8 items-center justify-start gap-2">
         {icon}
-        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-right text-base font-medium leading-6 text-on-surface">
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="medium"
+          className="text-on-surface m-0 text-right text-base leading-6 font-medium"
+        >
           {title}
         </Typography>
       </div>
@@ -2826,7 +3778,7 @@ function ChipSection({
       <div className="relative w-full">
         <div
           ref={measureRef}
-          className="invisible pointer-events-none absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
+          className="pointer-events-none invisible absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
           aria-hidden="true"
           dir="rtl"
         >
@@ -2844,7 +3796,9 @@ function ChipSection({
         </div>
         <div className="flex flex-wrap justify-start gap-2" dir="rtl">
           {initialOptions.map((option) => {
-            const isSelected = selected.some((item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id));
+            const isSelected = selected.some(
+              (item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id),
+            );
 
             return (
               <FormChoiceChip
@@ -2869,11 +3823,14 @@ function ChipSection({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
-            className="overflow-hidden w-full"
+            className="w-full overflow-hidden"
           >
             <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
               {extraOptions.map((option) => {
-                const isSelected = selected.some((item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id));
+                const isSelected = selected.some(
+                  (item) =>
+                    normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id),
+                );
 
                 return (
                   <FormChoiceChip
@@ -2930,27 +3887,27 @@ function ExchangeFilterSection({
 
   return (
     <section
-      className="relative scroll-mt-4 border-b-8 border-surface-container bg-surface-container-lowest px-4 pb-2 pt-4"
+      className="border-surface-container bg-surface-container-lowest relative scroll-mt-4 border-b-8 px-4 pt-4 pb-2"
       data-filter-section={sectionId}
       dir="rtl"
     >
-      <div className="flex h-6 items-center justify-start gap-2 text-on-surface-var">
+      <div className="text-on-surface-var flex h-6 items-center justify-start gap-2">
         {icon}
         <Typography
           as="h2"
           variant="title"
           size="medium"
           weight="medium"
-          className="m-0 text-right text-base font-medium leading-6 text-on-surface"
+          className="text-on-surface m-0 text-right text-base leading-6 font-medium"
         >
           {title}
         </Typography>
       </div>
 
-      <div className="relative w-full mt-4">
+      <div className="relative mt-4 w-full">
         <div
           ref={measureRef}
-          className="invisible pointer-events-none absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
+          className="pointer-events-none invisible absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
           aria-hidden="true"
           dir="rtl"
         >
@@ -2983,7 +3940,7 @@ function ExchangeFilterSection({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
-            className="overflow-hidden w-full"
+            className="w-full overflow-hidden"
           >
             <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
               {extraOptions.map((option) => (
@@ -2992,7 +3949,8 @@ function ExchangeFilterSection({
                   key={option.id}
                   onClick={() => onToggle(option.id)}
                   selected={selected.some(
-                    (item) => normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id),
+                    (item) =>
+                      normalizeExactFilterValue(item) === normalizeExactFilterValue(option.id),
                   )}
                 >
                   {option.label}
@@ -3015,12 +3973,7 @@ function ExchangeFilterSection({
 }
 
 function FeatureChipIcon({ label }: { label: string; selected?: boolean }) {
-  return (
-    <FeatureIcon
-      feature={label}
-      className="h-5 w-5 shrink-0 object-contain"
-    />
-  );
+  return <FeatureIcon feature={label} className="h-5 w-5 shrink-0 object-contain" />;
 }
 
 type SingleChoiceSectionProps = {
@@ -3056,7 +4009,7 @@ function SingleChoiceSection({
       <div className="relative w-full">
         <div
           ref={measureRef}
-          className="invisible pointer-events-none absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
+          className="pointer-events-none invisible absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
           aria-hidden="true"
           dir="rtl"
         >
@@ -3071,7 +4024,8 @@ function SingleChoiceSection({
               label={option}
               onClick={() => onSelect(option)}
               selected={
-                selected !== undefined && normalizeExactFilterValue(selected) === normalizeExactFilterValue(option)
+                selected !== undefined &&
+                normalizeExactFilterValue(selected) === normalizeExactFilterValue(option)
               }
             />
           ))}
@@ -3084,7 +4038,7 @@ function SingleChoiceSection({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
-            className="overflow-hidden w-full"
+            className="w-full overflow-hidden"
           >
             <div className="flex flex-wrap justify-start gap-2 pt-2" dir="rtl">
               {extraOptions.map((option) => (
@@ -3093,7 +4047,8 @@ function SingleChoiceSection({
                   label={option}
                   onClick={() => onSelect(option)}
                   selected={
-                    selected !== undefined && normalizeExactFilterValue(selected) === normalizeExactFilterValue(option)
+                    selected !== undefined &&
+                    normalizeExactFilterValue(selected) === normalizeExactFilterValue(option)
                   }
                 />
               ))}
@@ -3124,28 +4079,19 @@ function MoreButton({
   return (
     <Button
       unstyled
-      className="mx-auto mt-3 flex h-10 items-center justify-center gap-1.5 pt-2.5 pb-0.5 px-3 text-sm font-medium leading-5 text-primary active:bg-primary-container"
+      className="text-primary active:bg-primary-container mx-auto mt-3 flex h-10 items-center justify-center gap-1.5 px-3 pt-2.5 pb-0.5 text-sm leading-5 font-medium"
       onClick={onClick}
       type="button"
     >
-      <Typography
-        as="span"
-        variant="label"
-        size="medium"
-        weight="medium"
-        className="text-primary"
-      >
+      <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary">
         {expanded ? "مشاهده کمتر" : `مشاهده ${toPersianDigits(count)} مورد بیشتر`}
       </Typography>
       <motion.div
         animate={{ rotate: expanded ? 180 : 0 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
-        className="inline-flex items-center justify-center shrink-0 text-primary"
+        className="text-primary inline-flex shrink-0 items-center justify-center"
       >
-        <LinearArrowDown1
-          aria-hidden="true"
-          className="h-5 w-5 shrink-0 text-primary"
-        />
+        <LinearArrowDown1 aria-hidden="true" className="text-primary h-5 w-5 shrink-0" />
       </motion.div>
     </Button>
   );
@@ -3207,7 +4153,6 @@ function UnitBedIcon() {
   return <LinearBed aria-hidden="true" className="h-6 w-6 shrink-0" />;
 }
 
-
 type CategorySelectionScreenProps = {
   backBasePath?: string;
   initialCategory?: CategoryKey;
@@ -3222,19 +4167,16 @@ function CategorySelectionScreen({
   onConfirm,
 }: CategorySelectionScreenProps) {
   const navigate = useNavigate();
-  const [draftTransaction, setDraftTransaction] =
-    useState<TransactionType>(initialTransaction);
+  const [draftTransaction, setDraftTransaction] = useState<TransactionType>(initialTransaction);
 
-  const [draftCategory, setDraftCategory] = useState<CategoryKey | undefined>(
-    initialCategory,
-  );
+  const [draftCategory, setDraftCategory] = useState<CategoryKey | undefined>(initialCategory);
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden"
       variant="flush"
     >
-      <div className="shrink-0 bg-surface-container">
+      <div className="bg-surface-container shrink-0">
         <TopBar
           backTo={getBackToSearchPath(backBasePath)}
           centerClassName="px-0"
@@ -3260,10 +4202,16 @@ function CategorySelectionScreen({
         </div>
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest px-4 pb-0 pt-4">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto px-4 pt-4 pb-0">
         {categoryGroupsByTransaction[draftTransaction].map((group) => (
           <section key={group.title} className="mb-6 last:mb-0">
-            <Typography as="h2" variant="title" size="medium" weight="medium" className="mb-4 border-b border-outline-var pb-2 text-right text-base font-medium text-outline">
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="medium"
+              className="border-outline-var text-outline mb-4 border-b pb-2 text-right text-base font-medium"
+            >
               {group.title}
             </Typography>
 
@@ -3282,9 +4230,10 @@ function CategorySelectionScreen({
         ))}
       </main>
 
-      <footer className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
-        <Button unstyled
-          className="flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
+      <footer className="bg-surface-container-lowest shrink-0 px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
+        <Button
+          unstyled
+          className="bg-primary text-on-primary flex h-11 w-full items-center justify-center rounded-lg text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!draftCategory}
           onClick={() => {
             if (!draftCategory) return;
@@ -3305,8 +4254,10 @@ function getFilterSectionAnchor(block: FilterBlock) {
     return getFilterSectionAnchor(block.blocks[0]);
   }
   if (block.kind === "range") {
-    if (["meterage", "landArea", "buildingArea", "projectMeterage"].includes(block.id)) return "area";
-    if (["price", "projectPrice", "dailyPrice", "rentPrice", "mortgagePrice"].includes(block.id)) return "price";
+    if (["meterage", "landArea", "buildingArea", "projectMeterage"].includes(block.id))
+      return "area";
+    if (["price", "projectPrice", "dailyPrice", "rentPrice", "mortgagePrice"].includes(block.id))
+      return "price";
 
     return block.id;
   }
@@ -3402,29 +4353,15 @@ function FilterBlockRenderer({
           focusTarget={focusTarget}
           onApply={onApply}
           selectedNeighborhoods={filters.neighborhoods}
-          onChange={(neighborhoods) =>
-            setFilters((current) => ({ ...current, neighborhoods }))
-          }
+          onChange={(neighborhoods) => setFilters((current) => ({ ...current, neighborhoods }))}
         />
       );
 
     case "range-group":
-      return (
-        <RangeGroupSection
-          block={block}
-          filters={filters}
-          setRangeValue={setRangeValue}
-        />
-      );
+      return <RangeGroupSection block={block} filters={filters} setRangeValue={setRangeValue} />;
 
     case "range":
-      return (
-        <SingleRangeSection
-          block={block}
-          filters={filters}
-          setRangeValue={setRangeValue}
-        />
-      );
+      return <SingleRangeSection block={block} filters={filters} setRangeValue={setRangeValue} />;
 
     case "time":
       return (
@@ -3554,9 +4491,7 @@ function FilterBlockRenderer({
             checked={filters.featured}
             divider
             label="آگهی ویژه"
-            onChange={(featured) =>
-              setFilters((current) => ({ ...current, featured }))
-            }
+            onChange={(featured) => setFilters((current) => ({ ...current, featured }))}
           />
 
           <CheckboxRow
@@ -3564,18 +4499,14 @@ function FilterBlockRenderer({
             checked={filters.hasPhoto}
             divider
             label="آگهی با عکس"
-            onChange={(hasPhoto) =>
-              setFilters((current) => ({ ...current, hasPhoto }))
-            }
+            onChange={(hasPhoto) => setFilters((current) => ({ ...current, hasPhoto }))}
           />
 
           <CheckboxRow
             bottomFilter
             checked={filters.hasVideo}
             label="آگهی با ویدیو"
-            onChange={(hasVideo) =>
-              setFilters((current) => ({ ...current, hasVideo }))
-            }
+            onChange={(hasVideo) => setFilters((current) => ({ ...current, hasVideo }))}
           />
         </section>
       );
@@ -3605,10 +4536,7 @@ function NeighborhoodFilterSection({
   const shouldAutoOpen = useOpenOnFilterFocus(sectionId, focusTarget);
   const [isPickerOpen, setIsPickerOpen] = useState(shouldAutoOpen);
   const [query, setQuery] = useState("");
-  const debouncedQuery = useDebouncedValue(
-    query.trim(),
-    neighborhoodSearchDebounceMs,
-  );
+  const debouncedQuery = useDebouncedValue(query.trim(), neighborhoodSearchDebounceMs);
   const selectedCity = readStoredSelectedCity();
   const cityId = selectedCity?.id ?? "";
   const canSearch = debouncedQuery.length >= minNeighborhoodSearchLength;
@@ -3640,19 +4568,34 @@ function NeighborhoodFilterSection({
   };
 
   return (
-    <section className="scroll-mt-4 border-b-8 border-surface-container bg-surface-container-lowest px-4 py-2" data-filter-section={sectionId} dir="rtl">
-      <Button unstyled
+    <section
+      className="border-surface-container bg-surface-container-lowest scroll-mt-4 border-b-8 px-4 py-2"
+      data-filter-section={sectionId}
+      dir="rtl"
+    >
+      <Button
+        unstyled
         className="flex min-h-10 w-full items-center justify-between gap-3 text-right"
         onClick={() => setIsPickerOpen(true)}
         type="button"
       >
-        <div className="flex min-w-0 items-center gap-2 text-base font-medium leading-6 text-on-surface">
-          <LinearLocation className="w-6 h-6" />
-          <Typography as="span" variant="label" size="large" weight="medium">محله</Typography>
+        <div className="text-on-surface flex min-w-0 items-center gap-2 text-base leading-6 font-medium">
+          <LinearLocation className="h-6 w-6" />
+          <Typography as="span" variant="label" size="large" weight="medium">
+            محله
+          </Typography>
         </div>
-        <div className="flex shrink-0 items-center gap-1 text-sm font-medium leading-5 text-primary">
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary">انتخاب</Typography>
-          <LinearArrowLeft1 className="w-5 h-5 text-primary" />
+        <div className="text-primary flex shrink-0 items-center gap-1 text-sm leading-5 font-medium">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-primary"
+          >
+            انتخاب
+          </Typography>
+          <LinearArrowLeft1 className="text-primary h-5 w-5" />
         </div>
       </Button>
 
@@ -3671,19 +4614,22 @@ function NeighborhoodFilterSection({
       ) : null}
 
       {isPickerOpen ? (
-        <div className="fixed inset-0 z-[1100] flex justify-center bg-surface-container">
+        <div className="bg-surface-container fixed inset-0 z-[1100] flex justify-center">
           <PageFrame
-            className="relative flex min-h-0 max-w-[500px] flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+            className="bg-surface-container text-on-surface relative flex min-h-0 max-w-[500px] flex-col overflow-hidden [direction:rtl]"
             variant="flush"
           >
-            <div className="shrink-0 bg-surface-container">
+            <div className="bg-surface-container shrink-0">
               <TopBar
                 centerClassName="px-0"
                 centerSlot={
-                  <label className="flex h-12 w-full min-w-0 items-center rounded-xl border border-outline bg-surface-container-lowest px-4 focus-within:border-primary" dir="rtl">
+                  <label
+                    className="border-outline bg-surface-container-lowest focus-within:border-primary flex h-12 w-full min-w-0 items-center rounded-xl border px-4"
+                    dir="rtl"
+                  >
                     <input
                       autoFocus
-                      className="h-full min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline [&::-webkit-search-cancel-button]:hidden"
+                      className="text-on-surface placeholder:text-outline h-full min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base leading-6 font-normal outline-none [&::-webkit-search-cancel-button]:hidden"
                       onChange={(event) => setQuery(event.target.value)}
                       placeholder="جستجو محله"
                       type="search"
@@ -3699,7 +4645,7 @@ function NeighborhoodFilterSection({
 
               {selectedNeighborhoods.length > 0 ? (
                 <div
-                  className="flex min-h-12 shrink-0 items-center justify-start gap-2 overflow-x-auto bg-surface-container px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  className="bg-surface-container flex min-h-12 shrink-0 [scrollbar-width:none] items-center justify-start gap-2 overflow-x-auto px-4 pb-2 [&::-webkit-scrollbar]:hidden"
                   dir="rtl"
                 >
                   {selectedNeighborhoods.map((item) => (
@@ -3715,27 +4661,44 @@ function NeighborhoodFilterSection({
               ) : null}
             </div>
 
-            <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-surface-container-lowest px-4" dir="rtl">
+            <main
+              className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto overscroll-contain px-4"
+              dir="rtl"
+            >
               {!cityId ? (
-                <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full px-2 py-4 text-center text-sm font-normal leading-6 text-outline">
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="small"
+                  weight="regular"
+                  className="text-outline m-0 mx-auto w-full px-2 py-4 text-center text-sm leading-6 font-normal"
+                >
                   برای انتخاب محله، ابتدا شهر را انتخاب کنید.
                 </Typography>
               ) : neighborhoodsQuery.isLoading ? (
                 <div>
                   {Array.from({ length: 7 }, (_, index) => (
-                    <div className="flex min-h-[88px] animate-pulse items-center justify-between gap-5 py-3" key={index}>
+                    <div
+                      className="flex min-h-[88px] animate-pulse items-center justify-between gap-5 py-3"
+                      key={index}
+                    >
                       <div className="min-w-0 flex-1 space-y-3">
-                        <div className="mr-auto h-5 w-28 rounded bg-surface-container" />
-                        <div className="mr-auto h-4 w-4/5 rounded bg-surface-container-high" />
+                        <div className="bg-surface-container mr-auto h-5 w-28 rounded" />
+                        <div className="bg-surface-container-high mr-auto h-4 w-4/5 rounded" />
                       </div>
-                      <div className="h-[18px] w-[18px] rounded-sm bg-surface-container-high" />
+                      <div className="bg-surface-container-high h-[18px] w-[18px] rounded-sm" />
                     </div>
                   ))}
                 </div>
               ) : neighborhoodsQuery.isError ? (
-                <div className="mx-auto flex min-h-[320px] w-full flex-col items-center justify-center px-8 text-center text-sm leading-7 text-error">
+                <div className="text-error mx-auto flex min-h-[320px] w-full flex-col items-center justify-center px-8 text-center text-sm leading-7">
                   دریافت محله‌ها با خطا مواجه شد.
-                  <Button unstyled className="mt-3 font-semibold text-primary" onClick={() => void neighborhoodsQuery.refetch()} type="button">
+                  <Button
+                    unstyled
+                    className="text-primary mt-3 font-semibold"
+                    onClick={() => void neighborhoodsQuery.refetch()}
+                    type="button"
+                  >
                     تلاش دوباره
                   </Button>
                 </div>
@@ -3747,19 +4710,38 @@ function NeighborhoodFilterSection({
                     const isSelected = selectedIds.has(neighborhoodId);
 
                     return (
-                      <Button unstyled
+                      <Button
+                        unstyled
                         aria-pressed={isSelected}
-                        className="flex min-h-[88px] w-full items-center justify-between gap-5 bg-surface-container-lowest py-3 text-right text-on-surface outline-none [-webkit-tap-highlight-color:transparent]"
+                        className="bg-surface-container-lowest text-on-surface flex min-h-[88px] w-full items-center justify-between gap-5 py-3 text-right outline-none [-webkit-tap-highlight-color:transparent]"
                         key={neighborhoodId}
                         onClick={() => toggleNeighborhood(neighborhood)}
                         type="button"
                       >
-                        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1">
-                          <Typography as="span" variant="body" size="medium" weight="regular" className="block text-base font-normal leading-6 text-on-surface">
+                        <Typography
+                          as="span"
+                          variant="body"
+                          size="medium"
+                          weight="regular"
+                          className="min-w-0 flex-1"
+                        >
+                          <Typography
+                            as="span"
+                            variant="body"
+                            size="medium"
+                            weight="regular"
+                            className="text-on-surface block text-base leading-6 font-normal"
+                          >
                             {neighborhood.name}
                           </Typography>
                           {description ? (
-                            <Typography as="span" variant="body" size="small" weight="regular" className="mt-0.5 block line-clamp-2 text-sm font-normal leading-6 text-outline">
+                            <Typography
+                              as="span"
+                              variant="body"
+                              size="small"
+                              weight="regular"
+                              className="text-outline mt-0.5 line-clamp-2 block text-sm leading-6 font-normal"
+                            >
                               {description}
                             </Typography>
                           ) : null}
@@ -3772,15 +4754,22 @@ function NeighborhoodFilterSection({
               ) : query.trim() ? (
                 <SearchEmptyState compact />
               ) : (
-                <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full px-2 py-4 text-center text-sm font-normal leading-6 text-outline">
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="small"
+                  weight="regular"
+                  className="text-outline m-0 mx-auto w-full px-2 py-4 text-center text-sm leading-6 font-normal"
+                >
                   محله‌ای برای این شهر ثبت نشده است.
                 </Typography>
               )}
             </main>
 
-            <footer className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
-              <Button unstyled
-                className="flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline"
+            <footer className="bg-surface-container-lowest shrink-0 px-4 py-3 shadow-[0_-4px_10px_rgba(26,26,26,0.04)]">
+              <Button
+                unstyled
+                className="bg-primary text-on-primary flex h-10 w-full items-center justify-center rounded-lg text-sm leading-5 font-medium no-underline"
                 onClick={onApply}
                 type="button"
               >
@@ -3795,15 +4784,22 @@ function NeighborhoodFilterSection({
 }
 
 function ChevronDownIcon({ className }: { className?: string } = {}) {
-  return <LinearArrowDown1 aria-hidden="true" className={className ?? "h-5 w-5 shrink-0 text-on-surface-var"} />;
+  return (
+    <LinearArrowDown1
+      aria-hidden="true"
+      className={className ?? "text-on-surface-var h-5 w-5 shrink-0"}
+    />
+  );
 }
 
 function ChevronLeftIcon({ className }: { className?: string } = {}) {
-  return <LinearArrowLeft1 aria-hidden="true" className={className ?? "h-5 w-5 shrink-0 text-primary"} />;
+  return (
+    <LinearArrowLeft1 aria-hidden="true" className={className ?? "text-primary h-5 w-5 shrink-0"} />
+  );
 }
 
 function ClearCircleIcon() {
-  return <LinearCancelCircle aria-hidden="true" className="h-4 w-4 shrink-0 text-primary" />;
+  return <LinearCancelCircle aria-hidden="true" className="text-primary h-4 w-4 shrink-0" />;
 }
 
 function TimeFilterSection({
@@ -3818,7 +4814,11 @@ function TimeFilterSection({
   onChange: (value: string) => void;
 }) {
   return (
-    <FilterSection icon={<LinearAgreement aria-hidden="true" className="h-6 w-6 shrink-0" />} sectionId={sectionId} title={title}>
+    <FilterSection
+      icon={<LinearAgreement aria-hidden="true" className="h-6 w-6 shrink-0" />}
+      sectionId={sectionId}
+      title={title}
+    >
       <TextField
         className="text-sm"
         containerClassName="w-full"
@@ -3849,15 +4849,19 @@ function DateFilterSection({
 
   return (
     <>
-      <FilterSection icon={<LinearAgreement aria-hidden="true" className="h-6 w-6 shrink-0" />} sectionId={sectionId} title={title}>
+      <FilterSection
+        icon={<LinearAgreement aria-hidden="true" className="h-6 w-6 shrink-0" />}
+        sectionId={sectionId}
+        title={title}
+      >
         <Button
           unstyled
-          className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-right text-sm text-on-surface"
+          className="border-outline-var bg-surface-container-lowest text-on-surface flex h-12 w-full items-center justify-between rounded-xl border px-4 text-right text-sm"
           onClick={() => setIsOpen(true)}
           type="button"
         >
           <span>{value || "انتخاب تاریخ"}</span>
-          <LinearArrowDown1 aria-hidden="true" className="h-5 w-5 text-on-surface-var" />
+          <LinearArrowDown1 aria-hidden="true" className="text-on-surface-var h-5 w-5" />
         </Button>
       </FilterSection>
       <JalaliDatePickerSheet
@@ -3905,13 +4909,20 @@ export function RangeSelectField({
 
   return (
     <div className="min-w-0 flex-1">
-      <Button unstyled
-        className="flex h-12 w-full items-center justify-between rounded-xl border border-outline-var bg-surface-container-lowest px-3 text-sm font-normal leading-5 [direction:ltr]"
+      <Button
+        unstyled
+        className="border-outline-var bg-surface-container-lowest flex h-12 w-full items-center justify-between rounded-xl border px-3 text-sm leading-5 font-normal [direction:ltr]"
         onClick={() => setIsOpen(true)}
         type="button"
       >
         <ChevronDownIcon />
-        <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-right [direction:rtl] ${displayValue ? "text-on-surface" : "text-outline"}`}>
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className={`min-w-0 truncate text-right [direction:rtl] ${displayValue ? "text-on-surface" : "text-outline"}`}
+        >
           {displayValue || label}
         </Typography>
       </Button>
@@ -3955,27 +4966,34 @@ export function RangeSelectField({
         ) : (
           <div className="space-y-1" dir="rtl">
             {value ? (
-              <Button unstyled
-                className="flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm font-medium leading-5 text-primary active:bg-primary-container"
+              <Button
+                unstyled
+                className="text-primary active:bg-primary-container flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm leading-5 font-medium"
                 onClick={() => {
                   onChange("");
                   closeSheet();
                 }}
                 type="button"
               >
-                <Typography as="span" variant="body" size="medium" weight="regular">پاک کردن انتخاب</Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  پاک کردن انتخاب
+                </Typography>
               </Button>
             ) : null}
 
             {options.map((option) => {
               const normalizedOption = normalizeRangeNumber(option);
-              const selected = Boolean(normalizedOption) && normalizeRangeNumber(value) === normalizedOption;
+              const selected =
+                Boolean(normalizedOption) && normalizeRangeNumber(value) === normalizedOption;
 
               return (
-                <Button unstyled
+                <Button
+                  unstyled
                   aria-pressed={selected}
-                  className={`flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm font-medium leading-5 ${
-                    selected ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface"
+                  className={`flex h-12 w-full items-center justify-center rounded-[10px] px-2 text-center text-sm leading-5 font-medium ${
+                    selected
+                      ? "bg-primary-container text-primary"
+                      : "bg-surface-container-lowest text-on-surface"
                   }`}
                   key={option}
                   onClick={() => {
@@ -3989,7 +5007,9 @@ export function RangeSelectField({
                   }}
                   type="button"
                 >
-                  <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
+                  <Typography as="span" variant="body" size="medium" weight="regular">
+                    {option}
+                  </Typography>
                 </Button>
               );
             })}
@@ -4013,14 +5033,8 @@ function RangeItemContent({
   onMaximumChange: (value: string) => void;
   onMinimumChange: (value: string) => void;
 }) {
-  const isWidth =
-    block.id === "landWidth" ||
-    block.id === "width" ||
-    block.title.includes("عرض");
-  const isHouseDimensions =
-    isWidth ||
-    block.id === "buildingArea" ||
-    block.title.includes("بنا");
+  const isWidth = block.id === "landWidth" || block.id === "width" || block.title.includes("عرض");
+  const isHouseDimensions = isWidth || block.id === "buildingArea" || block.title.includes("بنا");
   const isArea = block.variant === "area";
   const isMoney = block.variant === "money";
   const icon = isMoney ? (
@@ -4032,34 +5046,39 @@ function RangeItemContent({
   );
 
   const titleUnit = (block.unit ?? (isArea ? "مترمربع" : isWidth ? "متر" : "")).replace(/\s+/g, "");
-  const showUnit = block.showUnitInTitle || isArea || isWidth || (block.variant === "number" && Boolean(titleUnit));
-  const normalizedTitle = showUnit && titleUnit ? (
-    <>
-      {block.title}{" "}
-      <Typography
-        as="span"
-        variant="label"
-        size="medium"
-        weight="medium"
-        className="text-outline"
-      >
-        ({titleUnit})
-      </Typography>
-    </>
-  ) : (
-    block.title
-  );
+  const showUnit =
+    block.showUnitInTitle ||
+    isArea ||
+    isWidth ||
+    (block.variant === "number" && Boolean(titleUnit));
+  const normalizedTitle =
+    showUnit && titleUnit ? (
+      <>
+        {block.title}{" "}
+        <Typography
+          as="span"
+          variant="label"
+          size="medium"
+          weight="medium"
+          className="text-outline"
+        >
+          ({titleUnit})
+        </Typography>
+      </>
+    ) : (
+      block.title
+    );
 
   return (
     <div>
-      <div className="mb-2 flex h-8 items-center justify-start gap-2 text-on-surface-var">
+      <div className="text-on-surface-var mb-2 flex h-8 items-center justify-start gap-2">
         {icon}
         <Typography
           as="h2"
           variant="title"
           size="medium"
           weight="medium"
-          className="m-0 text-right text-base font-medium leading-6 text-on-surface"
+          className="text-on-surface m-0 text-right text-base leading-6 font-medium"
         >
           {normalizedTitle}
         </Typography>
@@ -4159,7 +5178,7 @@ function SingleRangeSection({
 
   return (
     <section
-      className="scroll-mt-4 border-b-8 border-surface-container bg-surface-container-lowest p-4"
+      className="border-surface-container bg-surface-container-lowest scroll-mt-4 border-b-8 p-4"
       data-filter-section={getFilterSectionAnchor(block)}
       dir="rtl"
     >
@@ -4185,7 +5204,7 @@ function RangeGroupSection({
 }) {
   return (
     <section
-      className="scroll-mt-4 border-b-8 border-surface-container bg-surface-container-lowest p-4"
+      className="border-surface-container bg-surface-container-lowest scroll-mt-4 border-b-8 p-4"
       data-filter-section={getFilterSectionAnchor(block)}
       dir="rtl"
     >
@@ -4194,7 +5213,7 @@ function RangeGroupSection({
 
         return (
           <div key={rangeBlock.id}>
-            {index > 0 ? <div className="my-4 border-t border-outline-var" /> : null}
+            {index > 0 ? <div className="border-outline-var my-4 border-t" /> : null}
             <RangeItemContent
               block={rangeBlock}
               maximum={value.maximum}
@@ -4225,16 +5244,11 @@ function SwitchOnlySection({
   return (
     <section
       className={`bg-surface-container-lowest px-4 ${groupStart ? "pt-[7.5px]" : ""} ${
-        groupEnd ? "border-b-8 border-surface-container pb-[7.5px]" : ""
+        groupEnd ? "border-surface-container border-b-8 pb-[7.5px]" : ""
       }`}
       dir="rtl"
     >
-      <CheckboxRow
-        checked={checked}
-        divider={!groupEnd}
-        label={label}
-        onChange={onChange}
-      />
+      <CheckboxRow checked={checked} divider={!groupEnd} label={label} onChange={onChange} />
     </section>
   );
 }
@@ -4249,18 +5263,24 @@ function LoanFilterSection({
 }) {
   return (
     <section
-      className="border-b-8 border-surface-container bg-surface-container-lowest px-4"
+      className="border-surface-container bg-surface-container-lowest border-b-8 px-4"
       data-filter-section="hasLoan"
       dir="rtl"
     >
       <Button
         unstyled
         aria-pressed={checked}
-        className="flex h-[56px] w-full items-center justify-between gap-3 bg-surface-container-lowest pl-3 text-right"
+        className="bg-surface-container-lowest flex h-[56px] w-full items-center justify-between gap-3 pl-3 text-right"
         onClick={() => onChange(!checked)}
         type="button"
       >
-        <Typography as="span" variant="title" size="medium" weight="medium" className="min-w-0 flex-1 text-on-surface">
+        <Typography
+          as="span"
+          variant="title"
+          size="medium"
+          weight="medium"
+          className="text-on-surface min-w-0 flex-1"
+        >
           با وام
         </Typography>
         <ChoiceIndicator checked={checked} className="rounded" />
@@ -4282,15 +5302,22 @@ function CheckboxRow({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-pressed={checked}
-      className={`flex h-[59px] w-full items-center justify-between gap-3 bg-surface-container-lowest pl-3 text-right ${
-        divider ? "border-b border-outline-var" : ""
+      className={`bg-surface-container-lowest flex h-[59px] w-full items-center justify-between gap-3 pl-3 text-right ${
+        divider ? "border-outline-var border-b" : ""
       }`}
       onClick={() => onChange(!checked)}
       type="button"
     >
-      <Typography as="span" variant="title" size="medium" weight="medium" className="min-w-0 flex-1 text-on-surface">
+      <Typography
+        as="span"
+        variant="title"
+        size="medium"
+        weight="medium"
+        className="text-on-surface min-w-0 flex-1"
+      >
         {label}
       </Typography>
       <ChoiceIndicator checked={checked} className="rounded" />
@@ -4321,14 +5348,20 @@ function SelectOnlySection({
       data-filter-section={sectionId}
       dir="rtl"
     >
-      <div className="flex h-[59px] w-full items-center justify-between gap-3 border-b border-outline-var text-right">
+      <div className="border-outline-var flex h-[59px] w-full items-center justify-between gap-3 border-b text-right">
         <Button
           unstyled
           className="flex h-full min-w-0 flex-1 items-center text-right"
           onClick={() => setIsOpen(true)}
           type="button"
         >
-          <Typography as="span" variant="label" size="large" weight="medium" className="truncate text-on-surface">
+          <Typography
+            as="span"
+            variant="label"
+            size="large"
+            weight="medium"
+            className="text-on-surface truncate"
+          >
             {label}
           </Typography>
         </Button>
@@ -4336,7 +5369,7 @@ function SelectOnlySection({
         {value ? (
           <Chip
             aria-label={`حذف ${value}`}
-            className="h-9 max-w-[55%] bg-primary-container text-on-primary-container px-2 py-2 [&_svg]:h-4 [&_svg]:w-4"
+            className="bg-primary-container text-on-primary-container h-9 max-w-[55%] px-2 py-2 [&_svg]:h-4 [&_svg]:w-4"
             onClick={() => onChange(undefined)}
             removable
             selected
@@ -4346,7 +5379,7 @@ function SelectOnlySection({
         ) : (
           <Button
             unstyled
-            className="flex h-full shrink-0 items-center gap-1 text-sm font-medium leading-5 text-primary"
+            className="text-primary flex h-full shrink-0 items-center gap-1 text-sm leading-5 font-medium"
             onClick={() => setIsOpen(true)}
             type="button"
           >
@@ -4369,15 +5402,18 @@ function SelectOnlySection({
       >
         <div className="space-y-1" dir="rtl">
           {value ? (
-            <Button unstyled
-              className="flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 text-primary active:bg-primary-container"
+            <Button
+              unstyled
+              className="text-primary active:bg-primary-container flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm leading-5 font-medium"
               onClick={() => {
                 onChange(undefined);
                 setIsOpen(false);
               }}
               type="button"
             >
-              <Typography as="span" variant="body" size="medium" weight="regular">پاک کردن انتخاب</Typography>
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                پاک کردن انتخاب
+              </Typography>
               <ClearCircleIcon />
             </Button>
           ) : null}
@@ -4386,10 +5422,13 @@ function SelectOnlySection({
             const selected = value === option;
 
             return (
-              <Button unstyled
+              <Button
+                unstyled
                 aria-pressed={selected}
-                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm font-medium leading-5 ${
-                  selected ? "bg-primary-container text-primary" : "bg-surface-container-lowest text-on-surface"
+                className={`flex h-12 w-full items-center justify-between rounded-[10px] px-2 text-right text-sm leading-5 font-medium ${
+                  selected
+                    ? "bg-primary-container text-primary"
+                    : "bg-surface-container-lowest text-on-surface"
                 }`}
                 key={option}
                 onClick={() => {
@@ -4398,7 +5437,9 @@ function SelectOnlySection({
                 }}
                 type="button"
               >
-                <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  {option}
+                </Typography>
                 <ChoiceIndicator checked={selected} />
               </Button>
             );

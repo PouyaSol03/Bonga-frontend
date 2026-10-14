@@ -65,15 +65,23 @@ export function ViewAdPerformanceProgressCharts({
   });
   const selectedDay = days[selectedIndex] ?? days[5];
   const tooltipText = selectedDay ? toPersianNumber(selectedDay.value) : "";
-  const totalValueText = chartData ? toPersianNumber(chartData.total_metric_value) : activeMetric.defaultTotal;
+  const totalValueText = chartData
+    ? toPersianNumber(chartData.total_metric_value)
+    : activeMetric.defaultTotal;
 
   return (
-    <section className={`w-full bg-surface-container-lowest p-4 [direction:rtl] ${className}`}>
-      <Typography as="h3" variant="title" size="medium" weight="semibold" className="text-on-surface">
+    <section className={`bg-surface-container-lowest w-full p-4 [direction:rtl] ${className}`}>
+      <Typography
+        as="h3"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface"
+      >
         نمودارهای پیشرفت
       </Typography>
 
-      <div className="mt-3 flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
+      <div className="mt-3 flex scrollbar-none items-center gap-2 overflow-x-auto pb-1">
         {PERFORMANCE_METRICS.map((m) => (
           <Chip
             key={m.key}
@@ -89,19 +97,27 @@ export function ViewAdPerformanceProgressCharts({
         ))}
       </div>
 
-      <div className="mt-4 rounded-2xl border border-surface-container bg-surface-container-lowest p-4 shadow-2xs">
+      <div className="border-surface-container bg-surface-container-lowest mt-4 rounded-2xl border p-4 shadow-2xs">
         <div className="flex h-10 items-center justify-between [direction:rtl]">
           <div className="inline-flex items-center gap-2">
-            <LinearAnalytics className="h-6 w-6 text-on-surface-var" />
-            <Typography as="h4" variant="title" size="small" weight="semibold" className="text-on-surface">
+            <LinearAnalytics className="text-on-surface-var h-6 w-6" />
+            <Typography
+              as="h4"
+              variant="title"
+              size="small"
+              weight="semibold"
+              className="text-on-surface"
+            >
               {activeMetric.chartTitle}
             </Typography>
             <button
               aria-label={`توضیحات ${activeMetric.chartTitle}`}
-              className="grid h-5 w-5 place-items-center rounded-full text-on-surface-var cursor-pointer"
+              className="text-on-surface-var grid h-5 w-5 cursor-pointer place-items-center rounded-full"
               onClick={() => setIsOpen(true)}
               type="button"
-            ><LinearInfoCircle className="h-4 w-4" /></button>
+            >
+              <LinearInfoCircle className="h-4 w-4" />
+            </button>
           </div>
 
           <div className="flex items-center [direction:ltr]">
@@ -110,7 +126,9 @@ export function ViewAdPerformanceProgressCharts({
               aria-label="بازه بعدی (هفته بعد)"
               disabled={weekOffset <= 0}
               className={`grid h-9 w-9 place-items-center ${
-                weekOffset <= 0 ? "opacity-30 cursor-not-allowed text-outline" : "text-on-surface-var cursor-pointer"
+                weekOffset <= 0
+                  ? "text-outline cursor-not-allowed opacity-30"
+                  : "text-on-surface-var cursor-pointer"
               }`}
               onClick={() => setWeekOffset((p) => Math.max(0, p - 1))}
               type="button"
@@ -120,7 +138,7 @@ export function ViewAdPerformanceProgressCharts({
             <Button
               unstyled
               aria-label="بازه قبلی (هفته قبل)"
-              className="grid h-9 w-9 place-items-center text-on-surface-var cursor-pointer"
+              className="text-on-surface-var grid h-9 w-9 cursor-pointer place-items-center"
               onClick={() => setWeekOffset((p) => p + 1)}
               type="button"
             >
@@ -130,16 +148,28 @@ export function ViewAdPerformanceProgressCharts({
         </div>
 
         <div className="mt-3 flex items-center gap-2 [direction:rtl]">
-          <Typography as="span" variant="body" size="small" weight="regular" className="text-on-surface-var">{activeMetric.summaryLabel}</Typography>
-          <strong className="text-base font-bold text-primary">{totalValueText}</strong>
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-on-surface-var"
+          >
+            {activeMetric.summaryLabel}
+          </Typography>
+          <strong className="text-primary text-base font-bold">{totalValueText}</strong>
         </div>
 
         <div className="mt-2 h-[185px] [direction:ltr]">
           {isLoading && !chartData ? (
-            <div className="h-full w-full animate-pulse rounded-xl bg-surface-container" />
+            <div className="bg-surface-container h-full w-full animate-pulse rounded-xl" />
           ) : (
             <ResponsiveContainer height="100%" width="100%">
-              <BarChart barCategoryGap={16} data={days} margin={{ bottom: 0, left: 0, right: 0, top: 32 }}>
+              <BarChart
+                barCategoryGap={16}
+                data={days}
+                margin={{ bottom: 0, left: 0, right: 0, top: 32 }}
+              >
                 <CartesianGrid stroke="var(--outline-var)" strokeDasharray="4 4" vertical={false} />
                 <XAxis
                   axisLine={{ stroke: "var(--outline-var)" }}
@@ -169,7 +199,12 @@ export function ViewAdPerformanceProgressCharts({
                   animationEasing="ease-in-out"
                 >
                   {days.map((_, index) => (
-                    <Cell cursor="pointer" fill="#11A366" key={index} onClick={() => setSelectedIndex(index)} />
+                    <Cell
+                      cursor="pointer"
+                      fill="#11A366"
+                      key={index}
+                      onClick={() => setSelectedIndex(index)}
+                    />
                   ))}
                   <LabelList
                     content={(props: any) => renderChartTooltip(selectedIndex, tooltipText, props)}
@@ -191,7 +226,17 @@ export function ViewAdPerformanceProgressCharts({
         panelPaddingClassName="pt-3"
         showBackButton={false}
         title={activeMetric.infoTitle}
-      ><Typography as="p" variant="body" size="medium" weight="regular" className="text-sm leading-7 text-on-surface-var">{activeMetric.infoDesc}</Typography></BottomSheet>
+      >
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var text-sm leading-7"
+        >
+          {activeMetric.infoDesc}
+        </Typography>
+      </BottomSheet>
     </section>
   );
 }

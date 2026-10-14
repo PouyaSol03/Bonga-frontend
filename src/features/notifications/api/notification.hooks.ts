@@ -30,8 +30,7 @@ export function useNotificationsInfiniteQuery({
     ReturnType<typeof queryKeys.notifications.list>,
     number
   >({
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getNotifications({
@@ -79,9 +78,7 @@ function invalidateNotifications() {
   });
 }
 
-export function markNotificationsReadInCache(
-  notificationIds: (number | string)[],
-) {
+export function markNotificationsReadInCache(notificationIds: (number | string)[]) {
   const idSet = new Set(notificationIds.map(String));
   queryClient.setQueriesData<InfiniteData<NotificationsPageResult, number>>(
     { queryKey: [...queryKeys.notifications.all, "list"] },

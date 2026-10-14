@@ -23,7 +23,8 @@ export function buildEditPatchFormData(
   }
 
   const params = getParams();
-  const formCode = options.formCode?.trim() || getAdvertiseFormCode(params.transaction, params.category);
+  const formCode =
+    options.formCode?.trim() || getAdvertiseFormCode(params.transaction, params.category);
   const dynamicKeysSet = new Set(options.dynamicFieldKeys ?? []);
   const appender = createPatchAppender(formData, dynamicKeysSet);
 

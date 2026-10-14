@@ -2,9 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
-import { getStoredAuthSession, setStoredAuthSession, type AuthRole } from "../../shared/auth/auth-storage";
+import {
+  getStoredAuthSession,
+  setStoredAuthSession,
+  type AuthRole,
+} from "../../shared/auth/auth-storage";
 import { TopBar } from "../../shared/components/TopBar";
-import { INDEPENDENT_CONSULTANT, REAL_ESTATE_CONSULTANT, REAL_ESTATE_MANAGER, USER } from "../../shared/constants/roles.constants";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+  USER,
+} from "../../shared/constants/roles.constants";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { useDeleteMyBusinessMutation } from "./api/account.hooks";
@@ -22,7 +31,11 @@ function downgradeBusinessToUser(navigate: (to: string, options?: { replace?: bo
     name: "کاربر",
     slug: USER,
   };
-  const businessRoles = new Set([REAL_ESTATE_MANAGER, REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT]);
+  const businessRoles = new Set([
+    REAL_ESTATE_MANAGER,
+    REAL_ESTATE_CONSULTANT,
+    INDEPENDENT_CONSULTANT,
+  ]);
   const roles = session.roles.filter((role) => !businessRoles.has(role.slug));
   if (!roles.some((role) => role.slug === USER)) roles.unshift(userRole);
 
@@ -39,10 +52,15 @@ function downgradeBusinessToUser(navigate: (to: string, options?: { replace?: bo
 
 function ConfirmCheckIcon({ checked }: { checked: boolean }) {
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular"
+    <Typography
+      as="span"
+      variant="body"
+      size="medium"
+      weight="regular"
       aria-hidden="true"
-      className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[4px] border ${checked ? "border-primary bg-primary" : "border-outline bg-surface-container-lowest"
-        }`}
+      className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[4px] border ${
+        checked ? "border-primary bg-primary" : "border-outline bg-surface-container-lowest"
+      }`}
     >
       {checked ? (
         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 20 20">
@@ -82,38 +100,67 @@ export function AccountDeleteUserPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account" title="حذف کسب‌وکار" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-[92px] pt-6">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-6 pb-[92px]">
         <section className="px-4 text-right">
-          <Typography as="h1" variant="title" size="medium" weight="medium" className="m-0 text-base font-medium leading-6 text-on-surface">
+          <Typography
+            as="h1"
+            variant="title"
+            size="medium"
+            weight="medium"
+            className="text-on-surface m-0 text-base leading-6 font-medium"
+          >
             آیا از حذف این کسب‌وکار مطمئن هستید؟
           </Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 text-sm font-normal mb-2.5 text-on-surface-var">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var m-0 mt-4 mb-2.5 text-sm font-normal"
+          >
             برای حذف این کسب و کار همه موارد زیر را به دقت مطالعه کنید:
           </Typography>
 
-          <div className="rounded-2xl border border-outline bg-outline/10 p-4">
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm text-on-surface">
-              با حذف کسب‌وکار، تمامی اطلاعات، آگهی‌ها، مشاوران، فایل‌ها، یادداشت‌ها و سایر داده‌های مرتبط با این کسب‌وکار به‌صورت کامل حذف خواهند شد و در صورت تمایل باید کسب‌وکار جدیدی ثبت نمایید.
+          <div className="border-outline bg-outline/10 rounded-2xl border p-4">
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-on-surface m-0 text-sm"
+            >
+              با حذف کسب‌وکار، تمامی اطلاعات، آگهی‌ها، مشاوران، فایل‌ها، یادداشت‌ها و سایر داده‌های
+              مرتبط با این کسب‌وکار به‌صورت کامل حذف خواهند شد و در صورت تمایل باید کسب‌وکار جدیدی
+              ثبت نمایید.
             </Typography>
           </div>
 
-          <Button unstyled
-            className="mt-4 flex w-full items-center gap-3 text-right !text-sm font-medium leading-6 text-on-surface"
+          <Button
+            unstyled
+            className="text-on-surface mt-4 flex w-full items-center gap-3 text-right !text-sm leading-6 font-medium"
             onClick={() => setIsConfirmed((value) => !value)}
             type="button"
           >
             <ConfirmCheckIcon checked={isConfirmed} />
-            <Typography as="span" variant="body" size="medium" weight="regular">تمامی موارد فوق را تایید میکنم</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              تمامی موارد فوق را تایید میکنم
+            </Typography>
           </Button>
 
           {errorMessage && (
-            <div className="mt-4 rounded-xl border border-error/20 bg-error/10 p-3 text-error">
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm">
+            <div className="border-error/20 bg-error/10 text-error mt-4 rounded-xl border p-3">
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="m-0 text-sm"
+              >
                 {errorMessage}
               </Typography>
             </div>
@@ -121,18 +168,20 @@ export function AccountDeleteUserPage() {
         </section>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-4 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+      <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 z-20 px-4 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
         <div className="grid grid-cols-2 gap-4" dir="ltr">
-          <Button unstyled
-            className="inline-flex h-10 items-center justify-center rounded-[10px] border border-error bg-surface-container-lowest px-4 text-sm font-semibold leading-5 text-error disabled:cursor-not-allowed disabled:opacity-50"
+          <Button
+            unstyled
+            className="border-error bg-surface-container-lowest text-error inline-flex h-10 items-center justify-center rounded-[10px] border px-4 text-sm leading-5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
             disabled={!isConfirmed || deleteMutation.isPending}
             onClick={handleDelete}
             type="button"
           >
             {deleteMutation.isPending ? "در حال حذف..." : "تایید حذف"}
           </Button>
-          <Button unstyled
-            className="inline-flex h-10 items-center justify-center rounded-[10px] border border-outline-var bg-surface-container-lowest px-4 text-sm font-semibold leading-5 text-on-surface"
+          <Button
+            unstyled
+            className="border-outline-var bg-surface-container-lowest text-on-surface inline-flex h-10 items-center justify-center rounded-[10px] border px-4 text-sm leading-5 font-semibold"
             onClick={() => navigate("/account")}
             type="button"
           >
@@ -143,4 +192,3 @@ export function AccountDeleteUserPage() {
     </PageFrame>
   );
 }
-

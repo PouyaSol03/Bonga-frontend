@@ -93,7 +93,7 @@ export function DashboardUrgentActionsCard({
   const actionItems = Array.isArray(items) ? items : [];
 
   return (
-    <section className="w-full rounded-[16px] bg-surface-container-lowest p-4 shadow-sm [direction:rtl]">
+    <section className="bg-surface-container-lowest w-full rounded-[16px] p-4 shadow-sm [direction:rtl]">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <Typography
@@ -106,10 +106,7 @@ export function DashboardUrgentActionsCard({
           {title}
         </Typography>
         {actionItems.length > 0 && (
-          <Link
-            className="flex items-center gap-1 text-primary"
-            to={viewAllTo}
-          >
+          <Link className="text-primary flex items-center gap-1" to={viewAllTo}>
             <Typography
               as="span"
               variant="label"
@@ -127,7 +124,7 @@ export function DashboardUrgentActionsCard({
       {/* Action items list or empty state */}
       {actionItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-6 text-center">
-          <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-success-container/40 text-success">
+          <div className="bg-success-container/40 text-success mb-2 flex h-11 w-11 items-center justify-center rounded-full">
             <LinearTick className="h-6 w-6" />
           </div>
           <Typography
@@ -144,7 +141,7 @@ export function DashboardUrgentActionsCard({
             variant="body"
             size="small"
             weight="regular"
-            className="mt-0.5 text-on-surface-var"
+            className="text-on-surface-var mt-0.5"
           >
             همه موارد تحت کنترل است
           </Typography>
@@ -164,7 +161,7 @@ export function DashboardUrgentActionsCard({
               <Link
                 key={item.id}
                 to={item.to || "#"}
-                className={`flex items-center justify-between rounded-[12px] border ${style.border} ${style.bg} p-2.5 transition active:scale-[0.99] no-underline`}
+                className={`flex items-center justify-between rounded-[12px] border ${style.border} ${style.bg} p-2.5 no-underline transition active:scale-[0.99]`}
               >
                 <div className="flex items-center gap-3">
                   {/* Number Badge */}
@@ -205,7 +202,7 @@ export function DashboardUrgentActionsCard({
                   </div>
                 </div>
 
-                <LinearArrowLeft1 className="h-4 w-4 text-on-surface-var" />
+                <LinearArrowLeft1 className="text-on-surface-var h-4 w-4" />
               </Link>
             );
           })}

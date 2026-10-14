@@ -45,7 +45,12 @@ export function createPatchAppender(
     if (!dynamicFieldKeysSet.has(key)) return;
     if (value === undefined || value === null) return;
     if (Array.isArray(value) && value.length === 0) return;
-    if (typeof value === "object" && !Array.isArray(value) && Object.keys(value as object).length === 0) return;
+    if (
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      Object.keys(value as object).length === 0
+    )
+      return;
     formData.append(key, JSON.stringify(value));
   };
 

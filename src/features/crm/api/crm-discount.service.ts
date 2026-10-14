@@ -80,5 +80,7 @@ export async function validateDiscountCode(input: {
   service: CrmDiscountServiceType;
   price?: number;
 }): Promise<ValidateDiscountCodeResult> {
-  return publicApi.post("public/discount-codes/validate", { json: input }).json<ValidateDiscountCodeResult>();
+  return publicApi
+    .post("public/discount-codes/validate", { json: input })
+    .json<ValidateDiscountCodeResult>();
 }

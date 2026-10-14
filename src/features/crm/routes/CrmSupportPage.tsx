@@ -22,7 +22,8 @@ export function CrmSupportPage(props: CrmRoutePageProps) {
           const isActive = activeTab === tab.value;
 
           return (
-            <Button unstyled
+            <Button
+              unstyled
               className={`min-h-10 flex-1 rounded-lg px-4 text-sm font-semibold transition-colors ${
                 isActive
                   ? "bg-[#0048c4] text-white"

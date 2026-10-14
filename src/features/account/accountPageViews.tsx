@@ -11,8 +11,7 @@ import type { AdCardData } from "../advertisements/components/AdCard";
 import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { TopBar } from "../../shared/components/TopBar";
-import { RouteLink } from "../../shared/navigation/RouteLink";
-import { pushRoute } from "../../shared/navigation/navigation";
+import { Link, useNavigate } from "react-router";
 import { AdCardTomanIcon } from "../advertisements/components/AdCardIcons";
 import { getMyAdStatusInfo } from "./myAdsStatus";
 import { getAdEditPath } from "./adManagement/adManagementData";
@@ -28,6 +27,7 @@ import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import LinearUserAccount from "../../shared/icons/LinearUserAccount";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
 import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
+import { DeleteAdBottomSheet } from "./components/DeleteAdBottomSheet";
 
 import { Typography } from "../../shared/ui/Typography";
 import { TextField } from "../../shared/ui/TextField";
@@ -278,13 +278,13 @@ export function AccountMyAdsEmptyState({
         {description}
       </Typography>
       {shouldShowAction ? (
-        <RouteLink
+        <Link
           className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary"
           to="/new-ad/category"
         >
           <PlusIcon className="h-5 w-5" />
           ثبت آگهی
-        </RouteLink>
+        </Link>
       ) : null}
     </section>
   );
@@ -293,20 +293,35 @@ export function AccountMyAdsEmptyState({
 export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
   const availableFilters = adFilters;
   const [activeFilter, setActiveFilter] = useState(availableFilters[0]);
+  const [deletingAdId, setDeletingAdId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
   const deleteMutation = useDeleteAdvertisementMutation();
-  const handleDeleteIncomplete = useCallback(async (targetAdId: string) => {
-    if (!window.confirm("آیا از حذف این آگهی نیمه کاره اطمینان دارید؟")) return;
+
+  const handleOpenDelete = useCallback((targetAdId: string, event?: React.MouseEvent) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    setDeletingAdId(targetAdId);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deletingAdId) return;
+    setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync({
-        advertiseId: targetAdId,
+        advertiseId: deletingAdId,
         deleteReasonId: "other",
         description: "حذف آگهی نیمه کاره",
       });
+      showToast("آگهی با موفقیت حذف شد.", undefined, "success");
+      setDeletingAdId(null);
     } catch (err) {
-      console.error("Failed to delete incomplete ad:", err);
+      showToast(getApiErrorMessage(err, "حذف آگهی با خطا مواجه شد."), "خطا", "error");
+    } finally {
+      setIsDeleting(false);
     }
-  }, [deleteMutation]);
+  }, [deletingAdId, deleteMutation, showToast]);
   const {
     data: adsPages,
     error,
@@ -416,7 +431,7 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
           };
           const isIncomplete = statusInfo.key === "incomplete";
           const destination = isIncomplete
-            ? getAdEditPath(adId)
+            ? getAdEditPath(adId, "/account/my-ads")
             : `/account/my-ads/${encodeURIComponent(adId)}/state-ad`;
           const destinationState = isIncomplete
             ? {
@@ -436,7 +451,7 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
             >
               <AdCard
                 ad={cardWithStatus}
-                onDeleteIncomplete={isIncomplete ? () => void handleDeleteIncomplete(adId) : undefined}
+                onDeleteIncomplete={isIncomplete ? (e) => handleOpenDelete(adId, e) : undefined}
                 showStatusBadge
                 state={destinationState}
                 to={destination}
@@ -449,6 +464,12 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
           <AccountMyAdsEmptyState filterLabel={activeFilter.label} mode={emptyMode} />
         ) : null}
       </div>
+      <DeleteAdBottomSheet
+        isDeleting={isDeleting}
+        isOpen={Boolean(deletingAdId)}
+        onClose={() => !isDeleting && setDeletingAdId(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </main>
   );
 }
@@ -657,6 +678,7 @@ export function NoteCard({
   const [dragOffset, setDragOffset] = useState(0);
   const dragStartX = useRef<number | null>(null);
   const dragStartOffset = useRef(0);
+  const navigate = useNavigate();
   const didDrag = useRef(false);
   const noteId = getNoteId(note);
   const advertiseId = getNoteAdvertiseId(note);
@@ -715,14 +737,14 @@ export function NoteCard({
 
           if (!advertiseId) return;
 
-          pushRoute(`/ads/${encodeURIComponent(advertiseId)}`);
+          navigate(`/ads/${encodeURIComponent(advertiseId)}`);
         }}
         onKeyDown={(event) => {
           if (!advertiseId || event.target !== event.currentTarget) return;
           if (event.key !== "Enter" && event.key !== " ") return;
 
           event.preventDefault();
-          pushRoute(`/ads/${encodeURIComponent(advertiseId)}`);
+          navigate(`/ads/${encodeURIComponent(advertiseId)}`);
         }}
         onPointerCancel={handlePointerEnd}
         onPointerDown={(event) => {
@@ -763,7 +785,7 @@ export function NoteCard({
         </div>
 
         <div className="mt-2 py-2 gap-x-2 flex min-w-0 items-center [direction:rtl]">
-          <RouteLink
+          <Link
             aria-label={`مشاهده آگهی ${mappedAd.title}`}
             className={`relative h-10 w-[60px] shrink-0 overflow-hidden rounded-lg bg-surface-container bg-cover bg-center ${mappedAd.imageClassName}`}
             style={mappedAd.imageUrl ? { backgroundImage: `url(${mappedAd.imageUrl})` } : undefined}

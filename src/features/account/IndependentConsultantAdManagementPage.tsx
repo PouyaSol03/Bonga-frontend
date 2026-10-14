@@ -1,10 +1,12 @@
+import { Link, useNavigate } from "react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import "../advertisements/components/AdCard.css";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { useActiveAuthRole } from "../../shared/auth/use-active-auth-role";
-import { pushRoute, replaceRoute } from "../../shared/navigation/navigation";
-import { isForbiddenApiError } from "../../shared/api/api";
+import { getApiErrorMessage, isForbiddenApiError } from "../../shared/api/api";
+import { useToast } from "../../shared/hooks/useToast";
+import { DeleteAdBottomSheet } from "./components/DeleteAdBottomSheet";
 import { AccessDeniedState } from "../../shared/components/ErrorState";
 import LinearArrowLeft2 from "../../shared/icons/LinearArrowLeft2";
 import LinearFilterHorizontal from "../../shared/icons/LinearFilterHorizontal";
@@ -13,7 +15,6 @@ import { TopBar } from "../../shared/components/TopBar";
 import { useAgencyAdvertiseAssignmentsInfiniteQuery } from "../advertisements/api/agency-advertise-assignment.hooks";
 import { useDeleteAdvertisementMutation } from "../advertisements/api/advertisement.hooks";
 import { useMyAdsInfiniteQuery } from "./api/account.hooks";
-import { RouteLink } from "../../shared/navigation/RouteLink";
 import type { AgencyAdvertiseAssignmentDto } from "../advertisements/api/agency-advertise-assignment.service";
 import {
   getAdvertisementPublisherName,
@@ -48,6 +49,8 @@ import Linear3d from "../../shared/icons/Linear3d";
 import LinearUserSolid from "../../shared/icons/LinearUserSolid";
 import LinearImage from "../../shared/icons/LinearImage";
 import LinearClock from "../../shared/icons/LinearClock";
+import LinearCancelCircle from "../../shared/icons/LinearCancelCircle";
+import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { getMyAdStatusInfo } from "./myAdsStatus";
@@ -308,6 +311,7 @@ function getAssignmentCountdown(assignment: AgencyAdvertiseAssignmentDto): Assig
 }
 
 export function IndependentConsultantAdManagementPage() {
+  const navigate = useNavigate();
   const routeState = getAdManagementRouteState();
   const activeRole = useActiveAuthRole();
   const canAccessAssignments = activeRole !== INDEPENDENT_CONSULTANT;
@@ -316,6 +320,9 @@ export function IndependentConsultantAdManagementPage() {
   );
   const [showMineOnly, setShowMineOnly] = useState(routeState.onlyMine ?? false);
   const [filters] = useState<AdManagementFilters>(routeState.filters ?? emptyFilters);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebouncedValue(searchQuery.trim(), 300);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const assignedTab = isAssignedTab(activeTab);
   const scopedFilters = getScopedFilters(filters, activeTab);
@@ -328,18 +335,34 @@ export function IndependentConsultantAdManagementPage() {
   const adsQuery = useMyAdsInfiniteQuery({
     isMine: showMineOnly ? true : undefined,
     perPage: assignmentPageSize,
+    search: isSearching && debouncedSearchQuery ? debouncedSearchQuery : undefined,
   });
+  const [deletingAdId, setDeletingAdId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
   const deleteMutation = useDeleteAdvertisementMutation();
-  const handleDeleteIncomplete = async (targetAdId: string) => {
-    if (!window.confirm("آیا از حذف این آگهی نیمه کاره اطمینان دارید؟")) return;
+
+  const handleOpenDelete = (targetAdId: string, event?: React.MouseEvent) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    setDeletingAdId(targetAdId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingAdId) return;
+    setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync({
-        advertiseId: targetAdId,
+        advertiseId: deletingAdId,
         deleteReasonId: "other",
         description: "حذف آگهی نیمه کاره",
       });
+      showToast("آگهی با موفقیت حذف شد.", undefined, "success");
+      setDeletingAdId(null);
     } catch (err) {
-      console.error("Failed to delete incomplete ad:", err);
+      showToast(getApiErrorMessage(err, "حذف آگهی با خطا مواجه شد."), "خطا", "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
   const assignmentItems = useMemo(
@@ -353,8 +376,13 @@ export function IndependentConsultantAdManagementPage() {
           ad: mapAssignmentToAd(assignment, index),
           assignment,
         }))
-        .filter(({ ad }) => matchesAdFilters(ad, scopedFilters, true)),
-    [assignmentItems, scopedFilters],
+        .filter(({ ad }) => matchesAdFilters(ad, scopedFilters, true))
+        .filter(({ ad }) => {
+          if (!isSearching || !debouncedSearchQuery) return true;
+          const q = debouncedSearchQuery.toLowerCase();
+          return Boolean(ad.title && ad.title.toLowerCase().includes(q));
+        }),
+    [assignmentItems, scopedFilters, isSearching, debouncedSearchQuery],
   );
   const activeAdvertisements = useMemo(
     () =>
@@ -402,13 +430,13 @@ export function IndependentConsultantAdManagementPage() {
 
   useEffect(() => {
     if (adsQuery.isError && isForbiddenApiError(adsQuery.error)) {
-      replaceRoute("/403", undefined, { rememberCurrent: false });
+      navigate("/403", { replace: true });
     }
   }, [adsQuery.isError, adsQuery.error]);
 
   useEffect(() => {
     if (assignedTab && assignmentsQuery.isError && isForbiddenApiError(assignmentsQuery.error)) {
-      replaceRoute("/403", undefined, { rememberCurrent: false });
+      navigate("/403", { replace: true });
     }
   }, [assignedTab, assignmentsQuery.isError, assignmentsQuery.error]);
 
@@ -418,22 +446,56 @@ export function IndependentConsultantAdManagementPage() {
       variant="flush"
     >
       <TopBar
-        backTo="/account"
+        backTo={isSearching ? undefined : "/account"}
+        onBack={
+          isSearching
+            ? () => {
+                setIsSearching(false);
+                setSearchQuery("");
+              }
+            : undefined
+        }
         centerClassName="px-0"
         centerSlot={
-          <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-right text-base font-semibold leading-6 text-on-surface">
-            مدیریت آگهی‌ها
-          </Typography>
+          isSearching ? (
+            <div className="flex h-10 w-full items-center rounded-xl border border-outline bg-surface-container-lowest px-3 [direction:rtl]">
+              <input
+                autoFocus
+                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal text-on-surface outline-none placeholder:text-outline"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="جستجو در آگهی‌ها..."
+                type="search"
+                value={searchQuery}
+              />
+              {searchQuery ? (
+                <Button unstyled
+                  aria-label="پاک کردن"
+                  className="grid h-6 w-6 shrink-0 place-items-center text-outline"
+                  onClick={() => setSearchQuery("")}
+                  type="button"
+                >
+                  <LinearCancelCircle className="h-5 w-5" />
+                </Button>
+              ) : null}
+            </div>
+          ) : (
+            <Typography as="h1" variant="title" size="medium" weight="semibold" className="m-0 truncate text-right text-base font-semibold leading-6 text-on-surface">
+              مدیریت آگهی‌ها
+            </Typography>
+          )
         }
         className="bg-surface-container"
         startSlot={
-          <Button unstyled
-            aria-label="جستجو"
-            className="grid h-12 w-12 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40"
-            type="button"
-          >
-            <SearchIcon className="h-6 w-6" />
-          </Button>
+          isSearching ? undefined : (
+            <Button unstyled
+              aria-label="جستجو"
+              className="grid h-12 w-12 place-items-center rounded-full text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40"
+              onClick={() => setIsSearching(true)}
+              type="button"
+            >
+              <SearchIcon className="h-6 w-6" />
+            </Button>
+          )
         }
       />
 
@@ -482,7 +544,7 @@ export function IndependentConsultantAdManagementPage() {
           </div>
         ) : null}
 
-        <RouteLink
+        <Link
           className={`relative inline-flex items-center gap-1 rounded-lg border p-2 text-sm font-normal no-underline ${
             hasFilters
               ? "border-primary bg-primary-container text-primary"
@@ -496,7 +558,7 @@ export function IndependentConsultantAdManagementPage() {
           {hasFilters ? (
             <Typography as="span" variant="body" size="medium" weight="regular" className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-surface-container-lowest" />
           ) : null}
-        </RouteLink>
+        </Link>
       </section>
 
       {hasFilters ? (
@@ -581,7 +643,7 @@ export function IndependentConsultantAdManagementPage() {
           ) : adsQuery.isError ? (
             (adsQuery.error as { status?: number })?.status === 403 ? (
               <div className="flex flex-1 items-center justify-center py-10">
-                <AccessDeniedState onBack={() => pushRoute("/account")} />
+                <AccessDeniedState onBack={() => navigate("/account")} />
               </div>
             ) : (
               <AssignmentStatusMessage>
@@ -600,7 +662,7 @@ export function IndependentConsultantAdManagementPage() {
             activeAdvertisements.map(({ card, sourceAd, statusInfo }, index) => {
               const isIncomplete = statusInfo.key === "incomplete";
               const destination = isIncomplete
-                ? getAdEditPath(card.id)
+                ? getAdEditPath(card.id, adManagementPaths.root)
                 : getAdStatePath(card.id);
               const destinationState = isIncomplete
                 ? {
@@ -620,7 +682,7 @@ export function IndependentConsultantAdManagementPage() {
                 >
                   <ConsultantAdCard
                     ad={card}
-                    onDeleteIncomplete={isIncomplete ? () => void handleDeleteIncomplete(String(sourceAd.id ?? sourceAd._id ?? card.id)) : undefined}
+                    onDeleteIncomplete={isIncomplete ? (e) => handleOpenDelete(String(sourceAd.id ?? sourceAd._id ?? card.id), e) : undefined}
                     roleType={
                       activeRole === REAL_ESTATE_MANAGER
                         ? "agency"
@@ -647,6 +709,13 @@ export function IndependentConsultantAdManagementPage() {
           ) : null}
         </div>
       </main>
+
+      <DeleteAdBottomSheet
+        isDeleting={isDeleting}
+        isOpen={Boolean(deletingAdId)}
+        onClose={() => !isDeleting && setDeletingAdId(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </PageFrame>
   );
 }
@@ -774,7 +843,7 @@ function AssignedConsultantAdCard({
 
       {/* CTA Button: بررسی و تخصیص */}
       <div className="mt-4 pt-1">
-        <RouteLink
+        <Link
           className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium leading-5 text-primary no-underline active:bg-primary/10"
           state={routeState}
           to={getAllocationReviewPath(ad.id)}
@@ -789,7 +858,7 @@ function AssignedConsultantAdCard({
             بررسی و تخصیص
           </Typography>
           <LinearArrowLeft2 className="h-5 w-5" />
-        </RouteLink>
+        </Link>
       </div>
     </article>
   );
@@ -827,7 +896,7 @@ function getAllocationCountdownBadge(countdown: AssignmentCountdown) {
   }
   if (countdown.hours < 12) {
     return {
-      className: "bg-warning-container text-warning",
+      className: "bg-warning-container text-on-warning-container",
       text,
     };
   }

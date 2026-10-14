@@ -3,7 +3,7 @@ import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { Typography } from "../../shared/ui/Typography";
 import { Chip } from "../../shared/ui/Chip";
-import { RouteLink } from "../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import { toPersianNumber } from "../../shared/lib/numberUtils";
 import { cn } from "../../design-system/classes";
@@ -185,7 +185,7 @@ export function DashboardUrgentActionsPage() {
             const styles = priorityStyles[item.priority];
 
             return (
-              <RouteLink
+              <Link
                 key={item.id}
                 to={item.to}
                 className={`flex h-[60px] items-center justify-between rounded-[12px] border px-3 transition-transform active:scale-[0.99] ${styles.cardBg} ${styles.cardBorder}`}
@@ -222,7 +222,7 @@ export function DashboardUrgentActionsPage() {
 
                 {/* Left: Arrow icon */}
                 <LinearArrowLeft1 className="h-4 w-4 shrink-0 text-[#808080]" />
-              </RouteLink>
+              </Link>
             );
           })}
         </div>

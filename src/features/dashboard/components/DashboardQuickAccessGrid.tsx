@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { Typography } from "../../../shared/ui/Typography";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import LinearTag from "../../../shared/icons/LinearTag";
@@ -75,7 +75,7 @@ export function DashboardQuickAccessGrid({
       {actions.map((action) => {
         const Icon = action.icon;
         return (
-          <RouteLink
+          <Link
             key={action.id}
             to={action.to}
             className="flex flex-1 flex-col items-center justify-center gap-2 rounded-[12px] bg-surface-container-lowest py-2 shadow-sm transition active:scale-95 no-underline"
@@ -90,7 +90,7 @@ export function DashboardQuickAccessGrid({
             >
               {action.label}
             </Typography>
-          </RouteLink>
+          </Link>
         );
       })}
     </div>

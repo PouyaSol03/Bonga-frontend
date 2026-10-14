@@ -1,17 +1,13 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { useNavigate } from "react-router";
 
 import { isUserIdentityVerified } from "../api/account.service";
-import { useMyProfileQuery } from "../api/account.hooks";
+import { useProfileStore } from "../stores/useProfileStore";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import LinearUserAccount from "../../../shared/icons/LinearUserAccount";
-
-function navigateTo(path: string) {
-  window.history.pushState({}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
 
 function IdentityRequiredIcon() {
   return (
@@ -22,6 +18,8 @@ function IdentityRequiredIcon() {
 }
 
 function IdentityRequiredPage({ title }: { title: string }) {
+  const navigate = useNavigate();
+
   return (
     <PageFrame
       className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
@@ -39,7 +37,7 @@ function IdentityRequiredPage({ title }: { title: string }) {
         <Button
           unstyled
           className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold leading-5 text-on-primary"
-          onClick={() => navigateTo("/account/identity?required=1")}
+          onClick={() => navigate("/account/identity?required=1")}
           type="button"
         >
           <LinearUserAccount className="h-5 w-5" />
@@ -54,16 +52,23 @@ function IdentityRequiredPage({ title }: { title: string }) {
 
 type IdentityGateProps = {
   children: ReactNode;
-  loadingFallback: ReactNode;
+  loadingFallback?: ReactNode;
   title: string;
 };
 
 export function IdentityGate({ children, loadingFallback, title }: IdentityGateProps) {
-  const { data: profile, isLoading: isProfileLoading } = useMyProfileQuery({
-    enabled: true,
-  });
+  const profile = useProfileStore((state) => state.profile);
+  const isInitialized = useProfileStore((state) => state.isInitialized);
+  const isLoading = useProfileStore((state) => state.isLoading);
+  const fetchProfile = useProfileStore((state) => state.fetchProfile);
 
-  if (isProfileLoading) return loadingFallback;
+  useEffect(() => {
+    if (!isInitialized && !isLoading) {
+      void fetchProfile();
+    }
+  }, [isInitialized, isLoading, fetchProfile]);
+
+  if (!isInitialized) return loadingFallback ?? <div className="min-h-0 flex-1 bg-surface-container" />;
   if (!isUserIdentityVerified(profile)) return <IdentityRequiredPage title={title} />;
 
   return children;

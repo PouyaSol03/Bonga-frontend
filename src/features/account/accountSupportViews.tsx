@@ -10,7 +10,7 @@ import LinearAttachment from "../../shared/icons/LinearAttachment";
 import LinearTickDouble from "../../shared/icons/LinearTickDouble";
 import LinearWavingHand from "../../shared/icons/LinearWavingHand";
 import type { ChatMessage, ChatThread } from "../chat/api/chat.service";
-import { RouteLink } from "../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
@@ -62,9 +62,9 @@ export function SupportMenuItem({
 
   if (to) {
     return (
-      <RouteLink className={className} to={to}>
+      <Link className={className} to={to}>
         {content}
-      </RouteLink>
+      </Link>
     );
   }
 
@@ -184,7 +184,7 @@ export function SupportChatsEmptyState() {
 
 export function ConversationCard({ conversation }: { conversation: Conversation }) {
   return (
-    <RouteLink
+    <Link
       className="block w-full rounded-2xl border border-outline-var bg-surface-container-lowest px-4 py-5 text-right outline-none active:bg-surface-container focus-visible:ring-2 focus-visible:ring-primary/20"
       state={{ thread: conversation.thread, threadId: conversation.id }}
       to={`${SUPPORT_NEW_CHAT_PATH}?thread_id=${encodeURIComponent(conversation.id)}`}
@@ -207,7 +207,7 @@ export function ConversationCard({ conversation }: { conversation: Conversation 
       <Typography as="span" variant="body" size="medium" weight="regular" className="mt-3 block truncate text-sm font-normal leading-4 text-on-surface-var">
         {conversation.message}
       </Typography>
-    </RouteLink>
+    </Link>
   );
 }
 

@@ -22,8 +22,9 @@ import LinearNotification from "../../shared/icons/LinearNotification";
 import LinearSearch from "../../shared/icons/LinearSearch";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
-import { pushRoute } from "../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import { SEO } from "../../shared/components/SEO";
+import { useProfileStore } from "../account/stores/useProfileStore";
 import { useCitySearchQuery } from "../cities/api/city.hooks";
 import { useFcm } from "../notifications/useFcm";
 
@@ -163,6 +164,7 @@ function getStoredCity(): SelectedCity {
 }
 
 export function HomePage() {
+  const navigate = useNavigate();
   const hasAuthSession = Boolean(getStoredAuthSession());
   const [selectedCategory, setSelectedCategory] = useState<QuickAction | null>(
     null,
@@ -237,6 +239,12 @@ export function HomePage() {
   }, [isCategorySheetOpen]);
 
   useEffect(() => {
+    if (hasAuthSession) {
+      void useProfileStore.getState().fetchProfile(true);
+    }
+  }, [hasAuthSession]);
+
+  useEffect(() => {
     if (isSearchOpen) setHasLoadedSearchScreen(true);
   }, [isSearchOpen]);
 
@@ -267,15 +275,14 @@ export function HomePage() {
 
     setIsSearchOpen(false);
     setSelectedCategory(null);
-    pushRoute(queryString ? `/search?${queryString}` : "/search");
+    navigate(queryString ? `/search?${queryString}` : "/search");
   };
 
   const navigateToNotifications = () => {
     if (isSupported && permission === "default") {
       void requestToken().catch(() => {});
     }
-    window.history.pushState({}, "", "/notifications");
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    navigate("/notifications");
   };
 
 
@@ -284,8 +291,7 @@ export function HomePage() {
     const nextPath =
       mode === "consultant" ? "/consultants?type=consultant" : "/consultants";
 
-    window.history.pushState({}, "", nextPath);
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    navigate(nextPath);
   };
 
   return (

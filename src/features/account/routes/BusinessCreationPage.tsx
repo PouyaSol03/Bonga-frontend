@@ -1,5 +1,6 @@
+import { useNavigate } from "react-router";
 import { useState } from "react";
-import { BusinessCreationShell, BusinessHero, BusinessTypeCard, getBusinessTypePath, navigateTo } from "../businessCreationShared";
+import { BusinessCreationShell, BusinessHero, BusinessTypeCard, getBusinessTypePath } from "../businessCreationShared";
 import type { BusinessType } from "../businessCreationShared";
 import { useMyProfileQuery } from "../api/account.hooks";
 import { Typography } from "../../../shared/ui/Typography";
@@ -10,6 +11,7 @@ import LinearUserSolid from "../../../shared/icons/LinearUserSolid";
 import LinearInformation from "../../../shared/icons/LinearInformation";
 
 export function BusinessCreationPage() {
+  const navigate = useNavigate();
   const [selectedType, setSelectedType] = useState<BusinessType>("agency");
   const { data: profile } = useMyProfileQuery();
   const isAgencyPending = Boolean(
@@ -22,7 +24,7 @@ export function BusinessCreationPage() {
 
   const handleNext = () => {
     if (isAgencyPending) return;
-    navigateTo(getBusinessTypePath(selectedType));
+    navigate(getBusinessTypePath(selectedType));
   };
 
   return (

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.exirfirm.bonga.twa",
+      "sha256_cert_fingerprints": [
+        "2D:B7:5E:B9:9B:AD:36:F7:4D:6E:BB:D3:32:20:B3:2E:16:3A:44:EA:42:1C:7D:6A:63:57:EC:F4:FF:88:AA:C4"
+      ]
+    }
+  }
+]

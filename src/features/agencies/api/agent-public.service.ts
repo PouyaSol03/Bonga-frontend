@@ -1,4 +1,4 @@
-import { publicApi, publicApiV2 } from "../../../shared/api/api";
+import { publicApiV2 } from "../../../shared/api/api";
 import { asRecord, toNumber } from "./agency-helpers";
 import {
   normalizePublicAgentDetail,
@@ -22,8 +22,8 @@ export async function getPublicAgents({
   search,
   sort,
 }: PublicAgentListParams = {}): Promise<PublicAgentsPage> {
-  const response = await publicApi
-    .get("public/agents", {
+  const response = await publicApiV2
+    .get("public/consultants", {
       searchParams: {
         agency_id: agencyId,
         page,

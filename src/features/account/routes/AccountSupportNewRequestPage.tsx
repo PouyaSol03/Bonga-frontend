@@ -1,7 +1,7 @@
 import { useRef, useState, type FormEvent } from "react";
+import { useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { createSupportRequest } from "../../support/api/support-request.service";
-import { replaceRoute } from "../../../shared/navigation/navigation";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import LinearAttachment from "../../../shared/icons/LinearAttachment";
@@ -10,6 +10,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 
 export function AccountSupportNewRequestPage() {
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState("");
@@ -46,12 +47,14 @@ export function AccountSupportNewRequestPage() {
           ? ""
           : String(request.thread_id);
 
-        replaceRoute(
+        navigate(
           threadId
             ? `/account/support/chat/new?thread_id=${encodeURIComponent(threadId)}`
             : REQUESTS_PATH,
-          threadId ? { threadId } : undefined,
-          { rememberCurrent: false },
+          {
+            replace: true,
+            state: threadId ? { threadId } : undefined,
+          },
         );
       },
     });

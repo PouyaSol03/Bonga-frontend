@@ -139,8 +139,7 @@ export function SearchMapSearchScreen({
     if (closeAfterPublish) onClose();
   };
 
-  const updateQuery = (nextQuery: string) => {
-    setQuery(nextQuery);
+  const handleDebouncedQueryChange = (nextQuery: string) => {
     const normalized = normalizeQuery(nextQuery);
 
     if (normalized === lastPublishedQueryRef.current) return;
@@ -180,7 +179,8 @@ export function SearchMapSearchScreen({
               isSaved={isCurrentSearchSaved}
               isSaving={saveMutation.isPending}
               isOpen={isOpen}
-              onQueryChange={updateQuery}
+              onDebouncedQueryChange={handleDebouncedQueryChange}
+              onQueryChange={setQuery}
               onSavedClick={saveCurrentSearch}
               onSubmit={() => publishQuery(query, true)}
               query={query}
@@ -405,6 +405,7 @@ function SearchMapField({
   isSaved,
   isSaving,
   isOpen,
+  onDebouncedQueryChange,
   onQueryChange,
   onSavedClick,
   onSubmit,
@@ -414,21 +415,48 @@ function SearchMapField({
   isSaved: boolean;
   isSaving: boolean;
   isOpen: boolean;
+  onDebouncedQueryChange: (query: string) => void;
   onQueryChange: (query: string) => void;
   onSavedClick: () => void;
   onSubmit: () => void;
   query: string;
 }) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleChange = (value: string) => {
+    onQueryChange(value);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onDebouncedQueryChange(value);
+    }, 300);
+  };
+
+  const handleClear = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    onQueryChange("");
+    onDebouncedQueryChange("");
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (timerRef.current) clearTimeout(timerRef.current);
+    onDebouncedQueryChange(query);
+    onSubmit();
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
   return (
     <form
-      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-surface-container-lowest text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-primary/25 ${
+      className={`flex h-12 w-full min-w-0 items-center rounded-[12px] border bg-surface-container-lowest pl-3 text-right transition focus-within:outline-3 focus-within:outline-offset-[-3px] focus-within:outline-primary/25 ${
         query ? "border-primary" : "border-outline"
       }`}
       dir="rtl"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit();
-      }}
+      onSubmit={handleSubmit}
     >
       <Button unstyled
         aria-label={isSaved ? "جستجو ذخیره شده است" : "ذخیره جستجوی فعلی"}
@@ -454,7 +482,7 @@ function SearchMapField({
         aria-label="جستجو در آگهی‌های نقشه"
         autoFocus={isOpen}
         className="home-search-input min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-on-surface caret-primary outline-none placeholder:text-outline"
-        onChange={(event) => onQueryChange(event.target.value)}
+        onChange={(event) => handleChange(event.target.value)}
         placeholder="جستجو در آگهی‌ها"
         tabIndex={isOpen ? 0 : -1}
         type="search"
@@ -464,7 +492,7 @@ function SearchMapField({
         <Button unstyled
           aria-label="پاک کردن جستجو"
           className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-outline transition active:bg-surface-container"
-          onClick={() => onQueryChange("")}
+          onClick={handleClear}
           tabIndex={isOpen ? 0 : -1}
           type="button"
         >

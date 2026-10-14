@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 import { DashboardView, DashboardReportsView } from "./components";
 import {
   authSessionChangedEventName,
@@ -13,7 +14,6 @@ import {
   REAL_ESTATE_MANAGER,
 } from "../../shared/constants/roles.constants";
 import { isForbiddenApiError } from "../../shared/api/api";
-import { replaceRoute } from "../../shared/navigation/navigation";
 import { getSessionRoleSlugs } from "../../app/router/routes";
 import { useDashboardOverviewByRoleQuery } from "./api/dashboard.hooks";
 import type { DashboardRolePersona } from "./api/dashboard.service";
@@ -22,13 +22,9 @@ import type { DashboardRole } from "./components/DashboardQuickAccessGrid";
 export * from "./dashboardSubPages";
 
 export function DashboardHomePage() {
-  const [isReportsView, setIsReportsView] = useState(() => {
-    if (typeof window !== "undefined") {
-      const sp = new URLSearchParams(window.location.search);
-      return sp.get("view") === "reports";
-    }
-    return false;
-  });
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isReportsView = searchParams.get("view") === "reports";
 
   const [activeRole, setActiveRole] = useState(() =>
     getActiveAuthRole(getStoredAuthSession()),
@@ -38,34 +34,30 @@ export function DashboardHomePage() {
     function syncActiveRole() {
       setActiveRole(getActiveAuthRole(getStoredAuthSession()));
     }
-    function handlePopState() {
-      const sp = new URLSearchParams(window.location.search);
-      setIsReportsView(sp.get("view") === "reports");
-    }
 
     window.addEventListener(authSessionChangedEventName, syncActiveRole);
     window.addEventListener("storage", syncActiveRole);
-    window.addEventListener("popstate", handlePopState);
 
     return () => {
       window.removeEventListener(authSessionChangedEventName, syncActiveRole);
       window.removeEventListener("storage", syncActiveRole);
-      window.removeEventListener("popstate", handlePopState);
     };
   }, []);
 
   const handleOpenReports = () => {
-    const url = new URL(window.location.href);
-    url.searchParams.set("view", "reports");
-    window.history.pushState({}, "", url.toString());
-    setIsReportsView(true);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set("view", "reports");
+      return next;
+    });
   };
 
   const handleCloseReports = () => {
-    const url = new URL(window.location.href);
-    url.searchParams.delete("view");
-    window.history.pushState({}, "", url.toString());
-    setIsReportsView(false);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("view");
+      return next;
+    });
   };
 
   const session = getStoredAuthSession();
@@ -102,7 +94,7 @@ export function DashboardHomePage() {
 
   useEffect(() => {
     if (overviewQuery.isError && isForbiddenApiError(overviewQuery.error)) {
-      replaceRoute("/403", undefined, { rememberCurrent: false });
+      navigate("/403", { replace: true });
     }
   }, [overviewQuery.isError, overviewQuery.error]);
 

@@ -6,6 +6,7 @@ import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
 import {
   createAdvertisement,
   deleteAdvertisement,
+  finalizeAdvertisement,
   saveAdvertiseDraft,
   updateAdvertisement,
   getAdvertisementCheckout,
@@ -148,6 +149,26 @@ export function useAgencyAdvertisementPreviewQuery(id: string | null) {
 export function useCreateAdvertisementMutation() {
   return useMutation({
     mutationFn: createAdvertisement,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.advertisements.all,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.account.myAdsRoot(),
+      });
+    },
+  });
+}
+
+export function useFinalizeAdvertisementMutation() {
+  return useMutation({
+    mutationFn: ({
+      advertiseId,
+      payload,
+    }: {
+      advertiseId: string | number;
+      payload: FormData;
+    }) => finalizeAdvertisement(advertiseId, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.advertisements.all,

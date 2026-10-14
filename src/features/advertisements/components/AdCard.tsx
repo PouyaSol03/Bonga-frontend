@@ -3,7 +3,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import type { ReactNode } from 'react'
 import './AdCard.css'
 
-import { RouteLink } from '../../../shared/navigation/RouteLink'
+import { Link } from 'react-router'
 import LinearImage from '../../../shared/icons/LinearImage'
 import LinearDelete from '../../../shared/icons/LinearDelete'
 import LinearCity from '../../../shared/icons/LinearCity'
@@ -144,7 +144,7 @@ export function AdCard({
         : []
 
     return (
-      <RouteLink
+      <Link
         aria-current={isSelected ? 'true' : undefined}
         className={`flex h-[216px] w-[min(360px,calc(100vw-28px))] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-surface-container-lowest p-3 text-right no-underline shadow-[0_4px_16px_rgba(0,0,0,0.10)] ${className}`}
         data-map-slider-card={mapSliderCardId === undefined ? undefined : String(mapSliderCardId)}
@@ -170,7 +170,7 @@ export function AdCard({
         <Typography as="p" variant="body" size="medium" weight="medium" className="mt-1.5 text-right text-on-surface">
           {truncateAdCardText(ad.title)}
         </Typography>
-      </RouteLink>
+      </Link>
     )
   }
 
@@ -180,7 +180,7 @@ export function AdCard({
         {topBadge}
 
         <div className="relative">
-          <RouteLink
+          <Link
             aria-label={ariaLabel ?? `مشاهده آگهی ${ad.title}`}
             className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/25"
             state={linkState}
@@ -194,12 +194,12 @@ export function AdCard({
               showImageCount={false}
               showStatusBadge={false}
             />
-          </RouteLink>
+          </Link>
 
           {imageAction}
         </div>
 
-        <RouteLink
+        <Link
           aria-label={ariaLabel ?? `مشاهده آگهی ${ad.title}`}
           className="block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/25"
           state={linkState}
@@ -210,7 +210,7 @@ export function AdCard({
             hasSecondaryPrice={hasSecondaryPrice}
             showBadges={showBadges}
           />
-        </RouteLink>
+        </Link>
       </article>
     )
   }
@@ -219,7 +219,7 @@ export function AdCard({
   const isCarousel = variant === 'carousel'
 
   return (
-    <RouteLink
+    <Link
       aria-label={ariaLabel ?? `مشاهده آگهی ${ad.title}`}
       className={`block text-inherit no-underline focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/25 ${isDashboard ? 'min-w-0' : ''} ${className}`}
       state={linkState}
@@ -251,7 +251,7 @@ export function AdCard({
           showBadges={showBadges}
         />
       </article>
-    </RouteLink>
+    </Link>
   )
 }
 
@@ -357,13 +357,13 @@ export function AdCardBody({
         {truncateAdCardText(ad.title)}
       </Typography>
 
-      <div className="mt-3 flex h-6 items-center justify-start gap-2">
+      <div className="mt-2 flex items-center justify-start gap-2">
         {showBadges && Array.isArray(ad.badges) ? ad.badges.map((badge) => (
-          <Typography as="span" variant="label" size="small" weight="medium" className={`h-6 whitespace-nowrap rounded-lg border px-2 py-[3px] text-xs font-medium leading-4 ${badge === 'فوری' ? 'border-warning bg-warning-container text-warning' : 'border-tertiary bg-tertiary-container text-tertiary'}`} key={badge}>
+          <Typography as="span" variant="body" size="small" weight="medium" className={`whitespace-nowrap rounded-lg border px-2 py-1 ${badge === 'فوری' || badge === 'ویژه' ? 'border-on-warning-container bg-warning-container text-on-warning-container' : 'border-tertiary bg-tertiary-container text-tertiary'}`} key={badge}>
             {badge}
           </Typography>
         )) : null}
-        {showBadges && Array.isArray(ad.badges) && ad.badges.length > 0 ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-6 w-px bg-outline-var" aria-hidden="true" /> : null}
+        {showBadges && Array.isArray(ad.badges) && ad.badges.length > 0 ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-4 w-px bg-outline-var" aria-hidden="true" /> : null}
         <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">{ad.timeAndLocation}</Typography>
       </div>
     </div>
@@ -1072,7 +1072,7 @@ function getStatusBadgeClassName(status: string) {
     normalizedStatus === '1' ||
     normalizedStatus === '2'
   ) {
-    return 'bg-warning-container text-warning'
+    return 'bg-warning-container text-on-warning-container'
   }
 
   // 3. سبز (تایید شده، تایید، منتشر شده، فعال)

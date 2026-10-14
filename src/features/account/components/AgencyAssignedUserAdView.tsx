@@ -16,7 +16,7 @@ import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { RadioIndicator } from "../../../shared/components/RadioIndicator";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
-import { pushRoute } from "../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import {
   getAdEditPath,
   getAdPaymentPath,
@@ -315,6 +315,7 @@ export function AgencyAssignedUserAdView({
   onNavigateToStopPublish,
   onNavigateToDealResult,
 }: AgencyAssignedUserAdViewProps) {
+  const navigate = useNavigate();
   const currentAdId = adId ?? card.id;
 
   const [isCancelAssignmentOpen, setIsCancelAssignmentOpen] = useState(initialCancelAssignmentOpen);
@@ -387,9 +388,10 @@ export function AgencyAssignedUserAdView({
 
   const handlePreview = () => {
     if (currentAdId) {
-      pushRoute(getAdPreviewPath(currentAdId), {
-        ad,
-        previewFlow: "agency-allocation",
+      navigate(getAdPreviewPath(currentAdId), {
+        state: {
+          ad,
+          previewFlow: "agency-allocation",
         userContact: {
           name:
             (ad?.owner_name as string) ??
@@ -415,15 +417,16 @@ export function AgencyAssignedUserAdView({
             (ad?.contacts as Record<string, string>) ??
             undefined,
         },
-      });
-    }
-  };
+      },
+    });
+  }
+};
 
   const handleGoToStopPublish = () => {
     if (onNavigateToStopPublish) {
       onNavigateToStopPublish();
     } else if (currentAdId) {
-      pushRoute(`/account/my-ads/${encodeURIComponent(currentAdId)}/stop-publish`);
+      navigate(`/account/my-ads/${encodeURIComponent(currentAdId)}/stop-publish`);
     }
   };
 
@@ -431,7 +434,7 @@ export function AgencyAssignedUserAdView({
     if (onNavigateToDealResult) {
       onNavigateToDealResult();
     } else if (currentAdId) {
-      pushRoute(`/account/my-ads/${encodeURIComponent(currentAdId)}/deal-result`);
+      navigate(`/account/my-ads/${encodeURIComponent(currentAdId)}/deal-result`);
     }
   };
 
@@ -447,17 +450,17 @@ export function AgencyAssignedUserAdView({
             </span>
           )}
           {isWaitForAdmin && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container/30 px-4 text-sm font-medium text-warning">
+            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container px-4 text-sm font-medium text-on-warning-container">
               در انتظار تایید انتشار
             </span>
           )}
           {isWaitForAgency && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container/30 px-4 text-sm font-medium text-warning">
+            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container px-4 text-sm font-medium text-on-warning-container">
               در انتظار تایید آژانس
             </span>
           )}
           {isWaitForRepost && (
-            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container/30 px-4 text-sm font-medium text-warning">
+            <span className="inline-flex h-10 items-center rounded-lg bg-warning-container px-4 text-sm font-medium text-on-warning-container">
               در انتظار ثبت مجدد
             </span>
           )}
@@ -563,14 +566,16 @@ export function AgencyAssignedUserAdView({
               type="button"
               onClick={() => {
                 if (!currentAdId) return;
-                pushRoute(getAdEditPath(currentAdId), {
-                  ad,
-                  card,
-                  editReturnTo: `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`,
-                  isAssigned: true,
-                  isEditMode: true,
-                  returnTo: `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`,
-                  status: statusKey,
+                navigate(getAdEditPath(currentAdId), {
+                  state: {
+                    ad,
+                    card,
+                    editReturnTo: `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`,
+                    isAssigned: true,
+                    isEditMode: true,
+                    returnTo: `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`,
+                    status: statusKey,
+                  },
                 });
               }}
               className="flex h-14 w-full items-center justify-between text-right transition-colors active:bg-surface-container-low [direction:rtl]"
@@ -1075,7 +1080,7 @@ export function AgencyAssignedUserAdView({
           try {
             await republishPersonalMutation.mutateAsync(currentAdId);
             setIsRepostChoiceOpen(false);
-            pushRoute(getAdPaymentPath(currentAdId));
+            navigate(getAdPaymentPath(currentAdId));
           } catch (err) {
             alert(getApiErrorMessage(err, "ثبت مجدد آگهی با خطا مواجه شد."));
           }

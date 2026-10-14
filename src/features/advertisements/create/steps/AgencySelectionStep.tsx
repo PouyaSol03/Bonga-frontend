@@ -22,7 +22,7 @@ import LinearRanking from "../../../../shared/icons/LinearRanking";
 import LinearMapsLocation from "../../../../shared/icons/LinearMapsLocation";
 import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
-import { pushRoute } from "../../../../shared/navigation/navigation";
+import { useNavigate } from "react-router";
 import { preserveNewAdDraftStateKey } from "../session";
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 
@@ -38,7 +38,7 @@ const sortOptions: Array<{ id: AgencySort; title: string }> = [
   { id: "oldest", title: "با سابقه‌ترین" },
 ];
 
-function useDebouncedValue(value: string, delay = 350) {
+function useDebouncedValue(value: string, delay = 300) {
   const [debounced, setDebounced] = useState(value);
 
   useEffect(() => {
@@ -182,11 +182,12 @@ export function AgencySelectionStep({
 }: {
   onBack: () => void;
   onConfirm: (agency: SelectedAgency) => void;
-  onSelect: (agency: PublicAgencyDto | null) => void;
+  onSelect: (agency: SelectedAgency | null) => void;
   selectedAgencyName?: string;
-  selectedAgencyId: string;
+  selectedAgencyId?: string;
   submitDisabled?: boolean;
 }) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<AgencySort>("score");
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<NeighborhoodDto | null>(null);
@@ -199,7 +200,7 @@ export function AgencySelectionStep({
   const [view, setView] = useState<"list" | "map">("list");
   const observerRef = useRef<IntersectionObserver | null>(null);
   const debouncedSearch = useDebouncedValue(search.trim());
-  const debouncedNeighborhoodSearch = useDebouncedValue(neighborhoodSearch.trim(), 250);
+  const debouncedNeighborhoodSearch = useDebouncedValue(neighborhoodSearch.trim(), 300);
   const selectedCity = readStoredSelectedCity();
 
   const agenciesQuery = useAgencyInfiniteQuery({
@@ -268,9 +269,9 @@ export function AgencySelectionStep({
   };
 
   const openProfile = (agency: PublicAgencyDto) => {
-    pushRoute(
+    navigate(
       `/agencies/${encodeURIComponent(agency.id)}`,
-      { [preserveNewAdDraftStateKey]: true },
+      { state: { [preserveNewAdDraftStateKey]: true } },
     );
   };
 

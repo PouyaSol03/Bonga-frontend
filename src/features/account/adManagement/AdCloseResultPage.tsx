@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { RadioIndicator } from "../../../shared/components/RadioIndicator";
@@ -24,6 +25,7 @@ export type AdCloseResultPageProps = {
 };
 
 export function AdCloseResultPage(props?: AdCloseResultPageProps) {
+  const navigate = useNavigate();
   const routeState = getAdManagementRouteState();
   const adId = props?.adId ?? readAdIdFromCloseResultPath() ?? readEntityId(routeState.card) ?? readEntityId(routeState.ad);
   const returnTo =
@@ -37,8 +39,7 @@ export function AdCloseResultPage(props?: AdCloseResultPageProps) {
   const submitMutation = useSubmitAdvertiseDealResultMutation();
 
   function goBack() {
-    window.history.pushState({ ...routeState, tab: routeState.tab ?? "active" }, "", returnTo);
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    navigate(returnTo, { state: { ...routeState, tab: routeState.tab ?? "active" } });
   }
 
   function handleSubmit() {
@@ -51,17 +52,14 @@ export function AdCloseResultPage(props?: AdCloseResultPageProps) {
       },
       {
         onSuccess: () => {
-          window.history.pushState(
-            {
+          navigate(returnTo, {
+            state: {
               ...routeState,
               closeResultReason: selectedReason,
               closeResultSubmitted: true,
               tab: routeState.tab ?? "active",
             },
-            "",
-            returnTo,
-          );
-          window.dispatchEvent(new PopStateEvent("popstate"));
+          });
         },
       },
     );

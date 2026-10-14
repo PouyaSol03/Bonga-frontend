@@ -5,7 +5,7 @@ import { getRequestErrorState } from "../../../shared/components/ErrorState";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearAdd from "../../../shared/icons/LinearAdd";
 import { NEW_REQUEST_PATH, SUPPORT_PATH, SupportRequestCard, SupportRequestTabs, SupportRequestsEmptyState, mapSupportRequest } from "../accountSupportRequestViews";
 import type { SupportRequestFilter } from "../accountSupportRequestViews";
@@ -79,13 +79,13 @@ export function AccountSupportRequestsPage() {
       </main>
 
       <div className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-3 pb-2.5 pt-2">
-        <RouteLink
+        <Link
           className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold leading-5 text-on-primary no-underline outline-none active:opacity-80 focus-visible:ring-3 focus-visible:ring-primary/20"
           to={NEW_REQUEST_PATH}
         >
           <LinearAdd className="h-4.5 w-4.5" />
           <Typography as="span" variant="body" size="medium" weight="regular">ایجاد درخواست جدید</Typography>
-        </RouteLink>
+        </Link>
       </div>
     </PageFrame>
   );

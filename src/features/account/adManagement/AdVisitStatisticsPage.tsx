@@ -23,7 +23,7 @@ import {
 } from "../../advertisements/api/advertisement.hooks";
 import type { AdvertisementDailyViews } from "../../advertisements/api/advertisement.service";
 import { getPrimaryAdvertisementImageUrl } from "../../advertisements/utils/advertisement-images";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import {
   adManagementPaths,
   getAdIncreaseVisitsPath,
@@ -177,7 +177,7 @@ function UserAdVisitStatisticsView({
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-3 pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        <RouteLink
+        <Link
           className="flex h-14 w-full items-center justify-between rounded-xl bg-primary px-5 text-base font-medium leading-6 text-on-primary no-underline shadow-md [direction:ltr]"
           state={{
             ad,
@@ -193,7 +193,7 @@ function UserAdVisitStatisticsView({
             <LinearChartUp className="h-6 w-6" />
             افزایش بازدید
           </Typography>
-        </RouteLink>
+        </Link>
       </footer>
     </PageFrame>
   );

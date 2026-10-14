@@ -1,7 +1,9 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import { getActiveV2Role } from "../../../shared/api/api";
 
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../shared/auth/auth-storage";
+import { clearAtomicDraft } from "./draft/adDraftStore";
 import {
   basicPropertyFieldsByListingType,
   blankValues,
@@ -158,11 +160,6 @@ export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValue
   };
 }
 
-export function navigateTo(path: string, state?: unknown) {
-  window.history.pushState(state ?? {}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 function getLoginRequiredPath(returnTo: string) {
   const params = new URLSearchParams({ returnTo });
 
@@ -171,12 +168,7 @@ function getLoginRequiredPath(returnTo: string) {
 
 export function clearNewAdDraftStorage() {
   clearNewAdFlowSession();
-  window.localStorage.removeItem(draftKey);
-  window.localStorage.removeItem(locationKey);
-  window.localStorage.removeItem(locationLatKey);
-  window.localStorage.removeItem(locationLngKey);
-  window.localStorage.removeItem(neighborhoodIdKey);
-  window.localStorage.removeItem(subNeighborhoodIdKey);
+  clearAtomicDraft();
 }
 
 export function getParams(): {
@@ -268,8 +260,13 @@ export function getEditAdRouteState(): EditAdRouteState {
     routeState.isEditMode === true ||
     window.location.pathname.includes("/published/edit");
 
+  const returnTo = routeState.returnTo ?? params.get("returnTo") ?? undefined;
+  const editReturnTo = routeState.editReturnTo ?? params.get("editReturnTo") ?? returnTo;
+
   return {
     ...routeState,
+    editReturnTo,
+    returnTo,
     isEditMode: isEditRoute,
   };
 }
@@ -1306,10 +1303,12 @@ export function buildNewAdFormData(
 }
 
 export function useRequireAuth() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (getStoredAuthSession()) return;
     const returnTo = `${window.location.pathname}${window.location.search}`;
     storeLoginRedirectPath(returnTo);
-    navigateTo(getLoginRequiredPath(returnTo));
-  }, []);
+    navigate(getLoginRequiredPath(returnTo), { replace: true });
+  }, [navigate]);
 }

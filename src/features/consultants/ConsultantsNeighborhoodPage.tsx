@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
@@ -7,26 +8,17 @@ import { TopBar } from "../../shared/components/TopBar";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
-import { getStoredBackTarget, pushRoute } from "../../shared/navigation/navigation";
 import { getNeighborhoodDescription, type NeighborhoodDto } from "../locations/api/neighborhood.service";
 import {
   readConsultantsSelectedNeighborhood,
   saveConsultantsSelectedNeighborhood,
 } from "./consultantsNeighborhoodSelection";
+import { SearchInputBar } from "../../shared/ui/SearchBar";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 
 function getNeighborhoodId(neighborhood: NeighborhoodDto) {
   return String(neighborhood.id ?? neighborhood._id ?? "");
-}
-
-function leaveNeighborhoodPage() {
-  if (getStoredBackTarget()) {
-    window.history.back();
-    return;
-  }
-
-  pushRoute("/consultants", undefined, { rememberCurrent: false });
 }
 
 function NeighborhoodSearchField({
@@ -37,16 +29,16 @@ function NeighborhoodSearchField({
   value: string;
 }) {
   return (
-    <label className="flex py-2 w-full min-w-0 items-center rounded-xl border border-outline bg-surface-container-lowest px-4 focus-within:border-primary">
-      <input
-        autoFocus
-        className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base font-normal text-on-surface outline-none placeholder:font-normal! placeholder:text-outline"
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="جستجو محله"
-        type="search"
-        value={value}
-      />
-    </label>
+    <SearchInputBar
+      autoFocus
+      compact
+      containerClassName="border-outline"
+      onClear={() => onChange("")}
+      onValueChange={onChange}
+      placeholder="جستجو محله"
+      showSearchIcon={false}
+      value={value}
+    />
   );
 }
 
@@ -70,6 +62,7 @@ function NeighborhoodListSkeleton() {
 }
 
 export function ConsultantsNeighborhoodPage() {
+  const navigate = useNavigate();
   const selectedCity = readStoredSelectedCity();
   const cityId = selectedCity?.id ?? "";
   const [search, setSearch] = useState("");
@@ -89,6 +82,15 @@ export function ConsultantsNeighborhoodPage() {
   const selectedId = selectedNeighborhood
     ? getNeighborhoodId(selectedNeighborhood)
     : "";
+
+  const leaveNeighborhoodPage = () => {
+    if (window.history.state?.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/consultants", { replace: true });
+    }
+  };
+
   const confirmSelection = () => {
     if (!selectedNeighborhood) return;
 
@@ -145,7 +147,7 @@ export function ConsultantsNeighborhoodPage() {
               return (
                 <Button unstyled
                   aria-pressed={checked}
-                  className="flex w-full items-center justify-between gap-5 py-3.5 text-right active:bg-surface-container"
+                  className="flex w-full items-center justify-between gap-5 py-3.5 text-right [-webkit-tap-highlight-color:transparent]"
                   key={neighborhoodId}
                   onClick={() => setSelectedNeighborhood(neighborhood)}
                   type="button"

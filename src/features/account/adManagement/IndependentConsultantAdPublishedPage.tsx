@@ -4,7 +4,7 @@ import "../../advertisements/components/AdCard.css";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { TopBar } from "../../../shared/components/TopBar";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { PublishedActionIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
@@ -76,7 +76,7 @@ export function IndependentConsultantAdPublishedPage(props?: IndependentConsulta
         <div className="min-h-[300px] flex-1 bg-surface-container-lowest">
           <PublishedAction icon="preview" label="پیش‌نمایش" returnTo={backTo} to={getAdPreviewPath(ad.id)} />
           <PublishedActionDivider />
-          <PublishedAction ad={ad} icon="edit" label="ویرایش" returnTo={backTo} to={getAdEditPath(ad.id)} />
+          <PublishedAction ad={ad} icon="edit" label="ویرایش" returnTo={backTo} to={getAdEditPath(ad.id, backTo)} />
           <PublishedActionDivider />
           <PublishedAction
             ad={ad}
@@ -174,7 +174,7 @@ function PublishedAction({
 
   if (to) {
     return (
-      <RouteLink
+      <Link
         className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var no-underline [direction:ltr]"
         state={{
           ad,
@@ -192,7 +192,7 @@ function PublishedAction({
         to={to}
       >
         {content}
-      </RouteLink>
+      </Link>
     );
   }
 

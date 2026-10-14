@@ -6,6 +6,7 @@ import { getAdvertisementImageUrls } from "../utils/advertisement-images";
 import {
   createV2Advertisement,
   createV2Draft,
+  finalizeV2Draft,
   getV2Checkout,
   getV2Preview,
   getV2AdvertisementPayments,
@@ -90,6 +91,8 @@ export type AdvertisementItem = Record<string, unknown> & {
   agent_id?: number | string | null;
   area?: string | number;
   badges?: string[];
+  is_ladder?: boolean | number | string;
+  is_special?: boolean | number | string;
   city?: AdvertisementLocationEntity | null;
   city_id?: number | string | null;
   city_name?: string;
@@ -682,6 +685,41 @@ function extractAdvertisementItems(payload: unknown): AdvertisementItem[] {
 }
 
 
+export function resolveAdvertisementBadges(item: AdvertisementItem): string[] {
+  const badges: string[] = [];
+  const isSpecial =
+    item.is_special === true ||
+    item.is_special === 1 ||
+    item.is_special === "true" ||
+    item.is_special === "1" ||
+    item.special === true ||
+    item.special === 1 ||
+    item.special === "true" ||
+    item.special === "1";
+  const isLadder =
+    item.is_ladder === true ||
+    item.is_ladder === 1 ||
+    item.is_ladder === "true" ||
+    item.is_ladder === "1" ||
+    item.ladder === true ||
+    item.ladder === 1 ||
+    item.ladder === "true" ||
+    item.ladder === "1";
+
+  if (isSpecial) {
+    badges.push("ویژه");
+  }
+  if (isLadder) {
+    badges.push("بروزرسانی");
+  }
+
+  if (badges.length > 0) {
+    return badges;
+  }
+
+  return Array.isArray(item.badges) ? item.badges : [];
+}
+
 export function mapAdvertisementToAdCard(
   item: AdvertisementItem,
   index: number,
@@ -878,7 +916,7 @@ export function mapAdvertisementToAdCard(
     id: item.id ?? item._id ?? index + 1,
     agency: getAdvertisementPublisherName(item),
     area: formatFeatureUnit(area, "متر مربع"),
-    badges: Array.isArray(item.badges) ? item.badges : [],
+    badges: resolveAdvertisementBadges(item),
     imageClassName: image ? "" : `ad-card__image--${(index % 4) + 1}`,
     imageCount: String(images.length || (image ? 1 : 0)),
     imageUrl: image || undefined,
@@ -1200,8 +1238,34 @@ export async function getMyAdvertisementDetail(id: string): Promise<Advertisemen
   return normalizeAdvertisementLoan(response as AdvertisementItem);
 }
 
-export async function createAdvertisement(payload: FormData) {
-  const response = (await createV2Advertisement(payload)) as AdvertisementCreateResponse;
+export async function createAdvertisement(
+  arg: FormData | { payload: FormData; draftId?: string | number | null },
+) {
+  let payload: FormData;
+  let draftId: string | number | null | undefined;
+
+  if (arg instanceof FormData) {
+    payload = arg;
+    const rawId = arg.get("id");
+    if (rawId !== null && rawId !== undefined && String(rawId).trim() !== "") {
+      draftId = String(rawId).trim();
+    }
+  } else {
+    payload = arg.payload;
+    draftId = arg.draftId;
+    if (!draftId) {
+      const rawId = arg.payload.get("id");
+      if (rawId !== null && rawId !== undefined && String(rawId).trim() !== "") {
+        draftId = String(rawId).trim();
+      }
+    }
+  }
+
+  const response = (
+    draftId
+      ? await finalizeV2Draft(draftId, payload)
+      : await createV2Advertisement(payload)
+  ) as AdvertisementCreateResponse;
 
   const createdAdvertise = "data" in response && response.data
     ? response.data as AdvertisementItem
@@ -1212,6 +1276,26 @@ export async function createAdvertisement(payload: FormData) {
         : response as AdvertisementItem;
 
   return createdAdvertise;
+}
+
+export async function finalizeAdvertisement(
+  advertiseId: string | number,
+  payload: FormData,
+) {
+  const response = (await finalizeV2Draft(
+    advertiseId,
+    payload,
+  )) as AdvertisementCreateResponse;
+
+  const finalizedAdvertise = "data" in response && response.data
+    ? response.data as AdvertisementItem
+    : "result" in response && response.result
+      ? response.result as AdvertisementItem
+      : "advertise" in response && response.advertise
+        ? response.advertise as AdvertisementItem
+        : response as AdvertisementItem;
+
+  return finalizedAdvertise;
 }
 
 export async function saveAdvertiseDraft(

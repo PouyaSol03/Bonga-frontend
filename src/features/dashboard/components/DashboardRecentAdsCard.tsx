@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Typography } from "../../../shared/ui/Typography";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import type { AdCardData } from "../../advertisements/components/AdCard";
 import { AdCardSkeleton } from "../../advertisements/components/AdCardSkeleton";
@@ -64,12 +64,12 @@ export function DashboardRecentAdsCard({
         <Typography as="h2" variant="title" size="small" weight="semibold" className="text-on-surface">
           {title}
         </Typography>
-        <RouteLink className="flex items-center gap-1 text-primary" to={viewAllTo}>
+        <Link className="flex items-center gap-1 text-primary" to={viewAllTo}>
           <Typography as="span" variant="label" size="small" weight="medium" className="text-primary">
             مشاهده همه
           </Typography>
           <LinearArrowLeft1 className="h-3.5 w-3.5" />
-        </RouteLink>
+        </Link>
       </div>
 
       {isLoading ? (

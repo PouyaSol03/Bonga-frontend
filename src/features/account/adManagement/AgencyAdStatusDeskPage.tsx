@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Typography } from "../../../shared/ui/Typography";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import LinearClock from "../../../shared/icons/LinearClock";
 import LinearDislike from "../../../shared/icons/LinearDislike";
@@ -317,7 +317,7 @@ export function AgencyAdStatusDeskPage({
 
         {/* Section: Action rows (پیش‌نمایش + تاریخچه پرداخت) */}
         <section className="px-4" aria-label="عملیات آگهی">
-          <RouteLink
+          <Link
             className="flex h-[52px] w-full items-center justify-between text-on-surface no-underline [direction:ltr] active:bg-black/5"
             state={{ ad, previewFlow: "agency-allocation" }}
             to={getAdPreviewPath(adId)}
@@ -327,11 +327,11 @@ export function AgencyAdStatusDeskPage({
               <PublishedActionIcon className="h-6 w-6 text-on-surface-var" icon="preview" />
               پیش‌نمایش
             </Typography>
-          </RouteLink>
+          </Link>
 
           <div className="h-px bg-outline-var" aria-hidden="true" />
 
-          <RouteLink
+          <Link
             className="flex h-[52px] w-full items-center justify-between text-on-surface no-underline [direction:ltr] active:bg-black/5"
             state={{ returnTo: window.location.pathname, tab: "status" }}
             to={getAdPaymentHistoryPath(adId)}
@@ -341,7 +341,7 @@ export function AgencyAdStatusDeskPage({
               <PublishedActionIcon className="h-6 w-6 text-on-surface-var" icon="history" />
               تاریخچه پرداخت
             </Typography>
-          </RouteLink>
+          </Link>
         </section>
       </main>
     </PageFrame>

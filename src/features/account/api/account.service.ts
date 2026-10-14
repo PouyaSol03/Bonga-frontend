@@ -775,11 +775,15 @@ export async function getMyAds({
   isMine,
   page = 1,
   perPage = 20,
+  query,
+  search,
   type,
 }: {
   isMine?: boolean;
   page?: number;
   perPage?: number;
+  query?: string;
+  search?: string;
   type?: MyAdsType;
 }) {
   const v2Role = getActiveV2Role();
@@ -793,6 +797,8 @@ export async function getMyAds({
   const searchParams: Record<string, string | number | boolean> = { page, per_page: perPage };
   if (type && type !== "all") searchParams.type = type;
   if (isMine !== undefined) searchParams.is_mine = isMine;
+  const searchTerm = (search ?? query)?.trim();
+  if (searchTerm) searchParams.search = searchTerm;
 
   const response = await apiV2
     .get(endpoint, { searchParams })

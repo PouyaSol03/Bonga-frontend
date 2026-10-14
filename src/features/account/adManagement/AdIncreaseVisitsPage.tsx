@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { PageFrame } from "../../../shared/layout/PageFrame";
@@ -21,6 +22,10 @@ import {
   type PaymentMethod,
 } from "./IndependentConsultantAdPaymentPage";
 import {
+  validateDiscountCode,
+  type ValidateDiscountCodeResult,
+} from "../../crm/api/crm-discount.service";
+import {
   AdTariffOptionsList,
   createAdTariffOptions,
   getTariffTotal,
@@ -35,6 +40,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 
 export function AdIncreaseVisitsPage() {
+  const navigate = useNavigate();
   const routeState = getAdManagementRouteState();
   const adId = readAdIdFromPath() ?? readQueryAdId() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
   const backTo = routeState.paymentHistoryReturnTo ?? (adId ? getAdStatePath(adId) : adManagementPaths.root);
@@ -44,6 +50,10 @@ export function AdIncreaseVisitsPage() {
   const [step, setStep] = useState<"options" | "checkout">("options");
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [selectedTariffs, setSelectedTariffs] = useState<AdTariffOptionId[]>(["special"]);
+  const [discountInput, setDiscountInput] = useState("");
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [discountError, setDiscountError] = useState<string | null>(null);
+  const [appliedDiscount, setAppliedDiscount] = useState<ValidateDiscountCodeResult | null>(null);
   const { showToast } = useToast();
   const showError = (message: string) => showToast(message, "خطا", "error");
   const checkout = checkoutQuery.data;
@@ -80,6 +90,17 @@ export function AdIncreaseVisitsPage() {
     const amount = selectedProducts.reduce((total, product) => total + (products.find((item) => item.product === product)?.price ?? 0), 0);
     return amount || getCheckoutAmount(checkout) || getTariffTotal(tariffOptions, selectedTariffs);
   }, [checkout, products, selectedProducts, selectedTariffs, tariffOptions]);
+  const finalPayable = useMemo(() => {
+    if (!appliedDiscount) return payableAmount;
+    if (typeof appliedDiscount.final_price === "number") {
+      return Math.max(appliedDiscount.final_price, 0);
+    }
+    const percent = Number(appliedDiscount.discount_percent ?? 0);
+    if (percent > 0) {
+      return Math.max(Math.round(payableAmount * (1 - percent / 100)), 0);
+    }
+    return payableAmount;
+  }, [appliedDiscount, payableAmount]);
   const ad = adQuery.data ?? routeState.ad ?? routeState.card;
   const completeState = useMemo(
     () => ({ ad, card: routeState.card ?? ad, showPaymentSuccess: true, returnTo: routeState.returnTo, tab: routeState.tab ?? "status" }),
@@ -91,6 +112,50 @@ export function AdIncreaseVisitsPage() {
   useEffect(() => {
     if (gatewayMethod?.available === false && walletMethod?.available !== false) setMethod("wallet");
   }, [gatewayMethod?.available, walletMethod?.available]);
+
+  useEffect(() => {
+    const is100Percent = Boolean(
+      appliedDiscount?.is_free ||
+      appliedDiscount?.disable_gateway ||
+      (appliedDiscount && finalPayable === 0),
+    );
+    if (is100Percent && method === "online") {
+      setMethod("wallet");
+    }
+  }, [appliedDiscount, finalPayable, method]);
+
+  async function handleApplyDiscount() {
+    const code = discountInput.trim();
+    if (!code) return;
+    setDiscountLoading(true);
+    setDiscountError(null);
+    try {
+      const result = await validateDiscountCode({
+        code,
+        price: payableAmount,
+        service: "advertise",
+      });
+      setAppliedDiscount(result);
+      if (result.disable_gateway || result.is_free || result.final_price === 0) {
+        setMethod("wallet");
+      }
+    } catch (err: unknown) {
+      const msg = getApiErrorMessage(
+        err,
+        err instanceof Error && err.message ? err.message : "کد تخفیف نامعتبر است",
+      );
+      setDiscountError(msg);
+      setAppliedDiscount(null);
+    } finally {
+      setDiscountLoading(false);
+    }
+  }
+
+  function handleRemoveDiscount() {
+    setAppliedDiscount(null);
+    setDiscountInput("");
+    setDiscountError(null);
+  }
 
   function toggleTariff(id: AdTariffOptionId) {
     setSelectedTariffs((current) => {
@@ -111,7 +176,12 @@ export function AdIncreaseVisitsPage() {
   function submit(paymentMethod: AdvertisementCheckoutPaymentMethodCode) {
     if (!adId || selectedProducts.length === 0 || checkoutMutation.isPending) return;
     checkoutMutation.mutate(
-      { advertiseId: adId, items: selectedProducts, paymentMethod },
+      {
+        advertiseId: adId,
+        discount_code: appliedDiscount?.code,
+        items: selectedProducts,
+        paymentMethod,
+      },
       {
         onError: (error: unknown) => showError(getApiErrorMessage(error, "پرداخت و افزایش بازدید با خطا مواجه شد.")),
         onSuccess: ({ paymentUrl }) => {
@@ -124,7 +194,7 @@ export function AdIncreaseVisitsPage() {
             window.location.assign(paymentUrl);
             return;
           }
-          navigateTo(backTo, completeState, true);
+          navigate(backTo, { replace: true, state: completeState });
         },
       },
     );
@@ -148,12 +218,22 @@ export function AdIncreaseVisitsPage() {
   if (step === "checkout") {
     return (
       <ApiPaymentCheckoutView
+        appliedDiscount={appliedDiscount}
+        discountError={discountError}
+        discountInput={discountInput}
+        discountLoading={discountLoading}
         gatewayMethod={gatewayMethod}
         method={method}
+        onApplyDiscount={handleApplyDiscount}
         onBack={() => setStep("options")}
+        onDiscountInputChange={(val) => {
+          setDiscountInput(val);
+          if (discountError) setDiscountError(null);
+        }}
         onMethodChange={setMethod}
+        onRemoveDiscount={handleRemoveDiscount}
         onSubmit={() => submit(method === "wallet" ? "wallet" : "gateway")}
-        payableAmount={payableAmount}
+        payableAmount={finalPayable}
         pending={checkoutMutation.isPending}
         submitLabelPrefix="پرداخت و افزایش بازدید"
         totalPrice={payableAmount}
@@ -228,11 +308,6 @@ function getCheckoutAmount(checkout?: AdvertisementCheckout) {
 
 function findMethod(checkout: AdvertisementCheckout, method: string): AdvertisementCheckoutPaymentMethod | undefined {
   return checkout.payment_methods.find((item) => item.method === method);
-}
-
-function navigateTo(path: string, state?: unknown, replace = false) {
-  window.history[replace ? "replaceState" : "pushState"](state ?? {}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
 function readAdIdFromPath() {

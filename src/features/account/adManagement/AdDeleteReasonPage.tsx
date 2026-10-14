@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { RadioIndicator } from "../../../shared/components/RadioIndicator";
@@ -28,6 +29,7 @@ type DeleteAdRouteState = {
 };
 
 export function AdDeleteReasonPage() {
+  const navigate = useNavigate();
   const routeState = useMemo(readRouteState, []);
   const [selectedReason, setSelectedReason] = useState<DeleteReasonId>(deleteReasons[0].id);
   const [errorMessage, setErrorMessage] = useState("");
@@ -53,18 +55,16 @@ export function AdDeleteReasonPage() {
         description: selectedReasonLabel,
       });
 
-      window.history.pushState(
-        {
+      navigate(completeTo, {
+        replace: true,
+        state: {
           ...routeState,
           deletedAdId: adId,
           deleteReason: selectedReason,
           deleteReasonLabel: selectedReasonLabel,
           tab: routeState.tab ?? "status",
         },
-        "",
-        completeTo,
-      );
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      });
     } catch (err) {
       setErrorMessage(getApiErrorMessage(err, "حذف آگهی با خطا مواجه شد."));
     }

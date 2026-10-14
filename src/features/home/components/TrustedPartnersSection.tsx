@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, type UIEvent } from "react";
+import { useNavigate } from "react-router";
 
-import { pushRoute } from "../../../shared/navigation/navigation";
 import { useTrustedAgenciesQuery } from "../../agencies/api/agency.hooks";
 import { DirectoryCard, DirectoryCardSkeleton } from "../../consultants/components/DirectoryCard";
 import { Button } from "../../../shared/ui/Button";
@@ -22,6 +22,7 @@ function TrustedBadgeIcon() {
 }
 
 export function TrustedPartnersSection() {
+  const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const settleTimerRef = useRef<number | null>(null);
@@ -165,7 +166,7 @@ export function TrustedPartnersSection() {
                   layout="carousel"
                   imageLoading="lazy"
                   mode="agency"
-                  onClick={() => pushRoute(`/agencies/${encodeURIComponent(partner.id)}`)}
+                  onClick={() => navigate(`/agencies/${encodeURIComponent(partner.id)}`)}
                 />
               </div>
             ))

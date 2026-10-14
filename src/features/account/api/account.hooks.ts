@@ -1,11 +1,12 @@
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 
+import { useProfileStore } from "../stores/useProfileStore";
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
 import { getApiErrorCode } from "../../../shared/api/api";
 import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
-import { replaceRoute } from "../../../shared/navigation/navigation";
 import {
   authorizeMe,
   transferSimOwnership,
@@ -38,7 +39,10 @@ import {
   type MyAdsType,
 } from "./account.service";
 
-function redirectToRequiredAdvertiseProfile(error: unknown) {
+function redirectToRequiredAdvertiseProfile(
+  error: unknown,
+  navigate: (to: string, options?: { replace?: boolean }) => void,
+) {
   const errorCode = getApiErrorCode(error);
   const target = errorCode === "agency_profile_incomplete"
     ? "/account/dashboard/agency"
@@ -46,13 +50,17 @@ function redirectToRequiredAdvertiseProfile(error: unknown) {
       ? "/account/dashboard/agent"
       : null;
 
-  if (target) replaceRoute(target, undefined, { rememberCurrent: false });
+  if (target) navigate(target, { replace: true });
 }
 
 export function useMyProfileQuery({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
     enabled,
-    queryFn: getMyProfile,
+    queryFn: async () => {
+      const data = await getMyProfile();
+      useProfileStore.getState().setProfile(data);
+      return data;
+    },
     queryKey: queryKeys.account.profile(),
   });
 }
@@ -64,6 +72,7 @@ export function useUpdateMyProfileMutation() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.profile(),
       });
+      void useProfileStore.getState().fetchProfile(true);
     },
   });
 }
@@ -116,6 +125,7 @@ export function useAuthorizeMeMutation() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.account.profile(),
       });
+      void useProfileStore.getState().fetchProfile(true);
     },
   });
 }
@@ -223,14 +233,20 @@ export function useMyAdsInfiniteQuery({
   enabled = true,
   isMine,
   perPage = 20,
+  query: queryArg,
+  search: searchArg,
   type,
 }: {
   enabled?: boolean;
   isMine?: boolean;
   perPage?: number;
+  query?: string;
+  search?: string;
   type?: MyAdsType;
 }) {
   const userType = useActiveAuthRole();
+  const navigate = useNavigate();
+  const search = searchArg ?? queryArg;
 
   const query = useInfiniteQuery<
     MyAdsPage,
@@ -243,13 +259,13 @@ export function useMyAdsInfiniteQuery({
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined,
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => getMyAds({ isMine, page: pageParam, perPage, type }),
-    queryKey: queryKeys.account.myAds({ isMine, perPage, type: type ?? "all", userType }),
+    queryFn: ({ pageParam }) => getMyAds({ isMine, page: pageParam, perPage, search, type }),
+    queryKey: queryKeys.account.myAds({ isMine, perPage, search, type: type ?? "all", userType }),
   });
 
   useEffect(() => {
-    if (query.error) redirectToRequiredAdvertiseProfile(query.error);
-  }, [query.error]);
+    if (query.error) redirectToRequiredAdvertiseProfile(query.error, navigate);
+  }, [query.error, navigate]);
 
   return query;
 }

@@ -1,10 +1,9 @@
 import { Typography } from "../../../shared/ui/Typography";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link, useNavigate } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import type { NotificationItem } from "../../notifications/api/notification.service";
 import {
-  getNotificationPath,
-  navigateTo,
+  getNotificationPath
 } from "../../notifications/notificationRouting";
 import { NotificationCardStandardContent } from "../../notifications/components/NotificationCardStandardContent";
 
@@ -19,6 +18,7 @@ export function DashboardNotificationsCard({
   items,
   viewAllTo = "/notifications",
 }: DashboardNotificationsCardProps) {
+  const navigate = useNavigate();
   const notificationList = Array.isArray(items) ? items : [];
 
   return (
@@ -34,7 +34,7 @@ export function DashboardNotificationsCard({
         >
           آخرین اعلان‌ها
         </Typography>
-        <RouteLink
+        <Link
           className="flex items-center gap-1 text-primary"
           to={viewAllTo}
         >
@@ -48,7 +48,7 @@ export function DashboardNotificationsCard({
             مشاهده همه
           </Typography>
           <LinearArrowLeft1 className="h-3.5 w-3.5" />
-        </RouteLink>
+        </Link>
       </div>
 
       {/* Notifications List - Exact match to NotificationsPage standard UI */}
@@ -59,9 +59,9 @@ export function DashboardNotificationsCard({
             const actionPath = getNotificationPath(item);
             const handleOpen = () => {
               if (actionPath) {
-                navigateTo(actionPath);
+                navigate(actionPath);
               } else {
-                navigateTo("/notifications");
+                navigate("/notifications");
               }
             };
 

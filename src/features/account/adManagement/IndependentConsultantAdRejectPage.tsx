@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
-import { pushRoute } from "../../../shared/navigation/navigation";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { useToast } from "../../../shared/hooks/useToast";
 import {
@@ -40,6 +40,7 @@ export type IndependentConsultantAdRejectPageProps = {
 };
 
 export function IndependentConsultantAdRejectPage(props?: IndependentConsultantAdRejectPageProps) {
+  const navigate = useNavigate();
   const routeState = getAdManagementRouteState();
   const advertiseId = getRejectAdvertiseId();
   const ad = props?.ad ?? getSelectedConsultantAd(advertiseId);
@@ -77,7 +78,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
   };
 
   function navigateBackToReview() {
-    pushRoute(reviewPath, reviewState, { rememberCurrent: false });
+    navigate(reviewPath, { replace: true, state: reviewState });
   }
 
   function handleConfirm() {
@@ -105,7 +106,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
           );
         },
         onSuccess: () => {
-          pushRoute(adManagementPaths.root, { tab: "status" }, { rememberCurrent: false });
+          navigate(adManagementPaths.root, { replace: true, state: { tab: "status" } });
         },
       },
     );

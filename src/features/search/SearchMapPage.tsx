@@ -62,10 +62,11 @@ import {
   type SearchMapListingId,
 } from "./searchMapData";
 import { getIpDefaultMapCenter } from "./searchMapLocation";
+import { useNavigate } from "react-router";
 import type { SavedSearchItem, SaveSearchInput } from "./api/saved-search.service";
 import { getNeighborhoodPolygonPoints } from "../locations/api/neighborhood.service";
 import { getPropertyRequestScope } from "../property-requests/api/property-request.service";
-import { getStoredBackTarget, replaceRoute } from "../../shared/navigation/navigation";
+import { getStoredBackTarget } from "../../shared/navigation/navigation";
 
 type SearchMapMode = "map" | "preview" | "list";
 type SearchFilterChipId = "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
@@ -317,31 +318,15 @@ function getInitialSearchMode(): SearchMapMode {
 // whose copied back target is no longer the previous history entry.
 const SEARCH_FILTER_ENTRY_KEY = "__bongaSearchFilterEntry";
 
-function writeSearchParams(params: URLSearchParams, options: { replace?: boolean } = {}) {
+function writeSearchParams(
+  params: URLSearchParams,
+  navigate: (to: string, options?: { replace?: boolean }) => void,
+  options: { replace?: boolean } = {},
+) {
   const queryString = params.toString();
   const nextUrl = queryString ? `/search?${queryString}` : "/search";
-
-  const currentHistoryState = window.history.state ?? {};
-
-  // Default to replaceState so filter changes don't bloat the history stack.
-  // Only pushState when explicitly requested (e.g. first navigation into search).
-  if (options.replace === false) {
-    window.history.pushState(currentHistoryState, "", nextUrl);
-  } else {
-    window.history.replaceState(currentHistoryState, "", nextUrl);
-  }
-
-  window.dispatchEvent(new PopStateEvent("popstate"));
+  navigate(nextUrl, { replace: options.replace !== false });
 }
-
-function navigateToLoginRequired(action: string) {
-  const returnTo = `${window.location.pathname}${window.location.search}`;
-  const params = new URLSearchParams({ action, returnTo });
-
-  window.history.pushState({}, "", `/login-required?${params.toString()}`);
-  window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
 
 function getFilterOpenTarget(chip: SearchFilterChip): string {
   if (chip.id === "category") return "category";
@@ -490,7 +475,10 @@ function orderResultHeaderChips(chips: SearchFilterChip[]) {
     : [...activeChips, ...inactiveChips];
 }
 
-function removeFilterFromSearch(chip: SearchFilterChip) {
+function removeFilterFromSearch(
+  chip: SearchFilterChip,
+  navigate: (to: string, options?: { replace?: boolean }) => void,
+) {
   const params = getSearchParams();
 
   switch (chip.id as SearchFilterChipId) {
@@ -524,7 +512,7 @@ function removeFilterFromSearch(chip: SearchFilterChip) {
   }
 
   params.delete("focus");
-  writeSearchParams(params);
+  writeSearchParams(params, navigate);
 }
 
 function toPersianDigits(value: unknown) {
@@ -717,20 +705,44 @@ function getAdMapPosition(item: AdvertisementItem) {
 }
 
 function readBadges(item: AdvertisementItem) {
+  const badges: string[] = [];
+  const isSpecial =
+    item.is_special === true ||
+    item.is_special === 1 ||
+    item.is_special === "true" ||
+    item.is_special === "1" ||
+    item.special === true ||
+    item.special === 1 ||
+    item.special === "true" ||
+    item.special === "1";
+  const isLadder =
+    item.is_ladder === true ||
+    item.is_ladder === 1 ||
+    item.is_ladder === "true" ||
+    item.is_ladder === "1" ||
+    item.ladder === true ||
+    item.ladder === 1 ||
+    item.ladder === "true" ||
+    item.ladder === "1";
+
+  if (isSpecial) {
+    badges.push("ویژه");
+  }
+  if (isLadder) {
+    badges.push("بروزرسانی");
+  }
+
+  if (badges.length > 0) {
+    return badges;
+  }
+
   if (Array.isArray(item.badges)) {
     return item.badges.filter(
       (badge): badge is string => typeof badge === "string" && badge.trim().length > 0,
     );
   }
 
-  const badges: string[] = [];
-  const urgent = item.is_urgent ?? item.urgent ?? readFeatureRaw(item, ["is_urgent", "urgent"]);
-  const featured = item.is_featured ?? item.featured ?? readFeatureRaw(item, ["is_featured", "featured"]);
-
-  if (urgent === true || urgent === "true" || urgent === 1 || urgent === "1") badges.push("فوری");
-  if (featured === true || featured === "true" || featured === 1 || featured === "1") badges.push("ویژه");
-
-  return badges;
+  return [];
 }
 
 function mapAdvertisementToSearchListing(
@@ -1013,6 +1025,7 @@ function getInitialMapCenter(): SearchMapCenter {
 }
 
 export function SearchMapPage() {
+  const navigate = useNavigate();
   const [selectedListingId, setSelectedListingId] = useState<string | number | null>(null);
   const [isOffline, setIsOffline] = useState(() => typeof window !== "undefined" && !window.navigator.onLine);
 
@@ -1230,8 +1243,8 @@ export function SearchMapPage() {
 
     params.delete("qsearch");
     params.delete("q");
-    writeSearchParams(params, { replace: true });
-  }, []);
+    writeSearchParams(params, navigate, { replace: true });
+  }, [navigate]);
 
   useEffect(() => {
     if (didResolveIpLocationRef.current) return;
@@ -1316,22 +1329,19 @@ export function SearchMapPage() {
       }
     }
 
-    window.history.pushState(
-      { ...(window.history.state ?? {}), [SEARCH_FILTER_ENTRY_KEY]: true },
-      "",
-      buildFilterPageUrl(chip),
-    );
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  }, []);
+    navigate(buildFilterPageUrl(chip), {
+      state: { ...(window.history.state ?? {}), [SEARCH_FILTER_ENTRY_KEY]: true },
+    });
+  }, [navigate]);
 
   const handleQuickFilterApply = useCallback((params: URLSearchParams) => {
     setSelectedListingId(null);
-    writeSearchParams(params);
-  }, []);
+    writeSearchParams(params, navigate);
+  }, [navigate]);
 
   const handleRemoveChip = useCallback((chip: SearchFilterChip) => {
-    removeFilterFromSearch(chip);
-  }, []);
+    removeFilterFromSearch(chip, navigate);
+  }, [navigate]);
 
   const handleSelectListing = useCallback((listing: SearchMapListing) => {
     setSeenListingIds((current) => {
@@ -1449,7 +1459,7 @@ export function SearchMapPage() {
     params.delete("q");
     setIsSearchOpen(false);
     setSelectedListingId(null);
-    writeSearchParams(params, { replace: true });
+    writeSearchParams(params, navigate, { replace: true });
     setSearchSnapshot(window.location.search);
   }, []);
 
@@ -1470,9 +1480,9 @@ export function SearchMapPage() {
     params.delete("qsearch");
     params.delete("q");
     setSelectedListingId(null);
-    writeSearchParams(params, { replace: true });
+    writeSearchParams(params, navigate, { replace: true });
     setSearchSnapshot(window.location.search);
-  }, []);
+  }, [navigate]);
 
   const handleSavedSearchSelect = useCallback((item: SavedSearchItem) => {
     let params: URLSearchParams;
@@ -1493,11 +1503,17 @@ export function SearchMapPage() {
 
     params.delete("focus");
     params.delete("view");
-    writeSearchParams(params);
+    writeSearchParams(params, navigate);
     setSearchSnapshot(window.location.search);
     setSelectedListingId(null);
     setMode("map");
-  }, []);
+  }, [navigate]);
+
+  const navigateToLoginRequired = useCallback((action: string) => {
+    const returnTo = `${window.location.pathname}${window.location.search}`;
+    const params = new URLSearchParams({ action, returnTo });
+    navigate(`/login-required?${params.toString()}`);
+  }, [navigate]);
 
   const handleEmptyRequestSubmit = useCallback((title: string) => {
     if (!isAuthenticated) {
@@ -1612,14 +1628,7 @@ export function SearchMapPage() {
     saveSearchMutation.mutate(saveSearchInput, {
       onError: (error) => {
         if (isUnauthorizedApiError(error)) {
-          const returnTo = `${window.location.pathname}${window.location.search}`;
-          const params = new URLSearchParams({
-            action: "ذخیره جستجو",
-            returnTo,
-          });
-
-          window.history.pushState({}, "", `/login-required?${params.toString()}`);
-          window.dispatchEvent(new PopStateEvent("popstate"));
+          navigateToLoginRequired("ذخیره جستجو");
           return;
         }
 
@@ -1653,14 +1662,13 @@ export function SearchMapPage() {
       );
 
       if (!isFilterEntry && window.history.length > 1) {
-        window.history.back();
+        navigate(-1);
         return;
       }
 
-      replaceRoute(
+      navigate(
         storedBackTarget.backTo,
-        storedBackTarget.backState,
-        { rememberCurrent: false },
+        { replace: true, state: storedBackTarget.backState },
       );
       return;
     }
@@ -1672,12 +1680,12 @@ export function SearchMapPage() {
     // history.length cannot be used for this check: it also counts forward
     // entries.
     if (storedBackTarget && window.history.length > 1) {
-      window.history.back();
+      navigate(-1);
       return;
     }
 
-    replaceRoute("/home", undefined, { rememberCurrent: false });
-  }, []);
+    navigate("/home", { replace: true });
+  }, [navigate]);
 
   const closeSearch = useCallback(() => {
     setIsSearchOpen(false);

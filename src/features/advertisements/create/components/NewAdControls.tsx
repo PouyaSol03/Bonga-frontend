@@ -1,4 +1,5 @@
 import { useCallback, type ReactNode } from "react";
+import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
@@ -14,8 +15,7 @@ import { Switch } from "../../../../shared/ui/Switch";
 import { TextField } from "../../../../shared/ui/TextField";
 import { FeaturesIcons } from "../../components/FeaturesIcons";
 import { TopBar } from "../../../../shared/components/TopBar";
-import { normalizeNumberInput, navigateTo } from "../utils";
-import { canGoBackInApp } from "../../../../shared/navigation/navigation";
+import { normalizeNumberInput } from "../utils";
 import { preserveNewAdDraftStateKey } from "../session";
 import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
@@ -35,18 +35,19 @@ export function Header({
   title: string;
   onBack?: () => void;
 }) {
+  const navigate = useNavigate();
   const handleBack = useCallback(() => {
     if (onBack) {
       onBack();
       return;
     }
 
-    if (canGoBackInApp()) {
-      window.history.back();
+    if (window.history.state?.idx > 0) {
+      navigate(-1);
     } else {
-      navigateTo("/new-ad/category");
+      navigate("/new-ad/category", { replace: true });
     }
-  }, [onBack]);
+  }, [navigate, onBack]);
 
   return (
     <TopBar onBack={handleBack} title={title} />
@@ -213,6 +214,7 @@ export function SelectBox({
 }
 
 export function LocationBox({ value, label }: { value: string; label: string }) {
+  const navigate = useNavigate();
   return (
     <SelectField
       onClick={() => {
@@ -223,9 +225,11 @@ export function LocationBox({ value, label }: { value: string; label: string }) 
           typeof window.history.state === "object"
             ? window.history.state
             : {};
-        navigateTo(`/new-ad/location${search}`, {
-          ...currentState,
-          [preserveNewAdDraftStateKey]: true,
+        navigate(`/new-ad/location${search}`, {
+          state: {
+            ...currentState,
+            [preserveNewAdDraftStateKey]: true,
+          },
         });
       }}
       placeholder="تعیین مکان"

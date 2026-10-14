@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import type { NotificationItem } from "./api/notification.service";
 import type {
   useDeleteNotificationMutation,
@@ -10,7 +11,6 @@ import type { AgencyConsultantRequestDecision } from "./types";
 import {
   getAgencyConsultantRequestAgentId,
   getNotificationPath,
-  navigateTo,
 } from "./notificationRouting";
 
 export function useNotificationActions({
@@ -36,6 +36,7 @@ export function useNotificationActions({
     React.SetStateAction<NotificationItem[]>
   >;
 }) {
+  const navigate = useNavigate();
   const [isClearingRead, setIsClearingRead] = useState(false);
   const [agencyRequestActionNotificationId, setAgencyRequestActionNotificationId] =
     useState<string | null>(null);
@@ -66,7 +67,7 @@ export function useNotificationActions({
     }
 
     const path = getNotificationPath(notification);
-    if (path) navigateTo(path);
+    if (path) navigate(path);
   };
 
   const handleAgencyConsultantRequestDecision = async (

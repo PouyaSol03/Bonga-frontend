@@ -10,13 +10,13 @@ import { SelectionCheckIndicator } from "../../../shared/components/SelectionChe
 import { SwitchButton } from "../../../shared/components/SwitchButton";
 import { TopBar } from "../../../shared/components/TopBar";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
+import { SearchInputBar } from "../../../shared/ui/SearchBar";
 import { useNeighborhoodListQuery } from "../../locations/api/neighborhood.hooks";
 import { useAgencyConsultantsQuery } from "../../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "../api/account.hooks";
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
-import { RouteLink } from "../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import { getNeighborhoodHierarchyDescription, type NeighborhoodDto } from "../../locations/api/neighborhood.service";
-import { SearchIcon } from "./AdManagementIcons";
 import {
   adManagementPaths,
   adManagementPropertyGroupsByTransaction,
@@ -287,13 +287,13 @@ export function IndependentConsultantAdFilterPage() {
 
       <footer className="shrink-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <div className="grid grid-cols-2 gap-4 [direction:ltr]">
-          <RouteLink
+          <Link
             className="inline-flex h-10 items-center justify-center rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary no-underline"
             state={{ filters, onlyMine: isAssignedTab ? false : onlyMine, tab }}
             to={adManagementPaths.root}
           >
             اعمال
-          </RouteLink>
+          </Link>
           <Button unstyled
             className="h-10 rounded-lg border border-primary bg-surface-container-lowest text-sm font-medium leading-5 text-primary"
             onClick={resetFilters}
@@ -468,26 +468,16 @@ function NeighborhoodPickerRow({
       >
         <div className="shrink-0 px-3 pb-2 pt-3">
           <div className="flex h-11 items-center gap-2 [direction:ltr]">
-            <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-outline bg-surface-container-lowest px-3 focus-within:border-primary" dir="rtl">
-              <SearchIcon className="h-5 w-5 shrink-0 text-outline" />
-              <input
-                className="h-9 min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="جستجو محله"
-                type="search"
-                value={query}
-              />
-              {query ? (
-                <Button unstyled
-                  aria-label="پاک کردن جستجوی محله"
-                  className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var"
-                  onClick={() => setQuery("")}
-                  type="button"
-                >
-                  <ClearCircleIcon />
-                </Button>
-              ) : null}
-            </label>
+            <SearchInputBar
+              containerClassName="flex-1 border-outline"
+              debounceMs={300}
+              onClear={() => setQuery("")}
+              onDebouncedChange={setQuery}
+              onValueChange={setQuery}
+              placeholder="جستجو محله"
+              size="dense"
+              value={query}
+            />
 
             <Button unstyled
               aria-label="بازگشت"
@@ -706,26 +696,16 @@ function PublisherSelectField({
           />
 
           <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pb-28 pt-4 [-webkit-overflow-scrolling:touch]">
-            <label className="flex h-[46px] items-center gap-2 rounded-[10px] border border-outline bg-surface-container-lowest px-3 focus-within:border-primary [direction:ltr]">
-              <SearchIcon className="h-6 w-6 shrink-0 text-on-surface-var" />
-              <input
-                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline [direction:rtl]"
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="جستجو"
-                type="search"
-                value={query}
-              />
-              {query ? (
-                <Button unstyled
-                  aria-label="پاک کردن جستجو"
-                  className="grid h-6 w-6 shrink-0 place-items-center text-outline"
-                  onClick={() => setQuery("")}
-                  type="button"
-                >
-                  <ClearCircleIcon />
-                </Button>
-              ) : null}
-            </label>
+            <SearchInputBar
+              containerClassName="border-outline"
+              debounceMs={300}
+              onClear={() => setQuery("")}
+              onDebouncedChange={setQuery}
+              onValueChange={setQuery}
+              placeholder="جستجو"
+              size="compact"
+              value={query}
+            />
 
             {filteredPublishers.length > 0 ? (
               <div className="mt-6 space-y-5 px-2">

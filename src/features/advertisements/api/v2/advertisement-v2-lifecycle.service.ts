@@ -115,6 +115,11 @@ export const updateV2Draft = (id: string | number, body: FormData | Record<strin
   return apiV2.patch(`${getRegistrationContext()}/advertise/${enc(id)}/draft`, options).json();
 };
 
+export const finalizeV2Draft = (id: string | number, body: FormData | Record<string, unknown>) => {
+  const options = registrationOptions(body);
+  return apiV2.post(`${getRegistrationContext()}/advertise/${enc(id)}/finalize`, options).json();
+};
+
 export const createV2Advertisement = (body: FormData | Record<string, unknown>) => {
   const options = registrationOptions(body);
   return apiV2.post(`${getRegistrationContext()}/advertise`, options).json();

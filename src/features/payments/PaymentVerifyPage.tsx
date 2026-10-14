@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 
 import { getApiErrorMessage } from "../../shared/api/api";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { useVerifyPaymentCallbackMutation } from "../account/api/account.hooks";
-import { replaceRoute } from "../../shared/navigation/navigation";
 import { clearPaymentReturnTarget, readPaymentReturnTarget } from "../../shared/utils/payment-return";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
@@ -20,6 +20,7 @@ function readCallbackParameters() {
 }
 
 export function PaymentVerifyPage() {
+  const navigate = useNavigate();
   const callback = useVerifyPaymentCallbackMutation();
   const parameters = useMemo(readCallbackParameters, []);
   const returnTarget = useMemo(readPaymentReturnTarget, []);
@@ -112,7 +113,7 @@ export function PaymentVerifyPage() {
             className="mt-8 h-11 w-full max-w-[340px] rounded-xl bg-primary px-5 text-sm font-semibold leading-5 text-on-primary active:opacity-80"
             onClick={() => {
               clearPaymentReturnTarget();
-              replaceRoute(returnTarget.path, undefined, { rememberCurrent: false });
+              navigate(returnTarget.path, { replace: true });
             }}
             type="button"
           >

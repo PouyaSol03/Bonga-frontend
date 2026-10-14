@@ -1,12 +1,12 @@
 import React from "react";
-import { RouteLink } from "../../../../shared/navigation/RouteLink";
+import { Link } from "react-router";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 import LinearEdit2 from "../../../../shared/icons/LinearEdit2";
 import LinearAnalytics from "../../../../shared/icons/LinearAnalytics";
 import LinearDelete from "../../../../shared/icons/LinearDelete";
 import { LinearMonitorCheck } from "../../../../shared/icons/LinearMonitorCheck";
 import { Typography } from "../../../../shared/ui/Typography";
-import { getAdEditPath, getAdPreviewPath, getAdStatePath } from "../adManagementData";
+import { adManagementPaths, getAdEditPath, getAdPreviewPath, getAdStatePath } from "../adManagementData";
 import { getMyAdStatusInfo } from "../../myAdsStatus";
 import type { ManagementAdCardProps } from "./types";
 
@@ -49,7 +49,7 @@ export const ManagementAdActions: React.FC<Props> = ({
 
   const effectiveDeskPath = deskTo || to || getAdStatePath(ad.id);
   const effectivePreviewPath = previewTo || getAdPreviewPath(ad.id);
-  const effectiveEditPath = editTo || getAdEditPath(ad.id);
+  const effectiveEditPath = editTo || getAdEditPath(ad.id, adManagementPaths.root);
   const effectiveAnalyticsPath =
     analyticsTo || `${getAdStatePath(ad.id)}?businessTab=performance`;
 
@@ -86,7 +86,7 @@ export const ManagementAdActions: React.FC<Props> = ({
           <LinearArrowLeft1 className="h-4 w-4" />
         </button>
       ) : (
-        <RouteLink
+        <Link
           className="flex h-10 w-[136px] items-center justify-between rounded-[10px] bg-primary px-4 text-xs font-semibold text-on-primary shadow-sm transition active:scale-95 no-underline"
           state={deskState}
           to={effectiveDeskPath}
@@ -101,7 +101,7 @@ export const ManagementAdActions: React.FC<Props> = ({
             میزکار آگهی
           </Typography>
           <LinearArrowLeft1 className="h-4 w-4" />
-        </RouteLink>
+        </Link>
       )}
 
       {/* Secondary Circular Actions */}
@@ -117,14 +117,14 @@ export const ManagementAdActions: React.FC<Props> = ({
             <LinearAnalytics className="h-5 w-5" />
           </button>
         ) : (
-          <RouteLink
+          <Link
             aria-label="عملکرد و آمار آگهی"
             className={iconBtnClass}
             state={analyticsState}
             to={effectiveAnalyticsPath}
           >
             <LinearAnalytics className="h-5 w-5" />
-          </RouteLink>
+          </Link>
         )}
 
         {/* Edit ad */}
@@ -138,14 +138,14 @@ export const ManagementAdActions: React.FC<Props> = ({
             <LinearEdit2 className="h-5 w-5" />
           </button>
         ) : (
-          <RouteLink
+          <Link
             aria-label="ویرایش آگهی"
             className={iconBtnClass}
             state={{ returnTo: "/account/manage-ads" }}
             to={effectiveEditPath}
           >
             <LinearEdit2 className="h-5 w-5" />
-          </RouteLink>
+          </Link>
         )}
 
         {/* Ad preview or Delete incomplete */}
@@ -168,13 +168,13 @@ export const ManagementAdActions: React.FC<Props> = ({
             <LinearMonitorCheck className="h-5 w-5" />
           </button>
         ) : (
-          <RouteLink
+          <Link
             aria-label="پیش‌نمایش آگهی"
             className={iconBtnClass}
             to={effectivePreviewPath}
           >
             <LinearMonitorCheck className="h-5 w-5" />
-          </RouteLink>
+          </Link>
         )}
       </div>
     </div>

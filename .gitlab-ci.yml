@@ -1,5 +1,6 @@
 stages:
   - verify
+  - ai_review
   - build
   - deploy
 
@@ -28,6 +29,57 @@ verify:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "main"'
+
+pr_agent_review:
+  stage: ai_review
+  image: docker:28
+  tags:
+    - exirmain
+  needs:
+    - verify
+  variables:
+    GIT_STRATEGY: "none"
+    CONFIG__GIT_PROVIDER: "gitlab"
+    GITLAB__URL: "https://git.exirfirm.com"
+    GITLAB__AUTH_TYPE: "private_token"
+    CONFIG__PUBLISH_OUTPUT: "true"
+    CONFIG__PROPAGATE_TOOL_ERRORS: "true"
+    OPENAI__API_BASE: "http://127.0.0.1:20128/v1"
+    CONFIG__MODEL: "openai/cx/gpt-6.1-sol"
+    CONFIG__MODEL_WEAK: "openai/cx/gpt-6.1-sol"
+    CONFIG__FALLBACK_MODELS: '["openai/cx/gpt-6.1-sol"]'
+    CONFIG__TEMPERATURE: "1"
+    CONFIG__CUSTOM_MODEL_MAX_TOKENS: "32000"
+    CONFIG__MAX_MODEL_TOKENS: "32000"
+    CONFIG__MAX_OUTPUT_TOKENS: "8000"
+  before_script: []
+  script:
+    - test -n "$GITLAB__PERSONAL_ACCESS_TOKEN"
+    - test -n "$OPENAI__KEY"
+    - docker pull pragent/pr-agent:latest
+    - |
+      docker run --rm --network host \
+        -e CONFIG__GIT_PROVIDER \
+        -e GITLAB__URL \
+        -e GITLAB__AUTH_TYPE \
+        -e GITLAB__PERSONAL_ACCESS_TOKEN \
+        -e CONFIG__PUBLISH_OUTPUT \
+        -e CONFIG__PROPAGATE_TOOL_ERRORS \
+        -e OPENAI__API_BASE \
+        -e OPENAI__KEY \
+        -e CONFIG__MODEL \
+        -e CONFIG__MODEL_WEAK \
+        -e CONFIG__FALLBACK_MODELS \
+        -e CONFIG__TEMPERATURE \
+        -e CONFIG__CUSTOM_MODEL_MAX_TOKENS \
+        -e CONFIG__MAX_MODEL_TOKENS \
+        -e CONFIG__MAX_OUTPUT_TOKENS \
+        pragent/pr-agent:latest \
+        --pr_url "$CI_PROJECT_URL/-/merge_requests/$CI_MERGE_REQUEST_IID" review
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_PROJECT_ID == $CI_PROJECT_ID'
+  allow_failure: true
+  timeout: 15m
 
 build_image:
   stage: build

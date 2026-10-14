@@ -35,7 +35,7 @@ export function ViewAdLeadsSection({
 
   const resolvedLeads: ViewAdLeadItem[] = leads
     ? leads
-    : (serverLeads as unknown as ViewAdLeadItem[]) ?? [];
+    : ((serverLeads as unknown as ViewAdLeadItem[]) ?? []);
 
   const filteredLeads = resolvedLeads.filter((lead) => {
     if (activeFilter === "all") return true;
@@ -46,10 +46,10 @@ export function ViewAdLeadsSection({
   return (
     <section
       aria-label="لیست سرنخ‌های آگهی"
-      className={`flex flex-col [direction:rtl] min-h-[420px] ${className}`}
+      className={`flex min-h-[420px] flex-col [direction:rtl] ${className}`}
     >
       <div className="bg-surface-container-lowest p-4">
-        <div className="flex items-center justify-between gap-2 rounded-2xl border border-surface-container bg-surface-container-lowest p-4">
+        <div className="border-surface-container bg-surface-container-lowest flex items-center justify-between gap-2 rounded-2xl border p-4">
           {LEAD_FILTERS.map((f) => (
             <Chip
               key={f.key}
@@ -64,16 +64,16 @@ export function ViewAdLeadsSection({
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col gap-4 bg-surface-container p-4">
+        <div className="bg-surface-container flex flex-col gap-4 p-4">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-28 w-full animate-pulse rounded-2xl bg-surface-container-lowest"
+              className="bg-surface-container-lowest h-28 w-full animate-pulse rounded-2xl"
             />
           ))}
         </div>
       ) : (
-        <div className="flex flex-1 flex-col gap-4 bg-surface-container pb-4">
+        <div className="bg-surface-container flex flex-1 flex-col gap-4 pb-4">
           {filteredLeads.map((lead) => (
             <ViewAdLeadCard
               key={lead.id}
@@ -85,7 +85,7 @@ export function ViewAdLeadsSection({
           ))}
 
           {filteredLeads.length === 0 && (
-            <div className="flex flex-1 min-h-[320px] items-center justify-center p-6 bg-surface-container-lowest mx-4 my-2 rounded-2xl">
+            <div className="bg-surface-container-lowest mx-4 my-2 flex min-h-[320px] flex-1 items-center justify-center rounded-2xl p-6">
               <SearchEmptyState
                 title="هیچ سرنخی یافت نشد"
                 description={

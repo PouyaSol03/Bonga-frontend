@@ -19,7 +19,13 @@ export function ConsultantEditRoleSection({
 }) {
   return (
     <section className="mt-5">
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-on-surface">
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0 text-right text-base leading-6 font-semibold"
+      >
         انتخاب سمت
       </Typography>
 
@@ -44,7 +50,7 @@ export function ConsultantEditRoleSection({
             <Button
               unstyled
               aria-pressed={checked}
-              className={`flex items-center gap-2 text-right text-sm font-medium leading-5 ${
+              className={`flex items-center gap-2 text-right text-sm leading-5 font-medium ${
                 isManager ? "text-on-surface-var" : "text-outline"
               }`}
               disabled={!isManager}

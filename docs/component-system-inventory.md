@@ -31,31 +31,31 @@ Farsi variants should drive production behavior.
 
 ## Component Index
 
-| Component | Main variants captured | Key dimensions |
-| --- | --- | --- |
-| Button | 220 variants across style, state, size/content groups | Matrix is captured; exact individual button sizes are not available in this text spec |
-| Icon Button | Filled, Outlined, Standard, Tonal x interactive states | Outer `48 x 48`, inner container `40 x 40` |
-| Toggleable Icon Button | Icon Button variants plus selected true/false | Outer `48 x 48`, inner container `40 x 40` |
-| Segmented Button | Segment and segment block variants | Example `324 x 40`, three segments of `108px` |
-| Checkbox | Checked/unchecked across five states | Component set captured as 10 variants |
-| Radio Button | Selected/unselected across five states | Control frame `42 x 42` |
-| Switch | On/off state system | Track/thumb details are described from the available capture |
-| Input Chip | Input chip matrix | 32 variants |
-| Filter Chip | Filter chip matrix | 20 variants |
-| Tag | Static compact label | Example `84 x 24` |
-| Navigation Item | Farsi/English, enabled/focused | Item `72 x 64` |
-| Navigation Bar | Farsi/English, 3/4/5 item variants | Bar `360 x 64` |
-| Divider | Thin separating line | Usually `1px` high |
-| List Row | Language, line count, leading, trailing, state | Width `360`, heights `72`, `88`, `108`, `128` |
-| Dialog | Modal dialog pattern | Full variant matrix was not available in the capture |
-| Bottom Sheet | Right item and center item | Sheet content `360 x 656/657` |
-| Search Bar | Farsi/English, outlined/filled, enabled/hovered/pressed | `360 x 56` |
-| Text Field | Farsi/English, outlined/fill, label/input states | Width `210`, heights `56`, `76`, `84`, `88`, `108` |
-| Slider / Range Selection | Middle/right/left/filled/disabled, handle states | Track `400 x 16`, handle `16 x 16` |
-| Tab | Tab/segmented navigation family | Full variant matrix was not available in the capture |
-| Snackbar | Toast/snackbar pattern | Full variant matrix was not available in the capture |
-| Date Picker | Day/today/selected, year cells | Day `48 x 48`, year `88 x 52` |
-| Tooltip | Small contextual overlay | Full variant matrix was not available in the capture |
+| Component                | Main variants captured                                  | Key dimensions                                                                        |
+| ------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Button                   | 220 variants across style, state, size/content groups   | Matrix is captured; exact individual button sizes are not available in this text spec |
+| Icon Button              | Filled, Outlined, Standard, Tonal x interactive states  | Outer `48 x 48`, inner container `40 x 40`                                            |
+| Toggleable Icon Button   | Icon Button variants plus selected true/false           | Outer `48 x 48`, inner container `40 x 40`                                            |
+| Segmented Button         | Segment and segment block variants                      | Example `324 x 40`, three segments of `108px`                                         |
+| Checkbox                 | Checked/unchecked across five states                    | Component set captured as 10 variants                                                 |
+| Radio Button             | Selected/unselected across five states                  | Control frame `42 x 42`                                                               |
+| Switch                   | On/off state system                                     | Track/thumb details are described from the available capture                          |
+| Input Chip               | Input chip matrix                                       | 32 variants                                                                           |
+| Filter Chip              | Filter chip matrix                                      | 20 variants                                                                           |
+| Tag                      | Static compact label                                    | Example `84 x 24`                                                                     |
+| Navigation Item          | Farsi/English, enabled/focused                          | Item `72 x 64`                                                                        |
+| Navigation Bar           | Farsi/English, 3/4/5 item variants                      | Bar `360 x 64`                                                                        |
+| Divider                  | Thin separating line                                    | Usually `1px` high                                                                    |
+| List Row                 | Language, line count, leading, trailing, state          | Width `360`, heights `72`, `88`, `108`, `128`                                         |
+| Dialog                   | Modal dialog pattern                                    | Full variant matrix was not available in the capture                                  |
+| Bottom Sheet             | Right item and center item                              | Sheet content `360 x 656/657`                                                         |
+| Search Bar               | Farsi/English, outlined/filled, enabled/hovered/pressed | `360 x 56`                                                                            |
+| Text Field               | Farsi/English, outlined/fill, label/input states        | Width `210`, heights `56`, `76`, `84`, `88`, `108`                                    |
+| Slider / Range Selection | Middle/right/left/filled/disabled, handle states        | Track `400 x 16`, handle `16 x 16`                                                    |
+| Tab                      | Tab/segmented navigation family                         | Full variant matrix was not available in the capture                                  |
+| Snackbar                 | Toast/snackbar pattern                                  | Full variant matrix was not available in the capture                                  |
+| Date Picker              | Day/today/selected, year cells                          | Day `48 x 48`, year `88 x 52`                                                         |
+| Tooltip                  | Small contextual overlay                                | Full variant matrix was not available in the capture                                  |
 
 ## Button
 
@@ -785,19 +785,19 @@ states.
 
 ### Size Matrix
 
-| Language / style / type | Common total size |
-| --- | --- |
-| English `Outlined Label in`, placeholder text | `210 x 76` |
-| Farsi `Outlined Label in`, placeholder text | `210 x 84` |
-| Farsi `Outlined Label in`, input text | `210 x 84` |
-| English `Outlined`, placeholder text | `210 x 108` |
-| Farsi `Outlined`, placeholder text | `210 x 108` |
-| English `Filled`, placeholder text | `210 x 76` |
-| Farsi `Filled`, placeholder text | `210 x 76` |
-| English `Outlined`, input text | `210 x 76` |
-| Farsi `Outlined`, input text | `210 x 108` |
-| English `Filled`, input text | `210 x 76` |
-| Farsi `Filled`, input text | `210 x 76` |
+| Language / style / type                       | Common total size |
+| --------------------------------------------- | ----------------- |
+| English `Outlined Label in`, placeholder text | `210 x 76`        |
+| Farsi `Outlined Label in`, placeholder text   | `210 x 84`        |
+| Farsi `Outlined Label in`, input text         | `210 x 84`        |
+| English `Outlined`, placeholder text          | `210 x 108`       |
+| Farsi `Outlined`, placeholder text            | `210 x 108`       |
+| English `Filled`, placeholder text            | `210 x 76`        |
+| Farsi `Filled`, placeholder text              | `210 x 76`        |
+| English `Outlined`, input text                | `210 x 76`        |
+| Farsi `Outlined`, input text                  | `210 x 108`       |
+| English `Filled`, input text                  | `210 x 76`        |
+| Farsi `Filled`, input text                    | `210 x 76`        |
 
 ### Style Descriptions
 
@@ -857,22 +857,22 @@ component shows the visual track states and separate handle states.
 
 ### Range Selection Variants
 
-| State | Size | Description |
-| --- | --- | --- |
-| `Middle` | `400 x 16` | Active range segment sits away from both ends. |
-| `Right` | `400 x 16` | Active range reaches the right end. |
-| `Left` | `400 x 16` | Active range reaches the left end. |
-| `Filled` | `400 x 16` | Entire track is active/filled. |
-| `Disabled` | `400 x 16` | Range is non-interactive and muted. |
+| State      | Size       | Description                                    |
+| ---------- | ---------- | ---------------------------------------------- |
+| `Middle`   | `400 x 16` | Active range segment sits away from both ends. |
+| `Right`    | `400 x 16` | Active range reaches the right end.            |
+| `Left`     | `400 x 16` | Active range reaches the left end.             |
+| `Filled`   | `400 x 16` | Entire track is active/filled.                 |
+| `Disabled` | `400 x 16` | Range is non-interactive and muted.            |
 
 ### Handle Variants
 
-| State | Size |
-| --- | --- |
-| `Enabled` | `16 x 16` |
-| `Hovered` | `16 x 16` |
-| `Focused` | `16 x 16` |
-| `Pressed` | `16 x 16` |
+| State      | Size      |
+| ---------- | --------- |
+| `Enabled`  | `16 x 16` |
+| `Hovered`  | `16 x 16` |
+| `Focused`  | `16 x 16` |
+| `Pressed`  | `16 x 16` |
 | `Disabled` | `16 x 16` |
 
 ### Anatomy
@@ -973,17 +973,17 @@ cell and year cell component sets.
 
 ### Day Cell Variants
 
-| Type | States | Size |
-| --- | --- | --- |
-| `Day` | Enabled, Hovered, Focused, Pressed, Disabled | `48 x 48` |
-| `Today` | Enabled, Hovered, Focused, Pressed, Disabled | `48 x 48` |
-| `Selected` | Enabled, Hovered, Focused, Pressed | `48 x 48` |
+| Type       | States                                       | Size      |
+| ---------- | -------------------------------------------- | --------- |
+| `Day`      | Enabled, Hovered, Focused, Pressed, Disabled | `48 x 48` |
+| `Today`    | Enabled, Hovered, Focused, Pressed, Disabled | `48 x 48` |
+| `Selected` | Enabled, Hovered, Focused, Pressed           | `48 x 48` |
 
 ### Year Cell Variants
 
-| Selected | States captured | Size |
-| --- | --- | --- |
-| `False` | Enabled, Hovered, Focused | `88 x 52` |
+| Selected | States captured           | Size      |
+| -------- | ------------------------- | --------- |
+| `False`  | Enabled, Hovered, Focused | `88 x 52` |
 
 ### Visual Description
 

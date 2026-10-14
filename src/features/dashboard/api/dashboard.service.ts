@@ -1,6 +1,9 @@
 import { apiV2, getV2RoleSegment, type V2RoleSegment } from "../../../shared/api/api";
 import { getStoredAuthSession, getActiveAuthRole } from "../../../shared/auth/auth-storage";
-import { mapAdvertisementToAdCard, type AdvertisementItem } from "../../advertisements/api/advertisement.service";
+import {
+  mapAdvertisementToAdCard,
+  type AdvertisementItem,
+} from "../../advertisements/api/advertisement.service";
 import type { AdCardData } from "../../advertisements/components/AdCard";
 
 export type DashboardPeriod = "week" | "month" | "year" | "7d" | "30d" | "90d";
@@ -192,9 +195,7 @@ type AgentDashboardApiResponse = {
 };
 
 function asRecord(value: unknown): RawRecord {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as RawRecord)
-    : {};
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as RawRecord) : {};
 }
 
 function toNumber(value: unknown, fallback = 0) {
@@ -284,10 +285,7 @@ function normalizePublishedAdvertises(value: unknown) {
       const categoryId = breakdownItem.category_id;
 
       return {
-        categoryId:
-          categoryId === null || categoryId === undefined
-            ? null
-            : String(categoryId),
+        categoryId: categoryId === null || categoryId === undefined ? null : String(categoryId),
         count: Math.max(0, toNumber(breakdownItem.count)),
         label: toText(breakdownItem.label),
         percent: Math.max(0, toNumber(breakdownItem.percent)),
@@ -303,19 +301,22 @@ function normalizeBalances(value: unknown) {
 
   return {
     adCreditBalance: Math.max(0, toNumber(balances.ad_credit_balance)),
-    unassignedAdCreditBalance: balances.unassigned_ad_credit_balance !== undefined
-      ? Math.max(0, toNumber(balances.unassigned_ad_credit_balance))
-      : Math.max(0, toNumber(balances.ad_credit_balance)),
+    unassignedAdCreditBalance:
+      balances.unassigned_ad_credit_balance !== undefined
+        ? Math.max(0, toNumber(balances.unassigned_ad_credit_balance))
+        : Math.max(0, toNumber(balances.ad_credit_balance)),
     panelDaysRemaining: Math.max(0, toNumber(balances.panel_days_remaining)),
     panelExpiresAt: toText(balances.panel_expires_at) || null,
     renewCreditBalance: Math.max(0, toNumber(balances.renew_credit_balance)),
-    unassignedRenewCreditBalance: balances.unassigned_renew_credit_balance !== undefined
-      ? Math.max(0, toNumber(balances.unassigned_renew_credit_balance))
-      : Math.max(0, toNumber(balances.renew_credit_balance)),
+    unassignedRenewCreditBalance:
+      balances.unassigned_renew_credit_balance !== undefined
+        ? Math.max(0, toNumber(balances.unassigned_renew_credit_balance))
+        : Math.max(0, toNumber(balances.renew_credit_balance)),
     specialCreditBalance: Math.max(0, toNumber(balances.special_credit_balance)),
-    unassignedSpecialCreditBalance: balances.unassigned_special_credit_balance !== undefined
-      ? Math.max(0, toNumber(balances.unassigned_special_credit_balance))
-      : Math.max(0, toNumber(balances.special_credit_balance)),
+    unassignedSpecialCreditBalance:
+      balances.unassigned_special_credit_balance !== undefined
+        ? Math.max(0, toNumber(balances.unassigned_special_credit_balance))
+        : Math.max(0, toNumber(balances.special_credit_balance)),
   };
 }
 
@@ -375,7 +376,9 @@ function normalizeAgencyDashboard(
   const sections = asRecord(payload.sections ?? response.sections);
   const creditsSection = asRecord(sections.credits);
   const rankingBadgeSection = asRecord(sections["ranking-badge"] ?? sections.ranking_badge);
-  const consultantActivitySection = asRecord(sections["consultant-activity"] ?? sections.consultant_activity);
+  const consultantActivitySection = asRecord(
+    sections["consultant-activity"] ?? sections.consultant_activity,
+  );
   const reportsTeaserSection = asRecord(sections["reports-teaser"] ?? sections.reports_teaser);
   const registrationProgressSection = asRecord(
     sections["registration-progress"] ??
@@ -383,7 +386,9 @@ function normalizeAgencyDashboard(
       sections["advertise-registration-progress"] ??
       sections.advertise_registration_progress,
   );
-  const rankingProgressSection = asRecord(sections["ranking-progress"] ?? sections.ranking_progress);
+  const rankingProgressSection = asRecord(
+    sections["ranking-progress"] ?? sections.ranking_progress,
+  );
   const tasksSection = asRecord(sections.tasks);
   const urgentActionsSection = asRecord(sections["urgent-actions"] ?? sections.urgent_actions);
 
@@ -392,13 +397,9 @@ function normalizeAgencyDashboard(
     rawRanking.current ?? (rankingBadgeSection.badge_title ? rankingBadgeSection : undefined),
   );
   const resolvedRank = toNullableNumber(rawRanking.rank ?? rankingBadgeSection.rank);
-  const rawTopEntities = Array.isArray(rawRanking.top_agencies)
-    ? rawRanking.top_agencies
-    : [];
+  const rawTopEntities = Array.isArray(rawRanking.top_agencies) ? rawRanking.top_agencies : [];
   const rawConsultantActivityCandidate =
-    consultantActivitySection.items ??
-    payload.consultant_activity ??
-    response.consultant_activity;
+    consultantActivitySection.items ?? payload.consultant_activity ?? response.consultant_activity;
   const rawConsultantActivity: unknown[] = Array.isArray(rawConsultantActivityCandidate)
     ? rawConsultantActivityCandidate
     : [];
@@ -410,18 +411,18 @@ function normalizeAgencyDashboard(
     ? rawAdvertiseProgressCandidate
     : [];
   const rawRankingProgressCandidate =
-    rankingProgressSection.items ??
-    payload.ranking_progress ??
-    response.ranking_progress;
+    rankingProgressSection.items ?? payload.ranking_progress ?? response.ranking_progress;
   const rawRankingProgress: unknown[] = Array.isArray(rawRankingProgressCandidate)
     ? rawRankingProgressCandidate
     : [];
 
   const rawBalances = creditsSection.balances ?? payload.balances ?? response.balances;
-  const rawBalanceDeltas = creditsSection.balance_deltas ?? payload.balance_deltas ?? response.balance_deltas;
-  const rawPublishedAdvertises = reportsTeaserSection.published_ads_count !== undefined
-    ? reportsTeaserSection
-    : payload.published_advertises ?? response.published_advertises;
+  const rawBalanceDeltas =
+    creditsSection.balance_deltas ?? payload.balance_deltas ?? response.balance_deltas;
+  const rawPublishedAdvertises =
+    reportsTeaserSection.published_ads_count !== undefined
+      ? reportsTeaserSection
+      : (payload.published_advertises ?? response.published_advertises);
 
   return {
     advertiseRegistrationProgress: rawAdvertiseProgress.map((item) => {
@@ -449,9 +450,7 @@ function normalizeAgencyDashboard(
     }),
     kind: "agency",
     period: toText(payload.period ?? response.period) || String(requestedPeriod),
-    publishedAdvertises: normalizePublishedAdvertises(
-      rawPublishedAdvertises,
-    ),
+    publishedAdvertises: normalizePublishedAdvertises(rawPublishedAdvertises),
     rankingProgress: rawRankingProgress
       .map((item) => {
         const progress = asRecord(item);
@@ -471,15 +470,15 @@ function normalizeAgencyDashboard(
         rank: resolvedRank ?? currentRanking.rank,
       },
       rank: resolvedRank,
-      topEntities: rawTopEntities.map((entity, index) =>
-        normalizeRankingEntity(entity, index + 1),
-      ),
+      topEntities: rawTopEntities.map((entity, index) => normalizeRankingEntity(entity, index + 1)),
     },
     renewUsage: null,
     specialUsage: null,
     walletCredit: null,
     workSummary: null,
-    urgentActions: normalizeUrgentActions(urgentActionsSection.items ?? payload.urgent_actions ?? response.urgent_actions),
+    urgentActions: normalizeUrgentActions(
+      urgentActionsSection.items ?? payload.urgent_actions ?? response.urgent_actions,
+    ),
     tasks: normalizeTasks(tasksSection.items ?? payload.tasks ?? response.tasks),
   };
 }
@@ -498,11 +497,8 @@ function normalizeAgentDashboard(
     toNullableNumber(rawRanking.rank ?? rankingBadgeSection.rank),
   );
   const rawProgressCandidate =
-    payload.advertise_registration_progress ??
-    response.advertise_registration_progress;
-  const rawProgress: unknown[] = Array.isArray(rawProgressCandidate)
-    ? rawProgressCandidate
-    : [];
+    payload.advertise_registration_progress ?? response.advertise_registration_progress;
+  const rawProgress: unknown[] = Array.isArray(rawProgressCandidate) ? rawProgressCandidate : [];
   const wallet = asRecord(payload.wallet ?? response.wallet);
   const workSummary = asRecord(payload.work_summary ?? response.work_summary);
 
@@ -515,14 +511,16 @@ function normalizeAgentDashboard(
         month: toText(progress.month),
       };
     }),
-    balanceDeltas: normalizeBalanceDeltas(creditsSection.balance_deltas ?? payload.usage_deltas ?? response.usage_deltas),
-    balances: normalizeBalances(creditsSection.balances ?? payload.entitlement ?? response.entitlement),
+    balanceDeltas: normalizeBalanceDeltas(
+      creditsSection.balance_deltas ?? payload.usage_deltas ?? response.usage_deltas,
+    ),
+    balances: normalizeBalances(
+      creditsSection.balances ?? payload.entitlement ?? response.entitlement,
+    ),
     consultantActivity: [],
     kind: "agent",
     period: toText(response.period) || String(requestedPeriod),
-    publishedAdvertises: normalizePublishedAdvertises(
-      response.published_advertises,
-    ),
+    publishedAdvertises: normalizePublishedAdvertises(response.published_advertises),
     ranking: {
       current: {
         ...currentRanking,
@@ -539,20 +537,11 @@ function normalizeAgentDashboard(
       Object.keys(workSummary).length === 0
         ? null
         : {
-            createdAdvertises: Math.max(
-              0,
-              toNumber(workSummary.created_advertises),
-            ),
+            createdAdvertises: Math.max(0, toNumber(workSummary.created_advertises)),
             expired: Math.max(0, toNumber(workSummary.expired)),
-            pendingAssignments: Math.max(
-              0,
-              toNumber(workSummary.pending_assignments),
-            ),
+            pendingAssignments: Math.max(0, toNumber(workSummary.pending_assignments)),
             pendingReview: Math.max(0, toNumber(workSummary.pending_review)),
-            publishedAdvertises: Math.max(
-              0,
-              toNumber(workSummary.published_advertises),
-            ),
+            publishedAdvertises: Math.max(0, toNumber(workSummary.published_advertises)),
             rejected: Math.max(0, toNumber(workSummary.rejected)),
           },
     urgentActions: normalizeUrgentActions(response.urgent_actions),
@@ -583,10 +572,7 @@ function toV2Context(role?: DashboardRolePersona | string | null): V2RoleSegment
   return getV2RoleSegment(role);
 }
 
-async function getAgencyDashboardSection(
-  path: string,
-  period: DashboardPeriod,
-) {
+async function getAgencyDashboardSection(path: string, period: DashboardPeriod) {
   return apiV2
     .get(`agency/dashboard/${path}`, {
       searchParams: { period },
@@ -597,10 +583,7 @@ async function getAgencyDashboardSection(
 export async function getAgencyDashboardCredits(
   period: DashboardPeriod = "month",
 ): Promise<AgencyDashboardCreditsSection> {
-  const response = await getAgencyDashboardSection(
-    "credits",
-    period,
-  );
+  const response = await getAgencyDashboardSection("credits", period);
   const normalized = normalizeAgencyDashboard(response, period);
 
   return {
@@ -613,10 +596,7 @@ export async function getAgencyDashboardCredits(
 export async function getAgencyDashboardConsultantActivity(
   period: DashboardPeriod = "month",
 ): Promise<AgencyDashboardConsultantActivitySection> {
-  const response = await getAgencyDashboardSection(
-    "consultant-activity",
-    period,
-  );
+  const response = await getAgencyDashboardSection("consultant-activity", period);
   const normalized = normalizeAgencyDashboard(response, period);
 
   return {
@@ -628,10 +608,7 @@ export async function getAgencyDashboardConsultantActivity(
 export async function getAgencyDashboardPublishedAdvertises(
   period: DashboardPeriod = "month",
 ): Promise<AgencyDashboardPublishedAdvertisesSection> {
-  const response = await getAgencyDashboardSection(
-    "published-advertises",
-    period,
-  );
+  const response = await getAgencyDashboardSection("published-advertises", period);
   const normalized = normalizeAgencyDashboard(response, period);
 
   return {
@@ -643,10 +620,7 @@ export async function getAgencyDashboardPublishedAdvertises(
 export async function getAgencyDashboardAdvertiseRegistrationProgress(
   period: DashboardPeriod = "month",
 ): Promise<AgencyDashboardAdvertiseRegistrationProgressSection> {
-  const response = await getAgencyDashboardSection(
-    "advertise-registration-progress",
-    period,
-  );
+  const response = await getAgencyDashboardSection("advertise-registration-progress", period);
   const normalized = normalizeAgencyDashboard(response, period);
 
   return {
@@ -658,10 +632,7 @@ export async function getAgencyDashboardAdvertiseRegistrationProgress(
 export async function getAgencyDashboardRankingProgress(
   period: DashboardPeriod = "month",
 ): Promise<AgencyDashboardRankingProgressSection> {
-  const response = await getAgencyDashboardSection(
-    "ranking-progress",
-    period,
-  );
+  const response = await getAgencyDashboardSection("ranking-progress", period);
   const normalized = normalizeAgencyDashboard(response, period);
 
   return {
@@ -671,9 +642,7 @@ export async function getAgencyDashboardRankingProgress(
 }
 
 export async function getAgencyDashboardRanking(): Promise<AgencyDashboardRankingSection> {
-  const response = await apiV2
-    .get("agency/dashboard/ranking")
-    .json<AgencyDashboardApiResponse>();
+  const response = await apiV2.get("agency/dashboard/ranking").json<AgencyDashboardApiResponse>();
   const normalized = normalizeAgencyDashboard(response, "month");
 
   return { ranking: normalized.ranking };
@@ -692,9 +661,7 @@ export function mergeAgencyDashboardSections(
       empty.advertiseRegistrationProgress,
     balanceDeltas: sections.credits?.balanceDeltas ?? empty.balanceDeltas,
     balances: sections.credits?.balances ?? empty.balances,
-    consultantActivity:
-      sections.consultantActivity?.consultantActivity ??
-      empty.consultantActivity,
+    consultantActivity: sections.consultantActivity?.consultantActivity ?? empty.consultantActivity,
     period:
       sections.credits?.period ??
       sections.consultantActivity?.period ??
@@ -703,11 +670,9 @@ export function mergeAgencyDashboardSections(
       sections.rankingProgress?.period ??
       empty.period,
     publishedAdvertises:
-      sections.publishedAdvertises?.publishedAdvertises ??
-      empty.publishedAdvertises,
+      sections.publishedAdvertises?.publishedAdvertises ?? empty.publishedAdvertises,
     ranking: sections.ranking?.ranking ?? empty.ranking,
-    rankingProgress:
-      sections.rankingProgress?.rankingProgress ?? empty.rankingProgress,
+    rankingProgress: sections.rankingProgress?.rankingProgress ?? empty.rankingProgress,
   };
 }
 
@@ -769,7 +734,9 @@ export async function getAgentBadges(): Promise<AgentBadge[]> {
 
 export async function getAgentBadge(slug: string): Promise<AgentBadge | null> {
   const context = toV2Context("agent");
-  const response = await apiV2.get(`${context}/ranking/badges/${encodeURIComponent(slug)}`).json<AgentBadgeDetailApiResponse>();
+  const response = await apiV2
+    .get(`${context}/ranking/badges/${encodeURIComponent(slug)}`)
+    .json<AgentBadgeDetailApiResponse>();
   return response.data ?? response.badge ?? null;
 }
 
@@ -866,9 +833,7 @@ export async function getDashboardRankingBadge(
 ): Promise<DashboardRankingBadgeData | null> {
   const context = toV2Context(role);
   try {
-    const res = await apiV2
-      .get(`${context}/dashboard/ranking-badge`)
-      .json<{ data?: RawRecord }>();
+    const res = await apiV2.get(`${context}/dashboard/ranking-badge`).json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     return {
       categoryLabel: toStringValue(d.category_label, role === "agency" ? "سطح آژانس" : "سطح مشاور"),
@@ -879,7 +844,10 @@ export async function getDashboardRankingBadge(
       rank: toNumber(d.rank, 0),
       totalCompetitors: toNumber(d.total_competitors, 0),
       changeFromLastMonth: toNumber(d.change_from_last_month, 0),
-      targetUrl: toStringValue(d.target_url, role === "agency" ? "/account/dashboard/ranking" : "/account/ranking"),
+      targetUrl: toStringValue(
+        d.target_url,
+        role === "agency" ? "/account/dashboard/ranking" : "/account/ranking",
+      ),
     };
   } catch {
     return null;
@@ -909,9 +877,7 @@ export async function getDashboardCredits(
 ): Promise<DashboardCreditsData | null> {
   const context = toV2Context(role);
   try {
-    const res = await apiV2
-      .get(`${context}/dashboard/credits`)
-      .json<{ data?: RawRecord }>();
+    const res = await apiV2.get(`${context}/dashboard/credits`).json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     const rawBalances = asRecord(d.balances);
     const rawDeltas = asRecord(d.balance_deltas);
@@ -922,8 +888,12 @@ export async function getDashboardCredits(
         specialCreditBalance: toNumber(rawBalances.special_credit_balance, 0),
         panelDaysRemaining: toNumber(rawBalances.panel_days_remaining, 0),
         unassignedAdCreditBalance: toNumberOrUndefined(rawBalances.unassigned_ad_credit_balance),
-        unassignedRenewCreditBalance: toNumberOrUndefined(rawBalances.unassigned_renew_credit_balance),
-        unassignedSpecialCreditBalance: toNumberOrUndefined(rawBalances.unassigned_special_credit_balance),
+        unassignedRenewCreditBalance: toNumberOrUndefined(
+          rawBalances.unassigned_renew_credit_balance,
+        ),
+        unassignedSpecialCreditBalance: toNumberOrUndefined(
+          rawBalances.unassigned_special_credit_balance,
+        ),
         walletBalance: toNumberOrUndefined(rawBalances.wallet_balance),
       },
       balanceDeltas: {
@@ -960,20 +930,19 @@ export async function getDashboardNotifications(
 ): Promise<DashboardNotificationWidgetData | null> {
   const context = toV2Context(role);
   try {
-    const res = await apiV2
-      .get(`${context}/dashboard/notifications`)
-      .json<{ data?: RawRecord }>();
+    const res = await apiV2.get(`${context}/dashboard/notifications`).json<{ data?: RawRecord }>();
     const d = res.data ?? {};
     const rawLatest = asRecord(d.latest);
-    const latest = d.latest && rawLatest.id
-      ? {
-          id: toStringValue(rawLatest.id),
-          title: toStringValue(rawLatest.title),
-          message: toStringValue(rawLatest.message),
-          createdAt: toStringValue(rawLatest.created_at),
-          isRead: Boolean(rawLatest.is_read),
-        }
-      : null;
+    const latest =
+      d.latest && rawLatest.id
+        ? {
+            id: toStringValue(rawLatest.id),
+            title: toStringValue(rawLatest.title),
+            message: toStringValue(rawLatest.message),
+            createdAt: toStringValue(rawLatest.created_at),
+            isRead: Boolean(rawLatest.is_read),
+          }
+        : null;
     const rawItems = Array.isArray(d.items) ? d.items : [];
     const items = rawItems.map((item) => {
       const rec = asRecord(item);
@@ -1019,7 +988,9 @@ export async function getDashboardReportsTeaser(
     return {
       totalViews: toNumber(d.total_views, 0),
       viewsDeltaPercent: toNumber(d.views_delta_percent, 0),
-      sparklineData: Array.isArray(d.sparkline_data) ? d.sparkline_data.map((n) => toNumber(n, 0)) : [],
+      sparklineData: Array.isArray(d.sparkline_data)
+        ? d.sparkline_data.map((n) => toNumber(n, 0))
+        : [],
       publishedAdsCount: toNumber(d.published_ads_count, 0),
       conversionRate: toNumber(d.conversion_rate, 0),
     };
@@ -1051,10 +1022,7 @@ export async function getDashboardRecentAds(
     return items.map((raw, index) => {
       const rec = asRecord(raw);
       const card = mapAdvertisementToAdCard(rec as unknown as AdvertisementItem, index);
-      const statusLabel =
-        (rec.status_label as string) ||
-        (rec.status as string) ||
-        card.status;
+      const statusLabel = (rec.status_label as string) || (rec.status as string) || card.status;
 
       return {
         ...card,
@@ -1313,7 +1281,10 @@ export async function getDashboardReportsRankingScore(
       thresholdLabel: toStringValue(d.threshold_label),
       pointsNeeded: toNumber(d.points_needed, 0),
       targetRank: toNumber(d.target_rank, 0),
-      guideUrl: toStringValue(d.guide_url, role === "agency" ? "/account/dashboard/ranking" : "/account/ranking"),
+      guideUrl: toStringValue(
+        d.guide_url,
+        role === "agency" ? "/account/dashboard/ranking" : "/account/ranking",
+      ),
     };
   } catch {
     return null;

@@ -51,7 +51,7 @@ export function NewAdStepRenderer({
 }: NewAdStepRendererProps) {
   if (isCrmEditMode && editAdIsLoading) {
     return (
-      <div className="grid min-h-0 flex-1 place-items-center bg-surface-container text-sm font-medium text-on-surface-var">
+      <div className="bg-surface-container text-on-surface-var grid min-h-0 flex-1 place-items-center text-sm font-medium">
         در حال دریافت اطلاعات آگهی...
       </div>
     );
@@ -63,7 +63,9 @@ export function NewAdStepRenderer({
         errors={fieldErrors}
         isPending={saveDraftPending}
         label={label}
-        onBack={isCrmEditMode ? actions.leaveCrmEditor : isEditMode ? actions.handleEditBack : undefined}
+        onBack={
+          isCrmEditMode ? actions.leaveCrmEditor : isEditMode ? actions.handleEditBack : undefined
+        }
         onClearError={clearFieldError}
         onMoreFeatures={() => setStep("moreFeatures")}
         onNext={actions.goToMedia}
@@ -94,7 +96,12 @@ export function NewAdStepRenderer({
   }
 
   if (step === "publisherSelection" && canChangePublisher) {
-    return <PublisherSelectionStep onBack={() => setStep("media")} onConfirm={actions.confirmPublisher} />;
+    return (
+      <PublisherSelectionStep
+        onBack={() => setStep("media")}
+        onConfirm={actions.confirmPublisher}
+      />
+    );
   }
 
   return (

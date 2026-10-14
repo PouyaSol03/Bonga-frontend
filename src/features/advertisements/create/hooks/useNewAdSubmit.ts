@@ -89,7 +89,12 @@ export function useNewAdSubmit({
       return;
     }
 
-    if (!isEditMode && !isCrmSource && values.registrantType === "agency" && !values.agencyId.trim()) {
+    if (
+      !isEditMode &&
+      !isCrmSource &&
+      values.registrantType === "agency" &&
+      !values.agencyId.trim()
+    ) {
       setSubmitError("لطفا آژانس مورد نظر را انتخاب کنید.");
       setStep("agencySelection");
       return;
@@ -114,8 +119,15 @@ export function useNewAdSubmit({
     if (!advertiseFormQuery.data) {
       setSubmitError(
         advertiseFormQuery.isError
-          ? getApiErrorMessage(advertiseFormQuery.error, isEditMode ? "دریافت ساختار فرم ویرایش آگهی با خطا مواجه شد." : "دریافت ساختار فرم ثبت آگهی با خطا مواجه شد.")
-          : isEditMode ? "در حال دریافت ساختار فرم ویرایش آگهی هستیم. لطفا دوباره تلاش کنید." : "در حال دریافت ساختار فرم ثبت آگهی هستیم. لطفا دوباره تلاش کنید.",
+          ? getApiErrorMessage(
+              advertiseFormQuery.error,
+              isEditMode
+                ? "دریافت ساختار فرم ویرایش آگهی با خطا مواجه شد."
+                : "دریافت ساختار فرم ثبت آگهی با خطا مواجه شد.",
+            )
+          : isEditMode
+            ? "در حال دریافت ساختار فرم ویرایش آگهی هستیم. لطفا دوباره تلاش کنید."
+            : "در حال دریافت ساختار فرم ثبت آگهی هستیم. لطفا دوباره تلاش کنید.",
       );
       return;
     }

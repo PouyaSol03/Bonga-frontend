@@ -43,14 +43,20 @@ export function submitCrmAdvertise({
     { id: isEditMode ? editAdId : null, original: crmEditRecord, values },
     {
       onError: (error: unknown) =>
-        setSubmitError(getApiErrorMessage(error, isEditMode ? "ویرایش آگهی با خطا مواجه شد." : "ثبت آگهی با خطا مواجه شد.")),
+        setSubmitError(
+          getApiErrorMessage(
+            error,
+            isEditMode ? "ویرایش آگهی با خطا مواجه شد." : "ثبت آگهی با خطا مواجه شد.",
+          ),
+        ),
       onSettled: () => {
         submitLockRef.current = false;
       },
       onSuccess: (savedAdvertise: any) => {
         clearNewAdDraftStorage();
         if (isEditMode && editAdId) {
-          const returnTo = editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`;
+          const returnTo =
+            editAdState.editReturnTo ?? `/crm/advertises/${encodeURIComponent(editAdId)}`;
           const separator = returnTo.includes("?") ? "&" : "?";
           navigate(`${returnTo}${separator}updated=1`, {
             replace: true,
@@ -60,7 +66,9 @@ export function submitCrmAdvertise({
         }
         const createdId = getCrmRecordId(savedAdvertise);
         navigate(
-          createdId ? `/crm/advertises/${encodeURIComponent(createdId)}?created=1` : "/crm/advertises?created=1",
+          createdId
+            ? `/crm/advertises/${encodeURIComponent(createdId)}?created=1`
+            : "/crm/advertises?created=1",
           { replace: true },
         );
       },

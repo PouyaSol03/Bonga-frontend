@@ -101,9 +101,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
       },
       {
         onError: (error) => {
-          showError(
-            getApiErrorMessage(error, "رد درخواست ثبت آگهی با خطا مواجه شد."),
-          );
+          showError(getApiErrorMessage(error, "رد درخواست ثبت آگهی با خطا مواجه شد."));
         },
         onSuccess: () => {
           navigate(adManagementPaths.root, { replace: true, state: { tab: "status" } });
@@ -114,7 +112,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -127,7 +125,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
         titleClassName="text-base font-semibold leading-6"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pt-4">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-4">
         <section aria-labelledby="reject-confirmation-title">
           <Typography
             as="h2"
@@ -135,7 +133,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
             variant="body"
             size="large"
             weight="regular"
-            className="m-0 text-right text-on-surface"
+            className="text-on-surface m-0 text-right"
           >
             آیا از عدم تأیید این آگهی مطمئن هستید؟
           </Typography>
@@ -144,7 +142,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
             variant="body"
             size="medium"
             weight="regular"
-            className="m-0 mt-2 text-right text-outline"
+            className="text-outline m-0 mt-2 text-right"
           >
             با انجام این کار، درخواست کاربر رد شده و به او اطلاع‌رسانی خواهد شد.
           </Typography>
@@ -152,7 +150,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
 
         <div
           aria-hidden="true"
-          className="mt-4 h-px w-full border-t border-dashed border-outline-var"
+          className="border-outline-var mt-4 h-px w-full border-t border-dashed"
         />
 
         <section className="pt-4" aria-labelledby="reject-reason-title">
@@ -162,7 +160,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
             variant="label"
             size="large"
             weight="medium"
-            className="m-0 text-right text-on-surface"
+            className="text-on-surface m-0 text-right"
           >
             دلیل عدم تأیید
           </Typography>
@@ -172,7 +170,7 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
             <div className="flex flex-col" role="radiogroup" aria-label="دلیل عدم تأیید">
               {rejectReasons.map((reason) => (
                 <label
-                  className="flex h-16 cursor-pointer items-center justify-between pl-5 text-on-surface [direction:ltr]"
+                  className="text-on-surface flex h-16 cursor-pointer items-center justify-between pl-5 [direction:ltr]"
                   key={reason}
                 >
                   <RadioIndicator checked={selectedReason === reason} />
@@ -202,30 +200,41 @@ export function IndependentConsultantAdRejectPage(props?: IndependentConsultantA
         </section>
       </main>
 
-      <footer className="flex h-[68px] shrink-0 items-center gap-4 bg-surface-container-lowest px-4 py-[14px] shadow-[0_-4px_16px_rgba(26,26,26,0.08)] [direction:ltr]">
+      <footer className="bg-surface-container-lowest flex h-[68px] shrink-0 items-center gap-4 px-4 py-[14px] shadow-[0_-4px_16px_rgba(26,26,26,0.08)] [direction:ltr]">
         <Button
           unstyled
-          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-[10px] border border-primary bg-primary px-4 text-on-primary transition-colors active:opacity-80 disabled:cursor-not-allowed"
+          className="border-primary bg-primary text-on-primary inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-[10px] border px-4 transition-colors active:opacity-80 disabled:cursor-not-allowed"
           disabled={rejectAssignmentMutation.isPending}
           onClick={handleConfirm}
           type="button"
         >
-          <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="[direction:rtl]"
+          >
             {rejectAssignmentMutation.isPending ? "در حال ثبت..." : "تایید"}
           </Typography>
         </Button>
         <Button
           unstyled
-          className="inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-[10px] border border-primary bg-surface-container-lowest px-4 text-primary transition-colors active:bg-primary-container"
+          className="border-primary bg-surface-container-lowest text-primary active:bg-primary-container inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-[10px] border px-4 transition-colors"
           onClick={navigateBackToReview}
           type="button"
         >
-          <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="[direction:rtl]"
+          >
             انصراف
           </Typography>
         </Button>
       </footer>
-
     </PageFrame>
   );
 }

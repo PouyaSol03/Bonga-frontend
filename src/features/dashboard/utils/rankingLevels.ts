@@ -157,8 +157,14 @@ export function getAgencyRankingLevel(params?: {
       const lvlTitle = normalizeText(lvl.title);
       const lvlSlug = normalizeText(lvl.slug);
       return (
-        (title && (lvlTitle.includes(title) || title.includes(lvlTitle) || (title.includes("new") && lvlSlug === "newbie"))) ||
-        (slug && (lvlSlug === slug || slug.includes(lvlSlug) || (slug.includes("new") && lvlSlug === "newbie")))
+        (title &&
+          (lvlTitle.includes(title) ||
+            title.includes(lvlTitle) ||
+            (title.includes("new") && lvlSlug === "newbie"))) ||
+        (slug &&
+          (lvlSlug === slug ||
+            slug.includes(lvlSlug) ||
+            (slug.includes("new") && lvlSlug === "newbie")))
       );
     });
     if (found) return found;
@@ -166,9 +172,7 @@ export function getAgencyRankingLevel(params?: {
 
   const score = params?.score;
   if (typeof score === "number" && Number.isFinite(score)) {
-    const foundByScore = levels.find(
-      (lvl) => score >= lvl.minPoints && score <= lvl.maxPoints
-    );
+    const foundByScore = levels.find((lvl) => score >= lvl.minPoints && score <= lvl.maxPoints);
     if (foundByScore) return foundByScore;
     if (score > 100) return levels[levels.length - 1];
   }
@@ -199,9 +203,7 @@ export function getConsultantRankingLevel(params?: {
 
   const score = params?.score;
   if (typeof score === "number" && Number.isFinite(score)) {
-    const foundByScore = levels.find(
-      (lvl) => score >= lvl.minPoints && score <= lvl.maxPoints
-    );
+    const foundByScore = levels.find((lvl) => score >= lvl.minPoints && score <= lvl.maxPoints);
     if (foundByScore) return foundByScore;
     if (score > 100) return levels[levels.length - 1];
   }

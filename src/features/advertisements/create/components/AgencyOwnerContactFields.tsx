@@ -23,17 +23,9 @@ export function AgencyOwnerContactFields({
   ownerPhone,
 }: AgencyOwnerContactFieldsProps) {
   return (
-    <div
-      className="border-t border-dashed border-outline-var pt-5"
-      data-field-key="ownerContact"
-    >
+    <div className="border-outline-var border-t border-dashed pt-5" data-field-key="ownerContact">
       <div className="mb-1 text-right">
-        <Typography
-          variant="label"
-          size="large"
-          weight="semibold"
-          className="text-on-surface"
-        >
+        <Typography variant="label" size="large" weight="semibold" className="text-on-surface">
           ارتباط با مالک
         </Typography>
       </div>
@@ -43,7 +35,7 @@ export function AgencyOwnerContactFields({
         variant="body"
         size="small"
         weight="regular"
-        className="m-0 mb-4 text-right text-xs leading-5 text-on-surface-var"
+        className="text-on-surface-var m-0 mb-4 text-right text-xs leading-5"
       >
         این اطلاعات فقط برای منتشرکننده آگهی نمایش داده می‌شود.
       </Typography>

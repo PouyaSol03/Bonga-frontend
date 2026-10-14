@@ -1,23 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SEO } from "../../shared/components/SEO";
 import "./searchMap.css";
-import {
-  getApiErrorMessage,
-  isUnauthorizedApiError,
-} from "../../shared/api/api";
+import { getApiErrorMessage, isUnauthorizedApiError } from "../../shared/api/api";
 import { NoConnectionState, isNoConnectionError } from "../../shared/components/ErrorState";
 import { getStoredAuthSession } from "../../shared/auth/auth-storage";
-import { useAdvertisementListQuery, useAdvertisementMapQuery } from "../advertisements/api/advertisement.hooks";
+import {
+  useAdvertisementListQuery,
+  useAdvertisementMapQuery,
+} from "../advertisements/api/advertisement.hooks";
 import { getAdvertisementImageUrls } from "../advertisements/utils/advertisement-images";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { usePublisherOptions } from "../advertisements/api/publisher-options.hooks";
-import {
-  useCreatePropertyRequestMutation,
-} from "../property-requests/api/property-request.hooks";
-import {
-  useSavedSearchesQuery,
-  useSaveSearchMutation,
-} from "./api/saved-search.hooks";
+import { useCreatePropertyRequestMutation } from "../property-requests/api/property-request.hooks";
+import { useSavedSearchesQuery, useSaveSearchMutation } from "./api/saved-search.hooks";
 import { useToast } from "../../shared/hooks/useToast";
 import {
   getBrowserLocation,
@@ -69,11 +64,9 @@ import { getPropertyRequestScope } from "../property-requests/api/property-reque
 import { getStoredBackTarget } from "../../shared/navigation/navigation";
 
 type SearchMapMode = "map" | "preview" | "list";
-type SearchFilterChipId = "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
-type InvalidGeofenceResult = Exclude<
-  GeofenceValidationResult,
-  { isValid: true }
->;
+type SearchFilterChipId =
+  "filters" | "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
+type InvalidGeofenceResult = Exclude<GeofenceValidationResult, { isValid: true }>;
 
 type GeofenceHistoryEntry = {
   result: GeofenceResult;
@@ -141,7 +134,8 @@ const filterableParamKeys = [
   "accommodation_type",
   "hotel_stars",
   "office_position",
-  "office_document_type", "has_document",
+  "office_document_type",
+  "has_document",
   "management_room",
   "conference_room",
   "reception_hall",
@@ -171,10 +165,30 @@ const filterableParamKeys = [
   "opening_count",
   "opening_count_min",
   "opening_count_max",
-  "space_type", "standard_capacity", "rental_period", "view_type", "check_in_time", "check_out_time",
-  "min_stay_days", "min_stay_days_min", "min_stay_days_max", "evacuation_guarantee", "evacuation_guarantee_min", "evacuation_guarantee_max",
-  "normal_daily_price", "normal_daily_price_min", "normal_daily_price_max", "weekend_daily_price", "weekend_daily_price_min", "weekend_daily_price_max",
-  "special_daily_price", "special_daily_price_min", "special_daily_price_max", "extra_person_price", "extra_person_price_min", "extra_person_price_max",
+  "space_type",
+  "standard_capacity",
+  "rental_period",
+  "view_type",
+  "check_in_time",
+  "check_out_time",
+  "min_stay_days",
+  "min_stay_days_min",
+  "min_stay_days_max",
+  "evacuation_guarantee",
+  "evacuation_guarantee_min",
+  "evacuation_guarantee_max",
+  "normal_daily_price",
+  "normal_daily_price_min",
+  "normal_daily_price_max",
+  "weekend_daily_price",
+  "weekend_daily_price_min",
+  "weekend_daily_price_max",
+  "special_daily_price",
+  "special_daily_price_min",
+  "special_daily_price_max",
+  "extra_person_price",
+  "extra_person_price_min",
+  "extra_person_price_max",
   "project_type",
   "project_status",
   "delivery_date",
@@ -201,24 +215,117 @@ const filterableParamKeys = [
   "facilities",
 ];
 
-
 const featureFilterParamKeys = new Set([
-  "land_area", "land_area_min", "land_area_max", "building_area", "building_area_min", "building_area_max",
-  "total_floors", "units_per_floor", "unit_type", "unit_position", "document_type",
-  "land_use", "suitable_for", "occupancy_status", "pet_policy", "ready_delivery_date",
-  "min_contract_months", "min_contract_months_min", "min_contract_months_max", "rent_conversion_policy",
-  "kitchen_type", "renovated",
-  "furnished", "land_position", "building_type", "villa_type", "commercial_position",
-  "ownership_status", "accommodation_type", "hotel_stars", "office_position", "office_document_type", "has_document",
-  "management_room", "conference_room", "reception_hall", "signboard", "kitchen", "separate_entrance",
-  "facade_material", "floor_material", "cabinet_material", "current_status", "industrial_property_type", "access_type", "density",
-  "density_min", "density_max", "land_width", "land_width_min", "land_width_max",
-  "street_width", "street_width_min", "street_width_max", "build_permit", "commercial_permit",
-  "height", "height_min", "height_max", "opening_count", "opening_count_min", "opening_count_max",
-  "space_type", "standard_capacity", "rental_period", "view_type", "check_in_time", "check_out_time", "min_stay_days", "min_stay_days_min", "min_stay_days_max",
-  "evacuation_guarantee", "evacuation_guarantee_min", "evacuation_guarantee_max", "normal_daily_price", "normal_daily_price_min", "normal_daily_price_max",
-  "weekend_daily_price", "weekend_daily_price_min", "weekend_daily_price_max", "special_daily_price", "special_daily_price_min", "special_daily_price_max",
-  "extra_person_price", "extra_person_price_min", "extra_person_price_max", "project_type", "project_status", "delivery_date", "project_total_floors", "project_total_floors_min", "project_total_floors_max", "project_total_units", "project_total_units_min", "project_total_units_max", "sale_terms_percent", "sale_terms_percent_min", "sale_terms_percent_max", "sale_terms_installment_months", "sale_terms_installment_months_min", "sale_terms_installment_months_max", "builder_share", "builder_share_min", "builder_share_max", "partnership_type", "installment_sale", "min_meter_price", "max_meter_price", "heating_cooling", "facilities",
+  "land_area",
+  "land_area_min",
+  "land_area_max",
+  "building_area",
+  "building_area_min",
+  "building_area_max",
+  "total_floors",
+  "units_per_floor",
+  "unit_type",
+  "unit_position",
+  "document_type",
+  "land_use",
+  "suitable_for",
+  "occupancy_status",
+  "pet_policy",
+  "ready_delivery_date",
+  "min_contract_months",
+  "min_contract_months_min",
+  "min_contract_months_max",
+  "rent_conversion_policy",
+  "kitchen_type",
+  "renovated",
+  "furnished",
+  "land_position",
+  "building_type",
+  "villa_type",
+  "commercial_position",
+  "ownership_status",
+  "accommodation_type",
+  "hotel_stars",
+  "office_position",
+  "office_document_type",
+  "has_document",
+  "management_room",
+  "conference_room",
+  "reception_hall",
+  "signboard",
+  "kitchen",
+  "separate_entrance",
+  "facade_material",
+  "floor_material",
+  "cabinet_material",
+  "current_status",
+  "industrial_property_type",
+  "access_type",
+  "density",
+  "density_min",
+  "density_max",
+  "land_width",
+  "land_width_min",
+  "land_width_max",
+  "street_width",
+  "street_width_min",
+  "street_width_max",
+  "build_permit",
+  "commercial_permit",
+  "height",
+  "height_min",
+  "height_max",
+  "opening_count",
+  "opening_count_min",
+  "opening_count_max",
+  "space_type",
+  "standard_capacity",
+  "rental_period",
+  "view_type",
+  "check_in_time",
+  "check_out_time",
+  "min_stay_days",
+  "min_stay_days_min",
+  "min_stay_days_max",
+  "evacuation_guarantee",
+  "evacuation_guarantee_min",
+  "evacuation_guarantee_max",
+  "normal_daily_price",
+  "normal_daily_price_min",
+  "normal_daily_price_max",
+  "weekend_daily_price",
+  "weekend_daily_price_min",
+  "weekend_daily_price_max",
+  "special_daily_price",
+  "special_daily_price_min",
+  "special_daily_price_max",
+  "extra_person_price",
+  "extra_person_price_min",
+  "extra_person_price_max",
+  "project_type",
+  "project_status",
+  "delivery_date",
+  "project_total_floors",
+  "project_total_floors_min",
+  "project_total_floors_max",
+  "project_total_units",
+  "project_total_units_min",
+  "project_total_units_max",
+  "sale_terms_percent",
+  "sale_terms_percent_min",
+  "sale_terms_percent_max",
+  "sale_terms_installment_months",
+  "sale_terms_installment_months_min",
+  "sale_terms_installment_months_max",
+  "builder_share",
+  "builder_share_min",
+  "builder_share_max",
+  "partnership_type",
+  "installment_sale",
+  "min_meter_price",
+  "max_meter_price",
+  "heating_cooling",
+  "facilities",
 ]);
 const formCodeLabels: Record<string, string> = {
   partnership: "مشارکت",
@@ -387,7 +494,8 @@ function getActiveFilterCount(params: URLSearchParams) {
 }
 
 function formatRangeChipLabel(title: string, minimum?: string | null, maximum?: string | null) {
-  if (minimum && maximum) return `${title}: ${toPersianDigits(minimum)} تا ${toPersianDigits(maximum)}`;
+  if (minimum && maximum)
+    return `${title}: ${toPersianDigits(minimum)} تا ${toPersianDigits(maximum)}`;
   if (minimum) return `${title}: از ${toPersianDigits(minimum)}`;
   if (maximum) return `${title}: تا ${toPersianDigits(maximum)}`;
 
@@ -411,7 +519,7 @@ function getDynamicFilterChips(search: string): SearchFilterChip[] {
 
   chips.push({
     id: "category",
-    label: formCode ? formCodeLabels[formCode] ?? formCode : "دسته‌بندی",
+    label: formCode ? (formCodeLabels[formCode] ?? formCode) : "دسته‌بندی",
     isActive: Boolean(formCode),
     removable: Boolean(formCode),
   });
@@ -446,11 +554,21 @@ function getDynamicFilterChips(search: string): SearchFilterChip[] {
   }
 
   if (params.get("rooms")) {
-    chips.push({ id: "rooms", label: `اتاق: ${toPersianDigits(params.get("rooms")?.replace(/_/g, "، ") ?? "")}`, isActive: true, removable: true });
+    chips.push({
+      id: "rooms",
+      label: `اتاق: ${toPersianDigits(params.get("rooms")?.replace(/_/g, "، ") ?? "")}`,
+      isActive: true,
+      removable: true,
+    });
   }
 
   if (params.get("floor")) {
-    chips.push({ id: "floor", label: `طبقه: ${toPersianDigits(params.get("floor")?.replace(/_/g, "، ") ?? "")}`, isActive: true, removable: true });
+    chips.push({
+      id: "floor",
+      label: `طبقه: ${toPersianDigits(params.get("floor")?.replace(/_/g, "، ") ?? "")}`,
+      isActive: true,
+      removable: true,
+    });
   }
 
   if (params.get("building_age")) {
@@ -519,15 +637,11 @@ function toPersianDigits(value: unknown) {
   return String(value).replace(/[0-9٠-٩]/g, (digit) => persianDigitMap[digit] ?? digit);
 }
 
-
 function toNumber(value: unknown) {
   if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
 
   if (typeof value === "string" && value.trim()) {
-    const normalizedValue = value.replace(
-      /[۰-۹٠-٩]/g,
-      (digit) => englishDigitMap[digit] ?? digit,
-    );
+    const normalizedValue = value.replace(/[۰-۹٠-٩]/g, (digit) => englishDigitMap[digit] ?? digit);
     const parsed = Number(normalizedValue.replace(/[^\d.-]/g, ""));
 
     return Number.isFinite(parsed) ? parsed : undefined;
@@ -551,7 +665,11 @@ function formatPrice(value: unknown) {
 function readFeatureRaw(item: AdvertisementItem, labels: string[]) {
   const rawFeatures = Array.isArray(item.features) ? item.features : [];
   const dynamicFields = Array.isArray((item as Record<string, unknown>).dynamicFields)
-    ? ((item as Record<string, unknown>).dynamicFields as Array<{ key?: unknown; label?: unknown; value?: unknown }>)
+    ? ((item as Record<string, unknown>).dynamicFields as Array<{
+        key?: unknown;
+        label?: unknown;
+        value?: unknown;
+      }>)
     : [];
   const features = [...rawFeatures, ...dynamicFields];
 
@@ -660,15 +778,10 @@ function normalizeCoordinatePair(first: unknown, second: unknown) {
 function readPositionFromContainer(container?: PositionContainer | null) {
   if (!container) return null;
 
-  const coordinateArray = Array.isArray(container.coordinates)
-    ? container.coordinates
-    : null;
+  const coordinateArray = Array.isArray(container.coordinates) ? container.coordinates : null;
 
   if (coordinateArray && coordinateArray.length >= 2) {
-    const normalizedCoordinates = normalizeCoordinatePair(
-      coordinateArray[0],
-      coordinateArray[1],
-    );
+    const normalizedCoordinates = normalizeCoordinatePair(coordinateArray[0], coordinateArray[1]);
 
     if (normalizedCoordinates) return normalizedCoordinates;
   }
@@ -765,33 +878,101 @@ function mapAdvertisementToSearchListing(
   const description = toText(item.short_description ?? item.description);
   const id = item.id ?? item._id ?? `map-ad-${index + 1}`;
   const formCode = toText(item.form_code ?? readFeatureRaw(item, ["form_code"]), "");
-  const category = toText(item.category ?? item.category_name ?? item.category_title ?? readFeatureRaw(item, ["category", "دسته بندی"]), "");
+  const category = toText(
+    item.category ??
+      item.category_name ??
+      item.category_title ??
+      readFeatureRaw(item, ["category", "دسته بندی"]),
+    "",
+  );
   const isDailyForm = formCode.startsWith("daily") || category.includes("روزانه");
   const isRentForm = formCode.startsWith("rent") || category.includes("اجاره");
   const isPartnership = formCode.includes("partnership") || category.includes("مشارکت");
-  const isPresale = formCode.includes("presale") || formCode === "presale-special" || category.includes("پیش فروش") || category.includes("پیشفروش") || category.includes("project-presale");
+  const isPresale =
+    formCode.includes("presale") ||
+    formCode === "presale-special" ||
+    category.includes("پیش فروش") ||
+    category.includes("پیشفروش") ||
+    category.includes("project-presale");
 
-  const projectMinMeterPrice = readFeatureRaw(item, ["min_meter_price", "min_price", "meter_price", "قیمت هر متر", "قیمت متری"]);
-  const projectMaxMeterPrice = readFeatureRaw(item, ["max_meter_price", "max_price", "حداکثر قیمت متری"]);
+  const projectMinMeterPrice = readFeatureRaw(item, [
+    "min_meter_price",
+    "min_price",
+    "meter_price",
+    "قیمت هر متر",
+    "قیمت متری",
+  ]);
+  const projectMaxMeterPrice = readFeatureRaw(item, [
+    "max_meter_price",
+    "max_price",
+    "حداکثر قیمت متری",
+  ]);
 
-  const builderShareRaw = readFeatureRaw(item, ["builder_share", "builderShare", "builder_share_percent", "builderSharePercent", "درصد مشارکت", "درصد سهم", "سهم سازنده", "partnership_percent"]);
-  const builderShare = builderShareRaw !== undefined && builderShareRaw !== null && builderShareRaw !== ""
-    ? (String(builderShareRaw).includes("٪") || String(builderShareRaw).includes("%") ? toText(builderShareRaw) : `${toText(builderShareRaw)}٪`)
-    : undefined;
+  const builderShareRaw = readFeatureRaw(item, [
+    "builder_share",
+    "builderShare",
+    "builder_share_percent",
+    "builderSharePercent",
+    "درصد مشارکت",
+    "درصد سهم",
+    "سهم سازنده",
+    "partnership_percent",
+  ]);
+  const builderShare =
+    builderShareRaw !== undefined && builderShareRaw !== null && builderShareRaw !== ""
+      ? String(builderShareRaw).includes("٪") || String(builderShareRaw).includes("%")
+        ? toText(builderShareRaw)
+        : `${toText(builderShareRaw)}٪`
+      : undefined;
 
-  const projectType = toText(readFeatureRaw(item, ["project_type", "projectType", "نوع پروژه"]), "") || undefined;
-  const totalFloorsRaw = readFeatureRaw(item, ["project_total_floors", "projectTotalFloors", "total_floors", "totalFloors", "تعداد کل طبقات", "تعداد طبقات"]);
-  const totalFloors = totalFloorsRaw !== undefined && totalFloorsRaw !== null && totalFloorsRaw !== ""
-    ? (String(totalFloorsRaw).includes("طبقه") ? toText(totalFloorsRaw) : `${toText(totalFloorsRaw)} طبقه`)
-    : undefined;
-  const totalUnitsRaw = readFeatureRaw(item, ["project_total_units", "projectTotalUnits", "total_units", "totalUnits", "تعداد کل واحد ها", "تعداد کل واحدها", "تعداد واحدها", "تعداد واحد"]);
-  const totalUnits = totalUnitsRaw !== undefined && totalUnitsRaw !== null && totalUnitsRaw !== ""
-    ? (String(totalUnitsRaw).includes("واحد") ? toText(totalUnitsRaw) : `${toText(totalUnitsRaw)} واحد`)
-    : undefined;
-  const currentStatus = toText(readFeatureRaw(item, ["current_status", "currentStatus", "وضعیت فعلی ملک", "وضعیت ملک", "وضعیت فعلی"]), "") || undefined;
+  const projectType =
+    toText(readFeatureRaw(item, ["project_type", "projectType", "نوع پروژه"]), "") || undefined;
+  const totalFloorsRaw = readFeatureRaw(item, [
+    "project_total_floors",
+    "projectTotalFloors",
+    "total_floors",
+    "totalFloors",
+    "تعداد کل طبقات",
+    "تعداد طبقات",
+  ]);
+  const totalFloors =
+    totalFloorsRaw !== undefined && totalFloorsRaw !== null && totalFloorsRaw !== ""
+      ? String(totalFloorsRaw).includes("طبقه")
+        ? toText(totalFloorsRaw)
+        : `${toText(totalFloorsRaw)} طبقه`
+      : undefined;
+  const totalUnitsRaw = readFeatureRaw(item, [
+    "project_total_units",
+    "projectTotalUnits",
+    "total_units",
+    "totalUnits",
+    "تعداد کل واحد ها",
+    "تعداد کل واحدها",
+    "تعداد واحدها",
+    "تعداد واحد",
+  ]);
+  const totalUnits =
+    totalUnitsRaw !== undefined && totalUnitsRaw !== null && totalUnitsRaw !== ""
+      ? String(totalUnitsRaw).includes("واحد")
+        ? toText(totalUnitsRaw)
+        : `${toText(totalUnitsRaw)} واحد`
+      : undefined;
+  const currentStatus =
+    toText(
+      readFeatureRaw(item, [
+        "current_status",
+        "currentStatus",
+        "وضعیت فعلی ملک",
+        "وضعیت ملک",
+        "وضعیت فعلی",
+      ]),
+      "",
+    ) || undefined;
 
   let priceLabel = toText(item.price_label, "قیمت");
-  let priceValue = formatPrice(item.price ?? readFeatureRaw(item, ["price", "total_price", "amount"]));
+  let priceValue = formatPrice(
+    item.price ?? readFeatureRaw(item, ["price", "total_price", "amount"]),
+  );
   let priceSecondary = "";
 
   if (isPartnership) {
@@ -801,12 +982,26 @@ function mapAdvertisementToSearchListing(
   } else if (isPresale) {
     priceLabel = "قیمت متری:";
     priceValue = formatPrice(projectMinMeterPrice ?? item.price);
-    if (projectMaxMeterPrice !== undefined && String(projectMaxMeterPrice) !== String(projectMinMeterPrice ?? item.price)) {
+    if (
+      projectMaxMeterPrice !== undefined &&
+      String(projectMaxMeterPrice) !== String(projectMinMeterPrice ?? item.price)
+    ) {
       priceSecondary = formatPrice(projectMaxMeterPrice);
     }
   } else if (isDailyForm) {
-    const normalDailyPrice = readFeatureRaw(item, ["normal_daily_price", "normalDailyPrice", "قیمت عادی روزانه", "daily_price", "min_price"]);
-    const weekendDailyPrice = readFeatureRaw(item, ["weekend_daily_price", "weekendDailyPrice", "قیمت آخر هفته", "max_price"]);
+    const normalDailyPrice = readFeatureRaw(item, [
+      "normal_daily_price",
+      "normalDailyPrice",
+      "قیمت عادی روزانه",
+      "daily_price",
+      "min_price",
+    ]);
+    const weekendDailyPrice = readFeatureRaw(item, [
+      "weekend_daily_price",
+      "weekendDailyPrice",
+      "قیمت آخر هفته",
+      "max_price",
+    ]);
     const startPrice = normalDailyPrice ?? item.price;
     const endPrice = weekendDailyPrice;
     priceLabel = "قیمت";
@@ -824,15 +1019,33 @@ function mapAdvertisementToSearchListing(
     }
   }
 
-  const capacityRaw = readFeatureRaw(item, ["capacity", "standard_capacity", "standardCapacity", "ظرفیت استاندارد", "ظرفیت"]);
-  const capacity = capacityRaw !== undefined && capacityRaw !== null && capacityRaw !== ""
-    ? (String(capacityRaw).includes("نفر") ? toText(capacityRaw) : `${toText(capacityRaw)} نفر`)
-    : undefined;
+  const capacityRaw = readFeatureRaw(item, [
+    "capacity",
+    "standard_capacity",
+    "standardCapacity",
+    "ظرفیت استاندارد",
+    "ظرفیت",
+  ]);
+  const capacity =
+    capacityRaw !== undefined && capacityRaw !== null && capacityRaw !== ""
+      ? String(capacityRaw).includes("نفر")
+        ? toText(capacityRaw)
+        : `${toText(capacityRaw)} نفر`
+      : undefined;
 
   return {
     id,
-    agencyName: toText(item.agency ?? item.agency_name ?? item.advertiser_name ?? readFeatureRaw(item, ["advertiser_type"])),
-    area: readFeature(item, ["area", "meterage", "building_area", "land_area", "متراژ", "buildingArea", "landArea"], item.area ? `${toText(item.area)} متر` : "-"),
+    agencyName: toText(
+      item.agency ??
+        item.agency_name ??
+        item.advertiser_name ??
+        readFeatureRaw(item, ["advertiser_type"]),
+    ),
+    area: readFeature(
+      item,
+      ["area", "meterage", "building_area", "land_area", "متراژ", "buildingArea", "landArea"],
+      item.area ? `${toText(item.area)} متر` : "-",
+    ),
     badges: readBadges(item),
     dotId: `dot-${id}`,
     imageClassName: "",
@@ -844,19 +1057,55 @@ function mapAdvertisementToSearchListing(
     postedAt: description,
     priceLabel,
     priceValue,
-    rooms: readFeature(item, ["rooms", "room", "bedroom", "bedrooms", "اتاق", "خواب"], item.rooms ? `${toText(item.rooms)} اتاق` : "-"),
+    rooms: readFeature(
+      item,
+      ["rooms", "room", "bedroom", "bedrooms", "اتاق", "خواب"],
+      item.rooms ? `${toText(item.rooms)} اتاق` : "-",
+    ),
     showPriceMarker: true,
     title: toText(item.title ?? item.label, "آگهی ملک"),
     year: readFeature(item, ["building_age", "age", "year", "سال ساخت"], toText(item.year, "-")),
-    landArea: readFeature(item, ["land_area", "landArea", "متراژ زمین"], item.land_area ? `${toText(item.land_area)} متر` : undefined),
-    documentType: readFeature(item, ["document_type", "documentType", "نوع سند", "سند"], toText(item.document_type ?? item.documentType, "")),
-    commercialPosition: readFeature(item, ["commercial_position", "commercialPosition", "موقعیت تجاری"], toText(item.commercial_position ?? item.commercialPosition, "")),
-    landPosition: readFeature(item, ["land_position", "landPosition", "موقعیت زمین", "position"], toText(item.land_position ?? item.landPosition, "")),
-    floor: readFeature(item, ["floor", "طبقه", "طبقه واحد", "طبقه آپارتمان"], toText(item.floor, "")),
-    buildingArea: readFeature(item, ["building_area", "buildingArea", "زیربنا", "متراژ بنا"], item.building_area ? `${toText(item.building_area)} متر` : undefined),
+    landArea: readFeature(
+      item,
+      ["land_area", "landArea", "متراژ زمین"],
+      item.land_area ? `${toText(item.land_area)} متر` : undefined,
+    ),
+    documentType: readFeature(
+      item,
+      ["document_type", "documentType", "نوع سند", "سند"],
+      toText(item.document_type ?? item.documentType, ""),
+    ),
+    commercialPosition: readFeature(
+      item,
+      ["commercial_position", "commercialPosition", "موقعیت تجاری"],
+      toText(item.commercial_position ?? item.commercialPosition, ""),
+    ),
+    landPosition: readFeature(
+      item,
+      ["land_position", "landPosition", "موقعیت زمین", "position"],
+      toText(item.land_position ?? item.landPosition, ""),
+    ),
+    floor: readFeature(
+      item,
+      ["floor", "طبقه", "طبقه واحد", "طبقه آپارتمان"],
+      toText(item.floor, ""),
+    ),
+    buildingArea: readFeature(
+      item,
+      ["building_area", "buildingArea", "زیربنا", "متراژ بنا"],
+      item.building_area ? `${toText(item.building_area)} متر` : undefined,
+    ),
     capacity,
-    stars: readFeature(item, ["hotel_stars", "hotelStars", "ستاره", "رتبه بندی اقامتگاه"], toText(item.hotel_stars, "")),
-    rentalPeriod: readFeature(item, ["rental_period", "rentalPeriod", "دوره اجاره"], toText(item.rental_period, "")),
+    stars: readFeature(
+      item,
+      ["hotel_stars", "hotelStars", "ستاره", "رتبه بندی اقامتگاه"],
+      toText(item.hotel_stars, ""),
+    ),
+    rentalPeriod: readFeature(
+      item,
+      ["rental_period", "rentalPeriod", "دوره اجاره"],
+      toText(item.rental_period, ""),
+    ),
     projectType,
     totalFloors,
     totalUnits,
@@ -874,11 +1123,32 @@ function roundCoordinate(value: number) {
 }
 
 const standardSearchParamKeys = new Set([
-  "area_max", "area_min", "building_age", "category_id", "categoryId",
-  "floor", "form_code", "from_code", "has_image", "has_video",
-  "is_special", "neighborhood_id", "neighborhoods", "price_max",
-  "price_min", "published_at", "query", "q", "qsearch", "rooms",
-  "city_id", "page", "per_page", "view", "focus", "returnTo",
+  "area_max",
+  "area_min",
+  "building_age",
+  "category_id",
+  "categoryId",
+  "floor",
+  "form_code",
+  "from_code",
+  "has_image",
+  "has_video",
+  "is_special",
+  "neighborhood_id",
+  "neighborhoods",
+  "price_max",
+  "price_min",
+  "published_at",
+  "query",
+  "q",
+  "qsearch",
+  "rooms",
+  "city_id",
+  "page",
+  "per_page",
+  "view",
+  "focus",
+  "returnTo",
 ]);
 
 export function readSearchFilters(params: URLSearchParams): AdvertisementSearchFilters {
@@ -907,8 +1177,7 @@ export function readSearchFilters(params: URLSearchParams): AdvertisementSearchF
     hasImage: params.get("has_image") || undefined,
     hasVideo: params.get("has_video") || undefined,
     isSpecial: params.get("is_special") || undefined,
-    neighborhoodId:
-      params.get("neighborhood_id") || params.get("neighborhoods") || undefined,
+    neighborhoodId: params.get("neighborhood_id") || params.get("neighborhoods") || undefined,
     priceMax: params.get("price_max") || undefined,
     priceMin: params.get("price_min") || undefined,
     publishedAt: params.get("published_at") || undefined,
@@ -918,11 +1187,7 @@ export function readSearchFilters(params: URLSearchParams): AdvertisementSearchF
   };
 }
 
-function buildMapQueryParams(
-  bounds: SearchMapBounds | null,
-  search: string,
-  geofence?: string,
-) {
+function buildMapQueryParams(bounds: SearchMapBounds | null, search: string, geofence?: string) {
   if (!bounds) return null;
 
   const params = getSearchParamsFromSnapshot(search);
@@ -958,16 +1223,10 @@ function buildListQueryParams(search: string): AdvertisementListParams {
 function hasSearchCriteria(search: string) {
   const params = getSearchParamsFromSnapshot(search);
 
-  return (
-    getActiveFilterCount(params) > 0 ||
-    Boolean(getApiSearchQuery(params))
-  );
+  return getActiveFilterCount(params) > 0 || Boolean(getApiSearchQuery(params));
 }
 
-function buildSaveSearchInput(
-  search: string,
-  chips: SearchFilterChip[],
-): SaveSearchInput | null {
+function buildSaveSearchInput(search: string, chips: SearchFilterChip[]): SaveSearchInput | null {
   const params = getSearchParamsFromSnapshot(search);
 
   params.delete("focus");
@@ -1007,10 +1266,7 @@ function filterListings(listings: SearchMapListing[]) {
 function getInitialMapCenter(): SearchMapCenter {
   const selectedCity = readStoredSelectedCity();
 
-  if (
-    selectedCity?.latitude !== undefined &&
-    selectedCity.longitude !== undefined
-  ) {
+  if (selectedCity?.latitude !== undefined && selectedCity.longitude !== undefined) {
     return {
       latitude: selectedCity.latitude,
       longitude: selectedCity.longitude,
@@ -1027,7 +1283,9 @@ function getInitialMapCenter(): SearchMapCenter {
 export function SearchMapPage() {
   const navigate = useNavigate();
   const [selectedListingId, setSelectedListingId] = useState<string | number | null>(null);
-  const [isOffline, setIsOffline] = useState(() => typeof window !== "undefined" && !window.navigator.onLine);
+  const [isOffline, setIsOffline] = useState(
+    () => typeof window !== "undefined" && !window.navigator.onLine,
+  );
 
   useEffect(() => {
     function handleOnline() {
@@ -1043,9 +1301,7 @@ export function SearchMapPage() {
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
-  const [seenListingIds, setSeenListingIds] = useState<Set<SearchMapListingId>>(
-    () => new Set(),
-  );
+  const [seenListingIds, setSeenListingIds] = useState<Set<SearchMapListingId>>(() => new Set());
   const [mode, setMode] = useState<SearchMapMode>(getInitialSearchMode);
   const [isDrawMode, setIsDrawMode] = useState(false);
   const [drawingState, setDrawingState] = useState<DrawingState>("idle");
@@ -1063,7 +1319,9 @@ export function SearchMapPage() {
   const [mapCenterSignal, setMapCenterSignal] = useState(0);
   const [mapResizeSignal, setMapResizeSignal] = useState(0);
   const [mapBounds, setMapBounds] = useState<SearchMapBounds | null>(null);
-  const [pendingSearchRequest, setPendingSearchRequest] = useState<PendingSearchRequest | null>(null);
+  const [pendingSearchRequest, setPendingSearchRequest] = useState<PendingSearchRequest | null>(
+    null,
+  );
   const [isRequestSuccessOpen, setIsRequestSuccessOpen] = useState(false);
   const [savedSearchUrl, setSavedSearchUrl] = useState<string | null>(null);
   const didResolveIpLocationRef = useRef(false);
@@ -1111,9 +1369,13 @@ export function SearchMapPage() {
     () =>
       (selectedNeighborhoodsQuery.data ?? [])
         .filter((neighborhood) =>
-          selectedNeighborhoodIds.has(String(neighborhood.id ?? neighborhood._id ?? neighborhood.name)),
+          selectedNeighborhoodIds.has(
+            String(neighborhood.id ?? neighborhood._id ?? neighborhood.name),
+          ),
         )
-        .map((neighborhood) => getNeighborhoodPolygonPoints(neighborhood.geofence ?? neighborhood.polygon))
+        .map((neighborhood) =>
+          getNeighborhoodPolygonPoints(neighborhood.geofence ?? neighborhood.polygon),
+        )
         .filter((points) => points.length >= 3),
     [selectedNeighborhoodIds, selectedNeighborhoodsQuery.data],
   );
@@ -1145,8 +1407,8 @@ export function SearchMapPage() {
   );
   const isCurrentSearchSaved = Boolean(
     saveSearchInput &&
-      (savedSearchUrl === saveSearchInput.url ||
-        savedSearchesQuery.data?.some((item) => item.url === saveSearchInput.url)),
+    (savedSearchUrl === saveSearchInput.url ||
+      savedSearchesQuery.data?.some((item) => item.url === saveSearchInput.url)),
   );
   const mapQuery = useAdvertisementMapQuery(mapQueryParams);
   const listQuery = useAdvertisementListQuery(listQueryParams);
@@ -1190,20 +1452,14 @@ export function SearchMapPage() {
   }, [mapQuery.data]);
 
   const isInitialMapLoading = !hasInitialMapLoaded && (mapQuery.isLoading || isMapLoading);
-  const visibleListings = useMemo(
-    () => filterListings(listingSource),
-    [listingSource],
-  );
+  const visibleListings = useMemo(() => filterListings(listingSource), [listingSource]);
   const bluePriceMarkerListingIds = useMemo(() => {
     const markerIds = new Set<SearchMapListingId>();
 
     for (const listing of visibleListings) {
       if (markerIds.size >= maxBluePriceMarkers) break;
       if (listing.showPriceMarker === false) continue;
-      if (
-        selectedListingId != null &&
-        String(listing.id) === String(selectedListingId)
-      ) {
+      if (selectedListingId != null && String(listing.id) === String(selectedListingId)) {
         continue;
       }
 
@@ -1249,10 +1505,7 @@ export function SearchMapPage() {
   useEffect(() => {
     if (didResolveIpLocationRef.current) return;
     const selectedCity = readStoredSelectedCity();
-    if (
-      selectedCity?.latitude !== undefined &&
-      selectedCity.longitude !== undefined
-    ) {
+    if (selectedCity?.latitude !== undefined && selectedCity.longitude !== undefined) {
       return;
     }
 
@@ -1262,7 +1515,10 @@ export function SearchMapPage() {
       if (!ipCenter) return;
 
       setMapCenter((current) => {
-        if (current.latitude !== searchMapCenter.latitude || current.longitude !== searchMapCenter.longitude) {
+        if (
+          current.latitude !== searchMapCenter.latitude ||
+          current.longitude !== searchMapCenter.longitude
+        ) {
           return current;
         }
 
@@ -1311,37 +1567,46 @@ export function SearchMapPage() {
     });
   }, []);
 
-  const toggleChip = useCallback((chip: SearchFilterChip) => {
-    if (chip.id !== "filters") {
-      const quickFilterIds: SearchMapQuickFilterId[] = [
-        "category",
-        "neighborhood",
-        "area",
-        "price",
-        "rooms",
-        "floor",
-        "building_age",
-      ];
+  const toggleChip = useCallback(
+    (chip: SearchFilterChip) => {
+      if (chip.id !== "filters") {
+        const quickFilterIds: SearchMapQuickFilterId[] = [
+          "category",
+          "neighborhood",
+          "area",
+          "price",
+          "rooms",
+          "floor",
+          "building_age",
+        ];
 
-      if (quickFilterIds.includes(chip.id as SearchMapQuickFilterId)) {
-        setQuickFilterId(chip.id as SearchMapQuickFilterId);
-        return;
+        if (quickFilterIds.includes(chip.id as SearchMapQuickFilterId)) {
+          setQuickFilterId(chip.id as SearchMapQuickFilterId);
+          return;
+        }
       }
-    }
 
-    navigate(buildFilterPageUrl(chip), {
-      state: { ...(window.history.state ?? {}), [SEARCH_FILTER_ENTRY_KEY]: true },
-    });
-  }, [navigate]);
+      navigate(buildFilterPageUrl(chip), {
+        state: { ...(window.history.state ?? {}), [SEARCH_FILTER_ENTRY_KEY]: true },
+      });
+    },
+    [navigate],
+  );
 
-  const handleQuickFilterApply = useCallback((params: URLSearchParams) => {
-    setSelectedListingId(null);
-    writeSearchParams(params, navigate);
-  }, [navigate]);
+  const handleQuickFilterApply = useCallback(
+    (params: URLSearchParams) => {
+      setSelectedListingId(null);
+      writeSearchParams(params, navigate);
+    },
+    [navigate],
+  );
 
-  const handleRemoveChip = useCallback((chip: SearchFilterChip) => {
-    removeFilterFromSearch(chip, navigate);
-  }, [navigate]);
+  const handleRemoveChip = useCallback(
+    (chip: SearchFilterChip) => {
+      removeFilterFromSearch(chip, navigate);
+    },
+    [navigate],
+  );
 
   const handleSelectListing = useCallback((listing: SearchMapListing) => {
     setSeenListingIds((current) => {
@@ -1405,15 +1670,12 @@ export function SearchMapPage() {
     setIsDrawMode(false);
   }, []);
 
-  const handleGeofenceInvalid = useCallback(
-    (validation: InvalidGeofenceResult) => {
-      setGeofenceResult(null);
-      setGeofenceError(validation.message);
-      setDrawingState("invalid");
-      setIsDrawMode(false);
-    },
-    [],
-  );
+  const handleGeofenceInvalid = useCallback((validation: InvalidGeofenceResult) => {
+    setGeofenceResult(null);
+    setGeofenceError(validation.message);
+    setDrawingState("invalid");
+    setIsDrawMode(false);
+  }, []);
 
   const deleteGeofenceAndRedraw = useCallback(() => {
     setDrawingState("idle");
@@ -1463,115 +1725,134 @@ export function SearchMapPage() {
     setSearchSnapshot(window.location.search);
   }, []);
 
-  const handleLiveSearchQueryChange = useCallback((query: string) => {
-    const trimmedQuery = query.trim();
-    const params = getSearchParams();
-    const currentQuery = getSearchQuery(params);
+  const handleLiveSearchQueryChange = useCallback(
+    (query: string) => {
+      const trimmedQuery = query.trim();
+      const params = getSearchParams();
+      const currentQuery = getSearchQuery(params);
 
-    if (!trimmedQuery && !currentQuery && !params.get("qsearch") && !params.get("q")) return;
-    if (trimmedQuery && currentQuery === trimmedQuery && !params.get("qsearch") && !params.get("q")) return;
+      if (!trimmedQuery && !currentQuery && !params.get("qsearch") && !params.get("q")) return;
+      if (
+        trimmedQuery &&
+        currentQuery === trimmedQuery &&
+        !params.get("qsearch") &&
+        !params.get("q")
+      )
+        return;
 
-    if (trimmedQuery) {
-      params.set("query", trimmedQuery);
-    } else {
-      params.delete("query");
-    }
-
-    params.delete("qsearch");
-    params.delete("q");
-    setSelectedListingId(null);
-    writeSearchParams(params, navigate, { replace: true });
-    setSearchSnapshot(window.location.search);
-  }, [navigate]);
-
-  const handleSavedSearchSelect = useCallback((item: SavedSearchItem) => {
-    let params: URLSearchParams;
-
-    if (item.url) {
-      try {
-        const savedUrl = new URL(item.url, window.location.origin);
-        params = savedUrl.searchParams;
-      } catch {
-        params = new URLSearchParams();
+      if (trimmedQuery) {
+        params.set("query", trimmedQuery);
+      } else {
+        params.delete("query");
       }
-    } else {
-      params = new URLSearchParams();
-      Object.entries(item.filters).forEach(([key, value]) => {
-        params.set(key, Array.isArray(value) ? value.join("_") : String(value));
+
+      params.delete("qsearch");
+      params.delete("q");
+      setSelectedListingId(null);
+      writeSearchParams(params, navigate, { replace: true });
+      setSearchSnapshot(window.location.search);
+    },
+    [navigate],
+  );
+
+  const handleSavedSearchSelect = useCallback(
+    (item: SavedSearchItem) => {
+      let params: URLSearchParams;
+
+      if (item.url) {
+        try {
+          const savedUrl = new URL(item.url, window.location.origin);
+          params = savedUrl.searchParams;
+        } catch {
+          params = new URLSearchParams();
+        }
+      } else {
+        params = new URLSearchParams();
+        Object.entries(item.filters).forEach(([key, value]) => {
+          params.set(key, Array.isArray(value) ? value.join("_") : String(value));
+        });
+      }
+
+      params.delete("focus");
+      params.delete("view");
+      writeSearchParams(params, navigate);
+      setSearchSnapshot(window.location.search);
+      setSelectedListingId(null);
+      setMode("map");
+    },
+    [navigate],
+  );
+
+  const navigateToLoginRequired = useCallback(
+    (action: string) => {
+      const returnTo = `${window.location.pathname}${window.location.search}`;
+      const params = new URLSearchParams({ action, returnTo });
+      navigate(`/login-required?${params.toString()}`);
+    },
+    [navigate],
+  );
+
+  const handleEmptyRequestSubmit = useCallback(
+    (title: string) => {
+      if (!isAuthenticated) {
+        navigateToLoginRequired("ثبت درخواست");
+        return;
+      }
+
+      const params = getSearchParams();
+      if (getActiveFilterCount(params) === 0) {
+        showNotice("برای ثبت درخواست، ابتدا باید فیلترهای مورد نظر خود را انتخاب کنید.");
+        return;
+      }
+
+      const requestFilters: Record<string, string> = {};
+      params.forEach((value, key) => {
+        requestFilters[key] = value;
       });
-    }
+      const request = {
+        createdAt: new Date().toISOString(),
+        filters: requestFilters,
+        id: `search-request-${Date.now()}`,
+        title: title || currentSearchQuery || "درخواست ملک مشابه",
+      };
 
-    params.delete("focus");
-    params.delete("view");
-    writeSearchParams(params, navigate);
-    setSearchSnapshot(window.location.search);
-    setSelectedListingId(null);
-    setMode("map");
-  }, [navigate]);
+      setPendingSearchRequest(request);
+    },
+    [currentSearchQuery, isAuthenticated, showNotice],
+  );
 
-  const navigateToLoginRequired = useCallback((action: string) => {
-    const returnTo = `${window.location.pathname}${window.location.search}`;
-    const params = new URLSearchParams({ action, returnTo });
-    navigate(`/login-required?${params.toString()}`);
-  }, [navigate]);
+  const handleConfirmSearchRequest = useCallback(
+    (senderId: string) => {
+      if (!pendingSearchRequest || createPropertyRequestMutation.isPending) return;
 
-  const handleEmptyRequestSubmit = useCallback((title: string) => {
-    if (!isAuthenticated) {
-      navigateToLoginRequired("ثبت درخواست");
-      return;
-    }
+      const owner_type =
+        senderId === "personal"
+          ? "user"
+          : senderId === "independent-consultant"
+            ? "agent"
+            : "agency";
 
-    const params = getSearchParams();
-    if (getActiveFilterCount(params) === 0) {
-      showNotice("برای ثبت درخواست، ابتدا باید فیلترهای مورد نظر خود را انتخاب کنید.");
-      return;
-    }
-
-    const requestFilters: Record<string, string> = {};
-    params.forEach((value, key) => {
-      requestFilters[key] = value;
-    });
-    const request = {
-      createdAt: new Date().toISOString(),
-      filters: requestFilters,
-      id: `search-request-${Date.now()}`,
-      title: title || currentSearchQuery || "درخواست ملک مشابه",
-    };
-
-    setPendingSearchRequest(request);
-  }, [currentSearchQuery, isAuthenticated, showNotice]);
-
-  const handleConfirmSearchRequest = useCallback((senderId: string) => {
-    if (!pendingSearchRequest || createPropertyRequestMutation.isPending) return;
-
-    const owner_type =
-      senderId === "personal"
-        ? "user"
-        : senderId === "independent-consultant"
-          ? "agent"
-          : "agency";
-
-    createPropertyRequestMutation.mutate(
-      {
-        filters: pendingSearchRequest.filters,
-        name: pendingSearchRequest.title,
-        owner_type,
-      },
-      {
-        onError: (error) => {
-          showNotice(
-            getApiErrorMessage(error, "ثبت درخواست با خطا مواجه شد."),
-          );
+      createPropertyRequestMutation.mutate(
+        {
+          filters: pendingSearchRequest.filters,
+          name: pendingSearchRequest.title,
+          owner_type,
         },
-        onSuccess: () => {
-          setPendingSearchRequest(null);
-          window.requestAnimationFrame(() => {
-            setIsRequestSuccessOpen(true);
-          });
+        {
+          onError: (error) => {
+            showNotice(getApiErrorMessage(error, "ثبت درخواست با خطا مواجه شد."));
+          },
+          onSuccess: () => {
+            setPendingSearchRequest(null);
+            window.requestAnimationFrame(() => {
+              setIsRequestSuccessOpen(true);
+            });
+          },
         },
-      },
-    );
-  }, [createPropertyRequestMutation, pendingSearchRequest, showNotice]);
+      );
+    },
+    [createPropertyRequestMutation, pendingSearchRequest, showNotice],
+  );
 
   const locateUser = useCallback(() => {
     if (isLocating) return;
@@ -1632,9 +1913,7 @@ export function SearchMapPage() {
           return;
         }
 
-        showNotice(
-          getApiErrorMessage(error, "ذخیره جستجو انجام نشد. دوباره تلاش کنید."),
-        );
+        showNotice(getApiErrorMessage(error, "ذخیره جستجو انجام نشد. دوباره تلاش کنید."));
       },
       onSuccess: () => {
         setSavedSearchUrl(saveSearchInput.url);
@@ -1666,10 +1945,7 @@ export function SearchMapPage() {
         return;
       }
 
-      navigate(
-        storedBackTarget.backTo,
-        { replace: true, state: storedBackTarget.backState },
-      );
+      navigate(storedBackTarget.backTo, { replace: true, state: storedBackTarget.backState });
       return;
     }
 
@@ -1710,7 +1986,6 @@ export function SearchMapPage() {
     setSearchSnapshot(window.location.search);
     setSelectedListingId(null);
     setMode(nextMode);
-
   }, []);
 
   const returnToMapView = useCallback(() => {
@@ -1719,8 +1994,7 @@ export function SearchMapPage() {
 
   const isListPreviewOpen = mode === "preview";
   const isFullListOpen = mode === "list";
-  const isGeofenceConfirmed =
-    drawingState === "confirmed" && geofenceResult !== null;
+  const isGeofenceConfirmed = drawingState === "confirmed" && geofenceResult !== null;
   const showListEmptyState =
     hasActiveSearchCriteria &&
     listQuery.isSuccess &&
@@ -1734,7 +2008,7 @@ export function SearchMapPage() {
 
   if (isOffline || (mapQuery.isError && isNoConnectionError(mapQuery.error))) {
     return (
-      <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]">
+      <div className="bg-surface-container text-on-surface relative flex h-full min-h-0 flex-col overflow-hidden [direction:rtl]">
         <SEO
           title="جستجوی روی نقشه املاک | خرید و اجاره آپارتمان، خانه و زمین"
           description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه بنگاه."
@@ -1769,20 +2043,20 @@ export function SearchMapPage() {
     <div
       className={
         isGeofenceEditorOpen
-          ? "fixed inset-y-0 left-1/2 z-[900] h-[100svh] w-full max-w-[500px] -translate-x-1/2 overflow-hidden bg-surface-container"
-          : "relative h-full min-h-0 overflow-hidden bg-surface-container"
+          ? "bg-surface-container fixed inset-y-0 left-1/2 z-[900] h-[100svh] w-full max-w-[500px] -translate-x-1/2 overflow-hidden"
+          : "bg-surface-container relative h-full min-h-0 overflow-hidden"
       }
     >
       {mode === "map" && isInitialMapLoading ? (
         <div className="pointer-events-none absolute inset-0 z-[450] flex items-center justify-center bg-black/10 backdrop-blur-[1px] transition-opacity">
-          <div className="flex items-center gap-2 rounded-xl bg-surface-container-lowest px-4 py-2.5 shadow-lg [direction:rtl]">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <span className="text-sm font-medium text-on-surface">در حال بارگذاری نقشه...</span>
+          <div className="bg-surface-container-lowest flex items-center gap-2 rounded-xl px-4 py-2.5 shadow-lg [direction:rtl]">
+            <div className="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
+            <span className="text-on-surface text-sm font-medium">در حال بارگذاری نقشه...</span>
           </div>
         </div>
       ) : null}
-      <SEO 
-        title="جستجوی روی نقشه املاک | خرید و اجاره آپارتمان، خانه و زمین" 
+      <SEO
+        title="جستجوی روی نقشه املاک | خرید و اجاره آپارتمان، خانه و زمین"
         description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه بنگاه. به راحتی آپارتمان، خانه ویلایی، زمین و مغازه مورد نظر خود را در محله دلخواه برای خرید یا اجاره پیدا کنید."
         keywords="جستجوی املاک روی نقشه, نقشه املاک, خرید خانه در محله, قیمت آپارتمان در مناطق مختلف, اجاره آپارتمان از روی نقشه"
       />
@@ -1904,7 +2178,9 @@ export function SearchMapPage() {
         isOpen={quickFilterId !== null}
         onApply={handleQuickFilterApply}
         onClose={() => setQuickFilterId(null)}
-        resultCount={listQuery.data?.total ?? listQuery.data?.data.length ?? mapQuery.data?.length ?? 0}
+        resultCount={
+          listQuery.data?.total ?? listQuery.data?.data.length ?? mapQuery.data?.length ?? 0
+        }
         search={currentSearch}
       />
       <SearchRequestSenderBottomSheet

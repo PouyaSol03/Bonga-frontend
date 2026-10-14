@@ -75,10 +75,20 @@ export function PackageCard({
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Typography as="span" variant="label" size="small" weight="semibold" className="rounded-lg bg-[#eef4ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]">
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="semibold"
+            className="rounded-lg bg-[#eef4ff] px-2.5 py-1 text-xs font-bold text-[#0048c4]"
+          >
             {kindLabel}
           </Typography>
-          <Typography as="span" variant="label" size="small" weight="semibold"
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="semibold"
             className={`rounded-lg px-2 py-1 text-xs font-bold ${isActive ? "bg-[#e9f8f1] text-[#0b8555]" : "bg-[#eeeeee] text-[#777777]"}`}
           >
             {isActive ? "فعال" : "غیرفعال"}
@@ -93,14 +103,26 @@ export function PackageCard({
         </div>
       </div>
 
-      <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-5 text-lg font-bold text-[#0048c4]">
+      <Typography
+        as="h3"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="m-0 mt-5 text-lg font-bold text-[#0048c4]"
+      >
         {text(item, ["title"], "بدون عنوان")}
       </Typography>
 
       {hasPrice ? (
         <div className="mt-2 flex min-h-[58px] items-end justify-between gap-3 [direction:ltr]">
           {discount > 0 && realPrice > 0 ? (
-            <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-1 text-sm font-semibold text-[#a6a6a6] line-through">
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="semibold"
+              className="mb-1 text-sm font-semibold text-[#a6a6a6] line-through"
+            >
               {realPrice.toLocaleString("fa-IR")}
             </Typography>
           ) : (
@@ -110,13 +132,27 @@ export function PackageCard({
             <strong className="text-2xl font-bold text-[#1a1a1a]">
               {finalPrice.toLocaleString("fa-IR")}
             </strong>
-            <Typography as="span" variant="label" size="small" weight="medium" className="mr-1 text-xs font-medium text-[#4d4d4d]">تومان</Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="mr-1 text-xs font-medium text-[#4d4d4d]"
+            >
+              تومان
+            </Typography>
           </div>
         </div>
       ) : null}
 
       {discount > 0 ? (
-        <Typography as="span" variant="label" size="small" weight="medium" className="mt-2 w-fit rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-medium text-[#ee3623]">
+        <Typography
+          as="span"
+          variant="label"
+          size="small"
+          weight="medium"
+          className="mt-2 w-fit rounded-lg border border-[#ee3623] bg-white px-2 py-1 text-xs font-medium text-[#ee3623]"
+        >
           {discount.toLocaleString("fa-IR")}٪ تخفیف
         </Typography>
       ) : null}
@@ -129,12 +165,19 @@ export function PackageCard({
         <div className="rounded-xl border border-[#11a366] bg-[#11a36614] p-4 text-[#006038]">
           <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[#11a366]">
             <GreenCheckIcon className="h-5 w-5" />
-            <Typography as="span" variant="body" size="medium" weight="regular">اعتبارهای بسته</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              اعتبارهای بسته
+            </Typography>
           </div>
           <div className="grid gap-2.5">
             {creditItems.map((credit) => (
-              <div className="flex items-center justify-between gap-3 text-sm font-medium" key={credit.label}>
-                <Typography as="span" variant="body" size="medium" weight="regular">{credit.label}</Typography>
+              <div
+                className="flex items-center justify-between gap-3 text-sm font-medium"
+                key={credit.label}
+              >
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  {credit.label}
+                </Typography>
                 <strong className="text-[#006038]">{credit.value.toLocaleString("fa-IR")}</strong>
               </div>
             ))}
@@ -144,7 +187,9 @@ export function PackageCard({
 
       {Number.isFinite(durationDays) && durationDays > 0 ? (
         <div className="mt-3 flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs text-[#707a8a]">
-          <Typography as="span" variant="body" size="medium" weight="regular">مدت بسته</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            مدت بسته
+          </Typography>
           <strong className="text-[#4d4d4d]">{durationDays.toLocaleString("fa-IR")} روز</strong>
         </div>
       ) : null}

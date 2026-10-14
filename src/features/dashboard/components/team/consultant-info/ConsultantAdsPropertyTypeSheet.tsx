@@ -14,9 +14,7 @@ import {
 
 const defaultGroups = [
   ...adManagementPropertyGroupsByTransaction.sale,
-  ...adManagementPropertyGroupsByTransaction.rent.filter(
-    (g) => g.title === "روزانه",
-  ),
+  ...adManagementPropertyGroupsByTransaction.rent.filter((g) => g.title === "روزانه"),
   ...adManagementPropertyGroupsByTransaction.project,
 ];
 
@@ -31,9 +29,7 @@ export function ConsultantAdsPropertyTypeSheet({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const groups = transaction
-    ? adManagementPropertyGroupsByTransaction[transaction]
-    : defaultGroups;
+  const groups = transaction ? adManagementPropertyGroupsByTransaction[transaction] : defaultGroups;
 
   const togglePropertyType = (item: AdManagementPropertyType) => {
     if (propertyTypes.includes(item)) {
@@ -55,7 +51,7 @@ export function ConsultantAdsPropertyTypeSheet({
         unstyled
         aria-disabled={!isEnabled}
         disabled={!isEnabled}
-        className={`flex h-10 w-full items-center justify-between text-right [direction:ltr] transition-opacity ${
+        className={`flex h-10 w-full items-center justify-between text-right transition-opacity [direction:ltr] ${
           isEnabled ? "cursor-pointer opacity-100" : "cursor-not-allowed opacity-30"
         }`}
         onClick={() => {
@@ -68,11 +64,17 @@ export function ConsultantAdsPropertyTypeSheet({
           variant="label"
           size="medium"
           weight="medium"
-          className="flex items-center gap-1 text-primary"
+          className="text-primary flex items-center gap-1"
         >
-          <LinearArrowLeft1 className="h-5 w-5 text-on-surface-var" />
+          <LinearArrowLeft1 className="text-on-surface-var h-5 w-5" />
           {propertyTypes.length > 0 ? (
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary font-medium">
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-primary font-medium"
+            >
               {`${toPersianNumber(propertyTypes.length)} انتخاب`}
             </Typography>
           ) : null}
@@ -92,12 +94,7 @@ export function ConsultantAdsPropertyTypeSheet({
       {propertyTypes.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-2" dir="rtl">
           {propertyTypes.map((pt) => (
-            <Chip
-              key={pt}
-              removable
-              selected
-              onClick={() => removePropertyType(pt)}
-            >
+            <Chip key={pt} removable selected onClick={() => removePropertyType(pt)}>
               {(adManagementPropertyTypeLabels as Record<string, string>)[pt] ?? pt}
             </Chip>
           ))}
@@ -112,7 +109,7 @@ export function ConsultantAdsPropertyTypeSheet({
         onClose={() => setIsOpen(false)}
         title="انتخاب نوع ملک"
       >
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 pt-2" dir="rtl">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-2 pb-4" dir="rtl">
           {groups.map((group) => (
             <div key={group.title} className="mb-4 last:mb-0">
               <Typography
@@ -120,7 +117,7 @@ export function ConsultantAdsPropertyTypeSheet({
                 variant="label"
                 size="medium"
                 weight="medium"
-                className="mb-2 text-outline"
+                className="text-outline mb-2"
               >
                 {group.title}
               </Typography>
@@ -139,7 +136,7 @@ export function ConsultantAdsPropertyTypeSheet({
           ))}
         </div>
 
-        <footer className="shrink-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-6px_16px_rgba(26,26,26,0.06)]">
+        <footer className="bg-surface-container-lowest shrink-0 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-6px_16px_rgba(26,26,26,0.06)]">
           <Button
             variant="primary"
             size="x-medium"

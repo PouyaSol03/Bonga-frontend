@@ -1,8 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-  DashboardExpiringAdsPage,
-  type ExpiringAdItem,
-} from "./DashboardExpiringAdsPage";
+import { DashboardExpiringAdsPage, type ExpiringAdItem } from "./DashboardExpiringAdsPage";
 import { DashboardExpiringAdCard } from "./components/DashboardExpiringAdCard";
 
 const sampleExpiringAd: ExpiringAdItem = {
@@ -64,7 +61,7 @@ export const PageEmptyState: Story = {
 export const SingleCard: StoryObj<typeof DashboardExpiringAdCard> = {
   name: "کارت تک آگهی در آستانه انقضا (مطابق فیگما)",
   render: () => (
-    <div className="p-4 bg-[#F0F0F0] max-w-[400px] mx-auto">
+    <div className="mx-auto max-w-[400px] bg-[#F0F0F0] p-4">
       <DashboardExpiringAdCard ad={sampleExpiringAd} />
     </div>
   ),

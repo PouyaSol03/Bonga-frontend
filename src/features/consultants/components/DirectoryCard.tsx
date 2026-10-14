@@ -45,7 +45,7 @@ export function DirectoryCard({
           variant="headline"
           size="small"
           aria-hidden="true"
-          className={`${mode === "consultant" ? "rounded-full" : "rounded-xl"} grid h-[72px] w-[72px] shrink-0 place-items-center bg-primary-container text-2xl font-bold text-primary shadow-[0_0_16px_0_rgba(77,77,77,0.1)]`}
+          className={`${mode === "consultant" ? "rounded-full" : "rounded-xl"} bg-primary-container text-primary grid h-[72px] w-[72px] shrink-0 place-items-center text-2xl font-bold shadow-[0_0_16px_0_rgba(77,77,77,0.1)]`}
         >
           {item.name.trim().charAt(0) || "آ"}
         </Typography>
@@ -57,7 +57,7 @@ export function DirectoryCard({
           variant="title"
           size="medium"
           weight="semibold"
-          className="mt-1 truncate text-base font-semibold leading-6 text-on-surface"
+          className="text-on-surface mt-1 truncate text-base leading-6 font-semibold"
         >
           {item.name}
         </Typography>
@@ -68,7 +68,7 @@ export function DirectoryCard({
             variant="label"
             size="small"
             weight="medium"
-            className="mt-0.5 w-fit rounded-full bg-surface-container-high px-2 text-[9px] font-medium text-on-surface-var"
+            className="bg-surface-container-high text-on-surface-var mt-0.5 w-fit rounded-full px-2 text-[9px] font-medium"
           >
             {item.badge}
           </Typography>
@@ -82,7 +82,7 @@ export function DirectoryCard({
               variant="body"
               size="small"
               weight="regular"
-              className="mr-1 text-xs font-normal leading-4 text-on-surface-var"
+              className="text-on-surface-var mr-1 text-xs leading-4 font-normal"
             >
               رتبه
             </Typography>
@@ -91,7 +91,7 @@ export function DirectoryCard({
               variant="label"
               size="medium"
               weight="semibold"
-              className="mr-2 text-sm font-semibold leading-4 text-tertiary"
+              className="text-tertiary mr-2 text-sm leading-4 font-semibold"
             >
               {item.rank}
             </Typography>
@@ -104,7 +104,7 @@ export function DirectoryCard({
               variant="body"
               size="small"
               weight="regular"
-              className="mr-1 text-xs font-normal leading-4 text-on-surface-var"
+              className="text-on-surface-var mr-1 text-xs leading-4 font-normal"
             >
               امتیاز
             </Typography>
@@ -113,7 +113,7 @@ export function DirectoryCard({
               variant="label"
               size="medium"
               weight="semibold"
-              className="mr-2 text-sm font-semibold leading-6 text-tertiary"
+              className="text-tertiary mr-2 text-sm leading-6 font-semibold"
             >
               {item.score}
             </Typography>
@@ -125,8 +125,7 @@ export function DirectoryCard({
 
   const baseClassName =
     "flex h-[104px] items-center gap-4 rounded-xl border border-outline-var bg-surface-container-lowest p-4 text-right shadow-[0_0_6px_rgba(26,26,26,0.04)]";
-  const layoutClassName =
-    layout === "carousel" ? "mx-0 w-[300px]" : "mx-4 w-[calc(100%_-_2rem)]";
+  const layoutClassName = layout === "carousel" ? "mx-0 w-[300px]" : "mx-4 w-[calc(100%_-_2rem)]";
   const mergedClassName = cn(
     baseClassName,
     layoutClassName,
@@ -153,18 +152,18 @@ export function DirectoryCardSkeleton({
   return (
     <div
       className={cn(
-        "flex h-[104px] items-center gap-4 rounded-xl border border-outline-var bg-surface-container-lowest p-4",
+        "border-outline-var bg-surface-container-lowest flex h-[104px] items-center gap-4 rounded-xl border p-4",
         layout === "carousel" ? "mx-0 w-[300px]" : "mx-4",
         className,
       )}
     >
-      <div className="h-[72px] w-[72px] shrink-0 animate-pulse rounded-xl bg-surface-container" />
+      <div className="bg-surface-container h-[72px] w-[72px] shrink-0 animate-pulse rounded-xl" />
       <div className="min-w-0 flex-1">
-        <div className="h-5 w-2/3 animate-pulse rounded-full bg-surface-container" />
-        <div className="mt-3 h-3 w-1/2 animate-pulse rounded-full bg-surface-container" />
+        <div className="bg-surface-container h-5 w-2/3 animate-pulse rounded-full" />
+        <div className="bg-surface-container mt-3 h-3 w-1/2 animate-pulse rounded-full" />
         <div className="mt-4 flex justify-between">
-          <div className="h-4 w-20 animate-pulse rounded-full bg-surface-container" />
-          <div className="h-4 w-20 animate-pulse rounded-full bg-surface-container" />
+          <div className="bg-surface-container h-4 w-20 animate-pulse rounded-full" />
+          <div className="bg-surface-container h-4 w-20 animate-pulse rounded-full" />
         </div>
       </div>
     </div>

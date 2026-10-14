@@ -18,11 +18,12 @@ export function Switch({
   ...props
 }: SwitchProps) {
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-checked={checked}
       className={cn(
-        "relative h-6 w-11 shrink-0 rounded-full cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] [direction:ltr] active:scale-[0.96]",
-        checked ? "bg-primary ring-2 ring-primary/20" : "bg-outline-var/60 dark:bg-outline-var/40",
+        "relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] [direction:ltr] active:scale-[0.96]",
+        checked ? "bg-primary ring-primary/20 ring-2" : "bg-outline-var/60 dark:bg-outline-var/40",
         focusRing,
         "disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100",
         className,
@@ -33,7 +34,11 @@ export function Switch({
       type={type}
       {...props}
     >
-      <Typography as="span" variant="body" size="medium" weight="regular"
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
         className={cn(
           "absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
           checked ? "left-1 translate-x-5" : "left-1 translate-x-0",

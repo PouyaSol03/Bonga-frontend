@@ -30,7 +30,7 @@ export function ListItem({
     <Button
       unstyled
       className={cn(
-        "relative flex w-full items-center gap-2 bg-surface-container-lowest px-4 py-4 first:pt-4 last:pb-0 text-right transition [direction:rtl]",
+        "bg-surface-container-lowest relative flex w-full items-center gap-2 px-4 py-4 text-right transition [direction:rtl] first:pt-4 last:pb-0",
         // description ? "min-h-[72px]" : "min-h-[72px]",
         isCenter && "justify-center text-center",
         selected ? "text-primary" : "text-on-surface",
@@ -47,7 +47,7 @@ export function ListItem({
           variant="body"
           size="medium"
           weight="regular"
-          className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var"
+          className="text-on-surface-var grid h-6 w-6 shrink-0 place-items-center"
         >
           {leading}
         </Typography>
@@ -84,7 +84,7 @@ export function ListItem({
             size="medium"
             weight="regular"
             className={cn(
-              "mt-0 block pb-1.5 truncate text-outline",
+              "text-outline mt-0 block truncate pb-1.5",
               isCenter ? "text-center" : "text-right",
             )}
           >
@@ -99,7 +99,7 @@ export function ListItem({
           variant="body"
           size="medium"
           weight="regular"
-          className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var"
+          className="text-on-surface-var grid h-6 w-6 shrink-0 place-items-center"
         >
           {trailing}
         </Typography>

@@ -117,7 +117,4 @@ export type ConsultantMetricData = {
   total_count: number;
 };
 
-export type ConsultantMetricType =
-  | "published-ads"
-  | "renewal-usage"
-  | "special-usage";
+export type ConsultantMetricType = "published-ads" | "renewal-usage" | "special-usage";

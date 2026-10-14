@@ -49,8 +49,7 @@ export function PackagePaymentMethodSheet({
 }: PackagePaymentMethodSheetProps) {
   const [paymentType, setPaymentType] = useState<PackagePaymentType>(0);
   const [discountInput, setDiscountInput] = useState("");
-  const [appliedDiscount, setAppliedDiscount] =
-    useState<ValidateDiscountCodeResult | null>(null);
+  const [appliedDiscount, setAppliedDiscount] = useState<ValidateDiscountCodeResult | null>(null);
   const [discountLoading, setDiscountLoading] = useState(false);
   const [discountError, setDiscountError] = useState<string | null>(null);
 
@@ -70,8 +69,7 @@ export function PackagePaymentMethodSheet({
     setDiscountLoading(true);
     setDiscountError(null);
     try {
-      const service =
-        packageKind === "panel_subscription" ? "panel" : "package";
+      const service = packageKind === "panel_subscription" ? "panel" : "package";
       const result = await validateDiscountCode({
         code,
         price: packagePrice,
@@ -98,9 +96,7 @@ export function PackagePaymentMethodSheet({
 
   const finalPrice = appliedDiscount ? appliedDiscount.final_price : packagePrice;
   const isFree = Boolean(
-    appliedDiscount?.is_free ||
-    appliedDiscount?.disable_gateway ||
-    finalPrice === 0,
+    appliedDiscount?.is_free || appliedDiscount?.disable_gateway || finalPrice === 0,
   );
   const isGatewayDisabled = Boolean(appliedDiscount?.disable_gateway || isFree);
 
@@ -122,26 +118,26 @@ export function PackagePaymentMethodSheet({
       title="روش پرداخت"
       variant="form"
     >
-      <div className="px-4 pb-4 pt-4">
+      <div className="px-4 pt-4 pb-4">
         {/* Package summary card */}
-        <div className="rounded-xl bg-surface-container px-4 py-3">
+        <div className="bg-surface-container rounded-xl px-4 py-3">
           <div className="flex items-center justify-between gap-4">
             <Typography
               as="span"
               variant="body"
               size="medium"
               weight="regular"
-              className="min-w-0 flex-1 truncate text-right text-on-surface-var"
+              className="text-on-surface-var min-w-0 flex-1 truncate text-right"
             >
               {packageTitle}
             </Typography>
             <div className="shrink-0 text-left">
               {appliedDiscount ? (
                 <div className="flex flex-col items-end">
-                  <span className="text-xs text-outline line-through">
+                  <span className="text-outline text-xs line-through">
                     {formatMoney(packagePrice)} تومان
                   </span>
-                  <span className="text-sm font-semibold text-primary">
+                  <span className="text-primary text-sm font-semibold">
                     {finalPrice === 0 ? "رایگان" : `${formatMoney(finalPrice)} تومان`}
                   </span>
                 </div>
@@ -151,7 +147,7 @@ export function PackagePaymentMethodSheet({
                   variant="label"
                   size="medium"
                   weight="semibold"
-                  className="shrink-0 text-on-surface"
+                  className="text-on-surface shrink-0"
                 >
                   {formatMoney(packagePrice)} تومان
                 </Typography>
@@ -161,25 +157,25 @@ export function PackagePaymentMethodSheet({
         </div>
 
         {/* Discount code section */}
-        <div className="mt-3 rounded-xl border border-outline-var bg-surface-container-lowest p-3">
+        <div className="border-outline-var bg-surface-container-lowest mt-3 rounded-xl border p-3">
           <Typography
             as="span"
             variant="label"
             size="small"
             weight="medium"
-            className="mb-2 block text-right text-on-surface"
+            className="text-on-surface mb-2 block text-right"
           >
             کد تخفیف
           </Typography>
           {appliedDiscount ? (
-            <div className="flex items-center justify-between rounded-lg bg-primary-container/30 px-3 py-2 text-sm text-primary">
+            <div className="bg-primary-container/30 text-primary flex items-center justify-between rounded-lg px-3 py-2 text-sm">
               <span className="font-semibold">
                 {appliedDiscount.code} ({appliedDiscount.discount_percent}٪ تخفیف)
               </span>
               <button
                 type="button"
                 onClick={handleRemoveDiscount}
-                className="cursor-pointer text-xs font-medium text-error"
+                className="text-error cursor-pointer text-xs font-medium"
               >
                 حذف کد
               </button>
@@ -198,7 +194,7 @@ export function PackagePaymentMethodSheet({
                 اعمال
               </Button>
               <input
-                className="h-10 w-full rounded-lg border border-outline-var bg-white px-3 text-right text-sm outline-none focus:border-primary"
+                className="border-outline-var focus:border-primary h-10 w-full rounded-lg border bg-white px-3 text-right text-sm outline-none"
                 disabled={discountLoading}
                 onChange={(e) => {
                   setDiscountInput(e.target.value);
@@ -217,12 +213,12 @@ export function PackagePaymentMethodSheet({
             </div>
           )}
           {discountError ? (
-            <p className="m-0 mt-1.5 text-right text-xs text-error">{discountError}</p>
+            <p className="text-error m-0 mt-1.5 text-right text-xs">{discountError}</p>
           ) : null}
         </div>
 
         {/* Payment options */}
-        <div className="mt-4 overflow-hidden rounded-xl border border-outline-var bg-surface-container-lowest">
+        <div className="border-outline-var bg-surface-container-lowest mt-4 overflow-hidden rounded-xl border">
           <PaymentMethodRow
             active={paymentType === 1}
             description={
@@ -237,7 +233,7 @@ export function PackagePaymentMethodSheet({
             onClick={() => setPaymentType(1)}
           />
 
-          <div className="mx-4 h-px bg-outline-var" />
+          <div className="bg-outline-var mx-4 h-px" />
 
           <PaymentMethodRow
             active={paymentType === 0}
@@ -256,18 +252,18 @@ export function PackagePaymentMethodSheet({
         </div>
 
         {paymentType === 1 && !isFree && walletReady && walletShortage > 0 ? (
-          <div className="mt-3 rounded-xl border border-error/30 bg-error-container/30 px-4 py-3 text-right">
+          <div className="border-error/30 bg-error-container/30 mt-3 rounded-xl border px-4 py-3 text-right">
             <Typography
               as="p"
               variant="body"
               size="small"
               weight="regular"
-              className="m-0 text-error"
+              className="text-error m-0"
             >
               موجودی کیف پول برای این خرید {formatMoney(walletShortage)} تومان کم است.
             </Typography>
             <Link
-              className="mt-2 inline-flex text-sm font-medium text-primary no-underline"
+              className="text-primary mt-2 inline-flex text-sm font-medium no-underline"
               to="/account/wallet"
             >
               شارژ کیف پول
@@ -319,10 +315,8 @@ function PaymentMethodRow({
       unstyled
       aria-pressed={active}
       disabled={disabled}
-      className={`flex min-h-[72px] w-full items-center justify-between gap-3 px-4 py-3 text-right [direction:ltr] transition ${
-        disabled
-          ? "cursor-not-allowed opacity-50 bg-surface-container/30"
-          : "cursor-pointer"
+      className={`flex min-h-[72px] w-full items-center justify-between gap-3 px-4 py-3 text-right transition [direction:ltr] ${
+        disabled ? "bg-surface-container/30 cursor-not-allowed opacity-50" : "cursor-pointer"
       }`}
       onClick={disabled ? undefined : onClick}
       type="button"
@@ -330,7 +324,7 @@ function PaymentMethodRow({
       <ChoiceIndicator checked={active} disabled={disabled} type="radio" />
 
       <span className="inline-flex min-w-0 flex-1 items-center justify-end gap-3 [direction:rtl]">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-surface-container text-on-surface-var">
+        <span className="bg-surface-container text-on-surface-var grid h-10 w-10 shrink-0 place-items-center rounded-full">
           {icon}
         </span>
 
@@ -340,7 +334,7 @@ function PaymentMethodRow({
             variant="body"
             size="medium"
             weight="medium"
-            className="block text-on-surface"
+            className="text-on-surface block"
           >
             {label}
           </Typography>
@@ -349,7 +343,7 @@ function PaymentMethodRow({
             variant="body"
             size="small"
             weight="regular"
-            className="mt-1 block text-outline text-xs"
+            className="text-outline mt-1 block text-xs"
           >
             {description}
           </Typography>

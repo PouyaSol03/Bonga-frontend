@@ -47,7 +47,15 @@ import {
   propertySpecs,
   subNeighborhoodIdKey,
 } from "./data";
-import type { BasicPropertyField, BasicPropertyFieldKey, ChipItem, MoreFeatureField, MoreFeatureFormKey, MoreFeaturesFormValues, NewAdFormValues } from "./types";
+import type {
+  BasicPropertyField,
+  BasicPropertyFieldKey,
+  ChipItem,
+  MoreFeatureField,
+  MoreFeatureFormKey,
+  MoreFeaturesFormValues,
+  NewAdFormValues,
+} from "./types";
 import { clearNewAdFlowSession, shouldPreserveNewAdDraft } from "./session";
 import { getFormSchemaByListing } from "../forms";
 
@@ -58,7 +66,12 @@ export function getBasicPropertyFields(): BasicPropertyField[] {
     return schema.create.basicFields.map((field) => ({
       key: field.key as BasicPropertyFieldKey,
       label: field.title,
-      control: field.input === "multiSelect" ? "multiSelect" : (field.input === "select" || field.ui === "bottomSheet") ? "select" : "input",
+      control:
+        field.input === "multiSelect"
+          ? "multiSelect"
+          : field.input === "select" || field.ui === "bottomSheet"
+            ? "select"
+            : "input",
       numeric: field.numeric,
       required: field.required,
       leftText: field.leftText,
@@ -68,10 +81,7 @@ export function getBasicPropertyFields(): BasicPropertyField[] {
 
   const listingKey = `${transaction}:${category}`;
 
-  return (
-    basicPropertyFieldsByListingType[listingKey] ??
-    defaultBasicPropertyFields
-  );
+  return basicPropertyFieldsByListingType[listingKey] ?? defaultBasicPropertyFields;
 }
 
 export function getMoreFeatureFields(): MoreFeatureField[] {
@@ -81,7 +91,18 @@ export function getMoreFeatureFields(): MoreFeatureField[] {
     return schema.create.moreFeatures.fields.map((field) => ({
       key: field.key as MoreFeatureFormKey,
       label: field.title,
-      control: field.input === "toggle" || field.ui === "toggle" ? "toggle" : field.input === "time" ? "time" : field.input === "date" ? "date" : field.input === "number" ? "number" : field.input === "multiSelect" ? "multiSelect" : "select",
+      control:
+        field.input === "toggle" || field.ui === "toggle"
+          ? "toggle"
+          : field.input === "time"
+            ? "time"
+            : field.input === "date"
+              ? "date"
+              : field.input === "number"
+                ? "number"
+                : field.input === "multiSelect"
+                  ? "multiSelect"
+                  : "select",
       options: field.options,
       leftText: field.leftText,
     }));
@@ -89,11 +110,7 @@ export function getMoreFeatureFields(): MoreFeatureField[] {
 
   const listingKey = `${transaction}:${category}`;
 
-  return (
-    moreFeatureFieldsByListingType[listingKey] ??
-    moreFeatureFieldsByCategory[category] ??
-    []
-  );
+  return moreFeatureFieldsByListingType[listingKey] ?? moreFeatureFieldsByCategory[category] ?? [];
 }
 
 export function pickMoreFeatures(values: NewAdFormValues): MoreFeaturesFormValues {
@@ -187,9 +204,7 @@ export function getParams(): {
     label: params.get("label") ?? "آگهی ملک",
     publisherType,
     registrantType:
-      registrantType === "personal" || registrantType === "agency"
-        ? registrantType
-        : "",
+      registrantType === "personal" || registrantType === "agency" ? registrantType : "",
     transaction: params.get("transaction") ?? "",
   };
 }
@@ -205,9 +220,7 @@ function getDraft(): Partial<NewAdFormValues> {
 
 function normalizeDraftStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
-    return value
-      .map((item) => String(item ?? "").trim())
-      .filter(Boolean);
+    return value.map((item) => String(item ?? "").trim()).filter(Boolean);
   }
 
   if (typeof value === "string" && value.trim()) {
@@ -368,17 +381,20 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
   const card = routeState.card ?? {};
   const ad = routeState.ad ?? {};
   const title = readText(card.title, ad.title, ad.name);
-  const confirmedLocation = typeof window !== "undefined" ? window.localStorage.getItem(locationKey)?.trim() : "";
-  const location = confirmedLocation || readText(
-    (ad.location as any)?.label,
-    ad.location_label,
-    ad.user_address,
-    ad.location,
-    ad.address,
-    (ad.neighborhood as any)?.name,
-    ad.neighborhood_name,
-    card.timeAndLocation ? locationFromTimeAndLocation(card.timeAndLocation) : "",
-  );
+  const confirmedLocation =
+    typeof window !== "undefined" ? window.localStorage.getItem(locationKey)?.trim() : "";
+  const location =
+    confirmedLocation ||
+    readText(
+      (ad.location as any)?.label,
+      ad.location_label,
+      ad.user_address,
+      ad.location,
+      ad.address,
+      (ad.neighborhood as any)?.name,
+      ad.neighborhood_name,
+      card.timeAndLocation ? locationFromTimeAndLocation(card.timeAndLocation) : "",
+    );
   const publisherName = readText(card.agency, ad.agency, ad.publisherName, ad.publisher_name);
   const phoneNumber = readText(ad.owner_phone, ad.phone, ad.phoneNumber, ad.phone_number);
   const ownerPhone = readText(
@@ -403,13 +419,28 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
     (card as any).owner_address,
   );
   const price = priceTextToNumberString(readText(card.pricePrimary, ad.price, ad.total_price));
-  const mortgagePrice = priceTextToNumberString(readText(card.pricePrimary, ad.mortgagePrice, ad.mortgage_price));
-  const rentPrice = priceTextToNumberString(readText(card.priceSecondary, ad.rentPrice, ad.rent_price));
+  const mortgagePrice = priceTextToNumberString(
+    readText(card.pricePrimary, ad.mortgagePrice, ad.mortgage_price),
+  );
+  const rentPrice = priceTextToNumberString(
+    readText(card.priceSecondary, ad.rentPrice, ad.rent_price),
+  );
   const features = Array.isArray((ad as any).features) ? (ad as any).features : [];
-  const getFeature = (name: string) => features.find((f: any) => f?.label === name || f?.key === name)?.value;
-  const loanAmount = readText((ad as any).loan?.amount, getFeature("loan_amount"), (ad as any).loan_amount);
-  const loanInstallment = readText((ad as any).loan?.installment, getFeature("loan_installment"), (ad as any).loan_installment);
-  const hasLoan = Boolean(loanAmount || loanInstallment || getFeature("has_loan") || (ad as any).has_loan);
+  const getFeature = (name: string) =>
+    features.find((f: any) => f?.label === name || f?.key === name)?.value;
+  const loanAmount = readText(
+    (ad as any).loan?.amount,
+    getFeature("loan_amount"),
+    (ad as any).loan_amount,
+  );
+  const loanInstallment = readText(
+    (ad as any).loan?.installment,
+    getFeature("loan_installment"),
+    (ad as any).loan_installment,
+  );
+  const hasLoan = Boolean(
+    loanAmount || loanInstallment || getFeature("has_loan") || (ad as any).has_loan,
+  );
 
   return {
     age: readText(card.year, ad.age, ad.building_age),
@@ -430,7 +461,13 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
     registrantType: publisherName ? "agency" : "personal",
     rentPrice,
     rooms: pickFirstNumber(readText(card.rooms, ad.rooms, getFeature("rooms"))),
-    floor: readText((card as any).floor, (ad as any).floor, getFeature("floor"), getFeature("unit_floor"), getFeature("apartment_floor")),
+    floor: readText(
+      (card as any).floor,
+      (ad as any).floor,
+      getFeature("floor"),
+      getFeature("unit_floor"),
+      getFeature("apartment_floor"),
+    ),
     title,
     loanEnabled: hasLoan,
     loanAmount: loanAmount ? priceTextToNumberString(loanAmount) : "",
@@ -438,12 +475,15 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
   };
 }
 
-export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteState()): NewAdFormValues {
+export function getDefaultValues(
+  editState: EditAdRouteState = getEditAdRouteState(),
+): NewAdFormValues {
   const editDefaults = editState.isEditMode ? buildEditDefaultValues(editState) : null;
   const selectedRegistrantType: NewAdFormValues["registrantType"] = editState.isEditMode
     ? ""
     : getParams().registrantType;
-  const preserveDraft = typeof window !== "undefined" && shouldPreserveNewAdDraft(window.history.state);
+  const preserveDraft =
+    typeof window !== "undefined" && shouldPreserveNewAdDraft(window.history.state);
   const draftValues = editDefaults || !preserveDraft ? null : getDraft();
   if (draftValues?.neighborhoodId && typeof window !== "undefined") {
     if (!window.localStorage.getItem(neighborhoodIdKey)) {
@@ -465,15 +505,20 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
         ...draftValues,
         neighborhoodId:
           draftValues?.neighborhoodId ||
-          (typeof window !== "undefined" ? window.localStorage.getItem(neighborhoodIdKey) ?? "" : ""),
+          (typeof window !== "undefined"
+            ? (window.localStorage.getItem(neighborhoodIdKey) ?? "")
+            : ""),
         subNeighborhoodId:
           draftValues?.subNeighborhoodId ||
-          (typeof window !== "undefined" ? window.localStorage.getItem(subNeighborhoodIdKey) ?? "" : ""),
+          (typeof window !== "undefined"
+            ? (window.localStorage.getItem(subNeighborhoodIdKey) ?? "")
+            : ""),
         suitableFor: normalizeDraftStringArray(draftValues?.suitableFor),
         location: preserveDraft ? (window.localStorage.getItem(locationKey) ?? "") : "",
       };
 
-  const queryParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const queryParams =
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const queryAgencyId = queryParams?.get("agencyId") || queryParams?.get("agency_id") || "";
   const queryAgencyName = queryParams?.get("agencyName") || queryParams?.get("publisherName") || "";
 
@@ -481,13 +526,13 @@ export function getDefaultValues(editState: EditAdRouteState = getEditAdRouteSta
     ...baseValues,
     registrantType: editDefaults
       ? baseValues.registrantType
-      : (queryAgencyId ? "agency" : (selectedRegistrantType || baseValues.registrantType)),
-    agencyId: editDefaults
-      ? baseValues.agencyId
-      : (queryAgencyId || baseValues.agencyId),
+      : queryAgencyId
+        ? "agency"
+        : selectedRegistrantType || baseValues.registrantType,
+    agencyId: editDefaults ? baseValues.agencyId : queryAgencyId || baseValues.agencyId,
     publisherName: editDefaults
       ? baseValues.publisherName
-      : (queryAgencyName || baseValues.publisherName),
+      : queryAgencyName || baseValues.publisherName,
     hasVideo: false,
     photos: [],
     video: null,
@@ -532,7 +577,7 @@ export function normalizeUnitsPerFloorValue(value: unknown) {
 export function formatUnitsPerFloorLabel(value: unknown) {
   const normalized = normalizeUnitsPerFloorValue(value);
 
-  return normalized ? `${normalized} واحد` : (typeof value === "string" ? value : "");
+  return normalized ? `${normalized} واحد` : typeof value === "string" ? value : "";
 }
 
 export function normalizeNumberInput(value: unknown) {
@@ -588,9 +633,7 @@ export function buildProjectDetailFeatures(values: NewAdFormValues) {
       rooms: item.rooms,
       positions: item.positions,
     }))
-    .filter((item) =>
-      Object.values(item).some((value) => hasFeatureValue(value)),
-    );
+    .filter((item) => Object.values(item).some((value) => hasFeatureValue(value)));
 }
 
 export function buildDailyHotelRoomFeatures(values: NewAdFormValues) {
@@ -617,7 +660,18 @@ export function getHeatingItemsForListing(transaction: string, category: string)
   if (transaction === "sale" && category === "factory-workshop") return saleFactoryHeatingItems;
   if (transaction === "sale" && category === "hotel-apartment") return saleHotelHeatingItems;
   if (transaction === "rent" && category.startsWith("daily-")) return dailyRentHeatingItems;
-  if (transaction === "rent" && ["apartment", "villa-house", "office", "commercial-unit", "factory-workshop", "hotel-apartment"].includes(category)) return rentHeatingItems;
+  if (
+    transaction === "rent" &&
+    [
+      "apartment",
+      "villa-house",
+      "office",
+      "commercial-unit",
+      "factory-workshop",
+      "hotel-apartment",
+    ].includes(category)
+  )
+    return rentHeatingItems;
 
   return heatingItems;
 }
@@ -637,13 +691,13 @@ export function getFacilityItemsForListing(transaction: string, category: string
   if (transaction === "rent" && category === "commercial-unit") return rentCommercialFacilityItems;
   if (transaction === "rent" && category === "factory-workshop") return rentFactoryFacilityItems;
   if (transaction === "rent" && category === "hotel-apartment") return rentHotelFacilityItems;
-  if (transaction === "rent" && ["daily-apartment-suite", "daily-garden-villa"].includes(category)) return dailyStayFacilityItems;
-  if (transaction === "rent" && category === "daily-hotel-apartment") return dailyHotelFacilityItems;
+  if (transaction === "rent" && ["daily-apartment-suite", "daily-garden-villa"].includes(category))
+    return dailyStayFacilityItems;
+  if (transaction === "rent" && category === "daily-hotel-apartment")
+    return dailyHotelFacilityItems;
   if (transaction === "rent" && category === "daily-workspace") return dailyWorkspaceFacilityItems;
 
-  return category === "land" || category === "factory-workshop"
-    ? landFacilityItems
-    : facilityItems;
+  return category === "land" || category === "factory-workshop" ? landFacilityItems : facilityItems;
 }
 
 export function getPriceValue(values: NewAdFormValues, transaction: string, category: string) {
@@ -674,7 +728,9 @@ export function getAdvertiseFormCode(transaction: string, category: string) {
     "sale:warehouse": "sale-warehouse",
   };
 
-  return formCodes[`${transaction}:${category}`] ?? [transaction, category].filter(Boolean).join("-");
+  return (
+    formCodes[`${transaction}:${category}`] ?? [transaction, category].filter(Boolean).join("-")
+  );
 }
 
 export function getStoredNewAdLocationNumber(key: string) {
@@ -696,7 +752,9 @@ export function buildPayload(values: NewAdFormValues) {
   const heatingItemsForListing = getHeatingItemsForListing(params.transaction, params.category);
   const featureItemsForCategory = getFacilityItemsForListing(params.transaction, params.category);
   const features: NewAdFeature[] = [];
-  const heatingCooling = hideHeatingCooling ? [] : labels(heatingItemsForListing, values.heatingCooling);
+  const heatingCooling = hideHeatingCooling
+    ? []
+    : labels(heatingItemsForListing, values.heatingCooling);
   const facilities = isPartnership ? [] : labels(featureItemsForCategory, values.facilities);
   const extraSpecs = labels(propertySpecs, values.selectedSpecs);
 
@@ -729,8 +787,16 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "check_out_time", values.checkOutTime);
   addFeature(features, "min_stay_days", toNumber(values.minStayDays));
   addFeature(features, "evacuation_guarantee", toNumber(values.evacuationGuarantee));
-  addFeature(features, "commercial_permit", values.commercialLicense || (values.commercialPermit ? "دارد" : ""));
-  addFeature(features, "build_permit", values.constructionLicense ? values.constructionLicense === "دارد" : values.constructionPermit);
+  addFeature(
+    features,
+    "commercial_permit",
+    values.commercialLicense || (values.commercialPermit ? "دارد" : ""),
+  );
+  addFeature(
+    features,
+    "build_permit",
+    values.constructionLicense ? values.constructionLicense === "دارد" : values.constructionPermit,
+  );
   addFeature(features, "builder_company_name", values.builderCompanyName);
   addFeature(features, "project_type", values.projectType);
 
@@ -739,7 +805,10 @@ export function buildPayload(values: NewAdFormValues) {
   }
 
   addFeature(features, "total_floors", toNumber(pickFirstNumber(values.totalFloors)));
-  if (params.category === "apartment" && (params.transaction === "sale" || params.transaction === "rent")) {
+  if (
+    params.category === "apartment" &&
+    (params.transaction === "sale" || params.transaction === "rent")
+  ) {
     addFeature(features, "unit_per_floor", toUnitsPerFloorNumber(values.unitsPerFloor));
   }
   addFeature(features, "unit_type", values.unitType);
@@ -763,7 +832,11 @@ export function buildPayload(values: NewAdFormValues) {
   addFeature(features, "access_type", values.accessType);
   addFeature(features, "office_position", values.officePosition);
   addFeature(features, "office_document_type", values.officeDocumentType);
-  addFeature(features, "has_document", values.hasDocument || Boolean(values.documentType || values.officeDocumentType));
+  addFeature(
+    features,
+    "has_document",
+    values.hasDocument || Boolean(values.documentType || values.officeDocumentType),
+  );
   addFeature(features, "management_room", values.managementRoom);
   addFeature(features, "conference_room", values.conferenceRoom);
   addFeature(features, "reception_hall", values.receptionHall);
@@ -820,7 +893,11 @@ export function buildPayload(values: NewAdFormValues) {
     addFeature(features, "rent_conversion_enabled", values.rentConversionEnabled);
     addFeature(features, "rent_convertible", values.rentConversionEnabled);
     if (values.rentConversionEnabled) {
-      addFeature(features, "rent_conversion_mortgage_price", toNumber(values.rentConversionMortgagePrice));
+      addFeature(
+        features,
+        "rent_conversion_mortgage_price",
+        toNumber(values.rentConversionMortgagePrice),
+      );
       addFeature(features, "rent_conversion_policy", "قابل تبدیل");
     } else {
       addFeature(features, "rent_conversion_policy", "غیر قابل تبدیل");
@@ -837,11 +914,23 @@ export function buildPayload(values: NewAdFormValues) {
   }
 
   const isLoanActive = Boolean(values.loanEnabled || values.loanAmount || values.loanInstallment);
-  addFeature(features, "loan_amount", isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanAmount) : null);
-  addFeature(features, "loan_installment", isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanInstallment) : null);
+  addFeature(
+    features,
+    "loan_amount",
+    isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanAmount) : null,
+  );
+  addFeature(
+    features,
+    "loan_installment",
+    isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanInstallment) : null,
+  );
   const exchangeAllowed = isSale || (isProject && !isPartnership);
   addFeature(features, "has_exchange", exchangeAllowed && values.exchangeEnabled);
-  addFeature(features, "exchange_with", exchangeAllowed && values.exchangeEnabled ? values.exchangeTargets : []);
+  addFeature(
+    features,
+    "exchange_with",
+    exchangeAllowed && values.exchangeEnabled ? values.exchangeTargets : [],
+  );
 
   addFeature(features, "has_image", values.photos.length > 0);
   addFeature(features, "has_video", values.hasVideo);
@@ -859,8 +948,16 @@ export function buildPayload(values: NewAdFormValues) {
     addFeature(features, "delivery_date", values.projectDeliveryDate);
     addFeature(features, "project_details", buildProjectDetailFeatures(values));
     addFeature(features, "sale_terms_enabled", values.saleTermsEnabled);
-    addFeature(features, "sale_terms_percent", values.saleTermsEnabled ? toNumber(values.saleTermsPercent) : null);
-    addFeature(features, "sale_terms_installment_months", values.saleTermsEnabled ? toNumber(values.saleTermsInstallmentMonths) : null);
+    addFeature(
+      features,
+      "sale_terms_percent",
+      values.saleTermsEnabled ? toNumber(values.saleTermsPercent) : null,
+    );
+    addFeature(
+      features,
+      "sale_terms_installment_months",
+      values.saleTermsEnabled ? toNumber(values.saleTermsInstallmentMonths) : null,
+    );
   }
 
   if (isPartnership) {
@@ -879,16 +976,15 @@ export function buildPayload(values: NewAdFormValues) {
     description: values.description,
     price: getPriceValue(values, params.transaction, params.category),
     features,
-    contact_type: [
-      values.chatEnabled ? "chat" : null,
-      values.phoneEnabled ? "phone" : null,
-    ].filter(Boolean),
-    owner_phone: omitContacts ? null : (values.phoneNumber || null),
-    owner_name: omitContacts ? null : (values.ownerFullName || null),
-    owner_address: omitContacts ? null : (values.ownerExactAddress || null),
-    owner_contact_name: omitContacts ? null : (values.ownerFullName || null),
-    owner_contact_phone: omitContacts ? null : (values.ownerPhone || null),
-    owner_contact_address: omitContacts ? null : (values.ownerExactAddress || null),
+    contact_type: [values.chatEnabled ? "chat" : null, values.phoneEnabled ? "phone" : null].filter(
+      Boolean,
+    ),
+    owner_phone: omitContacts ? null : values.phoneNumber || null,
+    owner_name: omitContacts ? null : values.ownerFullName || null,
+    owner_address: omitContacts ? null : values.ownerExactAddress || null,
+    owner_contact_name: omitContacts ? null : values.ownerFullName || null,
+    owner_contact_phone: omitContacts ? null : values.ownerPhone || null,
+    owner_contact_address: omitContacts ? null : values.ownerExactAddress || null,
     social: {
       telegram: values.telegram || null,
       whatsapp: values.whatsapp || null,
@@ -896,9 +992,13 @@ export function buildPayload(values: NewAdFormValues) {
   };
 }
 
-export function shouldOmitOwnerContactsOnAssignment(values: { registrantType?: string; agencyId?: string }): boolean {
+export function shouldOmitOwnerContactsOnAssignment(values: {
+  registrantType?: string;
+  agencyId?: string;
+}): boolean {
   const isPersonalActiveAccount = getActiveV2Role() === "personal";
-  const isAssigningToAgency = values.registrantType === "agency" || Boolean(values.agencyId?.trim());
+  const isAssigningToAgency =
+    values.registrantType === "agency" || Boolean(values.agencyId?.trim());
   return isPersonalActiveAccount && isAssigningToAgency;
 }
 
@@ -922,8 +1022,7 @@ export function buildNewAdFormData(
   const cleanValues = trimFormValues(values);
   const params = getParams();
   const formCode =
-    options.formCode?.trim() ||
-    getAdvertiseFormCode(params.transaction, params.category);
+    options.formCode?.trim() || getAdvertiseFormCode(params.transaction, params.category);
   const isSale = params.transaction === "sale";
   const isSaleGardenVilla = isSale && params.category === "garden-villa";
   const isLoanActive = Boolean(values.loanEnabled || values.loanAmount || values.loanInstallment);
@@ -955,8 +1054,7 @@ export function buildNewAdFormData(
 
     if (!hasFeatureValue(value)) return;
 
-    const serializedValue =
-      typeof value === "boolean" ? (value ? "1" : "0") : String(value);
+    const serializedValue = typeof value === "boolean" ? (value ? "1" : "0") : String(value);
 
     formData.append(key, serializedValue);
   };
@@ -974,8 +1072,7 @@ export function buildNewAdFormData(
 
     if (!hasFeatureValue(value)) return;
 
-    const serializedValue =
-      typeof value === "boolean" ? (value ? "1" : "0") : String(value);
+    const serializedValue = typeof value === "boolean" ? (value ? "1" : "0") : String(value);
 
     formData.append(key, serializedValue);
   };
@@ -1030,7 +1127,13 @@ export function buildNewAdFormData(
     if (!hasFeatureValue(value)) return;
 
     if (Array.isArray(value) && value.length === 0) return;
-    if (value && typeof value === "object" && !Array.isArray(value) && Object.keys(value as Record<string, unknown>).length === 0) return;
+    if (
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      Object.keys(value as Record<string, unknown>).length === 0
+    )
+      return;
 
     formData.append(key, JSON.stringify(value));
   };
@@ -1053,7 +1156,10 @@ export function buildNewAdFormData(
   appendBaseValue("sub_neighborhood_id", storedSubNeighborhoodId);
   appendBaseValue("lat", getStoredNewAdLocationNumber(locationLatKey));
   appendBaseValue("lng", getStoredNewAdLocationNumber(locationLngKey));
-  appendBaseValue("location_label", cleanValues.location || window.localStorage.getItem(locationKey));
+  appendBaseValue(
+    "location_label",
+    cleanValues.location || window.localStorage.getItem(locationKey),
+  );
   appendBaseValue(
     "virtual_tour_link",
     cleanValues.hasVirtualTour ? cleanValues.virtualTourLink.trim() : "",
@@ -1069,7 +1175,8 @@ export function buildNewAdFormData(
   if (!options.isEdit && !omitContacts) {
     if (cleanValues.phoneNumber) appendBaseValue("owner_phone", cleanValues.phoneNumber);
     if (cleanValues.ownerFullName) appendBaseValue("owner_name", cleanValues.ownerFullName);
-    if (cleanValues.ownerExactAddress) appendBaseValue("owner_address", cleanValues.ownerExactAddress);
+    if (cleanValues.ownerExactAddress)
+      appendBaseValue("owner_address", cleanValues.ownerExactAddress);
   }
   if (cleanValues.ownerPhone && !omitContacts) {
     appendBaseValue("owner_contact_phone", cleanValues.ownerPhone);
@@ -1091,7 +1198,8 @@ export function buildNewAdFormData(
   const landAreaValue = toNumber(values.landArea);
   const buildingAreaValue = toNumber(values.buildingArea);
   const areaValue = meterageValue ?? buildingAreaValue ?? landAreaValue;
-  const apiLandAreaValue = formCode === "sale-land" ? (landAreaValue ?? meterageValue) : landAreaValue;
+  const apiLandAreaValue =
+    formCode === "sale-land" ? (landAreaValue ?? meterageValue) : landAreaValue;
 
   appendDynamicValue("area", areaValue);
   appendDynamicValue("land_area", apiLandAreaValue);
@@ -1102,7 +1210,10 @@ export function buildNewAdFormData(
   appendDynamicValue("rent_conversion_enabled", values.rentConversionEnabled);
   appendDynamicValue("rent_convertible", values.rentConversionEnabled);
   if (values.rentConversionEnabled) {
-    appendDynamicValue("rent_conversion_mortgage_price", toNumber(values.rentConversionMortgagePrice));
+    appendDynamicValue(
+      "rent_conversion_mortgage_price",
+      toNumber(values.rentConversionMortgagePrice),
+    );
     appendDynamicValue("rent_conversion_policy", "قابل تبدیل");
   } else {
     appendDynamicValue("rent_conversion_policy", "غیر قابل تبدیل");
@@ -1124,7 +1235,10 @@ export function buildNewAdFormData(
   appendDynamicValue("weekend_daily_price", toNumber(values.weekendDailyPrice));
   appendDynamicValue("special_daily_price", toNumber(values.specialDailyPrice));
   appendDynamicValue("extra_person_price", toNumber(values.extraPersonPrice));
-  appendDynamicAliasValue(["builder_company_name", "builder_name", "developer_name"], values.builderCompanyName);
+  appendDynamicAliasValue(
+    ["builder_company_name", "builder_name", "developer_name"],
+    values.builderCompanyName,
+  );
   appendDynamicValue("project_type", values.projectType);
   appendDynamicValue("project_total_floors", toNumber(values.projectTotalFloors));
   appendDynamicValue("project_total_units", toNumber(values.projectTotalUnits));
@@ -1136,7 +1250,10 @@ export function buildNewAdFormData(
   appendDynamicValue("accommodation_type", values.accommodationType);
   appendDynamicValue("space_type", values.spaceType);
   appendDynamicValue("capacity", toNumber(pickFirstNumber(values.standardCapacity)));
-  appendDynamicValue("extra_people_capacity", toNumber(pickFirstNumber(values.extraPeopleCapacity)));
+  appendDynamicValue(
+    "extra_people_capacity",
+    toNumber(pickFirstNumber(values.extraPeopleCapacity)),
+  );
   appendDynamicValue("rental_period", values.rentalPeriod);
   appendDynamicValue("view_type", values.viewType);
   appendDynamicValue("check_in_time", values.checkInTime);
@@ -1153,10 +1270,16 @@ export function buildNewAdFormData(
     "loan_installment",
     isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanInstallment) : null,
   );
-  appendDynamicValue("has_document", values.hasDocument || Boolean(values.documentType || values.officeDocumentType));
+  appendDynamicValue(
+    "has_document",
+    values.hasDocument || Boolean(values.documentType || values.officeDocumentType),
+  );
   appendDynamicValue("document_type", values.documentType);
   appendDynamicValue("total_floors", toNumber(pickFirstNumber(values.totalFloors)));
-  if (params.category === "apartment" && (params.transaction === "sale" || params.transaction === "rent")) {
+  if (
+    params.category === "apartment" &&
+    (params.transaction === "sale" || params.transaction === "rent")
+  ) {
     appendDynamicAliasValue(
       ["units_per_floor", "unit_per_floor"],
       toUnitsPerFloorNumber(values.unitsPerFloor),
@@ -1164,11 +1287,20 @@ export function buildNewAdFormData(
   }
   appendDynamicValue("unit_type", values.unitType);
   appendDynamicValue("unit_position", values.unitPosition);
-  appendDynamicAliasValue(["occupancy_status", "residency_status", "occupancy"], values.occupancyStatus);
+  appendDynamicAliasValue(
+    ["occupancy_status", "residency_status", "occupancy"],
+    values.occupancyStatus,
+  );
   appendDynamicAliasValue(["kitchen_type", "kitchen_style"], values.kitchenType);
   appendDynamicAliasValue(["pet_policy", "pets_allowed", "pet_status"], values.petPolicy);
-  appendDynamicAliasValue(["ready_delivery_date", "delivery_ready_date", "available_from"], values.readyDeliveryDate);
-  appendDynamicAliasValue(["min_contract_months", "minimum_contract_months", "contract_months"], toNumber(values.minContractMonths));
+  appendDynamicAliasValue(
+    ["ready_delivery_date", "delivery_ready_date", "available_from"],
+    values.readyDeliveryDate,
+  );
+  appendDynamicAliasValue(
+    ["min_contract_months", "minimum_contract_months", "contract_months"],
+    toNumber(values.minContractMonths),
+  );
   appendDynamicValue(
     "density",
     params.transaction === "sale" && params.category === "land"
@@ -1193,7 +1325,10 @@ export function buildNewAdFormData(
   appendDynamicValue("kitchen", values.kitchen);
   appendDynamicValue("separate_entrance", values.separateEntrance);
   appendDynamicValue("height", toNumber(values.ceilingHeight));
-  appendDynamicAliasValue(["opening_count", "frontage_count", "openings"], toNumber(values.openingCount));
+  appendDynamicAliasValue(
+    ["opening_count", "frontage_count", "openings"],
+    toNumber(values.openingCount),
+  );
   appendFacilityCount(
     "elevator_count",
     values.facilities.includes("elevator") ? toNumber(values.elevatorCount) : null,
@@ -1234,9 +1369,7 @@ export function buildNewAdFormData(
   appendDynamicValue("partnership_type", values.participationType);
   appendDynamicValue(
     "build_permit",
-    values.constructionLicense
-      ? values.constructionLicense === "دارد"
-      : values.constructionPermit,
+    values.constructionLicense ? values.constructionLicense === "دارد" : values.constructionPermit,
   );
   appendDynamicValue("has_image", values.photos.length > 0);
   appendDynamicValue("has_video", Boolean(values.video));
@@ -1247,7 +1380,10 @@ export function buildNewAdFormData(
   appendDynamicArray("facilities", facilities);
   const exchangeAllowedForForm = !formCode.startsWith("rent-");
   appendDynamicValue("has_exchange", exchangeAllowedForForm && values.exchangeEnabled);
-  appendDynamicArray("exchange_with", exchangeAllowedForForm && values.exchangeEnabled ? values.exchangeTargets : []);
+  appendDynamicArray(
+    "exchange_with",
+    exchangeAllowedForForm && values.exchangeEnabled ? values.exchangeTargets : [],
+  );
 
   appendDynamicJson("project_details", buildProjectDetailFeatures(values));
   appendDynamicJson("extra_specs", extraSpecs);

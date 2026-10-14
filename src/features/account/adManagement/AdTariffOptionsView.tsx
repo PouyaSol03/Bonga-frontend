@@ -15,8 +15,7 @@ export type AdTariffOption = {
 
 const baseTariffOptions: Omit<AdTariffOption, "disabled" | "price" | "warning">[] = [
   {
-    description:
-      "آگهی شما به مدت ۳ روز، هر ۶ ساعت در اولویت نمایش قرار می‌گیرد.",
+    description: "آگهی شما به مدت ۳ روز، هر ۶ ساعت در اولویت نمایش قرار می‌گیرد.",
     id: "refresh",
     title: "بروزرسانی",
   },
@@ -27,14 +26,12 @@ const baseTariffOptions: Omit<AdTariffOption, "disabled" | "price" | "warning">[
     title: "ویژه",
   },
   {
-    description:
-      "آگهی شما پیش از انقضا، برای یک ماه دیگر تمدید می‌شود.",
+    description: "آگهی شما پیش از انقضا، برای یک ماه دیگر تمدید می‌شود.",
     id: "renew",
     title: "تمدید",
   },
   {
-    description:
-      "آگهی بروزرسانی و ویژه به صورت همزمان فعال می‌شود.",
+    description: "آگهی بروزرسانی و ویژه به صورت همزمان فعال می‌شود.",
     id: "refreshSpecial",
     title: "بروزرسانی و ویژه",
   },
@@ -79,7 +76,7 @@ export function AdTariffOptionsList({
   onToggle: (id: AdTariffOptionId) => void;
 }) {
   return (
-    <div className="divide-y divide-outline-var bg-surface-container-lowest">
+    <div className="divide-outline-var bg-surface-container-lowest divide-y">
       {options.map((option) => (
         <AdTariffOptionRow
           checked={selectedIds.includes(option.id)}
@@ -104,11 +101,16 @@ function AdTariffOptionRow({
   const isDisabled = Boolean(option.disabled);
   const rowClassName = checked ? "bg-primary-container/20" : "bg-surface-container-lowest";
   const priceClassName = isDisabled ? "text-outline/60" : "text-on-surface";
-  const titleClassName = isDisabled ? "text-outline/60" : checked ? "text-on-surface" : "text-on-surface-var";
+  const titleClassName = isDisabled
+    ? "text-outline/60"
+    : checked
+      ? "text-on-surface"
+      : "text-on-surface-var";
   const descriptionClassName = isDisabled ? "text-outline/60" : "text-on-surface-var";
 
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-disabled={isDisabled}
       aria-pressed={checked}
       className={`block w-full border-0 px-4 py-4 text-inherit ${rowClassName}`}
@@ -117,50 +119,82 @@ function AdTariffOptionRow({
       }}
       type="button"
     >
-      <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-start justify-between gap-5 [direction:ltr]">
-        <Typography as="span" variant="label" size="medium" weight="semibold" className={`flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 [direction:rtl] ${priceClassName}`}>
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="flex items-start justify-between gap-5 [direction:ltr]"
+      >
+        <Typography
+          as="span"
+          variant="label"
+          size="medium"
+          weight="semibold"
+          className={`flex shrink-0 items-center gap-1 pt-1 text-sm leading-5 font-semibold [direction:rtl] ${priceClassName}`}
+        >
           {formatTariffToman(option.price)}
           <AdCardTomanIcon className="h-5 w-5" />
         </Typography>
 
-        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 text-right [direction:rtl]">
-          <Typography as="span" variant="label" size="large" weight="semibold" className={`flex items-center justify-start gap-2 text-base font-semibold leading-6 ${titleClassName}`}>
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="min-w-0 flex-1 text-right [direction:rtl]"
+        >
+          <Typography
+            as="span"
+            variant="label"
+            size="large"
+            weight="semibold"
+            className={`flex items-center justify-start gap-2 text-base leading-6 font-semibold ${titleClassName}`}
+          >
             <SelectionBox checked={checked} disabled={isDisabled} />
             {option.title}
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className={`mt-4 block text-sm font-normal leading-6 ${descriptionClassName}`}>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className={`mt-4 block text-sm leading-6 font-normal ${descriptionClassName}`}
+          >
             {option.description}
           </Typography>
         </Typography>
       </Typography>
 
-      {option.warning ? (
-        <TariffNotice>
-          {option.warning}
-        </TariffNotice>
-      ) : null}
+      {option.warning ? <TariffNotice>{option.warning}</TariffNotice> : null}
     </Button>
   );
 }
 
 function TariffNotice({ children }: { children: ReactNode }) {
   return (
-    <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-warning-container/30 px-3 py-2 text-right text-xs font-medium leading-5 text-warning">
+    <Typography
+      as="p"
+      variant="body"
+      size="small"
+      weight="medium"
+      className="bg-warning-container/30 text-warning m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg px-3 py-2 text-right text-xs leading-5 font-medium"
+    >
       <CircleInfoIcon className="h-5 w-5 shrink-0" />
-      <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular">
+        {children}
+      </Typography>
     </Typography>
   );
 }
 
-function SelectionBox({
-  checked,
-  disabled = false,
-}: {
-  checked: boolean;
-  disabled?: boolean;
-}) {
+function SelectionBox({ checked, disabled = false }: { checked: boolean; disabled?: boolean }) {
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular"
+    <Typography
+      as="span"
+      variant="body"
+      size="medium"
+      weight="regular"
       aria-hidden="true"
       className={`grid h-5 w-5 shrink-0 place-items-center rounded-[4px] ${
         checked
@@ -168,8 +202,8 @@ function SelectionBox({
             ? "bg-outline/60 text-surface-container-lowest"
             : "bg-primary text-on-primary"
           : disabled
-            ? "border border-outline/40 bg-surface-container-lowest text-transparent"
-            : "border border-outline bg-surface-container-lowest text-transparent"
+            ? "border-outline/40 bg-surface-container-lowest border text-transparent"
+            : "border-outline bg-surface-container-lowest border text-transparent"
       }`}
     >
       <svg className="h-4 w-4" fill="none" viewBox="0 0 16 16">

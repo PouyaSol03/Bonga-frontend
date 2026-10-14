@@ -47,10 +47,9 @@ export async function getAdPerformanceSummary(
 ): Promise<AdPerformanceSummaryData | null> {
   if (!adId) return null;
   try {
-    const res = await getV2AdvertisementPerformance<{ data?: AdPerformanceSummaryData } | AdPerformanceSummaryData>(
-      adId,
-      "summary",
-    );
+    const res = await getV2AdvertisementPerformance<
+      { data?: AdPerformanceSummaryData } | AdPerformanceSummaryData
+    >(adId, "summary");
     if (!res) return null;
     return "data" in res && res.data ? res.data : (res as AdPerformanceSummaryData);
   } catch {
@@ -65,11 +64,9 @@ export async function getAdPerformanceCharts(
 ): Promise<AdPerformanceChartsData | null> {
   if (!adId) return null;
   try {
-    const res = await getV2AdvertisementPerformance<{ data?: AdPerformanceChartsData } | AdPerformanceChartsData>(
-      adId,
-      "charts",
-      { metric, week_offset: weekOffset },
-    );
+    const res = await getV2AdvertisementPerformance<
+      { data?: AdPerformanceChartsData } | AdPerformanceChartsData
+    >(adId, "charts", { metric, week_offset: weekOffset });
     if (!res) return null;
     return "data" in res && res.data ? res.data : (res as AdPerformanceChartsData);
   } catch {
@@ -104,10 +101,9 @@ export async function getAdPerformanceFunnel(
 ): Promise<AdPerformanceFunnelData | null> {
   if (!adId) return null;
   try {
-    const res = await getV2AdvertisementPerformance<{ data?: AdPerformanceFunnelData } | AdPerformanceFunnelData>(
-      adId,
-      "conversion-funnel",
-    );
+    const res = await getV2AdvertisementPerformance<
+      { data?: AdPerformanceFunnelData } | AdPerformanceFunnelData
+    >(adId, "conversion-funnel");
     if (!res) return null;
     return "data" in res && res.data ? res.data : (res as AdPerformanceFunnelData);
   } catch {
@@ -147,4 +143,3 @@ export function useAdPerformanceChartsQuery(
     placeholderData: (previousData) => previousData,
   });
 }
-

@@ -1,21 +1,10 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ClipboardEvent,
-  type FormEvent,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type ClipboardEvent, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import LoginOTPbackground from "../../shared/assets/images/LoginOTPBackground.svg";
 import { useResendOtpMutation, useVerifyOtpMutation } from "./api/auth.hooks";
-import {
-  getAuthErrorMessage,
-  normalizeDigits,
-  normalizeMobile,
-} from "./api/auth.service";
+import { getAuthErrorMessage, normalizeDigits, normalizeMobile } from "./api/auth.service";
 import { getMyProfile } from "../account/api/account.service";
 import { useProfileStore } from "../account/stores/useProfileStore";
 import { searchCities } from "../cities/api/city.service";
@@ -30,11 +19,8 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { saveSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
 
-
 async function ensureSelectedCityAfterLogin() {
-  const hasStoredCity = Boolean(
-    window.localStorage.getItem(selectedCityStorageKeys.name)?.trim(),
-  );
+  const hasStoredCity = Boolean(window.localStorage.getItem(selectedCityStorageKeys.name)?.trim());
 
   if (hasStoredCity) return;
 
@@ -118,7 +104,10 @@ export function LoginVerifyPage() {
         const code = (content as { code?: string })?.code;
         if (code) {
           const rawMatch = normalizeDigits(code).match(/\d{4,6}/);
-          const digits = (rawMatch ? rawMatch[0] : normalizeDigits(code).replace(/\D/g, "")).slice(0, 4);
+          const digits = (rawMatch ? rawMatch[0] : normalizeDigits(code).replace(/\D/g, "")).slice(
+            0,
+            4,
+          );
           if (digits.length === 4) {
             handleCodeChange(digits);
           }
@@ -264,7 +253,7 @@ export function LoginVerifyPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden"
       variant="flush"
     >
       <form className="contents" noValidate onSubmit={handleSubmit} ref={formRef}>
@@ -277,9 +266,9 @@ export function LoginVerifyPage() {
           title="ورود به حساب کاربری"
         />
 
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-container-lowest pt-4">
+        <main className="bg-surface-container-lowest flex min-h-0 flex-1 flex-col overflow-y-auto pt-4">
           <section
-            className="flex min-h-[168px] flex-1 basis-0 items-center justify-center overflow-hidden rounded-br-3xl bg-surface-container-lowest"
+            className="bg-surface-container-lowest flex min-h-[168px] flex-1 basis-0 items-center justify-center overflow-hidden rounded-br-3xl"
             aria-hidden="true"
           >
             <img
@@ -295,17 +284,29 @@ export function LoginVerifyPage() {
             aria-labelledby="login-verify-title"
           >
             <div className="flex w-full flex-col gap-4">
-              <Typography as="h2" variant="title" size="medium" weight="semibold"
-                className="m-0 text-right font-semibold leading-5 text-on-surface min-[390px]:text-base min-[390px]:leading-6"
+              <Typography
+                as="h2"
+                variant="title"
+                size="medium"
+                weight="semibold"
+                className="text-on-surface m-0 text-right leading-5 font-semibold min-[390px]:text-base min-[390px]:leading-6"
                 id="login-verify-title"
               >
                 ورود کد ارسالی
               </Typography>
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-sm font-normal leading-5 text-on-surface-var min-[390px]:gap-2 min-[390px]:text-sm">
-                <Typography as="span" variant="body" size="medium" weight="regular">کد ارسال شده به </Typography>
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="text-on-surface-var m-0 flex w-full flex-wrap items-center justify-start gap-1.5 text-right text-sm leading-5 font-normal min-[390px]:gap-2 min-[390px]:text-sm"
+              >
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  کد ارسال شده به{" "}
+                </Typography>
                 <Link
                   dir="ltr"
-                  className="font-medium text-primary underline underline-offset-3"
+                  className="text-primary font-medium underline underline-offset-3"
                   to="/login/phone"
                 >
                   {phoneNumber}
@@ -316,21 +317,21 @@ export function LoginVerifyPage() {
                   alt=""
                   aria-hidden="true"
                 />
-                <Typography as="span" variant="body" size="medium" weight="regular"> را وارد نمایید.</Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  {" "}
+                  را وارد نمایید.
+                </Typography>
               </Typography>
             </div>
 
-            <div
-              className="relative mt-6 w-full"
-              dir="ltr"
-            >
+            <div className="relative mt-6 w-full" dir="ltr">
               <input
                 ref={inputRef}
                 aria-invalid={notice?.variant === "error" ? "true" : undefined}
                 aria-label="کد تایید چهار رقمی"
                 autoComplete="one-time-code"
                 autoFocus
-                className="absolute inset-0 z-10 h-full w-full opacity-0 cursor-pointer text-transparent caret-transparent"
+                className="absolute inset-0 z-10 h-full w-full cursor-pointer text-transparent caret-transparent opacity-0"
                 inputMode="numeric"
                 maxLength={4}
                 name="one-time-code"
@@ -345,7 +346,7 @@ export function LoginVerifyPage() {
 
               <div
                 aria-hidden="true"
-                className="grid w-full grid-cols-4 gap-2.5 pointer-events-none"
+                className="pointer-events-none grid w-full grid-cols-4 gap-2.5"
               >
                 {verificationCodeSlots.map((slot, index) => {
                   const isActive =
@@ -356,7 +357,7 @@ export function LoginVerifyPage() {
                   return (
                     <div
                       key={index}
-                      className={`flex h-14 w-full items-center justify-center rounded-xl border bg-surface-container-lowest px-3 py-1 text-center !text-[22px] font-medium leading-none text-on-surface transition-colors min-[390px]:h-14 ${
+                      className={`bg-surface-container-lowest text-on-surface flex h-14 w-full items-center justify-center rounded-xl border px-3 py-1 text-center !text-[22px] leading-none font-medium transition-colors min-[390px]:h-14 ${
                         notice?.variant === "error"
                           ? "border-error"
                           : isActive
@@ -364,9 +365,7 @@ export function LoginVerifyPage() {
                             : "border-outline-var"
                       }`}
                     >
-                      {slot || (
-                        <span className="text-sm font-normal text-outline">-</span>
-                      )}
+                      {slot || <span className="text-outline text-sm font-normal">-</span>}
                     </div>
                   );
                 })}
@@ -375,10 +374,12 @@ export function LoginVerifyPage() {
 
             {resendSeconds > 0 ? (
               <div
-                className="flex py-2 px-6 items-center justify-center gap-2 mt-12 rounded-2xl bg-surface-container text-sm font-medium leading-5 text-on-surface"
+                className="bg-surface-container text-on-surface mt-12 flex items-center justify-center gap-2 rounded-2xl px-6 py-2 text-sm leading-5 font-medium"
                 aria-live="polite"
               >
-                <Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{formatCountdownSeconds(resendSeconds)}</Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">
+                  {formatCountdownSeconds(resendSeconds)}
+                </Typography>
                 <img
                   className="block h-4 w-4 object-contain"
                   src="/figma/otp/timer.svg"
@@ -387,22 +388,32 @@ export function LoginVerifyPage() {
                 />
               </div>
             ) : (
-              <Button unstyled
-                className="flex py-2 px-6 cursor-pointer flex-row-reverse items-center mt-12 justify-center gap-2 rounded-2xl bg-surface-container px-6 text-sm font-medium leading-5 text-on-surface focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
+              <Button
+                unstyled
+                className="bg-surface-container text-on-surface focus-visible:outline-primary/40 mt-12 flex cursor-pointer flex-row-reverse items-center justify-center gap-2 rounded-2xl px-6 py-2 text-sm leading-5 font-medium focus-visible:outline-3 focus-visible:outline-offset-[-3px] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isResending || isSubmitting}
                 onClick={handleResend}
                 type="button"
               >
-                <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">{isResending ? "در حال ارسال..." : "دریافت مجدد کد"}</Typography>
-                <LinearArrowRight2 className="w-5 h-5 text-on-surface-var" />
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="medium"
+                  className="text-sm font-medium"
+                >
+                  {isResending ? "در حال ارسال..." : "دریافت مجدد کد"}
+                </Typography>
+                <LinearArrowRight2 className="text-on-surface-var h-5 w-5" />
               </Button>
             )}
           </section>
         </main>
 
-        <footer className="shrink-0 bg-surface-container-lowest px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
-          <Button unstyled
-            className="inline-flex min-h-[42px] w-full cursor-pointer items-center justify-center rounded-[10px] bg-primary px-4 py-2.5 text-sm font-medium leading-5 text-on-primary focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
+        <footer className="bg-surface-container-lowest shrink-0 px-4 py-3.5 shadow-[0_-4px_16px_rgba(26,26,26,0.08)]">
+          <Button
+            unstyled
+            className="bg-primary text-on-primary focus-visible:outline-primary/40 inline-flex min-h-[42px] w-full cursor-pointer items-center justify-center rounded-[10px] px-4 py-2.5 text-sm leading-5 font-medium focus-visible:outline-3 focus-visible:outline-offset-[-3px] disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isSubmitting || isResending}
             type="submit"
           >

@@ -24,7 +24,9 @@ export type AgencyStopPublishPageProps = {
 export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
   const navigate = useNavigate();
   const adId = props?.adId ?? readAdIdFromPath();
-  const returnTo = props?.returnTo ?? (adId ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad` : "/account/my-ads");
+  const returnTo =
+    props?.returnTo ??
+    (adId ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad` : "/account/my-ads");
   const [selectedReason, setSelectedReason] = useState<string>(STOP_PUBLISH_OPTIONS[0].id);
   const [customDescription, setCustomDescription] = useState("");
 
@@ -40,7 +42,10 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
       await createStopRequestMutation.mutateAsync({
         advertiseId: adId,
         reason: selectedReason,
-        description: selectedReason === "other" && customDescription.trim() ? customDescription.trim() : undefined,
+        description:
+          selectedReason === "other" && customDescription.trim()
+            ? customDescription.trim()
+            : undefined,
       });
       if (props?.onSuccess) {
         props.onSuccess();
@@ -54,33 +59,49 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <TopBar
-        backTo={returnTo}
-        className="[&_a]:text-on-surface"
-        title="درخواست توقف انتشار"
-      />
+      <TopBar backTo={returnTo} className="[&_a]:text-on-surface" title="درخواست توقف انتشار" />
 
       <main className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pt-6 pb-28 [direction:rtl]">
-        <Typography as="h2" variant="body" size="large" weight="medium" className="m-0 text-on-surface">
+        <Typography
+          as="h2"
+          variant="body"
+          size="large"
+          weight="medium"
+          className="text-on-surface m-0"
+        >
           آیا از ارسال درخواست توقف انتشار این آگهی مطمئن هستید؟
         </Typography>
 
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-2"
+        >
           درخواست شما برای آژانس ارسال می‌شود و پس از بررسی، نتیجه به شما اطلاع داده خواهد شد.
         </Typography>
 
         {/* Green notice pill using tertiary tokens */}
-        <div className="mt-4 flex items-center gap-2 rounded-xl bg-tertiary-container/30 py-1 px-2 text-tertiary">
-          <LinearInfoCircle className="h-5 w-5 shrink-0 text-tertiary" />
-          <Typography variant="body" size="medium" weight="medium">تا زمان تأیید آژانس، آگهی همچنان فعال خواهد بود.</Typography>
+        <div className="bg-tertiary-container/30 text-tertiary mt-4 flex items-center gap-2 rounded-xl px-2 py-1">
+          <LinearInfoCircle className="text-tertiary h-5 w-5 shrink-0" />
+          <Typography variant="body" size="medium" weight="medium">
+            تا زمان تأیید آژانس، آگهی همچنان فعال خواهد بود.
+          </Typography>
         </div>
 
-        <div className="my-4 border-t border-dashed border-outline-var/30" />
+        <div className="border-outline-var/30 my-4 border-t border-dashed" />
 
-        <Typography as="h3" variant="body" size="large" weight="medium" className="m-0 mb-2 text-on-surface">
+        <Typography
+          as="h3"
+          variant="body"
+          size="large"
+          weight="medium"
+          className="text-on-surface m-0 mb-2"
+        >
           علت درخواست خود را مشخص کنید.
         </Typography>
 
@@ -92,9 +113,14 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
               <label
                 key={option.id}
                 onClick={() => setSelectedReason(option.id)}
-                className="flex cursor-pointer items-center justify-between rounded-xl py-2 px-1 transition-colors"
+                className="flex cursor-pointer items-center justify-between rounded-xl px-1 py-2 transition-colors"
               >
-                <Typography variant="body" size="large" weight="regular" className="text-on-surface">
+                <Typography
+                  variant="body"
+                  size="large"
+                  weight="regular"
+                  className="text-on-surface"
+                >
                   {option.label}
                 </Typography>
                 <RadioIndicator checked={isSelected} />
@@ -106,7 +132,7 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
         {selectedReason === "other" ? (
           <div className="mt-3">
             <textarea
-              className="w-full rounded-xl border border-outline-var bg-surface p-3 text-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none"
+              className="border-outline-var bg-surface text-on-surface placeholder:text-outline focus:border-primary w-full rounded-xl border p-3 text-sm focus:outline-none"
               placeholder="لطفاً دلیل خود را بنویسید (اختیاری)..."
               rows={3}
               value={customDescription}
@@ -117,7 +143,7 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
       </main>
 
       {/* Fixed footer: Primary button on left, outline on right */}
-      <footer className="absolute inset-x-0 bottom-0 mx-auto grid w-full max-w-[500px] grid-cols-2 gap-3 border-t border-outline-var/20 bg-surface-container-lowest px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] [direction:ltr]">
+      <footer className="border-outline-var/20 bg-surface-container-lowest absolute inset-x-0 bottom-0 mx-auto grid w-full max-w-[500px] grid-cols-2 gap-3 border-t px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] [direction:ltr]">
         <Button
           fullWidth
           variant="primary"

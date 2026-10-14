@@ -19,9 +19,7 @@ type CategoryListResponse = {
 };
 
 export async function getCategoryList() {
-  const response = await publicApi
-    .get("public/category/list")
-    .json<CategoryListResponse>();
+  const response = await publicApi.get("public/category/list").json<CategoryListResponse>();
 
   return response.data;
 }

@@ -126,7 +126,7 @@ export function DashboardUrgentActionsPage() {
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -138,7 +138,7 @@ export function DashboardUrgentActionsPage() {
       />
 
       {/* Filter Bar - No dividers, uses Chip component with count badge */}
-      <div className="flex items-center gap-2 bg-surface-container-lowest px-4 py-2">
+      <div className="bg-surface-container-lowest flex items-center gap-2 px-4 py-2">
         <Typography
           as="span"
           variant="label"
@@ -156,9 +156,7 @@ export function DashboardUrgentActionsPage() {
               <Chip
                 key={chip.id}
                 selected={isSelected}
-                onClick={() =>
-                  setSelectedPriority((prev) => (prev === chip.id ? null : chip.id))
-                }
+                onClick={() => setSelectedPriority((prev) => (prev === chip.id ? null : chip.id))}
                 className="h-8 gap-1.5 rounded-full px-3 py-1 text-xs"
               >
                 <span>{chip.label}</span>
@@ -179,7 +177,7 @@ export function DashboardUrgentActionsPage() {
       </div>
 
       {/* Content List */}
-      <main className="min-h-0 flex-1 overflow-y-auto p-4 bg-surface-container-lowest">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto p-4">
         <div className="flex flex-col gap-3">
           {filteredItems.map((item) => {
             const styles = priorityStyles[item.priority];
@@ -191,20 +189,20 @@ export function DashboardUrgentActionsPage() {
                 className={`flex h-[60px] items-center justify-between rounded-[12px] border px-3 transition-transform active:scale-[0.99] ${styles.cardBg} ${styles.cardBorder}`}
               >
                 {/* Right: Badge Circle with Count + Title & Desc */}
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex min-w-0 items-center gap-3">
                   <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-sm ${styles.badgeBg} ${styles.badgeText}`}
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${styles.badgeBg} ${styles.badgeText}`}
                   >
                     {toPersianNumber(item.count)}
                   </div>
 
-                  <div className="flex flex-col text-right truncate">
+                  <div className="flex flex-col truncate text-right">
                     <Typography
                       as="span"
                       variant="label"
                       size="medium"
                       weight="semibold"
-                      className="text-[#1A1A1A] font-bold text-sm truncate"
+                      className="truncate text-sm font-bold text-[#1A1A1A]"
                     >
                       {item.title}
                     </Typography>
@@ -213,7 +211,7 @@ export function DashboardUrgentActionsPage() {
                       variant="label"
                       size="small"
                       weight="medium"
-                      className="text-[#808080] text-[11px] truncate mt-0.5"
+                      className="mt-0.5 truncate text-[11px] text-[#808080]"
                     >
                       {item.description}
                     </Typography>

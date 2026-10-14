@@ -42,12 +42,7 @@ export function DirectoryList({
   }
 
   if (isError && items.length === 0) {
-    return (
-      <DirectoryErrorState
-        className="min-h-[420px]"
-        onRetry={onRetry}
-      />
-    );
+    return <DirectoryErrorState className="min-h-[420px]" onRetry={onRetry} />;
   }
 
   if (items.length === 0) {

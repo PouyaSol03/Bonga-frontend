@@ -7,7 +7,8 @@ const meta: Meta = {
   parameters: {
     docs: {
       description: {
-        component: "مستندات تایپوگرافی رسمی بنگاه بر پایه قلم دانا (DanaFaNum). شامل اندازه فونت، ارتفاع خط (line-height) و وزن‌های استاندارد ۴۰۰، ۵۰۰، ۶۰۰، ۷۰۰ و ۹۰۰.",
+        component:
+          "مستندات تایپوگرافی رسمی بنگاه بر پایه قلم دانا (DanaFaNum). شامل اندازه فونت، ارتفاع خط (line-height) و وزن‌های استاندارد ۴۰۰، ۵۰۰، ۶۰۰، ۷۰۰ و ۹۰۰.",
       },
     },
   },
@@ -39,17 +40,21 @@ function TypographyRow({
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#f0f0f0] pb-2 text-xs text-[#666666]">
         <span className="font-bold text-[#0048c4]">{name}</span>
         <div className="flex items-center gap-4">
-          <span>اندازه: <strong>{sizePx}</strong></span>
-          <span>ارتفاع خط: <strong>{lineHeightPx}</strong></span>
-          <span>وزن: <strong>{weight}</strong></span>
+          <span>
+            اندازه: <strong>{sizePx}</strong>
+          </span>
+          <span>
+            ارتفاع خط: <strong>{lineHeightPx}</strong>
+          </span>
+          <span>
+            وزن: <strong>{weight}</strong>
+          </span>
         </div>
       </div>
       <div className="py-2">
         <p className={`${className} m-0 text-[#1a1a1a]`}>{sampleText}</p>
       </div>
-      <div className="text-xs text-[#808080]">
-        کاربرد: {useCase}
-      </div>
+      <div className="text-xs text-[#808080]">کاربرد: {useCase}</div>
     </div>
   );
 }
@@ -59,7 +64,9 @@ export const AllTypographyTokens: StoryObj = {
   render: () => (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-[#1a1a1a]">سیستم مقیاس تایپوگرافی دانا (DanaFaNum)</h2>
+        <h2 className="text-xl font-bold text-[#1a1a1a]">
+          سیستم مقیاس تایپوگرافی دانا (DanaFaNum)
+        </h2>
         <p className="mt-1 text-sm text-[#666666]">
           این قلم برای خوانایی بالا در زبان فارسی و نمایش اعداد فارسی (FaNum) بهینه‌سازی شده است.
         </p>
@@ -181,7 +188,9 @@ export const AllTypographyTokens: StoryObj = {
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-base font-bold text-[#0048c4]">برچسب‌ها و دکمه‌ها (Labels & Functional)</h3>
+        <h3 className="text-base font-bold text-[#0048c4]">
+          برچسب‌ها و دکمه‌ها (Labels & Functional)
+        </h3>
         <TypographyRow
           name="Label Large (labelLg)"
           className={typography.labelLg}

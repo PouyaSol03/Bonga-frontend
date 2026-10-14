@@ -1,10 +1,22 @@
 import { useState, useEffect } from "react";
 import type { NoteItem } from "../api/account.service";
-import { useMyNotesQuery, useDeleteAdvertiseNoteMutation, useUpdateAdvertiseNoteMutation } from "../api/account.hooks";
+import {
+  useMyNotesQuery,
+  useDeleteAdvertiseNoteMutation,
+  useUpdateAdvertiseNoteMutation,
+} from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { Button } from "../../../shared/ui/Button";
-import { AccountNotesSkeleton, AccountPageShell, AccountRetryState, EmptyAccountState, NoteCard, getNoteId, readNoteText } from "../accountPageViews";
+import {
+  AccountNotesSkeleton,
+  AccountPageShell,
+  AccountRetryState,
+  EmptyAccountState,
+  NoteCard,
+  getNoteId,
+  readNoteText,
+} from "../accountPageViews";
 import type { AccountToast } from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 
@@ -52,7 +64,11 @@ export function AccountNotesPage() {
   const deleteAllNotes = () => {
     deleteNote.mutate("all", {
       onError: (deleteError) => {
-        showToast(getApiErrorMessage(deleteError, "حذف یادداشت‌ها با خطا مواجه شد."), "خطا", "error");
+        showToast(
+          getApiErrorMessage(deleteError, "حذف یادداشت‌ها با خطا مواجه شد."),
+          "خطا",
+          "error",
+        );
       },
       onSuccess: () => {
         setIsConfirmDeleteAllOpen(false);
@@ -71,7 +87,11 @@ export function AccountNotesPage() {
       { noteId, note: cleanNote },
       {
         onError: (saveError) => {
-          showToast(getApiErrorMessage(saveError, "ذخیره یادداشت با خطا مواجه شد."), "خطا", "error");
+          showToast(
+            getApiErrorMessage(saveError, "ذخیره یادداشت با خطا مواجه شد."),
+            "خطا",
+            "error",
+          );
         },
         onSuccess: () => {
           setEditingNote(null);
@@ -85,9 +105,10 @@ export function AccountNotesPage() {
   return (
     <AccountPageShell
       action={
-        <Button unstyled
+        <Button
+          unstyled
           aria-label="حذف همه یادداشت‌ها"
-          className="grid h-12 w-12 place-items-center text-on-surface disabled:opacity-40"
+          className="text-on-surface grid h-12 w-12 place-items-center disabled:opacity-40"
           disabled={notes.length === 0 || deleteNote.isPending}
           onClick={() => setIsConfirmDeleteAllOpen(true)}
           type="button"
@@ -97,9 +118,12 @@ export function AccountNotesPage() {
       }
       title="یادداشت ها"
     >
-
-      <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${!isLoading && !isError && notes.length === 0 ? "bg-surface-container-lowest" : "bg-surface-container"}`}>
-        <div className={`${!isLoading && !isError && notes.length === 0 ? "flex min-h-0 flex-1 flex-col bg-surface-container-lowest" : "space-y-0 bg-surface-container-lowest"}`}>
+      <main
+        className={`flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto ${!isLoading && !isError && notes.length === 0 ? "bg-surface-container-lowest" : "bg-surface-container"}`}
+      >
+        <div
+          className={`${!isLoading && !isError && notes.length === 0 ? "bg-surface-container-lowest flex min-h-0 flex-1 flex-col" : "bg-surface-container-lowest space-y-0"}`}
+        >
           {isLoading ? <AccountNotesSkeleton count={6} /> : null}
           {isError ? (
             <AccountRetryState
@@ -108,15 +132,17 @@ export function AccountNotesPage() {
               onRetry={() => void refetch()}
             />
           ) : null}
-          {!isLoading && !isError && notes.map((note, index) => (
-            <NoteCard
-              disabled={deleteNote.isPending}
-              key={getNoteId(note) || index}
-              note={note}
-              onDelete={deleteSingleNote}
-              onEdit={openEditNote}
-            />
-          ))}
+          {!isLoading &&
+            !isError &&
+            notes.map((note, index) => (
+              <NoteCard
+                disabled={deleteNote.isPending}
+                key={getNoteId(note) || index}
+                note={note}
+                onDelete={deleteSingleNote}
+                onEdit={openEditNote}
+              />
+            ))}
           {!isLoading && !isError && notes.length === 0 ? (
             <EmptyAccountState
               description="با ثبت یادداشت برای آگهی‌ها، آن‌ها در این بخش نمایش داده خواهند شد."
@@ -136,7 +162,13 @@ export function AccountNotesPage() {
         showHeader={false}
         variant="confirm"
       >
-        <Typography as="p" variant="label" size="large" weight="medium" className="m-0 text-center text-on-surface">
+        <Typography
+          as="p"
+          variant="label"
+          size="large"
+          weight="medium"
+          className="text-on-surface m-0 text-center"
+        >
           آیا از حذف همه یادداشت‌ها مطمئن هستید؟
         </Typography>
         <div className="mt-9 grid grid-cols-2 gap-4 [direction:ltr]">
@@ -174,7 +206,7 @@ export function AccountNotesPage() {
       >
         <textarea
           aria-label="متن یادداشت"
-          className="h-40 w-full resize-none rounded-xl border border-outline-var bg-surface-container-lowest px-4 py-3 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
+          className="border-outline-var bg-surface-container-lowest text-on-surface placeholder:text-outline focus:border-primary h-40 w-full resize-none rounded-xl border px-4 py-3 text-right text-sm leading-5 font-normal outline-none focus:shadow-[0_0_0_3px_rgba(0,72,196,0.12)]"
           onChange={(event) => setNoteDraft(event.target.value)}
           placeholder="یادداشت شما"
           value={noteDraft}
@@ -182,7 +214,9 @@ export function AccountNotesPage() {
         <div className="mt-5 grid grid-cols-2 gap-4 [direction:ltr]">
           <Button
             className="h-10"
-            disabled={!noteDraft.trim() || !editingNote || !getNoteId(editingNote) || updateNote.isPending}
+            disabled={
+              !noteDraft.trim() || !editingNote || !getNoteId(editingNote) || updateNote.isPending
+            }
             loading={updateNote.isPending}
             onClick={updateEditingNote}
             size="sm"

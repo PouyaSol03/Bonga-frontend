@@ -13,4 +13,3 @@ export interface AgentRecentAdsCardProps {
 export function AgentRecentAdsCard(props: AgentRecentAdsCardProps) {
   return <DashboardRecentAdsCard {...props} />;
 }
-

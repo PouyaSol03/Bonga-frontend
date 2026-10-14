@@ -19,7 +19,7 @@ export function ConsultantTabsNav({
   onTabChange: (tab: TabKey) => void;
 }) {
   return (
-    <div className="relative z-10 flex h-[72px] w-full items-stretch border-b border-outline-variant/60 bg-surface-container-lowest shadow-xs">
+    <div className="border-outline-variant/60 bg-surface-container-lowest relative z-10 flex h-[72px] w-full items-stretch border-b shadow-xs">
       {TABS.map(({ id, label, Icon }) => {
         const isActive = activeTab === id;
         return (
@@ -44,7 +44,7 @@ export function ConsultantTabsNav({
             {isActive && (
               <motion.span
                 layoutId="consultant-tabs-active-indicator"
-                className="absolute bottom-0 inset-x-0 h-0.5 bg-primary"
+                className="bg-primary absolute inset-x-0 bottom-0 h-0.5"
                 transition={{ type: "spring", stiffness: 450, damping: 35 }}
               />
             )}

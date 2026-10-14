@@ -33,8 +33,7 @@ export function applyTheme(theme: AppTheme) {
   currentTheme = theme;
   if (typeof document === "undefined") return;
 
-  const isDark =
-    theme === "dark" || (theme === "system" && getSystemPrefersDark());
+  const isDark = theme === "dark" || (theme === "system" && getSystemPrefersDark());
 
   const root = document.documentElement;
   const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');

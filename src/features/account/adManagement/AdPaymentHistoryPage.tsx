@@ -4,7 +4,10 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { useAdvertisementPaymentsQuery } from "../../advertisements/api/advertisement.hooks";
 import { Link } from "react-router";
-import type { AdvertisementItem, AdvertisementPayment } from "../../advertisements/api/advertisement.service";
+import type {
+  AdvertisementItem,
+  AdvertisementPayment,
+} from "../../advertisements/api/advertisement.service";
 import {
   adManagementPaths,
   getAdIncreaseVisitsPath,
@@ -30,8 +33,13 @@ type AdPaymentHistoryRouteState = ReturnType<typeof getAdManagementRouteState> &
 
 export function AdPaymentHistoryPage() {
   const routeState = getAdManagementRouteState() as AdPaymentHistoryRouteState;
-  const adId = readAdIdFromPath() ?? readQueryAdId() ?? readEntityId(routeState.ad) ?? readEntityId(routeState.card);
-  const backTo = routeState.paymentHistoryReturnTo ?? (adId ? getAdStatePath(adId) : adManagementPaths.root);
+  const adId =
+    readAdIdFromPath() ??
+    readQueryAdId() ??
+    readEntityId(routeState.ad) ??
+    readEntityId(routeState.card);
+  const backTo =
+    routeState.paymentHistoryReturnTo ?? (adId ? getAdStatePath(adId) : adManagementPaths.root);
   const paymentsQuery = useAdvertisementPaymentsQuery(adId ?? null);
   const fallbackPayments = resolveAdPayments(routeState.ad, routeState);
   const payments = paymentsQuery.data ?? fallbackPayments;
@@ -40,7 +48,7 @@ export function AdPaymentHistoryPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -56,8 +64,10 @@ export function AdPaymentHistoryPage() {
         title="تاریخچه پرداخت"
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
-        {paymentsQuery.isLoading && fallbackPayments.length === 0 ? <PaymentHistoryLoading /> : null}
+      <main className="bg-surface-container-lowest flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
+        {paymentsQuery.isLoading && fallbackPayments.length === 0 ? (
+          <PaymentHistoryLoading />
+        ) : null}
 
         {paymentsQuery.isError && payments.length === 0 ? (
           <PaymentHistoryError onRetry={() => void paymentsQuery.refetch()} />
@@ -75,7 +85,12 @@ export function AdPaymentHistoryPage() {
         ) : null}
 
         {showEmpty ? (
-          <EmptyPaymentHistory ad={ad} adId={adId} card={routeState.card} returnTo={routeState.returnTo} />
+          <EmptyPaymentHistory
+            ad={ad}
+            adId={adId}
+            card={routeState.card}
+            returnTo={routeState.returnTo}
+          />
         ) : null}
       </main>
     </PageFrame>
@@ -143,7 +158,7 @@ function firstArray<T>(values: unknown[]) {
 
 function PaymentHistoryLoading() {
   return (
-    <div className="flex h-full min-h-0 flex-1 items-center justify-center px-4 text-sm font-medium leading-5 text-outline">
+    <div className="text-outline flex h-full min-h-0 flex-1 items-center justify-center px-4 text-sm leading-5 font-medium">
       در حال دریافت تاریخچه پرداخت...
     </div>
   );
@@ -152,11 +167,18 @@ function PaymentHistoryLoading() {
 function PaymentHistoryError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-8 text-center">
-      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-on-surface">
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="medium"
+        className="text-on-surface m-0 text-sm leading-6 font-medium"
+      >
         دریافت تاریخچه پرداخت با خطا مواجه شد.
       </Typography>
-      <Button unstyled
-        className="mt-4 h-10 rounded-lg bg-primary px-6 text-sm font-medium leading-5 text-on-primary"
+      <Button
+        unstyled
+        className="bg-primary text-on-primary mt-4 h-10 rounded-lg px-6 text-sm leading-5 font-medium"
         onClick={onRetry}
         type="button"
       >
@@ -180,15 +202,27 @@ function EmptyPaymentHistory({
   return (
     <section className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-8 text-center">
       <img src="/vectors/NoPaymentHistory.svg" alt="" />
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-3 text-base font-semibold leading-6 text-on-surface">
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0 mt-3 text-base leading-6 font-semibold"
+      >
         هیچ تراکنشی برای نمایش وجود ندارد
       </Typography>
-      <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 max-w-[260px] text-xs font-normal leading-5 text-on-surface-var">
+      <Typography
+        as="p"
+        variant="body"
+        size="small"
+        weight="regular"
+        className="text-on-surface-var m-0 mt-2 max-w-[260px] text-xs leading-5 font-normal"
+      >
         پس از اولین پرداخت برای این آگهی، سابقه‌ها در این بخش نمایش داده می‌شود
       </Typography>
 
       <Link
-        className="mt-4 inline-flex h-10 min-w-[112px] items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary no-underline"
+        className="bg-primary text-on-primary mt-4 inline-flex h-10 min-w-[112px] items-center justify-center gap-2 rounded-lg px-4 text-sm leading-5 font-medium no-underline"
         state={{
           ad: card ?? ad,
           card,
@@ -199,9 +233,15 @@ function EmptyPaymentHistory({
         }}
         to={adId ? getAdIncreaseVisitsPath(adId) : adManagementPaths.payment}
       >
-        <Typography as="span" variant="body" size="medium" weight="regular">افزایش بازدید</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular">
+          افزایش بازدید
+        </Typography>
         <ArrowLeftIcon className="h-4 w-4" />
-        {adId ? <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">برای آگهی {adId}</Typography> : null}
+        {adId ? (
+          <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">
+            برای آگهی {adId}
+          </Typography>
+        ) : null}
       </Link>
     </section>
   );
@@ -209,7 +249,7 @@ function EmptyPaymentHistory({
 
 function PaymentHistoryCard({ payment }: { payment: AdPayment }) {
   return (
-    <article className="mb-2 flex min-h-[224px] flex-col justify-between bg-surface-container-lowest gap-y-2 p-4 text-right last:mb-0">
+    <article className="bg-surface-container-lowest mb-2 flex min-h-[224px] flex-col justify-between gap-y-2 p-4 text-right last:mb-0">
       <PaymentHistoryRow
         label="وضعیت"
         value={readPaymentStatus(payment)}
@@ -234,18 +274,40 @@ function PaymentHistoryRow({
   valueClassName?: string;
 }) {
   return (
-    <div className="flex py-2 shrink-0 items-center justify-between [direction:ltr]">
-      <Typography as="span" variant="label" size="large" weight="medium" className={`min-w-0 text-left ${valueClassName}`}>{value}</Typography>
-      <Typography as="span" variant="label" size="large" weight="medium" className="shrink-0 text-right text-outline [direction:rtl]">{label}</Typography>
+    <div className="flex shrink-0 items-center justify-between py-2 [direction:ltr]">
+      <Typography
+        as="span"
+        variant="label"
+        size="large"
+        weight="medium"
+        className={`min-w-0 text-left ${valueClassName}`}
+      >
+        {value}
+      </Typography>
+      <Typography
+        as="span"
+        variant="label"
+        size="large"
+        weight="medium"
+        className="text-outline shrink-0 text-right [direction:rtl]"
+      >
+        {label}
+      </Typography>
     </div>
   );
 }
 
 function readPaymentStatus(payment: AdPayment) {
   const raw = payment.status ?? payment.payment_status;
-  const status = String(raw ?? "-").trim().toLowerCase();
+  const status = String(raw ?? "-")
+    .trim()
+    .toLowerCase();
 
-  if (raw === 1 || status === "1" || ["paid", "success", "successful", "پرداخت شده"].includes(status)) {
+  if (
+    raw === 1 ||
+    status === "1" ||
+    ["paid", "success", "successful", "پرداخت شده"].includes(status)
+  ) {
     return "پرداخت شده";
   }
 
@@ -253,7 +315,11 @@ function readPaymentStatus(payment: AdPayment) {
     return "ناموفق";
   }
 
-  if (raw === 0 || status === "0" || ["pending", "registered", "register", "در انتظار"].includes(status)) {
+  if (
+    raw === 0 ||
+    status === "0" ||
+    ["pending", "registered", "register", "در انتظار"].includes(status)
+  ) {
     return "در انتظار";
   }
 
@@ -280,9 +346,7 @@ const paymentItemLabels: Record<string, string> = {
 
 function readPaymentService(payment: AdPayment) {
   if (Array.isArray(payment.items) && payment.items.length > 0) {
-    return payment.items
-      .map((item) => paymentItemLabels[String(item)] ?? String(item))
-      .join(" + ");
+    return payment.items.map((item) => paymentItemLabels[String(item)] ?? String(item)).join(" + ");
   }
 
   return readText(
@@ -321,7 +385,9 @@ function readPaymentDate(payment: AdPayment) {
 
 function readPaymentMethod(payment: AdPayment) {
   const raw = payment.method ?? payment.payment_method ?? payment.payment_type;
-  const value = String(raw ?? "").trim().toLowerCase();
+  const value = String(raw ?? "")
+    .trim()
+    .toLowerCase();
 
   if (raw === 0 || value === "0" || value === "gateway" || value === "port") return "پرداخت آنلاین";
   if (raw === 1 || value === "1" || value === "wallet") return "کیف پول";
@@ -368,7 +434,13 @@ function formatMoney(value: unknown) {
 function ArrowLeftIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
-      <path d="M15 6L9 12L15 18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+      <path
+        d="M15 6L9 12L15 18"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
     </svg>
   );
 }

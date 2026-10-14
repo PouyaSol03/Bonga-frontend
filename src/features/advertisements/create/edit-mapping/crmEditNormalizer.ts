@@ -5,13 +5,15 @@ import { locationLatKey, locationLngKey, neighborhoodIdKey } from "../data";
 import type { AdvertisementFeature } from "../../api/advertisement.service";
 import type { NewAdFormValues } from "../types";
 
-export type EditableAdvertisementFeature = AdvertisementFeature & { key?: string; };
+export type EditableAdvertisementFeature = AdvertisementFeature & { key?: string };
 import { buildPayload } from "../utils";
 import { isCrmAdvertiseSource } from "./editRouteParams";
 import { normalizeLookupText } from "./featureReaders";
 import { mediaSource } from "./mediaMappers";
 
-export function getAdvertisementFeatures(ad: AdvertisementItem | Record<string, unknown> | undefined) {
+export function getAdvertisementFeatures(
+  ad: AdvertisementItem | Record<string, unknown> | undefined,
+) {
   if (!ad || !Array.isArray(ad.features)) return [];
 
   return ad.features.flatMap((feature) => {
@@ -24,11 +26,13 @@ export function getAdvertisementFeatures(ad: AdvertisementItem | Record<string, 
       "";
     if (!label) return [];
 
-    return [{
-      key: typeof item.key === "string" ? item.key : undefined,
-      label,
-      value: item.value,
-    } satisfies EditableAdvertisementFeature];
+    return [
+      {
+        key: typeof item.key === "string" ? item.key : undefined,
+        label,
+        value: item.value,
+      } satisfies EditableAdvertisementFeature,
+    ];
   });
 }
 
@@ -38,18 +42,21 @@ export function normalizeCrmDynamicFields(value: unknown): EditableAdvertisement
       .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
       .flatMap((item) => {
         const label = [item.label, item.name, item.code, item.key]
-          .find((candidate): candidate is string =>
-            typeof candidate === "string" && Boolean(candidate.trim()),
+          .find(
+            (candidate): candidate is string =>
+              typeof candidate === "string" && Boolean(candidate.trim()),
           )
           ?.trim();
 
         if (!label) return [];
 
-        return [{
-          key: typeof item.key === "string" ? item.key : undefined,
-          label,
-          value: item.value,
-        } satisfies EditableAdvertisementFeature];
+        return [
+          {
+            key: typeof item.key === "string" ? item.key : undefined,
+            label,
+            value: item.value,
+          } satisfies EditableAdvertisementFeature,
+        ];
       });
   }
 
@@ -66,9 +73,7 @@ export function normalizeCrmDynamicFields(value: unknown): EditableAdvertisement
 export function normalizeCrmAdvertiseForEdit(record: CrmRecord): AdvertisementItem {
   const advertise = record as AdvertisementItem;
   const existingFeatures = getAdvertisementFeatures(advertise);
-  const dynamicFeatures = normalizeCrmDynamicFields(
-    record.dynamic_fields ?? record.dynamicFields,
-  );
+  const dynamicFeatures = normalizeCrmDynamicFields(record.dynamic_fields ?? record.dynamicFields);
 
   return {
     ...advertise,
@@ -95,7 +100,10 @@ export function nestedRecordId(record: CrmRecord, directKey: string, nestedKeys:
 }
 
 export function flattenCategories(categories: CategoryItem[]): CategoryItem[] {
-  return categories.flatMap((category) => [category, ...flattenCategories(category.children ?? [])]);
+  return categories.flatMap((category) => [
+    category,
+    ...flattenCategories(category.children ?? []),
+  ]);
 }
 
 export function findCategoryId(categories: CategoryItem[], value: string) {
@@ -117,7 +125,8 @@ export async function buildCrmAdvertisePayload(
   const formCode = structuredPayload.features.find((feature) => feature.key === "form_code")?.value;
   const storedLat = window.localStorage.getItem(locationLatKey);
   const storedLng = window.localStorage.getItem(locationLngKey);
-  const storedNeighborhoodId = values.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey);
+  const storedNeighborhoodId =
+    values.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey);
   const lat = Number(storedLat ?? original.lat ?? original.latitude);
   const lng = Number(storedLng ?? original.lng ?? original.long ?? original.longitude);
   const images = values.photos.flatMap((photo) => {
@@ -136,14 +145,17 @@ export async function buildCrmAdvertisePayload(
     lat,
     lng,
     neighborhood_id:
-      storedNeighborhoodId || nestedRecordId(original, "neighborhood_id", ["neighborhood", "district"]),
+      storedNeighborhoodId ||
+      nestedRecordId(original, "neighborhood_id", ["neighborhood", "district"]),
     owner_phone: values.phoneNumber || String(original.owner_phone ?? ""),
     owner_type: values.registrantType || String(original.owner_type ?? ""),
     title: values.title,
     virtual_tour_link: values.virtualTourLink,
-    ...(isCrmAdvertiseSource() && values.targetOwnerType && values.targetOwnerId ? {
-      target_owner_type: values.targetOwnerType,
-      target_owner_id: values.targetOwnerId,
-    } : {}),
+    ...(isCrmAdvertiseSource() && values.targetOwnerType && values.targetOwnerId
+      ? {
+          target_owner_type: values.targetOwnerType,
+          target_owner_id: values.targetOwnerId,
+        }
+      : {}),
   };
 }

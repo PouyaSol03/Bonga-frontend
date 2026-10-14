@@ -19,7 +19,9 @@ export type AgencyDealResultPageProps = {
 export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
   const navigate = useNavigate();
   const adId = props?.adId ?? readAdIdFromPath();
-  const returnTo = props?.returnTo ?? (adId ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad` : "/account/my-ads");
+  const returnTo =
+    props?.returnTo ??
+    (adId ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad` : "/account/my-ads");
   const [selectedResult, setSelectedResult] = useState<"success" | "unsuccessful">("success");
 
   const confirmDealResultMutation = useConfirmUserDealResultMutation();
@@ -47,44 +49,53 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <TopBar
-        backTo={returnTo}
-        className="[&_a]:text-on-surface"
-        title="نتیجه درخواست"
-      />
+      <TopBar backTo={returnTo} className="[&_a]:text-on-surface" title="نتیجه درخواست" />
 
       <main className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pt-6 pb-28 [direction:rtl]">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base text-on-surface">
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-on-surface m-0 text-base"
+        >
           نتیجه درخواست را ثبت کنید
         </Typography>
 
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs leading-5 text-on-surface-var">
-          آژانس اعلام کرده است که پیگیری این درخواست به پایان رسیده است. لطفاً نتیجه نهایی را مشخص کنید.
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-2 text-xs leading-5"
+        >
+          آژانس اعلام کرده است که پیگیری این درخواست به پایان رسیده است. لطفاً نتیجه نهایی را مشخص
+          کنید.
         </Typography>
 
         {/* Radio Choices with Thumbs icons */}
         <div className="mt-8 space-y-4">
           <label
             onClick={() => setSelectedResult("success")}
-            className="flex cursor-pointer items-center justify-between rounded-xl py-3 px-2 transition-colors"
+            className="flex cursor-pointer items-center justify-between rounded-xl px-2 py-3 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <LinearLike className="h-5 w-5 text-on-surface" />
-              <span className="text-sm font-medium text-on-surface">معامله موفق بود</span>
+              <LinearLike className="text-on-surface h-5 w-5" />
+              <span className="text-on-surface text-sm font-medium">معامله موفق بود</span>
             </div>
             <RadioIndicator checked={selectedResult === "success"} />
           </label>
 
           <label
             onClick={() => setSelectedResult("unsuccessful")}
-            className="flex cursor-pointer items-center justify-between rounded-xl py-3 px-2 transition-colors"
+            className="flex cursor-pointer items-center justify-between rounded-xl px-2 py-3 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <LinearDislike className="h-5 w-5 text-on-surface" />
-              <span className="text-sm font-medium text-on-surface">معامله ناموفق بود</span>
+              <LinearDislike className="text-on-surface h-5 w-5" />
+              <span className="text-on-surface text-sm font-medium">معامله ناموفق بود</span>
             </div>
             <RadioIndicator checked={selectedResult === "unsuccessful"} />
           </label>
@@ -92,7 +103,7 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
       </main>
 
       {/* Fixed footer: Primary button on left, outline on right */}
-      <footer className="absolute inset-x-0 bottom-0 mx-auto grid w-full max-w-[500px] grid-cols-2 gap-3 border-t border-outline-var/20 bg-surface-container-lowest px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] [direction:ltr]">
+      <footer className="border-outline-var/20 bg-surface-container-lowest absolute inset-x-0 bottom-0 mx-auto grid w-full max-w-[500px] grid-cols-2 gap-3 border-t px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] [direction:ltr]">
         <Button
           fullWidth
           variant="primary"
@@ -118,6 +129,8 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
 }
 
 function readAdIdFromPath() {
-  const match = window.location.pathname.match(/^\/account\/my-ads\/([^/]+)\/(?:deal-result|close-result)\/?$/);
+  const match = window.location.pathname.match(
+    /^\/account\/my-ads\/([^/]+)\/(?:deal-result|close-result)\/?$/,
+  );
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }

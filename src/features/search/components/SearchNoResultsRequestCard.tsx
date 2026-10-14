@@ -27,7 +27,7 @@ export function SearchNoResultsRequestCard({
 
   return (
     <form
-      className={`mx-auto flex ${showEmptyHeader ? "min-h-[444px]" : ""} w-full flex-col rounded-2xl border border-outline-var bg-surface-container-lowest px-4 pb-4 pt-8 text-right [direction:rtl] ${className}`}
+      className={`mx-auto flex ${showEmptyHeader ? "min-h-[444px]" : ""} border-outline-var bg-surface-container-lowest w-full flex-col rounded-2xl border px-4 pt-8 pb-4 text-right [direction:rtl] ${className}`}
       onSubmit={submit}
     >
       <div>
@@ -43,14 +43,20 @@ export function SearchNoResultsRequestCard({
               />
             </div>
 
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-center text-base font-bold leading-6 text-on-surface">
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="text-on-surface m-0 mt-4 text-center text-base leading-6 font-bold"
+            >
               ملک مورد علاقه‌م یافت نشد!
             </Typography>
           </>
         ) : null}
 
         <ul
-          className={`m-0 list-disc space-y-0.5 pl-1 pr-5 text-sm font-normal leading-6 text-on-surface marker:text-on-surface ${
+          className={`text-on-surface marker:text-on-surface m-0 list-disc space-y-0.5 pr-5 pl-1 text-sm leading-6 font-normal ${
             showEmptyHeader ? "mt-1" : "mt-0"
           }`}
         >
@@ -62,11 +68,26 @@ export function SearchNoResultsRequestCard({
 
       <div className="mt-auto pt-7">
         <label className="block">
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-semibold leading-5 text-on-surface">
-            عنوان درخواست <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal text-outline">(اختیاری)</Typography>
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="semibold"
+            className="text-on-surface mb-2 block text-sm leading-5 font-semibold"
+          >
+            عنوان درخواست{" "}
+            <Typography
+              as="span"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-outline text-xs font-normal"
+            >
+              (اختیاری)
+            </Typography>
           </Typography>
           <input
-            className="h-14 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-3 text-right text-sm text-on-surface outline-none transition placeholder:text-sm placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/10"
+            className="border-outline-var bg-surface-container-lowest text-on-surface placeholder:text-outline focus:border-primary focus:ring-primary/10 h-14 w-full rounded-xl border px-3 text-right text-sm transition outline-none placeholder:text-sm focus:ring-2"
             onChange={(event) => setTitle(event.target.value)}
             placeholder="یک نام برای درخواست خود وارد کنید"
             type="text"
@@ -74,12 +95,13 @@ export function SearchNoResultsRequestCard({
           />
         </label>
 
-        <Button unstyled
+        <Button
+          unstyled
           disabled={!hasFilters}
           className={`mt-8 inline-flex h-10 w-full items-center justify-center rounded-xl border text-sm font-semibold transition ${
             !hasFilters
-              ? "border-outline-var bg-surface-container text-outline opacity-60 cursor-not-allowed"
-              : "border-primary bg-primary-container text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+              ? "border-outline-var bg-surface-container text-outline cursor-not-allowed opacity-60"
+              : "border-primary bg-primary-container text-primary focus-visible:outline-primary/25 focus-visible:outline-3 focus-visible:outline-offset-2"
           }`}
           type="submit"
         >

@@ -17,11 +17,7 @@ export function toOptionalNumber(value: unknown): number | undefined {
 }
 
 export function toStringArray(value: unknown): string[] {
-  const values = Array.isArray(value)
-    ? value
-    : typeof value === "string"
-      ? value.split(",")
-      : [];
+  const values = Array.isArray(value) ? value : typeof value === "string" ? value.split(",") : [];
 
   return values
     .flatMap((item) => String(item ?? "").split(","))
@@ -72,13 +68,7 @@ export function readSocialValue(record: Record<string, unknown>, key: string): s
   const contactSocial = asRecord(record.contact_social);
   const contacts = asRecord(record.contacts);
 
-  return firstText(
-    record[key],
-    profile[key],
-    social[key],
-    contactSocial[key],
-    contacts[key],
-  );
+  return firstText(record[key], profile[key], social[key], contactSocial[key], contacts[key]);
 }
 
 export function normalizePermissionFlag(value: unknown): boolean {

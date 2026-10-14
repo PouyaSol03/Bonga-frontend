@@ -14,20 +14,38 @@ export function LevelSummaryCard({ image, levelTitle, score }: LevelSummaryCardP
   return (
     <section
       aria-label="سطح پیشرفت آژانس"
-      className="flex min-h-22 items-center justify-between gap-3 rounded-2xl bg-surface-container-lowest px-4 py-4 [direction:ltr]"
+      className="bg-surface-container-lowest flex min-h-22 items-center justify-between gap-3 rounded-2xl px-4 py-4 [direction:ltr]"
     >
       <div className="min-w-0 flex-1">
         <div className="flex h-6 items-center justify-between gap-2 [direction:ltr]">
           <GuidePill ariaLabel="راهنمای سطح پیشرفت آژانس" to={DASHBOARD_LEVELS_GUIDE_PATH} />
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="truncate text-right text-sm font-semibold leading-5 text-on-surface-var [direction:rtl]">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="semibold"
+            className="text-on-surface-var truncate text-right text-sm leading-5 font-semibold [direction:rtl]"
+          >
             {levelTitle}
           </Typography>
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-end gap-x-1 gap-y-1 text-xs leading-4 [direction:ltr]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline [direction:rtl]">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline [direction:rtl]"
+          >
             امتیاز فعلی
           </Typography>
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="font-semibold text-primary [direction:rtl]">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="semibold"
+            className="text-primary font-semibold [direction:rtl]"
+          >
             {score}
           </Typography>
         </div>
@@ -46,15 +64,27 @@ interface MetricSummaryCardProps {
 
 export function MetricSummaryCard({ icon, iconClassName, label, value }: MetricSummaryCardProps) {
   return (
-    <section className="flex h-20 items-center justify-between gap-3 rounded-2xl bg-surface-container-lowest px-4 py-3 [direction:ltr]">
-      <strong className="text-base font-semibold leading-6 text-on-surface [direction:rtl]">
+    <section className="bg-surface-container-lowest flex h-20 items-center justify-between gap-3 rounded-2xl px-4 py-3 [direction:ltr]">
+      <strong className="text-on-surface text-base leading-6 font-semibold [direction:rtl]">
         {value}
       </strong>
       <div className="flex min-w-0 items-center gap-2 [direction:ltr]">
-        <Typography as="span" variant="label" size="medium" weight="semibold" className="truncate text-sm font-semibold leading-5 text-on-surface-var [direction:rtl]">
+        <Typography
+          as="span"
+          variant="label"
+          size="medium"
+          weight="semibold"
+          className="text-on-surface-var truncate text-sm leading-5 font-semibold [direction:rtl]"
+        >
           {label}
         </Typography>
-        <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconClassName}`}>
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconClassName}`}
+        >
           {icon}
         </Typography>
       </div>

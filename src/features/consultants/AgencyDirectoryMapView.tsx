@@ -12,7 +12,11 @@ import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { createAgencyMarkerIcon } from "./map/AgencyMarkerIcon";
 import { AgencyMapController } from "./map/AgencyMapController";
-import { AgencyDirectoryCard, AgencyMapSelectionFooter, AgencySelectionCard } from "./map/AgencyMapCards";
+import {
+  AgencyDirectoryCard,
+  AgencyMapSelectionFooter,
+  AgencySelectionCard,
+} from "./map/AgencyMapCards";
 import type { AgencyDirectoryMapItem, AgencyDirectoryMapViewProps } from "./map/AgencyMap.types";
 
 export type { AgencyDirectoryMapItem, AgencyDirectoryMapViewProps };
@@ -39,7 +43,9 @@ export function AgencyDirectoryMapView({
   const mappableItems = useMemo(
     () =>
       items.filter(
-        (item): item is AgencyDirectoryMapItem & { id: string; latitude: number; longitude: number } =>
+        (
+          item,
+        ): item is AgencyDirectoryMapItem & { id: string; latitude: number; longitude: number } =>
           Boolean(item.id) &&
           item.latitude !== undefined &&
           item.longitude !== undefined &&
@@ -69,7 +75,7 @@ export function AgencyDirectoryMapView({
     () =>
       selectedAgencyId === null
         ? null
-        : mappableItems.find((item) => item.id === selectedAgencyId) ?? null,
+        : (mappableItems.find((item) => item.id === selectedAgencyId) ?? null),
     [mappableItems, selectedAgencyId],
   );
   const targetCenter = useMemo(() => {
@@ -86,14 +92,14 @@ export function AgencyDirectoryMapView({
   const isSelection = variant === "selection";
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container [direction:rtl]">
+    <div className="bg-surface-container relative flex h-full min-h-0 flex-col overflow-hidden [direction:rtl]">
       <TopBar onBack={onBack} title={title} />
 
       <main className="relative min-h-0 flex-1 overflow-hidden">
         <MapContainer
           attributionControl={false}
           center={[targetCenter.latitude, targetCenter.longitude]}
-          className="h-full min-h-[320px] w-full bg-surface-container"
+          className="bg-surface-container h-full min-h-[320px] w-full"
           maxZoom={searchMapTileConfig.maxZoom}
           minZoom={searchMapTileConfig.minZoom}
           preferCanvas
@@ -108,10 +114,7 @@ export function AgencyDirectoryMapView({
             url={searchMapTileConfig.urlTemplate}
           />
 
-          <AgencyMapController
-            center={targetCenter}
-            onMapClick={() => onSelectAgency(null)}
-          />
+          <AgencyMapController center={targetCenter} onMapClick={() => onSelectAgency(null)} />
 
           {mappableItems.map((item) => {
             const isSelected = selectedAgencyId === item.id;
@@ -135,24 +138,26 @@ export function AgencyDirectoryMapView({
         </MapContainer>
 
         {isSelection ? (
-          <label className="absolute inset-x-4 top-4 z-[500] flex h-12 items-center gap-3 rounded-xl border border-outline bg-surface-container-lowest px-4 text-on-surface-var shadow-[0_3px_12px_rgba(26,26,26,0.08)] focus-within:border-primary">
+          <label className="border-outline bg-surface-container-lowest text-on-surface-var focus-within:border-primary absolute inset-x-4 top-4 z-[500] flex h-12 items-center gap-3 rounded-xl border px-4 shadow-[0_3px_12px_rgba(26,26,26,0.08)]">
             <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base leading-6 text-on-surface outline-none placeholder:text-outline"
+              className="text-on-surface placeholder:text-outline min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-base leading-6 outline-none"
               onChange={(event) => onSearchChange?.(event.target.value)}
               placeholder={searchPlaceholder}
               type="search"
               value={searchValue}
             />
-            <LinearSearch className="w-6 h-6 text-on-surface-var" />
+            <LinearSearch className="text-on-surface-var h-6 w-6" />
           </label>
         ) : null}
 
         {isSelection && searchValue.trim() && items.length === 0 ? (
-          <div className="absolute inset-x-0 bottom-0 top-16 z-[450] overflow-y-auto bg-surface-container-lowest">
+          <div className="bg-surface-container-lowest absolute inset-x-0 top-16 bottom-0 z-[450] overflow-y-auto">
             <SearchEmptyState />
           </div>
         ) : mappableItems.length === 0 ? (
-          <div className={`pointer-events-none absolute inset-x-6 z-[400] rounded-xl bg-surface-container-lowest/95 px-4 py-3 text-center text-sm font-medium leading-6 text-on-surface-var shadow-sm ${isSelection ? "top-20" : "top-6"}`}>
+          <div
+            className={`bg-surface-container-lowest/95 text-on-surface-var pointer-events-none absolute inset-x-6 z-[400] rounded-xl px-4 py-3 text-center text-sm leading-6 font-medium shadow-sm ${isSelection ? "top-20" : "top-6"}`}
+          >
             برای آژانس‌های دریافت‌شده هنوز موقعیت مکانی ثبت نشده است.
           </div>
         ) : null}
@@ -169,13 +174,16 @@ export function AgencyDirectoryMapView({
           )
         ) : !isSelection ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-4 z-[500] flex justify-center">
-            <Button unstyled
-              className="pointer-events-auto flex h-10 min-w-[103px] items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-xl font-bold leading-6 text-on-primary shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 active:opacity-80"
+            <Button
+              unstyled
+              className="bg-primary text-on-primary focus-visible:outline-primary/40 pointer-events-auto flex h-10 min-w-[103px] items-center justify-center gap-2 rounded-2xl px-4 text-xl leading-6 font-bold shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 active:opacity-80"
               onClick={onOpenList}
               type="button"
             >
               <ListIcon />
-              <Typography as="span" variant="body" size="medium" weight="regular">{listLabel}</Typography>
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                {listLabel}
+              </Typography>
             </Button>
           </div>
         ) : null}

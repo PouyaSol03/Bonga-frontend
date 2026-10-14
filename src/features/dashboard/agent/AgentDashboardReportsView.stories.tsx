@@ -11,7 +11,7 @@ const meta: Meta<typeof AgentDashboardReportsView> = {
   component: AgentDashboardReportsView,
   decorators: [
     (Story) => (
-      <div className="max-w-[400px] mx-auto min-h-screen bg-[#F0F0F0]">
+      <div className="mx-auto min-h-screen max-w-[400px] bg-[#F0F0F0]">
         <Story />
       </div>
     ),
@@ -32,7 +32,7 @@ export const Default: Story = {
 
 export const PublishedAdsPieSection: StoryObj = {
   render: () => (
-    <div className="p-4 bg-[#F0F0F0]">
+    <div className="bg-[#F0F0F0] p-4">
       <AgentPublishedAdsPieCard />
     </div>
   ),
@@ -40,7 +40,7 @@ export const PublishedAdsPieSection: StoryObj = {
 
 export const ViewsBarChartSection: StoryObj = {
   render: () => (
-    <div className="p-4 bg-[#F0F0F0]">
+    <div className="bg-[#F0F0F0] p-4">
       <AgentViewsBarChartCard />
     </div>
   ),
@@ -48,7 +48,7 @@ export const ViewsBarChartSection: StoryObj = {
 
 export const RegistrationProgressLineSection: StoryObj = {
   render: () => (
-    <div className="p-4 bg-[#F0F0F0]">
+    <div className="bg-[#F0F0F0] p-4">
       <AgentRegistrationProgressLineCard />
     </div>
   ),
@@ -56,7 +56,7 @@ export const RegistrationProgressLineSection: StoryObj = {
 
 export const ConversionFunnelSection: StoryObj = {
   render: () => (
-    <div className="p-4 bg-[#F0F0F0]">
+    <div className="bg-[#F0F0F0] p-4">
       <AgentConversionFunnelCard />
     </div>
   ),
@@ -64,7 +64,7 @@ export const ConversionFunnelSection: StoryObj = {
 
 export const RankScoreSection: StoryObj = {
   render: () => (
-    <div className="p-4 bg-[#F0F0F0]">
+    <div className="bg-[#F0F0F0] p-4">
       <AgentRankScoreCard />
     </div>
   ),

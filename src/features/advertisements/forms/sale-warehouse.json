@@ -193,35 +193,21 @@
           "title": "تعداد اتاق",
           "input": "select",
           "ui": "bottomSheet",
-          "options": [
-            "بدون اتاق",
-            "۱",
-            "۲",
-            "۳",
-            "۴",
-            "۵+"
-          ]
+          "options": ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"]
         },
         {
           "key": "accessType",
           "title": "دست رسی",
           "input": "select",
           "ui": "bottomSheet",
-          "options": [
-            "جاده آسفالت",
-            "جاده خاکی",
-            "نزدیک بزرگراه"
-          ]
+          "options": ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"]
         },
         {
           "key": "currentStatus",
           "title": "وضعیت فعلی",
           "input": "select",
           "ui": "bottomSheet",
-          "options": [
-            "تخلیه",
-            "فعال"
-          ]
+          "options": ["تخلیه", "فعال"]
         }
       ]
     }
@@ -262,16 +248,7 @@
         "id": "landPosition",
         "title": "موقعیت زمین",
         "icon": "orientation",
-        "options": [
-          "شمالی",
-          "جنوبی",
-          "غربی",
-          "شرقی",
-          "دوممر",
-          "دونبش",
-          "سه نبش",
-          "چهارنبش"
-        ]
+        "options": ["شمالی", "جنوبی", "غربی", "شرقی", "دوممر", "دونبش", "سه نبش", "چهارنبش"]
       },
       {
         "kind": "multi",
@@ -313,60 +290,35 @@
         "id": "rooms",
         "title": "تعداد اتاق",
         "icon": "bed",
-        "options": [
-          "بدون اتاق",
-          "۱",
-          "۲",
-          "۳",
-          "۴",
-          "۵ و بیشتر"
-        ]
+        "options": ["بدون اتاق", "۱", "۲", "۳", "۴", "۵ و بیشتر"]
       },
       {
         "kind": "single",
         "id": "industrialPropertyType",
         "title": "نوع ملک",
         "icon": "building",
-        "options": [
-          "سوله",
-          "انبار",
-          "کارگاه",
-          "کارخانه",
-          "گلخانه",
-          "گاوداری",
-          "مرغداری"
-        ]
+        "options": ["سوله", "انبار", "کارگاه", "کارخانه", "گلخانه", "گاوداری", "مرغداری"]
       },
       {
         "kind": "single",
         "id": "accessType",
         "title": "دسترسی",
         "icon": "orientation",
-        "options": [
-          "جاده آسفالت",
-          "جاده خاکی",
-          "نزدیک بزرگراه"
-        ]
+        "options": ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"]
       },
       {
         "kind": "single",
         "id": "currentStatus",
         "title": "وضعیت فعلی",
         "icon": "settings",
-        "options": [
-          "تخلیه",
-          "فعال"
-        ]
+        "options": ["تخلیه", "فعال"]
       },
       {
         "kind": "single",
         "id": "commercialLicense",
         "title": "مجوز تجاری",
         "icon": "agreement",
-        "options": [
-          "دائم",
-          "موقت"
-        ]
+        "options": ["دائم", "موقت"]
       },
       {
         "kind": "loan"

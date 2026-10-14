@@ -19,7 +19,11 @@ export function ChoiceIndicator({
 }: ChoiceIndicatorProps) {
   if (type === "radio") {
     return (
-      <Typography as="span" variant="body" size="medium" weight="regular"
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
         aria-hidden="true"
         className={cn(
           "grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] select-none active:scale-[0.94]",
@@ -39,7 +43,7 @@ export function ChoiceIndicator({
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
               transition={{ duration: 0.2, ease: "backOut" }}
-              className="h-2 w-2 rounded-full bg-on-primary"
+              className="bg-on-primary h-2 w-2 rounded-full"
             />
           )}
         </AnimatePresence>
@@ -48,7 +52,11 @@ export function ChoiceIndicator({
   }
 
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular"
+    <Typography
+      as="span"
+      variant="body"
+      size="medium"
+      weight="regular"
       aria-hidden="true"
       className={cn(
         "grid h-4.5 w-4.5 shrink-0 place-items-center rounded-[4px] border-[1.5px] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] select-none active:scale-[0.92]",
@@ -70,7 +78,7 @@ export function ChoiceIndicator({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.5, opacity: 0 }}
             transition={{ duration: 0.2, ease: "backOut" }}
-            className="flex items-center justify-center text-on-primary"
+            className="text-on-primary flex items-center justify-center"
           >
             <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" viewBox="0 0 14 14">
               <motion.path

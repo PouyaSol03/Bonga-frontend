@@ -45,19 +45,22 @@ export function ThemeToggleRow() {
   ];
 
   return (
-    <div className="flex items-center justify-between py-2 px-1">
-      <div className="flex items-center gap-2.5 text-on-surface">
+    <div className="flex items-center justify-between px-1 py-2">
+      <div className="text-on-surface flex items-center gap-2.5">
         {isDark ? (
-          <MoonIcon className="h-5 w-5 text-warning" />
+          <MoonIcon className="text-warning h-5 w-5" />
         ) : (
-          <SunIcon className="h-5 w-5 text-warning" />
+          <SunIcon className="text-warning h-5 w-5" />
         )}
         <Typography as="span" variant="body" size="medium" weight="medium">
           حالت نمایش
         </Typography>
       </div>
 
-      <div className="inline-flex rounded-lg border border-outline-var bg-surface-container p-0.5" dir="rtl">
+      <div
+        className="border-outline-var bg-surface-container inline-flex rounded-lg border p-0.5"
+        dir="rtl"
+      >
         {options.map((opt) => {
           const isSelected = theme === opt.id;
           return (

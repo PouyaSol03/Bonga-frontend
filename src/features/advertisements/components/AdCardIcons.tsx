@@ -1,8 +1,8 @@
 type IconProps = {
-  className?: string
-}
+  className?: string;
+};
 
-export function AdCardAlbumIcon({ className = '' }: IconProps) {
+export function AdCardAlbumIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -13,10 +13,10 @@ export function AdCardAlbumIcon({ className = '' }: IconProps) {
         strokeWidth="1.3"
       />
     </svg>
-  )
+  );
 }
 
-export function AdCardOwnerIcon({ className = '' }: IconProps) {
+export function AdCardOwnerIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -27,10 +27,10 @@ export function AdCardOwnerIcon({ className = '' }: IconProps) {
         strokeWidth="1.3"
       />
     </svg>
-  )
+  );
 }
 
-export function AdCardTomanIcon({ className = '' }: IconProps) {
+export function AdCardTomanIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -39,10 +39,10 @@ export function AdCardTomanIcon({ className = '' }: IconProps) {
         strokeWidth="1.3"
       />
     </svg>
-  )
+  );
 }
 
-export function AdCardAreaIcon({ className = '' }: IconProps) {
+export function AdCardAreaIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -51,10 +51,10 @@ export function AdCardAreaIcon({ className = '' }: IconProps) {
         strokeWidth="1.3"
       />
     </svg>
-  )
+  );
 }
 
-export function AdCardRoomsIcon({ className = '' }: IconProps) {
+export function AdCardRoomsIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -65,10 +65,10 @@ export function AdCardRoomsIcon({ className = '' }: IconProps) {
         strokeWidth="1.3"
       />
     </svg>
-  )
+  );
 }
 
-export function AdCardYearIcon({ className = '' }: IconProps) {
+export function AdCardYearIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -80,10 +80,10 @@ export function AdCardYearIcon({ className = '' }: IconProps) {
       />
       <circle cx="14.583" cy="14.583" r="2.917" stroke="currentColor" strokeWidth="1.3" />
     </svg>
-  )
+  );
 }
 
-export function AdCardDocumentIcon({ className = '' }: IconProps) {
+export function AdCardDocumentIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -101,10 +101,10 @@ export function AdCardDocumentIcon({ className = '' }: IconProps) {
         strokeWidth="1.3"
       />
     </svg>
-  )
+  );
 }
 
-export function AdCardLocationIcon({ className = '' }: IconProps) {
+export function AdCardLocationIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -116,10 +116,10 @@ export function AdCardLocationIcon({ className = '' }: IconProps) {
       />
       <circle cx="10" cy="8.75" r="2.083" stroke="currentColor" strokeWidth="1.3" />
     </svg>
-  )
+  );
 }
 
-export function AdCardLandAreaIcon({ className = '' }: IconProps) {
+export function AdCardLandAreaIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <rect
@@ -139,10 +139,10 @@ export function AdCardLandAreaIcon({ className = '' }: IconProps) {
         strokeWidth="1.3"
       />
     </svg>
-  )
+  );
 }
 
-export function AdCardCapacityIcon({ className = '' }: IconProps) {
+export function AdCardCapacityIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -154,10 +154,10 @@ export function AdCardCapacityIcon({ className = '' }: IconProps) {
       />
       <circle cx="10" cy="5.833" r="3.333" stroke="currentColor" strokeWidth="1.3" />
     </svg>
-  )
+  );
 }
 
-export function AdCardPositionIcon({ className = '' }: IconProps) {
+export function AdCardPositionIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
       <path
@@ -168,10 +168,10 @@ export function AdCardPositionIcon({ className = '' }: IconProps) {
         strokeWidth="1.5"
       />
     </svg>
-  )
+  );
 }
 
-export function AdCardSanadIcon({ className = '' }: IconProps) {
+export function AdCardSanadIcon({ className = "" }: IconProps) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
       <path
@@ -179,7 +179,5 @@ export function AdCardSanadIcon({ className = '' }: IconProps) {
         fill="currentColor"
       />
     </svg>
-  )
+  );
 }
-
-

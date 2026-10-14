@@ -1,9 +1,6 @@
 import { api } from "../../../shared/api/api";
 
-export type SavedSearchFilters = Record<
-  string,
-  string | number | boolean | Array<string | number>
->;
+export type SavedSearchFilters = Record<string, string | number | boolean | Array<string | number>>;
 
 export type SaveSearchInput = {
   content: string[];
@@ -39,16 +36,13 @@ function normalizeItem(item: SavedSearchDto, index: number): SavedSearchItem {
   return {
     content: Array.isArray(item.content)
       ? item.content.filter(
-          (value): value is string =>
-            typeof value === "string" && Boolean(value.trim()),
+          (value): value is string => typeof value === "string" && Boolean(value.trim()),
         )
       : [],
     filters,
     id: String(item.id ?? item._id ?? `saved-search-${index + 1}`),
     title:
-      typeof item.title === "string" && item.title.trim()
-        ? item.title.trim()
-        : "جستجوی ذخیره‌شده",
+      typeof item.title === "string" && item.title.trim() ? item.title.trim() : "جستجوی ذخیره‌شده",
     url: typeof item.url === "string" ? item.url : "",
   };
 }
@@ -76,9 +70,7 @@ async function readOptionalJson(response: Response): Promise<SavedSearchResponse
 }
 
 export async function getSavedSearches() {
-  const response = await api
-    .get("me/save-search/list")
-    .json<SavedSearchResponse>();
+  const response = await api.get("me/save-search/list").json<SavedSearchResponse>();
 
   return readResponseItems(response).map(normalizeItem);
 }

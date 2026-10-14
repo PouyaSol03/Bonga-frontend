@@ -12,9 +12,7 @@ import type {
   AgencyConsultantPermissions,
 } from "./agency-consultants-types";
 
-export function normalizeAgencyConsultantPermissions(
-  value: unknown,
-): AgencyConsultantPermissions {
+export function normalizeAgencyConsultantPermissions(value: unknown): AgencyConsultantPermissions {
   const permissions = asRecord(value);
 
   return {
@@ -30,10 +28,7 @@ export function normalizeAgencyConsultant(
   item: AgencyConsultantApiItem,
 ): AgencyConsultantDto | null {
   const membership = asRecord(
-    item.membership ??
-      item.membership_state ??
-      item.member ??
-      item.agency_membership,
+    item.membership ?? item.membership_state ?? item.member ?? item.agency_membership,
   );
   const user = asRecord(item.user);
   const quotas = asRecord(item.quotas ?? membership.quotas);
@@ -78,7 +73,11 @@ export function normalizeAgencyConsultant(
   );
 
   const rankingObj =
-    Object.keys(ranking).length > 0 || item.level_slug || item.level_title || rank !== undefined || score > 0
+    Object.keys(ranking).length > 0 ||
+    item.level_slug ||
+    item.level_title ||
+    rank !== undefined ||
+    score > 0
       ? {
           levelSlug,
           levelTitle,
@@ -88,9 +87,7 @@ export function normalizeAgencyConsultant(
       : undefined;
 
   const periodActivity = asRecord(item.period_activity);
-  const rawRegistrationProgress = Array.isArray(
-    periodActivity.advertise_registration_progress,
-  )
+  const rawRegistrationProgress = Array.isArray(periodActivity.advertise_registration_progress)
     ? periodActivity.advertise_registration_progress
     : [];
 
@@ -99,12 +96,7 @@ export function normalizeAgencyConsultant(
   return {
     adQuota: Math.max(
       0,
-      toNumber(
-        item.ad_quota ??
-          membership.ad_quota ??
-          quotas.ad ??
-          quotas.ad_quota,
-      ),
+      toNumber(item.ad_quota ?? membership.ad_quota ?? quotas.ad ?? quotas.ad_quota),
     ),
     agencyName: firstText(item.agency_name, item.agencyName),
     agentId: Number.isFinite(agentId) ? agentId : undefined,
@@ -112,20 +104,31 @@ export function normalizeAgencyConsultant(
     isActive: normalizePermissionFlag(isActiveValue),
     joinedDate: firstText(item.joined_date, item.joinedDate),
     metrics: {
-      activeAds: toOptionalNumber(item.active_ads ?? metrics.active_ads ?? metrics.published_advertises),
+      activeAds: toOptionalNumber(
+        item.active_ads ?? metrics.active_ads ?? metrics.published_advertises,
+      ),
       activeRequest: toOptionalNumber(
         metrics.active_request ??
           metrics.active_requests ??
           item.active_request ??
           item.active_requests,
       ),
-      calls: item.calls !== undefined ? (item.calls === null ? null : toNumber(item.calls)) : metrics.calls !== undefined ? (metrics.calls === null ? null : toNumber(metrics.calls)) : null,
-      publishedAdvertises: Math.max(
-        0,
-        toNumber(metrics.published_advertises ?? item.active_ads),
-      ),
+      calls:
+        item.calls !== undefined
+          ? item.calls === null
+            ? null
+            : toNumber(item.calls)
+          : metrics.calls !== undefined
+            ? metrics.calls === null
+              ? null
+              : toNumber(metrics.calls)
+            : null,
+      publishedAdvertises: Math.max(0, toNumber(metrics.published_advertises ?? item.active_ads)),
       rank: toOptionalNumber(metrics.rank ?? ranking.rank ?? item.rank),
-      rankingScore: Math.max(0, toNumber(metrics.ranking_score ?? ranking.score ?? item.ranking_score ?? item.score)),
+      rankingScore: Math.max(
+        0,
+        toNumber(metrics.ranking_score ?? ranking.score ?? item.ranking_score ?? item.score),
+      ),
       recentAds: toOptionalNumber(item.recent_ads ?? metrics.recent_ads),
       renewUsed: Math.max(0, toNumber(metrics.renew_used)),
       specialUsed: Math.max(0, toNumber(metrics.special_used)),
@@ -134,9 +137,7 @@ export function normalizeAgencyConsultant(
     },
     mobile: firstText(item.mobile, item.phonenumber, user.mobile, user.phonenumber),
     name,
-    permissions: normalizeAgencyConsultantPermissions(
-      item.permissions ?? membership.permissions,
-    ),
+    permissions: normalizeAgencyConsultantPermissions(item.permissions ?? membership.permissions),
     ranking: rankingObj,
     periodActivity:
       Object.keys(periodActivity).length > 0
@@ -151,27 +152,16 @@ export function normalizeAgencyConsultant(
                   value: Math.max(0, toNumber(row.count ?? row.value)),
                 };
               })
-              .filter(
-                (entry): entry is { month: string; value: number } =>
-                  entry !== null,
-              ),
+              .filter((entry): entry is { month: string; value: number } => entry !== null),
             period: firstText(periodActivity.period),
-            publishedAdvertises: Math.max(
-              0,
-              toNumber(periodActivity.published_advertises),
-            ),
+            publishedAdvertises: Math.max(0, toNumber(periodActivity.published_advertises)),
             renewUsed: Math.max(0, toNumber(periodActivity.renew_used)),
             specialUsed: Math.max(0, toNumber(periodActivity.special_used)),
           }
         : undefined,
     renewQuota: Math.max(
       0,
-      toNumber(
-        item.renew_quota ??
-          membership.renew_quota ??
-          quotas.renew ??
-          quotas.renew_quota,
-      ),
+      toNumber(item.renew_quota ?? membership.renew_quota ?? quotas.renew ?? quotas.renew_quota),
     ),
     role: firstText(item.role, membership.role),
     roleId: toNumber(item.role_id ?? membership.role_id),
@@ -179,10 +169,7 @@ export function normalizeAgencyConsultant(
     specialQuota: Math.max(
       0,
       toNumber(
-        item.special_quota ??
-          membership.special_quota ??
-          quotas.special ??
-          quotas.special_quota,
+        item.special_quota ?? membership.special_quota ?? quotas.special ?? quotas.special_quota,
       ),
     ),
     userId,

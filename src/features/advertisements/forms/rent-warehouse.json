@@ -174,35 +174,21 @@
           "title": "تعداد اتاق",
           "input": "select",
           "ui": "bottomSheet",
-          "options": [
-            "بدون اتاق",
-            "۱",
-            "۲",
-            "۳",
-            "۴",
-            "۵+"
-          ]
+          "options": ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"]
         },
         {
           "key": "accessType",
           "title": "دست رسی",
           "input": "select",
           "ui": "bottomSheet",
-          "options": [
-            "جاده آسفالت",
-            "جاده خاکی",
-            "نزدیک بزرگراه"
-          ]
+          "options": ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"]
         },
         {
           "key": "currentStatus",
           "title": "وضعیت فعلی",
           "input": "select",
           "ui": "bottomSheet",
-          "options": [
-            "تخلیه",
-            "فعال"
-          ]
+          "options": ["تخلیه", "فعال"]
         },
         {
           "key": "readyDeliveryDate",
@@ -254,25 +240,14 @@
         "id": "suitableFor",
         "title": "مناسب برای",
         "icon": "suitable",
-        "options": [
-          "صنایع پلاستیک",
-          "صنایع چوب",
-          "کارگاه",
-          "انبار",
-          "تولیدی",
-          "سایر"
-        ]
+        "options": ["صنایع پلاستیک", "صنایع چوب", "کارگاه", "انبار", "تولیدی", "سایر"]
       },
       {
         "kind": "single",
         "id": "commercialLicense",
         "title": "مجوز تجاری",
         "icon": "agreement",
-        "options": [
-          "دائم",
-          "موقت",
-          "ندارد"
-        ]
+        "options": ["دائم", "موقت", "ندارد"]
       },
       {
         "kind": "multi",

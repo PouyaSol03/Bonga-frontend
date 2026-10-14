@@ -29,7 +29,13 @@ export interface ViewAdLeadCardProps {
   className?: string;
 }
 
-export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, className = "" }: ViewAdLeadCardProps) {
+export function ViewAdLeadCard({
+  lead,
+  adId,
+  onChatClick,
+  onDetailsClick,
+  className = "",
+}: ViewAdLeadCardProps) {
   const detailsHref = adId
     ? `/account/my-ads/${encodeURIComponent(String(adId))}/lead-details?leadId=${encodeURIComponent(lead.id)}`
     : lead.detailsUrl || `/account/my-ads/lead-details?leadId=${encodeURIComponent(lead.id)}`;
@@ -37,7 +43,7 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
   return (
     <article
       aria-label={`سرنخ ${lead.name}`}
-      className={`w-full bg-surface-container-lowest p-4 text-right [direction:rtl] ${className}`}
+      className={`bg-surface-container-lowest w-full p-4 text-right [direction:rtl] ${className}`}
     >
       <div className="flex items-start gap-2">
         <div className="flex gap-3">
@@ -45,7 +51,7 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
             <img
               src={lead.avatarUrl}
               alt={lead.name}
-              className="h-14 w-14 shrink-0 rounded-full object-cover bg-surface-container border border-outline-variant"
+              className="bg-surface-container border-outline-variant h-14 w-14 shrink-0 rounded-full border object-cover"
               onError={(e) => {
                 (e.target as HTMLElement).style.display = "none";
               }}
@@ -53,13 +59,13 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
           ) : (
             <div
               aria-hidden="true"
-              className="h-14 w-14 shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-base border border-primary/20"
+              className="bg-primary/10 text-primary border-primary/20 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border text-base font-bold"
             >
               {lead.name.slice(0, 1)}
             </div>
           )}
 
-          <div className="flex flex-col min-w-31.5">
+          <div className="flex min-w-31.5 flex-col">
             <Typography
               as="h4"
               variant="label"
@@ -75,14 +81,14 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
               variant="body"
               size="small"
               weight="medium"
-              className="mt-2 text-outline"
+              className="text-outline mt-2"
             >
               {toPersianDigits(lead.phone)}
             </Typography>
 
             <div className="mt-2 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 py-0.5 px-1.5 rounded-md border border-surface-container">
-                <LinearCall className="h-4 w-4 text-outline" />
+              <span className="border-surface-container inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5">
+                <LinearCall className="text-outline h-4 w-4" />
                 <Typography
                   as="span"
                   variant="body"
@@ -94,8 +100,8 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
                 </Typography>
               </span>
 
-              <span className="inline-flex items-center gap-1 py-0.5 px-1.5 rounded-md border border-surface-container">
-                <LinearChat className="h-4 w-4 text-outline" />
+              <span className="border-surface-container inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5">
+                <LinearChat className="text-outline h-4 w-4" />
                 <Typography
                   as="span"
                   variant="body"
@@ -110,8 +116,8 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
           </div>
         </div>
 
-        <div className="flex flex-col items-start shrink-0 gap-2">
-          <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-lg bg-tertiary/8 text-tertiary">
+        <div className="flex shrink-0 flex-col items-start gap-2">
+          <span className="bg-tertiary/8 text-tertiary inline-flex h-6 items-center justify-center rounded-lg px-2.5">
             <Typography
               as="span"
               variant="label"
@@ -123,8 +129,8 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
             </Typography>
           </span>
 
-          <div className="flex items-center gap-1 mt-1">
-            <LinearCalendar className="h-4 w-4 text-outline" />
+          <div className="mt-1 flex items-center gap-1">
+            <LinearCalendar className="text-outline h-4 w-4" />
             <Typography
               as="span"
               variant="body"
@@ -137,7 +143,7 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
           </div>
 
           <div className="flex items-center gap-1">
-            <LinearClock className="h-4 w-4 text-outline" />
+            <LinearClock className="text-outline h-4 w-4" />
             <Typography
               as="span"
               variant="body"
@@ -151,42 +157,42 @@ export function ViewAdLeadCard({ lead, adId, onChatClick, onDetailsClick, classN
         </div>
       </div>
 
-      <div className="my-4 w-full border-b border-outline-variant/60" />
+      <div className="border-outline-variant/60 my-4 w-full border-b" />
 
       <div className="flex items-center gap-2">
         <Link
           to={detailsHref}
           state={{ lead, adId }}
           onClick={() => onDetailsClick?.(lead)}
-          className="flex-1 h-10 rounded-xl border border-primary text-primary flex items-center justify-center gap-1.5 text-xs font-semibold transition no-underline active:scale-[0.99]"
+          className="border-primary text-primary flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold no-underline transition active:scale-[0.99]"
         >
           <Typography
             as="span"
             variant="label"
             size="small"
             weight="semibold"
-            className="text-xs text-primary font-semibold"
+            className="text-primary text-xs font-semibold"
           >
             جزییات
           </Typography>
-          <LinearArrowLeft1 className="h-4 w-4 text-primary" />
+          <LinearArrowLeft1 className="text-primary h-4 w-4" />
         </Link>
 
         <button
           type="button"
           onClick={() => onChatClick?.(lead)}
           aria-label={`ارسال پیام به ${lead.name}`}
-          className="h-10 w-10 shrink-0 rounded-full bg-primary/8 flex items-center justify-center active:scale-95"
+          className="bg-primary/8 flex h-10 w-10 shrink-0 items-center justify-center rounded-full active:scale-95"
         >
-          <LinearChat className="h-6 w-6 text-primary" />
+          <LinearChat className="text-primary h-6 w-6" />
         </button>
 
         <a
           href={`tel:${lead.phone}`}
           aria-label={`تماس تلفنی با ${lead.name}`}
-          className="h-10 w-10 shrink-0 rounded-full bg-tertiary/8 flex items-center justify-center active:scale-95"
+          className="bg-tertiary/8 flex h-10 w-10 shrink-0 items-center justify-center rounded-full active:scale-95"
         >
-          <LinearCall className="h-6 w-6 text-tertiary" />
+          <LinearCall className="text-tertiary h-6 w-6" />
         </a>
       </div>
     </article>

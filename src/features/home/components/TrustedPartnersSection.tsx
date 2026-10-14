@@ -14,9 +14,9 @@ function TrustedBadgeIcon() {
   return (
     <div
       aria-hidden="true"
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary/8 text-secondary"
+      className="bg-secondary/8 text-secondary grid h-10 w-10 shrink-0 place-items-center rounded-lg"
     >
-      <LinearMedalFirst className="w-8 h-8"/>
+      <LinearMedalFirst className="h-8 w-8" />
     </div>
   );
 }
@@ -29,10 +29,7 @@ export function TrustedPartnersSection() {
   useMouseDragScroll(scrollerRef);
   const agenciesQuery = useTrustedAgenciesQuery();
 
-  const partners = useMemo(
-    () => agenciesQuery.data ?? [],
-    [agenciesQuery.data],
-  );
+  const partners = useMemo(() => agenciesQuery.data ?? [], [agenciesQuery.data]);
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     const viewport = event.currentTarget;
@@ -85,12 +82,7 @@ export function TrustedPartnersSection() {
     slide.scrollIntoView({
       behavior: "smooth",
       block: "nearest",
-      inline:
-        index === 0
-          ? "start"
-          : index === slides.length - 1
-            ? "end"
-            : "center",
+      inline: index === 0 ? "start" : index === slides.length - 1 ? "end" : "center",
     });
   };
 
@@ -100,7 +92,7 @@ export function TrustedPartnersSection() {
 
   return (
     <section
-      className="home-content-visibility border-t-[16px] border-surface-container bg-surface-container-lowest pb-6 pt-4"
+      className="home-content-visibility border-surface-container bg-surface-container-lowest border-t-[16px] pt-4 pb-6"
       aria-labelledby="trusted-partners-title"
       dir="rtl"
     >
@@ -114,7 +106,7 @@ export function TrustedPartnersSection() {
             variant="title"
             size="medium"
             weight="semibold"
-            className="m-0 text-on-surface"
+            className="text-on-surface m-0"
           >
             همراهان مورد اعتماد
           </Typography>
@@ -124,7 +116,7 @@ export function TrustedPartnersSection() {
             variant="body"
             size="small"
             weight="regular"
-            className="m-0 text-on-surface-var"
+            className="text-on-surface-var m-0"
           >
             آژانس‌های برتر با عملکرد حرفه‌ای و رضایت کاربران
           </Typography>
@@ -133,44 +125,42 @@ export function TrustedPartnersSection() {
 
       <div
         ref={scrollerRef}
-        className="mt-6 snap-x snap-mandatory scroll-px-4 overflow-x-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-6 snap-x snap-mandatory scroll-px-4 scrollbar-none overflow-x-auto [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         onScroll={handleScroll}
       >
         <div className="flex w-max min-w-full gap-4 px-4">
-          {agenciesQuery.isLoading ? (
-            Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="shrink-0">
-                <DirectoryCardSkeleton layout="carousel" />
-              </div>
-            ))
-          ) : (
-            partners.map((partner, index) => (
-              <div
-                key={partner.id}
-                data-trusted-partner-slide
-                className={`shrink-0 ${
-                  index === 0
-                    ? "snap-start"
-                    : index === partners.length - 1
-                      ? "snap-end"
-                      : "snap-center"
-                }`}
-              >
-                <DirectoryCard
-                  item={{
-                    image: "logo" in partner ? partner.logo ?? undefined : undefined,
-                    name: partner.name,
-                    rank: toPersianNumber(partner.rank),
-                    score: toPersianNumber(partner.score),
-                  }}
-                  layout="carousel"
-                  imageLoading="lazy"
-                  mode="agency"
-                  onClick={() => navigate(`/agencies/${encodeURIComponent(partner.id)}`)}
-                />
-              </div>
-            ))
-          )}
+          {agenciesQuery.isLoading
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="shrink-0">
+                  <DirectoryCardSkeleton layout="carousel" />
+                </div>
+              ))
+            : partners.map((partner, index) => (
+                <div
+                  key={partner.id}
+                  data-trusted-partner-slide
+                  className={`shrink-0 ${
+                    index === 0
+                      ? "snap-start"
+                      : index === partners.length - 1
+                        ? "snap-end"
+                        : "snap-center"
+                  }`}
+                >
+                  <DirectoryCard
+                    item={{
+                      image: "logo" in partner ? (partner.logo ?? undefined) : undefined,
+                      name: partner.name,
+                      rank: toPersianNumber(partner.rank),
+                      score: toPersianNumber(partner.score),
+                    }}
+                    layout="carousel"
+                    imageLoading="lazy"
+                    mode="agency"
+                    onClick={() => navigate(`/agencies/${encodeURIComponent(partner.id)}`)}
+                  />
+                </div>
+              ))}
         </div>
       </div>
 

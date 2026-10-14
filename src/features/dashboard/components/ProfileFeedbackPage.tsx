@@ -31,15 +31,14 @@ function FeedbackIconButton({
   onClick: () => void;
 }) {
   const activeClassName =
-    type === "positive"
-      ? "bg-tertiary-container text-tertiary"
-      : "bg-error-container text-error";
+    type === "positive" ? "bg-tertiary-container text-tertiary" : "bg-error-container text-error";
 
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-label={type === "positive" ? "بازخورد مثبت" : "بازخورد منفی"}
-      className={`grid h-10 w-10 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
-        active ? activeClassName : "bg-transparent text-outline-var"
+      className={`focus-visible:outline-primary/40 grid h-10 w-10 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2 ${
+        active ? activeClassName : "text-outline-var bg-transparent"
       }`}
       onClick={onClick}
       type="button"
@@ -68,7 +67,11 @@ export function ProfileFeedbackPage({
   const { showToast } = useToast();
   const [ratings, setRatings] = useState<Record<number, boolean | null>>({});
 
-  const { data: items = [], isLoading, isError } = useQuery({
+  const {
+    data: items = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["profileFeedbackItems"],
     queryFn: getProfileFeedbackItems,
     staleTime: 5 * 60 * 1000,
@@ -95,11 +98,7 @@ export function ProfileFeedbackPage({
       onClose();
     },
     onError: (err) => {
-      showToast(
-        getApiErrorMessage(err, "ثبت بازخورد با خطا مواجه شد."),
-        "خطا",
-        "error"
-      );
+      showToast(getApiErrorMessage(err, "ثبت بازخورد با خطا مواجه شد."), "خطا", "error");
     },
   });
 
@@ -129,29 +128,29 @@ export function ProfileFeedbackPage({
   const isSubmitting = submitMutation.isPending;
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col bg-surface-container-lowest text-on-surface [direction:rtl]">
+    <div className="bg-surface-container-lowest text-on-surface absolute inset-0 z-40 flex flex-col [direction:rtl]">
       <ViewAdActionPageTopBar onBack={onClose} title="ثبت بازخورد" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pt-2">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-2">
         {isLoading ? (
           <div className="flex flex-col gap-3 py-6">
             {Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
-                className="flex h-14 w-full animate-pulse items-center rounded-xl bg-surface-container-high"
+                className="bg-surface-container-high flex h-14 w-full animate-pulse items-center rounded-xl"
               />
             ))}
           </div>
         ) : isError ? (
-          <div className="py-8 text-center text-sm text-error">
+          <div className="text-error py-8 text-center text-sm">
             خطا در دریافت معیارهای بازخورد. لطفاً بعداً تلاش کنید.
           </div>
         ) : items.length === 0 ? (
-          <div className="py-8 text-center text-sm text-on-surface-var">
+          <div className="text-on-surface-var py-8 text-center text-sm">
             معیاری برای ثبت بازخورد یافت نشد.
           </div>
         ) : (
-          <div className="divide-y divide-outline-var">
+          <div className="divide-outline-var divide-y">
             {items
               .filter((item) => item.is_active)
               .sort((a, b) => a.sort_order - b.sort_order)

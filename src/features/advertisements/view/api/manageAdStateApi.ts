@@ -72,8 +72,19 @@ export async function getManageAdAssignment(
       return {
         ad_id: adId,
         can_reassign: true,
-        agency: latest?.agency as ManageAdAssignmentData["agency"] ?? (latest?.target_agency_id ? { id: Number(latest.target_agency_id), name: String(latest.agency_name || "") } : undefined),
-        assigned_consultant: latest?.consultant as ManageAdAssignmentData["assigned_consultant"] ?? (latest?.target_consultant_id ? { id: Number(latest.target_consultant_id), full_name: String(latest.consultant_name || "") } : undefined),
+        agency:
+          (latest?.agency as ManageAdAssignmentData["agency"]) ??
+          (latest?.target_agency_id
+            ? { id: Number(latest.target_agency_id), name: String(latest.agency_name || "") }
+            : undefined),
+        assigned_consultant:
+          (latest?.consultant as ManageAdAssignmentData["assigned_consultant"]) ??
+          (latest?.target_consultant_id
+            ? {
+                id: Number(latest.target_consultant_id),
+                full_name: String(latest.consultant_name || ""),
+              }
+            : undefined),
       };
     }
     if (raw && typeof raw === "object") {
@@ -82,7 +93,8 @@ export async function getManageAdAssignment(
         ad_id: adId,
         can_reassign: true,
         agency: (obj.agency as ManageAdAssignmentData["agency"]) ?? undefined,
-        assigned_consultant: (obj.assigned_consultant as ManageAdAssignmentData["assigned_consultant"]) ?? undefined,
+        assigned_consultant:
+          (obj.assigned_consultant as ManageAdAssignmentData["assigned_consultant"]) ?? undefined,
       };
     }
     return null;
@@ -100,7 +112,7 @@ export async function getManageAdActions(
 
 export function useManageAdOverviewQuery(
   adId?: string | number,
-  fallbackAd?: Record<string, unknown>
+  fallbackAd?: Record<string, unknown>,
 ) {
   const activeRole = useActiveAuthRole();
   return useQuery({
@@ -128,7 +140,7 @@ export function useManageAdOverviewQuery(
 
 export function useManageAdAssignmentQuery(
   adId?: string | number,
-  fallbackAd?: Record<string, unknown>
+  fallbackAd?: Record<string, unknown>,
 ) {
   const activeRole = useActiveAuthRole();
   return useQuery({
@@ -140,8 +152,7 @@ export function useManageAdAssignmentQuery(
         ad_id: adId ?? "",
         can_reassign: true,
         assigned_consultant: fallbackAd?.assigned_consultant as
-          | ManageAdAssignmentData["assigned_consultant"]
-          | undefined,
+          ManageAdAssignmentData["assigned_consultant"] | undefined,
       };
     },
     enabled: Boolean(adId),
@@ -182,4 +193,3 @@ export function useReassignConsultantMutation(adId?: string | number) {
     },
   });
 }
-

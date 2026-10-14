@@ -105,11 +105,7 @@ export function DashboardView({
     const notifs = notificationsQuery.data;
     if (!notifs) return undefined;
     const list =
-      notifs.items && notifs.items.length > 0
-        ? notifs.items
-        : notifs.latest
-          ? [notifs.latest]
-          : [];
+      notifs.items && notifs.items.length > 0 ? notifs.items : notifs.latest ? [notifs.latest] : [];
     return list.map((item) => ({
       id: item.id,
       title: item.title,
@@ -170,8 +166,22 @@ export function DashboardView({
   const fallbackCredits: DashboardCreditItem[] | undefined = isAgencyConsultant
     ? [
         { key: "ads", label: "آگهی", value: 34, deltaText: "۲۴%", isPositive: true, type: "ad" },
-        { key: "updates", label: "بروزرسانی", value: 13, deltaText: "۵%", isPositive: true, type: "refresh" },
-        { key: "specials", label: "ویژه", value: 9, deltaText: "۱۶%", isNegative: true, type: "special" },
+        {
+          key: "updates",
+          label: "بروزرسانی",
+          value: 13,
+          deltaText: "۵%",
+          isPositive: true,
+          type: "refresh",
+        },
+        {
+          key: "specials",
+          label: "ویژه",
+          value: 9,
+          deltaText: "۱۶%",
+          isNegative: true,
+          type: "special",
+        },
       ]
     : undefined;
 
@@ -197,7 +207,9 @@ export function DashboardView({
           key: "specials",
           label: "ویژه",
           value: activeBalances.specialCreditBalance,
-          deltaText: activeDeltas ? `${toPersianNumber(activeDeltas.specialCreditUsed.change)}%` : "",
+          deltaText: activeDeltas
+            ? `${toPersianNumber(activeDeltas.specialCreditUsed.change)}%`
+            : "",
           isNegative: activeDeltas ? activeDeltas.specialCreditUsed.change < 0 : undefined,
           type: "special",
         },
@@ -219,10 +231,9 @@ export function DashboardView({
     rankingBadgeQuery.data?.badgeTitle ??
     dashboard?.ranking?.current?.levelTitle ??
     dashboard?.ranking?.current?.levelSlug;
-  const levelTitle = rawLevel
-    ? LEVEL_TITLE_MAP[rawLevel.toLowerCase()] || rawLevel
-    : undefined;
-  const currentScore = rankingBadgeQuery.data?.currentScore ?? dashboard?.ranking?.current?.totalScore;
+  const levelTitle = rawLevel ? LEVEL_TITLE_MAP[rawLevel.toLowerCase()] || rawLevel : undefined;
+  const currentScore =
+    rankingBadgeQuery.data?.currentScore ?? dashboard?.ranking?.current?.totalScore;
   const levelSlug = rankingBadgeQuery.data?.levelSlug ?? dashboard?.ranking?.current?.levelSlug;
   const levelAsset = isManager
     ? getAgencyRankingLevel({
@@ -236,39 +247,39 @@ export function DashboardView({
         levelSlug,
       });
 
-  const displayBadgeName = rankingBadgeQuery.data?.badgeTitle || formatRankingLevelTitle({
-    isAgency: isManager,
-    score: currentScore,
-    levelTitle,
-    levelSlug,
-  });
+  const displayBadgeName =
+    rankingBadgeQuery.data?.badgeTitle ||
+    formatRankingLevelTitle({
+      isAgency: isManager,
+      score: currentScore,
+      levelTitle,
+      levelSlug,
+    });
 
   const urgentActions =
     urgentActionsQuery.data && urgentActionsQuery.data.length > 0
       ? urgentActionsQuery.data
-      : dashboard?.urgentActions ?? [];
+      : (dashboard?.urgentActions ?? []);
 
   if (isLoading) {
     return <DashboardSkeleton />;
   }
 
   return (
-    <div className="min-h-full bg-surface-container pb-6 [direction:rtl]">
+    <div className="bg-surface-container min-h-full pb-6 [direction:rtl]">
       {/* Main Content Sections - Agent Dashboard UI Layout */}
       <main className="mx-auto flex flex-col gap-3.5 px-4 pt-3">
         {/* 1. Tasks Gradient Card */}
-        <DashboardTasksCard
-          role={role}
-          items={taskItems}
-          totalCount={totalTasks}
-        />
+        <DashboardTasksCard role={role} items={taskItems} totalCount={totalTasks} />
 
         {/* 2. Quick Access Row */}
         <DashboardQuickAccessGrid role={role} />
 
         {/* 3. Badge Banner */}
         <DashboardBadgeBanner
-          categoryLabel={rankingBadgeQuery.data?.categoryLabel || (isManager ? "سطح آژانس" : "سطح مشاور")}
+          categoryLabel={
+            rankingBadgeQuery.data?.categoryLabel || (isManager ? "سطح آژانس" : "سطح مشاور")
+          }
           badgeName={displayBadgeName}
           imageSrc={levelAsset.image}
           to={
@@ -297,10 +308,7 @@ export function DashboardView({
         />
 
         {/* 8. Recent Ads Card */}
-        <DashboardRecentAdsCard
-          ads={recentAds as any}
-          isLoading={recentAdsApiQuery.isLoading}
-        />
+        <DashboardRecentAdsCard ads={recentAds as any} isLoading={recentAdsApiQuery.isLoading} />
       </main>
     </div>
   );

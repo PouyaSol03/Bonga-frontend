@@ -4,10 +4,7 @@ import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import { toPersianNumber } from "../../../shared/lib/numberUtils";
 
 export type DashboardTaskRole =
-  | "REAL_ESTATE_MANAGER"
-  | "REAL_ESTATE_CONSULTANT"
-  | "INDEPENDENT_CONSULTANT"
-  | "agency-consultant";
+  "REAL_ESTATE_MANAGER" | "REAL_ESTATE_CONSULTANT" | "INDEPENDENT_CONSULTANT" | "agency-consultant";
 
 export interface DashboardTaskItem {
   id: string;
@@ -58,10 +55,22 @@ export function DashboardTasksCard({
           <Typography as="span" variant="label" size="large" weight="medium" className="text-white">
             کار های امروز :
           </Typography>
-          <Typography as="span" variant="label" size="large" weight="semibold" className="text-[#FFB100]">
+          <Typography
+            as="span"
+            variant="label"
+            size="large"
+            weight="semibold"
+            className="text-[#FFB100]"
+          >
             {toPersianNumber(totalCount)}
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-white">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-white"
+          >
             کار برای انجام داری
           </Typography>
         </div>
@@ -86,7 +95,13 @@ export function DashboardTasksCard({
                   >
                     {toPersianNumber(item.count)}
                   </Typography>
-                  <Typography as="span" variant="body" size="medium" weight="regular" className="text-white">
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="medium"
+                    weight="regular"
+                    className="text-white"
+                  >
                     {item.label}
                   </Typography>
                 </div>
@@ -105,7 +120,7 @@ export function DashboardTasksCard({
             return (
               <button
                 key={item.id}
-                className="w-full text-right cursor-pointer bg-transparent border-none p-0"
+                className="w-full cursor-pointer border-none bg-transparent p-0 text-right"
                 onClick={item.onClick}
                 type="button"
               >

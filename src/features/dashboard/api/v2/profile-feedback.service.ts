@@ -32,9 +32,7 @@ type ProfileFeedbackItemsResponse = {
  * GET /api/v2/{context}/profile-feedback/items
  */
 export async function getProfileFeedbackItems(): Promise<ProfileFeedbackItem[]> {
-  const response = await apiV2
-    .get("profile-feedback/items")
-    .json<ProfileFeedbackItemsResponse>();
+  const response = await apiV2.get("profile-feedback/items").json<ProfileFeedbackItemsResponse>();
   return response?.data ?? [];
 }
 
@@ -50,7 +48,7 @@ export const getPublicProfileFeedbackItems = getProfileFeedbackItems;
 export async function submitProfileFeedback(
   targetType: ProfileFeedbackTargetType,
   targetId: number | string,
-  payload: SubmitProfileFeedbackPayload
+  payload: SubmitProfileFeedbackPayload,
 ): Promise<void> {
   await apiV2.post(`profile-feedback/${targetType}/${targetId}`, {
     json: payload,
@@ -73,7 +71,7 @@ export async function listCrmProfileFeedbackItems(): Promise<ProfileFeedbackItem
  * POST /api/v2/panel/profile-feedback/items
  */
 export async function createCrmProfileFeedbackItem(
-  payload: CrmProfileFeedbackItemPayload
+  payload: CrmProfileFeedbackItemPayload,
 ): Promise<ProfileFeedbackItem> {
   const response = await apiV2
     .post("panel/profile-feedback/items", { json: payload })
@@ -87,7 +85,7 @@ export async function createCrmProfileFeedbackItem(
  */
 export async function updateCrmProfileFeedbackItem(
   id: number,
-  payload: Partial<CrmProfileFeedbackItemPayload>
+  payload: Partial<CrmProfileFeedbackItemPayload>,
 ): Promise<ProfileFeedbackItem> {
   const response = await apiV2
     .patch(`panel/profile-feedback/items/${id}`, { json: payload })

@@ -23,7 +23,7 @@ import LinearOwner from "../../shared/icons/LinearOwner";
 import LinearUserAccount from "../../shared/icons/LinearUserAccount";
 import { AdLocationMap } from "../advertisements/components/AdLocationMap";
 import { getAdvertisementImageUrls } from "../advertisements/utils/advertisement-images";
-import { Link,  useNavigate  } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { formatNumber, toNumericValue } from "../../shared/lib/numberUtils";
 import {
   getCrmAdvertise,
@@ -294,10 +294,7 @@ function resolvePricePresentation(
 
   if (formCode === "presale-special") {
     const minPrice =
-      featureMap.min_meter_price ??
-      featureMap.min_price ??
-      featureMap.meter_price ??
-      rootPrice;
+      featureMap.min_meter_price ?? featureMap.min_price ?? featureMap.meter_price ?? rootPrice;
     const maxPrice = featureMap.max_meter_price ?? featureMap.max_price;
 
     return {
@@ -311,9 +308,10 @@ function resolvePricePresentation(
   const totalPrice = rootPrice ?? featureMap.price;
   const numericPrice = toNumericValue(totalPrice);
   const numericArea = toNumericValue(area);
-  const pricePerMeter = numericPrice !== null && numericArea !== null && numericArea > 0
-    ? formatMoney(Math.round(numericPrice / numericArea))
-    : "محاسبه نشده";
+  const pricePerMeter =
+    numericPrice !== null && numericArea !== null && numericArea > 0
+      ? formatMoney(Math.round(numericPrice / numericArea))
+      : "محاسبه نشده";
 
   return {
     primaryLabel: "قیمت کل",
@@ -380,13 +378,20 @@ function getFeatureDisplayLabel(feature: FeatureRecord) {
 function getFeatureIcon(key: string): ReactNode {
   const className = "h-5 w-5";
 
-  if (key.includes("area") || key.includes("meter")) return <LinearHouseDimensions className={className} />;
-  if (key.includes("price") || key.includes("mortgage") || key.includes("rent")) return <LinearMoney className={className} />;
-  if (key.includes("floor") || key.includes("building") || key.includes("project")) return <LinearBuilding className={className} />;
-  if (key.includes("document") || key.includes("permit") || key.includes("license")) return <LinearDocument className={className} />;
-  if (key.includes("location") || key.includes("position")) return <LinearLocation className={className} />;
-  if (key.includes("date") || key.includes("year") || key.includes("age")) return <LinearCalendar className={className} />;
-  if (key.includes("owner") || key.includes("advertiser")) return <LinearOwner className={className} />;
+  if (key.includes("area") || key.includes("meter"))
+    return <LinearHouseDimensions className={className} />;
+  if (key.includes("price") || key.includes("mortgage") || key.includes("rent"))
+    return <LinearMoney className={className} />;
+  if (key.includes("floor") || key.includes("building") || key.includes("project"))
+    return <LinearBuilding className={className} />;
+  if (key.includes("document") || key.includes("permit") || key.includes("license"))
+    return <LinearDocument className={className} />;
+  if (key.includes("location") || key.includes("position"))
+    return <LinearLocation className={className} />;
+  if (key.includes("date") || key.includes("year") || key.includes("age"))
+    return <LinearCalendar className={className} />;
+  if (key.includes("owner") || key.includes("advertiser"))
+    return <LinearOwner className={className} />;
 
   return <LinearApartment className={className} />;
 }
@@ -410,7 +415,9 @@ function findRecordNameById(records: CrmRecord[], id: string): string {
 }
 
 function advertiseStatusLabel(status: unknown) {
-  const value = String(status ?? "").trim().toLowerCase();
+  const value = String(status ?? "")
+    .trim()
+    .toLowerCase();
 
   return (
     {
@@ -445,10 +452,25 @@ function advertiseStatusLabel(status: unknown) {
 }
 
 function statusTone(status: unknown) {
-  const value = String(status ?? "").trim().toLowerCase();
+  const value = String(status ?? "")
+    .trim()
+    .toLowerCase();
   if (value === "accepted" || value === "3") return "bg-[#eaf8f1] text-[#087d4b]";
   if (value === "wait_for_payment" || value === "0") return "bg-[#fff3e8] text-[#ff6d00]";
-  if (["needs_edit", "rejected", "deleted", "expired", "rejected_by_agency", "-4", "-1", "-2", "-3", "-11"].includes(value)) {
+  if (
+    [
+      "needs_edit",
+      "rejected",
+      "deleted",
+      "expired",
+      "rejected_by_agency",
+      "-4",
+      "-1",
+      "-2",
+      "-3",
+      "-11",
+    ].includes(value)
+  ) {
     return "bg-[#fff0f1] text-[#c63242]";
   }
   if (["archived", "-8"].includes(value)) {
@@ -458,7 +480,9 @@ function statusTone(status: unknown) {
 }
 
 function getActorTypeLabel(actorType: unknown): string {
-  const type = String(actorType ?? "").trim().toLowerCase();
+  const type = String(actorType ?? "")
+    .trim()
+    .toLowerCase();
   switch (type) {
     case "user":
       return "کاربر";
@@ -476,7 +500,9 @@ function getActorTypeLabel(actorType: unknown): string {
 }
 
 function getActorTypeBadgeClass(actorType: unknown): string {
-  const type = String(actorType ?? "").trim().toLowerCase();
+  const type = String(actorType ?? "")
+    .trim()
+    .toLowerCase();
   switch (type) {
     case "user":
       return "bg-[#eef4ff] text-[#0048c4] border-[#d0e1fd]";
@@ -496,7 +522,13 @@ function getActorTypeBadgeClass(actorType: unknown): string {
 function LifecycleHistoryTimeline({ logs }: { logs: unknown[] }) {
   if (!logs || !logs.length) {
     return (
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 rounded-xl bg-[#f7f7f7] p-4 text-center text-sm text-[#808080]">
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="m-0 rounded-xl bg-[#f7f7f7] p-4 text-center text-sm text-[#808080]"
+      >
         هیچ رویدادی در تاریخچه این آگهی ثبت نشده است.
       </Typography>
     );
@@ -505,7 +537,7 @@ function LifecycleHistoryTimeline({ logs }: { logs: unknown[] }) {
   const sortedLogs = [...logs].reverse();
 
   return (
-    <div className="relative space-y-4 border-r-2 border-[#e5e5e5] pr-6 mr-3">
+    <div className="relative mr-3 space-y-4 border-r-2 border-[#e5e5e5] pr-6">
       {sortedLogs.map((item, index) => {
         const log = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
         const action = readText(log, ["description", "action", "title"]) || "تغییر وضعیت آگهی";
@@ -517,18 +549,26 @@ function LifecycleHistoryTimeline({ logs }: { logs: unknown[] }) {
         const formattedDate = formatDate(timestamp);
 
         return (
-          <div key={index} className="relative group">
-            <span className="absolute -right-[31px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#0048c4] ring-4 ring-[#eef4ff]" />
+          <div key={index} className="group relative">
+            <span className="absolute top-1.5 -right-[31px] h-3.5 w-3.5 rounded-full border-2 border-white bg-[#0048c4] ring-4 ring-[#eef4ff]" />
 
             <div className="rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-4 transition-all hover:bg-white hover:shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getActorTypeBadgeClass(actorType)}`}>
+                  <span
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getActorTypeBadgeClass(actorType)}`}
+                  >
                     {getActorTypeLabel(actorType)}
                   </span>
                   <strong className="text-sm font-bold text-[#1a1a1a]">{action}</strong>
                 </div>
-                <Typography as="span" variant="body" size="small" weight="regular" className="inline-flex items-center gap-1 text-xs text-[#808080]">
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="small"
+                  weight="regular"
+                  className="inline-flex items-center gap-1 text-xs text-[#808080]"
+                >
                   <LinearClock className="h-3.5 w-3.5" />
                   {formattedDate}
                 </Typography>
@@ -539,14 +579,18 @@ function LifecycleHistoryTimeline({ logs }: { logs: unknown[] }) {
                   <span className="text-[#666666]">تغییر وضعیت:</span>
                   {fromStatus !== undefined && (
                     <>
-                      <span className={`inline-flex items-center rounded-md px-2 py-0.5 font-medium ${statusTone(fromStatus)}`}>
+                      <span
+                        className={`inline-flex items-center rounded-md px-2 py-0.5 font-medium ${statusTone(fromStatus)}`}
+                      >
                         {advertiseStatusLabel(fromStatus)}
                       </span>
                       <span className="text-[#999999]">←</span>
                     </>
                   )}
                   {toStatus !== undefined && (
-                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 font-medium ${statusTone(toStatus)}`}>
+                    <span
+                      className={`inline-flex items-center rounded-md px-2 py-0.5 font-medium ${statusTone(toStatus)}`}
+                    >
                       {advertiseStatusLabel(toStatus)}
                     </span>
                   )}
@@ -570,23 +614,63 @@ function LifecycleHistoryTimeline({ logs }: { logs: unknown[] }) {
 function InformationRow({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3 border-b border-[#f0f0f0] py-3.5 last:border-b-0">
-      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f5f5f5] text-[#0048c4]">
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f5f5f5] text-[#0048c4]"
+      >
         {icon}
       </Typography>
       <div className="min-w-0 flex-1">
-        <Typography as="span" variant="label" size="medium" weight="medium" className="block text-sm font-medium text-[#808080]">{label}</Typography>
-        <strong className="mt-1 block break-words text-sm font-bold leading-6 text-[#333333]">{value}</strong>
+        <Typography
+          as="span"
+          variant="label"
+          size="medium"
+          weight="medium"
+          className="block text-sm font-medium text-[#808080]"
+        >
+          {label}
+        </Typography>
+        <strong className="mt-1 block text-sm leading-6 font-bold break-words text-[#333333]">
+          {value}
+        </strong>
       </div>
     </div>
   );
 }
 
-function DetailSection({ children, icon, title }: { children: ReactNode; icon: ReactNode; title: string }) {
+function DetailSection({
+  children,
+  icon,
+  title,
+}: {
+  children: ReactNode;
+  icon: ReactNode;
+  title: string;
+}) {
   return (
     <section className="rounded-xl bg-white p-5">
       <div className="flex items-center gap-2.5">
-        <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-9 w-9 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">{icon}</Typography>
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold text-[#1a1a1a]">{title}</Typography>
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="grid h-9 w-9 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"
+        >
+          {icon}
+        </Typography>
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="m-0 text-base font-bold text-[#1a1a1a]"
+        >
+          {title}
+        </Typography>
       </div>
       <div className="mt-4">{children}</div>
     </section>
@@ -595,10 +679,12 @@ function DetailSection({ children, icon, title }: { children: ReactNode; icon: R
 
 function DetailSkeleton() {
   return (
-    <div className="space-y-5 animate-pulse">
+    <div className="animate-pulse space-y-5">
       <div className="h-64 rounded-xl bg-white" />
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => <div className="h-24 rounded-xl bg-white" key={index} />)}
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div className="h-24 rounded-xl bg-white" key={index} />
+        ))}
       </div>
       <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="h-96 rounded-xl bg-white" />
@@ -609,7 +695,10 @@ function DetailSkeleton() {
 }
 
 export function CrmAdvertiseDetailView({
- advertiseId, notify, refreshNonce }: CrmAdvertiseDetailViewProps) {
+  advertiseId,
+  notify,
+  refreshNonce,
+}: CrmAdvertiseDetailViewProps) {
   const navigate = useNavigate();
   const advertiseQuery = useQuery({
     queryFn: () => getCrmAdvertise(advertiseId),
@@ -629,9 +718,16 @@ export function CrmAdvertiseDetailView({
     }
     return map;
   }, [features]);
-  const formCode = readText(advertise, ["form_code"]) || String(getFeatureValue(features, ["form_code"]) ?? "");
-  const neighborhoodId = readText(advertise, ["neighborhood_id"]) || readNestedId(advertise, ["neighborhood", "district"]) || String(getFeatureValue(features, ["neighborhood_id"]) ?? "");
-  const cityId = readText(advertise, ["city_id"]) || readNestedId(advertise, ["city"]) || String(getFeatureValue(features, ["city_id"]) ?? "");
+  const formCode =
+    readText(advertise, ["form_code"]) || String(getFeatureValue(features, ["form_code"]) ?? "");
+  const neighborhoodId =
+    readText(advertise, ["neighborhood_id"]) ||
+    readNestedId(advertise, ["neighborhood", "district"]) ||
+    String(getFeatureValue(features, ["neighborhood_id"]) ?? "");
+  const cityId =
+    readText(advertise, ["city_id"]) ||
+    readNestedId(advertise, ["city"]) ||
+    String(getFeatureValue(features, ["city_id"]) ?? "");
   const categoryId = readText(advertise, ["category_id"]) || readNestedId(advertise, ["category"]);
 
   const featureLocation = getFeatureValue(features, ["location"]);
@@ -639,8 +735,10 @@ export function CrmAdvertiseDetailView({
     readHumanText(advertise, ["form_neighborhood_title", "neighborhood_name", "district_name"]) ||
     readNestedName(advertise, ["neighborhood", "district"]) ||
     (typeof featureLocation === "string" ? featureLocation.trim() : "");
-  const directCityName = readHumanText(advertise, ["city_name"]) || readNestedName(advertise, ["city"]);
-  const directCategoryName = readHumanText(advertise, ["category_name"]) || readNestedName(advertise, ["category"]);
+  const directCityName =
+    readHumanText(advertise, ["city_name"]) || readNestedName(advertise, ["city"]);
+  const directCategoryName =
+    readHumanText(advertise, ["category_name"]) || readNestedName(advertise, ["category"]);
 
   const neighborhoodQuery = useQuery({
     enabled: Boolean(advertise && neighborhoodId && cityId && !directNeighborhoodName),
@@ -659,7 +757,8 @@ export function CrmAdvertiseDetailView({
   });
 
   useEffect(() => {
-    const error = advertiseQuery.error || neighborhoodQuery.error || cityQuery.error || categoryQuery.error;
+    const error =
+      advertiseQuery.error || neighborhoodQuery.error || cityQuery.error || categoryQuery.error;
     if (error) notify(getApiErrorMessage(error, "دریافت جزئیات آگهی ناموفق بود."), "error");
   }, [advertiseQuery.error, categoryQuery.error, cityQuery.error, neighborhoodQuery.error, notify]);
 
@@ -669,12 +768,43 @@ export function CrmAdvertiseDetailView({
     return (
       <section className="mx-auto grid min-h-[420px] w-full place-items-center rounded-xl bg-white p-8 text-center">
         <div className="mx-auto w-full max-w-[520px]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]"
+          >
             <LinearInformation className="h-7 w-7" />
           </Typography>
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 mt-4 text-lg font-bold text-[#1a1a1a]">اطلاعات آگهی دریافت نشد</Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm text-[#808080]">پاسخ قابل نمایشی از سرویس جزئیات آگهی دریافت نشد.</Typography>
-          <Button unstyled className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white no-underline" onClick={() => window.history.state?.idx > 0 ? navigate(-1) : navigate("/crm/advertises", { replace: true })} type="button">
+          <Typography
+            as="h2"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="m-0 mt-4 text-lg font-bold text-[#1a1a1a]"
+          >
+            اطلاعات آگهی دریافت نشد
+          </Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="m-0 mt-2 text-sm text-[#808080]"
+          >
+            پاسخ قابل نمایشی از سرویس جزئیات آگهی دریافت نشد.
+          </Typography>
+          <Button
+            unstyled
+            className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-bold text-white no-underline"
+            onClick={() =>
+              window.history.state?.idx > 0
+                ? navigate(-1)
+                : navigate("/crm/advertises", { replace: true })
+            }
+            type="button"
+          >
             <LinearArrowRight1 className="h-5 w-5" />
             بازگشت به آگهی‌ها
           </Button>
@@ -703,7 +833,8 @@ export function CrmAdvertiseDetailView({
   const title = readText(advertise, ["title", "label"], "آگهی بدون عنوان");
 
   const rootPrice = advertise.price || undefined;
-  const area = advertise.area || featureMap.area || featureMap.land_area || featureMap.building_area;
+  const area =
+    advertise.area || featureMap.area || featureMap.land_area || featureMap.building_area;
   const pricePresentation = resolvePricePresentation(formCode, featureMap, rootPrice, area);
 
   const ownerPhone = readText(advertise, ["owner_phone", "phone", "mobile"], "-");
@@ -716,22 +847,37 @@ export function CrmAdvertiseDetailView({
   const latitude = toNumericValue(advertise.lat ?? advertise.latitude);
   const longitude = toNumericValue(advertise.lng ?? advertise.long ?? advertise.longitude);
   const hasMapPosition = latitude !== null && longitude !== null;
-  const savedAddress = readHumanText(advertise, ["address", "full_address", "formatted_address", "postal_address"]);
+  const savedAddress = readHumanText(advertise, [
+    "address",
+    "full_address",
+    "formatted_address",
+    "postal_address",
+  ]);
   const locationTitle = [cityName, neighborhoodName]
     .filter((value) => value && !value.includes("موجود نیست") && !value.includes("در حال دریافت"))
     .join("، ");
   const address = savedAddress || locationTitle || "آدرس ثبت نشده است";
-  const description = readText(advertise, ["description", "short_description"], "توضیحی برای این آگهی ثبت نشده است.");
+  const description = readText(
+    advertise,
+    ["description", "short_description"],
+    "توضیحی برای این آگهی ثبت نشده است.",
+  );
   const adminNote = readText(advertise, ["admin_note"]);
   const statusLogs = Array.isArray(advertise.status_logs)
     ? (advertise.status_logs as unknown[])
     : Array.isArray(advertise.logs)
-    ? (advertise.logs as unknown[])
-    : [];
+      ? (advertise.logs as unknown[])
+      : [];
   const visibleFeatures = features
     .filter((feature) => {
       const key = getFeatureKey(feature);
-      return key && !technicalFeatureKeys.has(key) && feature.value !== undefined && feature.value !== null && feature.value !== "";
+      return (
+        key &&
+        !technicalFeatureKeys.has(key) &&
+        feature.value !== undefined &&
+        feature.value !== null &&
+        feature.value !== ""
+      );
     })
     .sort((a, b) => {
       const order = [
@@ -751,13 +897,25 @@ export function CrmAdvertiseDetailView({
         "facilities",
       ];
       const index = new Map(order.map((key, position) => [key, position]));
-      return (index.get(getFeatureKey(a)) ?? Number.MAX_SAFE_INTEGER) - (index.get(getFeatureKey(b)) ?? Number.MAX_SAFE_INTEGER);
+      return (
+        (index.get(getFeatureKey(a)) ?? Number.MAX_SAFE_INTEGER) -
+        (index.get(getFeatureKey(b)) ?? Number.MAX_SAFE_INTEGER)
+      );
     });
 
   return (
     <div className="pb-6" dir="rtl">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white px-5 py-4">
-        <Button unstyled className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-semibold text-[#1a1a1a] no-underline transition hover:border-[#0048c4] hover:text-[#0048c4]" onClick={() => window.history.state?.idx > 0 ? navigate(-1) : navigate("/crm/advertises", { replace: true })} type="button">
+        <Button
+          unstyled
+          className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#cccccc] bg-white px-4 text-sm font-semibold text-[#1a1a1a] no-underline transition hover:border-[#0048c4] hover:text-[#0048c4]"
+          onClick={() =>
+            window.history.state?.idx > 0
+              ? navigate(-1)
+              : navigate("/crm/advertises", { replace: true })
+          }
+          type="button"
+        >
           <LinearArrowRight1 className="h-5 w-5" />
           بازگشت به مدیریت آگهی‌ها
         </Button>
@@ -770,7 +928,13 @@ export function CrmAdvertiseDetailView({
             <LinearEdit2 className="h-5 w-5" />
             ویرایش آگهی
           </Link>
-          <Typography as="span" variant="label" size="medium" weight="semibold" className={`inline-flex min-h-9 items-center rounded-full px-4 text-sm font-bold ${statusTone(advertise.status)}`}>
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="semibold"
+            className={`inline-flex min-h-9 items-center rounded-full px-4 text-sm font-bold ${statusTone(advertise.status)}`}
+          >
             {advertiseStatusLabel(advertise.status)}
           </Typography>
         </div>
@@ -780,27 +944,63 @@ export function CrmAdvertiseDetailView({
         <main className="min-w-0 space-y-4">
           <section className="rounded-xl bg-white p-6">
             <div className="grid h-[420px] grid-cols-[minmax(0,1fr)_140px] gap-2 overflow-hidden rounded-2xl bg-[#eef2f7]">
-              <Button unstyled className="relative min-w-0 overflow-hidden bg-[#e7ebf0]" type="button">
-            {coverImage ? (
-                  <img alt={title} className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]" src={coverImage} />
-            ) : (
+              <Button
+                unstyled
+                className="relative min-w-0 overflow-hidden bg-[#e7ebf0]"
+                type="button"
+              >
+                {coverImage ? (
+                  <img
+                    alt={title}
+                    className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"
+                    src={coverImage}
+                  />
+                ) : (
                   <div className="grid h-full place-items-center text-[#8ea7cf]">
-                <div className="text-center">
-                  <LinearImage className="mx-auto h-12 w-12" />
-                  <Typography as="span" variant="label" size="medium" weight="medium" className="mt-2 block text-sm font-medium">تصویری ثبت نشده است</Typography>
-                </div>
-              </div>
-            )}
-                <Typography as="span" variant="label" size="medium" weight="medium" className="absolute bottom-4 left-4 inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-black/65 px-3 text-sm font-medium text-white backdrop-blur-sm">
-                <LinearImage className="h-4 w-4" />
+                    <div className="text-center">
+                      <LinearImage className="mx-auto h-12 w-12" />
+                      <Typography
+                        as="span"
+                        variant="label"
+                        size="medium"
+                        weight="medium"
+                        className="mt-2 block text-sm font-medium"
+                      >
+                        تصویری ثبت نشده است
+                      </Typography>
+                    </div>
+                  </div>
+                )}
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="medium"
+                  className="absolute bottom-4 left-4 inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-black/65 px-3 text-sm font-medium text-white backdrop-blur-sm"
+                >
+                  <LinearImage className="h-4 w-4" />
                   {new Intl.NumberFormat("fa-IR").format(images.length)} تصویر
-              </Typography>
+                </Typography>
               </Button>
               <div className="grid grid-rows-3 gap-2">
                 {(images.length > 1 ? images.slice(1, 4) : ["", "", ""]).map((image, index) => (
                   <div className="relative overflow-hidden bg-[#dfe5ec]" key={`${image}-${index}`}>
-                    {image ? <img alt="" className="h-full w-full object-cover" src={image} /> : <LinearImage className="absolute inset-0 m-auto h-7 w-7 text-[#9aabc2]" />}
-                    {index === 2 && images.length > 4 ? <Typography as="span" variant="title" size="large" weight="semibold" className="absolute inset-0 grid place-items-center bg-black/50 text-lg font-bold text-white">+{new Intl.NumberFormat("fa-IR").format(images.length - 4)}</Typography> : null}
+                    {image ? (
+                      <img alt="" className="h-full w-full object-cover" src={image} />
+                    ) : (
+                      <LinearImage className="absolute inset-0 m-auto h-7 w-7 text-[#9aabc2]" />
+                    )}
+                    {index === 2 && images.length > 4 ? (
+                      <Typography
+                        as="span"
+                        variant="title"
+                        size="large"
+                        weight="semibold"
+                        className="absolute inset-0 grid place-items-center bg-black/50 text-lg font-bold text-white"
+                      >
+                        +{new Intl.NumberFormat("fa-IR").format(images.length - 4)}
+                      </Typography>
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -808,14 +1008,47 @@ export function CrmAdvertiseDetailView({
 
             <div className="pt-5">
               <div className="flex items-center justify-between gap-4 text-sm text-[#4d4d4d]">
-                <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-1.5"><LinearClock className="h-4 w-4" />{createdAt}</Typography>
-                <Typography as="span" variant="body" size="medium" weight="regular">کد آگهی: <strong className="text-[#1a1a1a]">{trackCode}</strong></Typography>
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="inline-flex items-center gap-1.5"
+                >
+                  <LinearClock className="h-4 w-4" />
+                  {createdAt}
+                </Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  کد آگهی: <strong className="text-[#1a1a1a]">{trackCode}</strong>
+                </Typography>
               </div>
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-5 flex items-center gap-1.5 text-sm text-[#4d4d4d]"><LinearLocation className="h-5 w-5 text-[#0048c4]" />{locationTitle || "موقعیت ثبت نشده"}</Typography>
-              <Typography as="h1" variant="headline" size="small" className="m-0 mt-2 text-2xl font-bold leading-10 text-[#1a1a1a]">{title}</Typography>
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="m-0 mt-5 flex items-center gap-1.5 text-sm text-[#4d4d4d]"
+              >
+                <LinearLocation className="h-5 w-5 text-[#0048c4]" />
+                {locationTitle || "موقعیت ثبت نشده"}
+              </Typography>
+              <Typography
+                as="h1"
+                variant="headline"
+                size="small"
+                className="m-0 mt-2 text-2xl leading-10 font-bold text-[#1a1a1a]"
+              >
+                {title}
+              </Typography>
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <PriceBox label={pricePresentation.primaryLabel} value={pricePresentation.primaryValue} />
-                <PriceBox label={pricePresentation.secondaryLabel} value={pricePresentation.secondaryValue} />
+                <PriceBox
+                  label={pricePresentation.primaryLabel}
+                  value={pricePresentation.primaryValue}
+                />
+                <PriceBox
+                  label={pricePresentation.secondaryLabel}
+                  value={pricePresentation.secondaryValue}
+                />
               </div>
             </div>
           </section>
@@ -827,31 +1060,87 @@ export function CrmAdvertiseDetailView({
                   const key = getFeatureKey(feature);
                   return (
                     <article className="flex min-w-0 items-start gap-3" key={`${key}-${index}`}>
-                      <Typography as="span" variant="body" size="medium" weight="regular" className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center text-[#808080]">
+                      <Typography
+                        as="span"
+                        variant="body"
+                        size="medium"
+                        weight="regular"
+                        className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center text-[#808080]"
+                      >
                         {getFeatureIcon(key)}
                       </Typography>
                       <div className="min-w-0">
-                        <strong className="block break-words text-base font-medium leading-6 text-[#1a1a1a]">{formatDisplayValue(key, feature.value)}</strong>
-                        <Typography as="span" variant="label" size="small" weight="medium" className="mt-0.5 block text-xs font-medium text-[#a6a6a6]">{getFeatureDisplayLabel(feature)}</Typography>
+                        <strong className="block text-base leading-6 font-medium break-words text-[#1a1a1a]">
+                          {formatDisplayValue(key, feature.value)}
+                        </strong>
+                        <Typography
+                          as="span"
+                          variant="label"
+                          size="small"
+                          weight="medium"
+                          className="mt-0.5 block text-xs font-medium text-[#a6a6a6]"
+                        >
+                          {getFeatureDisplayLabel(feature)}
+                        </Typography>
                       </div>
                     </article>
                   );
                 })}
               </div>
             ) : (
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 rounded-xl bg-[#f7f7f7] p-4 text-sm text-[#808080]">ویژگی دیگری برای این آگهی ثبت نشده است.</Typography>
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="m-0 rounded-xl bg-[#f7f7f7] p-4 text-sm text-[#808080]"
+              >
+                ویژگی دیگری برای این آگهی ثبت نشده است.
+              </Typography>
             )}
           </PublicStyleSection>
 
           <PublicStyleSection title="توضیحات">
-            <Typography as="p" variant="body" size="large" weight="regular" className="m-0 whitespace-pre-wrap text-base leading-8 text-[#1a1a1a]">{description}</Typography>
+            <Typography
+              as="p"
+              variant="body"
+              size="large"
+              weight="regular"
+              className="m-0 text-base leading-8 whitespace-pre-wrap text-[#1a1a1a]"
+            >
+              {description}
+            </Typography>
             <div className="mt-6 rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-4">
-              <div className="flex items-start gap-3"><LinearMapsLocation className="mt-0.5 h-6 w-6 shrink-0 text-[#0048c4]" /><div><Typography as="span" variant="body" size="small" weight="regular" className="text-xs text-[#808080]">آدرس</Typography><strong className="mt-1 block text-sm leading-6 text-[#1a1a1a]">{address}</strong></div></div>
+              <div className="flex items-start gap-3">
+                <LinearMapsLocation className="mt-0.5 h-6 w-6 shrink-0 text-[#0048c4]" />
+                <div>
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="small"
+                    weight="regular"
+                    className="text-xs text-[#808080]"
+                  >
+                    آدرس
+                  </Typography>
+                  <strong className="mt-1 block text-sm leading-6 text-[#1a1a1a]">{address}</strong>
+                </div>
+              </div>
             </div>
           </PublicStyleSection>
 
           {adminNote ? (
-            <PublicStyleSection title="یادداشت مدیر"><Typography as="p" variant="body" size="medium" weight="regular" className="m-0 whitespace-pre-wrap text-sm leading-8 text-[#4d4d4d]">{adminNote}</Typography></PublicStyleSection>
+            <PublicStyleSection title="یادداشت مدیر">
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="m-0 text-sm leading-8 whitespace-pre-wrap text-[#4d4d4d]"
+              >
+                {adminNote}
+              </Typography>
+            </PublicStyleSection>
           ) : null}
 
           <PublicStyleSection title="تاریخچه وضعیت و رویدادهای آگهی">
@@ -861,23 +1150,67 @@ export function CrmAdvertiseDetailView({
 
         <aside className="sticky top-0 space-y-4">
           <DetailSection icon={<LinearInformation className="h-5 w-5" />} title="اطلاعات اصلی">
-            <InformationRow icon={<LinearHome2 className="h-5 w-5" />} label="دسته‌بندی" value={categoryName} />
-            <InformationRow icon={<LinearCategory className="h-5 w-5" />} label="فرم آگهی" value={getFormName(formCode)} />
-            <InformationRow icon={<LinearMapsLocation className="h-5 w-5" />} label="محله" value={neighborhoodName} />
-            <InformationRow icon={<LinearLocation className="h-5 w-5" />} label="شهر" value={cityName} />
-            <InformationRow icon={<LinearMoney className="h-5 w-5" />} label={pricePresentation.primaryLabel} value={pricePresentation.primaryValue} />
-            <InformationRow icon={<LinearHouseDimensions className="h-5 w-5" />} label="متراژ" value={formatArea(area)} />
+            <InformationRow
+              icon={<LinearHome2 className="h-5 w-5" />}
+              label="دسته‌بندی"
+              value={categoryName}
+            />
+            <InformationRow
+              icon={<LinearCategory className="h-5 w-5" />}
+              label="فرم آگهی"
+              value={getFormName(formCode)}
+            />
+            <InformationRow
+              icon={<LinearMapsLocation className="h-5 w-5" />}
+              label="محله"
+              value={neighborhoodName}
+            />
+            <InformationRow
+              icon={<LinearLocation className="h-5 w-5" />}
+              label="شهر"
+              value={cityName}
+            />
+            <InformationRow
+              icon={<LinearMoney className="h-5 w-5" />}
+              label={pricePresentation.primaryLabel}
+              value={pricePresentation.primaryValue}
+            />
+            <InformationRow
+              icon={<LinearHouseDimensions className="h-5 w-5" />}
+              label="متراژ"
+              value={formatArea(area)}
+            />
           </DetailSection>
 
           <DetailSection icon={<LinearOwner className="h-5 w-5" />} title="اطلاعات آگهی‌دهنده">
-            <InformationRow icon={<LinearUserAccount className="h-5 w-5" />} label="نام" value={ownerName} />
-            <InformationRow icon={<LinearCall className="h-5 w-5" />} label="شماره تماس" value={ownerPhone} />
-            <InformationRow icon={<LinearDocument className="h-5 w-5" />} label="کد پیگیری" value={trackCode} />
-            <InformationRow icon={<LinearCalendar className="h-5 w-5" />} label="زمان ثبت" value={createdAt} />
+            <InformationRow
+              icon={<LinearUserAccount className="h-5 w-5" />}
+              label="نام"
+              value={ownerName}
+            />
+            <InformationRow
+              icon={<LinearCall className="h-5 w-5" />}
+              label="شماره تماس"
+              value={ownerPhone}
+            />
+            <InformationRow
+              icon={<LinearDocument className="h-5 w-5" />}
+              label="کد پیگیری"
+              value={trackCode}
+            />
+            <InformationRow
+              icon={<LinearCalendar className="h-5 w-5" />}
+              label="زمان ثبت"
+              value={createdAt}
+            />
           </DetailSection>
 
           <DetailSection icon={<LinearGps className="h-5 w-5" />} title="موقعیت جغرافیایی">
-            <InformationRow icon={<LinearMapsLocation className="h-5 w-5" />} label="آدرس دقیق" value={address} />
+            <InformationRow
+              icon={<LinearMapsLocation className="h-5 w-5" />}
+              label="آدرس دقیق"
+              value={address}
+            />
             {hasMapPosition ? (
               <AdLocationMap
                 className="mt-4"
@@ -886,7 +1219,13 @@ export function CrmAdvertiseDetailView({
                 title="موقعیت آگهی در مدیریت"
               />
             ) : (
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-4 rounded-xl bg-[#f7f7f7] p-4 text-center text-sm text-[#808080]">
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="m-0 mt-4 rounded-xl bg-[#f7f7f7] p-4 text-center text-sm text-[#808080]"
+              >
                 موقعیت این آگهی روی نقشه ثبت نشده است.
               </Typography>
             )}
@@ -897,7 +1236,16 @@ export function CrmAdvertiseDetailView({
               <LinearApartment className="h-5 w-5" />
               <strong className="text-sm">شناسه آگهی</strong>
             </div>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="mt-2 block break-all font-mono text-sm text-[#333333]" dir="ltr">{getCrmRecordId(advertise)}</Typography>
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="mt-2 block font-mono text-sm break-all text-[#333333]"
+              dir="ltr"
+            >
+              {getCrmRecordId(advertise)}
+            </Typography>
           </div>
         </aside>
       </div>
@@ -906,9 +1254,35 @@ export function CrmAdvertiseDetailView({
 }
 
 function PriceBox({ label, value }: { label: string; value: string }) {
-  return <div className="flex min-h-14 items-center justify-between rounded-xl bg-[#f7f7f7] px-4"><Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium text-[#4d4d4d]">{label}</Typography><strong className="text-base font-semibold text-[#1a1a1a]">{value}</strong></div>;
+  return (
+    <div className="flex min-h-14 items-center justify-between rounded-xl bg-[#f7f7f7] px-4">
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="text-sm font-medium text-[#4d4d4d]"
+      >
+        {label}
+      </Typography>
+      <strong className="text-base font-semibold text-[#1a1a1a]">{value}</strong>
+    </div>
+  );
 }
 
 function PublicStyleSection({ children, title }: { children: ReactNode; title: string }) {
-  return <section className="rounded-xl bg-white px-6 py-6"><Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-semibold text-[#1a1a1a]">{title}</Typography><div className="mt-6">{children}</div></section>;
+  return (
+    <section className="rounded-xl bg-white px-6 py-6">
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="m-0 text-lg font-semibold text-[#1a1a1a]"
+      >
+        {title}
+      </Typography>
+      <div className="mt-6">{children}</div>
+    </section>
+  );
 }

@@ -59,25 +59,35 @@ export function RequestFilterBottomSheet({
               unstyled
               key={item.id}
               aria-pressed={item.id === selectedId}
-              className="flex min-h-16 w-full items-center justify-between gap-4 px-4 text-right text-on-surface [direction:rtl] focus-visible:outline-2 focus-visible:outline-primary"
+              className="text-on-surface focus-visible:outline-primary flex min-h-16 w-full items-center justify-between gap-4 px-4 text-right [direction:rtl] focus-visible:outline-2"
               onClick={() => handleSelect(item)}
               type="button"
             >
-              <Typography as="span" variant="body" size="large" weight="regular" className="min-w-0 break-words">
+              <Typography
+                as="span"
+                variant="body"
+                size="large"
+                weight="regular"
+                className="min-w-0 break-words"
+              >
                 {item.title}
               </Typography>
-              <ChoiceIndicator checked={item.id === selectedId} type="radio" className="shadow-none [&>span]:h-[7px] [&>span]:w-[7px]" />
+              <ChoiceIndicator
+                checked={item.id === selectedId}
+                type="radio"
+                className="shadow-none [&>span]:h-[7px] [&>span]:w-[7px]"
+              />
             </Button>
           ))}
         </div>
       ) : (
-      <BottomSheetActionList
-        isOpen={isOpen}
-        items={items}
-        onSelect={handleSelect}
-        selectedId={selectedId}
-        showCheckIcon
-      />
+        <BottomSheetActionList
+          isOpen={isOpen}
+          items={items}
+          onSelect={handleSelect}
+          selectedId={selectedId}
+          showCheckIcon
+        />
       )}
     </BottomSheet>
   );

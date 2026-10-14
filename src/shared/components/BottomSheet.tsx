@@ -131,7 +131,8 @@ export function BottomSheet({
           initial={{ opacity: 0 }}
           transition={scrimTransition}
         >
-          <Button unstyled
+          <Button
+            unstyled
             aria-label={ariaLabel}
             className={`absolute inset-0 z-0 cursor-default ${scrimClassName}`}
             onClick={onClose}
@@ -142,9 +143,11 @@ export function BottomSheet({
             animate={{ y: 0 }}
             aria-label={ariaLabel}
             aria-modal="true"
-            className={`relative z-10 flex w-full max-w-[500px] flex-col overflow-hidden rounded-t-[20px] bg-surface-container-lowest ${resolvedPanelPaddingClassName} ${resolvedHeightClassName} ${className}`}
+            className={`bg-surface-container-lowest relative z-10 flex w-full max-w-[500px] flex-col overflow-hidden rounded-t-[20px] ${resolvedPanelPaddingClassName} ${resolvedHeightClassName} ${className}`}
             style={{
-              maxHeight: maxHeight ?? (heightClassName?.includes("max-h-") ? undefined : "calc(100dvh - 56px)"),
+              maxHeight:
+                maxHeight ??
+                (heightClassName?.includes("max-h-") ? undefined : "calc(100dvh - 56px)"),
               ...style,
             }}
             exit={{ y: "100%" }}
@@ -167,7 +170,11 @@ export function BottomSheet({
                   className="absolute inset-x-0 -inset-y-3 z-20 flex cursor-grab touch-none items-center justify-center active:cursor-grabbing"
                   onPointerDown={(event) => dragControls.start(event)}
                 >
-                  <Typography as="span" variant="body" size="medium" weight="regular"
+                  <Typography
+                    as="span"
+                    variant="body"
+                    size="medium"
+                    weight="regular"
                     className={`mx-auto block ${handleClassName}`}
                   />
                 </div>
@@ -187,32 +194,43 @@ export function BottomSheet({
                       size="dense"
                     >
                       {headerButtonIcon ?? (
-                        <LinearArrowRight2 className="h-6 w-6 text-on-surface-var" />
+                        <LinearArrowRight2 className="text-on-surface-var h-6 w-6" />
                       )}
                     </IconButton>
                   ) : null}
 
                   {titleIcon ? (
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center text-on-surface-var">
+                    <span className="text-on-surface-var flex h-6 w-6 shrink-0 items-center justify-center">
                       {titleIcon}
                     </span>
                   ) : null}
 
-                  <Typography as="h2" variant="label" size="large" weight="medium"
-                    className={`m-0 min-w-0 flex-1 text-on-surface ${isCenterTitle ? "text-center" : "text-right"
-                      }`}
+                  <Typography
+                    as="h2"
+                    variant="label"
+                    size="large"
+                    weight="medium"
+                    className={`text-on-surface m-0 min-w-0 flex-1 ${
+                      isCenterTitle ? "text-center" : "text-right"
+                    }`}
                   >
                     {title ?? ariaLabel}
                   </Typography>
 
                   {showBackButton && isCenterTitle ? (
-                    <Typography as="span" variant="body" size="medium" weight="regular" className="h-10 w-10 shrink-0" />
+                    <Typography
+                      as="span"
+                      variant="body"
+                      size="medium"
+                      weight="regular"
+                      className="h-10 w-10 shrink-0"
+                    />
                   ) : null}
                 </header>
 
                 {showHeaderDivider ? (
                   <div className="shrink-0 px-4 pt-3">
-                    <div className="h-px bg-outline-var" />
+                    <div className="bg-outline-var h-px" />
                   </div>
                 ) : null}
               </>
@@ -261,14 +279,17 @@ export function BottomSheetActionList<TItem extends BottomSheetAction>({
               selected={isSelected}
               tabIndex={isOpen && isInteractive ? 0 : -1}
               title={item.title}
-              leading={Icon ? <Icon className="h-6 w-6 shrink-0 text-on-surface-var" /> : undefined}
-              trailing={showCheckIcon && isSelected ? <LinearTick aria-hidden="true" className="h-5 w-5 text-primary" /> : undefined}
-            >
-            </ListItem>
+              leading={Icon ? <Icon className="text-on-surface-var h-6 w-6 shrink-0" /> : undefined}
+              trailing={
+                showCheckIcon && isSelected ? (
+                  <LinearTick aria-hidden="true" className="text-primary h-5 w-5" />
+                ) : undefined
+              }
+            ></ListItem>
 
             {showDividers && index < items.length - 1 ? (
               <div className="px-4 py-2">
-                <div className="h-px bg-outline-var" />
+                <div className="bg-outline-var h-px" />
               </div>
             ) : null}
           </div>

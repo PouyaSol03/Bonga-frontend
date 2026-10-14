@@ -8,7 +8,6 @@ export function readRecord(value: unknown): Record<string, unknown> | null {
     : null;
 }
 
-
 export function getAgencyConsultantRequestAgentId(notification: NotificationItem) {
   const payload = notification.payload ?? {};
   const nestedAgent = readRecord(payload.agent);
@@ -106,9 +105,7 @@ export function getNotificationPath(notification: NotificationItem): string {
       return "/account/profile";
 
     case "request":
-      return payload.support_ticket_id
-        ? "/account/support/requests"
-        : "/account/requests";
+      return payload.support_ticket_id ? "/account/support/requests" : "/account/requests";
 
     case "trade":
       return "/account/my-ads";

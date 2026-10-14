@@ -5,12 +5,7 @@ export type BrowserLocation = {
 };
 
 export type BrowserLocationErrorCode =
-  | "insecure-context"
-  | "permission-denied"
-  | "timeout"
-  | "unavailable"
-  | "unsupported"
-  | "unknown";
+  "insecure-context" | "permission-denied" | "timeout" | "unavailable" | "unsupported" | "unknown";
 
 export type BrowserLocationError = Error & {
   code: BrowserLocationErrorCode;
@@ -41,20 +36,14 @@ export function getBrowserLocation(options: PositionOptions = {}) {
   return new Promise<BrowserLocation>((resolve, reject) => {
     if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
       reject(
-        createBrowserLocationError(
-          "unsupported",
-          "Geolocation is not supported by this browser.",
-        ),
+        createBrowserLocationError("unsupported", "Geolocation is not supported by this browser."),
       );
       return;
     }
 
     if (typeof window !== "undefined" && !window.isSecureContext) {
       reject(
-        createBrowserLocationError(
-          "insecure-context",
-          "Geolocation requires HTTPS or localhost.",
-        ),
+        createBrowserLocationError("insecure-context", "Geolocation requires HTTPS or localhost."),
       );
       return;
     }
@@ -62,9 +51,7 @@ export function getBrowserLocation(options: PositionOptions = {}) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         resolve({
-          accuracy: Number.isFinite(position.coords.accuracy)
-            ? position.coords.accuracy
-            : null,
+          accuracy: Number.isFinite(position.coords.accuracy) ? position.coords.accuracy : null,
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
         });

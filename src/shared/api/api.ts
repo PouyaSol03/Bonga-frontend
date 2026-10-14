@@ -7,10 +7,7 @@ import {
   getStoredAuthSession,
 } from "../auth/auth-storage";
 
-export type ApiQueryParams = Record<
-  string,
-  string | number | boolean | null | undefined
->;
+export type ApiQueryParams = Record<string, string | number | boolean | null | undefined>;
 
 type ErrorPayload = Record<string, unknown> | null;
 
@@ -235,9 +232,7 @@ const apiOptions: Options = {
           !Array.isArray(options.searchParams) &&
           !(options.searchParams instanceof URLSearchParams)
         ) {
-          options.searchParams = normalizeSearchParams(
-            options.searchParams as ApiQueryParams,
-          );
+          options.searchParams = normalizeSearchParams(options.searchParams as ApiQueryParams);
         }
       },
     ],
@@ -284,14 +279,13 @@ const apiOptions: Options = {
           }
 
           const payload =
-            error.data && typeof error.data === "object"
-              ? (error.data as ErrorPayload)
-              : null;
+            error.data && typeof error.data === "object" ? (error.data as ErrorPayload) : null;
 
           const code = typeof payload?.code === "string" ? payload.code : undefined;
-          const errors = payload?.errors && typeof payload.errors === "object" && !Array.isArray(payload.errors)
-            ? payload.errors as Record<string, unknown>
-            : undefined;
+          const errors =
+            payload?.errors && typeof payload.errors === "object" && !Array.isArray(payload.errors)
+              ? (payload.errors as Record<string, unknown>)
+              : undefined;
 
           return new ApiError(
             error.response.status,
@@ -332,11 +326,7 @@ const apiOptions: Options = {
 };
 
 export type V2RoleSegment =
-  | "agency"
-  | "independent-consultant"
-  | "personal"
-  | "agency-consultant"
-  | "superadmin";
+  "agency" | "independent-consultant" | "personal" | "agency-consultant" | "superadmin";
 
 export function getV2RoleSegment(role?: string | null): V2RoleSegment {
   switch (role) {
@@ -406,16 +396,11 @@ export function resolveV2Url(inputUrl: string): string {
     }
 
     const hasRole =
-      isGlobalEndpoint ||
-      v2Roles.some((r) => endpoint === r || endpoint.startsWith(`${r}/`));
+      isGlobalEndpoint || v2Roles.some((r) => endpoint === r || endpoint.startsWith(`${r}/`));
 
     const activeRole = hasRole ? "" : getActiveV2Role();
     const role = activeRole === "superadmin" && !isShowEndpoint ? "personal" : activeRole;
-    const finalEndpoint = hasRole
-      ? endpoint
-      : endpoint
-        ? `${role}/${endpoint}`
-        : role;
+    const finalEndpoint = hasRole ? endpoint : endpoint ? `${role}/${endpoint}` : role;
     const finalPath = `${basePath}/${finalEndpoint}`.replace(/\/+/g, "/");
 
     return `${currentUrl.origin}${finalPath}${currentUrl.search}`;
@@ -513,7 +498,6 @@ export function isForbiddenApiError(error: unknown) {
   return false;
 }
 
-
 export function getApiErrorCode(error: unknown) {
   return error instanceof ApiError ? error.code : undefined;
 }
@@ -525,7 +509,9 @@ export function getApiFieldError(error: unknown, field: string) {
   if (typeof value === "string" && value.trim()) return value.trim();
 
   if (Array.isArray(value)) {
-    const message = value.find((item): item is string => typeof item === "string" && item.trim().length > 0);
+    const message = value.find(
+      (item): item is string => typeof item === "string" && item.trim().length > 0,
+    );
     return message?.trim() ?? null;
   }
 
@@ -544,7 +530,9 @@ export function getApiAssetUrl(path: string) {
   }
 
   const backendOrigin = (import.meta as any).env?.VITE_API_URL
-    ? String((import.meta as any).env.VITE_API_URL).replace(/\/api.*$/, "").replace(/\/+$/, "")
+    ? String((import.meta as any).env.VITE_API_URL)
+        .replace(/\/api.*$/, "")
+        .replace(/\/+$/, "")
     : "";
 
   if (backendOrigin && normalizedPath.startsWith("/")) {

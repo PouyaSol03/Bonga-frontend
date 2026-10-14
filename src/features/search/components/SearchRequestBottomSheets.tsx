@@ -46,35 +46,39 @@ function RequestSuccessContent({
 }: Pick<SearchRequestSenderBottomSheetProps, "onClose" | "onOpenResults">) {
   return (
     <div className="text-right [direction:rtl]">
-      <IconButton
-        aria-label="بستن"
-        className="text-on-surface-var"
-        onClick={onClose}
-        size="dense"
-      >
+      <IconButton aria-label="بستن" className="text-on-surface-var" onClick={onClose} size="dense">
         <LinearArrowRight2 />
       </IconButton>
 
       <div className="flex flex-col items-center">
-      <div className="mt-10 flex justify-center">
-        <img src="/vectors/SavedRequest.svg" alt="" />
-      </div>
-
-      <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 mt-8 text-center text-tertiary">
-        شما یک قدم به یافتن ملک دلخواه نزدیک‌تر شدید!
-      </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-center text-sm text-on-surface-var">
-        یافته‌های جدید به محض ثبت، در بخش نتایج درخواست‌های من در مدیریت درخواست‌های پنل کاربری برایتان نمایش داده خواهد شد.
-      </Typography>
-
-      <Button
-        className="mt-4"
-        onClick={onOpenResults}
-        size="sm"
-        >
-        نتایج درخواست‌های من
-      </Button>
+        <div className="mt-10 flex justify-center">
+          <img src="/vectors/SavedRequest.svg" alt="" />
         </div>
+
+        <Typography
+          as="p"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-tertiary m-0 mt-8 text-center"
+        >
+          شما یک قدم به یافتن ملک دلخواه نزدیک‌تر شدید!
+        </Typography>
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-2 text-center text-sm"
+        >
+          یافته‌های جدید به محض ثبت، در بخش نتایج درخواست‌های من در مدیریت درخواست‌های پنل کاربری
+          برایتان نمایش داده خواهد شد.
+        </Typography>
+
+        <Button className="mt-4" onClick={onOpenResults} size="sm">
+          نتایج درخواست‌های من
+        </Button>
+      </div>
     </div>
   );
 }
@@ -100,7 +104,7 @@ export function SearchRequestSenderBottomSheet({
       >
         {options.map((option) => (
           <ListItem
-            className="border-b border-outline-var last:border-b-0"
+            className="border-outline-var border-b last:border-b-0"
             description={option.description}
             key={option.id}
             leading={<RequestSenderIcon type={option.icon} />}
@@ -108,8 +112,7 @@ export function SearchRequestSenderBottomSheet({
             tabIndex={isOpen && !isSuccess ? 0 : -1}
             title={option.title}
             trailing={<LinearArrowLeft1 />}
-          >
-          </ListItem>
+          ></ListItem>
         ))}
       </BottomSheet>
 

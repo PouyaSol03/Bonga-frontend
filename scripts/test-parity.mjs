@@ -8,10 +8,16 @@ globalThis.window = {
   history: { state: null, replaceState: () => {} },
   localStorage: {
     getItem: (k) => mockStorage[k] ?? null,
-    setItem: (k, v) => { mockStorage[k] = String(v); },
-    removeItem: (k) => { delete mockStorage[k]; },
-    clear: () => { Object.keys(mockStorage).forEach(k => delete mockStorage[k]); }
-  }
+    setItem: (k, v) => {
+      mockStorage[k] = String(v);
+    },
+    removeItem: (k) => {
+      delete mockStorage[k];
+    },
+    clear: () => {
+      Object.keys(mockStorage).forEach((k) => delete mockStorage[k]);
+    },
+  },
 };
 
 // Import new modular implementations
@@ -65,9 +71,7 @@ import {
   getEditAdId as newGetEditAdId,
 } from "../src/features/advertisements/create/edit-mapping/editRouteParams.ts";
 
-import {
-  mapAdvertisementToEditValues as newMapAdToEditValues,
-} from "../src/features/advertisements/create/edit-mapping/mapAdvertisementToEditValues.ts";
+import { mapAdvertisementToEditValues as newMapAdToEditValues } from "../src/features/advertisements/create/edit-mapping/mapAdvertisementToEditValues.ts";
 
 import {
   loadAtomicDraft,
@@ -95,19 +99,11 @@ import {
   validateNewAdDetails as newValidateDetails,
 } from "../src/features/advertisements/create/validation.ts";
 
-import {
-  buildNewAdFormData,
-  buildPayload,
-} from "../src/features/advertisements/create/utils.ts";
+import { buildNewAdFormData, buildPayload } from "../src/features/advertisements/create/utils.ts";
 
-import {
-  buildEditPatchFormData,
-} from "../src/features/advertisements/create/edit-patch/index.ts";
+import { buildEditPatchFormData } from "../src/features/advertisements/create/edit-patch/index.ts";
 
-import {
-  buildCrmAdvertisePayload,
-} from "../src/features/advertisements/create/edit-mapping/crmEditNormalizer.ts";
-
+import { buildCrmAdvertisePayload } from "../src/features/advertisements/create/edit-mapping/crmEditNormalizer.ts";
 
 // TEST SUITE RUNNER
 const results = { passed: 0, failed: 0, errors: [] };
@@ -177,7 +173,10 @@ test("toBooleanValue converts Persian/English strings and booleans", () => {
 });
 
 test("idsFromLabels matches both ids and labels", () => {
-  const items = [{ id: "parking", label: "پارکینگ" }, { id: "elevator", label: "آسانسور" }];
+  const items = [
+    { id: "parking", label: "پارکینگ" },
+    { id: "elevator", label: "آسانسور" },
+  ];
   assert.deepEqual(newIdsFromLabels(items, "پارکینگ، آسانسور"), ["parking", "elevator"]);
   assert.deepEqual(newIdsFromLabels(items, ["parking"]), ["parking"]);
 });
@@ -190,8 +189,8 @@ test("getAdvertisementFeatures extracts labels and values", () => {
       { key: "meterage", label: "متراژ", value: "120" },
       { name: "floor", value: "3" },
       null,
-      "invalid"
-    ]
+      "invalid",
+    ],
   };
   const features = newGetFeatures(ad);
   assert.equal(features.length, 2);
@@ -208,7 +207,10 @@ test("readFirstValue prioritizes features over direct keys", () => {
 });
 
 test("mediaSource extracts source from url, path, src, file", () => {
-  assert.equal(newMediaSource({ url: "https://example.com/img.jpg" }), "https://example.com/img.jpg");
+  assert.equal(
+    newMediaSource({ url: "https://example.com/img.jpg" }),
+    "https://example.com/img.jpg",
+  );
   assert.equal(newMediaSource({ path: "/uploads/video.mp4" }), "/uploads/video.mp4");
   assert.equal(newMediaSource("direct-string.png"), "direct-string.png");
 });
@@ -216,7 +218,7 @@ test("mediaSource extracts source from url, path, src, file", () => {
 test("mapProjectDetails extracts floors, meterage, and positions", () => {
   const projectValue = [
     { id: "p1", min_meterage: "80", max_meterage: "150", floor: ["1", "2"], rooms: ["2", "3"] },
-    { meterage: "100", positions: ["شمالی", "جنوبی"] }
+    { meterage: "100", positions: ["شمالی", "جنوبی"] },
   ];
   const mapped = newMapProject(projectValue);
   assert.equal(mapped.length, 2);
@@ -255,9 +257,9 @@ test("Case A: Apartment Sale complex ad mapping", () => {
       { key: "has_document", value: "دارد" },
       { key: "is_renovated", value: "true" },
       { key: "loan_amount", value: "400000000" },
-      { key: "facilities", value: "elevator, parking, terrace" }
+      { key: "facilities", value: "elevator, parking, terrace" },
     ],
-    images: ["/uploads/img1.jpg", "/uploads/img2.jpg"]
+    images: ["/uploads/img1.jpg", "/uploads/img2.jpg"],
   };
 
   const mapped = newMapAdToEditValues(sampleAd, blankValues);
@@ -277,7 +279,7 @@ test("Case A: Apartment Sale complex ad mapping", () => {
   assert.equal(mapped.chatEnabled, true);
   assert.equal(mapped.phoneEnabled, true);
   assert.equal(mapped.phoneNumber, ""); // When contact_type is provided, phoneEnabled is true while phoneNumber remains blank as in legacy
-    assert.equal(mapped.photos.length, 2);
+  assert.equal(mapped.photos.length, 2);
   assert.ok(mapped.facilities.includes("elevator"));
   assert.ok(mapped.facilities.includes("parking"));
   assert.ok(mapped.facilities.includes("terrace"));
@@ -287,7 +289,7 @@ test("Case A2: Apartment Sale with fallback phone when contact_type is empty", (
   const adNoContactTypes = {
     id: "ad-101",
     owner_phone: "09123456789",
-    features: []
+    features: [],
   };
   const mapped = newMapAdToEditValues(adNoContactTypes, blankValues);
   assert.equal(mapped.phoneEnabled, true);
@@ -309,8 +311,8 @@ test("Case B: Villa Rent with convertible mortgage and pets allowed", () => {
       { key: "rent_convertible", value: "true" },
       { key: "rent_conversion_mortgage_price", value: "500000000" },
       { key: "pet_policy", value: "مجاز است" },
-      { key: "furnished", value: "بله" }
-    ]
+      { key: "furnished", value: "بله" },
+    ],
   };
 
   const mapped = newMapAdToEditValues(villaAd, blankValues);
@@ -339,10 +341,10 @@ test("Case C: Hotel / Daily Accommodation with room tiers", () => {
         key: "daily_hotel_rooms",
         value: [
           { room_type: "single", normal_price: "1000000", guest_count: "1", meal_plan: "صبحانه" },
-          { room_type: "double", normal_price: "1800000", guest_count: "2", meal_plan: "فولبرد" }
-        ]
-      }
-    ]
+          { room_type: "double", normal_price: "1800000", guest_count: "2", meal_plan: "فولبرد" },
+        ],
+      },
+    ],
   };
 
   const mapped = newMapAdToEditValues(hotelAd, blankValues);
@@ -351,8 +353,8 @@ test("Case C: Hotel / Daily Accommodation with room tiers", () => {
   assert.equal(mapped.extraPeopleCapacity, "۱");
   assert.equal(mapped.normalDailyPrice, "1500000");
   assert.equal(mapped.weekendDailyPrice, "2000000");
-  
-  const singleRoom = mapped.dailyHotelRooms.find(r => r.id === "single");
+
+  const singleRoom = mapped.dailyHotelRooms.find((r) => r.id === "single");
   assert.ok(singleRoom);
   assert.equal(singleRoom.normalPrice, "1000000");
   assert.equal(singleRoom.guestCount, "۱");
@@ -369,8 +371,8 @@ test("Case D: Partnership Project with developer and delivery terms", () => {
       { key: "project_total_floors", value: "15" },
       { key: "project_total_units", value: "60" },
       { key: "builder_share_percent", value: "50" },
-      { key: "delivery_date", value: "۱۴۰۶/۰۶/۳۱" }
-    ]
+      { key: "delivery_date", value: "۱۴۰۶/۰۶/۳۱" },
+    ],
   };
 
   const mapped = newMapAdToEditValues(projectAd, blankValues);
@@ -389,8 +391,8 @@ test("Case E: Commercial Sale with permits and industrial type", () => {
       { key: "form_code", value: "sale-factory" },
       { key: "ceiling_height", value: "8" },
       { key: "commercial_permit", value: "دارد" },
-      { key: "industrial_property_type", value: "سوله و کارگاه" }
-    ]
+      { key: "industrial_property_type", value: "سوله و کارگاه" },
+    ],
   };
 
   const mapped = newMapAdToEditValues(commAd, blankValues);
@@ -411,7 +413,7 @@ test("Atomic Draft save and load", () => {
     lat: "35.78",
     lng: "51.37",
     neighborhoodId: "neigh-5",
-    subNeighborhoodId: "sub-2"
+    subNeighborhoodId: "sub-2",
   });
 
   const loaded = loadAtomicDraft();
@@ -428,7 +430,10 @@ test("Atomic Draft save and load", () => {
 test("Atomic Draft migration fallback from legacy 6 localStorage keys", () => {
   // Clear storage and only set the legacy keys
   window.localStorage.clear();
-  window.localStorage.setItem(draftKey, JSON.stringify({ title: "آگهی قدیمی درفت شده", price: "2000000" }));
+  window.localStorage.setItem(
+    draftKey,
+    JSON.stringify({ title: "آگهی قدیمی درفت شده", price: "2000000" }),
+  );
   window.localStorage.setItem(locationKey, "ونک، ملاصدرا");
   window.localStorage.setItem(locationLatKey, "35.76");
   window.localStorage.setItem(locationLngKey, "51.40");
@@ -475,8 +480,8 @@ test("normalizeCrmAdvertiseForEdit handles dynamic_fields and existing features"
     title: "دفتر کار اداری",
     dynamic_fields: [
       { label: "متراژ", value: "250" },
-      { key: "elevator", label: "آسانسور", value: true }
-    ]
+      { key: "elevator", label: "آسانسور", value: true },
+    ],
   };
   const normalized = newNormCrmAd(crmRecord);
   assert.equal(normalized.title, "دفتر کار اداری");
@@ -484,7 +489,6 @@ test("normalizeCrmAdvertiseForEdit handles dynamic_fields and existing features"
   assert.equal(normalized.features[0].label, "متراژ");
   assert.equal(normalized.features[0].value, "250");
 });
-
 
 // 6. Validation Flow Parity
 console.log("\n6. Validation Flow Parity");

@@ -9,10 +9,7 @@ export type {
   UserProfile,
   UserProfileV2Response,
 } from "./account-profile.types";
-export {
-  getMyProfile,
-  syncStoredRolesFromProfile,
-} from "./account-profile.service";
+export { getMyProfile, syncStoredRolesFromProfile } from "./account-profile.service";
 
 import type { UserProfile } from "./account-profile.types";
 
@@ -21,7 +18,9 @@ export function isUserIdentityVerified(profile?: UserProfile | null) {
   const isAuthorized =
     authorizedValue === 1 ||
     String(authorizedValue ?? "").trim() === "1" ||
-    String(authorizedValue ?? "").toLowerCase().trim() === "true";
+    String(authorizedValue ?? "")
+      .toLowerCase()
+      .trim() === "true";
 
   return isAuthorized;
 }
@@ -165,12 +164,7 @@ export type PaymentHistoryItem = {
   status_code: number;
   payment_type: "gateway" | "wallet" | "unknown";
   payment_type_code: number;
-  payment_for:
-    | "advertise"
-    | "wallet_charge"
-    | "package"
-    | "advertise_checkout"
-    | "unknown";
+  payment_for: "advertise" | "wallet_charge" | "package" | "advertise_checkout" | "unknown";
   payment_for_code: number;
   price: number;
   ref_code: string | number | null;
@@ -205,7 +199,8 @@ export type PaymentCallbackResult = {
   success: boolean;
 };
 
-export type MyAdsType = "all" | "active" | "deactive" | "pending" | "wait_for_payment" | "incomplete";
+export type MyAdsType =
+  "all" | "active" | "deactive" | "pending" | "wait_for_payment" | "incomplete";
 
 export type MyAdsPage = {
   data: AdvertisementItem[];
@@ -322,9 +317,7 @@ export function updateMyProfile(payload: UpdateProfilePayload) {
 
     formData.append("avatar", avatar);
 
-    return api
-      .post("me/update/profile", { body: formData })
-      .json<ApiDataResponse<UserProfile>>();
+    return api.post("me/update/profile", { body: formData }).json<ApiDataResponse<UserProfile>>();
   }
 
   return api
@@ -352,7 +345,6 @@ export function transferSimOwnership(payload?: TransferSimOwnershipPayload) {
     .json<{ success: boolean; message: string }>();
 }
 
-
 export function createMyAgency(payload: CreateMyAgencyPayload) {
   return api
     .post("me/agency/create", {
@@ -369,13 +361,15 @@ export function createMyAgency(payload: CreateMyAgencyPayload) {
 export function createMyAgent(payload: CreateMyAgentPayload) {
   const phonenumber = payload.phonenumber?.trim();
 
-  return api.post("me/agent", {
-    json: {
-      agency_id: payload.agency_id ?? null,
-      name: payload.name.trim(),
-      ...(phonenumber ? { phonenumber } : {}),
-    },
-  }).json<CreateMyAgentResponse>();
+  return api
+    .post("me/agent", {
+      json: {
+        agency_id: payload.agency_id ?? null,
+        name: payload.name.trim(),
+        ...(phonenumber ? { phonenumber } : {}),
+      },
+    })
+    .json<CreateMyAgentResponse>();
 }
 
 function appendAgencyFormValue(
@@ -394,7 +388,11 @@ function normalizeOptionalAgencyValue(value: string | number | null | undefined)
 }
 
 function normalizeAgencyNeighborhoodIds(value: unknown) {
-  const values = Array.isArray(value) ? value : value === null || value === undefined ? [] : [value];
+  const values = Array.isArray(value)
+    ? value
+    : value === null || value === undefined
+      ? []
+      : [value];
 
   return Array.from(
     new Set(
@@ -439,11 +437,13 @@ function unwrapMyAgencyProfile(
 }
 
 export async function getMyAgencyProfile() {
-  const response = await api.get("me/agency/show").json<
-    | ApiDataResponse<MyAgencyProfile>
-    | { agency?: MyAgencyProfile; status?: boolean }
-    | MyAgencyProfile
-  >();
+  const response = await api
+    .get("me/agency/show")
+    .json<
+      | ApiDataResponse<MyAgencyProfile>
+      | { agency?: MyAgencyProfile; status?: boolean }
+      | MyAgencyProfile
+    >();
 
   return unwrapMyAgencyProfile(response);
 }
@@ -551,9 +551,10 @@ export async function updateConsultantProfile(
 export async function getWallet(): Promise<WalletResult> {
   const response = await api.get("me/wallet").json<ApiDataResponse<WalletResult> | WalletResult>();
   const record = response as Record<string, unknown>;
-  const data = record.data && typeof record.data === "object"
-    ? record.data as Record<string, unknown>
-    : record;
+  const data =
+    record.data && typeof record.data === "object"
+      ? (record.data as Record<string, unknown>)
+      : record;
 
   return { credit: (data.credit as number | string | undefined) ?? 0 };
 }
@@ -629,9 +630,7 @@ export async function getAccountCreditHistory({
         root?.per_page ??
         root?.perPage,
     ) ?? perPage;
-  const reportedTotal = readFiniteNumber(
-    meta?.total ?? nestedData?.total ?? root?.total,
-  );
+  const reportedTotal = readFiniteNumber(meta?.total ?? nestedData?.total ?? root?.total);
   const total = reportedTotal ?? data.length;
   const lastPage = readFiniteNumber(
     meta?.last_page ??
@@ -660,13 +659,15 @@ export async function getAccountCreditHistory({
 }
 
 export async function getWalletPayments(page = 1): Promise<WalletPaymentsResult> {
-  const response = await api.get("me/wallet/payments", {
-    searchParams: { page },
-  }).json<
-    | ApiDataResponse<WalletPayment[]>
-    | { page?: number; payments?: WalletPayment[]; per_page?: number; total?: number }
-    | WalletPayment[]
-  >();
+  const response = await api
+    .get("me/wallet/payments", {
+      searchParams: { page },
+    })
+    .json<
+      | ApiDataResponse<WalletPayment[]>
+      | { page?: number; payments?: WalletPayment[]; per_page?: number; total?: number }
+      | WalletPayment[]
+    >();
   const source = Array.isArray(response) ? { payments: response } : response;
   const sourceRecord = source as Record<string, unknown>;
   const data =
@@ -702,9 +703,7 @@ function readPaymentUrl(response: Record<string, unknown>) {
   }
 }
 
-export async function chargeWallet(
-  payload: ChargeWalletPayload,
-): Promise<ChargeWalletResult> {
+export async function chargeWallet(payload: ChargeWalletPayload): Promise<ChargeWalletResult> {
   if (!Number.isSafeInteger(payload.price) || payload.price <= 0) {
     throw new ApiError(400, "مبلغ واردشده معتبر نیست.");
   }
@@ -731,16 +730,12 @@ export async function chargeWallet(
 
   return {
     authority: typeof response.authority === "string" ? response.authority : undefined,
-    paymentId:
-      typeof response.payment_id === "string" ? response.payment_id : undefined,
+    paymentId: typeof response.payment_id === "string" ? response.payment_id : undefined,
     paymentUrl,
   };
 }
 
-const paymentCallbackRequests = new Map<
-  string,
-  Promise<PaymentCallbackResult>
->();
+const paymentCallbackRequests = new Map<string, Promise<PaymentCallbackResult>>();
 
 export function verifyPaymentCallback(
   payload: PaymentCallbackPayload,
@@ -800,9 +795,7 @@ export async function getMyAds({
   const searchTerm = (search ?? query)?.trim();
   if (searchTerm) searchParams.search = searchTerm;
 
-  const response = await apiV2
-    .get(endpoint, { searchParams })
-    .json<MyAdsResponse>();
+  const response = await apiV2.get(endpoint, { searchParams }).json<MyAdsResponse>();
   const record = Array.isArray(response) ? {} : (response as Record<string, unknown>);
   const data = Array.isArray(response)
     ? response
@@ -830,9 +823,7 @@ export async function getMyAds({
 }
 
 export async function getMyBadges() {
-  const badges = unwrapList(
-    await api.get("me/badges").json<ApiListResponse<BadgeItem>>(),
-  );
+  const badges = unwrapList(await api.get("me/badges").json<ApiListResponse<BadgeItem>>());
 
   return badges.map((badge) => ({
     ...badge,
@@ -883,15 +874,11 @@ export async function getAdvertiseBadges({
 }
 
 export function toggleAdvertiseBadge(advertiseId: string) {
-  return api
-    .post(`me/advertise/badges/create/${advertiseId}`)
-    .json<ApiDataResponse<unknown>>();
+  return api.post(`me/advertise/badges/create/${advertiseId}`).json<ApiDataResponse<unknown>>();
 }
 
 export function deleteAdvertiseBadge(advertiseId: string) {
-  return api
-    .delete(`me/advertise/badges/delete/${advertiseId}`)
-    .json<ApiDataResponse<unknown>>();
+  return api.delete(`me/advertise/badges/delete/${advertiseId}`).json<ApiDataResponse<unknown>>();
 }
 
 export async function getMyNotes() {
@@ -920,14 +907,9 @@ export function updateAdvertiseNote({ noteId, note }: UpdateAdvertiseNotePayload
 }
 
 export function deleteAdvertiseNote(noteId: string) {
-  return api
-    .delete(`me/advertise/note/delete/${noteId}`)
-    .json<ApiDataResponse<unknown>>();
+  return api.delete(`me/advertise/note/delete/${noteId}`).json<ApiDataResponse<unknown>>();
 }
 
 export function deleteMyBusiness() {
-  return api
-    .delete("me/agency/business")
-    .json<{ success: boolean; message: string }>();
+  return api.delete("me/agency/business").json<{ success: boolean; message: string }>();
 }
-

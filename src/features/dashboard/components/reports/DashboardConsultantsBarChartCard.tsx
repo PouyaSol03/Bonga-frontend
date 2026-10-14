@@ -1,13 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Typography } from "../../../../shared/ui/Typography";
 import { DashboardChartEmptyState } from "./DashboardChartEmptyState";
 import LinearArrowDown1 from "../../../../shared/icons/LinearArrowDown1";
@@ -55,9 +47,7 @@ export function DashboardConsultantsBarChartCard({
   const dataset = data && data.length > 0 ? data : [];
 
   const currentTotal =
-    totalAds !== undefined
-      ? totalAds
-      : dataset.reduce((acc, curr) => acc + (curr.ads || 0), 0);
+    totalAds !== undefined ? totalAds : dataset.reduce((acc, curr) => acc + (curr.ads || 0), 0);
 
   const checkScroll = () => {
     const el = chartScrollRef.current;
@@ -95,7 +85,7 @@ export function DashboardConsultantsBarChartCard({
   const contentWidth = needsScroll ? Math.max(340, dataset.length * itemWidth) : "100%";
 
   return (
-    <section className="w-full bg-surface-container-lowest p-4 [direction:rtl]">
+    <section className="bg-surface-container-lowest w-full p-4 [direction:rtl]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <Typography
@@ -111,7 +101,7 @@ export function DashboardConsultantsBarChartCard({
         {/* Period Dropdown */}
         <div className="relative">
           <button
-            className="flex items-center gap-1 rounded-lg px-2 py-1 text-on-surface transition active:scale-95 cursor-pointer border-none bg-transparent"
+            className="text-on-surface flex cursor-pointer items-center gap-1 rounded-lg border-none bg-transparent px-2 py-1 transition active:scale-95"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             type="button"
           >
@@ -124,38 +114,34 @@ export function DashboardConsultantsBarChartCard({
             >
               {effectivePeriod === "year" ? "در سال" : "در ماه"}
             </Typography>
-            <LinearArrowDown1 className="h-3.5 w-3.5 text-on-surface" />
+            <LinearArrowDown1 className="text-on-surface h-3.5 w-3.5" />
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute left-0 top-full mt-1 z-30 min-w-[110px] rounded-lg border border-outline-var bg-surface-container-lowest py-1 shadow-md">
+            <div className="border-outline-var bg-surface-container-lowest absolute top-full left-0 z-30 mt-1 min-w-[110px] rounded-lg border py-1 shadow-md">
               <button
-                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition cursor-pointer border-none ${
+                className={`flex w-full cursor-pointer items-center justify-between border-none px-3 py-2 text-right text-xs transition ${
                   effectivePeriod === "month"
-                    ? "font-bold text-primary bg-primary/5"
+                    ? "text-primary bg-primary/5 font-bold"
                     : "text-on-surface-var bg-transparent"
                 }`}
                 onClick={() => handleSelectPeriod("month")}
                 type="button"
               >
                 <span>در ماه</span>
-                {effectivePeriod === "month" && (
-                  <LinearTick className="h-3.5 w-3.5 text-primary" />
-                )}
+                {effectivePeriod === "month" && <LinearTick className="text-primary h-3.5 w-3.5" />}
               </button>
               <button
-                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition cursor-pointer border-none ${
+                className={`flex w-full cursor-pointer items-center justify-between border-none px-3 py-2 text-right text-xs transition ${
                   effectivePeriod === "year"
-                    ? "font-bold text-primary bg-primary/5"
+                    ? "text-primary bg-primary/5 font-bold"
                     : "text-on-surface-var bg-transparent"
                 }`}
                 onClick={() => handleSelectPeriod("year")}
                 type="button"
               >
                 <span>در سال</span>
-                {effectivePeriod === "year" && (
-                  <LinearTick className="h-3.5 w-3.5 text-primary" />
-                )}
+                {effectivePeriod === "year" && <LinearTick className="text-primary h-3.5 w-3.5" />}
               </button>
             </div>
           )}
@@ -169,7 +155,7 @@ export function DashboardConsultantsBarChartCard({
           variant="title"
           size="small"
           weight="semibold"
-          className="text-lg font-bold text-primary"
+          className="text-primary text-lg font-bold"
         >
           {toPersianNumber(currentTotal)}
         </Typography>
@@ -192,7 +178,7 @@ export function DashboardConsultantsBarChartCard({
             className={`cursor-pointer border-none bg-transparent p-0 transition ${
               canScrollLeft
                 ? "text-on-surface active:scale-90"
-                : "text-outline-var opacity-20 cursor-not-allowed"
+                : "text-outline-var cursor-not-allowed opacity-20"
             }`}
             disabled={!canScrollLeft}
             onClick={() => handleScrollSmooth("prev")}
@@ -206,7 +192,7 @@ export function DashboardConsultantsBarChartCard({
             className={`cursor-pointer border-none bg-transparent p-0 transition ${
               canScrollRight
                 ? "text-on-surface active:scale-90"
-                : "text-outline-var opacity-20 cursor-not-allowed"
+                : "text-outline-var cursor-not-allowed opacity-20"
             }`}
             disabled={!canScrollRight}
             onClick={() => handleScrollSmooth("next")}
@@ -228,7 +214,7 @@ export function DashboardConsultantsBarChartCard({
           <div
             ref={chartScrollRef}
             onScroll={checkScroll}
-            className="mt-4 h-56 w-full overflow-x-auto scroll-smooth scrollbar-none [direction:ltr]"
+            className="mt-4 h-56 w-full scrollbar-none overflow-x-auto scroll-smooth [direction:ltr]"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             <div style={{ width: contentWidth, height: "100%" }}>
@@ -259,9 +245,14 @@ export function DashboardConsultantsBarChartCard({
                       if (active && payload && payload.length) {
                         return (
                           <div className="rounded-[8px] bg-[#222222] p-2 text-xs text-white shadow-lg [direction:rtl]">
-                            <div className="font-bold border-b border-[#444444] pb-1 mb-1">{label}</div>
+                            <div className="mb-1 border-b border-[#444444] pb-1 font-bold">
+                              {label}
+                            </div>
                             {payload.map((item) => (
-                              <div key={item.name} className="flex items-center justify-between gap-3 py-0.5">
+                              <div
+                                key={item.name}
+                                className="flex items-center justify-between gap-3 py-0.5"
+                              >
                                 <span style={{ color: item.color }}>{item.name}:</span>
                                 <span className="font-bold">{toPersianNumber(item.value)}</span>
                               </div>
@@ -272,55 +263,73 @@ export function DashboardConsultantsBarChartCard({
                       return null;
                     }}
                   />
-                  <Bar dataKey="ads" fill="#0048C4" maxBarSize={8} name="آگهی" radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="updates" fill="#11A366" maxBarSize={8} name="بروزرسانی" radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="specials" fill="#FFAA2C" maxBarSize={8} name="ویژه" radius={[2, 2, 0, 0]} />
+                  <Bar
+                    dataKey="ads"
+                    fill="#0048C4"
+                    maxBarSize={8}
+                    name="آگهی"
+                    radius={[2, 2, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="updates"
+                    fill="#11A366"
+                    maxBarSize={8}
+                    name="بروزرسانی"
+                    radius={[2, 2, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="specials"
+                    fill="#FFAA2C"
+                    maxBarSize={8}
+                    name="ویژه"
+                    radius={[2, 2, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-      {/* Legend */}
-      <div className="mt-3 flex items-center justify-center gap-6 border-t border-[#EBEBEB] pt-3">
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[#0048C4]" />
-          <Typography
-            as="span"
-            variant="label"
-            size="small"
-            weight="medium"
-            className="text-[#4D4D4D] text-xs"
-          >
-            آگهی
-          </Typography>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[#11A366]" />
-          <Typography
-            as="span"
-            variant="label"
-            size="small"
-            weight="medium"
-            className="text-[#4D4D4D] text-xs"
-          >
-            بروزرسانی
-          </Typography>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[#FFAA2C]" />
-          <Typography
-            as="span"
-            variant="label"
-            size="small"
-            weight="medium"
-            className="text-[#4D4D4D] text-xs"
-          >
-            ویژه
-          </Typography>
-        </div>
-      </div>
-    </>
-  )}
-</section>
+          {/* Legend */}
+          <div className="mt-3 flex items-center justify-center gap-6 border-t border-[#EBEBEB] pt-3">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-[#0048C4]" />
+              <Typography
+                as="span"
+                variant="label"
+                size="small"
+                weight="medium"
+                className="text-xs text-[#4D4D4D]"
+              >
+                آگهی
+              </Typography>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-[#11A366]" />
+              <Typography
+                as="span"
+                variant="label"
+                size="small"
+                weight="medium"
+                className="text-xs text-[#4D4D4D]"
+              >
+                بروزرسانی
+              </Typography>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-[#FFAA2C]" />
+              <Typography
+                as="span"
+                variant="label"
+                size="small"
+                weight="medium"
+                className="text-xs text-[#4D4D4D]"
+              >
+                ویژه
+              </Typography>
+            </div>
+          </div>
+        </>
+      )}
+    </section>
   );
 }

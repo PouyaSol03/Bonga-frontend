@@ -5,9 +5,6 @@ type RadioIndicatorProps = {
   className?: string;
 };
 
-export function RadioIndicator({
-  checked,
-  className = "",
-}: RadioIndicatorProps) {
+export function RadioIndicator({ checked, className = "" }: RadioIndicatorProps) {
   return <ChoiceIndicator checked={checked} className={className} type="radio" />;
 }

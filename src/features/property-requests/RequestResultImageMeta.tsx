@@ -8,12 +8,26 @@ import { Typography } from "../../shared/ui/Typography";
 
 export function RequestResultImageMeta({ imageCount }: { imageCount: string }) {
   return (
-    <div className="absolute right-2 top-2 z-2 inline-flex h-7 items-center overflow-hidden rounded-[9px] bg-black/65 text-white shadow-sm">
+    <div className="absolute top-2 right-2 z-2 inline-flex h-7 items-center overflow-hidden rounded-[9px] bg-black/65 text-white shadow-sm">
       <ImageMetaIcon
         icon={
-          <Typography as="span" variant="body" size="medium" weight="regular" className="inline-flex items-center gap-0.5">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="inline-flex items-center gap-0.5"
+          >
             <AdCardAlbumIcon className="h-4 w-4" />
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-[10px] font-medium leading-none">{imageCount}</Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-[10px] leading-none font-medium"
+            >
+              {imageCount}
+            </Typography>
           </Typography>
         }
       />
@@ -26,7 +40,13 @@ export function RequestResultImageMeta({ imageCount }: { imageCount: string }) {
 
 function ImageMetaIcon({ icon }: { icon: ReactNode }) {
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-7 min-w-7 place-items-center border-l border-white/30 px-1 last:border-l-0">
+    <Typography
+      as="span"
+      variant="body"
+      size="medium"
+      weight="regular"
+      className="grid h-7 min-w-7 place-items-center border-l border-white/30 px-1 last:border-l-0"
+    >
       {icon}
     </Typography>
   );

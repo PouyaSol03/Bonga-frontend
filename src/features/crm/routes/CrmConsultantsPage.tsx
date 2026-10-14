@@ -1,12 +1,45 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
-import { createCrmConsultant, listCrmAgents, type CrmConsultantStatus, listCrmAgencies, type CrmRecord, type CrmConsultantPayload, updateCrmConsultant, getCrmRecordId } from "../api/crm.service";
+import {
+  createCrmConsultant,
+  listCrmAgents,
+  type CrmConsultantStatus,
+  listCrmAgencies,
+  type CrmRecord,
+  type CrmConsultantPayload,
+  updateCrmConsultant,
+  getCrmRecordId,
+} from "../api/crm.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { SwitchButton } from "../../../shared/components/SwitchButton";
 import { motion } from "motion/react";
 import LinearEdit2 from "../../../shared/icons/LinearEdit2";
-import { ConfirmModal, CrmSelect, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, SearchTableEmptyRow, TableHead, TableLoadingRows, consultantAgencyId, consultantAgencyName, consultantApiIdentifier, consultantStatusLabel, consultantStatusTone, consultantStatusValue, fullName, ghostButtonClassName, inputClassName, readText, useQueryErrorToast } from "../CrmLayout";
+import {
+  ConfirmModal,
+  CrmSelect,
+  EditorModal,
+  FilterField,
+  Panel,
+  PanelHeader,
+  PrimaryButton,
+  SmallActionButton,
+  TableCell,
+  SearchTableEmptyRow,
+  TableHead,
+  TableLoadingRows,
+  consultantAgencyId,
+  consultantAgencyName,
+  consultantApiIdentifier,
+  consultantStatusLabel,
+  consultantStatusTone,
+  consultantStatusValue,
+  fullName,
+  ghostButtonClassName,
+  inputClassName,
+  readText,
+  useQueryErrorToast,
+} from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -31,14 +64,16 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
 
   const usersQuery = useQuery({
-    queryFn: () => listCrmAgents({
-      agencyId: appliedFilters.agencyId || undefined,
-      page: 1,
-      perPage: 100,
-      search: appliedFilters.search || undefined,
-      status: appliedFilters.status === "" ? undefined : appliedFilters.status as CrmConsultantStatus,
-      type: appliedFilters.agencyOnly ? "dependent" : undefined,
-    }),
+    queryFn: () =>
+      listCrmAgents({
+        agencyId: appliedFilters.agencyId || undefined,
+        page: 1,
+        perPage: 100,
+        search: appliedFilters.search || undefined,
+        status:
+          appliedFilters.status === "" ? undefined : (appliedFilters.status as CrmConsultantStatus),
+        type: appliedFilters.agencyOnly ? "dependent" : undefined,
+      }),
     queryKey: [
       "crm",
       "consultants",
@@ -59,9 +94,7 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
 
   const saveMutation = useMutation({
     mutationFn: ({ id, payload }: { id: string | null; payload: CrmConsultantPayload }) =>
-      id
-        ? updateCrmConsultant(id, payload)
-        : createCrmConsultant(payload),
+      id ? updateCrmConsultant(id, payload) : createCrmConsultant(payload),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["crm", "consultants"] }),
@@ -73,7 +106,13 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
   });
 
   const statusMutation = useMutation({
-    mutationFn: ({ consultant, status }: { consultant: CrmRecord; status: Exclude<CrmConsultantStatus, "pending"> }) => {
+    mutationFn: ({
+      consultant,
+      status,
+    }: {
+      consultant: CrmRecord;
+      status: Exclude<CrmConsultantStatus, "pending">;
+    }) => {
       const id = getCrmRecordId(consultant);
       return updateCrmConsultant(id, { status });
     },
@@ -91,12 +130,16 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
 
   const agencies = agenciesQuery.data ?? [];
   const agencyNames = useMemo<Map<string, string>>(
-    () => new Map<string, string>(
-      agencies.map((agency) => [
-        getCrmRecordId(agency),
-        readText(agency, ["name", "title"], "آژانس بدون نام"),
-      ] as [string, string]),
-    ),
+    () =>
+      new Map<string, string>(
+        agencies.map(
+          (agency) =>
+            [getCrmRecordId(agency), readText(agency, ["name", "title"], "آژانس بدون نام")] as [
+              string,
+              string,
+            ],
+        ),
+      ),
     [agencies],
   );
 
@@ -106,15 +149,21 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
     return (usersQuery.data ?? []).filter((consultant) => {
       const agencyId = consultantAgencyId(consultant);
       const agencyName = consultantAgencyName(consultant, agencyNames);
-      const isAgencyConsultant = readText(consultant, ["type"], "") === "dependent" || Boolean(agencyId);
-      const matchesSearch = !normalizedSearch || [
-        fullName(consultant),
-        readText(consultant, ["mobile", "phone"], ""),
-        agencyName,
-      ].join(" ").toLocaleLowerCase("fa-IR").includes(normalizedSearch);
-      const matchesStatus = appliedFilters.status === "" || consultantStatusValue(consultant) === appliedFilters.status;
+      const isAgencyConsultant =
+        readText(consultant, ["type"], "") === "dependent" || Boolean(agencyId);
+      const matchesSearch =
+        !normalizedSearch ||
+        [fullName(consultant), readText(consultant, ["mobile", "phone"], ""), agencyName]
+          .join(" ")
+          .toLocaleLowerCase("fa-IR")
+          .includes(normalizedSearch);
+      const matchesStatus =
+        appliedFilters.status === "" || consultantStatusValue(consultant) === appliedFilters.status;
       const matchesAgencyMode = !appliedFilters.agencyOnly || isAgencyConsultant;
-      const matchesAgency = !appliedFilters.agencyOnly || !appliedFilters.agencyId || agencyId === appliedFilters.agencyId;
+      const matchesAgency =
+        !appliedFilters.agencyOnly ||
+        !appliedFilters.agencyId ||
+        agencyId === appliedFilters.agencyId;
 
       return matchesSearch && matchesStatus && matchesAgencyMode && matchesAgency;
     });
@@ -143,24 +192,32 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
           type: "select",
           value: currentAgencyId,
         },
-        ...(id ? [{
-          label: "وضعیت مشاور",
-          name: "status",
-          options: [
-            { label: "در انتظار", value: "pending" },
-            { label: "تأیید شده", value: "accept" },
-            { label: "رد شده", value: "reject" },
-          ],
-          type: "select" as const,
-          value: currentStatus,
-        }] : []),
+        ...(id
+          ? [
+              {
+                label: "وضعیت مشاور",
+                name: "status",
+                options: [
+                  { label: "در انتظار", value: "pending" },
+                  { label: "تأیید شده", value: "accept" },
+                  { label: "رد شده", value: "reject" },
+                ],
+                type: "select" as const,
+                value: currentStatus,
+              },
+            ]
+          : []),
       ],
       onSubmit: async (values) => {
         const selectedAgencyId = values.agency_id?.trim() ?? "";
 
         if (id) {
           const selectedStatus = values.status;
-          if (selectedStatus !== "pending" && selectedStatus !== "accept" && selectedStatus !== "reject") {
+          if (
+            selectedStatus !== "pending" &&
+            selectedStatus !== "accept" &&
+            selectedStatus !== "reject"
+          ) {
             throw new Error("یک وضعیت معتبر برای مشاور انتخاب کنید.");
           }
 
@@ -198,12 +255,17 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
     <>
       <Panel>
         <PanelHeader
-          action={<PrimaryButton icon="plus" label="مشاور جدید" onClick={() => openConsultantEditor()} />}
+          action={
+            <PrimaryButton icon="plus" label="مشاور جدید" onClick={() => openConsultantEditor()} />
+          }
           subtitle="مشاوران مستقل و وابسته به آژانس را جستجو، فیلتر و مدیریت کنید."
           title="مدیریت مشاورین"
         />
 
-        <form className="mt-5 grid grid-cols-1 gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4 lg:grid-cols-[minmax(220px,1fr)_190px_250px_minmax(220px,1fr)_auto]" onSubmit={(event) => event.preventDefault()}>
+        <form
+          className="mt-5 grid grid-cols-1 gap-3 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-4 lg:grid-cols-[minmax(220px,1fr)_190px_250px_minmax(220px,1fr)_auto]"
+          onSubmit={(event) => event.preventDefault()}
+        >
           <FilterField label="جستجو">
             <input
               className={inputClassName}
@@ -215,7 +277,11 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
           </FilterField>
 
           <FilterField label="وضعیت">
-            <CrmSelect className={inputClassName} onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
+            <CrmSelect
+              className={inputClassName}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              value={statusFilter}
+            >
               <option value="">همه وضعیت‌ها</option>
               <option value="pending">در انتظار</option>
               <option value="accept">تأیید شده</option>
@@ -226,7 +292,15 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
           <div className="flex min-h-[66px] items-end">
             <div className="flex h-10 w-full items-center justify-between rounded-xl border border-[#dce3ef] bg-white px-3">
               <div>
-                <Typography as="span" variant="label" size="medium" weight="semibold" className="block text-sm font-semibold text-[#303030]">فقط مشاوران آژانس</Typography>
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="semibold"
+                  className="block text-sm font-semibold text-[#303030]"
+                >
+                  فقط مشاوران آژانس
+                </Typography>
               </div>
               <SwitchButton
                 ariaLabel="فیلتر مشاوران وابسته به آژانس"
@@ -249,12 +323,30 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
               <option value="">همه آژانس‌ها</option>
               {agencies.map((agency) => {
                 const id = getCrmRecordId(agency);
-                return <option key={id} value={id}>{readText(agency, ["name", "title"], "آژانس بدون نام")}</option>;
+                return (
+                  <option key={id} value={id}>
+                    {readText(agency, ["name", "title"], "آژانس بدون نام")}
+                  </option>
+                );
               })}
             </CrmSelect>
           </FilterField>
           <div className="flex items-end gap-2">
-            {(search || statusFilter || agencyOnly) ? <Button unstyled className={ghostButtonClassName} onClick={() => { setSearch(""); setStatusFilter(""); setAgencyOnly(false); setAgencyIdFilter(""); }} type="button">پاک کردن</Button> : null}
+            {search || statusFilter || agencyOnly ? (
+              <Button
+                unstyled
+                className={ghostButtonClassName}
+                onClick={() => {
+                  setSearch("");
+                  setStatusFilter("");
+                  setAgencyOnly(false);
+                  setAgencyIdFilter("");
+                }}
+                type="button"
+              >
+                پاک کردن
+              </Button>
+            ) : null}
           </div>
         </form>
 
@@ -287,10 +379,36 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
                         key={id}
                         transition={{ delay: Math.min(index * 0.035, 0.28), duration: 0.2 }}
                       >
-                        <TableCell><Typography as="span" variant="label" size="medium" weight="semibold" className="font-bold text-[#1a1a1a]">{fullName(consultant)}</Typography></TableCell>
-                        <TableCell><Typography as="span" variant="body" size="medium" weight="regular" dir="ltr">{readText(consultant, ["mobile", "phone"])}</Typography></TableCell>
                         <TableCell>
-                          <Typography as="span" variant="label" size="small" weight="semibold" className={`inline-flex rounded-lg border px-2.5 py-1 text-xs font-bold ${isIndependent ? "border-[#dce3ef] bg-[#f7f8fa] text-[#596477]" : "border-[#cfe4ff] bg-[#eef4ff] text-[#0048c4]"}`}>
+                          <Typography
+                            as="span"
+                            variant="label"
+                            size="medium"
+                            weight="semibold"
+                            className="font-bold text-[#1a1a1a]"
+                          >
+                            {fullName(consultant)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            as="span"
+                            variant="body"
+                            size="medium"
+                            weight="regular"
+                            dir="ltr"
+                          >
+                            {readText(consultant, ["mobile", "phone"])}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            as="span"
+                            variant="label"
+                            size="small"
+                            weight="semibold"
+                            className={`inline-flex rounded-lg border px-2.5 py-1 text-xs font-bold ${isIndependent ? "border-[#dce3ef] bg-[#f7f8fa] text-[#596477]" : "border-[#cfe4ff] bg-[#eef4ff] text-[#0048c4]"}`}
+                          >
                             {agencyName}
                           </Typography>
                         </TableCell>
@@ -318,14 +436,19 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
                               <SmallActionButton
                                 disabled={saveMutation.isPending || statusMutation.isPending}
                                 label="تایید"
-                                onClick={() => setConfirm({
-                                  body: `آیا از تأیید مشاور «${fullName(consultant)}» اطمینان دارید؟ به کاربر اعلان ارسال خواهد شد.`,
-                                  confirmLabel: "تایید مشاور",
-                                  onConfirm: async () => {
-                                    await statusMutation.mutateAsync({ consultant, status: "accept" });
-                                  },
-                                  title: "تایید مشاور",
-                                })}
+                                onClick={() =>
+                                  setConfirm({
+                                    body: `آیا از تأیید مشاور «${fullName(consultant)}» اطمینان دارید؟ به کاربر اعلان ارسال خواهد شد.`,
+                                    confirmLabel: "تایید مشاور",
+                                    onConfirm: async () => {
+                                      await statusMutation.mutateAsync({
+                                        consultant,
+                                        status: "accept",
+                                      });
+                                    },
+                                    title: "تایید مشاور",
+                                  })
+                                }
                                 tone="success"
                               />
                             ) : null}
@@ -333,14 +456,19 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
                               <SmallActionButton
                                 disabled={saveMutation.isPending || statusMutation.isPending}
                                 label="رد"
-                                onClick={() => setConfirm({
-                                  body: `آیا از رد درخواست مشاور «${fullName(consultant)}» اطمینان دارید؟ به کاربر اعلان ارسال خواهد شد.`,
-                                  confirmLabel: "رد درخواست",
-                                  onConfirm: async () => {
-                                    await statusMutation.mutateAsync({ consultant, status: "reject" });
-                                  },
-                                  title: "رد مشاور",
-                                })}
+                                onClick={() =>
+                                  setConfirm({
+                                    body: `آیا از رد درخواست مشاور «${fullName(consultant)}» اطمینان دارید؟ به کاربر اعلان ارسال خواهد شد.`,
+                                    confirmLabel: "رد درخواست",
+                                    onConfirm: async () => {
+                                      await statusMutation.mutateAsync({
+                                        consultant,
+                                        status: "reject",
+                                      });
+                                    },
+                                    title: "رد مشاور",
+                                  })
+                                }
                                 tone="danger"
                               />
                             ) : null}
@@ -358,7 +486,12 @@ export function CrmConsultantsPage({ notify, refreshNonce }: CrmRoutePageProps) 
         </div>
       </Panel>
 
-      <EditorModal editor={editor} isPending={saveMutation.isPending} onClose={() => setEditor(null)} notify={notify} />
+      <EditorModal
+        editor={editor}
+        isPending={saveMutation.isPending}
+        onClose={() => setEditor(null)}
+        notify={notify}
+      />
       <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
     </>
   );

@@ -65,8 +65,7 @@ export function canGoBackInApp() {
 
   return (
     isRecord(state) &&
-    (state[BONGA_IN_APP_ENTRY_KEY] === true ||
-      (typeof state.idx === "number" && state.idx > 0))
+    (state[BONGA_IN_APP_ENTRY_KEY] === true || (typeof state.idx === "number" && state.idx > 0))
   );
 }
 
@@ -130,11 +129,7 @@ export function prefetchRoute(path: string) {
   activeRoutePrefetcher?.(path);
 }
 
-export function pushRoute(
-  path: string,
-  state?: unknown,
-  options?: { rememberCurrent?: boolean },
-) {
+export function pushRoute(path: string, state?: unknown, options?: { rememberCurrent?: boolean }) {
   const currentPath = getCurrentFullPath();
 
   // Prevent accidental duplicate history entries when the same navigation is

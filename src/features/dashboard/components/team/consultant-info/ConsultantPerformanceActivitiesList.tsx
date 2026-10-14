@@ -1,10 +1,7 @@
 import { Typography } from "../../../../../shared/ui/Typography";
 import { Chip } from "../../../../../shared/ui/Chip";
 import { ActivityItemIcon } from "./ConsultantActivityIcons";
-import {
-  ConsultantPeriodDropdown,
-  type PerformancePeriod,
-} from "./ConsultantPeriodDropdown";
+import { ConsultantPeriodDropdown, type PerformancePeriod } from "./ConsultantPeriodDropdown";
 import type { ActivityFilterType, ConsultantActivityItem } from "./types";
 
 export const ACTIVITY_FILTERS: { key: ActivityFilterType; label: string }[] = [
@@ -31,15 +28,17 @@ export function ConsultantPerformanceActivitiesList({
   selectedFilter: ActivityFilterType;
 }) {
   return (
-    <article className="w-full bg-surface-container-lowest px-4 py-3.5">
-      <div className="flex items-center justify-between border-b border-outline-var pb-3">
-        <Typography variant="title" size="small" weight="semibold" className="font-bold text-on-surface">
+    <article className="bg-surface-container-lowest w-full px-4 py-3.5">
+      <div className="border-outline-var flex items-center justify-between border-b pb-3">
+        <Typography
+          variant="title"
+          size="small"
+          weight="semibold"
+          className="text-on-surface font-bold"
+        >
           جزئیات فعالیت‌ها
         </Typography>
-        <ConsultantPeriodDropdown
-          period={period}
-          onSelectPeriod={onSelectPeriod}
-        />
+        <ConsultantPeriodDropdown period={period} onSelectPeriod={onSelectPeriod} />
       </div>
 
       <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-3">
@@ -59,36 +58,51 @@ export function ConsultantPerformanceActivitiesList({
       </div>
 
       {isLoading ? (
-        <div className="divide-y divide-outline-var">
+        <div className="divide-outline-var divide-y">
           {Array.from({ length: 3 }).map((_, index) => (
             <div key={index} className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 shrink-0 animate-pulse rounded-xl bg-surface-container-high" />
+                <div className="bg-surface-container-high h-9 w-9 shrink-0 animate-pulse rounded-xl" />
                 <div className="space-y-1.5 text-right">
-                  <div className="h-4 w-32 animate-pulse rounded bg-surface-container-high" />
-                  <div className="h-3 w-20 animate-pulse rounded bg-surface-container-high" />
+                  <div className="bg-surface-container-high h-4 w-32 animate-pulse rounded" />
+                  <div className="bg-surface-container-high h-3 w-20 animate-pulse rounded" />
                 </div>
               </div>
-              <div className="h-3 w-10 shrink-0 animate-pulse rounded bg-surface-container-high" />
+              <div className="bg-surface-container-high h-3 w-10 shrink-0 animate-pulse rounded" />
             </div>
           ))}
         </div>
       ) : activities.length > 0 ? (
-        <div className="divide-y divide-outline-var">
+        <div className="divide-outline-var divide-y">
           {activities.map((act) => (
             <div key={act.id} className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
                 <ActivityItemIcon type={act.type} />
                 <div className="text-right">
-                  <Typography variant="body" size="medium" weight="medium" className="font-medium text-on-surface">
+                  <Typography
+                    variant="body"
+                    size="medium"
+                    weight="medium"
+                    className="text-on-surface font-medium"
+                  >
                     {act.title}
                   </Typography>
-                  <Typography variant="body" size="small" weight="regular" className="mt-0.5 text-xs text-on-surface-var">
+                  <Typography
+                    variant="body"
+                    size="small"
+                    weight="regular"
+                    className="text-on-surface-var mt-0.5 text-xs"
+                  >
                     {act.subtitle}
                   </Typography>
                 </div>
               </div>
-              <Typography variant="body" size="small" weight="regular" className="shrink-0 text-xs text-on-surface-var">
+              <Typography
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-on-surface-var shrink-0 text-xs"
+              >
                 {act.timeAgo}
               </Typography>
             </div>

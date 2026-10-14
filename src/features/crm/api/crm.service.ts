@@ -180,7 +180,9 @@ export type CrmPackagePayload = {
 
 function compactSearchParams(params: ApiQueryParams) {
   return Object.fromEntries(
-    Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== ""),
+    Object.entries(params).filter(
+      ([, value]) => value !== undefined && value !== null && value !== "",
+    ),
   ) as Record<string, string | number | boolean>;
 }
 
@@ -293,10 +295,7 @@ export async function listCrmReports(
 ): Promise<CrmReportListResult> {
   const page = filters.page ?? 1;
   const perPage = filters.perPage ?? 20;
-  const endpoint =
-    kind === "advertise"
-      ? "panel/advertise/report/list"
-      : "panel/chat/report/list";
+  const endpoint = kind === "advertise" ? "panel/advertise/report/list" : "panel/chat/report/list";
   const payload = await requestCrmReportList(endpoint, {
     page,
     perPage,
@@ -316,26 +315,29 @@ export async function listCrmReports(
   };
 }
 
-export async function listCrmPayments(filters: CrmPaymentFilters = {}): Promise<CrmPaymentListResult> {
-  const payload = await api.get("panel/payments", {
-    searchParams: compactSearchParams({
-      page: filters.page ?? 1,
-      per_page: filters.perPage ?? 20,
-      status: filters.status,
-      payment_for: filters.paymentFor,
-      payment_type: filters.paymentType,
-      agency_id: filters.agencyId?.trim(),
-      user_id: filters.userId?.trim(),
-      advertise_id: filters.advertiseId?.trim(),
-      package_id: filters.packageId?.trim(),
-      from_date: filters.fromDate,
-      to_date: filters.toDate,
-    }),
-  }).json<unknown>();
+export async function listCrmPayments(
+  filters: CrmPaymentFilters = {},
+): Promise<CrmPaymentListResult> {
+  const payload = await api
+    .get("panel/payments", {
+      searchParams: compactSearchParams({
+        page: filters.page ?? 1,
+        per_page: filters.perPage ?? 20,
+        status: filters.status,
+        payment_for: filters.paymentFor,
+        payment_type: filters.paymentType,
+        agency_id: filters.agencyId?.trim(),
+        user_id: filters.userId?.trim(),
+        advertise_id: filters.advertiseId?.trim(),
+        package_id: filters.packageId?.trim(),
+        from_date: filters.fromDate,
+        to_date: filters.toDate,
+      }),
+    })
+    .json<unknown>();
 
-  const record = payload && typeof payload === "object" && !Array.isArray(payload)
-    ? payload as CrmRecord
-    : {};
+  const record =
+    payload && typeof payload === "object" && !Array.isArray(payload) ? (payload as CrmRecord) : {};
   const data = normalizeRows(payload);
   const requestedPage = filters.page ?? 1;
   const requestedPerPage = filters.perPage ?? 20;
@@ -353,32 +355,27 @@ export async function listCrmPayments(filters: CrmPaymentFilters = {}): Promise<
 
 export async function listCrmAgents(filters: CrmAgentFilters = {}) {
   return normalizeRows(
-    await api.get("panel/consultant/list", {
-      searchParams: compactSearchParams({
-        type: filters.type,
-        status: filters.status,
-        search: filters.search?.trim(),
-        page: filters.page ?? 1,
-        per_page: filters.perPage ?? 100,
-        agency_id: filters.agencyId?.trim(),
-      }),
-    }).json<unknown>(),
+    await api
+      .get("panel/consultant/list", {
+        searchParams: compactSearchParams({
+          type: filters.type,
+          status: filters.status,
+          search: filters.search?.trim(),
+          page: filters.page ?? 1,
+          per_page: filters.perPage ?? 100,
+          agency_id: filters.agencyId?.trim(),
+        }),
+      })
+      .json<unknown>(),
   );
 }
 
 export function createCrmConsultant(payload: CrmConsultantPayload) {
-  return api
-    .post("panel/consultant", { json: payload })
-    .json<unknown>();
+  return api.post("panel/consultant", { json: payload }).json<unknown>();
 }
 
-export function updateCrmConsultant(
-  id: string,
-  payload: Partial<CrmConsultantPayload>,
-) {
-  return api
-    .patch(`panel/consultant/${encodeURIComponent(id)}`, { json: payload })
-    .json<unknown>();
+export function updateCrmConsultant(id: string, payload: Partial<CrmConsultantPayload>) {
+  return api.patch(`panel/consultant/${encodeURIComponent(id)}`, { json: payload }).json<unknown>();
 }
 
 export async function listCrmAgencyAgents(agencyId: string) {
@@ -399,20 +396,22 @@ export async function listCrmAdvertises(filters: CrmAdvertiseFilters = {}) {
   if (filters.status !== undefined) body.status = filters.status;
   if (filters.trackCode?.trim()) body.track_code = filters.trackCode.trim();
 
-  return normalizeRows(
-    await api.post("panel/advertise/list", { json: body }).json<unknown>(),
-  );
+  return normalizeRows(await api.post("panel/advertise/list", { json: body }).json<unknown>());
 }
 
-export async function countCrmAdvertisesByStatus(status: AdvertiseStatus | string): Promise<number> {
+export async function countCrmAdvertisesByStatus(
+  status: AdvertiseStatus | string,
+): Promise<number> {
   try {
-    const res = await api.post("panel/advertise/list", {
-      json: {
-        page: 1,
-        per_page: 1,
-        status,
-      },
-    }).json<{ total?: number; count?: number }>();
+    const res = await api
+      .post("panel/advertise/list", {
+        json: {
+          page: 1,
+          per_page: 1,
+          status,
+        },
+      })
+      .json<{ total?: number; count?: number }>();
     return Number(res.total ?? res.count ?? 0);
   } catch {
     return 0;
@@ -420,10 +419,11 @@ export async function countCrmAdvertisesByStatus(status: AdvertiseStatus | strin
 }
 
 export async function getCrmAdvertise(id: string) {
-  return unwrapRecord(
-    await api.get(`panel/advertise/show/${id}`).json<unknown>(),
-    ["advertise", "data", "result"],
-  );
+  return unwrapRecord(await api.get(`panel/advertise/show/${id}`).json<unknown>(), [
+    "advertise",
+    "data",
+    "result",
+  ]);
 }
 
 function buildCrmAdvertiseFormData(payload: CrmAdvertisePayload, files: File[]) {
@@ -474,9 +474,7 @@ export function updateCrmAdvertiseStatus(id: string, status: AdvertiseStatus, re
     payload.reason = reason.trim();
   }
 
-  return api
-    .post(`panel/advertise/status/${id}`, { json: payload })
-    .json<unknown>();
+  return api.post(`panel/advertise/status/${id}`, { json: payload }).json<unknown>();
 }
 
 export async function listCrmUsers(filters: CrmUserFilters = {}) {
@@ -489,7 +487,9 @@ export async function listCrmUsers(filters: CrmUserFilters = {}) {
   };
 
   return normalizeRows(
-    await api.get("panel/user/list", { searchParams: compactSearchParams(searchParams) }).json<unknown>(),
+    await api
+      .get("panel/user/list", { searchParams: compactSearchParams(searchParams) })
+      .json<unknown>(),
   );
 }
 
@@ -514,15 +514,11 @@ export function updateCrmUserAuthorization(
   status: "accept" | "reject" | "toggle",
   reason?: string,
 ) {
-  return api
-    .post(`panel/user/authorize/${id}`, { json: { reason, status } })
-    .json<unknown>();
+  return api.post(`panel/user/authorize/${id}`, { json: { reason, status } }).json<unknown>();
 }
 
 export function chargeCrmUserBalance(id: string | number, amount: number) {
-  return api
-    .post(`panel/user/charge-balance/${id}`, { json: { amount } })
-    .json<unknown>();
+  return api.post(`panel/user/charge-balance/${id}`, { json: { amount } }).json<unknown>();
 }
 
 export async function listCrmAgencies(filters: CrmAgencyFilters = {}) {
@@ -534,7 +530,9 @@ export async function listCrmAgencies(filters: CrmAgencyFilters = {}) {
   };
 
   return normalizeRows(
-    await api.get("panel/agency/list", { searchParams: compactSearchParams(searchParams) }).json<unknown>(),
+    await api
+      .get("panel/agency/list", { searchParams: compactSearchParams(searchParams) })
+      .json<unknown>(),
   );
 }
 
@@ -561,26 +559,26 @@ export async function listCrmPackages() {
 }
 
 export async function getCrmPackage(id: string) {
-  return unwrapRecord(
-    await api.get(`panel/packages/${encodeURIComponent(id)}`).json<unknown>(),
-    ["package", "data", "result"],
-  );
+  return unwrapRecord(await api.get(`panel/packages/${encodeURIComponent(id)}`).json<unknown>(), [
+    "package",
+    "data",
+    "result",
+  ]);
 }
 
 export async function updateCrmPackage(id: string, payload: CrmPackagePayload) {
   return unwrapRecord(
-    await api
-      .patch(`panel/packages/${encodeURIComponent(id)}`, { json: payload })
-      .json<unknown>(),
+    await api.patch(`panel/packages/${encodeURIComponent(id)}`, { json: payload }).json<unknown>(),
     ["package", "data", "result"],
   );
 }
 
 export async function createCrmPackage(payload: CrmPackagePayload) {
-  return unwrapRecord(
-    await api.post("panel/packages", { json: payload }).json<unknown>(),
-    ["package", "data", "result"],
-  );
+  return unwrapRecord(await api.post("panel/packages", { json: payload }).json<unknown>(), [
+    "package",
+    "data",
+    "result",
+  ]);
 }
 
 export function deleteCrmPackage(id: string) {
@@ -600,17 +598,17 @@ export async function updateCrmCheckoutProduct(slug: string, payload: CrmCheckou
 
 export async function updateCrmCheckoutProductStatus(slug: string, isActive: boolean) {
   return unwrapRecord(
-    await api.patch(`panel/advertise-checkout-products/${slug}/status`, {
-      json: { is_active: isActive },
-    }).json<unknown>(),
+    await api
+      .patch(`panel/advertise-checkout-products/${slug}/status`, {
+        json: { is_active: isActive },
+      })
+      .json<unknown>(),
     ["product", "data"],
   );
 }
 
 export async function listCrmCategories() {
-  return normalizeRows(
-    await api.get("panel/category/list").json<unknown>(),
-  );
+  return normalizeRows(await api.get("panel/category/list").json<unknown>());
 }
 
 export function saveCrmCategory(id: string | null, payload: CrmRecord) {
@@ -629,7 +627,9 @@ export async function listCrmCities(filters: CrmCityFilters = {}) {
   };
 
   return normalizeRows(
-    await api.get("panel/city/list", { searchParams: compactSearchParams(searchParams) }).json<unknown>(),
+    await api
+      .get("panel/city/list", { searchParams: compactSearchParams(searchParams) })
+      .json<unknown>(),
   );
 }
 
@@ -653,7 +653,9 @@ export async function listCrmNeighborhoods(filters: CrmNeighborhoodFilters) {
   };
 
   return normalizeRows(
-    await api.get("panel/neighborhood/list", { searchParams: compactSearchParams(searchParams) }).json<unknown>(),
+    await api
+      .get("panel/neighborhood/list", { searchParams: compactSearchParams(searchParams) })
+      .json<unknown>(),
   );
 }
 
@@ -671,12 +673,14 @@ export function deleteCrmNeighborhood(id: string) {
 
 export async function listCrmSubNeighborhoods(filters: CrmSubNeighborhoodFilters) {
   return normalizeRows(
-    await api.get("panel/neighborhood/sub-neighborhood/list", {
-      searchParams: compactSearchParams({
-        neighborhood_id: Number(filters.neighborhoodId),
-        q: filters.q?.trim(),
-      }),
-    }).json<unknown>(),
+    await api
+      .get("panel/neighborhood/sub-neighborhood/list", {
+        searchParams: compactSearchParams({
+          neighborhood_id: Number(filters.neighborhoodId),
+          q: filters.q?.trim(),
+        }),
+      })
+      .json<unknown>(),
   );
 }
 
@@ -707,13 +711,9 @@ export function updateCrmSubNeighborhood(id: string, payload: CrmSubNeighborhood
 }
 
 export function deleteCrmSubNeighborhood(id: string) {
-  return api
-    .delete(`panel/neighborhood/sub-neighborhood/delete/${id}`)
-    .json<unknown>();
+  return api.delete(`panel/neighborhood/sub-neighborhood/delete/${id}`).json<unknown>();
 }
 
 export async function listCrmAdvertiseForms() {
-  return normalizeRows(
-    await api.get("public/advertise-form").json<unknown>(),
-  );
+  return normalizeRows(await api.get("public/advertise-form").json<unknown>());
 }

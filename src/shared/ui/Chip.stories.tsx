@@ -40,20 +40,16 @@ export const InteractiveFilterGroup: Story = {
 
     const toggle = (filter: string) => {
       setSelectedFilters((prev) =>
-        prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
+        prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter],
       );
     };
 
     return (
-      <div className="flex flex-wrap gap-2 p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
+      <div className="bg-surface-container-lowest border-outline-var flex flex-wrap gap-2 rounded-xl border p-4">
         {filters.map((filter) => {
           const isSelected = selectedFilters.includes(filter);
           return (
-            <Chip
-              key={filter}
-              onClick={() => toggle(filter)}
-              selected={isSelected}
-            >
+            <Chip key={filter} onClick={() => toggle(filter)} selected={isSelected}>
               {filter}
             </Chip>
           );
@@ -69,8 +65,8 @@ export const RemovableChips: Story = {
     const [chips, setChips] = useState(["تهران، نیاوران", "حداقل ۱۰۰ متر", "۳ خواب"]);
 
     return (
-      <div className="flex flex-wrap items-center gap-2 p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
-        <span className="text-xs text-on-surface-var ml-2">فیلترهای اعمال‌شده:</span>
+      <div className="bg-surface-container-lowest border-outline-var flex flex-wrap items-center gap-2 rounded-xl border p-4">
+        <span className="text-on-surface-var ml-2 text-xs">فیلترهای اعمال‌شده:</span>
         {chips.map((item) => (
           <Chip
             key={item}
@@ -81,7 +77,7 @@ export const RemovableChips: Story = {
             {item}
           </Chip>
         ))}
-        {chips.length === 0 && <span className="text-xs text-outline">هیچ فیلتری فعال نیست.</span>}
+        {chips.length === 0 && <span className="text-outline text-xs">هیچ فیلتری فعال نیست.</span>}
       </div>
     );
   },
@@ -90,16 +86,14 @@ export const RemovableChips: Story = {
 export const WithIconsAndStates: Story = {
   name: "حالت‌ها و آیکون‌ها",
   render: () => (
-    <div className="flex flex-wrap items-center gap-3 p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
+    <div className="bg-surface-container-lowest border-outline-var flex flex-wrap items-center gap-3 rounded-xl border p-4">
       <Chip icon={<LinearLocation className="h-4 w-4" />} selected={false}>
         انتخاب لوکیشن
       </Chip>
       <Chip icon={<LinearTick className="h-4 w-4" />} selected>
         تایید شده
       </Chip>
-      <Chip disabled>
-        غیرفعال
-      </Chip>
+      <Chip disabled>غیرفعال</Chip>
     </div>
   ),
 };

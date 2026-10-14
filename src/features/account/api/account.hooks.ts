@@ -44,11 +44,12 @@ function redirectToRequiredAdvertiseProfile(
   navigate: (to: string, options?: { replace?: boolean }) => void,
 ) {
   const errorCode = getApiErrorCode(error);
-  const target = errorCode === "agency_profile_incomplete"
-    ? "/account/dashboard/agency"
-    : errorCode === "agent_profile_incomplete"
-      ? "/account/dashboard/agent"
-      : null;
+  const target =
+    errorCode === "agency_profile_incomplete"
+      ? "/account/dashboard/agency"
+      : errorCode === "agent_profile_incomplete"
+        ? "/account/dashboard/agent"
+        : null;
 
   if (target) navigate(target, { replace: true });
 }
@@ -139,7 +140,6 @@ export function useTransferSimOwnershipMutation() {
   });
 }
 
-
 export function useCreateMyAgencyMutation() {
   return useMutation({
     mutationFn: createMyAgency,
@@ -194,11 +194,9 @@ export function useAccountCreditHistoryInfiniteQuery({
     ReturnType<typeof queryKeys.account.creditHistory>,
     number
   >({
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
     initialPageParam: 1,
-    queryFn: ({ pageParam }) =>
-      getAccountCreditHistory({ page: pageParam, perPage }),
+    queryFn: ({ pageParam }) => getAccountCreditHistory({ page: pageParam, perPage }),
     queryKey: queryKeys.account.creditHistory(perPage),
   });
 }
@@ -256,8 +254,7 @@ export function useMyAdsInfiniteQuery({
     number
   >({
     enabled,
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => getMyAds({ isMine, page: pageParam, perPage, search, type }),
     queryKey: queryKeys.account.myAds({ isMine, perPage, search, type: type ?? "all", userType }),
@@ -285,8 +282,7 @@ export function useAdvertiseBadgesQuery({ perPage = 10 }: { perPage?: number } =
     ReturnType<typeof queryKeys.account.bookmarks>,
     number
   >({
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getAdvertiseBadges({
@@ -387,4 +383,3 @@ export function useDeleteMyBusinessMutation() {
     },
   });
 }
-

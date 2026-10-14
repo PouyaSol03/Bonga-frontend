@@ -40,7 +40,7 @@ export function AgencyPublisherAvatar({
 
   return (
     <div
-      className={`grid ${sizeClass} shrink-0 place-items-center bg-surface-container text-outline ${radiusClass}`}
+      className={`grid ${sizeClass} bg-surface-container text-outline shrink-0 place-items-center ${radiusClass}`}
     >
       {publisher.type === "agency" ? (
         <LinearBuilding2 className="h-6 w-6" />
@@ -88,7 +88,7 @@ export function AgencyPublisherPickerPage({
   return (
     <section
       aria-label={title}
-      className="fixed inset-y-0 left-1/2 z-[1200] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface fixed inset-y-0 left-1/2 z-[1200] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden [direction:rtl]"
     >
       <TopBar
         centerClassName="px-0"
@@ -100,7 +100,7 @@ export function AgencyPublisherPickerPage({
         titleClassName="text-center text-base font-semibold leading-6"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest px-4 pb-28 pt-5">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto px-4 pt-5 pb-28">
         <SearchInputBar
           aria-label="جستجو مشاور"
           containerClassName="rounded-xl border-outline-var"
@@ -115,7 +115,7 @@ export function AgencyPublisherPickerPage({
 
         <div className="mt-5" role="radiogroup" aria-label="انتخاب منتشرکننده">
           {isLoading ? (
-            <div className="grid min-h-40 place-items-center text-sm text-outline">
+            <div className="text-outline grid min-h-40 place-items-center text-sm">
               در حال دریافت منتشرکننده‌ها...
             </div>
           ) : visiblePublishers.length === 0 ? (
@@ -132,7 +132,7 @@ export function AgencyPublisherPickerPage({
                   <Button
                     unstyled
                     aria-checked={selected}
-                    className="flex min-h-[76px] w-full items-center justify-between gap-3 px-4 py-2 text-right [direction:ltr] active:bg-surface-container"
+                    className="active:bg-surface-container flex min-h-[76px] w-full items-center justify-between gap-3 px-4 py-2 text-right [direction:ltr]"
                     onClick={() => setDraftPublisherId(publisher.id)}
                     role="radio"
                     type="button"
@@ -151,7 +151,7 @@ export function AgencyPublisherPickerPage({
                         variant="body"
                         size="large"
                         weight="regular"
-                        className="truncate text-on-surface"
+                        className="text-on-surface truncate"
                       >
                         {publisher.name}
                       </Typography>
@@ -159,7 +159,7 @@ export function AgencyPublisherPickerPage({
                   </Button>
 
                   {shouldShowDivider ? (
-                    <div className="mx-2 h-px bg-outline-var" aria-hidden="true" />
+                    <div className="bg-outline-var mx-2 h-px" aria-hidden="true" />
                   ) : null}
                 </div>
               );
@@ -168,10 +168,10 @@ export function AgencyPublisherPickerPage({
         </div>
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+      <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
         <Button
           unstyled
-          className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-primary text-base font-medium leading-6 text-on-primary active:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="bg-primary text-on-primary inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl text-base leading-6 font-medium active:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           disabled={!draftPublisher || isLoading}
           onClick={() => {
             if (draftPublisher) onConfirm(draftPublisher);

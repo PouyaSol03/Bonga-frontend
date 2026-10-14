@@ -73,7 +73,11 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
   };
 
   const applyFilters = () => {
-    if (draft.fromDate && draft.toDate && jalaliDateToTimestamp(draft.fromDate) > jalaliDateToTimestamp(draft.toDate)) {
+    if (
+      draft.fromDate &&
+      draft.toDate &&
+      jalaliDateToTimestamp(draft.fromDate) > jalaliDateToTimestamp(draft.toDate)
+    ) {
       notify("تاریخ شروع نمی‌تواند بعد از تاریخ پایان باشد.", "error");
       return;
     }
@@ -101,7 +105,10 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
 
   return (
     <div className="space-y-4">
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="خلاصه پرداخت‌ها">
+      <section
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
+        aria-label="خلاصه پرداخت‌ها"
+      >
         {metrics.map((metric, index) => (
           <motion.article
             animate={{ opacity: 1, y: 0 }}
@@ -111,23 +118,61 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
             transition={{ delay: prefersReducedMotion ? 0 : index * 0.04, duration: 0.2 }}
           >
             <div className="flex items-center justify-between gap-3">
-              <Typography as="span" variant="body" size="medium" weight="regular" className={`grid h-11 w-11 place-items-center rounded-2xl ${metric.iconClassName}`}>
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className={`grid h-11 w-11 place-items-center rounded-2xl ${metric.iconClassName}`}
+              >
                 {metric.icon}
               </Typography>
-              <Typography as="span" variant="label" size="small" weight="semibold" className="text-xs font-semibold text-[#a0a7b2]">{metric.caption}</Typography>
+              <Typography
+                as="span"
+                variant="label"
+                size="small"
+                weight="semibold"
+                className="text-xs font-semibold text-[#a0a7b2]"
+              >
+                {metric.caption}
+              </Typography>
             </div>
             <strong className="mt-5 block text-2xl font-black text-[#1e2633]">
               {query.isLoading ? "…" : metric.value}
             </strong>
-            <Typography as="span" variant="label" size="medium" weight="medium" className="mt-1 block text-sm font-medium text-[#7b8493]">{metric.label}</Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="mt-1 block text-sm font-medium text-[#7b8493]"
+            >
+              {metric.label}
+            </Typography>
           </motion.article>
         ))}
       </section>
 
       <section className="rounded-2xl bg-white p-5">
         <div className="flex flex-col gap-1">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-black text-[#263042]">فیلتر پرداخت‌ها</Typography>
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 text-sm leading-6 text-[#8a94a3]">فیلترها مستقیماً به API پرداخت‌های پنل ارسال می‌شوند.</Typography>
+          <Typography
+            as="h2"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="m-0 text-base font-black text-[#263042]"
+          >
+            فیلتر پرداخت‌ها
+          </Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="m-0 text-sm leading-6 text-[#8a94a3]"
+          >
+            فیلترها مستقیماً به API پرداخت‌های پنل ارسال می‌شوند.
+          </Typography>
         </div>
 
         <form
@@ -138,7 +183,11 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
           }}
         >
           <FilterField label="وضعیت پرداخت">
-            <select className={inputClassName} onChange={(event) => updateDraft("status", event.target.value)} value={draft.status}>
+            <select
+              className={inputClassName}
+              onChange={(event) => updateDraft("status", event.target.value)}
+              value={draft.status}
+            >
               <option value="">همه وضعیت‌ها</option>
               <option value="0">ثبت شده</option>
               <option value="1">پرداخت شده</option>
@@ -147,7 +196,11 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
           </FilterField>
 
           <FilterField label="بابت پرداخت">
-            <select className={inputClassName} onChange={(event) => updateDraft("paymentFor", event.target.value)} value={draft.paymentFor}>
+            <select
+              className={inputClassName}
+              onChange={(event) => updateDraft("paymentFor", event.target.value)}
+              value={draft.paymentFor}
+            >
               <option value="">همه موارد</option>
               <option value="0">آگهی</option>
               <option value="1">شارژ کیف پول</option>
@@ -157,21 +210,38 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
           </FilterField>
 
           <FilterField label="روش پرداخت">
-            <select className={inputClassName} onChange={(event) => updateDraft("paymentType", event.target.value)} value={draft.paymentType}>
+            <select
+              className={inputClassName}
+              onChange={(event) => updateDraft("paymentType", event.target.value)}
+              value={draft.paymentType}
+            >
               <option value="">همه روش‌ها</option>
               <option value="0">درگاه بانکی</option>
               <option value="1">کیف پول</option>
             </select>
           </FilterField>
 
-          <DateFilterButton label="از تاریخ" onClick={() => setOpenPicker("from")} value={draft.fromDate} />
-          <DateFilterButton label="تا تاریخ" onClick={() => setOpenPicker("to")} value={draft.toDate} />
+          <DateFilterButton
+            label="از تاریخ"
+            onClick={() => setOpenPicker("from")}
+            value={draft.fromDate}
+          />
+          <DateFilterButton
+            label="تا تاریخ"
+            onClick={() => setOpenPicker("to")}
+            value={draft.toDate}
+          />
 
           <div className="flex items-end gap-2 md:col-span-2 xl:col-span-5">
-            <Button unstyled className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white transition hover:bg-[#003ca5]" type="submit">
+            <Button
+              unstyled
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#0048c4] px-4 text-sm font-semibold text-white transition hover:bg-[#003ca5]"
+              type="submit"
+            >
               <FilterIcon /> اعمال فیلترها
             </Button>
-            <Button unstyled
+            <Button
+              unstyled
               className="inline-flex h-10 items-center justify-center rounded-xl border border-[#dce3ef] bg-white px-3 text-sm font-semibold text-[#657184] transition hover:bg-[#f5f7fa]"
               onClick={clearFilters}
               type="button"
@@ -185,8 +255,22 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
       <section className="overflow-hidden rounded-2xl bg-white">
         <div className="flex flex-col gap-3 border-b border-[#edf0f5] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-black text-[#263042]">همه پرداخت‌ها</Typography>
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#8a94a3]">
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="m-0 text-base font-black text-[#263042]"
+            >
+              همه پرداخت‌ها
+            </Typography>
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="m-0 mt-1 text-sm text-[#8a94a3]"
+            >
               {query.isLoading ? "در حال دریافت..." : `${formatNumber(total)} تراکنش پیدا شد`}
             </Typography>
           </div>
@@ -194,7 +278,13 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
             تعداد در صفحه
             <select
               className="h-9 rounded-lg border border-[#dce3ef] bg-white px-2 text-sm font-semibold text-[#303030] outline-none focus:border-[#0048c4]"
-              onChange={(event) => setFilters((current) => ({ ...current, page: 1, perPage: Number(event.target.value) }))}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  page: 1,
+                  perPage: Number(event.target.value),
+                }))
+              }
               value={perPage}
             >
               <option value="20">20</option>
@@ -224,11 +314,32 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
                 <tr>
                   <td colSpan={7}>
                     <div className="mx-auto flex w-full flex-col items-center justify-center py-14 text-center">
-                      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 place-items-center rounded-2xl bg-[#fff0f0] text-[#cc3342]">
+                      <Typography
+                        as="span"
+                        variant="body"
+                        size="medium"
+                        weight="regular"
+                        className="grid h-12 w-12 place-items-center rounded-2xl bg-[#fff0f0] text-[#cc3342]"
+                      >
                         <CloseIcon />
                       </Typography>
-                      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-3 text-sm font-semibold text-[#6f7a8b]">دریافت تاریخچه پرداخت‌ها ناموفق بود.</Typography>
-                      <Button unstyled className="mt-3 text-sm font-bold text-[#0048c4]" onClick={() => void query.refetch()} type="button">تلاش مجدد</Button>
+                      <Typography
+                        as="p"
+                        variant="body"
+                        size="medium"
+                        weight="medium"
+                        className="m-0 mt-3 text-sm font-semibold text-[#6f7a8b]"
+                      >
+                        دریافت تاریخچه پرداخت‌ها ناموفق بود.
+                      </Typography>
+                      <Button
+                        unstyled
+                        className="mt-3 text-sm font-bold text-[#0048c4]"
+                        onClick={() => void query.refetch()}
+                        type="button"
+                      >
+                        تلاش مجدد
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -239,20 +350,58 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
                     className="group text-sm text-[#344054]"
                     initial={prefersReducedMotion ? false : { opacity: 0, y: 5 }}
                     key={getCrmRecordId(payment) || `${readPaymentReference(payment)}-${index}`}
-                    transition={{ delay: prefersReducedMotion ? 0 : Math.min(index, 8) * 0.025, duration: 0.16 }}
+                    transition={{
+                      delay: prefersReducedMotion ? 0 : Math.min(index, 8) * 0.025,
+                      duration: 0.16,
+                    }}
                   >
                     <TableCell>
-                      <Typography as="span" variant="label" size="small" weight="semibold" className="inline-flex rounded-lg bg-[#f4f6f9] px-2.5 py-1.5 font-mono text-xs font-bold text-[#4d5b70] [direction:ltr]">
+                      <Typography
+                        as="span"
+                        variant="label"
+                        size="small"
+                        weight="semibold"
+                        className="inline-flex rounded-lg bg-[#f4f6f9] px-2.5 py-1.5 font-mono text-xs font-bold text-[#4d5b70] [direction:ltr]"
+                      >
                         {readPaymentId(payment)}
                       </Typography>
                     </TableCell>
-                    <TableCell><Typography as="span" variant="label" size="medium" weight="semibold" className="whitespace-nowrap font-semibold text-[#344054]">{readPaymentPurposeLabel(payment)}</Typography></TableCell>
-                    <TableCell><strong className="whitespace-nowrap text-[#1f2937]">{readPaymentAmount(payment)}</strong></TableCell>
-                    <TableCell><PaymentStatusBadge payment={payment} /></TableCell>
-                    <TableCell><PaymentMethodBadge payment={payment} /></TableCell>
-                    <TableCell><Typography as="span" variant="body" size="medium" weight="regular" className="whitespace-nowrap text-[#5f6b7c]">{readPaymentDate(payment)}</Typography></TableCell>
                     <TableCell>
-                      <Button unstyled
+                      <Typography
+                        as="span"
+                        variant="label"
+                        size="medium"
+                        weight="semibold"
+                        className="font-semibold whitespace-nowrap text-[#344054]"
+                      >
+                        {readPaymentPurposeLabel(payment)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <strong className="whitespace-nowrap text-[#1f2937]">
+                        {readPaymentAmount(payment)}
+                      </strong>
+                    </TableCell>
+                    <TableCell>
+                      <PaymentStatusBadge payment={payment} />
+                    </TableCell>
+                    <TableCell>
+                      <PaymentMethodBadge payment={payment} />
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        as="span"
+                        variant="body"
+                        size="medium"
+                        weight="regular"
+                        className="whitespace-nowrap text-[#5f6b7c]"
+                      >
+                        {readPaymentDate(payment)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        unstyled
                         className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#c9daf8] bg-[#eef4ff] px-3 text-sm font-bold text-[#0048c4] transition hover:border-[#0048c4] hover:bg-[#e3edff]"
                         onClick={() => setSelectedPayment(payment)}
                         type="button"
@@ -266,11 +415,32 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
                 <tr>
                   <td colSpan={7}>
                     <div className="mx-auto flex w-full flex-col items-center justify-center py-14 text-center">
-                      <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]">
+                      <Typography
+                        as="span"
+                        variant="body"
+                        size="medium"
+                        weight="regular"
+                        className="grid h-12 w-12 place-items-center rounded-2xl bg-[#eef4ff] text-[#0048c4]"
+                      >
                         <ReceiptIcon />
                       </Typography>
-                      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-3 text-sm font-semibold text-[#6f7a8b]">پرداختی مطابق فیلترها پیدا نشد.</Typography>
-                      <Button unstyled className="mt-3 text-sm font-bold text-[#0048c4]" onClick={clearFilters} type="button">حذف فیلترها</Button>
+                      <Typography
+                        as="p"
+                        variant="body"
+                        size="medium"
+                        weight="medium"
+                        className="m-0 mt-3 text-sm font-semibold text-[#6f7a8b]"
+                      >
+                        پرداختی مطابق فیلترها پیدا نشد.
+                      </Typography>
+                      <Button
+                        unstyled
+                        className="mt-3 text-sm font-bold text-[#0048c4]"
+                        onClick={clearFilters}
+                        type="button"
+                      >
+                        حذف فیلترها
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -281,11 +451,18 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
 
         {!query.isLoading && !query.isError && total > 0 ? (
           <div className="flex flex-col gap-3 border-t border-[#edf0f5] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm text-[#7b8493]">
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-sm text-[#7b8493]"
+            >
               صفحه {formatNumber(currentPage)} از {formatNumber(totalPages)}
             </Typography>
             <div className="flex items-center gap-2">
-              <Button unstyled
+              <Button
+                unstyled
                 className="h-9 rounded-lg border border-[#dce3ef] bg-white px-3 text-sm font-bold text-[#526174] disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={currentPage <= 1 || query.isFetching}
                 onClick={() => changePage(currentPage - 1)}
@@ -293,8 +470,17 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
               >
                 قبلی
               </Button>
-              <Typography as="span" variant="label" size="medium" weight="semibold" className="grid h-9 min-w-9 place-items-center rounded-lg bg-[#0048c4] px-2 text-sm font-bold text-white">{formatNumber(currentPage)}</Typography>
-              <Button unstyled
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="semibold"
+                className="grid h-9 min-w-9 place-items-center rounded-lg bg-[#0048c4] px-2 text-sm font-bold text-white"
+              >
+                {formatNumber(currentPage)}
+              </Typography>
+              <Button
+                unstyled
                 className="h-9 rounded-lg border border-[#dce3ef] bg-white px-3 text-sm font-bold text-[#526174] disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={currentPage >= totalPages || query.isFetching}
                 onClick={() => changePage(currentPage + 1)}
@@ -310,14 +496,20 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
       <JalaliDatePickerSheet
         isOpen={openPicker === "from"}
         onClose={() => setOpenPicker(null)}
-        onConfirm={(value) => { updateDraft("fromDate", value); setOpenPicker(null); }}
+        onConfirm={(value) => {
+          updateDraft("fromDate", value);
+          setOpenPicker(null);
+        }}
         title="انتخاب تاریخ شروع"
         value={draft.fromDate}
       />
       <JalaliDatePickerSheet
         isOpen={openPicker === "to"}
         onClose={() => setOpenPicker(null)}
-        onConfirm={(value) => { updateDraft("toDate", value); setOpenPicker(null); }}
+        onConfirm={(value) => {
+          updateDraft("toDate", value);
+          setOpenPicker(null);
+        }}
         title="انتخاب تاریخ پایان"
         value={draft.toDate}
       />
@@ -327,7 +519,13 @@ export function CrmPaymentsView({ notify, refreshNonce }: CrmPaymentsViewProps) 
   );
 }
 
-function PaymentDetailsModal({ onClose, payment }: { onClose: () => void; payment: CrmRecord | null }) {
+function PaymentDetailsModal({
+  onClose,
+  payment,
+}: {
+  onClose: () => void;
+  payment: CrmRecord | null;
+}) {
   useEffect(() => {
     if (!payment) return undefined;
 
@@ -373,10 +571,32 @@ function PaymentDetailsModal({ onClose, payment }: { onClose: () => void; paymen
           >
             <header className="flex shrink-0 items-center justify-between border-b border-[#edf0f5] px-5 py-4">
               <div>
-                <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-black text-[#263042]">جزئیات پرداخت</Typography>
-                <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 text-sm text-[#8a94a3]">اطلاعات کامل تراکنش و موارد متصل به آن</Typography>
+                <Typography
+                  as="h2"
+                  variant="title"
+                  size="medium"
+                  weight="semibold"
+                  className="m-0 text-base font-black text-[#263042]"
+                >
+                  جزئیات پرداخت
+                </Typography>
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="m-0 mt-1 text-sm text-[#8a94a3]"
+                >
+                  اطلاعات کامل تراکنش و موارد متصل به آن
+                </Typography>
               </div>
-              <Button unstyled aria-label="بستن" className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477]" onClick={onClose} type="button">
+              <Button
+                unstyled
+                aria-label="بستن"
+                className="grid h-9 w-9 place-items-center rounded-xl bg-[#f3f5f8] text-[#596477]"
+                onClick={onClose}
+                type="button"
+              >
                 <ClosePlainIcon />
               </Button>
             </header>
@@ -408,22 +628,57 @@ function PaymentDetailsModal({ onClose, payment }: { onClose: () => void; paymen
               <DetailsSection title="کاربر پرداخت‌کننده">
                 <DetailItem label="نام و نام خانوادگی" value={readPaymentUserName(payment)} />
                 <DetailItem label="شماره موبایل" value={readPaymentMobile(payment)} ltr />
-                <DetailItem label="شناسه کاربر" value={readText(payment, ["user_id"], readText(user, ["id", "_id"], "-"))} ltr />
+                <DetailItem
+                  label="شناسه کاربر"
+                  value={readText(payment, ["user_id"], readText(user, ["id", "_id"], "-"))}
+                  ltr
+                />
               </DetailsSection>
 
               <DetailsSection title="اطلاعات مرتبط">
                 <DetailItem label="آژانس" value={readText(agency, ["name", "title"], "-")} />
-                <DetailItem label="شناسه آژانس" value={readText(payment, ["agency_id"], readText(agency, ["id", "_id"], "-"))} ltr />
+                <DetailItem
+                  label="شناسه آژانس"
+                  value={readText(payment, ["agency_id"], readText(agency, ["id", "_id"], "-"))}
+                  ltr
+                />
                 <DetailItem label="عنوان آگهی" value={readText(advertise, ["title"], "-")} />
-                <DetailItem label="شناسه آگهی" value={readText(payment, ["advertise_id"], readText(advertise, ["id", "_id"], "-"))} ltr />
-                <DetailItem label="کد پیگیری آگهی" value={readText(advertise, ["track_code"], "-")} ltr />
+                <DetailItem
+                  label="شناسه آگهی"
+                  value={readText(
+                    payment,
+                    ["advertise_id"],
+                    readText(advertise, ["id", "_id"], "-"),
+                  )}
+                  ltr
+                />
+                <DetailItem
+                  label="کد پیگیری آگهی"
+                  value={readText(advertise, ["track_code"], "-")}
+                  ltr
+                />
                 <DetailItem label="عنوان بسته" value={readText(linkedPackage, ["title"], "-")} />
-                <DetailItem label="شناسه بسته" value={readText(payment, ["package_id"], readText(linkedPackage, ["id", "slug"], "-"))} ltr />
+                <DetailItem
+                  label="شناسه بسته"
+                  value={readText(
+                    payment,
+                    ["package_id"],
+                    readText(linkedPackage, ["id", "slug"], "-"),
+                  )}
+                  ltr
+                />
               </DetailsSection>
             </div>
 
             <footer className="flex shrink-0 justify-end border-t border-[#edf0f5] px-5 py-4">
-              <Button unstyled className="h-10 rounded-xl bg-[#0048c4] px-5 text-sm font-bold text-white" onClick={onClose} type="button">بستن</Button>
+              <Button
+                unstyled
+                className="h-10 rounded-xl bg-[#0048c4] px-5 text-sm font-bold text-white"
+                onClick={onClose}
+                type="button"
+              >
+                بستن
+              </Button>
             </footer>
           </motion.section>
         </motion.div>
@@ -435,26 +690,77 @@ function PaymentDetailsModal({ onClose, payment }: { onClose: () => void; paymen
 function DetailsSection({ children, title }: { children: ReactNode; title: string }) {
   return (
     <section className="rounded-xl border border-[#edf0f5] bg-[#fbfcfe] p-4">
-      <Typography as="h3" variant="title" size="small" weight="semibold" className="m-0 mb-3 text-sm font-black text-[#344054]">{title}</Typography>
+      <Typography
+        as="h3"
+        variant="title"
+        size="small"
+        weight="semibold"
+        className="m-0 mb-3 text-sm font-black text-[#344054]"
+      >
+        {title}
+      </Typography>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{children}</div>
     </section>
   );
 }
 
-function DetailItem({ label, ltr = false, value, wide = false }: { label: string; ltr?: boolean; value: string; wide?: boolean }) {
+function DetailItem({
+  label,
+  ltr = false,
+  value,
+  wide = false,
+}: {
+  label: string;
+  ltr?: boolean;
+  value: string;
+  wide?: boolean;
+}) {
   return (
     <div className={`rounded-lg bg-white px-3 py-2.5 ${wide ? "sm:col-span-2" : ""}`}>
-      <Typography as="span" variant="label" size="small" weight="semibold" className="block text-xs font-semibold text-[#8a94a3]">{label}</Typography>
-      <strong className={`mt-1 block break-words text-sm font-bold text-[#303846] ${ltr ? "[direction:ltr] text-left" : ""}`}>{value}</strong>
+      <Typography
+        as="span"
+        variant="label"
+        size="small"
+        weight="semibold"
+        className="block text-xs font-semibold text-[#8a94a3]"
+      >
+        {label}
+      </Typography>
+      <strong
+        className={`mt-1 block text-sm font-bold break-words text-[#303846] ${ltr ? "text-left [direction:ltr]" : ""}`}
+      >
+        {value}
+      </strong>
     </div>
   );
 }
 
-function DateFilterButton({ label, onClick, value }: { label: string; onClick: () => void; value: string }) {
+function DateFilterButton({
+  label,
+  onClick,
+  value,
+}: {
+  label: string;
+  onClick: () => void;
+  value: string;
+}) {
   return (
     <FilterField label={label}>
-      <Button unstyled className={`${inputClassName} flex items-center justify-between text-right`} onClick={onClick} type="button">
-        <Typography as="span" variant="body" size="medium" weight="regular" className={value ? "text-[#303030]" : "text-[#999999]"}>{value || "انتخاب تاریخ شمسی"}</Typography>
+      <Button
+        unstyled
+        className={`${inputClassName} flex items-center justify-between text-right`}
+        onClick={onClick}
+        type="button"
+      >
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className={value ? "text-[#303030]" : "text-[#999999]"}
+        >
+          {value || "انتخاب تاریخ شمسی"}
+        </Typography>
         <CalendarIcon />
       </Button>
     </FilterField>
@@ -468,11 +774,16 @@ function optionalNumber(value: string) {
 }
 
 function jalaliDateToTimestamp(value: string) {
-  return new DateObject({ date: value, format: "YYYY/MM/DD", calendar: persian }).convert(gregorian).toDate().getTime();
+  return new DateObject({ date: value, format: "YYYY/MM/DD", calendar: persian })
+    .convert(gregorian)
+    .toDate()
+    .getTime();
 }
 
 function jalaliDateToIso(value: string, endOfDay: boolean) {
-  const date = new DateObject({ date: value, format: "YYYY/MM/DD", calendar: persian }).convert(gregorian).toDate();
+  const date = new DateObject({ date: value, format: "YYYY/MM/DD", calendar: persian })
+    .convert(gregorian)
+    .toDate();
   date.setHours(endOfDay ? 23 : 0, endOfDay ? 59 : 0, endOfDay ? 59 : 0, endOfDay ? 999 : 0);
   return date.toISOString();
 }
@@ -481,7 +792,10 @@ function buildPaymentMetrics(payments: CrmRecord[], total: number) {
   const successful = payments.filter((payment) => readPaymentStatus(payment) === "success");
   const pending = payments.filter((payment) => readPaymentStatus(payment) === "pending");
   const failed = payments.filter((payment) => readPaymentStatus(payment) === "failed");
-  const successfulAmount = successful.reduce((sum, payment) => sum + readPaymentNumericAmount(payment), 0);
+  const successfulAmount = successful.reduce(
+    (sum, payment) => sum + readPaymentNumericAmount(payment),
+    0,
+  );
 
   return [
     {
@@ -516,11 +830,20 @@ function buildPaymentMetrics(payments: CrmRecord[], total: number) {
 }
 
 function readPaymentStatus(payment: CrmRecord): PaymentStatus {
-  const status = String(payment.status ?? payment.payment_status ?? "").trim().toLowerCase();
+  const status = String(payment.status ?? payment.payment_status ?? "")
+    .trim()
+    .toLowerCase();
 
-  if (["1", "paid", "success", "successful", "completed", "پرداخت شده", "موفق"].includes(status)) return "success";
-  if (["-1", "failed", "error", "rejected", "cancelled", "canceled", "ناموفق", "رد شده"].includes(status)) return "failed";
-  if (["0", "pending", "processing", "در انتظار", "در حال پردازش", "ثبت شده"].includes(status)) return "pending";
+  if (["1", "paid", "success", "successful", "completed", "پرداخت شده", "موفق"].includes(status))
+    return "success";
+  if (
+    ["-1", "failed", "error", "rejected", "cancelled", "canceled", "ناموفق", "رد شده"].includes(
+      status,
+    )
+  )
+    return "failed";
+  if (["0", "pending", "processing", "در انتظار", "در حال پردازش", "ثبت شده"].includes(status))
+    return "pending";
 
   return "unknown";
 }
@@ -530,9 +853,12 @@ function readPaymentStatusLabel(payment: CrmRecord) {
 }
 
 function readPaymentMethod(payment: CrmRecord): PaymentMethod {
-  const method = String(payment.payment_type ?? payment.method ?? payment.payment_method ?? "").trim().toLowerCase();
+  const method = String(payment.payment_type ?? payment.method ?? payment.payment_method ?? "")
+    .trim()
+    .toLowerCase();
 
-  if (["0", "online", "gateway", "bank", "درگاه", "پرداخت آنلاین"].includes(method)) return "gateway";
+  if (["0", "online", "gateway", "bank", "درگاه", "پرداخت آنلاین"].includes(method))
+    return "gateway";
   if (["1", "wallet", "credit", "کیف پول", "اعتبار"].includes(method)) return "wallet";
 
   return "unknown";
@@ -547,20 +873,26 @@ function readPaymentMethodLabel(payment: CrmRecord) {
 }
 
 function readPaymentPurposeLabel(payment: CrmRecord) {
-  const purpose = String(payment.payment_for ?? "").trim().toLowerCase();
-  return ({
-    "0": "پرداخت آگهی",
-    "1": "شارژ کیف پول",
-    "2": "خرید بسته",
-    "3": "تسویه آگهی",
-    advertise: "پرداخت آگهی",
-    advertise_payment: "پرداخت آگهی",
-    advertise_settlement: "تسویه آگهی",
-    package: "خرید بسته",
-    package_purchase: "خرید بسته",
-    wallet: "شارژ کیف پول",
-    wallet_charge: "شارژ کیف پول",
-  } as Record<string, string>)[purpose] ?? readText(payment, ["payment_for"], "نامشخص");
+  const purpose = String(payment.payment_for ?? "")
+    .trim()
+    .toLowerCase();
+  return (
+    (
+      {
+        "0": "پرداخت آگهی",
+        "1": "شارژ کیف پول",
+        "2": "خرید بسته",
+        "3": "تسویه آگهی",
+        advertise: "پرداخت آگهی",
+        advertise_payment: "پرداخت آگهی",
+        advertise_settlement: "تسویه آگهی",
+        package: "خرید بسته",
+        package_purchase: "خرید بسته",
+        wallet: "شارژ کیف پول",
+        wallet_charge: "شارژ کیف پول",
+      } as Record<string, string>
+    )[purpose] ?? readText(payment, ["payment_for"], "نامشخص")
+  );
 }
 
 function readPaymentUserName(payment: CrmRecord) {
@@ -568,24 +900,32 @@ function readPaymentUserName(payment: CrmRecord) {
   const fullName = [
     readText(user, ["name", "first_name"], ""),
     readText(user, ["family", "last_name"], ""),
-  ].filter(Boolean).join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return fullName || readText(payment, ["user_name", "payer_name", "customer_name", "name"], "-");
 }
 
 function readPaymentMobile(payment: CrmRecord) {
   const user = readNestedRecord(payment, ["user", "payer", "customer", "owner"]);
-  return readText(payment, ["mobile", "phone", "user_mobile"], readText(user, ["mobile", "phone"], "-"));
+  return readText(
+    payment,
+    ["mobile", "phone", "user_mobile"],
+    readText(user, ["mobile", "phone"], "-"),
+  );
 }
 
 function readPaymentNumericAmount(payment: CrmRecord) {
-  const value = payment.amount ?? payment.price ?? payment.cost ?? payment.total ?? payment.final_price;
+  const value =
+    payment.amount ?? payment.price ?? payment.cost ?? payment.total ?? payment.final_price;
   const number = Number(String(value ?? 0).replace(/[^\d.-]/g, ""));
   return Number.isFinite(number) ? number : 0;
 }
 
 function readPaymentAmount(payment: CrmRecord) {
-  const value = payment.amount ?? payment.price ?? payment.cost ?? payment.total ?? payment.final_price;
+  const value =
+    payment.amount ?? payment.price ?? payment.cost ?? payment.total ?? payment.final_price;
   if (typeof value === "string" && /تومان|ریال|﷼/.test(value)) return value;
 
   const amount = readPaymentNumericAmount(payment);
@@ -593,7 +933,11 @@ function readPaymentAmount(payment: CrmRecord) {
 }
 
 function readPaymentDate(payment: CrmRecord) {
-  const value = readText(payment, ["paid_at", "created_at", "payment_date", "date", "updated_at"], "-");
+  const value = readText(
+    payment,
+    ["paid_at", "created_at", "payment_date", "date", "updated_at"],
+    "-",
+  );
   return formatPaymentDate(value);
 }
 
@@ -626,7 +970,13 @@ function readPaymentResponseValue(payment: CrmRecord, keys: string[], fallback =
 }
 
 function readPaymentReference(payment: CrmRecord) {
-  return readPaymentResponseValue(payment, ["ref_code", "ref_id", "reference_id", "tracking_code", "track_code"]);
+  return readPaymentResponseValue(payment, [
+    "ref_code",
+    "ref_id",
+    "reference_id",
+    "tracking_code",
+    "track_code",
+  ]);
 }
 
 function readPaymentOrderId(payment: CrmRecord) {
@@ -699,7 +1049,17 @@ function PaymentStatusBadge({ payment }: { payment: CrmRecord }) {
     unknown: "bg-[#f1f3f6] text-[#697587]",
   }[status];
 
-  return <Typography as="span" variant="label" size="small" weight="semibold" className={`inline-flex min-w-[92px] justify-center rounded-full px-2.5 py-1.5 text-xs font-bold ${config}`}>{readPaymentStatusLabel(payment)}</Typography>;
+  return (
+    <Typography
+      as="span"
+      variant="label"
+      size="small"
+      weight="semibold"
+      className={`inline-flex min-w-[92px] justify-center rounded-full px-2.5 py-1.5 text-xs font-bold ${config}`}
+    >
+      {readPaymentStatusLabel(payment)}
+    </Typography>
+  );
 }
 
 function PaymentMethodBadge({ payment }: { payment: CrmRecord }) {
@@ -707,27 +1067,56 @@ function PaymentMethodBadge({ payment }: { payment: CrmRecord }) {
   const config = {
     gateway: { label: "درگاه بانکی", style: "bg-[#eef4ff] text-[#0048c4]" },
     wallet: { label: "کیف پول / اعتبار", style: "bg-[#f3efff] text-[#6a3cc3]" },
-    unknown: { label: readText(payment, ["method", "payment_method"], "نامشخص"), style: "bg-[#f1f3f6] text-[#697587]" },
+    unknown: {
+      label: readText(payment, ["method", "payment_method"], "نامشخص"),
+      style: "bg-[#f1f3f6] text-[#697587]",
+    },
   }[method];
 
-  return <Typography as="span" variant="label" size="small" weight="semibold" className={`inline-flex whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-bold ${config.style}`}>{config.label}</Typography>;
+  return (
+    <Typography
+      as="span"
+      variant="label"
+      size="small"
+      weight="semibold"
+      className={`inline-flex rounded-lg px-2.5 py-1.5 text-xs font-bold whitespace-nowrap ${config.style}`}
+    >
+      {config.label}
+    </Typography>
+  );
 }
 
 function FilterField({ children, label }: { children: ReactNode; label: string }) {
   return (
     <label className="block">
-      <Typography as="span" variant="label" size="small" weight="semibold" className="mb-1.5 block text-xs font-bold text-[#667085]">{label}</Typography>
+      <Typography
+        as="span"
+        variant="label"
+        size="small"
+        weight="semibold"
+        className="mb-1.5 block text-xs font-bold text-[#667085]"
+      >
+        {label}
+      </Typography>
       {children}
     </label>
   );
 }
 
 function TableHead({ children }: { children: ReactNode }) {
-  return <th className="border-b border-[#e9edf3] px-4 py-3.5 font-bold first:pr-5 last:pl-5">{children}</th>;
+  return (
+    <th className="border-b border-[#e9edf3] px-4 py-3.5 font-bold first:pr-5 last:pl-5">
+      {children}
+    </th>
+  );
 }
 
 function TableCell({ children }: { children: ReactNode }) {
-  return <td className="border-b border-[#edf0f5] px-4 py-4 align-middle transition group-hover:bg-[#fbfcff] first:pr-5 last:pl-5">{children}</td>;
+  return (
+    <td className="border-b border-[#edf0f5] px-4 py-4 align-middle transition group-hover:bg-[#fbfcff] first:pr-5 last:pl-5">
+      {children}
+    </td>
+  );
 }
 
 function PaymentTableSkeleton({ columns }: { columns: number }) {
@@ -737,7 +1126,13 @@ function PaymentTableSkeleton({ columns }: { columns: number }) {
         <tr key={rowIndex}>
           {Array.from({ length: columns }).map((__, columnIndex) => (
             <td className="border-b border-[#edf0f5] px-4 py-4" key={columnIndex}>
-              <Typography as="span" variant="body" size="medium" weight="regular" className={`block h-4 animate-pulse rounded-full bg-[#edf0f4] ${columnIndex === 0 ? "w-32" : "w-20"}`} />
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className={`block h-4 animate-pulse rounded-full bg-[#edf0f4] ${columnIndex === 0 ? "w-32" : "w-20"}`}
+              />
             </td>
           ))}
         </tr>
@@ -748,17 +1143,81 @@ function PaymentTableSkeleton({ columns }: { columns: number }) {
 
 function SvgIcon({ children, size = 20 }: { children: ReactNode; size?: number }) {
   return (
-    <svg aria-hidden="true" fill="none" height={size} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24" width={size}>
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height={size}
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+      width={size}
+    >
       {children}
     </svg>
   );
 }
 
-function ReceiptIcon() { return <SvgIcon><path d="M6 3h12v18l-2.2-1.5L13.9 21 12 19.5 10.1 21l-1.9-1.5L6 21V3Z" /><path d="M9 8h6M9 12h6M9 16h3" /></SvgIcon>; }
-function CheckIcon() { return <SvgIcon><circle cx="12" cy="12" r="9" /><path d="m8 12 2.7 2.7L16.5 9" /></SvgIcon>; }
-function ClockIcon() { return <SvgIcon><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></SvgIcon>; }
-function CloseIcon() { return <SvgIcon><circle cx="12" cy="12" r="9" /><path d="m9 9 6 6m0-6-6 6" /></SvgIcon>; }
-function FilterIcon() { return <SvgIcon size={18}><path d="M4 6h16M7 12h10m-7 6h4" /></SvgIcon>; }
-function CalendarIcon() { return <SvgIcon size={18}><rect height="16" rx="2" width="17" x="3.5" y="5" /><path d="M8 3v4m8-4v4M3.5 10h17" /></SvgIcon>; }
-function InfoIcon() { return <SvgIcon size={16}><circle cx="12" cy="12" r="9" /><path d="M12 11v5m0-8h.01" /></SvgIcon>; }
-function ClosePlainIcon() { return <SvgIcon size={18}><path d="m7 7 10 10M17 7 7 17" /></SvgIcon>; }
+function ReceiptIcon() {
+  return (
+    <SvgIcon>
+      <path d="M6 3h12v18l-2.2-1.5L13.9 21 12 19.5 10.1 21l-1.9-1.5L6 21V3Z" />
+      <path d="M9 8h6M9 12h6M9 16h3" />
+    </SvgIcon>
+  );
+}
+function CheckIcon() {
+  return (
+    <SvgIcon>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12 2.7 2.7L16.5 9" />
+    </SvgIcon>
+  );
+}
+function ClockIcon() {
+  return (
+    <SvgIcon>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </SvgIcon>
+  );
+}
+function CloseIcon() {
+  return (
+    <SvgIcon>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m9 9 6 6m0-6-6 6" />
+    </SvgIcon>
+  );
+}
+function FilterIcon() {
+  return (
+    <SvgIcon size={18}>
+      <path d="M4 6h16M7 12h10m-7 6h4" />
+    </SvgIcon>
+  );
+}
+function CalendarIcon() {
+  return (
+    <SvgIcon size={18}>
+      <rect height="16" rx="2" width="17" x="3.5" y="5" />
+      <path d="M8 3v4m8-4v4M3.5 10h17" />
+    </SvgIcon>
+  );
+}
+function InfoIcon() {
+  return (
+    <SvgIcon size={16}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5m0-8h.01" />
+    </SvgIcon>
+  );
+}
+function ClosePlainIcon() {
+  return (
+    <SvgIcon size={18}>
+      <path d="m7 7 10 10M17 7 7 17" />
+    </SvgIcon>
+  );
+}

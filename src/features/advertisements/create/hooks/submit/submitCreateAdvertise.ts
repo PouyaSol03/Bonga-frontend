@@ -5,7 +5,11 @@ import { adManagementPaths } from "../../../../account/adManagement/adManagement
 import { mapAdvertisementToAdCard } from "../../../api/advertisement.service";
 import type { FlowStep, NewAdFormValues } from "../../types";
 import { clearNewAdDraftStorage } from "../../utils";
-import { getAdPaymentPath, getAdStatePath, markNewAdCheckout } from "../../../../account/adManagement/adManagementData";
+import {
+  getAdPaymentPath,
+  getAdStatePath,
+  markNewAdCheckout,
+} from "../../../../account/adManagement/adManagementData";
 
 interface SubmitCreateAdvertiseParams {
   activeAdId: string | null;
@@ -63,8 +67,12 @@ export function submitCreateAdvertise({
         return;
       }
       const ad = mapAdvertisementToAdCard(createdAd, 0);
-      const isWaitingForAgency = createdAd.status === "wait_for_agency" || Number(createdAd.status) === 2;
-      const isAlreadyPublished = createdAd.status === "published" || createdAd.status === "active" || Number(createdAd.status) === 3;
+      const isWaitingForAgency =
+        createdAd.status === "wait_for_agency" || Number(createdAd.status) === 2;
+      const isAlreadyPublished =
+        createdAd.status === "published" ||
+        createdAd.status === "active" ||
+        Number(createdAd.status) === 3;
 
       clearNewAdDraftStorage();
 
@@ -89,7 +97,8 @@ export function submitCreateAdvertise({
           state: {
             ad: createdAd,
             card: ad,
-            returnTo: activeRole === USER || !activeRole ? "/account/my-ads" : adManagementPaths.root,
+            returnTo:
+              activeRole === USER || !activeRole ? "/account/my-ads" : adManagementPaths.root,
             status: "published",
             tab: "status",
           },
@@ -97,7 +106,8 @@ export function submitCreateAdvertise({
         return;
       }
 
-      const isAgencyPublisher = activeRole === "real_estate_manager" || routeParams.publisherType === "agency";
+      const isAgencyPublisher =
+        activeRole === "real_estate_manager" || routeParams.publisherType === "agency";
       const isConsultantPublisher =
         activeRole === "real_estate_consultant" ||
         routeParams.publisherType === "agent" ||

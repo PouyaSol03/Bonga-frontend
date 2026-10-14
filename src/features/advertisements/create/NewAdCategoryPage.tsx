@@ -158,9 +158,7 @@ function PageHeader({ title }: { title: string }) {
     navigate("/home");
   };
 
-  return (
-    <TopBar onBack={handleBack} title={title} />
-  );
+  return <TopBar onBack={handleBack} title={title} />;
 }
 
 export function TransactionSelector({
@@ -176,15 +174,21 @@ export function TransactionSelector({
   const count = transactionTabs.length || 1;
 
   return (
-    <div className={desktop ? "border-b border-outline-var bg-surface-container-lowest px-6 py-4" : "bg-surface-container px-4 pb-4"}>
+    <div
+      className={
+        desktop
+          ? "border-outline-var bg-surface-container-lowest border-b px-6 py-4"
+          : "bg-surface-container px-4 pb-4"
+      }
+    >
       <div
         aria-label="نوع معامله"
-        className={`relative grid grid-cols-3 overflow-hidden border border-outline bg-surface-container-lowest [direction:rtl] ${desktop ? "mx-auto max-w-[720px] rounded-xl" : "rounded-[17px]"}`}
+        className={`border-outline bg-surface-container-lowest relative grid grid-cols-3 overflow-hidden border [direction:rtl] ${desktop ? "mx-auto max-w-[720px] rounded-xl" : "rounded-[17px]"}`}
         role="tablist"
       >
         <motion.div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 bg-primary-container"
+          className="bg-primary-container pointer-events-none absolute inset-y-0 right-0"
           style={{ width: `${100 / count}%` }}
           animate={{ x: `${-activeIndex * 100}%` }}
           transition={{ type: "spring", stiffness: 400, damping: 32, mass: 0.8 }}
@@ -194,9 +198,10 @@ export function TransactionSelector({
           const isActive = type === activeType;
 
           return (
-            <Button unstyled
+            <Button
+              unstyled
               aria-selected={isActive}
-              className={`relative min-w-0 py-2 text-center text-base font-medium leading-7 transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/25 ${
+              className={`focus-visible:outline-inset focus-visible:outline-primary/25 relative min-w-0 py-2 text-center text-base leading-7 font-medium transition-colors duration-200 focus-visible:outline-3 ${
                 isActive ? "text-on-primary-container font-semibold" : "text-on-surface"
               }`}
               key={type}
@@ -225,12 +230,7 @@ function CategoryChip({
   onClick: () => void;
 }) {
   return (
-    <Chip
-      className="h-9"
-      onClick={onClick}
-      selected={isSelected}
-      showCheck
-    >
+    <Chip className="h-9" onClick={onClick} selected={isSelected} showCheck>
       {label}
     </Chip>
   );
@@ -248,8 +248,14 @@ function CategoryOptionSection({
   onSelect: (optionId: string) => void;
 }) {
   return (
-    <section className={desktop ? "rounded-xl border border-outline-var bg-surface-container-lowest p-6 shadow-[0_6px_20px_rgba(30,50,80,0.04)]" : "bg-surface-container-lowest p-4"}>
-      <div className="border-b border-outline-var pb-2">
+    <section
+      className={
+        desktop
+          ? "border-outline-var bg-surface-container-lowest rounded-xl border p-6 shadow-[0_6px_20px_rgba(30,50,80,0.04)]"
+          : "bg-surface-container-lowest p-4"
+      }
+    >
+      <div className="border-outline-var border-b pb-2">
         <Typography as="p" variant="label" size="large" weight="medium" className="text-outline">
           {section.title}
         </Typography>
@@ -279,14 +285,20 @@ function NextActionBar({
   onNext: () => void;
 }) {
   return (
-    <footer className={desktop
-      ? "relative z-20 flex shrink-0 justify-end border-t border-outline-var bg-surface-container-lowest px-6 py-4"
-      : "relative z-20 shrink-0 bg-surface-container-lowest px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)]"}>
-      <Button unstyled
-        className={`${desktop ? "h-12 w-48" : "w-full py-2"} rounded-[10px] text-lg font-medium leading-7 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/25 ${disabled
+    <footer
+      className={
+        desktop
+          ? "border-outline-var bg-surface-container-lowest relative z-20 flex shrink-0 justify-end border-t px-6 py-4"
+          : "bg-surface-container-lowest relative z-20 shrink-0 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_16px_0_rgba(26,26,26,0.08)]"
+      }
+    >
+      <Button
+        unstyled
+        className={`${desktop ? "h-12 w-48" : "w-full py-2"} focus-visible:outline-primary/25 rounded-[10px] text-lg leading-7 font-medium focus-visible:outline-3 focus-visible:outline-offset-2 ${
+          disabled
             ? "bg-surface-container-high text-outline"
             : "bg-primary text-on-primary active:opacity-90"
-          }`}
+        }`}
         disabled={disabled}
         onClick={onNext}
         type="button"
@@ -338,7 +350,7 @@ export function NewAdCategoryPage() {
 
   return (
     <PageFrame
-      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-right text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex h-full min-h-0 flex-col overflow-hidden text-right [direction:rtl]"
       variant="flush"
     >
       <PageHeader title={activeConfig.pageTitle} />
@@ -349,10 +361,20 @@ export function NewAdCategoryPage() {
         onChange={(type) => setActiveType(type)}
       />
 
-      <main className={isCrmSource
-        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container px-6 py-5"
-        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest"}>
-        <div className={isCrmSource ? "mx-auto grid max-w-[1120px] grid-cols-[repeat(auto-fit,minmax(420px,1fr))] items-start gap-5" : "contents"}>
+      <main
+        className={
+          isCrmSource
+            ? "bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-6 py-5"
+            : "bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
+        }
+      >
+        <div
+          className={
+            isCrmSource
+              ? "mx-auto grid max-w-[1120px] grid-cols-[repeat(auto-fit,minmax(420px,1fr))] items-start gap-5"
+              : "contents"
+          }
+        >
           {activeConfig.sections.map((section) => (
             <CategoryOptionSection
               desktop={isCrmSource}

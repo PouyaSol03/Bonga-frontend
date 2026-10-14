@@ -35,8 +35,12 @@ export function getPieSelectionGeometry(data: PieSelectionDatum[], selectedIndex
     dotX: dot.x,
     dotY: dot.y,
     endAngle: startAngle - (selectedValue / total) * 360,
-    lineEndX: isLeft ? tooltipLeft + pieTooltipWidth - pieTooltipLineOverlap : tooltipLeft + pieTooltipLineOverlap,
-    lineEndY: isTop ? tooltipTop + pieTooltipHeight - pieTooltipLineOverlap : tooltipTop + pieTooltipLineOverlap,
+    lineEndX: isLeft
+      ? tooltipLeft + pieTooltipWidth - pieTooltipLineOverlap
+      : tooltipLeft + pieTooltipLineOverlap,
+    lineEndY: isTop
+      ? tooltipTop + pieTooltipHeight - pieTooltipLineOverlap
+      : tooltipTop + pieTooltipLineOverlap,
     lineStartX: dot.x,
     lineStartY: dot.y,
     midAngle,

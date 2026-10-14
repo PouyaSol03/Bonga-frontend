@@ -4,28 +4,29 @@ import { getAdvertisementFeatures } from "./crmEditNormalizer";
 import { normalizeLookupText } from "./featureReaders";
 import { readFormCode } from "./specMappers";
 
-export const editRouteParamsByFormCode: Record<string, { category: string; transaction: string }> = {
-  daily_hotel: { category: "hotel", transaction: "daily" },
-  daily_house_villa: { category: "villa-house", transaction: "daily" },
-  daily_residential: { category: "apartment", transaction: "daily" },
-  daily_suite: { category: "suite", transaction: "daily" },
-  partnership: { category: "partnership", transaction: "partnership" },
-  pre_sale: { category: "pre-sale", transaction: "pre-sale" },
-  rent_commercial: { category: "commercial", transaction: "rent" },
-  rent_industrial: { category: "factory", transaction: "rent" },
-  rent_land: { category: "land", transaction: "rent" },
-  rent_office: { category: "office", transaction: "rent" },
-  rent_residential: { category: "apartment", transaction: "rent" },
-  rent_short_term: { category: "suite", transaction: "daily" },
-  rent_villa: { category: "villa-house", transaction: "rent" },
-  sale_commercial: { category: "commercial", transaction: "buy" },
-  sale_industrial: { category: "factory", transaction: "buy" },
-  sale_land: { category: "land", transaction: "buy" },
-  sale_office: { category: "office", transaction: "buy" },
-  sale_old_house: { category: "old-house", transaction: "buy" },
-  sale_residential: { category: "apartment", transaction: "buy" },
-  sale_villa: { category: "villa-house", transaction: "buy" },
-};
+export const editRouteParamsByFormCode: Record<string, { category: string; transaction: string }> =
+  {
+    daily_hotel: { category: "hotel", transaction: "daily" },
+    daily_house_villa: { category: "villa-house", transaction: "daily" },
+    daily_residential: { category: "apartment", transaction: "daily" },
+    daily_suite: { category: "suite", transaction: "daily" },
+    partnership: { category: "partnership", transaction: "partnership" },
+    pre_sale: { category: "pre-sale", transaction: "pre-sale" },
+    rent_commercial: { category: "commercial", transaction: "rent" },
+    rent_industrial: { category: "factory", transaction: "rent" },
+    rent_land: { category: "land", transaction: "rent" },
+    rent_office: { category: "office", transaction: "rent" },
+    rent_residential: { category: "apartment", transaction: "rent" },
+    rent_short_term: { category: "suite", transaction: "daily" },
+    rent_villa: { category: "villa-house", transaction: "rent" },
+    sale_commercial: { category: "commercial", transaction: "buy" },
+    sale_industrial: { category: "factory", transaction: "buy" },
+    sale_land: { category: "land", transaction: "buy" },
+    sale_office: { category: "office", transaction: "buy" },
+    sale_old_house: { category: "old-house", transaction: "buy" },
+    sale_residential: { category: "apartment", transaction: "buy" },
+    sale_villa: { category: "villa-house", transaction: "buy" },
+  };
 
 export function getEditAdId(routeState: ReturnType<typeof getEditAdRouteState>) {
   const params = new URLSearchParams(window.location.search);
@@ -59,7 +60,10 @@ export function syncEditRouteParams(ad: AdvertisementItem) {
   });
 
   const publisherType = normalizeLookupText(ad.publisher_type);
-  if (["user", "agency", "agent"].includes(publisherType) && searchParams.get("publisherType") !== publisherType) {
+  if (
+    ["user", "agency", "agent"].includes(publisherType) &&
+    searchParams.get("publisherType") !== publisherType
+  ) {
     searchParams.set("publisherType", publisherType);
     changed = true;
   }

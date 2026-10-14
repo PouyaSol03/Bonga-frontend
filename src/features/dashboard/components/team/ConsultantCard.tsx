@@ -39,7 +39,7 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
   const actionTargetId = consultant.agentId ?? consultant.id;
 
   return (
-    <article className="w-full bg-surface-container-lowest p-4 [direction:rtl]">
+    <article className="bg-surface-container-lowest w-full p-4 [direction:rtl]">
       {isPending && (
         <div className="mb-4">
           <div className="flex items-center justify-between">
@@ -48,13 +48,13 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
               variant="label"
               size="medium"
               weight="medium"
-              className="rounded-lg bg-warning-container/30 px-4 py-2 text-warning"
+              className="bg-warning-container/30 text-warning rounded-lg px-4 py-2"
             >
               در انتظار تایید انتشار
             </Typography>
             <Button
               unstyled
-              className="inline-flex items-center gap-2 rounded-lg bg-surface-container-lowest px-1 !text-sm font-medium text-on-error-container disabled:opacity-50"
+              className="bg-surface-container-lowest text-on-error-container inline-flex items-center gap-2 rounded-lg px-1 !text-sm font-medium disabled:opacity-50"
               disabled={!consultant.agentId || cancelRequestMutation.isPending}
               onClick={cancelRequest}
               type="button"
@@ -69,7 +69,7 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
               variant="body"
               size="small"
               weight="regular"
-              className="m-0 mt-2 text-xs text-on-error-container"
+              className="text-on-error-container m-0 mt-2 text-xs"
             >
               {cancelError}
             </Typography>
@@ -85,11 +85,11 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             variant="label"
             size="large"
             weight="semibold"
-            className="m-0 truncate text-on-surface"
+            className="text-on-surface m-0 truncate"
           >
             {consultant.name}
           </Typography>
-          <div className="flex items-center gap-2 text-on-surface-var">
+          <div className="text-on-surface-var flex items-center gap-2">
             <Typography
               as="span"
               variant="body"
@@ -101,7 +101,7 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
             </Typography>
             {consultant.phone ? (
               <>
-                <span className="h-5 w-px bg-outline-var" />
+                <span className="bg-outline-var h-5 w-px" />
                 <Typography
                   as="span"
                   dir="ltr"
@@ -119,13 +119,13 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
       </div>
 
       {!isPending && (
-        <div className="mt-6 flex h-10 items-center overflow-hidden rounded-[10px] bg-surface-container">
+        <div className="bg-surface-container mt-6 flex h-10 items-center overflow-hidden rounded-[10px]">
           <Link
             className="flex h-full flex-1 items-center justify-center gap-1.5"
             state={{ consultant }}
             to={`${consultantTeamPaths.info}/${actionTargetId}`}
           >
-            <LinearInfoCircle className="h-5 w-5 text-on-surface-var" />
+            <LinearInfoCircle className="text-on-surface-var h-5 w-5" />
             <Typography
               as="span"
               variant="label"
@@ -136,13 +136,13 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
               اطلاعات
             </Typography>
           </Link>
-          <span className="h-6 w-px bg-outline-var" />
+          <span className="bg-outline-var h-6 w-px" />
           <Link
             className="flex h-full flex-1 items-center justify-center gap-1.5"
             state={{ consultant }}
             to={`${consultantTeamPaths.edit}/${actionTargetId}`}
           >
-            <LinearEdit2 className="h-5 w-5 text-on-surface-var" />
+            <LinearEdit2 className="text-on-surface-var h-5 w-5" />
             <Typography
               as="span"
               variant="label"
@@ -153,13 +153,13 @@ export function ConsultantCard({ consultant }: { consultant: TeamConsultant }) {
               ویرایش
             </Typography>
           </Link>
-          <span className="h-6 w-px bg-outline-var" />
+          <span className="bg-outline-var h-6 w-px" />
           <Link
             className="flex h-full flex-1 items-center justify-center gap-1.5"
             state={{ consultant }}
             to={`${consultantTeamPaths.remove}/${actionTargetId}`}
           >
-            <LinearDelete className="h-5 w-5 text-on-surface-var" />
+            <LinearDelete className="text-on-surface-var h-5 w-5" />
             <Typography
               as="span"
               variant="label"

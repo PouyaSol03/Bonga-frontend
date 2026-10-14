@@ -18,14 +18,11 @@ export function useNewAdPermissions(
   const activeRole = getActiveAuthRole(authSession) ?? "";
   const activeV2Role = getActiveV2Role();
   const managerPermissions =
-    authSession?.contextPermissions?.real_estate_consultant ??
-    authSession?.managerPermissions;
+    authSession?.contextPermissions?.real_estate_consultant ?? authSession?.managerPermissions;
   const hasAdManagementPermission = Boolean(
     managerPermissions?.manage_advertises ?? managerPermissions?.ad_management,
   );
-  const hasConsultantManagementPermission = Boolean(
-    managerPermissions?.manage_consultants,
-  );
+  const hasConsultantManagementPermission = Boolean(managerPermissions?.manage_consultants);
   const isAgencyConsultantManager =
     (activeRole === REAL_ESTATE_CONSULTANT || activeV2Role === "agency-consultant") &&
     hasAdManagementPermission &&
@@ -46,13 +43,13 @@ export function useNewAdPermissions(
 
   const isAssigned = Boolean(
     (editAdState as any)?.isAssigned ||
-      (editAdState.ad as any)?.isAssigned ||
-      (editAdState.ad as any)?.assignment_status ||
-      (editAdState.ad as any)?.assigned_agency_id ||
-      (editAdData as any)?.isAssigned ||
-      (editAdData as any)?.assignment_status ||
-      (editAdData as any)?.assigned_agency_id ||
-      (editAdState.card as any)?.isAssigned,
+    (editAdState.ad as any)?.isAssigned ||
+    (editAdState.ad as any)?.assignment_status ||
+    (editAdState.ad as any)?.assigned_agency_id ||
+    (editAdData as any)?.isAssigned ||
+    (editAdData as any)?.assignment_status ||
+    (editAdData as any)?.assigned_agency_id ||
+    (editAdState.card as any)?.isAssigned,
   );
 
   return {

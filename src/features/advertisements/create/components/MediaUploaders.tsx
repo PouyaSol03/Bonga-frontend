@@ -25,11 +25,7 @@ function getFileExtension(fileName: string) {
   return fileName.split(".").pop()?.toLowerCase() ?? "";
 }
 
-export function isAllowedFile(
-  file: File,
-  allowedTypes: string[],
-  allowedExtensions: string[],
-) {
+export function isAllowedFile(file: File, allowedTypes: string[], allowedExtensions: string[]) {
   const extension = getFileExtension(file.name);
   return allowedTypes.includes(file.type) || allowedExtensions.includes(extension);
 }
@@ -155,11 +151,26 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
   return (
     <div className="overflow-hidden" dir="rtl">
-      <div className="mb-3 flex items-center justify-between text-right text-base font-medium leading-6 text-on-surface">
+      <div className="text-on-surface mb-3 flex items-center justify-between text-right text-base leading-6 font-medium">
         <div>
-          انتخاب عکس <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
+          انتخاب عکس{" "}
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-error"
+          >
+            *
+          </Typography>
         </div>
-        <Typography as="span" variant="label" size="small" weight="medium" className="text-outline text-xs">
+        <Typography
+          as="span"
+          variant="label"
+          size="small"
+          weight="medium"
+          className="text-outline text-xs"
+        >
           ({photos.length} از {MAX_PHOTO_COUNT} عکس)
         </Typography>
       </div>
@@ -178,19 +189,35 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
 
       <div className="flex gap-3 overflow-x-auto pb-2" dir="rtl">
         {!isMaxReached ? (
-          <Button unstyled
-            className="flex h-28 w-28 shrink-0 flex-col items-center justify-center gap-2 rounded-[12px] border border-primary bg-surface-container-lowest text-primary"
+          <Button
+            unstyled
+            className="border-primary bg-surface-container-lowest text-primary flex h-28 w-28 shrink-0 flex-col items-center justify-center gap-2 rounded-[12px] border"
             onClick={() => inputRef.current?.click()}
             type="button"
           >
-            <Typography as="span" variant="display" size="small" className="text-4xl font-light leading-none">+</Typography>
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5">افزودن عکس</Typography>
+            <Typography
+              as="span"
+              variant="display"
+              size="small"
+              className="text-4xl leading-none font-light"
+            >
+              +
+            </Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-sm leading-5 font-medium"
+            >
+              افزودن عکس
+            </Typography>
           </Button>
         ) : null}
 
         {photos.map((photo, index) => (
           <div
-            className="relative h-28 w-28 shrink-0 overflow-hidden rounded-[12px] bg-surface-container cursor-pointer"
+            className="bg-surface-container relative h-28 w-28 shrink-0 cursor-pointer overflow-hidden rounded-[12px]"
             key={photo.id}
             onClick={() => setSelectedPhotoIndex(index)}
           >
@@ -199,19 +226,21 @@ export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
               className="h-full w-full object-cover"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
-                const fallback = e.currentTarget.parentElement?.querySelector(".photo-fallback-icon");
+                const fallback =
+                  e.currentTarget.parentElement?.querySelector(".photo-fallback-icon");
                 if (fallback) fallback.classList.remove("hidden");
               }}
               src={photo.previewUrl}
             />
 
-            <div className="photo-fallback-icon hidden grid h-full w-full place-items-center text-outline">
+            <div className="photo-fallback-icon text-outline grid hidden h-full w-full place-items-center">
               <LinearImage className="h-8 w-8" />
             </div>
 
-            <Button unstyled
+            <Button
+              unstyled
               aria-label="حذف عکس"
-              className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-surface-container-lowest text-on-surface-var shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
+              className="bg-surface-container-lowest text-on-surface-var absolute top-1 left-1 grid h-6 w-6 place-items-center rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
               onClick={(e) => {
                 e.stopPropagation();
                 removePhoto(photo.id);
@@ -248,11 +277,7 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
 
     if (!file) return;
 
-    const isValidVideo = isAllowedFile(
-      file,
-      allowedVideoTypes,
-      allowedVideoExtensions,
-    );
+    const isValidVideo = isAllowedFile(file, allowedVideoTypes, allowedVideoExtensions);
 
     if (!isValidVideo) return;
 
@@ -316,22 +341,20 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
       />
 
       {!video ? (
-        <Button unstyled
-          className="flex p-4 mb-4 w-full items-center justify-between rounded-[10px] border border-primary bg-surface-container-lowest px-4 font-medium leading-5 text-primary"
+        <Button
+          unstyled
+          className="border-primary bg-surface-container-lowest text-primary mb-4 flex w-full items-center justify-between rounded-[10px] border p-4 px-4 leading-5 font-medium"
           onClick={() => inputRef.current?.click()}
           type="button"
         >
           <div className="flex gap-2">
             <img src="/icons/video.svg" alt="" />
-            <Typography as="span" variant="label" size="large" weight="medium">انتخاب فیلم</Typography>
+            <Typography as="span" variant="label" size="large" weight="medium">
+              انتخاب فیلم
+            </Typography>
           </div>
 
-          <svg
-            aria-hidden="true"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
+          <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
             <path
               d="M15 6l-6 6 6 6"
               stroke="currentColor"
@@ -342,30 +365,29 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
           </svg>
         </Button>
       ) : (
-        <div className="rounded-[10px] border border-outline-var bg-surface-container-lowest px-4 py-6">
+        <div className="border-outline-var bg-surface-container-lowest rounded-[10px] border px-4 py-6">
           <div className="flex items-center justify-between gap-3 [direction:ltr]">
-            <Button unstyled
+            <Button
+              unstyled
               aria-label="حذف فیلم"
-              className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-error"
+              className="text-error grid h-6 w-6 shrink-0 place-items-center rounded-full"
               onClick={removeVideo}
               type="button"
             >
-              <LinearCancelCircle aria-hidden="true" className="h-6 w-6 text-on-surface-var" />
+              <LinearCancelCircle aria-hidden="true" className="text-on-surface-var h-6 w-6" />
             </Button>
 
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
-              <div className="truncate text-sm font-semibold leading-5 text-on-surface">
+              <div className="text-on-surface truncate text-sm leading-5 font-semibold">
                 {isUploading ? "در حال آپلود..." : video.name}
               </div>
 
-              <div className="text-xs leading-4 text-outline">
-                {formatFileSize(video.size)}
-              </div>
+              <div className="text-outline text-xs leading-4">{formatFileSize(video.size)}</div>
 
               {isUploading ? (
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-container-high">
+                <div className="bg-surface-container-high mt-1 h-1.5 overflow-hidden rounded-full">
                   <div
-                    className="h-full rounded-full bg-primary"
+                    className="bg-primary h-full rounded-full"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -373,14 +395,26 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
             </div>
 
             {!isUploading ? (
-              <Button unstyled
+              <Button
+                unstyled
                 aria-label="نمایش فیلم"
-                className="grid p-2 shrink-0 place-items-center rounded-full bg-primary-container/20 text-primary"
+                className="bg-primary-container/20 text-primary grid shrink-0 place-items-center rounded-full p-2"
                 onClick={() => window.open(video.previewUrl, "_blank")}
                 type="button"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M6 6.54075C6 5.33729 7.32537 4.59989 8.35477 5.23063L17.2647 10.6899C18.2451 11.2906 18.2451 12.7095 17.2647 13.3101L8.35477 18.7693C7.32537 19.4001 6 18.6627 6 17.4592V6.54075Z" fill="currentColor" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M6 6.54075C6 5.33729 7.32537 4.59989 8.35477 5.23063L17.2647 10.6899C18.2451 11.2906 18.2451 12.7095 17.2647 13.3101L8.35477 18.7693C7.32537 19.4001 6 18.6627 6 17.4592V6.54075Z"
+                    fill="currentColor"
+                  />
                 </svg>
               </Button>
             ) : null}
@@ -390,4 +424,3 @@ export function VideoUploader({ onChange }: { onChange?: () => void } = {}) {
     </div>
   );
 }
-

@@ -24,15 +24,15 @@ export function DashboardExpiringAdCard({ ad }: DashboardExpiringAdCardProps) {
   return (
     <Link
       to={targetLink}
-      className="flex flex-col justify-between rounded-[12px] bg-surface-container-lowest p-4 border border-outline-variant transition-transform active:scale-[0.99] [direction:rtl]"
+      className="bg-surface-container-lowest border-outline-variant flex flex-col justify-between rounded-[12px] border p-4 transition-transform [direction:rtl] active:scale-[0.99]"
     >
       {/* Top row: Image + Title + Subtitle + Arrow */}
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex min-w-0 items-center gap-3">
           <img
             src={ad.imageUrl || "/figma/dashboard/expiring-ad-thumb.jpg"}
             alt={ad.title}
-            className="h-12 w-[72px] shrink-0 rounded-[4px] object-cover bg-surface-container"
+            className="bg-surface-container h-12 w-[72px] shrink-0 rounded-[4px] object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).src =
                 "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&auto=format&fit=crop&q=80";
@@ -45,29 +45,29 @@ export function DashboardExpiringAdCard({ ad }: DashboardExpiringAdCardProps) {
               variant="label"
               size="medium"
               weight="semibold"
-              className="truncate text-sm font-bold text-on-surface"
+              className="text-on-surface truncate text-sm font-bold"
             >
               {ad.title}
             </Typography>
-            <div className="mt-1 flex items-center gap-1.5 text-xs text-on-surface-var">
+            <div className="text-on-surface-var mt-1 flex items-center gap-1.5 text-xs">
               <Typography
                 as="span"
                 variant="label"
                 size="small"
                 weight="medium"
-                className="text-xs text-on-surface-var"
+                className="text-on-surface-var text-xs"
               >
                 {ad.agencyOrConsultant}
               </Typography>
               {ad.roleTitle && (
                 <>
-                  <span className="h-2 w-[1px] bg-outline-variant" />
+                  <span className="bg-outline-variant h-2 w-[1px]" />
                   <Typography
                     as="span"
                     variant="label"
                     size="small"
                     weight="medium"
-                    className="text-xs text-on-surface-var"
+                    className="text-on-surface-var text-xs"
                   >
                     {ad.roleTitle}
                   </Typography>
@@ -77,11 +77,11 @@ export function DashboardExpiringAdCard({ ad }: DashboardExpiringAdCardProps) {
           </div>
         </div>
 
-        <LinearArrowLeft1 className="h-4 w-4 shrink-0 text-on-surface-var" />
+        <LinearArrowLeft1 className="text-on-surface-var h-4 w-4 shrink-0" />
       </div>
 
       {/* Dashed Divider */}
-      <div className="my-3 border-t border-dashed border-outline-variant" />
+      <div className="border-outline-variant my-3 border-t border-dashed" />
 
       {/* Bottom row: Expiry label (right) + Time remaining (left) */}
       <div className="flex items-center justify-between">
@@ -90,7 +90,7 @@ export function DashboardExpiringAdCard({ ad }: DashboardExpiringAdCardProps) {
           variant="label"
           size="small"
           weight="medium"
-          className="text-xs text-on-surface-var"
+          className="text-on-surface-var text-xs"
         >
           انقضا
         </Typography>
@@ -100,7 +100,7 @@ export function DashboardExpiringAdCard({ ad }: DashboardExpiringAdCardProps) {
           variant="label"
           size="small"
           weight="semibold"
-          className="text-xs font-bold text-error"
+          className="text-error text-xs font-bold"
         >
           {ad.timeRemaining}
         </Typography>

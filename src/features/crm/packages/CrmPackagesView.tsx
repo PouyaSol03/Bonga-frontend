@@ -62,7 +62,10 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
       setEditing(undefined);
     } catch (error) {
       notify(
-        getApiErrorMessage(error, error instanceof Error ? error.message : "ذخیره بسته ناموفق بود."),
+        getApiErrorMessage(
+          error,
+          error instanceof Error ? error.message : "ذخیره بسته ناموفق بود.",
+        ),
         "error",
       );
     }
@@ -77,10 +80,22 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
       <section className="rounded-xl bg-white p-6">
         <div className="flex items-start justify-between gap-4 border-b border-[#f0f0f0] pb-5">
           <div>
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold text-[#1a1a1a]">
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="m-0 text-lg font-bold text-[#1a1a1a]"
+            >
               بسته‌ها و اعتبار پنل
             </Typography>
-            <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-sm text-[#7b8494]">
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="m-0 mt-2 text-sm text-[#7b8494]"
+            >
               تمام بسته‌های فعال و غیرفعال پنل را ایجاد، ویرایش و مدیریت کنید.
             </Typography>
           </div>
@@ -95,11 +110,18 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
           </motion.button>
         </div>
 
-        <div className="mt-5 grid h-11 max-w-md grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]" role="tablist" aria-label="نمایش نوع بسته">
-          <Button unstyled
+        <div
+          className="mt-5 grid h-11 max-w-md grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]"
+          role="tablist"
+          aria-label="نمایش نوع بسته"
+        >
+          <Button
+            unstyled
             aria-selected={viewKind === "panel_subscription"}
             className={`text-sm font-bold transition ${
-              viewKind === "panel_subscription" ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
+              viewKind === "panel_subscription"
+                ? "bg-[#0048c4] text-white"
+                : "bg-white text-[#0048c4]"
             }`}
             onClick={() => setViewKind("panel_subscription")}
             role="tab"
@@ -107,7 +129,8 @@ export function CrmPackagesView({ notify, refreshNonce }: ViewProps) {
           >
             اعتبار پنل
           </Button>
-          <Button unstyled
+          <Button
+            unstyled
             aria-selected={viewKind === "credit_bundle"}
             className={`border-r border-[#0048c4] text-sm font-bold transition ${
               viewKind === "credit_bundle" ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"

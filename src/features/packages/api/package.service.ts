@@ -14,17 +14,13 @@ export * from "./package-entitlement.service";
 type ApiRecord = Record<string, unknown>;
 
 function asRecord(value: unknown): ApiRecord | null {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as ApiRecord)
-    : null;
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as ApiRecord) : null;
 }
 
-export function resolvePackageRoleSegment(
-  role?: string,
-  scope?: PackagePaymentScope,
-): string {
+export function resolvePackageRoleSegment(role?: string, scope?: PackagePaymentScope): string {
   if (role?.trim()) return role.trim();
-  if (scope === "agency") return getActiveV2Role() === "agency-consultant" ? "agency-consultant" : "agency";
+  if (scope === "agency")
+    return getActiveV2Role() === "agency-consultant" ? "agency-consultant" : "agency";
   if (scope === "agent" || scope === "independent-consultant") {
     return "independent-consultant";
   }
@@ -44,14 +40,13 @@ export function buildPackageEndpoint(
   return subPath ? `${withId}/${subPath}` : withId;
 }
 
-export async function getPackages({
-  role,
-  scope,
-}: PackageQueryParams = {}): Promise<PackageItem[]> {
+export async function getPackages({ role, scope }: PackageQueryParams = {}): Promise<
+  PackageItem[]
+> {
   const endpoint = buildPackageEndpoint(undefined, undefined, role, scope);
   const response = await apiV2.get(endpoint).json<PackagesApiResponse>();
   const list = Array.isArray(response.list) ? response.list : [];
-  return list.filter(item => item.is_active).sort((a,b)=>a.sort_order-b.sort_order);
+  return list.filter((item) => item.is_active).sort((a, b) => a.sort_order - b.sort_order);
 }
 
 function readPackagePaymentUrl(response: ApiRecord): string | null {
@@ -118,7 +113,10 @@ export async function payPackage({
     throw new ApiError(500, "آدرس درگاه پرداخت از سرور دریافت نشد.");
   }
 
-  const resolvedScope = (scope ?? (["agency", "agency-consultant"].includes(resolvePackageRoleSegment(role, scope)) ? "agency" : "independent-consultant")) as PackagePaymentScope;
+  const resolvedScope = (scope ??
+    (["agency", "agency-consultant"].includes(resolvePackageRoleSegment(role, scope))
+      ? "agency"
+      : "independent-consultant")) as PackagePaymentScope;
 
   return {
     authority: readOptionalString(response, "authority"),
@@ -145,5 +143,3 @@ export function payAgentPackage(
 ) {
   return payPackage({ discountCode, packageId, paymentType, scope: "independent-consultant" });
 }
-
-

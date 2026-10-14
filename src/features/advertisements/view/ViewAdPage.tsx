@@ -21,7 +21,10 @@ import {
   useSubmitAdvertiseFeedbackMutation,
   useSubmitAdvertiseReportMutation,
 } from "../api/advertisement.hooks";
-import { useSaveAdvertiseNoteMutation, useToggleAdvertiseBadgeMutation } from "../../account/api/account.hooks";
+import {
+  useSaveAdvertiseNoteMutation,
+  useToggleAdvertiseBadgeMutation,
+} from "../../account/api/account.hooks";
 import { useCreateAdvertiseChatMutation } from "../../chat/api/chat.hooks";
 import { usePublicAgencyDetailQuery } from "../../agencies/api/agency.hooks";
 import {
@@ -37,14 +40,22 @@ import {
   ViewAdTopBar,
 } from "./viewAdComponents";
 import { ViewAdIcon } from "./ViewAdIcon";
-import type { IconName, ViewAdDailyHotelRoom, ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
+import type {
+  IconName,
+  ViewAdDailyHotelRoom,
+  ViewAdDetails,
+  ViewAdProjectDetailVariant,
+} from "./viewAdTypes";
 import { AdCardTomanIcon } from "../components/AdCardIcons";
 import TonalInstagram from "../../../shared/icons/TonalInstagram";
 import TonalTelegram from "../../../shared/icons/TonalTelegram";
 import TonalWhatsapp from "../../../shared/icons/TonalWhatsapp";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
-import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
+import {
+  toEnglishDigits,
+  toPersianNumber as toPersianDigits,
+} from "../../../shared/lib/numberUtils";
 import type { ChatThread } from "../../chat/api/chat.service";
 import {
   buildGalleryMediaItems,
@@ -91,7 +102,9 @@ function isPublishedAdvertisement(ad: unknown): boolean {
     return true;
   }
   const record = typeof ad === "object" ? (ad as Record<string, unknown>) : null;
-  const rawStatus = String(record?.status ?? record?.ad_status ?? record?.status_label ?? "").toLowerCase();
+  const rawStatus = String(
+    record?.status ?? record?.ad_status ?? record?.status_label ?? "",
+  ).toLowerCase();
   return (
     rawStatus === "published" ||
     rawStatus === "accepted" ||
@@ -110,20 +123,31 @@ type GalleryMediaKind = "album" | "video" | "tour3d";
 
 function PriceRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between rounded-lg bg-surface-container p-4 [direction:ltr]">
+    <div className="bg-surface-container flex items-center justify-between rounded-lg p-4 [direction:ltr]">
       <div className="flex items-center gap-1">
-        <AdCardTomanIcon className="h-6 w-6 text-on-surface-var" />
-        <Typography as="p" variant="label" size="large" weight="semibold" className="text-on-surface [direction:rtl]">
+        <AdCardTomanIcon className="text-on-surface-var h-6 w-6" />
+        <Typography
+          as="p"
+          variant="label"
+          size="large"
+          weight="semibold"
+          className="text-on-surface [direction:rtl]"
+        >
           {value}
         </Typography>
       </div>
-      <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="text-on-surface-var"
+      >
         {label}
       </Typography>
     </div>
   );
 }
-
 
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import LinearArrowRight1 from "../../../shared/icons/LinearArrowRight1";
@@ -198,15 +222,18 @@ function RentPriceConversionViewer({
   );
   const limitMortgage =
     typeof limitMortgagePrice === "number" &&
-      limitMortgagePrice >= 0 &&
-      limitMortgagePrice < baseMortgage
+    limitMortgagePrice >= 0 &&
+    limitMortgagePrice < baseMortgage
       ? limitMortgagePrice
       : defaultLimit;
 
   const mortgageDifference = baseMortgage - limitMortgage;
   const limitRent = Math.max(
     0,
-    baseRent + Math.round((mortgageDifference / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_RENT_PER_UNIT),
+    baseRent +
+      Math.round(
+        (mortgageDifference / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_RENT_PER_UNIT,
+      ),
   );
 
   // Track actual mortgage value during drag (not percentage) to avoid rounding mismatch
@@ -219,49 +246,76 @@ function RentPriceConversionViewer({
   const currentMortgage = liveMortgage;
   const currentRent = Math.max(
     0,
-    baseRent + Math.round(((baseMortgage - currentMortgage) / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_RENT_PER_UNIT),
+    baseRent +
+      Math.round(
+        ((baseMortgage - currentMortgage) / RENT_CONVERSION_MORTGAGE_UNIT) *
+          RENT_CONVERSION_RENT_PER_UNIT,
+      ),
   );
   // Compute slider percent from actual mortgage for thumb positioning
   const range = baseMortgage - limitMortgage;
-  const sliderPercent = range > 0 ? Math.min(100, Math.max(0, ((currentMortgage - limitMortgage) / range) * 100)) : 100;
+  const sliderPercent =
+    range > 0 ? Math.min(100, Math.max(0, ((currentMortgage - limitMortgage) / range) * 100)) : 100;
 
   return (
-    <div className="rounded-2xl bg-surface-container-lowest [direction:rtl]">
-      <div className="h-px w-full mb-4 bg-surface-container-highest"></div>
+    <div className="bg-surface-container-lowest rounded-2xl [direction:rtl]">
+      <div className="bg-surface-container-highest mb-4 h-px w-full"></div>
       <Typography
         as="p"
         variant="label"
         size="medium"
         weight="medium"
-        className="mb-3 text-right text-on-surface-var"
+        className="text-on-surface-var mb-3 text-right"
       >
         رهن و اجاره قابل تبدیل است
       </Typography>
 
-
-
       {/* Two dynamic cards */}
       <div className="grid grid-cols-2 gap-3 [direction:rtl]">
-        <div className="flex flex-col h-17 items-center rounded-lg bg-surface-container-low border border-outline-var p-2 gap-y-1">
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
+        <div className="bg-surface-container-low border-outline-var flex h-17 flex-col items-center gap-y-1 rounded-lg border p-2">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-on-surface-var"
+          >
             رهن
           </Typography>
           <div className="flex items-center gap-1.5 [direction:rtl]">
-            <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
+            <Typography
+              as="span"
+              variant="label"
+              size="large"
+              weight="semibold"
+              className="text-on-surface"
+            >
               {formatRentNumberText(currentMortgage)}
             </Typography>
-            <AdCardTomanIcon className="h-6 w-6 text-on-surface-var" />
+            <AdCardTomanIcon className="text-on-surface-var h-6 w-6" />
           </div>
         </div>
-        <div className="flex flex-col h-17 items-center rounded-lg bg-surface-container-low border border-outline-var gap-y-1 p-2">
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
+        <div className="bg-surface-container-low border-outline-var flex h-17 flex-col items-center gap-y-1 rounded-lg border p-2">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-on-surface-var"
+          >
             اجاره ماهیانه
           </Typography>
           <div className="flex items-center gap-1.5 [direction:rtl]">
-            <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
+            <Typography
+              as="span"
+              variant="label"
+              size="large"
+              weight="semibold"
+              className="text-on-surface"
+            >
               {formatRentNumberText(currentRent)}
             </Typography>
-            <AdCardTomanIcon className="h-6 w-6 text-on-surface-var" />
+            <AdCardTomanIcon className="text-on-surface-var h-6 w-6" />
           </div>
         </div>
       </div>
@@ -269,11 +323,11 @@ function RentPriceConversionViewer({
       {/* Slider Track & Thumb */}
       <div className="relative mx-1 mt-4 h-9 select-none [direction:ltr]">
         {/* Blue dotted track */}
-        <div className="absolute left-0 right-0 top-1/2 flex h-3 -translate-y-1/2 items-center justify-between overflow-hidden rounded-full bg-primary-container px-2.5">
+        <div className="bg-primary-container absolute top-1/2 right-0 left-0 flex h-3 -translate-y-1/2 items-center justify-between overflow-hidden rounded-full px-2.5">
           {Array.from({ length: 28 }).map((_, i) => (
             <span
               key={i}
-              className="h-1 w-1 shrink-0 rounded-full bg-surface-container-lowest/70"
+              className="bg-surface-container-lowest/70 h-1 w-1 shrink-0 rounded-full"
             />
           ))}
         </div>
@@ -281,30 +335,40 @@ function RentPriceConversionViewer({
         {/* Pill thumb */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border border-outline-var bg-surface-container-lowest px-3 py-1 text-xs font-semibold text-on-surface shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
+          className="border-outline-var bg-surface-container-lowest text-on-surface pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border px-3 py-1 text-xs font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
           style={{ left: `${12 + sliderPercent * 0.76}%` }}
         >
-          <LinearArrowLeft1 className="h-4 w-4 text-on-surface-var" />
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface">
+          <LinearArrowLeft1 className="text-on-surface-var h-4 w-4" />
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-on-surface"
+          >
             تبدیل
           </Typography>
-          <LinearArrowRight1 className="h-4 w-4 text-on-surface-var" />
+          <LinearArrowRight1 className="text-on-surface-var h-4 w-4" />
         </div>
 
         {/* Interactive range input */}
         <input
           aria-label="تبدیل مبلغ رهن و اجاره"
           className="absolute z-20 h-full cursor-ew-resize opacity-0"
-          style={{ left: '12%', width: '76%' }}
+          style={{ left: "12%", width: "76%" }}
           max={baseMortgage}
           min={limitMortgage}
           onInput={(event) => {
             const raw = Number(event.currentTarget.value);
-            const stepped = Math.round(raw / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_MORTGAGE_UNIT;
+            const stepped =
+              Math.round(raw / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_MORTGAGE_UNIT;
             const halfStep = RENT_CONVERSION_MORTGAGE_UNIT / 2;
-            const snapped = Math.abs(stepped - baseMortgage) < halfStep ? baseMortgage
-              : Math.abs(stepped - limitMortgage) < halfStep ? limitMortgage
-              : stepped;
+            const snapped =
+              Math.abs(stepped - baseMortgage) < halfStep
+                ? baseMortgage
+                : Math.abs(stepped - limitMortgage) < halfStep
+                  ? limitMortgage
+                  : stepped;
             const clamped = Math.min(baseMortgage, Math.max(limitMortgage, snapped));
             setLiveMortgage(clamped);
           }}
@@ -315,25 +379,89 @@ function RentPriceConversionViewer({
       </div>
 
       {/* Range endpoints below slider */}
-      <div className="mt-3 flex items-start justify-between text-xs font-medium leading-5 text-on-surface-var [direction:rtl]">
+      <div className="text-on-surface-var mt-3 flex items-start justify-between text-xs leading-5 font-medium [direction:rtl]">
         <div className="text-right">
           <div>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-outline">رهن: </Typography>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">{formatRentNumberText(baseMortgage)}</Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-outline"
+            >
+              رهن:{" "}
+            </Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-on-surface-var"
+            >
+              {formatRentNumberText(baseMortgage)}
+            </Typography>
           </div>
           <div>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-outline">اجاره: </Typography>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">{formatRentNumberText(baseRent)}</Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-outline"
+            >
+              اجاره:{" "}
+            </Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-on-surface-var"
+            >
+              {formatRentNumberText(baseRent)}
+            </Typography>
           </div>
         </div>
         <div className="text-left">
           <div>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-outline">رهن: </Typography>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">{formatRentNumberText(limitMortgage)}</Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-outline"
+            >
+              رهن:{" "}
+            </Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-on-surface-var"
+            >
+              {formatRentNumberText(limitMortgage)}
+            </Typography>
           </div>
           <div>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-outline">اجاره: </Typography>
-            <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface-var">{formatRentNumberText(limitRent)}</Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-outline"
+            >
+              اجاره:{" "}
+            </Typography>
+            <Typography
+              as="span"
+              variant="label"
+              size="small"
+              weight="medium"
+              className="text-on-surface-var"
+            >
+              {formatRentNumberText(limitRent)}
+            </Typography>
           </div>
         </div>
       </div>
@@ -353,21 +481,31 @@ function DailyRentalPriceList({ details }: { details: ViewAdDetails }) {
 
   return (
     <div className="w-full">
-      <div className="my-4 h-px w-full bg-outline-var" />
+      <div className="bg-outline-var my-4 h-px w-full" />
       <div>
         {items.map((item, index) => (
           <div key={item.label}>
-            {index > 0 ? (
-              <div className="my-4 border-t border-dashed border-outline-var" />
-            ) : null}
+            {index > 0 ? <div className="border-outline-var my-4 border-t border-dashed" /> : null}
             <div className="flex items-center gap-x-9 [direction:rtl]">
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline w-38">
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="medium"
+                className="text-outline w-38"
+              >
                 {item.label}
               </Typography>
               <div className="flex items-center gap-1 [direction:rtl]">
-                <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface flex gap-x-1 items-center">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="large"
+                  weight="semibold"
+                  className="text-on-surface flex items-center gap-x-1"
+                >
                   {item.value}
-                  <AdCardTomanIcon className="h-5 w-5 text-on-surface-var" />
+                  <AdCardTomanIcon className="text-on-surface-var h-5 w-5" />
                 </Typography>
               </div>
             </div>
@@ -378,13 +516,7 @@ function DailyRentalPriceList({ details }: { details: ViewAdDetails }) {
   );
 }
 
-function HotelDailyRoomsSection({
-  rooms,
-  adId,
-}: {
-  rooms: ViewAdDailyHotelRoom[];
-  adId: string;
-}) {
+function HotelDailyRoomsSection({ rooms, adId }: { rooms: ViewAdDailyHotelRoom[]; adId: string }) {
   if (!rooms || rooms.length === 0) return null;
 
   const previewRoom = rooms[0];
@@ -396,16 +528,28 @@ function HotelDailyRoomsSection({
         <div className="grid grid-cols-2 gap-x-4 [direction:rtl]">
           {/* Right Column: Room Name */}
           <div className="flex items-center gap-2">
-            <LinearBed className="h-6 w-6 text-on-surface-var shrink-0" />
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface">
+            <LinearBed className="text-on-surface-var h-6 w-6 shrink-0" />
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-on-surface"
+            >
               {previewRoom.label}
             </Typography>
           </div>
 
           {/* Left Column: Standard capacity */}
           <div className="flex items-center gap-2">
-            <LinearUserSolid className="h-6 w-6 text-on-surface-var shrink-0" />
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface">
+            <LinearUserSolid className="text-on-surface-var h-6 w-6 shrink-0" />
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-on-surface"
+            >
               {previewRoom.guestCount} نفر
             </Typography>
           </div>
@@ -414,66 +558,114 @@ function HotelDailyRoomsSection({
         <div className="mt-3 grid grid-cols-2 gap-x-4 [direction:rtl]">
           {/* Right Column: Extra capacity */}
           <div className="flex items-center gap-2">
-            <LinearUserAdd className="h-6 w-6 text-on-surface-var shrink-0" />
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface">
+            <LinearUserAdd className="text-on-surface-var h-6 w-6 shrink-0" />
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-on-surface"
+            >
               {previewRoom.extraGuestCount}
             </Typography>
           </div>
 
           {/* Left Column: Meal plan */}
           <div className="flex items-center gap-2">
-            <LinearMeal className="h-6 w-6 text-on-surface-var shrink-0" />
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface">
+            <LinearMeal className="text-on-surface-var h-6 w-6 shrink-0" />
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-on-surface"
+            >
               {previewRoom.mealPlan}
             </Typography>
           </div>
         </div>
 
         {/* Solid Divider */}
-        <div className="my-4 h-px w-full bg-outline-var" />
+        <div className="bg-outline-var my-4 h-px w-full" />
 
         {/* Price Rows: strictly aligned directly under top grid columns */}
         <div className="space-y-3">
           {/* Normal Price */}
-          <div className="grid grid-cols-2 gap-x-4 items-center [direction:rtl]">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline">
+          <div className="grid grid-cols-2 items-center gap-x-4 [direction:rtl]">
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-outline"
+            >
               روزهای عادی:
             </Typography>
             <div className="flex items-center gap-1">
-              <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
+              <Typography
+                as="span"
+                variant="label"
+                size="large"
+                weight="semibold"
+                className="text-on-surface"
+              >
                 {previewRoom.normalPrice}
               </Typography>
-              <LinearTooman className="h-5 w-5 text-on-surface-var shrink-0" />
+              <LinearTooman className="text-on-surface-var h-5 w-5 shrink-0" />
             </div>
           </div>
 
-          <div className="border-b border-dashed border-outline-var" />
+          <div className="border-outline-var border-b border-dashed" />
 
           {/* Weekend Price */}
-          <div className="grid grid-cols-2 gap-x-4 items-center [direction:rtl]">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline">
+          <div className="grid grid-cols-2 items-center gap-x-4 [direction:rtl]">
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-outline"
+            >
               آخر هفته:
             </Typography>
             <div className="flex items-center gap-1">
-              <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
+              <Typography
+                as="span"
+                variant="label"
+                size="large"
+                weight="semibold"
+                className="text-on-surface"
+              >
                 {previewRoom.weekendPrice}
               </Typography>
-              <LinearTooman className="h-5 w-5 text-on-surface-var shrink-0" />
+              <LinearTooman className="text-on-surface-var h-5 w-5 shrink-0" />
             </div>
           </div>
 
-          <div className="border-b border-dashed border-outline-var" />
+          <div className="border-outline-var border-b border-dashed" />
 
           {/* Special Price */}
-          <div className="grid grid-cols-2 gap-x-4 items-center [direction:rtl]">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="text-outline">
+          <div className="grid grid-cols-2 items-center gap-x-4 [direction:rtl]">
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="text-outline"
+            >
               روزهای خاص:
             </Typography>
             <div className="flex items-center gap-1">
-              <Typography as="span" variant="label" size="large" weight="semibold" className="text-on-surface">
+              <Typography
+                as="span"
+                variant="label"
+                size="large"
+                weight="semibold"
+                className="text-on-surface"
+              >
                 {previewRoom.specialPrice}
               </Typography>
-              <LinearTooman className="h-5 w-5 text-on-surface-var shrink-0" />
+              <LinearTooman className="text-on-surface-var h-5 w-5 shrink-0" />
             </div>
           </div>
         </div>
@@ -504,14 +696,14 @@ function ProjectUnitDetailsSection({
         {displayedVariants.map((variant) => (
           <div
             key={variant.id}
-            className="rounded-2xl border border-outline-var bg-surface-container-lowest p-4 [direction:rtl]"
+            className="border-outline-var bg-surface-container-lowest rounded-2xl border p-4 [direction:rtl]"
           >
             <Typography
               as="h3"
               variant="title"
               size="medium"
               weight="semibold"
-              className="mb-4 text-right text-on-surface text-base font-semibold"
+              className="text-on-surface mb-4 text-right text-base font-semibold"
             >
               {variant.meterageTitle}
             </Typography>
@@ -523,7 +715,7 @@ function ProjectUnitDetailsSection({
                   variant="label"
                   size="medium"
                   weight="medium"
-                  className="text-on-surface-var shrink-0 text-sm font-medium pt-1"
+                  className="text-on-surface-var shrink-0 pt-1 text-sm font-medium"
                 >
                   موجود در طبقات:
                 </Typography>
@@ -531,7 +723,7 @@ function ProjectUnitDetailsSection({
                   {variant.floors.map((floor, i) => (
                     <span
                       key={`${floor}-${i}`}
-                      className="inline-flex h-8 min-w-8 items-center justify-center rounded-[8px] bg-surface-container-high px-2.5 text-sm font-medium text-on-surface"
+                      className="bg-surface-container-high text-on-surface inline-flex h-8 min-w-8 items-center justify-center rounded-[8px] px-2.5 text-sm font-medium"
                     >
                       {floor}
                     </span>
@@ -541,7 +733,7 @@ function ProjectUnitDetailsSection({
             ) : null}
 
             {variant.floors.length > 0 && (variant.roomLabel || variant.positions.length > 0) ? (
-              <div className="my-3.5 border-b border-dashed border-outline-var" />
+              <div className="border-outline-var my-3.5 border-b border-dashed" />
             ) : null}
 
             {variant.roomLabel ? (
@@ -555,14 +747,14 @@ function ProjectUnitDetailsSection({
                 >
                   تنوع اتاق:
                 </Typography>
-                <span className="inline-flex h-8 items-center justify-center rounded-[8px] bg-surface-container-high px-3 text-sm font-medium text-on-surface">
+                <span className="bg-surface-container-high text-on-surface inline-flex h-8 items-center justify-center rounded-[8px] px-3 text-sm font-medium">
                   {variant.roomLabel}
                 </span>
               </div>
             ) : null}
 
             {variant.roomLabel && variant.positions.length > 0 ? (
-              <div className="my-3.5 border-b border-dashed border-outline-var" />
+              <div className="border-outline-var my-3.5 border-b border-dashed" />
             ) : null}
 
             {variant.positions.length > 0 ? (
@@ -580,7 +772,7 @@ function ProjectUnitDetailsSection({
                   {variant.positions.map((pos, i) => (
                     <span
                       key={`${pos}-${i}`}
-                      className="inline-flex h-8 items-center justify-center rounded-[8px] bg-surface-container-high px-3 text-sm font-medium text-on-surface"
+                      className="bg-surface-container-high text-on-surface inline-flex h-8 items-center justify-center rounded-[8px] px-3 text-sm font-medium"
                     >
                       {pos}
                     </span>
@@ -591,9 +783,7 @@ function ProjectUnitDetailsSection({
           </div>
         ))}
 
-        <MoreLink to={`${getCurrentViewAdBasePath(adId)}/project-details`}>
-          اطلاعات بیشتر
-        </MoreLink>
+        <MoreLink to={`${getCurrentViewAdBasePath(adId)}/project-details`}>اطلاعات بیشتر</MoreLink>
       </div>
     </DetailSection>
   );
@@ -615,9 +805,7 @@ function GalleryHero({
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef<SwiperInstance | null>(null);
   const galleryItems =
-    mediaItems.length > 0
-      ? mediaItems
-      : [{ src: "/figma/view-ad-gallery.png", type: "image" }];
+    mediaItems.length > 0 ? mediaItems : [{ src: "/figma/view-ad-gallery.png", type: "image" }];
   const videoIndex = galleryItems.findIndex((item) => item.type === "video");
   const hasVideo = videoIndex >= 0;
   const imageCount = galleryItems.filter((item) => item.type === "image").length;
@@ -644,7 +832,7 @@ function GalleryHero({
 
   return (
     <div className="px-4 pt-4">
-      <div className="relative block w-full overflow-hidden rounded-2xl bg-surface-container focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-primary/40">
+      <div className="bg-surface-container focus-within:outline-primary/40 relative block w-full overflow-hidden rounded-2xl focus-within:outline-3 focus-within:outline-offset-2">
         <Swiper
           className="w-full"
           dir="rtl"
@@ -665,9 +853,10 @@ function GalleryHero({
                   src={item.src}
                 />
               ) : (
-                <Button unstyled
+                <Button
+                  unstyled
                   aria-label="باز کردن آلبوم تصاویر"
-                  className="relative block w-full bg-surface-container"
+                  className="bg-surface-container relative block w-full"
                   onClick={() => onOpenAlbum(index)}
                   type="button"
                 >
@@ -676,12 +865,13 @@ function GalleryHero({
                     className="aspect-[328/219] w-full object-cover"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
-                      const fallback = e.currentTarget.parentElement?.querySelector(".gallery-fallback-icon");
+                      const fallback =
+                        e.currentTarget.parentElement?.querySelector(".gallery-fallback-icon");
                       if (fallback) fallback.classList.remove("hidden");
                     }}
                     src={item.src}
                   />
-                  <div className="gallery-fallback-icon hidden grid aspect-[328/219] w-full place-items-center text-outline">
+                  <div className="gallery-fallback-icon text-outline grid hidden aspect-[328/219] w-full place-items-center">
                     <LinearImage className="h-12 w-12" />
                   </div>
                 </Button>
@@ -690,15 +880,16 @@ function GalleryHero({
           ))}
         </Swiper>
 
-
-        <div className="absolute right-2 top-2 z-2 inline-flex items-center gap-1 rounded-lg bg-black/60 px-1 text-sm font-medium leading-5 text-white">
+        <div className="absolute top-2 right-2 z-2 inline-flex items-center gap-1 rounded-lg bg-black/60 px-1 text-sm leading-5 font-medium text-white">
           <GalleryMediaButton
             iconSrc="/icons/iconAlbum.svg"
             isSelected={galleryItems[activeIndex]?.type === "image"}
             label="album"
             onClick={() => selectGalleryKind("album")}
           />
-          <Typography as="span" variant="body" size="medium" weight="regular">{new Intl.NumberFormat("fa-IR").format(imageCount)}</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            {new Intl.NumberFormat("fa-IR").format(imageCount)}
+          </Typography>
           {hasVideo ? (
             <GalleryMediaButton
               iconSrc="/icons/iconVideo.svg"
@@ -717,11 +908,11 @@ function GalleryHero({
           ) : null}
         </div>
 
-
-        <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center">
+        <div className="absolute right-0 bottom-3 left-0 z-10 flex justify-center">
           <div className="flex h-2 items-center gap-1.5">
             {galleryItems.slice(0, 4).map((item, index) => (
-              <Button unstyled
+              <Button
+                unstyled
                 aria-label={`نمایش تصویر ${index + 1}`}
                 className={
                   index === activeIndex
@@ -738,8 +929,14 @@ function GalleryHero({
       </div>
       {imagesBelongToAd === true ? (
         <div className="mt-2.5 flex items-center gap-1.5 px-1 [direction:rtl]">
-          <LinearInfoCircle className="h-4 w-4 shrink-0 text-outline" />
-          <Typography as="span" variant="body" size="small" weight="regular" className="text-outline">
+          <LinearInfoCircle className="text-outline h-4 w-4 shrink-0" />
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline"
+          >
             عکس‌ها متعلق به این آگهی است
           </Typography>
         </div>
@@ -759,7 +956,8 @@ function GalleryMediaButton({
   onClick: () => void;
 }) {
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-label={label}
       className={`grid h-7 w-7 place-items-center rounded-md`}
       onClick={(event) => {
@@ -773,13 +971,7 @@ function GalleryMediaButton({
   );
 }
 
-function MapPreview({
-  latitude,
-  longitude,
-}: {
-  latitude: number;
-  longitude: number;
-}) {
+function MapPreview({ latitude, longitude }: { latitude: number; longitude: number }) {
   return (
     <AdLocationMap
       className="mt-6"
@@ -802,21 +994,28 @@ function InlineMoreButton({
   onClick: () => void;
 }) {
   return (
-    <Button unstyled
-      className="mx-auto mt-3 flex w-fit items-center justify-center gap-1 p-0 text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+    <Button
+      unstyled
+      className="text-primary focus-visible:outline-primary/40 mx-auto mt-3 flex w-fit items-center justify-center gap-1 p-0 focus-visible:outline-3 focus-visible:outline-offset-2"
       onClick={onClick}
       type="button"
     >
-      <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium leading-4 text-primary">
+      <Typography
+        as="span"
+        variant="label"
+        size="small"
+        weight="medium"
+        className="text-primary text-xs leading-4 font-medium"
+      >
         {children}
       </Typography>
 
       <motion.div
         animate={{ rotate: isOpen ? 180 : 0 }}
         transition={{ duration: 0.24, ease: "easeInOut" }}
-        className="inline-flex items-center justify-center shrink-0"
+        className="inline-flex shrink-0 items-center justify-center"
       >
-        <ViewAdIcon className="h-3 w-3 shrink-0 text-primary" name="arrowDown" />
+        <ViewAdIcon className="text-primary h-3 w-3 shrink-0" name="arrowDown" />
       </motion.div>
     </Button>
   );
@@ -895,7 +1094,6 @@ function readRawContactText(value: unknown) {
 
   return "";
 }
-
 
 function readContactInfo(ad: AdvertisementItem): SingleAdContactInfo {
   const contacts = ad.contacts ?? {};
@@ -981,33 +1179,49 @@ function ContactInfoBottomSheet({
       {phoneHref ? (
         <>
           <div className="flex h-14 items-center justify-between [direction:ltr]">
-            <Typography as="span" variant="label" size="large" weight="medium" className="text-left text-base font-medium leading-6 text-on-surface">
+            <Typography
+              as="span"
+              variant="label"
+              size="large"
+              weight="medium"
+              className="text-on-surface text-left text-base leading-6 font-medium"
+            >
               {phoneDisplay}
             </Typography>
             <a
-              className="flex items-center gap-2 text-base font-medium leading-6 text-on-surface-var no-underline [direction:rtl]"
+              className="text-on-surface-var flex items-center gap-2 text-base leading-6 font-medium no-underline [direction:rtl]"
               href={`tel:${phoneHref}`}
               tabIndex={isOpen ? 0 : -1}
             >
               <PhoneIcon className="h-6 w-6" />
-              <Typography as="span" variant="body" size="medium" weight="regular">تماس با</Typography>
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                تماس با
+              </Typography>
             </a>
           </div>
-          <div className="h-px bg-outline-var" />
+          <div className="bg-outline-var h-px" />
           <div className="flex h-14 items-center justify-between [direction:ltr]">
-            <Typography as="span" variant="label" size="large" weight="medium" className="text-left text-base font-medium leading-6 text-on-surface">
+            <Typography
+              as="span"
+              variant="label"
+              size="large"
+              weight="medium"
+              className="text-on-surface text-left text-base leading-6 font-medium"
+            >
               {phoneDisplay}
             </Typography>
             <a
-              className="flex items-center gap-2 text-base font-medium leading-6 text-on-surface-var no-underline [direction:rtl]"
+              className="text-on-surface-var flex items-center gap-2 text-base leading-6 font-medium no-underline [direction:rtl]"
               href={`sms:${phoneHref}`}
               tabIndex={isOpen ? 0 : -1}
             >
               <MessageIcon className="h-6 w-6" />
-              <Typography as="span" variant="body" size="medium" weight="regular">ارسال پیامک</Typography>
+              <Typography as="span" variant="body" size="medium" weight="regular">
+                ارسال پیامک
+              </Typography>
             </a>
           </div>
-          {socialLinks.length ? <div className="h-px bg-outline-var" /> : null}
+          {socialLinks.length ? <div className="bg-outline-var h-px" /> : null}
         </>
       ) : null}
 
@@ -1028,21 +1242,26 @@ function ContactInfoBottomSheet({
               </a>
             ))}
           </div>
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-on-surface-var">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-on-surface-var text-right text-sm leading-5 font-medium"
+          >
             شبکه‌های اجتماعی
           </Typography>
         </div>
       ) : null}
 
       {!hasAnyVisibleContact ? (
-        <div className="rounded-xl bg-surface-container px-4 py-5 text-center text-sm font-medium leading-6 text-on-surface-var">
+        <div className="bg-surface-container text-on-surface-var rounded-xl px-4 py-5 text-center text-sm leading-6 font-medium">
           شماره تماس یا شبکه اجتماعی برای این آگهی ثبت نشده است.
         </div>
       ) : null}
     </BottomSheet>
   );
 }
-
 
 type AdvertisementNeighborhoodSelection = {
   cityId?: string;
@@ -1112,8 +1331,7 @@ function ViewAdContent({
   tour3dUrl: string;
 }) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const [isDescriptionOverflowing, setIsDescriptionOverflowing] =
-    useState(false);
+  const [isDescriptionOverflowing, setIsDescriptionOverflowing] = useState(false);
   const [areFacilitiesExpanded, setAreFacilitiesExpanded] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement | null>(null);
   const propertyInfoItems = details.propertyInfoPreview.filter(
@@ -1138,9 +1356,7 @@ function ViewAdContent({
   const visibleRows = isPreview
     ? []
     : hideRestrictedActions
-      ? actionRows.filter(
-        (row) => !row.label.includes("بازخورد") && !row.label.includes("تخلف"),
-      )
+      ? actionRows.filter((row) => !row.label.includes("بازخورد") && !row.label.includes("تخلف"))
       : actionRows;
 
   useEffect(() => {
@@ -1152,9 +1368,7 @@ function ViewAdContent({
         return;
       }
 
-      setIsDescriptionOverflowing(
-        element.scrollHeight > DESCRIPTION_COLLAPSED_HEIGHT + 1,
-      );
+      setIsDescriptionOverflowing(element.scrollHeight > DESCRIPTION_COLLAPSED_HEIGHT + 1);
     };
 
     updateDescriptionOverflow();
@@ -1178,13 +1392,29 @@ function ViewAdContent({
 
         <div className="px-4 pt-4">
           <div className="flex h-7 items-center justify-between [direction:ltr]">
-            <div className="flex items-center gap-1 text-xs font-medium leading-4 text-on-surface-var [direction:ltr]">
-              <Typography as="span" variant="label" size="small" weight="medium" dir="rtl">{details.age}</Typography>
+            <div className="text-on-surface-var flex items-center gap-1 text-xs leading-4 font-medium [direction:ltr]">
+              <Typography as="span" variant="label" size="small" weight="medium" dir="rtl">
+                {details.age}
+              </Typography>
               <ClockIcon className="h-4 w-4 shrink-0" />
             </div>
             <div className="flex items-center gap-2 text-sm leading-5 [direction:rtl]">
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">کد آگهی:</Typography>
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface">
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="medium"
+                className="text-on-surface-var"
+              >
+                کد آگهی:
+              </Typography>
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="medium"
+                className="text-on-surface"
+              >
                 {details.adCode}
               </Typography>
             </div>
@@ -1198,7 +1428,7 @@ function ViewAdContent({
                   variant="body"
                   size="small"
                   weight="medium"
-                  className="whitespace-nowrap rounded-lg border border-on-warning-container bg-warning-container px-2 py-1 text-on-warning-container"
+                  className="border-on-warning-container bg-warning-container text-on-warning-container rounded-lg border px-2 py-1 whitespace-nowrap"
                 >
                   ویژه
                 </Typography>
@@ -1209,7 +1439,7 @@ function ViewAdContent({
                   variant="body"
                   size="small"
                   weight="medium"
-                  className="whitespace-nowrap rounded-lg border border-tertiary bg-tertiary-container px-2 py-1 text-tertiary"
+                  className="border-tertiary bg-tertiary-container text-tertiary rounded-lg border px-2 py-1 whitespace-nowrap"
                 >
                   بروزرسانی
                 </Typography>
@@ -1218,15 +1448,29 @@ function ViewAdContent({
           ) : null}
 
           <div className="mt-4 space-y-2 text-right">
-            <Typography as="p" variant="body" size="medium" weight="regular" className="text-on-surface-var">
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-on-surface-var"
+            >
               {details.categoryNeighborhood}
             </Typography>
-            <Typography as="p" variant="title" size="medium" weight="semibold" className="mt-2 text-on-surface">
+            <Typography
+              as="p"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="text-on-surface mt-2"
+            >
               {details.headline}
             </Typography>
           </div>
 
-          {details.formCode === "partnership" ? null : <AdvertisementPriceBlock details={details} />}
+          {details.formCode === "partnership" ? null : (
+            <AdvertisementPriceBlock details={details} />
+          )}
         </div>
       </section>
 
@@ -1236,28 +1480,41 @@ function ViewAdContent({
         <>
           <DetailSection icon="apartment" title={getPropertyPreviewTitle(details.formCode)}>
             {details.hotelStars ? (
-              <AccommodationRatingBanner className="mt-6" count={details.hotelStars} label="رتبه اقامتگاه" />
+              <AccommodationRatingBanner
+                className="mt-6"
+                count={details.hotelStars}
+                label="رتبه اقامتگاه"
+              />
             ) : null}
             <PropertyGrid items={propertyInfoItems} />
             {details.formCode.startsWith("daily-") && details.formCode !== "daily-hotel" ? (
               <DailyRentalPriceList details={details} />
             ) : null}
             {hasMorePropertyInfo && details.formCode !== "daily-hotel" ? (
-              <MoreLink to={`${getCurrentViewAdBasePath(adId)}/property-info`}>اطلاعات بیشتر</MoreLink>
+              <MoreLink to={`${getCurrentViewAdBasePath(adId)}/property-info`}>
+                اطلاعات بیشتر
+              </MoreLink>
             ) : null}
           </DetailSection>
 
-          {details.formCode === "daily-hotel" && details.dailyHotelRooms && details.dailyHotelRooms.length > 0 ? (
+          {details.formCode === "daily-hotel" &&
+          details.dailyHotelRooms &&
+          details.dailyHotelRooms.length > 0 ? (
             <HotelDailyRoomsSection adId={adId} rooms={details.dailyHotelRooms} />
           ) : null}
 
-          {details.formCode === "presale-special" && details.projectDetails && details.projectDetails.length > 0 ? (
+          {details.formCode === "presale-special" &&
+          details.projectDetails &&
+          details.projectDetails.length > 0 ? (
             <ProjectUnitDetailsSection adId={adId} details={details.projectDetails} />
           ) : null}
 
           <DetailSection icon="apartment" title="تجهیزات و امکانات">
             <div className="overflow-hidden">
-              <PropertyGrid items={facilityItems.slice(0, FACILITIES_COLLAPSED_MAX_ITEMS)} withLabels={false} />
+              <PropertyGrid
+                items={facilityItems.slice(0, FACILITIES_COLLAPSED_MAX_ITEMS)}
+                withLabels={false}
+              />
               <AnimatePresence initial={false}>
                 {areFacilitiesExpanded && facilityItems.length > FACILITIES_COLLAPSED_MAX_ITEMS && (
                   <motion.div
@@ -1268,7 +1525,10 @@ function ViewAdContent({
                     className="overflow-hidden"
                   >
                     <div className="pt-3">
-                      <PropertyGrid items={facilityItems.slice(FACILITIES_COLLAPSED_MAX_ITEMS)} withLabels={false} />
+                      <PropertyGrid
+                        items={facilityItems.slice(FACILITIES_COLLAPSED_MAX_ITEMS)}
+                        withLabels={false}
+                      />
                     </div>
                   </motion.div>
                 )}
@@ -1288,7 +1548,7 @@ function ViewAdContent({
 
           <DetailSection icon="apartment" title="توضیحات">
             <div
-              className="relative mt-6 overflow-hidden text-right text-base font-normal leading-8 text-on-surface transition-all duration-300 ease-in-out"
+              className="text-on-surface relative mt-6 overflow-hidden text-right text-base leading-8 font-normal transition-all duration-300 ease-in-out"
               style={{
                 height:
                   shouldShowDescriptionMore && !isDescriptionExpanded
@@ -1296,11 +1556,18 @@ function ViewAdContent({
                     : "auto",
               }}
             >
-              <Typography as="p" variant="body" size="medium" weight="regular" ref={descriptionRef} className="m-0 whitespace-pre-line">
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                ref={descriptionRef}
+                className="m-0 whitespace-pre-line"
+              >
                 {details.description}
               </Typography>
               {shouldShowDescriptionMore && !isDescriptionExpanded ? (
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-surface-container-lowest/0 to-surface-container-lowest" />
+                <div className="from-surface-container-lowest/0 to-surface-container-lowest pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b" />
               ) : null}
             </div>
             {shouldShowDescriptionMore ? (
@@ -1321,17 +1588,24 @@ function ViewAdContent({
       {advertiserPreview ? <AdvertiserCard preview={advertiserPreview} /> : null}
 
       {visibleRows.length > 0 ? (
-        <section className="border-t-8 border-surface-container bg-surface-container-lowest">
+        <section className="border-surface-container bg-surface-container-lowest border-t-8">
           {visibleRows.map((row) => (
-            <Button unstyled
-              className="flex w-full items-center justify-between border-b-8 border-surface-container p-4 text-right last:border-b-[16px] last:border-surface-container-lowest focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
+            <Button
+              unstyled
+              className="border-surface-container last:border-surface-container-lowest focus-visible:outline-inset focus-visible:outline-primary/40 flex w-full items-center justify-between border-b-8 p-4 text-right last:border-b-[16px] focus-visible:outline-3"
               key={row.label}
               onClick={() => onRowAction(row.label)}
               type="button"
             >
               <div className="flex min-w-0 items-center gap-2">
                 <ViewAdIcon className="text-outline" name={row.icon} />
-                <Typography as="span" variant="label" size="large" weight="medium" className="text-on-surface">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="large"
+                  weight="medium"
+                  className="text-on-surface"
+                >
                   {row.label}
                 </Typography>
               </div>
@@ -1352,34 +1626,49 @@ function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
   const initial = preview.name.trim().charAt(0) || "م";
 
   return (
-    <section className="border-t-8 border-surface-container bg-surface-container-lowest px-4 py-6 text-center">
+    <section className="border-surface-container bg-surface-container-lowest border-t-8 px-4 py-6 text-center">
       <Link
-        className="block rounded-2xl px-2 py-2 text-inherit no-underline transition active:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+        className="active:bg-surface-container focus-visible:outline-primary/40 block rounded-2xl px-2 py-2 text-inherit no-underline transition focus-visible:outline-3 focus-visible:outline-offset-2"
         to={preview.href}
       >
-        <div className="mx-auto grid h-16 w-16 place-items-center overflow-hidden rounded-full border border-outline-var bg-primary-container">
+        <div className="border-outline-var bg-primary-container mx-auto grid h-16 w-16 place-items-center overflow-hidden rounded-full border">
           {preview.logoUrl ? (
-            <img
-              alt={preview.name}
-              className="h-full w-full object-cover"
-              src={preview.logoUrl}
-            />
+            <img alt={preview.name} className="h-full w-full object-cover" src={preview.logoUrl} />
           ) : (
-            <Typography as="span" variant="headline" size="small" className="text-2xl font-bold leading-none text-on-primary-container">
+            <Typography
+              as="span"
+              variant="headline"
+              size="small"
+              className="text-on-primary-container text-2xl leading-none font-bold"
+            >
               {initial}
             </Typography>
           )}
         </div>
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="mt-4 text-base font-semibold leading-6 text-on-surface-var">
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-on-surface-var mt-4 text-base leading-6 font-semibold"
+        >
           {preview.name}
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-outline">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="medium"
+          className="text-outline m-0 mt-1 text-xs leading-4 font-medium"
+        >
           {preview.subtitle}
         </Typography>
         {preview.location ? (
-          <div className="mt-2 flex items-center justify-center gap-1 text-primary">
+          <div className="text-primary mt-2 flex items-center justify-center gap-1">
             <ViewAdIcon className="h-4 w-4" name="location" />
-            <Typography as="span" variant="body" size="medium" weight="regular">{preview.location}</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              {preview.location}
+            </Typography>
           </div>
         ) : null}
         <AdvertiserMetrics preview={preview} />
@@ -1407,20 +1696,16 @@ function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
   };
 
   return (
-    <section className="border-t-8 border-surface-container bg-surface-container-lowest text-center">
+    <section className="border-surface-container bg-surface-container-lowest border-t-8 text-center">
       <Link
-        className="block px-4 pb-3 pt-4 text-inherit no-underline transition active:bg-surface-container focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
+        className="active:bg-surface-container focus-visible:outline-inset focus-visible:outline-primary/40 block px-4 pt-4 pb-3 text-inherit no-underline transition focus-visible:outline-3"
         to={preview.href}
       >
-        <div className="mx-auto grid h-20 w-20 place-items-center overflow-hidden rounded-lg bg-surface-container-lowest">
+        <div className="bg-surface-container-lowest mx-auto grid h-20 w-20 place-items-center overflow-hidden rounded-lg">
           {logoUrl ? (
-            <img
-              alt={preview.name}
-              className="h-full w-full object-contain"
-              src={logoUrl}
-            />
+            <img alt={preview.name} className="h-full w-full object-contain" src={logoUrl} />
           ) : (
-            <div className="grid h-full w-full place-items-center rounded-lg border border-outline-var bg-surface-container-lowest">
+            <div className="border-outline-var bg-surface-container-lowest grid h-full w-full place-items-center rounded-lg border">
               <Typography as="span" variant="headline" size="small" className="text-warning">
                 {initial}
               </Typography>
@@ -1433,15 +1718,21 @@ function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
           variant="title"
           size="medium"
           weight="medium"
-          className="mt-2 text-on-surface-var"
+          className="text-on-surface-var mt-2"
         >
           {preview.name}
         </Typography>
 
         {location ? (
           <div className="mt-1 flex items-center justify-center gap-1">
-            <ViewAdIcon className="h-4 w-4 text-on-surface-var" name="location" />
-            <Typography as="span" variant="body" size="small" weight="medium" className="text-primary">
+            <ViewAdIcon className="text-on-surface-var h-4 w-4" name="location" />
+            <Typography
+              as="span"
+              variant="body"
+              size="small"
+              weight="medium"
+              className="text-primary"
+            >
               {location}
             </Typography>
           </div>
@@ -1464,24 +1755,42 @@ function AdvertiserMetrics({
 
   if (agencyStyle) {
     return (
-      <div className="mx-auto mt-4 flex items-center justify-center gap-4 text-on-surface-var [direction:rtl]">
+      <div className="text-on-surface-var mx-auto mt-4 flex items-center justify-center gap-4 [direction:rtl]">
         {preview.ratingScore ? (
           <div className="flex items-center gap-1 [direction:rtl]">
-            <ViewAdIcon className="h-4 w-4 text-on-surface-var" name="star" />
-            <Typography as="span" variant="body" size="small" weight="medium">امتیاز</Typography>
-            <Typography as="span" variant="title" size="small" weight="semibold" className=" mr-2 text-tertiary">
+            <ViewAdIcon className="text-on-surface-var h-4 w-4" name="star" />
+            <Typography as="span" variant="body" size="small" weight="medium">
+              امتیاز
+            </Typography>
+            <Typography
+              as="span"
+              variant="title"
+              size="small"
+              weight="semibold"
+              className="text-tertiary mr-2"
+            >
               {preview.ratingScore}
             </Typography>
           </div>
         ) : null}
 
-        {preview.ratingScore && preview.rank ? <div className="h-5 w-px rounded-full bg-outline-var" /> : null}
+        {preview.ratingScore && preview.rank ? (
+          <div className="bg-outline-var h-5 w-px rounded-full" />
+        ) : null}
 
         {preview.rank ? (
           <div className="flex items-center gap-1 [direction:rtl]">
-            <ViewAdIcon className="h-4 w-4 text-on-surface-var" name="ranking" />
-            <Typography as="span" variant="body" size="small" weight="medium">رتبه</Typography>
-            <Typography as="span" variant="title" size="small" weight="semibold" className="mr-2 text-tertiary">
+            <ViewAdIcon className="text-on-surface-var h-4 w-4" name="ranking" />
+            <Typography as="span" variant="body" size="small" weight="medium">
+              رتبه
+            </Typography>
+            <Typography
+              as="span"
+              variant="title"
+              size="small"
+              weight="semibold"
+              className="text-tertiary mr-2"
+            >
               {preview.rank}
             </Typography>
           </div>
@@ -1491,22 +1800,56 @@ function AdvertiserMetrics({
   }
 
   return (
-    <div className="mx-auto mt-4 flex max-w-[220px] items-center justify-between text-xs font-medium leading-4 text-on-surface-var [direction:ltr]">
+    <div className="text-on-surface-var mx-auto mt-4 flex max-w-[220px] items-center justify-between text-xs leading-4 font-medium [direction:ltr]">
       {preview.ratingScore ? (
         <div className="flex items-center gap-1">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-tertiary">{preview.ratingScore}</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography>
-          <img alt="" aria-hidden="true" className="h-4 w-4 shrink-0 object-contain" src="/icons/star.svg" />
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-tertiary"
+          >
+            {preview.ratingScore}
+          </Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            امتیاز
+          </Typography>
+          <img
+            alt=""
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0 object-contain"
+            src="/icons/star.svg"
+          />
         </div>
-      ) : <span />}
-      {preview.ratingScore && preview.rank ? <div className="h-4 w-px bg-outline-var" /> : null}
+      ) : (
+        <span />
+      )}
+      {preview.ratingScore && preview.rank ? <div className="bg-outline-var h-4 w-px" /> : null}
       {preview.rank ? (
         <div className="flex items-center gap-1">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-tertiary">{preview.rank}</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography>
-          <img alt="" aria-hidden="true" className="h-4 w-4 shrink-0 object-contain" src="/icons/ranking.svg" />
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-tertiary"
+          >
+            {preview.rank}
+          </Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            رتبه
+          </Typography>
+          <img
+            alt=""
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0 object-contain"
+            src="/icons/ranking.svg"
+          />
         </div>
-      ) : <span />}
+      ) : (
+        <span />
+      )}
     </div>
   );
 }
@@ -1565,19 +1908,19 @@ export function ViewAdPage() {
   const submitReport = useSubmitAdvertiseReportMutation();
   const reportReasonsQuery = useAdvertiseReportReasonsQuery(isViolationReportOpen);
   const detailQuery = useAdvertisementDetailQuery(isPreview ? null : adId);
-  const agencyPreviewQuery = useAgencyAdvertisementPreviewQuery(
-    initialAgencyPreview ? adId : null,
-  );
+  const agencyPreviewQuery = useAgencyAdvertisementPreviewQuery(initialAgencyPreview ? adId : null);
   const previewQuery = useAdvertisementPreviewQuery(
     isPreview && (!initialAgencyPreview || agencyPreviewQuery.isError) ? adId : null,
   );
   const activePreviewQuery =
-    initialAgencyPreview && !agencyPreviewQuery.isError
-      ? agencyPreviewQuery
-      : previewQuery;
-  const { data: ad, error, isError, isLoading, refetch } = isPreview
-    ? activePreviewQuery
-    : detailQuery;
+    initialAgencyPreview && !agencyPreviewQuery.isError ? agencyPreviewQuery : previewQuery;
+  const {
+    data: ad,
+    error,
+    isError,
+    isLoading,
+    refetch,
+  } = isPreview ? activePreviewQuery : detailQuery;
   const useAgencyAllocationPreview =
     isPreview && (ad ? shouldUseAgencyAllocationPreview(ad) : shouldUseAgencyAllocationPreview());
   const isPersonalPreview =
@@ -1600,7 +1943,7 @@ export function ViewAdPage() {
 
   const handleOpenContactInfo = (type: "contact" | "agency" | "owner") => {
     if (!isPreview && isPublishedAdvertisement(ad)) {
-      const targetAdId = ad?.id ? String(ad.id).trim() : (adId ? String(adId).trim() : "");
+      const targetAdId = ad?.id ? String(ad.id).trim() : adId ? String(adId).trim() : "";
       if (targetAdId && /^[1-9]\d*$/.test(targetAdId)) {
         void reportAdvertisementEngagement(targetAdId, "call");
       }
@@ -1662,14 +2005,19 @@ export function ViewAdPage() {
   const usesPublicAdPresentation = isPreview ? !isPersonalPreview : !isOwnAd;
   const isAdPublished = isPublishedAdvertisement(resolvedAd);
   const contactInfo = readContactInfo(resolvedAd);
-  const rawAgencyUserContact = (window.history.state as Record<string, unknown> | null)?.userContact as
-    | AgencyUserContactData
-    | undefined;
+  const rawAgencyUserContact = (window.history.state as Record<string, unknown> | null)
+    ?.userContact as AgencyUserContactData | undefined;
   const rawAd = resolvedAd as Record<string, unknown> | undefined;
-  const rawUser = (rawAd?.user && typeof rawAd.user === "object" ? rawAd.user : undefined) as Record<string, unknown> | undefined;
-  const rawAdvertiser = (rawAd?.advertiser && typeof rawAd.advertiser === "object" ? rawAd.advertiser : undefined) as Record<string, unknown> | undefined;
-  const rawOwner = (rawAd?.owner && typeof rawAd.owner === "object" ? rawAd.owner : undefined) as Record<string, unknown> | undefined;
-  const rawContacts = (rawAd?.contacts && typeof rawAd.contacts === "object" ? rawAd.contacts : undefined) as Record<string, unknown> | undefined;
+  const rawUser = (rawAd?.user && typeof rawAd.user === "object" ? rawAd.user : undefined) as
+    Record<string, unknown> | undefined;
+  const rawAdvertiser = (
+    rawAd?.advertiser && typeof rawAd.advertiser === "object" ? rawAd.advertiser : undefined
+  ) as Record<string, unknown> | undefined;
+  const rawOwner = (rawAd?.owner && typeof rawAd.owner === "object" ? rawAd.owner : undefined) as
+    Record<string, unknown> | undefined;
+  const rawContacts = (
+    rawAd?.contacts && typeof rawAd.contacts === "object" ? rawAd.contacts : undefined
+  ) as Record<string, unknown> | undefined;
 
   const agencyUserContact: AgencyUserContactData = {
     name:
@@ -1836,9 +2184,8 @@ export function ViewAdPage() {
     }
 
     if (icon === "share") {
-      const shareUrl = isPreview && adId
-        ? `${window.location.origin}/ads/${adId}`
-        : window.location.href;
+      const shareUrl =
+        isPreview && adId ? `${window.location.origin}/ads/${adId}` : window.location.href;
       const shareTitle = details.title || document.title;
 
       try {
@@ -1883,18 +2230,10 @@ export function ViewAdPage() {
             return;
           }
 
-          showToast(
-            getApiErrorMessage(badgeError, "ثبت نشان با خطا مواجه شد."),
-            "خطا",
-            "error",
-          );
+          showToast(getApiErrorMessage(badgeError, "ثبت نشان با خطا مواجه شد."), "خطا", "error");
         },
         onSuccess: () => {
-          showToast(
-            nextBookmarkedState
-              ? "آگهی به نشان‌ها اضافه شد"
-              : "آگهی از نشان‌ها حذف شد",
-          );
+          showToast(nextBookmarkedState ? "آگهی به نشان‌ها اضافه شد" : "آگهی از نشان‌ها حذف شد");
         },
       });
     }
@@ -1918,11 +2257,7 @@ export function ViewAdPage() {
             return;
           }
 
-          showToast(
-            getApiErrorMessage(noteError, "ثبت یادداشت با خطا مواجه شد."),
-            "خطا",
-            "error",
-          );
+          showToast(getApiErrorMessage(noteError, "ثبت یادداشت با خطا مواجه شد."), "خطا", "error");
         },
         onSuccess: () => {
           setIsNoteOpen(false);
@@ -1962,10 +2297,7 @@ export function ViewAdPage() {
     );
   };
 
-  const handleSubmitReport = ({
-    description,
-    reportReasonId,
-  }: ViolationReportSubmitPayload) => {
+  const handleSubmitReport = ({ description, reportReasonId }: ViolationReportSubmitPayload) => {
     if (!adId || submitReport.isPending) {
       return;
     }
@@ -2002,7 +2334,7 @@ export function ViewAdPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <Toast onDismiss={() => setToast(null)} toast={toast} />
@@ -2028,8 +2360,7 @@ export function ViewAdPage() {
         onAction={handleTopBarAction}
       />
 
-
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain bg-[#F0F0F0]">
+      <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-[#F0F0F0]">
         <ViewAdContent
           adId={adId}
           ad={resolvedAd}
@@ -2050,11 +2381,11 @@ export function ViewAdPage() {
 
       {isPreview && !isPersonalPreview ? (
         useAgencyAllocationPreview ? (
-          <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
+          <div className="bg-surface-container-lowest shrink-0 px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
             <div className="flex gap-4 [direction:ltr]">
               <Button
                 unstyled
-                className="flex-1 rounded-[10px] bg-primary py-2.5 text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+                className="bg-primary text-on-primary focus-visible:outline-primary/40 flex-1 rounded-[10px] py-2.5 text-sm! font-medium! focus-visible:outline-3 focus-visible:outline-offset-2"
                 onClick={() => handleOpenContactInfo("agency")}
                 type="button"
               >
@@ -2062,12 +2393,18 @@ export function ViewAdPage() {
               </Button>
               <Button
                 unstyled
-                className="flex items-center justify-center py-2 flex-1 gap-2 rounded-xl border border-primary bg-surface-container-lowest text-sm font-medium text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-wait disabled:opacity-60"
+                className="border-primary bg-surface-container-lowest text-primary focus-visible:outline-primary/40 flex flex-1 items-center justify-center gap-2 rounded-xl border py-2 text-sm font-medium focus-visible:outline-3 focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
                 disabled={createAdvertiseChat.isPending}
                 onClick={openAdvertiseChat}
                 type="button"
               >
-                <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium!">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="medium"
+                  className="text-sm font-medium!"
+                >
                   {createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با کاربر"}
                 </Typography>
                 <ViewAdIcon className="h-5! w-5!" name="chat" />
@@ -2075,10 +2412,10 @@ export function ViewAdPage() {
             </div>
           </div>
         ) : showAgencyOwnerContact ? (
-          <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
+          <div className="bg-surface-container-lowest shrink-0 px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
             <Button
               unstyled
-              className="h-10 w-full rounded-[12px] bg-primary text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+              className="bg-primary text-on-primary focus-visible:outline-primary/40 h-10 w-full rounded-[12px] text-sm! font-medium! focus-visible:outline-3 focus-visible:outline-offset-2"
               onClick={() => handleOpenContactInfo("owner")}
               type="button"
             >
@@ -2087,12 +2424,13 @@ export function ViewAdPage() {
           </div>
         ) : null
       ) : (
-        <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
+        <div className="bg-surface-container-lowest shrink-0 px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
           {contactActionCount > 0 ? (
             <div className={`grid ${contactActionsGridClassName} gap-4 [direction:ltr]`}>
               {hasContactSheetData ? (
-                <Button unstyled
-                  className=" rounded-[10px] bg-primary py-2.5 flex-1 text-sm! font-medium! text-on-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+                <Button
+                  unstyled
+                  className="bg-primary text-on-primary focus-visible:outline-primary/40 flex-1 rounded-[10px] py-2.5 text-sm! font-medium! focus-visible:outline-3 focus-visible:outline-offset-2"
                   onClick={() => handleOpenContactInfo("contact")}
                   type="button"
                 >
@@ -2100,19 +2438,28 @@ export function ViewAdPage() {
                 </Button>
               ) : null}
               {hasChatContact ? (
-                <Button unstyled
-                  className="flex items-center justify-center py-2 flex-1 gap-2 rounded-xl border border-primary bg-surface-container-lowest text-sm font-medium text-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-wait disabled:opacity-60"
+                <Button
+                  unstyled
+                  className="border-primary bg-surface-container-lowest text-primary focus-visible:outline-primary/40 flex flex-1 items-center justify-center gap-2 rounded-xl border py-2 text-sm font-medium focus-visible:outline-3 focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
                   disabled={createAdvertiseChat.isPending}
                   onClick={openAdvertiseChat}
                   type="button"
                 >
-                  <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium! [direction:rtl]">{createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}</Typography>
+                  <Typography
+                    as="span"
+                    variant="label"
+                    size="medium"
+                    weight="medium"
+                    className="text-sm font-medium! [direction:rtl]"
+                  >
+                    {createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}
+                  </Typography>
                   <ViewAdIcon className="h-5! w-5!" name="chat" />
                 </Button>
               ) : null}
             </div>
           ) : (
-            <div className="rounded-[10px] bg-surface-container px-4 py-3 text-center text-sm font-medium leading-5 text-outline">
+            <div className="bg-surface-container text-outline rounded-[10px] px-4 py-3 text-center text-sm leading-5 font-medium">
               {usesPublicAdPresentation
                 ? "راه ارتباطی برای این آگهی ثبت نشده است."
                 : "این آگهی برای شماست"}
@@ -2186,9 +2533,9 @@ export function ViewAdPage() {
               ? isUnauthorizedApiError(reportReasonsQuery.error)
                 ? "برای ارسال گزارش تخلف، ابتدا وارد حساب کاربری شوید."
                 : getApiErrorMessage(
-                  reportReasonsQuery.error,
-                  "دریافت دلایل گزارش با خطا مواجه شد.",
-                )
+                    reportReasonsQuery.error,
+                    "دریافت دلایل گزارش با خطا مواجه شد.",
+                  )
               : undefined
           }
           isLoading={reportReasonsQuery.isLoading}

@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 
 export interface SEOProps {
   title: string;
@@ -8,20 +8,20 @@ export interface SEOProps {
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
-  ogType?: 'website' | 'article' | 'profile';
-  twitterCard?: 'summary' | 'summary_large_image';
+  ogType?: "website" | "article" | "profile";
+  twitterCard?: "summary" | "summary_large_image";
   noIndex?: boolean;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 function getDefaultCanonicalUrl() {
-  if (typeof window === 'undefined') return undefined;
+  if (typeof window === "undefined") return undefined;
 
-  const configuredSiteUrl = import.meta.env.VITE_SITE_URL?.trim().replace(/\/$/, '');
-  const pathname = window.location.pathname || '/';
+  const configuredSiteUrl = import.meta.env.VITE_SITE_URL?.trim().replace(/\/$/, "");
+  const pathname = window.location.pathname || "/";
 
   if (configuredSiteUrl) {
-    return `${configuredSiteUrl}${pathname === '/' ? '' : pathname}`;
+    return `${configuredSiteUrl}${pathname === "/" ? "" : pathname}`;
   }
 
   return `${window.location.origin}${pathname}`;
@@ -31,7 +31,10 @@ function toAbsoluteUrl(url: string | undefined, baseUrl: string | undefined) {
   if (!url) return undefined;
 
   try {
-    return new URL(url, baseUrl ?? (typeof window !== 'undefined' ? window.location.origin : undefined)).toString();
+    return new URL(
+      url,
+      baseUrl ?? (typeof window !== "undefined" ? window.location.origin : undefined),
+    ).toString();
   } catch {
     return url;
   }
@@ -45,8 +48,8 @@ export function SEO({
   ogTitle,
   ogDescription,
   ogImage,
-  ogType = 'website',
-  twitterCard = 'summary',
+  ogType = "website",
+  twitterCard = "summary",
   noIndex = false,
   structuredData,
 }: SEOProps) {
@@ -64,8 +67,8 @@ export function SEO({
         name="robots"
         content={
           noIndex
-            ? 'noindex, nofollow'
-            : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+            ? "noindex, nofollow"
+            : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
         }
       />
 
@@ -85,9 +88,7 @@ export function SEO({
       {resolvedCanonicalUrl && <link rel="canonical" href={resolvedCanonicalUrl} />}
 
       {structuredData ? (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       ) : null}
     </Helmet>
   );

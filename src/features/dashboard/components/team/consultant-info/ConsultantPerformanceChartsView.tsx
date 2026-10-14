@@ -140,7 +140,7 @@ export function ConsultantPerformanceChartsView({
 
   return (
     <section
-      className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface"
+      className="bg-surface-container-low text-on-surface mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden"
       dir="rtl"
     >
       <TopBar
@@ -151,7 +151,7 @@ export function ConsultantPerformanceChartsView({
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto space-y-4 bg-surface-container-low">
+      <main className="bg-surface-container-low min-h-0 flex-1 space-y-4 overflow-y-auto">
         <ConsultantPieCard
           card={adsCard}
           isLoading={adsMetricQuery.isLoading}

@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import "./homeArtwork.css";
 
-
 import type { CategoryOption, QuickAction } from "./homeTypes";
 import ArrowDown from "../../shared/assets/icons/ArrowDown";
 import ShenasaVector from "../../shared/assets/icons/ShenasaVector";
@@ -60,8 +59,10 @@ import {
   type TransactionType,
 } from "../search/SearchMapFilterPage";
 
-
-function getCategorySelectionFormCode(category: CategoryOption | QuickAction | undefined, parent: QuickAction | null) {
+function getCategorySelectionFormCode(
+  category: CategoryOption | QuickAction | undefined,
+  parent: QuickAction | null,
+) {
   if (category?.formCode) return category.formCode;
   if (!category || !parent) return "";
   const transaction = (parent.code ?? "sale") as TransactionType;
@@ -166,9 +167,7 @@ function getStoredCity(): SelectedCity {
 export function HomePage() {
   const navigate = useNavigate();
   const hasAuthSession = Boolean(getStoredAuthSession());
-  const [selectedCategory, setSelectedCategory] = useState<QuickAction | null>(
-    null,
-  );
+  const [selectedCategory, setSelectedCategory] = useState<QuickAction | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCityOpen, setIsCityOpen] = useState(false);
   const [hasLoadedCategorySheet, setHasLoadedCategorySheet] = useState(false);
@@ -254,8 +253,7 @@ export function HomePage() {
 
   const navigateToSearch = (options: { formCode?: string; query?: string } = {}) => {
     const params = new URLSearchParams();
-    const cityId =
-      selectedCity.id ?? window.localStorage.getItem("bonga-selected-city-id") ?? "";
+    const cityId = selectedCity.id ?? window.localStorage.getItem("bonga-selected-city-id") ?? "";
 
     if (cityId) {
       params.set("city_id", cityId);
@@ -285,19 +283,20 @@ export function HomePage() {
     navigate("/notifications");
   };
 
-
   const navigateToConsultants = (mode: "agency" | "consultant" = "agency") => {
     setSelectedCategory(null);
-    const nextPath =
-      mode === "consultant" ? "/consultants?type=consultant" : "/consultants";
+    const nextPath = mode === "consultant" ? "/consultants?type=consultant" : "/consultants";
 
     navigate(nextPath);
   };
 
   return (
-    <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-surface-container" dir="rtl">
-      <SEO 
-        title="خرید، فروش، رهن و اجاره آپارتمان و خانه | سامانه املاک بنگاه" 
+    <div
+      className="bg-surface-container flex h-[100dvh] min-h-0 flex-col overflow-hidden"
+      dir="rtl"
+    >
+      <SEO
+        title="خرید، فروش، رهن و اجاره آپارتمان و خانه | سامانه املاک بنگاه"
         description="سامانه هوشمند املاک بنگاه؛ مرجع تخصصی خرید، فروش، رهن و اجاره آپارتمان، خانه ویلایی، زمین و مغازه. جدیدترین آگهی‌های املاک را در بنگاه جستجو کنید."
         keywords="خرید آپارتمان, فروش آپارتمان, رهن و اجاره خانه, خرید زمین, قیمت آپارتمان, مشاور املاک, سامانه املاک بنگاه"
         structuredData={{
@@ -309,36 +308,38 @@ export function HomePage() {
         }}
       />
       <h1 className="sr-only">سامانه هوشمند املاک بنگاه برای خرید، فروش، رهن و اجاره ملک</h1>
-      <header className="shrink-0 bg-surface-container-lowest">
+      <header className="bg-surface-container-lowest shrink-0">
         <section
-          className="flex min-h-14 w-full min-w-0 items-center justify-between gap-2 bg-surface-container-lowest px-3 py-2 [direction:ltr] min-[390px]:min-h-16 min-[390px]:px-4"
+          className="bg-surface-container-lowest flex min-h-14 w-full min-w-0 items-center justify-between gap-2 px-3 py-2 [direction:ltr] min-[390px]:min-h-16 min-[390px]:px-4"
           aria-label="سربرگ"
         >
           <div className="flex items-center justify-center gap-2">
-            <Button unstyled
+            <Button
+              unstyled
               aria-label="اعلان‌ها"
-              className="relative grid h-12 w-12 place-items-center rounded-full text-on-surface transition-all duration-200 ease-out active:scale-95 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+              className="text-on-surface focus-visible:outline-primary/40 relative grid h-12 w-12 place-items-center rounded-full transition-all duration-200 ease-out focus-visible:outline-3 focus-visible:outline-offset-2 active:scale-95"
               onClick={navigateToNotifications}
               type="button"
             >
               <LinearNotification className="h-6 w-6" />
               {hasAuthSession ? (
                 <Suspense fallback={null}>
-                  <UnreadNotificationBadge
-                    className="absolute right-3.5 top-3 h-2 w-2 rounded-full bg-error ring-2 ring-surface-container-lowest"
-                  />
+                  <UnreadNotificationBadge className="bg-error ring-surface-container-lowest absolute top-3 right-3.5 h-2 w-2 rounded-full ring-2" />
                 </Suspense>
               ) : null}
             </Button>
 
             {canSelectCity ? (
-              <Button unstyled
-                className="flex items-center justify-center gap-1 rounded-[10px] border border-primary px-2 py-2.5 h-10 text-sm font-medium leading-5! text-primary transition-all duration-200 ease-out active:scale-95"
+              <Button
+                unstyled
+                className="border-primary text-primary flex h-10 items-center justify-center gap-1 rounded-[10px] border px-2 py-2.5 text-sm leading-5! font-medium transition-all duration-200 ease-out active:scale-95"
                 type="button"
                 onClick={() => setIsCityOpen(true)}
               >
                 <ArrowDown size={20} />
-                <Typography as="span" variant="body" size="medium" weight="regular">{selectedCity.name}</Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  {selectedCity.name}
+                </Typography>
               </Button>
             ) : null}
           </div>
@@ -354,13 +355,13 @@ export function HomePage() {
         </section>
       </header>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container pb-[64px] [-webkit-overflow-scrolling:touch]">
+      <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-[64px] [-webkit-overflow-scrolling:touch]">
         <section
-          className="flex w-full flex-col gap-5 bg-surface-container-lowest px-4 pb-5 pt-2 min-[390px]:gap-7 min-[390px]:pb-6"
+          className="bg-surface-container-lowest flex w-full flex-col gap-5 px-4 pt-2 pb-5 min-[390px]:gap-7 min-[390px]:pb-6"
           aria-label="جستجوی ملک"
         >
           <label
-            className="relative flex h-12 items-center rounded-xl bg-surface-container cursor-pointer transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.99] focus-within:ring-2 focus-within:ring-primary/20"
+            className="bg-surface-container focus-within:ring-primary/20 relative flex h-12 cursor-pointer items-center rounded-xl transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus-within:ring-2 active:scale-[0.99]"
             onClick={() => setIsSearchOpen(true)}
             onPointerDown={(event) => {
               event.preventDefault();
@@ -368,14 +369,14 @@ export function HomePage() {
             }}
           >
             <input
-              className="h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pr-4 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
+              className="text-on-surface placeholder:text-outline h-full w-full rounded-[inherit] border-0 bg-transparent py-0 pr-4 text-right text-sm leading-5 font-normal outline-none"
               type="search"
               placeholder="جستجو در آگهی‌ها"
               onFocus={() => setIsSearchOpen(true)}
               onClick={() => setIsSearchOpen(true)}
               readOnly
             />
-            <LinearSearch className="h-6 w-6 text-on-surface-var ml-3"/>
+            <LinearSearch className="text-on-surface-var ml-3 h-6 w-6" />
           </label>
 
           <div
@@ -383,8 +384,9 @@ export function HomePage() {
             aria-label="دسته‌بندی‌ها"
           >
             {quickActions.map((item) => (
-              <Button unstyled
-                className="group flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1 bg-surface-container-lowest p-1 rounded-xl text-xs! font-medium! leading-4 text-on-surface transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-95 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+              <Button
+                unstyled
+                className="group bg-surface-container-lowest text-on-surface focus-visible:outline-primary/40 flex min-h-[58px] min-w-0 cursor-pointer flex-col items-center justify-start gap-1 rounded-xl p-1 text-xs! leading-4 font-medium! transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-3 focus-visible:outline-offset-2 active:scale-95"
                 key={item.label}
                 type="button"
                 onClick={() => {
@@ -407,7 +409,9 @@ export function HomePage() {
                   aria-hidden="true"
                 />
 
-                <Typography as="span" variant="body" size="medium" weight="regular">{item.label}</Typography>
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  {item.label}
+                </Typography>
               </Button>
             ))}
           </div>

@@ -19,8 +19,7 @@ export function useCrmPackages(notify: Notify, refreshNonce: number) {
     queryFn: listCrmPackages,
   });
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ["crm", "packages"] });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["crm", "packages"] });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: CrmPackagePayload }) =>
@@ -59,10 +58,7 @@ export function useCrmPackages(notify: Notify, refreshNonce: number) {
     }
   }, [notify, query.error]);
 
-  const savePackage = async (
-    editingId: string | null | undefined,
-    payload: CrmPackagePayload,
-  ) => {
+  const savePackage = async (editingId: string | null | undefined, payload: CrmPackagePayload) => {
     try {
       if (editingId) {
         await updateMutation.mutateAsync({ id: editingId, payload });

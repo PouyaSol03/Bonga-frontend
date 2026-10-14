@@ -100,7 +100,7 @@ export function DashboardReportsView({
   }));
 
   return (
-    <div className="min-h-full bg-surface-container-low pb-6 [direction:rtl]">
+    <div className="bg-surface-container-low min-h-full pb-6 [direction:rtl]">
       {/* TopBar - Registered to App TopBar without notifications */}
       <TopBar
         actions={[]}
@@ -110,7 +110,7 @@ export function DashboardReportsView({
       />
 
       {/* Main Charts & Analytics - 16px (gap-4) between each card */}
-      <main className="w-full flex flex-col gap-4">
+      <main className="flex w-full flex-col gap-4">
         {/* 1. Published Ads Pie Chart */}
         <DashboardPublishedAdsPieCard
           role={role}
@@ -151,10 +151,7 @@ export function DashboardReportsView({
         />
 
         {/* 5. Conversion Funnel */}
-        <DashboardConversionFunnelCard
-          stages={funnelStages}
-          isLoading={funnelQuery.isLoading}
-        />
+        <DashboardConversionFunnelCard stages={funnelStages} isLoading={funnelQuery.isLoading} />
 
         {/* 6. Rank & Score */}
         <DashboardRankScoreCard

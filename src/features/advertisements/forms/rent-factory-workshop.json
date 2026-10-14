@@ -33,16 +33,7 @@
         "input": "select",
         "ui": "bottomSheet",
         "placeholder": "انتخاب کنید",
-        "options": [
-          "شمالی",
-          "جنوبی",
-          "غربی",
-          "شرقی",
-          "دوممر",
-          "دونبش",
-          "سه نبش",
-          "چهارنبش"
-        ]
+        "options": ["شمالی", "جنوبی", "غربی", "شرقی", "دوممر", "دونبش", "سه نبش", "چهارنبش"]
       },
       {
         "key": "age",
@@ -182,14 +173,7 @@
           "title": "تعداد اتاق",
           "input": "select",
           "ui": "bottomSheet",
-          "options": [
-            "بدون اتاق",
-            "۱",
-            "۲",
-            "۳",
-            "۴",
-            "۵+"
-          ]
+          "options": ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"]
         },
         {
           "key": "ceilingHeight",
@@ -220,31 +204,21 @@
           "title": "دست رسی",
           "input": "select",
           "ui": "bottomSheet",
-          "options": [
-            "جاده آسفالت",
-            "جاده خاکی",
-            "نزدیک بزرگراه"
-          ]
+          "options": ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"]
         },
         {
           "key": "currentStatus",
           "title": "وضعیت فعلی",
           "input": "select",
           "ui": "bottomSheet",
-          "options": [
-            "تخلیه",
-            "فعال"
-          ]
+          "options": ["تخلیه", "فعال"]
         },
         {
           "key": "commercialLicense",
           "title": "مجوز تجاری",
           "input": "select",
           "ui": "bottomSheet",
-          "options": [
-            "دائم",
-            "موقت"
-          ]
+          "options": ["دائم", "موقت"]
         },
         {
           "key": "readyDeliveryDate",
@@ -296,25 +270,14 @@
         "id": "suitableFor",
         "title": "مناسب برای",
         "icon": "suitable",
-        "options": [
-          "صنایع پلاستیک",
-          "صنایع چوب",
-          "کارگاه",
-          "انبار",
-          "تولیدی",
-          "سایر"
-        ]
+        "options": ["صنایع پلاستیک", "صنایع چوب", "کارگاه", "انبار", "تولیدی", "سایر"]
       },
       {
         "kind": "single",
         "id": "commercialLicense",
         "title": "مجوز تجاری",
         "icon": "agreement",
-        "options": [
-          "دائم",
-          "موقت",
-          "ندارد"
-        ]
+        "options": ["دائم", "موقت", "ندارد"]
       },
       {
         "kind": "multi",

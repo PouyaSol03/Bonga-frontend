@@ -14,27 +14,45 @@ interface TopAgenciesPanelProps {
 
 export function TopAgenciesPanel({ agencies, isLoading }: TopAgenciesPanelProps) {
   return (
-    <section className="rounded-2xl bg-surface-container-lowest p-4" aria-label="۱۰ آژانس برتر">
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6">
+    <section className="bg-surface-container-lowest rounded-2xl p-4" aria-label="۱۰ آژانس برتر">
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="m-0 text-right text-base leading-6 font-semibold"
+      >
         ۱۰ آژانس برتر
       </Typography>
 
       <div className="mt-4">
-        <div className="grid h-7 grid-cols-[56px_1fr] items-center px-2 text-sm font-normal leading-5 text-outline [direction:ltr]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-center [direction:rtl]">
+        <div className="text-outline grid h-7 grid-cols-[56px_1fr] items-center px-2 text-sm leading-5 font-normal [direction:ltr]">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-center [direction:rtl]"
+          >
             امتیاز
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-right [direction:rtl]">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-right [direction:rtl]"
+          >
             ۱۰ آژانس برتر
           </Typography>
         </div>
 
-        <div className="h-px bg-outline-var" aria-hidden="true" />
+        <div className="bg-outline-var h-px" aria-hidden="true" />
 
         {isLoading ? (
-          <div className="space-y-2 py-2 animate-pulse">
+          <div className="animate-pulse space-y-2 py-2">
             {[0, 1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-9 w-full rounded-lg bg-surface-container-high/40" />
+              <div key={i} className="bg-surface-container-high/40 h-9 w-full rounded-lg" />
             ))}
           </div>
         ) : (
@@ -45,11 +63,23 @@ export function TopAgenciesPanel({ agencies, isLoading }: TopAgenciesPanelProps)
               }`}
               key={agency.entityId || `${agency.name}-${index}`}
             >
-              <Typography as="span" variant="label" size="medium" weight="semibold" className="text-center font-semibold [direction:rtl]">
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="semibold"
+                className="text-center font-semibold [direction:rtl]"
+              >
                 {formatOptionalNumber(agency.totalScore)}
               </Typography>
 
-              <Typography as="span" variant="label" size="medium" weight="semibold" className="text-right font-semibold text-on-surface-var [direction:rtl]">
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="semibold"
+                className="text-on-surface-var text-right font-semibold [direction:rtl]"
+              >
                 {formatOptionalNumber(agency.rank)}. {agency.name}
               </Typography>
             </div>
@@ -57,7 +87,13 @@ export function TopAgenciesPanel({ agencies, isLoading }: TopAgenciesPanelProps)
         )}
 
         {!isLoading && agencies.length === 0 ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 w-full py-6 text-center text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline m-0 mx-auto w-full py-6 text-center"
+          >
             اطلاعات آژانس‌های برتر از سرور دریافت نشده است.
           </Typography>
         ) : null}

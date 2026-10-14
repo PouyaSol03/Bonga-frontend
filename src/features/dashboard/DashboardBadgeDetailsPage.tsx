@@ -59,16 +59,19 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
   const rawBadges = badgesQuery.data?.badges ?? badgesQuery.data?.data ?? [];
   const badge = rawBadges.find((item) => {
     const slug = typeof item.slug === "string" ? item.slug.trim().toLowerCase() : "";
-    return slug === badgeKey ||
+    return (
+      slug === badgeKey ||
       (badgeKey === "record-holder" && (slug === "file_maker" || slug === "file")) ||
       (badgeKey === "golden-team" && (slug === "market_magnet" || slug === "magnet")) ||
-      (badgeKey === "fast-team" && (slug === "always_active" || slug === "time"));
+      (badgeKey === "fast-team" && (slug === "always_active" || slug === "time"))
+    );
   });
-  const badgeName = typeof badge?.title === "string" && badge.title.trim()
-    ? badge.title.trim()
-    : typeof badge?.name === "string" && badge.name.trim()
-      ? badge.name.trim()
-      : definition.name;
+  const badgeName =
+    typeof badge?.title === "string" && badge.title.trim()
+      ? badge.title.trim()
+      : typeof badge?.name === "string" && badge.name.trim()
+        ? badge.name.trim()
+        : definition.name;
   const badgeImage =
     typeof badge?.image === "string" && badge.image.trim()
       ? badge.image
@@ -82,12 +85,23 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
     ? thresholds.map((threshold, index) => {
         const isComplete = index < currentLevel;
         const isCurrent = index === currentLevel;
-        const variant: BadgeProgressVariant = isComplete ? "complete" : isCurrent ? "current" : "locked";
+        const variant: BadgeProgressVariant = isComplete
+          ? "complete"
+          : isCurrent
+            ? "current"
+            : "locked";
         const prevThreshold = index > 0 ? (thresholds[index - 1] ?? 0) : 0;
         return {
           done: `${isComplete ? threshold : isCurrent ? currentValue : prevThreshold + 1}`,
           total: `${threshold}`,
-          progress: isComplete ? 100 : isCurrent ? Math.min(100, Math.max(0, Number(badge?.progress ?? ((currentValue / threshold) * 100)))) : 0,
+          progress: isComplete
+            ? 100
+            : isCurrent
+              ? Math.min(
+                  100,
+                  Math.max(0, Number(badge?.progress ?? (currentValue / threshold) * 100)),
+                )
+              : 0,
           title: `سطح ${index + 1}`,
           variant,
         };
@@ -97,7 +111,7 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
 
   return (
     <PageFrame
-      className="relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -107,11 +121,17 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
         title="جزئیات نشان"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-6 pt-8">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-6 pt-8">
         <div className="mx-auto flex w-[152px] flex-col items-center">
           <img alt="" className="h-[120px] w-[120px] object-contain" src={badgeImage} />
 
-          <Typography as="span" variant="label" size="medium" weight="semibold" className="mt-2 inline-flex h-7 items-center justify-center rounded-lg bg-primary-container px-3 font-semibold text-primary">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="semibold"
+            className="bg-primary-container text-primary mt-2 inline-flex h-7 items-center justify-center rounded-lg px-3 font-semibold"
+          >
             {badgeName}
           </Typography>
 
@@ -126,15 +146,37 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
           </div>
         </div>
 
-        <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 flex h-7 items-center justify-center gap-2 text-base leading-6 [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface text-sm">امتیاز کاربر</Typography>
-          <strong className="text-2xl font-medium text-on-surface">
+        <Typography
+          as="p"
+          variant="body"
+          size="large"
+          weight="regular"
+          className="mt-4 flex h-7 items-center justify-center gap-2 text-base leading-6 [direction:rtl]"
+        >
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface text-sm"
+          >
+            امتیاز کاربر
+          </Typography>
+          <strong className="text-on-surface text-2xl font-medium">
             {formatBadgeProgressNumber(currentValue)}
           </strong>
         </Typography>
 
         {badgesQuery.isLoading ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 py-8 text-center text-outline">در حال دریافت جزئیات نشان...</Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline m-0 py-8 text-center"
+          >
+            در حال دریافت جزئیات نشان...
+          </Typography>
         ) : levels.length > 0 ? (
           <div className="mt-4 space-y-4">
             {levels.map((level) => (
@@ -142,7 +184,13 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
             ))}
           </div>
         ) : (
-          <Typography as="p" variant="body" size="small" weight="regular" className="mx-auto m-0 mt-6 w-full rounded-2xl border border-outline-var px-4 py-6 text-center text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="border-outline-var text-outline m-0 mx-auto mt-6 w-full rounded-2xl border px-4 py-6 text-center"
+          >
             جزئیات پیشرفت این نشان از سرور دریافت نشده است.
           </Typography>
         )}
@@ -151,13 +199,7 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
   );
 }
 
-function BadgeLevelCard({
-  done,
-  total,
-  progress,
-  title,
-  variant,
-}: BadgeProgressLevel) {
+function BadgeLevelCard({ done, total, progress, title, variant }: BadgeProgressLevel) {
   const isComplete = variant === "complete";
   const isCurrent = variant === "current";
 
@@ -174,34 +216,80 @@ function BadgeLevelCard({
       : "bg-surface-container";
 
   return (
-    <section className="h-[72px] rounded-2xl border border-outline-var bg-surface-container-lowest px-4 py-4">
-      <div className="flex h-5 items-center justify-between text-sm font-medium leading-5 [direction:ltr]">
+    <section className="border-outline-var bg-surface-container-lowest h-[72px] rounded-2xl border px-4 py-4">
+      <div className="flex h-5 items-center justify-between text-sm leading-5 font-medium [direction:ltr]">
         {isComplete ? (
-          <Typography as="span" variant="body" size="medium" weight="medium" className="text-tertiary">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="medium"
+            className="text-tertiary"
+          >
             تکمیل شده
           </Typography>
         ) : total ? (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1 [direction:ltr]">
-            <Typography as="span" variant="body" size="medium" weight="regular" className={isCurrent ? "text-warning" : "text-outline"}>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="flex items-center gap-1 [direction:ltr]"
+          >
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className={isCurrent ? "text-warning" : "text-outline"}
+            >
               {formatBadgeProgressNumber(Number(done) || 0)}
             </Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">/</Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-outline"
+            >
+              /
+            </Typography>
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-outline"
+            >
               {formatBadgeProgressNumber(Number(total) || 0)}
             </Typography>
           </Typography>
         ) : (
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline"
+          >
             {done}
           </Typography>
         )}
 
-        <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var [direction:rtl]">{title}</Typography>
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var [direction:rtl]"
+        >
+          {title}
+        </Typography>
       </div>
 
       <div className={`relative mt-4 h-1 w-full overflow-hidden rounded-full ${trackClassName}`}>
         <div
-          className={`absolute left-0 top-0 h-full rounded-full ${progressClassName}`}
+          className={`absolute top-0 left-0 h-full rounded-full ${progressClassName}`}
           style={{ width: `${progress}%` }}
         />
       </div>

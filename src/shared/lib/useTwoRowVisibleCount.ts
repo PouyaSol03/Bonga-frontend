@@ -5,9 +5,7 @@ export function useTwoRowVisibleCount(
   totalCount: number,
   dependencyKey?: string | number,
 ) {
-  const [visibleCount, setVisibleCount] = useState<number>(() =>
-    totalCount > 6 ? 6 : totalCount,
-  );
+  const [visibleCount, setVisibleCount] = useState<number>(() => (totalCount > 6 ? 6 : totalCount));
 
   useLayoutEffect(() => {
     const el = containerRef.current;

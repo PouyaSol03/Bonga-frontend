@@ -26,7 +26,7 @@ export const ManagementAdStatusBadge: React.FC<Props> = ({
       variant="label"
       size="small"
       weight="medium"
-      className={`inline-flex h-7 items-center justify-center rounded-[8px] px-3 text-[12px] font-normal leading-none shrink-0 ${badgeClass} ${className}`}
+      className={`inline-flex h-7 shrink-0 items-center justify-center rounded-[8px] px-3 text-[12px] leading-none font-normal ${badgeClass} ${className}`}
     >
       {displayLabel}
     </Typography>

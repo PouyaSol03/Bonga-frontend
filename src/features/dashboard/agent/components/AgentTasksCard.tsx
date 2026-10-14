@@ -1,7 +1,4 @@
-import {
-  DashboardTasksCard,
-  type DashboardTaskItem,
-} from "../../components/DashboardTasksCard";
+import { DashboardTasksCard, type DashboardTaskItem } from "../../components/DashboardTasksCard";
 import type { AgentRoleType } from "../types";
 
 export interface AgentTaskItemData extends DashboardTaskItem {}
@@ -17,11 +14,5 @@ export function AgentTasksCard({
   totalCount = 46,
   items,
 }: AgentTasksCardProps) {
-  return (
-    <DashboardTasksCard
-      role={role}
-      totalCount={totalCount}
-      items={items}
-    />
-  );
+  return <DashboardTasksCard role={role} totalCount={totalCount} items={items} />;
 }

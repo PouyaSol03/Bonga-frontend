@@ -26,10 +26,15 @@ export type IndependentConsultantAdPublishedPageProps = {
   initialSuccessOpen?: boolean;
 };
 
-export function IndependentConsultantAdPublishedPage(props?: IndependentConsultantAdPublishedPageProps) {
+export function IndependentConsultantAdPublishedPage(
+  props?: IndependentConsultantAdPublishedPageProps,
+) {
   const ad = props?.ad ?? getSelectedConsultantAd();
   const routeState = getAdManagementRouteState();
-  const expirationLabel = props?.expirationLabel ?? readExpirationLabel(routeState.assignment?.advertise) ?? "۲۱ روز دیگر (۱۴۰۴/۱۲/۰۱)";
+  const expirationLabel =
+    props?.expirationLabel ??
+    readExpirationLabel(routeState.assignment?.advertise) ??
+    "۲۱ روز دیگر (۱۴۰۴/۱۲/۰۱)";
   const backTo = normalizeLocalPath(routeState.returnTo) ?? adManagementPaths.root;
   const [isSuccessOpen, setIsSuccessOpen] = useState(
     props?.initialSuccessOpen ?? routeState.showPaymentSuccess ?? false,
@@ -37,7 +42,7 @@ export function IndependentConsultantAdPublishedPage(props?: IndependentConsulta
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -47,18 +52,43 @@ export function IndependentConsultantAdPublishedPage(props?: IndependentConsulta
         title={isSuccessOpen ? "وضعیت آگهی" : "مدیریت آگهی"}
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container">
-        <section className="shrink-0 bg-surface-container-lowest px-4 pb-2 pt-4" aria-label={ad.title}>
+      <main className="bg-surface-container flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
+        <section
+          className="bg-surface-container-lowest shrink-0 px-4 pt-4 pb-2"
+          aria-label={ad.title}
+        >
           <div className="flex justify-start">
-            <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex h-9 items-center rounded-lg bg-tertiary-container/30 px-3 text-sm font-medium leading-5 text-tertiary">
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="bg-tertiary-container/30 text-tertiary inline-flex h-9 items-center rounded-lg px-3 text-sm leading-5 font-medium"
+            >
               منتشر شده
             </Typography>
           </div>
 
           <div className="mt-4 flex h-[68px] items-center justify-between gap-2 [direction:ltr]">
             <div className="min-w-0 flex-1 text-right [direction:rtl]">
-              <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 truncate text-base font-medium leading-6">{ad.title}</Typography>
-              <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-1 text-xs font-medium leading-4 text-outline">{ad.timeAndLocation}</Typography>
+              <Typography
+                as="h2"
+                variant="title"
+                size="medium"
+                weight="medium"
+                className="m-0 truncate text-base leading-6 font-medium"
+              >
+                {ad.title}
+              </Typography>
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="medium"
+                className="text-outline m-0 mt-1 text-xs leading-4 font-medium"
+              >
+                {ad.timeAndLocation}
+              </Typography>
             </div>
             <div
               aria-hidden="true"
@@ -66,17 +96,44 @@ export function IndependentConsultantAdPublishedPage(props?: IndependentConsulta
             />
           </div>
 
-          <div className="mt-4 flex h-10 items-center justify-between py-2 text-sm font-medium leading-5 [direction:ltr]">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="[direction:rtl]">{expirationLabel}</Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="text-outline [direction:rtl]">انقضا</Typography>
+          <div className="mt-4 flex h-10 items-center justify-between py-2 text-sm leading-5 font-medium [direction:ltr]">
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="[direction:rtl]"
+            >
+              {expirationLabel}
+            </Typography>
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-outline [direction:rtl]"
+            >
+              انقضا
+            </Typography>
           </div>
         </section>
 
-        <div className="h-2 shrink-0 bg-surface-container" aria-hidden="true" />
-        <div className="min-h-[300px] flex-1 bg-surface-container-lowest">
-          <PublishedAction icon="preview" label="پیش‌نمایش" returnTo={backTo} to={getAdPreviewPath(ad.id)} />
+        <div className="bg-surface-container h-2 shrink-0" aria-hidden="true" />
+        <div className="bg-surface-container-lowest min-h-[300px] flex-1">
+          <PublishedAction
+            icon="preview"
+            label="پیش‌نمایش"
+            returnTo={backTo}
+            to={getAdPreviewPath(ad.id)}
+          />
           <PublishedActionDivider />
-          <PublishedAction ad={ad} icon="edit" label="ویرایش" returnTo={backTo} to={getAdEditPath(ad.id, backTo)} />
+          <PublishedAction
+            ad={ad}
+            icon="edit"
+            label="ویرایش"
+            returnTo={backTo}
+            to={getAdEditPath(ad.id, backTo)}
+          />
           <PublishedActionDivider />
           <PublishedAction
             ad={ad}
@@ -86,11 +143,29 @@ export function IndependentConsultantAdPublishedPage(props?: IndependentConsulta
             to={`${adManagementPaths.delete}?adId=${encodeURIComponent(String(ad.id))}`}
           />
           <PublishedActionDivider />
-          <PublishedAction ad={ad} icon="upgrade" label="ارتقاء آگهی" returnTo={backTo} to={getAdIncreaseVisitsPath(ad.id)} />
+          <PublishedAction
+            ad={ad}
+            icon="upgrade"
+            label="ارتقاء آگهی"
+            returnTo={backTo}
+            to={getAdIncreaseVisitsPath(ad.id)}
+          />
           <PublishedActionDivider />
-          <PublishedAction ad={ad} icon="stats" label="آمار بازدید" returnTo={backTo} to={getAdVisitStatisticsPath(ad.id)} />
+          <PublishedAction
+            ad={ad}
+            icon="stats"
+            label="آمار بازدید"
+            returnTo={backTo}
+            to={getAdVisitStatisticsPath(ad.id)}
+          />
           <PublishedActionDivider />
-          <PublishedAction ad={ad} icon="history" label="تاریخچه پرداخت" returnTo={backTo} to={getAdPaymentHistoryPath(ad.id)} />
+          <PublishedAction
+            ad={ad}
+            icon="history"
+            label="تاریخچه پرداخت"
+            returnTo={backTo}
+            to={getAdPaymentHistoryPath(ad.id)}
+          />
         </div>
       </main>
 
@@ -108,10 +183,22 @@ export function IndependentConsultantAdPublishedPage(props?: IndependentConsulta
           className="mx-auto h-[104px] w-[104px] object-contain"
           src="/figma/account/consultant-payment-success.png"
         />
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0 mt-3 text-base font-semibold leading-6 text-tertiary">
+        <Typography
+          as="h3"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-tertiary m-0 mt-3 text-base leading-6 font-semibold"
+        >
           پرداخت موفق
         </Typography>
-        <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-5 text-sm font-normal leading-5 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var m-0 mt-5 text-sm leading-5 font-normal"
+        >
           پرداخت موفق و آگهی منتشر شد
         </Typography>
       </BottomSheet>
@@ -139,7 +226,6 @@ function readExpirationLabel(advertise?: Record<string, unknown>) {
   return "—";
 }
 
-
 function normalizeLocalPath(path?: string) {
   if (!path || !path.startsWith("/")) return undefined;
   if (path.startsWith("//")) return undefined;
@@ -164,9 +250,15 @@ function PublishedAction({
 }) {
   const content = (
     <>
-      <LinearArrowLeft1 className="h-6 w-6 text-on-surface-var" />
-      <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center gap-2 text-base font-medium leading-6 [direction:rtl]">
-        <PublishedActionIcon className="h-6 w-6 text-on-surface-var" icon={icon} />
+      <LinearArrowLeft1 className="text-on-surface-var h-6 w-6" />
+      <Typography
+        as="span"
+        variant="label"
+        size="large"
+        weight="medium"
+        className="inline-flex items-center gap-2 text-base leading-6 font-medium [direction:rtl]"
+      >
+        <PublishedActionIcon className="text-on-surface-var h-6 w-6" icon={icon} />
         {label}
       </Typography>
     </>
@@ -175,7 +267,7 @@ function PublishedAction({
   if (to) {
     return (
       <Link
-        className="flex h-14 w-full items-center justify-between px-4 text-on-surface-var no-underline [direction:ltr]"
+        className="text-on-surface-var flex h-14 w-full items-center justify-between px-4 no-underline [direction:ltr]"
         state={{
           ad,
           card: ad,
@@ -197,8 +289,9 @@ function PublishedAction({
   }
 
   return (
-    <Button unstyled
-      className="flex h-14 w-full items-center justify-between px-4 text-on-surface [direction:ltr]"
+    <Button
+      unstyled
+      className="text-on-surface flex h-14 w-full items-center justify-between px-4 [direction:ltr]"
       onClick={onClick}
       type="button"
     >
@@ -210,7 +303,7 @@ function PublishedAction({
 function PublishedActionDivider() {
   return (
     <div className="flex h-[5px] items-center px-4" aria-hidden="true">
-      <div className="h-px w-full bg-outline-var" />
+      <div className="bg-outline-var h-px w-full" />
     </div>
   );
 }

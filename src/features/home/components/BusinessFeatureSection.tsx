@@ -11,9 +11,9 @@ function CrmBadgeIcon() {
   return (
     <div
       aria-hidden="true"
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary/8 text-secondary"
+      className="bg-secondary/8 text-secondary grid h-10 w-10 shrink-0 place-items-center rounded-lg"
     >
-      <LinearCrm className="w-8 h-8"/>
+      <LinearCrm className="h-8 w-8" />
     </div>
   );
 }
@@ -23,16 +23,14 @@ export function BusinessFeatureSection() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const handleBusinessClick = () => {
     const authSession = getStoredAuthSession();
-    const hasBusinessRole = authSession?.roles.some((role) =>
-      DASHBOARD_ROLES.includes(role.slug),
-    );
+    const hasBusinessRole = authSession?.roles.some((role) => DASHBOARD_ROLES.includes(role.slug));
 
     navigate(hasBusinessRole ? "/account" : "/account/business/create");
   };
 
   return (
     <section
-      className="border-t-[16px] border-surface-container bg-surface-container-lowest px-4 pb-4 pt-4"
+      className="border-surface-container bg-surface-container-lowest border-t-[16px] px-4 pt-4 pb-4"
       aria-labelledby="business-feature-title"
     >
       <div className="flex items-start gap-2">
@@ -45,7 +43,7 @@ export function BusinessFeatureSection() {
             size="medium"
             weight="semibold"
             id="business-feature-title"
-            className="m-0 text-on-surface"
+            className="text-on-surface m-0"
           >
             سامانه هوشمند کسب‌وکار املاک
           </Typography>
@@ -55,16 +53,16 @@ export function BusinessFeatureSection() {
             variant="body"
             size="small"
             weight="regular"
-            className="m-0 text-on-surface-var"
+            className="text-on-surface-var m-0"
           >
             مدیریت آگهی‌ها، مشتریان و معاملات در یک پنل اختصاصی برای آژانس‌ها و مشاوران املاک.
           </Typography>
         </div>
       </div>
 
-      <div className="relative mt-4 aspect-328/173 w-full overflow-hidden rounded-2xl bg-surface-container">
+      <div className="bg-surface-container relative mt-4 aspect-328/173 w-full overflow-hidden rounded-2xl">
         {!imageLoaded && (
-          <div className="absolute inset-0 animate-pulse bg-surface-container rounded-2xl" />
+          <div className="bg-surface-container absolute inset-0 animate-pulse rounded-2xl" />
         )}
         <img
           src="/images/home/business-feature.webp"

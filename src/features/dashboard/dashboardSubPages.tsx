@@ -7,10 +7,7 @@ import { ConsultantInfoPage } from "./components/team/ConsultantInfoPage";
 import { ConsultantRemovePage } from "./components/team/ConsultantRemovePage";
 import { AgencyProfilePage } from "./AgencyProfilePage";
 import DashboardPaymentPage from "./DashboardPaymenPage";
-import {
-  getActiveAuthRole,
-  getStoredAuthSession,
-} from "../../shared/auth/auth-storage";
+import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import {
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
@@ -25,12 +22,7 @@ export function DashboardRequestsPage() {
     activeRole === REAL_ESTATE_MANAGER ||
     (activeRole === REAL_ESTATE_CONSULTANT && canManageRequests);
 
-  return (
-    <RequestManagementView
-      backTo="/account/dashboard"
-      showReceivedTab={showReceivedTab}
-    />
-  );
+  return <RequestManagementView backTo="/account/dashboard" showReceivedTab={showReceivedTab} />;
 }
 
 export function DashboardTeamPage() {

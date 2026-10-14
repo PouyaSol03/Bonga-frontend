@@ -123,7 +123,9 @@ export function useNewAdEditSync({
   useEffect(() => {
     if (!isEditMode || !editAdIsError) return;
 
-    setSubmitError(getApiErrorMessage(editAdError, "دریافت اطلاعات آگهی برای ویرایش با خطا مواجه شد."));
+    setSubmitError(
+      getApiErrorMessage(editAdError, "دریافت اطلاعات آگهی برای ویرایش با خطا مواجه شد."),
+    );
   }, [editAdError, editAdIsError, isEditMode, setSubmitError]);
 
   return {

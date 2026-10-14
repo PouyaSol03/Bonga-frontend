@@ -1,8 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-  ConsultantCard,
-  type TeamConsultant,
-} from "./ConsultantManagementPage";
+import { ConsultantCard, type TeamConsultant } from "./ConsultantManagementPage";
 
 const sampleConsultant: TeamConsultant = {
   id: 14,
@@ -47,7 +44,7 @@ type Story = StoryObj<typeof ConsultantCard>;
 export const ActiveConsultant: Story = {
   name: "کارت مشاور فعال (مطابق طرح SVG فیگما)",
   render: () => (
-    <div className="w-[360px] bg-surface-container p-4">
+    <div className="bg-surface-container w-[360px] p-4">
       <ConsultantCard consultant={sampleConsultant} />
     </div>
   ),
@@ -56,7 +53,7 @@ export const ActiveConsultant: Story = {
 export const PendingConsultant: Story = {
   name: "کارت مشاور در انتظار تایید",
   render: () => (
-    <div className="w-[360px] bg-surface-container p-4">
+    <div className="bg-surface-container w-[360px] p-4">
       <ConsultantCard consultant={samplePendingConsultant} />
     </div>
   ),
@@ -65,7 +62,7 @@ export const PendingConsultant: Story = {
 export const ConsultantsList: Story = {
   name: "لیست کارت‌های مشاورین",
   render: () => (
-    <div className="w-[360px] space-y-1 bg-surface-container p-4">
+    <div className="bg-surface-container w-[360px] space-y-1 p-4">
       <ConsultantCard consultant={sampleConsultant} />
       <ConsultantCard
         consultant={{

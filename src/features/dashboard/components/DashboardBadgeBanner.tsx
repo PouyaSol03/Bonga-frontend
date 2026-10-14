@@ -25,17 +25,13 @@ export function DashboardBadgeBanner({
 }: DashboardBadgeBannerProps) {
   return (
     <Link
-      className="flex h-[64px] items-center justify-between rounded-[16px] bg-surface-container-lowest px-4 shadow-sm transition active:scale-[0.99] no-underline [direction:rtl]"
+      className="bg-surface-container-lowest flex h-[64px] items-center justify-between rounded-[16px] px-4 no-underline shadow-sm transition [direction:rtl] active:scale-[0.99]"
       to={to}
     >
       <div className="flex items-center gap-3">
         {/* Visual Badge Icon */}
         {imageSrc ? (
-          <img
-            alt={badgeName}
-            className="h-10 w-10 shrink-0 object-contain"
-            src={imageSrc}
-          />
+          <img alt={badgeName} className="h-10 w-10 shrink-0 object-contain" src={imageSrc} />
         ) : (
           <div
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBgClass} ${iconTextClass}`}
@@ -67,7 +63,7 @@ export function DashboardBadgeBanner({
         </div>
       </div>
 
-      <LinearArrowLeft1 className="h-4 w-4 text-on-surface-var" />
+      <LinearArrowLeft1 className="text-on-surface-var h-4 w-4" />
     </Link>
   );
 }

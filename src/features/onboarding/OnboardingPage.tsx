@@ -32,8 +32,7 @@ const onboardingSteps = [
     image: "/images/onboarding/second_image.webp",
     eyebrow: "آگهی خود را",
     title: "رایگان منتشر کنید",
-    description:
-      "ملک خود را مستقیماً ثبت کنید یا انتشار آن را به یک آژانس حرفه‌ای بسپارید.",
+    description: "ملک خود را مستقیماً ثبت کنید یا انتشار آن را به یک آژانس حرفه‌ای بسپارید.",
   },
   {
     image: "/images/onboarding/third_image.webp",
@@ -96,9 +95,7 @@ function dedupeCities(cities: CityDto[]) {
 }
 
 function readExplicitlyStoredCity() {
-  const storedName = window.localStorage
-    .getItem(selectedCityStorageKeys.name)
-    ?.trim();
+  const storedName = window.localStorage.getItem(selectedCityStorageKeys.name)?.trim();
 
   return storedName ? readStoredSelectedCity() : null;
 }
@@ -191,17 +188,17 @@ export function OnboardingPage() {
 
   return (
     <PageFrame
-      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface relative flex h-full min-h-0 flex-col overflow-hidden"
       dir="rtl"
       variant="flush"
     >
       <main
-        className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pt-0 select-none touch-pan-y"
+        className="min-h-0 flex-1 touch-pan-y overflow-x-hidden overflow-y-auto px-4 pt-0 select-none"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="mx-auto flex min-h-full w-full max-w-[500px] flex-col items-center pb-2 pt-0">
-          <div className="relative w-full shrink-0 pb-5 pt-0">
+        <div className="mx-auto flex min-h-full w-full max-w-[500px] flex-col items-center pt-0 pb-2">
+          <div className="relative w-full shrink-0 pt-0 pb-5">
             <div className="relative aspect-[328/360] w-full">
               <div
                 aria-hidden="true"
@@ -218,7 +215,7 @@ export function OnboardingPage() {
                 <motion.div
                   key={stepIndex}
                   aria-hidden="true"
-                  className="relative z-20 h-full w-full origin-top overflow-hidden rounded-3xl bg-surface-container-lowest [backface-visibility:hidden] will-change-[transform,opacity]"
+                  className="bg-surface-container-lowest relative z-20 h-full w-full origin-top overflow-hidden rounded-3xl will-change-[transform,opacity] [backface-visibility:hidden]"
                   initial={
                     shouldReduceMotion
                       ? false
@@ -262,7 +259,7 @@ export function OnboardingPage() {
             </div>
           </div>
 
-          <div className="my-auto flex w-full max-w-[328px] min-h-[168px] items-center justify-center text-center">
+          <div className="my-auto flex min-h-[168px] w-full max-w-[328px] items-center justify-center text-center">
             <AnimatePresence initial={false} mode="wait">
               <motion.div
                 key={stepIndex}
@@ -290,11 +287,11 @@ export function OnboardingPage() {
                   duration: shouldReduceMotion ? 0.01 : 0.24,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="flex w-full flex-col items-center [backface-visibility:hidden] [transform:translateZ(0)] will-change-[transform,opacity]"
+                className="flex w-full [transform:translateZ(0)] flex-col items-center will-change-[transform,opacity] [backface-visibility:hidden]"
               >
                 <Typography
                   as="p"
-                  className="m-0 text-on-surface"
+                  className="text-on-surface m-0"
                   variant="title"
                   size="medium"
                   weight="semibold"
@@ -304,7 +301,7 @@ export function OnboardingPage() {
 
                 <Typography
                   as="h1"
-                  className="m-0 mt-1.5 text-primary"
+                  className="text-primary m-0 mt-1.5"
                   variant="title"
                   size="large"
                   weight="semibold"
@@ -314,7 +311,7 @@ export function OnboardingPage() {
 
                 <Typography
                   as="p"
-                  className="m-0 mt-3 text-center text-outline px-4"
+                  className="text-outline m-0 mt-3 px-4 text-center"
                   variant="body"
                   size="medium"
                   weight="regular"
@@ -326,7 +323,7 @@ export function OnboardingPage() {
           </div>
 
           <div
-            className="mb-4 mt-6 flex h-6 shrink-0 items-center justify-center gap-2 [direction:ltr]"
+            className="mt-6 mb-4 flex h-6 shrink-0 items-center justify-center gap-2 [direction:ltr]"
             aria-label={`مرحله ${stepIndex + 1} از ${ONBOARDING_STEP_COUNT}`}
             role="group"
           >
@@ -339,8 +336,8 @@ export function OnboardingPage() {
                   aria-current={isActive ? "step" : undefined}
                   className={
                     isActive
-                      ? "h-2 cursor-pointer rounded-full border-0 bg-primary p-0 outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
-                      : "h-2 cursor-pointer rounded-full border-0 bg-primary-container p-0 outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
+                      ? "bg-primary focus-visible:ring-primary/30 h-2 cursor-pointer rounded-full border-0 p-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                      : "bg-primary-container focus-visible:ring-primary/30 h-2 cursor-pointer rounded-full border-0 p-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   }
                   animate={{ width: isActive ? 24 : 8 }}
                   whileTap={shouldReduceMotion ? undefined : { scale: 0.92 }}
@@ -355,7 +352,7 @@ export function OnboardingPage() {
         </div>
       </main>
 
-      <footer className="shrink-0 border-t border-outline-var bg-surface-container-lowest px-4 pb-4 pt-3">
+      <footer className="border-outline-var bg-surface-container-lowest shrink-0 border-t px-4 pt-3 pb-4">
         <div className="mx-auto flex w-full max-w-[500px] justify-center">
           <div className="flex w-full gap-4 [direction:rtl]">
             <Button
@@ -373,7 +370,7 @@ export function OnboardingPage() {
             </Button>
 
             <Button
-              className="h-10 flex-1 rounded-[10px] text-outline border-outline-var"
+              className="text-outline border-outline-var h-10 flex-1 rounded-[10px]"
               trailingIcon={<LinearCancel className="h-5 w-5" />}
               onClick={showCityStep}
               size="x-medium"
@@ -395,27 +392,19 @@ function OnboardingCitySelectionPage() {
   const [selectedCity, setSelectedCity] = useState<StoredSelectedCity | null>(
     readExplicitlyStoredCity,
   );
-  const [hasExplicitCitySelection, setHasExplicitCitySelection] = useState(
-    () => Boolean(readExplicitlyStoredCity()),
+  const [hasExplicitCitySelection, setHasExplicitCitySelection] = useState(() =>
+    Boolean(readExplicitlyStoredCity()),
   );
   const debouncedQuery = useDebouncedValue(query.trim(), 250);
 
-  const {
-    data: popularCityDtos = [],
-    isLoading: isPopularCitiesLoading,
-  } = useMostVisitedCityListQuery();
-  const {
-    data: searchedCityDtos = [],
-    isFetching: isSearchingCities,
-  } = useCitySearchQuery({
+  const { data: popularCityDtos = [], isLoading: isPopularCitiesLoading } =
+    useMostVisitedCityListQuery();
+  const { data: searchedCityDtos = [], isFetching: isSearchingCities } = useCitySearchQuery({
     enabled: debouncedQuery.length > 0,
     q: debouncedQuery,
   });
 
-  const popularCities = useMemo(
-    () => dedupeCities(popularCityDtos).slice(0, 6),
-    [popularCityDtos],
-  );
+  const popularCities = useMemo(() => dedupeCities(popularCityDtos).slice(0, 6), [popularCityDtos]);
   const searchedCities = useMemo(
     () => dedupeCities(searchedCityDtos).slice(0, 6),
     [searchedCityDtos],
@@ -444,13 +433,13 @@ function OnboardingCitySelectionPage() {
 
   return (
     <PageFrame
-      className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface relative flex h-full min-h-0 flex-col overflow-hidden"
       dir="rtl"
       variant="flush"
     >
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pt-0">
-        <div className="mx-auto flex w-full max-w-[500px] flex-col items-center pb-6 pt-0">
-          <div className="relative w-full shrink-0 pb-5 pt-0">
+      <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-0">
+        <div className="mx-auto flex w-full max-w-[500px] flex-col items-center pt-0 pb-6">
+          <div className="relative w-full shrink-0 pt-0 pb-5">
             <div className="relative aspect-[328/360] w-full">
               <div
                 aria-hidden="true"
@@ -465,7 +454,7 @@ function OnboardingCitySelectionPage() {
 
               <div
                 aria-hidden="true"
-                className="relative z-20 h-full w-full overflow-hidden rounded-3xl bg-surface-container-lowest"
+                className="bg-surface-container-lowest relative z-20 h-full w-full overflow-hidden rounded-3xl"
               >
                 <img
                   alt=""
@@ -481,7 +470,7 @@ function OnboardingCitySelectionPage() {
           <div className="my-6 w-full text-center">
             <Typography
               as="h1"
-              className="m-0 text-on-surface"
+              className="text-on-surface m-0"
               size="large"
               variant="label"
               weight="semibold"
@@ -490,7 +479,7 @@ function OnboardingCitySelectionPage() {
             </Typography>
             <Typography
               as="p"
-              className="m-0 mt-2 text-outline"
+              className="text-outline m-0 mt-2"
               size="medium"
               variant="body"
               weight="regular"
@@ -507,19 +496,19 @@ function OnboardingCitySelectionPage() {
             </Typography>
             <input
               autoComplete="off"
-              className="h-12 w-full rounded-[12px] border-0 bg-surface-container py-0 pl-12 pr-4 text-right text-on-surface outline-none placeholder:text-outline focus:ring-2 focus:ring-primary/20"
+              className="bg-surface-container text-on-surface placeholder:text-outline focus:ring-primary/20 h-12 w-full rounded-[12px] border-0 py-0 pr-4 pl-12 text-right outline-none focus:ring-2"
               onChange={(event) => setQuery(event.target.value)}
               placeholder="جستجوی شهر..."
               type="search"
               value={query}
             />
-            <LinearSearch className="pointer-events-none absolute left-3.5 top-1/2 h-6 w-6 -translate-y-1/2 text-on-surface" />
+            <LinearSearch className="text-on-surface pointer-events-none absolute top-1/2 left-3.5 h-6 w-6 -translate-y-1/2" />
           </label>
 
           <div className="mt-8 w-full">
             <Typography
               as="h2"
-              className="m-0 text-right text-on-surface"
+              className="text-on-surface m-0 text-right"
               size="medium"
               variant="label"
               weight="medium"
@@ -530,41 +519,50 @@ function OnboardingCitySelectionPage() {
             <div className="mt-2 grid grid-cols-3 gap-2">
               {isCityListLoading
                 ? Array.from({ length: 6 }).map((_, index) => (
-                  <span className="h-9 animate-pulse rounded-[8px] bg-surface-container" key={index} />
-                ))
+                    <span
+                      className="bg-surface-container h-9 animate-pulse rounded-[8px]"
+                      key={index}
+                    />
+                  ))
                 : visibleCities.map((city) => {
-                  const isSelected = Boolean(
-                    hasExplicitCitySelection &&
-                    selectedCity &&
-                    city.name === selectedCity.name &&
-                    (!city.id || city.id === selectedCity.id),
-                  );
+                    const isSelected = Boolean(
+                      hasExplicitCitySelection &&
+                      selectedCity &&
+                      city.name === selectedCity.name &&
+                      (!city.id || city.id === selectedCity.id),
+                    );
 
-                  return (
-                    <Button
-                      unstyled
-                      aria-pressed={isSelected}
-                      className={
-                        isSelected
-                          ? "flex h-9 min-w-0 items-center justify-center rounded-[8px] border border-primary bg-primary/10 px-2 text-primary"
-                          : "flex h-9 min-w-0 items-center justify-center rounded-[8px] border border-outline-var bg-surface-container-lowest px-2 text-on-surface-var"
-                      }
-                      key={city.key}
-                      onClick={() => selectCity(city)}
-                      type="button"
-                    >
-                      <Typography as="span" className="truncate" size="medium" variant="body" weight="regular">
-                        {city.name}
-                      </Typography>
-                    </Button>
-                  );
-                })}
+                    return (
+                      <Button
+                        unstyled
+                        aria-pressed={isSelected}
+                        className={
+                          isSelected
+                            ? "border-primary bg-primary/10 text-primary flex h-9 min-w-0 items-center justify-center rounded-[8px] border px-2"
+                            : "border-outline-var bg-surface-container-lowest text-on-surface-var flex h-9 min-w-0 items-center justify-center rounded-[8px] border px-2"
+                        }
+                        key={city.key}
+                        onClick={() => selectCity(city)}
+                        type="button"
+                      >
+                        <Typography
+                          as="span"
+                          className="truncate"
+                          size="medium"
+                          variant="body"
+                          weight="regular"
+                        >
+                          {city.name}
+                        </Typography>
+                      </Button>
+                    );
+                  })}
             </div>
 
             {!isCityListLoading && visibleCities.length === 0 ? (
               <Typography
                 as="p"
-                className="m-0 mt-4 text-center text-outline"
+                className="text-outline m-0 mt-4 text-center"
                 size="small"
                 variant="body"
                 weight="regular"
@@ -576,7 +574,7 @@ function OnboardingCitySelectionPage() {
         </div>
       </main>
 
-      <footer className="shrink-0 border-t border-outline-var bg-surface-container-lowest px-4 pb-4 pt-3">
+      <footer className="border-outline-var bg-surface-container-lowest shrink-0 border-t px-4 pt-3 pb-4">
         <div className="mx-auto flex w-full max-w-[500px] justify-center">
           <Button
             className="h-10 w-full rounded-[10px]"

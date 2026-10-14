@@ -71,8 +71,7 @@ export function useChatAvailabilityQuery() {
 
 export function useUpdateChatAvailabilityMutation() {
   return useMutation({
-    mutationFn: (payload: UpdateChatAvailabilityPayload) =>
-      updateChatAvailability(payload),
+    mutationFn: (payload: UpdateChatAvailabilityPayload) => updateChatAvailability(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.chats.all,
@@ -111,9 +110,7 @@ export function useChatEntryQuery({
     // Cached initial thread data is temporarily disabled.
     // initialData: initialThread,
     queryFn: () =>
-      threadId
-        ? getChatDetail(threadId)
-        : createOrGetAdvertiseChat(advertiseId ?? ""),
+      threadId ? getChatDetail(threadId) : createOrGetAdvertiseChat(advertiseId ?? ""),
     queryKey: queryKeys.chats.entry({ advertiseId, threadId }),
   });
 }

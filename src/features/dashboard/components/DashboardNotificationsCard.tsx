@@ -2,9 +2,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import { Link, useNavigate } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import type { NotificationItem } from "../../notifications/api/notification.service";
-import {
-  getNotificationPath
-} from "../../notifications/notificationRouting";
+import { getNotificationPath } from "../../notifications/notificationRouting";
 import { NotificationCardStandardContent } from "../../notifications/components/NotificationCardStandardContent";
 
 export type DashboardNotificationItem = NotificationItem;
@@ -22,7 +20,7 @@ export function DashboardNotificationsCard({
   const notificationList = Array.isArray(items) ? items : [];
 
   return (
-    <section className="w-full rounded-[16px] bg-surface-container-lowest p-4 shadow-sm [direction:rtl]">
+    <section className="bg-surface-container-lowest w-full rounded-[16px] p-4 shadow-sm [direction:rtl]">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <Typography
@@ -34,10 +32,7 @@ export function DashboardNotificationsCard({
         >
           آخرین اعلان‌ها
         </Typography>
-        <Link
-          className="flex items-center gap-1 text-primary"
-          to={viewAllTo}
-        >
+        <Link className="text-primary flex items-center gap-1" to={viewAllTo}>
           <Typography
             as="span"
             variant="label"
@@ -68,8 +63,8 @@ export function DashboardNotificationsCard({
             return (
               <article
                 key={String(item.id ?? idx)}
-                className={`flex flex-col py-3.5 cursor-pointer transition-colors rounded-lg px-2 -mx-2 ${
-                  !isLast ? "border-b border-surface-container-high" : ""
+                className={`-mx-2 flex cursor-pointer flex-col rounded-lg px-2 py-3.5 transition-colors ${
+                  !isLast ? "border-surface-container-high border-b" : ""
                 }`}
                 onClick={handleOpen}
               >
@@ -78,9 +73,7 @@ export function DashboardNotificationsCard({
             );
           })
         ) : (
-          <div className="py-6 text-center text-outline text-body-sm">
-            اعلانی وجود ندارد
-          </div>
+          <div className="text-outline text-body-sm py-6 text-center">اعلانی وجود ندارد</div>
         )}
       </div>
     </section>

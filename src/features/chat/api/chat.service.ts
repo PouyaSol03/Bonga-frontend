@@ -3,20 +3,9 @@ import { api } from "../../../shared/api/api";
 export type ChatCategory = "advertise" | "support" | "agency_support";
 export type ChatFilter = "support" | "not_read" | "my_ads" | "others_ads";
 export type ChatMessageType = "text" | "image" | "file" | "location" | "system";
-export type ChatReportReason =
-  | "spam"
-  | "harassment"
-  | "fraud"
-  | "inappropriate_content"
-  | "other";
+export type ChatReportReason = "spam" | "harassment" | "fraud" | "inappropriate_content" | "other";
 export type ChatDayOfWeek =
-  | "saturday"
-  | "sunday"
-  | "monday"
-  | "tuesday"
-  | "wednesday"
-  | "thursday"
-  | "friday";
+  "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
 
 export type ChatAvailabilityDay = {
   day_label: string;
@@ -217,8 +206,7 @@ function readChatThreads(response: ChatsResponse) {
   const data = asRecord(response.data);
 
   if (Array.isArray(response.data)) return response.data;
-  const nestedData =
-    readArrayFromRecord<ChatThread>(data, ["chats", "data", "items", "list"]);
+  const nestedData = readArrayFromRecord<ChatThread>(data, ["chats", "data", "items", "list"]);
   if (nestedData) return nestedData;
   if (Array.isArray(response.chats)) return response.chats;
   if (Array.isArray(response.items)) return response.items;
@@ -247,8 +235,7 @@ function readChatMessages(response: ChatMessagesResponse) {
   const data = asRecord(response.data);
 
   if (Array.isArray(response.data)) return response.data;
-  const nestedData =
-    readArrayFromRecord<ChatMessage>(data, ["messages", "data", "items", "list"]);
+  const nestedData = readArrayFromRecord<ChatMessage>(data, ["messages", "data", "items", "list"]);
   if (nestedData) return nestedData;
   if (Array.isArray(response.messages)) return response.messages;
   if (Array.isArray(response.items)) return response.items;
@@ -280,28 +267,19 @@ const chatDayOfWeekValues = new Set<ChatDayOfWeek>([
 ]);
 
 function readTime(value: unknown) {
-  return typeof value === "string" && /^\d{2}:\d{2}$/.test(value.trim())
-    ? value.trim()
-    : null;
+  return typeof value === "string" && /^\d{2}:\d{2}$/.test(value.trim()) ? value.trim() : null;
 }
 
 function normalizeChatAvailability(value: unknown): ChatAvailability {
   const root = asRecord(value);
   const data = asRecord(root?.data);
-  const source =
-    asRecord(root?.availability) ??
-    asRecord(data?.availability) ??
-    data ??
-    root ??
-    {};
+  const source = asRecord(root?.availability) ?? asRecord(data?.availability) ?? data ?? root ?? {};
   const rawDays = Array.isArray(source.days) ? source.days : [];
   const days = rawDays.flatMap((item) => {
     if (typeof item === "string") {
       const day = item.trim().toLowerCase() as ChatDayOfWeek;
 
-      return chatDayOfWeekValues.has(day)
-        ? [{ day_label: "", day_of_week: day }]
-        : [];
+      return chatDayOfWeekValues.has(day) ? [{ day_label: "", day_of_week: day }] : [];
     }
 
     const day = asRecord(item);
@@ -312,11 +290,12 @@ function normalizeChatAvailability(value: unknown): ChatAvailability {
 
     if (!dayOfWeek || !chatDayOfWeekValues.has(dayOfWeek)) return [];
 
-    return [{
-      day_label:
-        typeof day?.day_label === "string" ? day.day_label.trim() : "",
-      day_of_week: dayOfWeek,
-    }];
+    return [
+      {
+        day_label: typeof day?.day_label === "string" ? day.day_label.trim() : "",
+        day_of_week: dayOfWeek,
+      },
+    ];
   });
 
   return {
@@ -425,17 +404,13 @@ export async function updateChatShowingName(showingName: string | null) {
 }
 
 export async function createOrGetAdvertiseChat(advertiseId: string) {
-  const response = await api
-    .post(`advertise/${advertiseId}/chats`)
-    .json<ChatThreadResponse>();
+  const response = await api.post(`advertise/${advertiseId}/chats`).json<ChatThreadResponse>();
 
   return readChatThread(response);
 }
 
 export async function createOrGetSupportChat() {
-  const response = await api
-    .post("support/chat")
-    .json<ChatThreadResponse>();
+  const response = await api.post("support/chat").json<ChatThreadResponse>();
 
   return readChatThread(response);
 }
@@ -492,12 +467,11 @@ export async function getChatMessagesPage(
       nestedData?.cursor,
   );
   const hasMore =
-    response.has_more === true ||
-    response.meta?.has_more === true ||
-    nestedData?.has_more === true;
-  const fallbackCursor = hasMore && data.length > 0
-    ? readMessageCreatedAt(data[data.length - 1]) ?? readMessageCreatedAt(data[0])
-    : null;
+    response.has_more === true || response.meta?.has_more === true || nestedData?.has_more === true;
+  const fallbackCursor =
+    hasMore && data.length > 0
+      ? (readMessageCreatedAt(data[data.length - 1]) ?? readMessageCreatedAt(data[0]))
+      : null;
 
   return {
     data,
@@ -549,9 +523,7 @@ export async function markChatMessagesRead(threadId: string) {
 }
 
 export async function getChatUnreadCount() {
-  const response = await api
-    .get("chat/unread-count")
-    .json<ChatUnreadCountResponse>();
+  const response = await api.get("chat/unread-count").json<ChatUnreadCountResponse>();
 
   return readChatUnreadCount(response);
 }
@@ -587,12 +559,7 @@ export async function deleteChats(threadIds: string[]) {
   await Promise.all(uniqueThreadIds.map((threadId) => deleteChat(threadId)));
 }
 
-export async function reportChat({
-  description,
-  messageId,
-  reason,
-  threadId,
-}: ChatReportPayload) {
+export async function reportChat({ description, messageId, reason, threadId }: ChatReportPayload) {
   await api.post(`chats/${threadId}/report`, {
     context: { allowNonJsonResponse: true },
     json: {

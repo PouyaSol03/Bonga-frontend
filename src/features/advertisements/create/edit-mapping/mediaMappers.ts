@@ -23,11 +23,7 @@ export function mediaName(source: string, fallback: string): string {
 }
 
 export function getExistingPhotoMedia(ad: AdvertisementItem): UploadedMediaFile[] {
-  const imageValues = Array.isArray(ad.images)
-    ? ad.images
-    : ad.image
-      ? [ad.image]
-      : [];
+  const imageValues = Array.isArray(ad.images) ? ad.images : ad.image ? [ad.image] : [];
 
   const seen = new Set<string>();
 
@@ -40,14 +36,16 @@ export function getExistingPhotoMedia(ad: AdvertisementItem): UploadedMediaFile[
     if (seen.has(dedupeKey)) return [];
     seen.add(dedupeKey);
 
-    return [{
-      existingValue: canonical || source,
-      id: `existing-image-${index}-${dedupeKey}`,
-      name: mediaName(source, `image-${index + 1}`),
-      previewUrl: getApiAssetUrl(source),
-      size: 0,
-      type: "image/*",
-    } satisfies UploadedMediaFile];
+    return [
+      {
+        existingValue: canonical || source,
+        id: `existing-image-${index}-${dedupeKey}`,
+        name: mediaName(source, `image-${index + 1}`),
+        previewUrl: getApiAssetUrl(source),
+        size: 0,
+        type: "image/*",
+      } satisfies UploadedMediaFile,
+    ];
   });
 }
 

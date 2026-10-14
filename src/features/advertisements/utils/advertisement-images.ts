@@ -93,7 +93,9 @@ export function getAdvertisementImageUrls(source: unknown): string[] {
         isMain: isMainImage(image),
         source: readNestedImageSource(image),
       }))
-      .filter((image): image is { index: number; isMain: boolean; source: string } => Boolean(image.source))
+      .filter((image): image is { index: number; isMain: boolean; source: string } =>
+        Boolean(image.source),
+      )
       .sort((a, b) => Number(b.isMain) - Number(a.isMain) || a.index - b.index);
 
     for (const image of imageCandidates) {

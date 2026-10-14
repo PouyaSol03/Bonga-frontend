@@ -11,12 +11,10 @@ export interface ViewAdLeadActivitySectionProps {
   activities: ActivityLogItem[];
 }
 
-export function ViewAdLeadActivitySection({
-  activities,
-}: ViewAdLeadActivitySectionProps) {
+export function ViewAdLeadActivitySection({ activities }: ViewAdLeadActivitySectionProps) {
   return (
-    <section className="bg-surface-container-lowest p-4 flex flex-col gap-4">
-      <div className="flex items-center gap-2 text-on-surface">
+    <section className="bg-surface-container-lowest flex flex-col gap-4 p-4">
+      <div className="text-on-surface flex items-center gap-2">
         <Typography
           as="h3"
           variant="label"
@@ -33,7 +31,7 @@ export function ViewAdLeadActivitySection({
           <div key={act.id} className="flex flex-col">
             <div className="flex flex-col gap-2 py-2">
               <div className="flex items-center gap-1">
-                <LinearClock className="h-4 w-4 text-on-surface-var" />
+                <LinearClock className="text-on-surface-var h-4 w-4" />
                 <Typography
                   as="span"
                   variant="body"
@@ -54,9 +52,7 @@ export function ViewAdLeadActivitySection({
                 {act.description}
               </Typography>
             </div>
-            {index < activities.length - 1 && (
-              <div className="h-px bg-surface-container my-1" />
-            )}
+            {index < activities.length - 1 && <div className="bg-surface-container my-1 h-px" />}
           </div>
         ))}
       </div>

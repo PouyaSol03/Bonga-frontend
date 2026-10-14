@@ -1,7 +1,4 @@
-export type FreehandPointerTerminationEvent =
-  | "pointerup"
-  | "pointercancel"
-  | "lostpointercapture";
+export type FreehandPointerTerminationEvent = "pointerup" | "pointercancel" | "lostpointercapture";
 
 export type FreehandPointerTerminationAction = "finish" | "cancel" | "ignore";
 

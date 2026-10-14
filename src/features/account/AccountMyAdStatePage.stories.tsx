@@ -26,7 +26,8 @@ const figmaDocsAdCard: AdCardData = {
   year: "۲ سال",
   timeAndLocation: "۳ روز پیش در محله",
   imageClassName: "",
-  imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=80",
+  imageUrl:
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=80",
   badges: [],
 };
 
@@ -213,17 +214,20 @@ const mockAgencyConsultants = [
   {
     id: "consultant-1",
     name: "علی محمدی (مشاور ارشد)",
-    avatarSrc: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+    avatarSrc:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
   },
   {
     id: "consultant-2",
     name: "سارا احمدی (مشاور منطقه)",
-    avatarSrc: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80",
+    avatarSrc:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80",
   },
   {
     id: "consultant-3",
     name: "رضا کریمی (مشاور رهن و اجاره)",
-    avatarSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+    avatarSrc:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
   },
 ];
 
@@ -284,18 +288,13 @@ export const AgencyPerspective_5_PublishedManagement = {
 
 export const AgencyPerspective_6_CloseResultPage = {
   name: "منظر آژانس / ۶. ثبت نتیجه معامله و بستن آگهی توسط آژانس",
-  render: () => (
-    <AdCloseResultPage
-      adId="ad-130"
-      initialReason="successful"
-    />
-  ),
+  render: () => <AdCloseResultPage adId="ad-130" initialReason="successful" />,
 };
 
 export const AgencyPerspective_7_PreviewUserContactSheet = {
   name: "منظر آژانس / ۷. پیش‌نمایش آگهی - باتم شیت تماس با کاربر (آژانس به شخص)",
   render: () => (
-    <div className="relative min-h-[500px] w-full max-w-[500px] mx-auto bg-surface-container overflow-hidden">
+    <div className="bg-surface-container relative mx-auto min-h-[500px] w-full max-w-[500px] overflow-hidden">
       <AgencyUserContactBottomSheet
         contact={{
           name: "ناصر اشرفی",
@@ -400,4 +399,3 @@ export const AgencyPerspective_14_Desk_UserUnresponsive = {
     />
   ),
 };
-

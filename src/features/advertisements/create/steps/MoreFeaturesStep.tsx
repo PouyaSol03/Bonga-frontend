@@ -3,14 +3,27 @@ import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../../shared/components/BottomSheet";
 import { moreFeatureKeys, moreFeatureOptions, timeOptions } from "../data";
-import type { MoreFeatureDateKey, MoreFeatureFormKey, MoreFeatureMultiSelectKey, MoreFeatureSelectKey, MoreFeatureTimeKey, MoreFeaturesFormValues, NewAdFormValues } from "../types";
+import type {
+  MoreFeatureDateKey,
+  MoreFeatureFormKey,
+  MoreFeatureMultiSelectKey,
+  MoreFeatureSelectKey,
+  MoreFeatureTimeKey,
+  MoreFeaturesFormValues,
+  NewAdFormValues,
+} from "../types";
 import {
   formatUnitsPerFloorLabel,
   getMoreFeatureFields,
   normalizeUnitsPerFloorValue,
   pickMoreFeatures,
 } from "../utils";
-import { CompactToggle, InputBox, MoreFeaturesFooter, SelectBox } from "../components/NewAdControls";
+import {
+  CompactToggle,
+  InputBox,
+  MoreFeaturesFooter,
+  SelectBox,
+} from "../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { Button } from "../../../../shared/ui/Button";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -41,22 +54,24 @@ export function MoreFeaturesStep({
   } | null>(null);
   const [dateField, setDateField] = useState<MoreFeatureDateKey | null>(null);
 
-  const [draft, setDraft] = useState<MoreFeaturesFormValues>(() =>
-    pickMoreFeatures(getValues()),
-  );
+  const [draft, setDraft] = useState<MoreFeaturesFormValues>(() => pickMoreFeatures(getValues()));
 
-  const setDraftField = (
-    key: MoreFeatureFormKey,
-    value: string | boolean | string[],
-  ) => {
+  const setDraftField = (key: MoreFeatureFormKey, value: string | boolean | string[]) => {
     setDraft((current) => ({
       ...current,
       [key]: value,
     }));
   };
 
-  const openSelect = (key: MoreFeatureSelectKey | MoreFeatureTimeKey, title: string, options?: string[]) => {
-    const fallbackOptions = key === "checkInTime" || key === "checkOutTime" ? timeOptions : moreFeatureOptions[key as MoreFeatureSelectKey];
+  const openSelect = (
+    key: MoreFeatureSelectKey | MoreFeatureTimeKey,
+    title: string,
+    options?: string[],
+  ) => {
+    const fallbackOptions =
+      key === "checkInTime" || key === "checkOutTime"
+        ? timeOptions
+        : moreFeatureOptions[key as MoreFeatureSelectKey];
     setSheet({ key, title, options: options ?? fallbackOptions });
   };
 
@@ -74,9 +89,7 @@ export function MoreFeaturesStep({
     const current = getDraftArray(key);
     setDraftField(
       key,
-      current.includes(option)
-        ? current.filter((item) => item !== option)
-        : [...current, option],
+      current.includes(option) ? current.filter((item) => item !== option) : [...current, option],
     );
   };
 
@@ -97,15 +110,21 @@ export function MoreFeaturesStep({
   return (
     <>
       <main
-        className={desktop
-          ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container px-6 py-5"
-          : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 py-6"}
+        className={
+          desktop
+            ? "bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-6 py-5"
+            : "bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-6"
+        }
         dir="rtl"
       >
         {fields.length ? (
-          <div className={desktop
-            ? "mx-auto grid max-w-[1120px] grid-cols-2 gap-5 rounded-xl border border-outline-var bg-surface-container-lowest p-6 shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
-            : "space-y-5"}>
+          <div
+            className={
+              desktop
+                ? "border-outline-var bg-surface-container-lowest mx-auto grid max-w-[1120px] grid-cols-2 gap-5 rounded-xl border p-6 shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
+                : "space-y-5"
+            }
+          >
             {fields.map((field) => {
               if (field.control === "toggle") {
                 return (
@@ -167,7 +186,9 @@ export function MoreFeaturesStep({
                   <SelectBox
                     key={field.key}
                     onClear={() => setDraftField(field.key, "")}
-                    onClick={() => openSelect(field.key as MoreFeatureTimeKey, field.label, timeOptions)}
+                    onClick={() =>
+                      openSelect(field.key as MoreFeatureTimeKey, field.label, timeOptions)
+                    }
                     placeholder={field.label}
                     value={getDraftString(field.key)}
                   />
@@ -179,7 +200,10 @@ export function MoreFeaturesStep({
                   <SelectBox
                     key={field.key}
                     leadingSlot={
-                      <LinearCalendar aria-hidden="true" className="h-6 w-6 shrink-0 text-on-surface-var" />
+                      <LinearCalendar
+                        aria-hidden="true"
+                        className="text-on-surface-var h-6 w-6 shrink-0"
+                      />
                     }
                     onClear={() => setDraftField(field.key, "")}
                     onClick={() => setDateField(field.key as MoreFeatureDateKey)}
@@ -193,7 +217,9 @@ export function MoreFeaturesStep({
                 <SelectBox
                   key={field.key}
                   onClear={() => setDraftField(field.key, "")}
-                  onClick={() => openSelect(field.key as MoreFeatureSelectKey, field.label, field.options)}
+                  onClick={() =>
+                    openSelect(field.key as MoreFeatureSelectKey, field.label, field.options)
+                  }
                   placeholder={field.label}
                   value={getDisplayValue(field.key)}
                 />
@@ -201,7 +227,7 @@ export function MoreFeaturesStep({
             })}
           </div>
         ) : (
-          <div className="rounded-[12px] bg-surface-container px-4 py-5 text-center text-sm leading-6 text-on-surface-var">
+          <div className="bg-surface-container text-on-surface-var rounded-[12px] px-4 py-5 text-center text-sm leading-6">
             برای این دسته‌بندی مشخصات بیشتری تعریف نشده است.
           </div>
         )}
@@ -248,7 +274,7 @@ export function MoreFeaturesStep({
             return (
               <Button
                 unstyled
-                className="flex h-[72px] w-full items-center justify-between gap-3 text-right text-on-surface"
+                className="text-on-surface flex h-[72px] w-full items-center justify-between gap-3 text-right"
                 key={option}
                 onClick={() => {
                   if (!multiSelectSheet) return;
@@ -290,9 +316,7 @@ export function MoreFeaturesStep({
           isOpen={Boolean(sheet)}
           items={(sheet?.options ?? []).map((option) => ({
             id: sheet?.key === "unitsPerFloor" ? normalizeUnitsPerFloorValue(option) : option,
-            title: sheet?.key === "unitsPerFloor"
-              ? formatUnitsPerFloorLabel(option)
-              : option,
+            title: sheet?.key === "unitsPerFloor" ? formatUnitsPerFloorLabel(option) : option,
           }))}
           itemClassName="h-12 text-sm font-normal leading-5"
           onSelect={(item) => {
@@ -300,17 +324,17 @@ export function MoreFeaturesStep({
 
             setDraftField(
               sheet.key,
-              sheet.key === "unitsPerFloor"
-                ? normalizeUnitsPerFloorValue(item.id)
-                : item.id,
+              sheet.key === "unitsPerFloor" ? normalizeUnitsPerFloorValue(item.id) : item.id,
             );
             setSheet(null);
           }}
-          selectedId={sheet
-            ? sheet.key === "unitsPerFloor"
-              ? normalizeUnitsPerFloorValue(getDraftString(sheet.key))
-              : getDraftString(sheet.key)
-            : undefined}
+          selectedId={
+            sheet
+              ? sheet.key === "unitsPerFloor"
+                ? normalizeUnitsPerFloorValue(getDraftString(sheet.key))
+                : getDraftString(sheet.key)
+              : undefined
+          }
           showDividers={false}
         />
       </BottomSheet>

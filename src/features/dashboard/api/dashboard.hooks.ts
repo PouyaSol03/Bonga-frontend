@@ -147,7 +147,10 @@ export function useAgentBadgesQuery({ enabled = true }: { enabled?: boolean } = 
   });
 }
 
-export function useAgentBadgeDetailQuery(slug: string, { enabled = true }: { enabled?: boolean } = {}) {
+export function useAgentBadgeDetailQuery(
+  slug: string,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
   return useQuery({
     enabled: enabled && Boolean(slug),
     queryFn: () => getAgentBadge(slug),

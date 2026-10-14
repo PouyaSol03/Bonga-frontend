@@ -32,7 +32,11 @@ export function ProfileFeedbackModal({
   const { showToast } = useToast();
   const [ratings, setRatings] = useState<Record<number, boolean | null>>({});
 
-  const { data: items = [], isLoading, isError } = useQuery({
+  const {
+    data: items = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["profileFeedbackItems"],
     queryFn: getProfileFeedbackItems,
     enabled: isOpen,
@@ -60,11 +64,7 @@ export function ProfileFeedbackModal({
       onClose();
     },
     onError: (err) => {
-      showToast(
-        getApiErrorMessage(err, "ثبت بازخورد با خطا مواجه شد."),
-        "خطا",
-        "error"
-      );
+      showToast(getApiErrorMessage(err, "ثبت بازخورد با خطا مواجه شد."), "خطا", "error");
     },
   });
 
@@ -92,35 +92,35 @@ export function ProfileFeedbackModal({
         {isLoading ? (
           <div className="flex flex-col gap-3 py-6">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex h-12 w-full animate-skeleton items-center rounded-xl bg-surface-container" />
+              <div
+                key={i}
+                className="animate-skeleton bg-surface-container flex h-12 w-full items-center rounded-xl"
+              />
             ))}
           </div>
         ) : isError ? (
-          <div className="py-6 text-center text-sm text-error">
+          <div className="text-error py-6 text-center text-sm">
             خطا در دریافت معیارهای بازخورد. لطفاً بعداً تلاش کنید.
           </div>
         ) : items.length === 0 ? (
-          <div className="py-6 text-center text-sm text-on-surface-var">
+          <div className="text-on-surface-var py-6 text-center text-sm">
             معیاری برای ثبت بازخورد یافت نشد.
           </div>
         ) : (
-          <div className="flex flex-col divide-y divide-outline-variant/30">
+          <div className="divide-outline-variant/30 flex flex-col divide-y">
             {items
               .filter((item) => item.is_active)
               .sort((a, b) => a.sort_order - b.sort_order)
               .map((item: ProfileFeedbackItem) => {
                 const currentVal = ratings[item.id];
                 return (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between py-3"
-                  >
+                  <div key={item.id} className="flex items-center justify-between py-3">
                     <Typography
                       as="span"
                       variant="body"
                       size="medium"
                       weight="medium"
-                      className="text-sm text-on-surface"
+                      className="text-on-surface text-sm"
                     >
                       {item.title}
                     </Typography>

@@ -27,11 +27,7 @@ export function useLocationSearchByCoordinates({
   lng,
 }: LocationSearchByCoordinatesParams & { enabled?: boolean }) {
   return useQuery({
-    enabled:
-      enabled &&
-      Boolean(cityId) &&
-      Number.isFinite(lat) &&
-      Number.isFinite(lng),
+    enabled: enabled && Boolean(cityId) && Number.isFinite(lat) && Number.isFinite(lng),
     queryFn: () => searchLocationByCoordinates({ cityId, lat, lng }),
     queryKey: queryKeys.locationSearch.byCoordinates({ cityId, lat, lng }),
   });

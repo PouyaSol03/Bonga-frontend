@@ -35,20 +35,13 @@ import {
 import { Typography } from "../../../shared/ui/Typography";
 
 function readMessageTimestamp(message: ChatMessage) {
-  const value = readChatPathText(message, [
-    "created_at",
-    "createdAt",
-    "sent_at",
-    "sentAt",
-    "date",
-  ]);
+  const value = readChatPathText(message, ["created_at", "createdAt", "sent_at", "sentAt", "date"]);
   const timestamp = Date.parse(value);
   return Number.isFinite(timestamp) ? timestamp : 0;
 }
 
 export function AccountSupportNewChatPage() {
-  const selectedThreadId =
-    new URLSearchParams(window.location.search).get("thread_id") ?? "";
+  const selectedThreadId = new URLSearchParams(window.location.search).get("thread_id") ?? "";
   const [createdThreadId, setCreatedThreadId] = useState("");
   const [draftMessage, setDraftMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -66,11 +59,7 @@ export function AccountSupportNewChatPage() {
   const messagesQuery = useInfiniteChatMessagesQuery(activeThreadId || null, 30);
 
   useEffect(() => {
-    if (
-      selectedThreadId ||
-      createdThreadId ||
-      hasRequestedSupportChatRef.current
-    ) {
+    if (selectedThreadId || createdThreadId || hasRequestedSupportChatRef.current) {
       return;
     }
 
@@ -101,12 +90,7 @@ export function AccountSupportNewChatPage() {
       .sort((first, second) => readMessageTimestamp(first) - readMessageTimestamp(second));
 
     return rawMessages.flatMap((message, index) => {
-      const mapped = mapAccountSupportMessage(
-        message,
-        index,
-        currentUserId,
-        activeThreadId,
-      );
+      const mapped = mapAccountSupportMessage(message, index, currentUserId, activeThreadId);
 
       return mapped ? [mapped] : [];
     });
@@ -259,9 +243,7 @@ export function AccountSupportNewChatPage() {
           type: "text",
         };
 
-        setLiveMessages((current) =>
-          mergeSupportChatMessages([...current, optimisticMessage]),
-        );
+        setLiveMessages((current) => mergeSupportChatMessages([...current, optimisticMessage]));
         setDraftMessage("");
         joinChatThread({ category: "support", threadId });
         sendChatTextMessage({ body: text, category: "support", threadId });
@@ -331,7 +313,7 @@ export function AccountSupportNewChatPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -344,7 +326,7 @@ export function AccountSupportNewChatPage() {
         ]}
         backLabel="بازگشت به گفتگوهای پشتیبانی"
         backTo={SUPPORT_CHAT_PATH}
-        className="border-b border-outline-var"
+        className="border-outline-var border-b"
         contentClassName="px-0"
         heightClassName="h-[52px]"
         reserveStartSpace
@@ -353,16 +335,32 @@ export function AccountSupportNewChatPage() {
       />
 
       <main
-        className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest px-2.5 pb-[92px] pt-3"
+        className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto px-2.5 pt-3 pb-[92px]"
         onScroll={handleScroll}
         ref={scrollAreaRef}
       >
         {messagesQuery.isFetchingNextPage ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="pb-3 text-center text-xs text-outline">در حال دریافت پیام‌های قبلی...</Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline pb-3 text-center text-xs"
+          >
+            در حال دریافت پیام‌های قبلی...
+          </Typography>
         ) : null}
 
         {isStarting ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="py-16 text-center text-sm text-outline">در حال شروع گفتگو...</Typography>
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline py-16 text-center text-sm"
+          >
+            در حال شروع گفتگو...
+          </Typography>
         ) : (
           <div className="space-y-2.5">
             {messages.slice(0, 2).map((message) => (
@@ -376,7 +374,13 @@ export function AccountSupportNewChatPage() {
             ))}
 
             {isAgentTyping ? (
-              <Typography as="p" variant="body" size="small" weight="regular" className="px-3 py-1 text-right text-xs text-outline">
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="regular"
+                className="text-outline px-3 py-1 text-right text-xs"
+              >
                 پشتیبان در حال نوشتن است...
               </Typography>
             ) : null}
@@ -385,9 +389,15 @@ export function AccountSupportNewChatPage() {
         )}
       </main>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 bg-surface-container-lowest px-2 pb-3 pt-2">
+      <footer className="bg-surface-container-lowest absolute inset-x-0 bottom-0 z-20 px-2 pt-2 pb-3">
         {errorMessage ? (
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mb-2 px-2 text-center text-xs leading-5 text-error">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-error m-0 mb-2 px-2 text-center text-xs leading-5"
+          >
             {errorMessage}
           </Typography>
         ) : null}

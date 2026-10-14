@@ -76,8 +76,7 @@ export function ConsultantsDirectoryPage() {
 
   if (isMapOpen && mode === "agency") {
     const mapCenter =
-      selectedCity?.latitude !== undefined &&
-      selectedCity.longitude !== undefined
+      selectedCity?.latitude !== undefined && selectedCity.longitude !== undefined
         ? { latitude: selectedCity.latitude, longitude: selectedCity.longitude }
         : {
             latitude: defaultSelectedCity.latitude,
@@ -85,15 +84,24 @@ export function ConsultantsDirectoryPage() {
           };
 
     return (
-      <PageFrame className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]" variant="flush">
+      <PageFrame
+        className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
+        variant="flush"
+      >
         {directorySeo}
         <h1 className="sr-only">{seoTitle}</h1>
         <AgencyDirectoryMapView
           center={mapCenter}
           items={agencyDirectoryItems}
-          onBack={() => { setSelectedMapAgencyId(null); setIsMapOpen(false); }}
+          onBack={() => {
+            setSelectedMapAgencyId(null);
+            setIsMapOpen(false);
+          }}
           onOpenAgency={navigateToAgency}
-          onOpenList={() => { setSelectedMapAgencyId(null); setIsMapOpen(false); }}
+          onOpenList={() => {
+            setSelectedMapAgencyId(null);
+            setIsMapOpen(false);
+          }}
           onSelectAgency={setSelectedMapAgencyId}
           selectedAgencyId={selectedMapAgencyId}
         />
@@ -103,12 +111,12 @@ export function ConsultantsDirectoryPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       {directorySeo}
       <h1 className="sr-only">{seoTitle}</h1>
-      <div className="shrink-0 bg-surface-container-lowest">
+      <div className="bg-surface-container-lowest shrink-0">
         <TopBar
           className="bg-surface-container-lowest"
           onBack={() => navigate("/home", { replace: true })}
@@ -117,15 +125,21 @@ export function ConsultantsDirectoryPage() {
         />
 
         <div className="px-4 pt-2">
-          <label className="relative flex items-center rounded-xl border border-outline bg-surface-container-lowest text-outline">
+          <label className="border-outline bg-surface-container-lowest text-outline relative flex items-center rounded-xl border">
             <input
-              className="h-full w-full rounded-[inherit] border-0 bg-transparent px-4 py-3 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline"
+              className="text-on-surface placeholder:text-outline h-full w-full rounded-[inherit] border-0 bg-transparent px-4 py-3 text-right text-base leading-6 font-normal outline-none"
               onChange={(e) => setSearch(e.target.value)}
               placeholder={searchPlaceholder}
               type="search"
               value={search}
             />
-            <Typography as="span" variant="body" size="medium" weight="regular" className="absolute left-5 top-1/2 -translate-y-1/2 text-outline">
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-outline absolute top-1/2 left-5 -translate-y-1/2"
+            >
               <SearchIcon />
             </Typography>
           </label>
@@ -143,7 +157,7 @@ export function ConsultantsDirectoryPage() {
         />
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest py-4 [-webkit-overflow-scrolling:touch]">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto py-4 [-webkit-overflow-scrolling:touch]">
         <DirectoryList
           error={activeQuery.error}
           hasNextPage={Boolean(activeQuery.hasNextPage)}

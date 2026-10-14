@@ -1,12 +1,7 @@
 import { useEffect } from "react";
 import { useToast } from "../hooks/useToast";
 
-export function TransientNotice({
-  message,
-}: {
-  message?: string | null;
-  className?: string;
-}) {
+export function TransientNotice({ message }: { message?: string | null; className?: string }) {
   const { showToast } = useToast();
 
   useEffect(() => {

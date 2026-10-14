@@ -16,11 +16,7 @@ function normalizeProfileRoleSlug(value: unknown): AuthRoleSlug | null {
   if (typeof value !== "string") return null;
 
   const normalized = value.trim().toLowerCase().replace(/_/g, "-");
-  if (
-    normalized === "superadmin" ||
-    normalized === "super admin" ||
-    normalized === "super-admin"
-  ) {
+  if (normalized === "superadmin" || normalized === "super admin" || normalized === "super-admin") {
     return "super-admin";
   }
 
@@ -28,10 +24,7 @@ function normalizeProfileRoleSlug(value: unknown): AuthRoleSlug | null {
   return authRoleSlugs.includes(slug) ? slug : null;
 }
 
-export function syncStoredRolesFromProfile(
-  response: unknown,
-  profile: UserProfile,
-): void {
+export function syncStoredRolesFromProfile(response: unknown, profile: UserProfile): void {
   const session = getStoredAuthSession();
   if (!session) return;
 
@@ -59,11 +52,7 @@ export function syncStoredRolesFromProfile(
     accountsToScan.forEach((item, index) => {
       const acc = item as ProfileAccountItem;
       let slug: AuthRoleSlug | null = null;
-      if (
-        acc.context === "personal" ||
-        acc.role_slug === "user" ||
-        acc.type === "user"
-      ) {
+      if (acc.context === "personal" || acc.role_slug === "user" || acc.type === "user") {
         slug = "user";
       } else if (
         acc.context === "agency" ||
@@ -102,18 +91,14 @@ export function syncStoredRolesFromProfile(
   }
 
   const rawRoles = candidates.find(Array.isArray);
-  const roles: AuthRole[] =
-    rolesFromAccounts.length > 0 ? rolesFromAccounts : [];
+  const roles: AuthRole[] = rolesFromAccounts.length > 0 ? rolesFromAccounts : [];
 
   if (roles.length === 0 && Array.isArray(rawRoles)) {
     rawRoles
       .map((role, index): AuthRole | null => {
-        const record =
-          role && typeof role === "object"
-            ? (role as Record<string, unknown>)
-            : null;
+        const record = role && typeof role === "object" ? (role as Record<string, unknown>) : null;
         const slug = normalizeProfileRoleSlug(
-          typeof role === "string" ? role : record?.slug ?? record?.name,
+          typeof role === "string" ? role : (record?.slug ?? record?.name),
         );
         if (!slug) return null;
 
@@ -133,11 +118,9 @@ export function syncStoredRolesFromProfile(
 
   if (!roles.length) return;
 
-  const activeRole: AuthRoleSlug = roles.some(
-    (role) => role.slug === session.activeRole,
-  )
+  const activeRole: AuthRoleSlug = roles.some((role) => role.slug === session.activeRole)
     ? (session.activeRole as AuthRoleSlug)
-    : roles.find((role) => role.slug === "user")?.slug ?? roles[0]!.slug;
+    : (roles.find((role) => role.slug === "user")?.slug ?? roles[0]!.slug);
 
   const consultantContext = Array.isArray(accountsToScan)
     ? (accountsToScan.find((item) => {
@@ -150,9 +133,11 @@ export function syncStoredRolesFromProfile(
       }) as ProfileAccountItem | undefined)
     : undefined;
 
-  const selectedContext = activeRole === "real_estate_manager"
-    ? accountsToScan?.find(item => (item as ProfileAccountItem).context === "agency") as ProfileAccountItem | undefined
-    : consultantContext;
+  const selectedContext =
+    activeRole === "real_estate_manager"
+      ? (accountsToScan?.find((item) => (item as ProfileAccountItem).context === "agency") as
+          ProfileAccountItem | undefined)
+      : consultantContext;
   const managerPermissions = ["real_estate_consultant", "real_estate_manager"].includes(activeRole)
     ? selectedContext?.permissions
     : undefined;
@@ -165,11 +150,18 @@ export function syncStoredRolesFromProfile(
     roles,
     managerPermissions,
     contextIdentity: String(selectedContext?.agency?.id ?? selectedContext?.id ?? ""),
-    contextPermissions: Object.fromEntries((accountsToScan ?? []).map(item => {
-      const acc = item as ProfileAccountItem;
-      const role = acc.context === "agency" ? "real_estate_manager" : acc.context === "agency-consultant" ? "real_estate_consultant" : "user";
-      return [role, acc.permissions];
-    })),
+    contextPermissions: Object.fromEntries(
+      (accountsToScan ?? []).map((item) => {
+        const acc = item as ProfileAccountItem;
+        const role =
+          acc.context === "agency"
+            ? "real_estate_manager"
+            : acc.context === "agency-consultant"
+              ? "real_estate_consultant"
+              : "user";
+        return [role, acc.permissions];
+      }),
+    ),
   });
 }
 
@@ -208,7 +200,8 @@ export async function getMyProfile(): Promise<UserProfile> {
         ? { ...(record.data as UserProfile) }
         : { ...(response as UserProfile) };
 
-  const rawAccounts = record.accounts ?? record.contexts ?? (record.context ? [record.context] : undefined);
+  const rawAccounts =
+    record.accounts ?? record.contexts ?? (record.context ? [record.context] : undefined);
   if (Array.isArray(rawAccounts)) {
     profile.accounts = rawAccounts as ProfileAccountItem[];
   }

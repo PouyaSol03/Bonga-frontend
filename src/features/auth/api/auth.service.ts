@@ -43,7 +43,6 @@ export type VerifyOtpResponse = StatusResponse & {
   user_id?: string;
 };
 
-
 function normalizeAuthRoles(response: VerifyOtpResponse): AuthRole[] {
   const rawRoles = Array.isArray(response.roles)
     ? response.roles
@@ -125,9 +124,7 @@ export async function verifyOtp({ mobile, code }: VerifyOtpPayload) {
     accessToken,
     accountType: response.account_type ?? role,
     activeRole: role,
-    expiresAt: response.expires_in
-      ? Date.now() + response.expires_in * 1000
-      : null,
+    expiresAt: response.expires_in ? Date.now() + response.expires_in * 1000 : null,
     mobile,
     role,
     roles,

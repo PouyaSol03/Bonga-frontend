@@ -1,10 +1,6 @@
 import { api } from "../../../shared/api/api";
 
-export type SearchHistoryFilterValue =
-  | string
-  | number
-  | boolean
-  | Array<string | number>;
+export type SearchHistoryFilterValue = string | number | boolean | Array<string | number>;
 
 export type SearchHistoryFilters = Record<string, SearchHistoryFilterValue>;
 
@@ -64,39 +60,30 @@ function readNestedName(value: unknown) {
 function normalizeTextList(value: unknown) {
   if (!Array.isArray(value)) return [];
 
-  return value
-    .map((item) => readNestedName(item) || toText(item))
-    .filter(Boolean);
+  return value.map((item) => readNestedName(item) || toText(item)).filter(Boolean);
 }
 
 function normalizeFilters(value: unknown): SearchHistoryFilters {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
 
   return Object.fromEntries(
-    Object.entries(value).flatMap<[string, SearchHistoryFilterValue]>(
-      ([key, entry]) => {
-        if (
-          typeof entry === "string" ||
-          typeof entry === "number" ||
-          typeof entry === "boolean"
-        ) {
-          return [[key, entry]];
-        }
+    Object.entries(value).flatMap<[string, SearchHistoryFilterValue]>(([key, entry]) => {
+      if (typeof entry === "string" || typeof entry === "number" || typeof entry === "boolean") {
+        return [[key, entry]];
+      }
 
-        if (Array.isArray(entry)) {
-          const values = entry.filter(
-            (item): item is string | number =>
-              typeof item === "string" || typeof item === "number",
-          );
+      if (Array.isArray(entry)) {
+        const values = entry.filter(
+          (item): item is string | number => typeof item === "string" || typeof item === "number",
+        );
 
-          return values.length > 0 ? [[key, values]] : [];
-        }
+        return values.length > 0 ? [[key, values]] : [];
+      }
 
-        const nestedName = readNestedName(entry);
+      const nestedName = readNestedName(entry);
 
-        return nestedName ? [[key, nestedName]] : [];
-      },
-    ),
+      return nestedName ? [[key, nestedName]] : [];
+    }),
   );
 }
 
@@ -132,11 +119,7 @@ function appendFilter(params: URLSearchParams, key: string, value: SearchHistory
   params.set(key, String(value));
 }
 
-function buildSearchUrl(
-  item: SearchHistoryDto,
-  filters: SearchHistoryFilters,
-  query: string,
-) {
+function buildSearchUrl(item: SearchHistoryDto, filters: SearchHistoryFilters, query: string) {
   const rawUrl = toText(item.url);
 
   if (rawUrl) {
@@ -162,10 +145,7 @@ function buildSearchUrl(
   return queryString ? `/search?${queryString}` : "/search";
 }
 
-function mapSearchHistoryItem(
-  item: SearchHistoryDto,
-  index: number,
-): SearchHistoryItem {
+function mapSearchHistoryItem(item: SearchHistoryDto, index: number): SearchHistoryItem {
   const rawQuery = toText(item.qsearch ?? item.query ?? item.search ?? item.text);
   const title = toText(item.title, rawQuery || "جستجوی آگهی");
   const subtitle = readNestedName(item.category) || toText(item.category_name);

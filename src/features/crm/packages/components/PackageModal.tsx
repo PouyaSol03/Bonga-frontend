@@ -44,10 +44,22 @@ export function PackageModal({
       >
         <div className="flex items-center justify-between">
           <div>
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold">
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="m-0 text-lg font-bold"
+            >
               {isEditing ? "ویرایش بسته" : "افزودن بسته جدید"}
             </Typography>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs text-[#7b8494]">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="m-0 mt-1 text-xs text-[#7b8494]"
+            >
               مبلغ نهایی بر اساس قیمت اصلی و درصد تخفیف توسط سرور محاسبه می‌شود.
             </Typography>
           </div>
@@ -59,14 +71,16 @@ export function PackageModal({
         <PackageModalFields draft={draft} onChange={onChange} />
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button unstyled
+          <Button
+            unstyled
             className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold"
             onClick={onClose}
             type="button"
           >
             انصراف
           </Button>
-          <Button unstyled
+          <Button
+            unstyled
             className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60"
             disabled={isPending}
             type="submit"

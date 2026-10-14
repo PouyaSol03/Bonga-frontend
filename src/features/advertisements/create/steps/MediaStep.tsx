@@ -17,7 +17,14 @@ function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return (
-    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-error" data-field-error="true">
+    <Typography
+      as="p"
+      variant="body"
+      size="small"
+      weight="regular"
+      className="text-error m-0 mt-2 px-4 text-right text-xs leading-5 font-normal"
+      data-field-error="true"
+    >
       {message}
     </Typography>
   );
@@ -51,12 +58,11 @@ export function MediaStep({
   const activeRole = getActiveAuthRole(session);
   const activeV2Role = getActiveV2Role();
   const managerPermissions =
-    session?.contextPermissions?.real_estate_consultant ??
-    session?.managerPermissions;
-  const hasAdManagementPermission =
-    Boolean(managerPermissions?.manage_advertises ?? managerPermissions?.ad_management);
-  const hasConsultantManagementPermission =
-    Boolean(managerPermissions?.manage_consultants);
+    session?.contextPermissions?.real_estate_consultant ?? session?.managerPermissions;
+  const hasAdManagementPermission = Boolean(
+    managerPermissions?.manage_advertises ?? managerPermissions?.ad_management,
+  );
+  const hasConsultantManagementPermission = Boolean(managerPermissions?.manage_consultants);
   const isAgencyConsultantManager =
     (activeRole === "real_estate_consultant" || activeV2Role === "agency-consultant") &&
     hasAdManagementPermission &&
@@ -71,7 +77,8 @@ export function MediaStep({
   const isAgencyPublisher = publisherType === "agency" || activeRole === "real_estate_manager";
   const { data: profile } = useMyProfileQuery();
   const { data: agencyProfile } = useMyAgencyProfileQuery({
-    enabled: isAgencyPublisher || activeRole === "real_estate_consultant" || isAgencyConsultantManager,
+    enabled:
+      isAgencyPublisher || activeRole === "real_estate_consultant" || isAgencyConsultantManager,
   });
   const { data: consultantsPage } = useAgencyConsultantsQuery({
     enabled: (isAgencyPublisher || isAgencyConsultantManager) && Boolean(values.consultantId),
@@ -104,9 +111,7 @@ export function MediaStep({
     publisherType === "agent" ||
     publisherType === "consultant";
   const canChangePublisher =
-    (!isIndependentUser &&
-      !isAgencyConsultantUser &&
-      isAgencyPublisher) ||
+    (!isIndependentUser && !isAgencyConsultantUser && isAgencyPublisher) ||
     isAgencyConsultantManager;
 
   const agencyPublisherName = agencyPublisherIsConsultant
@@ -114,9 +119,7 @@ export function MediaStep({
       (profileFullName ? profileFullName : undefined) ||
       values.publisherName?.trim() ||
       "مشاور"
-    : agencyProfile?.name?.trim() ||
-      values.publisherName?.trim() ||
-      "آژانس";
+    : agencyProfile?.name?.trim() || values.publisherName?.trim() || "آژانس";
 
   const agencyPublisherLogoUrl = getApiAssetUrl(
     agencyPublisherIsConsultant
@@ -131,10 +134,7 @@ export function MediaStep({
       : "آژانس";
   const isAgencyFlow = values.registrantType === "agency";
 
-  const setField = <T extends keyof NewAdFormValues>(
-    key: T,
-    value: NewAdFormValues[T],
-  ) => {
+  const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => {
     setValue(key as never, value as never, { shouldDirty: true });
     onClearError?.(key);
 
@@ -200,7 +200,6 @@ export function MediaStep({
     }
   };
 
-
   const primaryLabel = submitDisabled
     ? isAgencyFlow
       ? "در حال آماده‌سازی..."
@@ -219,8 +218,8 @@ export function MediaStep({
       <main
         className={
           desktop
-            ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
-            : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-3"
+            ? "bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-6 py-5 [&>section]:mx-auto [&>section]:mb-5 [&>section]:max-w-[1120px]"
+            : "bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-3"
         }
         dir="rtl"
       >
@@ -307,7 +306,6 @@ export function MediaStep({
         onPrimary={onSubmit}
         primary={primaryLabel}
       />
-
     </>
   );
 }

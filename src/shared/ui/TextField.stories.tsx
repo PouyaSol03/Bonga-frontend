@@ -48,7 +48,7 @@ export const PriceInputWithBadge: Story = {
   render: function Render() {
     const [price, setPrice] = useState("18500000000");
     return (
-      <div className="max-w-md p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
+      <div className="bg-surface-container-lowest border-outline-var max-w-md rounded-xl border p-4">
         <TextField
           badge="تومان"
           formatNumber
@@ -66,7 +66,7 @@ export const PriceInputWithBadge: Story = {
 export const ValidationErrorState: Story = {
   name: "وضعیت خطا و پیام نامعتبر",
   render: () => (
-    <div className="max-w-md p-4 bg-surface-container-lowest rounded-xl border border-outline-var space-y-4">
+    <div className="bg-surface-container-lowest border-outline-var max-w-md space-y-4 rounded-xl border p-4">
       <TextField
         defaultValue="0935"
         error="شماره موبایل باید ۱۱ رقم باشد (مثال: ۰۹۱۲۳۴۵۶۷۸۹)"
@@ -85,15 +85,15 @@ export const ValidationErrorState: Story = {
 export const WithIconsAndSlots: Story = {
   name: "ورودی همراه با آیکون‌های ابتدا و انتها",
   render: () => (
-    <div className="max-w-md p-4 bg-surface-container-lowest rounded-xl border border-outline-var space-y-4">
+    <div className="bg-surface-container-lowest border-outline-var max-w-md space-y-4 rounded-xl border p-4">
       <TextField
         label="شماره تماس جهت هماهنگی"
-        leadingSlot={<LinearCall className="h-5 w-5 text-outline" />}
+        leadingSlot={<LinearCall className="text-outline h-5 w-5" />}
         placeholder="۰۹۱۲..."
       />
       <TextField
         label="محله یا منطقه"
-        leadingSlot={<LinearLocation className="h-5 w-5 text-outline" />}
+        leadingSlot={<LinearLocation className="text-outline h-5 w-5" />}
         placeholder="مثال: سعادت‌آباد، شهرک غرب..."
       />
     </div>
@@ -103,7 +103,7 @@ export const WithIconsAndSlots: Story = {
 export const DisabledAndReadonly: Story = {
   name: "ورودی غیرفعال (Disabled)",
   render: () => (
-    <div className="max-w-md p-4 bg-surface-container-lowest rounded-xl border border-outline-var">
+    <div className="bg-surface-container-lowest border-outline-var max-w-md rounded-xl border p-4">
       <TextField
         defaultValue="علی رضایی (غیرقابل تغییر)"
         disabled

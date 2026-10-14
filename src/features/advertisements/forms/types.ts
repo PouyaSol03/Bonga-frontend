@@ -1,12 +1,5 @@
 export type AdFormFieldInputType =
-  | "text"
-  | "number"
-  | "currency"
-  | "select"
-  | "multiSelect"
-  | "toggle"
-  | "time"
-  | "date";
+  "text" | "number" | "currency" | "select" | "multiSelect" | "toggle" | "time" | "date";
 
 export type AdFormFieldUiType = "input" | "bottomSheet" | "select" | "toggle";
 
@@ -28,12 +21,7 @@ export type AdFormChipsItem = {
   label: string;
 };
 
-export type AdFormPricingMode =
-  | "sale"
-  | "rent"
-  | "dailyRent"
-  | "partnership"
-  | "project";
+export type AdFormPricingMode = "sale" | "rent" | "dailyRent" | "partnership" | "project";
 
 export type AdFormPricingConfig = {
   mode: AdFormPricingMode;

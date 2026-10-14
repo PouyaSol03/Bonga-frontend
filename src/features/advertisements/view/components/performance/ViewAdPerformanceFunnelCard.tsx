@@ -89,11 +89,11 @@ const PERFORMANCE_FUNNEL_STAGES: FunnelStage[] = [
 
 export function ViewAdPerformanceFunnelCardSkeleton() {
   return (
-    <div className="w-full rounded-2xl border border-surface-container bg-surface-container-lowest p-4 shadow-2xs">
-      <div className="h-6 w-36 animate-pulse rounded bg-surface-container" />
+    <div className="border-surface-container bg-surface-container-lowest w-full rounded-2xl border p-4 shadow-2xs">
+      <div className="bg-surface-container h-6 w-36 animate-pulse rounded" />
       <div className="mt-4 flex flex-col gap-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="h-9 w-full animate-pulse rounded-lg bg-surface-container" />
+          <div key={i} className="bg-surface-container h-9 w-full animate-pulse rounded-lg" />
         ))}
       </div>
     </div>

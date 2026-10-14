@@ -40,7 +40,8 @@ export function clampRentConversionMortgage(
   if (maximum <= 0) return 0;
 
   const clamped = Math.min(maximum, Math.max(0, finiteNonNegative(selectedMortgagePrice)));
-  const stepped = Math.round(clamped / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_MORTGAGE_UNIT;
+  const stepped =
+    Math.round(clamped / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_MORTGAGE_UNIT;
 
   return Math.min(maximum, stepped);
 }
@@ -65,11 +66,7 @@ export function calculateRentPriceConversion(
   const baseRent = parseRentPriceValue(rentPrice);
   const maximumMortgage = getRentEquivalentMortgage(baseMortgage, baseRent);
   const requestedMortgage = parseRentPriceValue(selectedMortgagePrice);
-  const convertedMortgage = clampRentConversionMortgage(
-    requestedMortgage,
-    baseMortgage,
-    baseRent,
-  );
+  const convertedMortgage = clampRentConversionMortgage(requestedMortgage, baseMortgage, baseRent);
   const mortgageStepDiff = Math.round(
     (convertedMortgage - baseMortgage) / RENT_CONVERSION_MORTGAGE_UNIT,
   );
@@ -98,8 +95,9 @@ export function calculateRentPriceConversion(
     convertedRent,
     mortgageDelta: convertedMortgage - baseMortgage,
     rentDelta: convertedRent - baseRent,
-    positionPercent: maximumMortgage > 0
-      ? Math.min(100, Math.max(0, (convertedMortgage / maximumMortgage) * 100))
-      : 0,
+    positionPercent:
+      maximumMortgage > 0
+        ? Math.min(100, Math.max(0, (convertedMortgage / maximumMortgage) * 100))
+        : 0,
   };
 }

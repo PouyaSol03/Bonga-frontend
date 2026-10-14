@@ -95,7 +95,8 @@ export function saveAtomicDraft(draft: AtomicAdDraft): void {
   if (merged.lat) window.localStorage.setItem(locationLatKey, merged.lat);
   if (merged.lng) window.localStorage.setItem(locationLngKey, merged.lng);
   if (merged.neighborhoodId) window.localStorage.setItem(neighborhoodIdKey, merged.neighborhoodId);
-  if (merged.subNeighborhoodId) window.localStorage.setItem(subNeighborhoodIdKey, merged.subNeighborhoodId);
+  if (merged.subNeighborhoodId)
+    window.localStorage.setItem(subNeighborhoodIdKey, merged.subNeighborhoodId);
 }
 
 export function clearAtomicDraft(): void {
@@ -119,10 +120,22 @@ export function readAtomicLocation(): {
 } {
   const atomic = loadAtomicDraft();
   return {
-    lat: atomic?.lat || (typeof window !== "undefined" ? window.localStorage.getItem(locationLatKey) || "" : ""),
-    lng: atomic?.lng || (typeof window !== "undefined" ? window.localStorage.getItem(locationLngKey) || "" : ""),
-    location: atomic?.location || (typeof window !== "undefined" ? window.localStorage.getItem(locationKey) || "" : ""),
-    neighborhoodId: atomic?.neighborhoodId || (typeof window !== "undefined" ? window.localStorage.getItem(neighborhoodIdKey) || "" : ""),
-    subNeighborhoodId: atomic?.subNeighborhoodId || (typeof window !== "undefined" ? window.localStorage.getItem(subNeighborhoodIdKey) || "" : ""),
+    lat:
+      atomic?.lat ||
+      (typeof window !== "undefined" ? window.localStorage.getItem(locationLatKey) || "" : ""),
+    lng:
+      atomic?.lng ||
+      (typeof window !== "undefined" ? window.localStorage.getItem(locationLngKey) || "" : ""),
+    location:
+      atomic?.location ||
+      (typeof window !== "undefined" ? window.localStorage.getItem(locationKey) || "" : ""),
+    neighborhoodId:
+      atomic?.neighborhoodId ||
+      (typeof window !== "undefined" ? window.localStorage.getItem(neighborhoodIdKey) || "" : ""),
+    subNeighborhoodId:
+      atomic?.subNeighborhoodId ||
+      (typeof window !== "undefined"
+        ? window.localStorage.getItem(subNeighborhoodIdKey) || ""
+        : ""),
   };
 }

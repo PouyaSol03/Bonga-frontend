@@ -11,7 +11,7 @@ export function AgencyImage({ item }: { item: AgencyDirectoryMapItem }) {
   return item.image ? (
     <img
       alt=""
-      className="h-[72px] w-[72px] block shrink-0 rounded-xl object-cover shadow-[0_0_16px_rgba(77,77,77,0.08)]"
+      className="block h-[72px] w-[72px] shrink-0 rounded-xl object-cover shadow-[0_0_16px_rgba(77,77,77,0.08)]"
       src={item.image}
     />
   ) : (
@@ -20,7 +20,7 @@ export function AgencyImage({ item }: { item: AgencyDirectoryMapItem }) {
       variant="headline"
       size="small"
       aria-hidden="true"
-      className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl bg-primary-container text-2xl font-bold text-primary"
+      className="bg-primary-container text-primary grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl text-2xl font-bold"
     >
       {item.name.trim().charAt(0) || "آ"}
     </Typography>
@@ -34,27 +34,41 @@ export function AgencySummary({ item }: { item: AgencyDirectoryMapItem }) {
       variant="body"
       size="medium"
       weight="regular"
-      className="flex flex-1 flex-col h-full gap-y-4"
+      className="flex h-full flex-1 flex-col gap-y-4"
     >
-      <strong className="truncate text-base font-medium text-on-surface">
-        {item.name}
-      </strong>
+      <strong className="text-on-surface truncate text-base font-medium">{item.name}</strong>
       <Typography
         as="span"
         variant="label"
         size="small"
         weight="medium"
-        className="flex items-center justify-between text-xs font-medium leading-5 text-on-surface"
+        className="text-on-surface flex items-center justify-between text-xs leading-5 font-medium"
       >
-        <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1.5">
-          <LinearStar className="w-4 h-4 text-on-surface-var" />
-          <Typography as="span" variant="body" size="medium" weight="regular">امتیاز</Typography>
-          <b className="text-sm font-semibold text-tertiary px-2">{item.score}</b>
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="flex items-center gap-1.5"
+        >
+          <LinearStar className="text-on-surface-var h-4 w-4" />
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            امتیاز
+          </Typography>
+          <b className="text-tertiary px-2 text-sm font-semibold">{item.score}</b>
         </Typography>
-        <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-center gap-1.5">
-          <LinearRanking className="w-4 h-4 text-on-surface-var" />
-          <Typography as="span" variant="body" size="medium" weight="regular">رتبه</Typography>
-          <b className="text-sm font-semibold text-tertiary px-2">{item.rank}</b>
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="flex items-center gap-1.5"
+        >
+          <LinearRanking className="text-on-surface-var h-4 w-4" />
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            رتبه
+          </Typography>
+          <b className="text-tertiary px-2 text-sm font-semibold">{item.rank}</b>
         </Typography>
       </Typography>
     </Typography>
@@ -71,7 +85,7 @@ export function AgencyDirectoryCard({
   return (
     <Button
       unstyled
-      className="absolute inset-x-4 bottom-4 z-[500] flex min-h-[104px] items-center gap-4 rounded-2xl border border-outline-var bg-surface-container-lowest p-4 text-right shadow-[0_-4px_16px_rgba(26,26,26,0.08)] active:bg-surface-container"
+      className="border-outline-var bg-surface-container-lowest active:bg-surface-container absolute inset-x-4 bottom-4 z-[500] flex min-h-[104px] items-center gap-4 rounded-2xl border p-4 text-right shadow-[0_-4px_16px_rgba(26,26,26,0.08)]"
       dir="rtl"
       onClick={onClick}
       type="button"
@@ -93,7 +107,7 @@ export function AgencySelectionCard({
 }) {
   return (
     <div
-      className="absolute inset-x-0 bottom-[76px] z-[500] rounded-t-[22px] bg-surface-container-lowest px-4 pb-3 pt-4 shadow-[0_-8px_26px_rgba(26,26,26,0.08)]"
+      className="bg-surface-container-lowest absolute inset-x-0 bottom-[76px] z-[500] rounded-t-[22px] px-4 pt-4 pb-3 shadow-[0_-8px_26px_rgba(26,26,26,0.08)]"
       dir="rtl"
     >
       <Typography
@@ -102,21 +116,21 @@ export function AgencySelectionCard({
         size="medium"
         weight="regular"
         aria-hidden="true"
-        className="mx-auto mb-3 block h-1 w-[42px] rounded-full bg-outline-var"
+        className="bg-outline-var mx-auto mb-3 block h-1 w-[42px] rounded-full"
       />
-      <article className="flex flex-col gap-y-2 rounded-2xl border-2 border-primary bg-primary-container/20 p-4">
+      <article className="border-primary bg-primary-container/20 flex flex-col gap-y-2 rounded-2xl border-2 p-4">
         <div className="flex gap-4">
           <AgencyImage item={item} />
           <AgencySummary item={item} />
         </div>
-        <div className="h-px bg-outline-var" />
+        <div className="bg-outline-var h-px" />
         <div className="flex items-center justify-between gap-3">
           <Typography
             as="span"
             variant="label"
             size="large"
             weight="medium"
-            className="flex items-center gap-2 text-base font-medium text-on-surface"
+            className="text-on-surface flex items-center gap-2 text-base font-medium"
           >
             <RadioIndicator checked />
             <Typography as="span" variant="body" size="medium" weight="regular">
@@ -125,14 +139,14 @@ export function AgencySelectionCard({
           </Typography>
           <Button
             unstyled
-            className="flex items-center justify-center gap-2 rounded-xl border border-primary bg-surface-container-lowest/50 px-4 py-2.5 text-primary active:bg-surface-container-lowest"
+            className="border-primary bg-surface-container-lowest/50 text-primary active:bg-surface-container-lowest flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5"
             onClick={onOpen}
             type="button"
           >
             <Typography as="span" variant="body" size="medium" weight="regular">
               {profileLabel}
             </Typography>
-            <LinearArrowLeft2 className="w-5 h-5 text-primary" />
+            <LinearArrowLeft2 className="text-primary h-5 w-5" />
           </Button>
         </div>
       </article>
@@ -155,23 +169,23 @@ export function AgencyMapSelectionFooter({
 }) {
   return (
     <footer
-      className="absolute inset-x-0 bottom-0 z-[550] flex h-[76px] items-center gap-3 border-t border-outline-var bg-surface-container-lowest px-4"
+      className="border-outline-var bg-surface-container-lowest absolute inset-x-0 bottom-0 z-[550] flex h-[76px] items-center gap-3 border-t px-4"
       dir="rtl"
     >
       <Button
         unstyled
-        className="flex h-12 w-[104px] shrink-0 items-center justify-center gap-2 rounded-xl border border-outline-var bg-surface-container-lowest text-base font-semibold text-on-surface active:bg-surface-container"
+        className="border-outline-var bg-surface-container-lowest text-on-surface active:bg-surface-container flex h-12 w-[104px] shrink-0 items-center justify-center gap-2 rounded-xl border text-base font-semibold"
         onClick={onOpenList}
         type="button"
       >
-        <LinearList className="w-6 h-6" />
+        <LinearList className="h-6 w-6" />
         <Typography as="span" variant="body" size="medium" weight="regular">
           {listLabel}
         </Typography>
       </Button>
       <Button
         unstyled
-        className="h-12 min-w-0 flex-1 rounded-xl bg-primary px-4 text-base font-semibold text-on-primary active:opacity-80 disabled:bg-surface-container-high disabled:text-outline"
+        className="bg-primary text-on-primary disabled:bg-surface-container-high disabled:text-outline h-12 min-w-0 flex-1 rounded-xl px-4 text-base font-semibold active:opacity-80"
         disabled={confirmDisabled}
         onClick={onConfirm}
         type="button"

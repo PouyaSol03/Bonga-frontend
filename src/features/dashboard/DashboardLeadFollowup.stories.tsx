@@ -1,8 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-  DashboardLeadFollowupPage,
-  type LeadFollowupItem,
-} from "./DashboardLeadFollowupPage";
+import { DashboardLeadFollowupPage, type LeadFollowupItem } from "./DashboardLeadFollowupPage";
 import { DashboardLeadFollowupCard } from "./components/DashboardLeadFollowupCard";
 
 const sampleLeadItem: LeadFollowupItem = {
@@ -68,7 +65,7 @@ export const PageEmptyState: Story = {
 export const SingleCard: StoryObj<typeof DashboardLeadFollowupCard> = {
   name: "کارت تک پیگیری سرنخ (مطابق فیگما)",
   render: () => (
-    <div className="p-4 bg-[#F0F0F0] max-w-[400px] mx-auto">
+    <div className="mx-auto max-w-[400px] bg-[#F0F0F0] p-4">
       <DashboardLeadFollowupCard item={sampleLeadItem} />
     </div>
   ),

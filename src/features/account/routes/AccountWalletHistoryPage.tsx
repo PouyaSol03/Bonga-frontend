@@ -1,6 +1,11 @@
 import { useWalletPaymentsQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
-import { AccountPageShell, AccountRetryState, PaymentHistoryCard, PaymentHistorySkeleton } from "../accountPageViews";
+import {
+  AccountPageShell,
+  AccountRetryState,
+  PaymentHistoryCard,
+  PaymentHistorySkeleton,
+} from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountWalletHistoryPage() {
@@ -11,7 +16,7 @@ export function AccountWalletHistoryPage() {
   return (
     <AccountPageShell title="تاریخچه پرداخت کیف پول">
       <main
-        className={`min-h-0 flex-1 flex flex-col gap-2 overflow-y-auto overflow-x-hidden ${
+        className={`flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto ${
           isEmpty ? "bg-surface-container-lowest" : "bg-surface-container"
         }`}
       >
@@ -25,12 +30,11 @@ export function AccountWalletHistoryPage() {
           />
         ) : null}
 
-        {!isLoading && !isError && payments.map((payment, index) => (
-          <PaymentHistoryCard
-            key={String(payment.id ?? index)}
-            payment={payment}
-          />
-        ))}
+        {!isLoading &&
+          !isError &&
+          payments.map((payment, index) => (
+            <PaymentHistoryCard key={String(payment.id ?? index)} payment={payment} />
+          ))}
 
         {isEmpty ? <WalletHistoryEmptyState /> : null}
       </main>
@@ -40,7 +44,7 @@ export function AccountWalletHistoryPage() {
 
 function WalletHistoryEmptyState() {
   return (
-    <section className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center bg-surface-container-lowest px-6 text-center">
+    <section className="bg-surface-container-lowest mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center px-6 text-center">
       <img
         alt=""
         aria-hidden="true"
@@ -53,7 +57,7 @@ function WalletHistoryEmptyState() {
         variant="title"
         size="medium"
         weight="semibold"
-        className="m-0 mt-4 text-base font-semibold leading-6 text-on-surface"
+        className="text-on-surface m-0 mt-4 text-base leading-6 font-semibold"
       >
         هیچ تراکنشی برای نمایش وجود ندارد!
       </Typography>
@@ -63,7 +67,7 @@ function WalletHistoryEmptyState() {
         variant="body"
         size="small"
         weight="regular"
-        className="m-0 mt-2 max-w-[290px] text-xs font-normal leading-5 text-on-surface-var"
+        className="text-on-surface-var m-0 mt-2 max-w-[290px] text-xs leading-5 font-normal"
       >
         پس از اولین پرداخت، سوابق تراکنش‌های شما در این بخش نمایش داده خواهد شد.
       </Typography>

@@ -37,20 +37,14 @@ import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
 import { formatNumber } from "../../../../shared/lib/numberUtils";
 
-const metricIcons: Record<
-  DashboardMetric["icon"],
-  ComponentType<SVGProps<SVGSVGElement>>
-> = {
+const metricIcons: Record<DashboardMetric["icon"], ComponentType<SVGProps<SVGSVGElement>>> = {
   ad: LinearAd,
   calendar: LinearCalendar,
   chart: LinearChartUp,
   startup: LinearStartup,
 };
 
-const toneClasses: Record<
-  DashboardMetricTone,
-  { bg: string; icon: string; ring: string }
-> = {
+const toneClasses: Record<DashboardMetricTone, { bg: string; icon: string; ring: string }> = {
   amber: {
     bg: "bg-warning-container/40",
     icon: "text-warning",
@@ -150,18 +144,9 @@ function getManagerDashboardMetrics(
   dashboard: DashboardOverview | undefined,
   isLoading: boolean,
 ): DashboardMetric[] {
-  const adDelta = getDeltaMetricContent(
-    dashboard?.balanceDeltas.adCreditUsed,
-    isLoading,
-  );
-  const renewDelta = getDeltaMetricContent(
-    dashboard?.balanceDeltas.renewCreditUsed,
-    isLoading,
-  );
-  const specialDelta = getDeltaMetricContent(
-    dashboard?.balanceDeltas.specialCreditUsed,
-    isLoading,
-  );
+  const adDelta = getDeltaMetricContent(dashboard?.balanceDeltas.adCreditUsed, isLoading);
+  const renewDelta = getDeltaMetricContent(dashboard?.balanceDeltas.renewCreditUsed, isLoading);
+  const specialDelta = getDeltaMetricContent(dashboard?.balanceDeltas.specialCreditUsed, isLoading);
   return [
     {
       ...adDelta,
@@ -169,9 +154,7 @@ function getManagerDashboardMetrics(
       id: "ad-credit",
       title: "مانده اعتبار آگهی",
       tone: "blue",
-      value: !isLoading && dashboard
-        ? formatNumber(dashboard.balances.adCreditBalance)
-        : "—",
+      value: !isLoading && dashboard ? formatNumber(dashboard.balances.adCreditBalance) : "—",
     },
     {
       ...renewDelta,
@@ -179,9 +162,7 @@ function getManagerDashboardMetrics(
       id: "renew-credit",
       title: "مانده بروزرسانی",
       tone: "green",
-      value: !isLoading && dashboard
-        ? formatNumber(dashboard.balances.renewCreditBalance)
-        : "—",
+      value: !isLoading && dashboard ? formatNumber(dashboard.balances.renewCreditBalance) : "—",
     },
     {
       ...specialDelta,
@@ -189,9 +170,7 @@ function getManagerDashboardMetrics(
       id: "special-credit",
       title: "مانده ویژه",
       tone: "amber",
-      value: !isLoading && dashboard
-        ? formatNumber(dashboard.balances.specialCreditBalance)
-        : "—",
+      value: !isLoading && dashboard ? formatNumber(dashboard.balances.specialCreditBalance) : "—",
     },
     {
       description: isLoading
@@ -206,9 +185,10 @@ function getManagerDashboardMetrics(
       tone: "neutral",
       trend: "",
       trendTone: "neutral",
-      value: !isLoading && dashboard
-        ? `${formatNumber(dashboard.balances.panelDaysRemaining)} روز`
-        : "—",
+      value:
+        !isLoading && dashboard
+          ? `${formatNumber(dashboard.balances.panelDaysRemaining)} روز`
+          : "—",
     },
   ];
 }
@@ -287,10 +267,10 @@ export function DashboardHomeOverview({
   );
 
   return (
-    <div className="grid min-w-0 gap-4 overflow-x-hidden bg-surface-container-low p-4">
+    <div className="bg-surface-container-low grid min-w-0 gap-4 overflow-x-hidden p-4">
       {dashboardError ? (
         <div
-          className="rounded-xl border border-error/20 bg-error-container/20 px-4 py-3 text-sm text-error"
+          className="border-error/20 bg-error-container/20 text-error rounded-xl border px-4 py-3 text-sm"
           role="alert"
         >
           {dashboardError}
@@ -307,14 +287,10 @@ export function DashboardHomeOverview({
         <ConsultantActivityCard
           dashboard={dashboard}
           isLoading={
-            isAgencyDashboard
-              ? agencySectionLoading.consultantActivity
-              : isDashboardLoading
+            isAgencyDashboard ? agencySectionLoading.consultantActivity : isDashboardLoading
           }
           onPeriodChange={
-            isAgencyDashboard
-              ? onAgencyChartPeriodChange?.consultantActivity
-              : undefined
+            isAgencyDashboard ? onAgencyChartPeriodChange?.consultantActivity : undefined
           }
           period={agencyChartPeriods.consultantActivity}
           useApiData={useDashboardApi}
@@ -322,14 +298,10 @@ export function DashboardHomeOverview({
         <PublishedAgencyAdsCard
           dashboard={dashboard}
           isLoading={
-            isAgencyDashboard
-              ? agencySectionLoading.publishedAdvertises
-              : isDashboardLoading
+            isAgencyDashboard ? agencySectionLoading.publishedAdvertises : isDashboardLoading
           }
           onPeriodChange={
-            isAgencyDashboard
-              ? onAgencyChartPeriodChange?.publishedAdvertises
-              : undefined
+            isAgencyDashboard ? onAgencyChartPeriodChange?.publishedAdvertises : undefined
           }
           period={agencyChartPeriods.publishedAdvertises}
         />
@@ -352,11 +324,7 @@ export function DashboardHomeOverview({
                 ? onAgencyChartPeriodChange?.advertiseRegistrationProgress
                 : undefined
             }
-            period={
-              isAgencyDashboard
-                ? agencyChartPeriods.advertiseRegistrationProgress
-                : "year"
-            }
+            period={isAgencyDashboard ? agencyChartPeriods.advertiseRegistrationProgress : "year"}
             title="نمودار پیشرفت ثبت آگهی"
             valueSuffix=" آگهی"
           />
@@ -366,14 +334,10 @@ export function DashboardHomeOverview({
               value: item.rank,
             }))}
             isLoading={
-              isAgencyDashboard
-                ? agencySectionLoading.rankingProgress
-                : isDashboardLoading
+              isAgencyDashboard ? agencySectionLoading.rankingProgress : isDashboardLoading
             }
             onPeriodChange={
-              isAgencyDashboard
-                ? onAgencyChartPeriodChange?.rankingProgress
-                : undefined
+              isAgencyDashboard ? onAgencyChartPeriodChange?.rankingProgress : undefined
             }
             period={isAgencyDashboard ? agencyChartPeriods.rankingProgress : "year"}
             reverseYAxis
@@ -382,9 +346,7 @@ export function DashboardHomeOverview({
           />
           <AgencyRankingScoreCard
             dashboard={dashboard}
-            isLoading={
-              isAgencyDashboard ? agencySectionLoading.ranking : isDashboardLoading
-            }
+            isLoading={isAgencyDashboard ? agencySectionLoading.ranking : isDashboardLoading}
             useApiData={useDashboardApi}
           />
         </div>
@@ -394,7 +356,7 @@ export function DashboardHomeOverview({
 }
 
 function DashboardSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-surface-container-high ${className}`} />;
+  return <div className={`bg-surface-container-high animate-pulse rounded-lg ${className}`} />;
 }
 
 function DashboardHomeOverviewSkeleton() {
@@ -402,12 +364,12 @@ function DashboardHomeOverviewSkeleton() {
     <div
       aria-busy="true"
       aria-label="در حال دریافت اطلاعات داشبورد"
-      className="grid min-w-0 gap-4 overflow-x-hidden bg-surface-container-low p-4"
+      className="bg-surface-container-low grid min-w-0 gap-4 overflow-x-hidden p-4"
       role="status"
     >
       <section className="grid gap-4">
         {Array.from({ length: 4 }, (_, index) => (
-          <article className="rounded-2xl bg-surface-container-lowest p-4" key={index}>
+          <article className="bg-surface-container-lowest rounded-2xl p-4" key={index}>
             <div className="flex items-start gap-3">
               <DashboardSkeletonBlock className="h-12 w-12 shrink-0 rounded-xl" />
               <div className="min-w-0 flex-1 space-y-3 pt-1">
@@ -415,7 +377,7 @@ function DashboardHomeOverviewSkeleton() {
                 <DashboardSkeletonBlock className="ml-auto h-7 w-16" />
               </div>
             </div>
-            <div className="mt-5 flex items-center justify-between border-t border-outline-var pt-4">
+            <div className="border-outline-var mt-5 flex items-center justify-between border-t pt-4">
               <DashboardSkeletonBlock className="h-4 w-32" />
               <DashboardSkeletonBlock className="h-4 w-12" />
             </div>
@@ -431,7 +393,7 @@ function DashboardHomeOverviewSkeleton() {
       <section className="grid gap-4">
         <DashboardChartSkeleton chartClassName="h-[220px]" />
         <DashboardChartSkeleton chartClassName="h-[220px]" />
-        <article className="rounded-2xl bg-surface-container-lowest p-4">
+        <article className="bg-surface-container-lowest rounded-2xl p-4">
           <DashboardSkeletonBlock className="ml-auto h-5 w-36" />
           <div className="mt-6 grid grid-cols-2 gap-4">
             <DashboardSkeletonBlock className="h-20 w-full rounded-xl" />
@@ -445,14 +407,16 @@ function DashboardHomeOverviewSkeleton() {
         </article>
       </section>
 
-      <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">در حال دریافت اطلاعات داشبورد...</Typography>
+      <Typography as="span" variant="body" size="medium" weight="regular" className="sr-only">
+        در حال دریافت اطلاعات داشبورد...
+      </Typography>
     </div>
   );
 }
 
 function DashboardChartSkeleton({ chartClassName }: { chartClassName: string }) {
   return (
-    <article className="rounded-2xl bg-surface-container-lowest p-4">
+    <article className="bg-surface-container-lowest rounded-2xl p-4">
       <div className="flex items-center justify-between">
         <DashboardSkeletonBlock className="h-5 w-36" />
         <DashboardSkeletonBlock className="h-7 w-16" />
@@ -480,12 +444,18 @@ function AgencyRankingScoreCard({
   const rankingRows = dashboard?.ranking.topEntities ?? [];
 
   return (
-    <article className="rounded-2xl bg-surface-container-lowest p-4">
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-on-surface">
+    <article className="bg-surface-container-lowest rounded-2xl p-4">
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0 text-right"
+      >
         رتبه و امتیاز آژانس
       </Typography>
 
-      <div className="mt-5 grid grid-cols-2 gap-4 items-center" dir="rtl">
+      <div className="mt-5 grid grid-cols-2 items-center gap-4" dir="rtl">
         <AgencyRankMetric
           icon={<LinearRanking className="h-5 w-5" />}
           label="رتبه"
@@ -499,29 +469,57 @@ function AgencyRankingScoreCard({
       </div>
 
       <div className="mt-5 grid gap-2">
-        <div className="flex justify-between items-center text-on-surface-var px-2">
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">۱۰ آژانس برتر</Typography>
-          <Typography as="span" variant="body" size="small" weight="regular" className="text-xs">امتیاز</Typography>
+        <div className="text-on-surface-var flex items-center justify-between px-2">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-sm font-medium"
+          >
+            ۱۰ آژانس برتر
+          </Typography>
+          <Typography as="span" variant="body" size="small" weight="regular" className="text-xs">
+            امتیاز
+          </Typography>
         </div>
 
-        <div className="w-[95%] bg-outline-var h-px mx-auto" />
+        <div className="bg-outline-var mx-auto h-px w-[95%]" />
 
         {rankingRows.map((agency, index) => (
           <div
-            className="flex p-2 items-center justify-between rounded-xl bg-transparent odd:bg-surface-container px-3 text-sm font-semibold leading-6"
+            className="odd:bg-surface-container flex items-center justify-between rounded-xl bg-transparent p-2 px-3 text-sm leading-6 font-semibold"
             key={agency.entityId || `${agency.rank}-${agency.name}-${index}`}
           >
-            <Typography as="span" variant="body" size="medium" weight="regular" className="w-fit text-right text-on-surface">
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-on-surface w-fit text-right"
+            >
               {formatOptionalNumber(agency.rank)}. {agency.name}
             </Typography>
-            <Typography as="span" variant="body" size="medium" weight="regular" className="w-fit text-sm text-tertiary">
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-tertiary w-fit text-sm"
+            >
               {formatNumber(agency.totalScore)}
             </Typography>
           </div>
         ))}
 
         {!isLoading && rankingRows.length === 0 ? (
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 py-4 text-center text-sm text-outline">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline m-0 py-4 text-center text-sm"
+          >
             اطلاعاتی برای آژانس‌های برتر ثبت نشده است.
           </Typography>
         ) : null}
@@ -540,14 +538,34 @@ function AgencyRankMetric({
   value: string;
 }) {
   return (
-    <div className="flex p-4 items-center justify-between gap-2 rounded-2xl bg-surface-container px-4">
-      <Typography as="span" variant="label" size="medium" weight="medium" className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium leading-5 text-on-surface">
-        <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">{icon}</Typography>
-        <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium">{label}</Typography>
+    <div className="bg-surface-container flex items-center justify-between gap-2 rounded-2xl p-4 px-4">
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="text-on-surface inline-flex min-w-0 items-center gap-1.5 text-sm leading-5 font-medium"
+      >
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-on-surface-var"
+        >
+          {icon}
+        </Typography>
+        <Typography
+          as="span"
+          variant="label"
+          size="medium"
+          weight="medium"
+          className="text-sm font-medium"
+        >
+          {label}
+        </Typography>
       </Typography>
-      <strong className="font-semibold leading-7 text-tertiary">
-        {value}
-      </strong>
+      <strong className="text-tertiary leading-7 font-semibold">{value}</strong>
     </div>
   );
 }
@@ -570,15 +588,18 @@ export function ProgressLineChartCard({
   valueSuffix?: string;
 }) {
   return (
-    <article className="overflow-hidden rounded-2xl bg-surface-container-lowest p-6">
+    <article className="bg-surface-container-lowest overflow-hidden rounded-2xl p-6">
       <div className="flex items-start justify-between gap-4">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-8 text-on-surface">
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-on-surface m-0 text-base leading-8 font-semibold"
+        >
           {title}
         </Typography>
-        <DashboardPeriodControl
-          onChange={onPeriodChange}
-          period={period}
-        />
+        <DashboardPeriodControl onChange={onPeriodChange} period={period} />
       </div>
 
       <ScrollableProgressLineChart
@@ -593,8 +614,6 @@ export function ProgressLineChartCard({
 
 const progressChartHeight = 252;
 const progressChartMonthGuideY = 187;
-
-
 
 function ScrollableProgressLineChart({
   data,
@@ -611,21 +630,27 @@ function ScrollableProgressLineChart({
 
   if (data.length === 0) {
     return (
-      <div className="mx-auto mt-7 flex h-[252px] w-full items-center justify-center border-b border-outline-var px-6 text-center">
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-outline">
-          {isLoading
-            ? "در حال دریافت اطلاعات نمودار..."
-            : "داده نموداری از سرور دریافت نشده است."}
+      <div className="border-outline-var mx-auto mt-7 flex h-[252px] w-full items-center justify-center border-b px-6 text-center">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline m-0 text-xs"
+        >
+          {isLoading ? "در حال دریافت اطلاعات نمودار..." : "داده نموداری از سرور دریافت نشده است."}
         </Typography>
       </div>
     );
   }
 
-  const chartWidth = progressChartAxisWidth + Math.max(data.length, progressChartVisibleMonths) * progressChartMonthWidth;
+  const chartWidth =
+    progressChartAxisWidth +
+    Math.max(data.length, progressChartVisibleMonths) * progressChartMonthWidth;
 
   return (
     <div
-      className="mx-auto mt-7 max-w-full overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth [&_.recharts-layer:focus]:outline-none [&_.recharts-sector:focus]:outline-none [&_.recharts-surface_*:focus]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-surface]:[user-select:none] [&_.recharts-surface:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper:focus]:outline-none"
+      className="mx-auto mt-7 max-w-full overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth [&_.recharts-layer:focus]:outline-none [&_.recharts-sector:focus]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-surface]:[user-select:none] [&_.recharts-surface_*:focus]:outline-none [&_.recharts-surface:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper:focus]:outline-none"
       dir="ltr"
       style={{ width: progressChartViewportWidth }}
     >
@@ -803,7 +828,7 @@ function DashboardPeriodControl({
         variant="label"
         size="small"
         weight="medium"
-        className="text-xs font-medium text-on-surface"
+        className="text-on-surface text-xs font-medium"
       >
         {selectedPeriod === "year" ? "در سال" : "در ماه"}
       </Typography>
@@ -814,7 +839,7 @@ function DashboardPeriodControl({
     <label className="relative flex h-7 items-center rounded-lg bg-transparent transition">
       <select
         aria-label="بازه زمانی داشبورد آژانس"
-        className="h-7 cursor-pointer appearance-none rounded-lg bg-transparent py-1 pl-7 pr-2 text-xs font-medium text-on-surface outline-none"
+        className="text-on-surface h-7 cursor-pointer appearance-none rounded-lg bg-transparent py-1 pr-2 pl-7 text-xs font-medium outline-none"
         onChange={(event) => onChange(event.target.value as DashboardPeriod)}
         value={selectedPeriod}
       >
@@ -823,7 +848,7 @@ function DashboardPeriodControl({
       </select>
       <svg
         aria-hidden="true"
-        className="pointer-events-none absolute left-2 h-4 w-4 text-on-surface-var"
+        className="text-on-surface-var pointer-events-none absolute left-2 h-4 w-4"
         fill="none"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
@@ -861,7 +886,9 @@ function PublishedAgencyAdsCard({
   const pieData: DashboardAdTypeDatum[] =
     (dashboard?.publishedAdvertises.total ?? 0) > 0
       ? (dashboard?.publishedAdvertises.breakdown ?? []).map((item, index) => ({
-          color: typeColors[item.type] ?? ["var(--primary-600)", "var(--primary-700)", "var(--primary-800)"][index % 3],
+          color:
+            typeColors[item.type] ??
+            ["var(--primary-600)", "var(--primary-700)", "var(--primary-800)"][index % 3],
           name:
             item.label ||
             (item.type === "sale"
@@ -877,9 +904,10 @@ function PublishedAgencyAdsCard({
         }))
       : [];
   const selectedEntry = selectedIndex === null ? null : pieData[selectedIndex];
-  const selectedGeometry = selectedIndex === null || !pieData[selectedIndex]
-    ? null
-    : getDashboardPieSelectionGeometry(pieData, selectedIndex);
+  const selectedGeometry =
+    selectedIndex === null || !pieData[selectedIndex]
+      ? null
+      : getDashboardPieSelectionGeometry(pieData, selectedIndex);
 
   useEffect(() => {
     if (selectedIndex === null) return;
@@ -902,10 +930,7 @@ function PublishedAgencyAdsCard({
         pointerY - dashboardPieCenter,
       );
 
-      if (
-        distanceFromCenter >
-        dashboardPieOuterRadius + dashboardPieSelectedOffset + 12
-      ) {
+      if (distanceFromCenter > dashboardPieOuterRadius + dashboardPieSelectedOffset + 12) {
         setSelectedIndex(null);
       }
     };
@@ -915,35 +940,52 @@ function PublishedAgencyAdsCard({
   }, [selectedIndex]);
 
   return (
-    <article className="rounded-2xl bg-surface-container-lowest p-4">
+    <article className="bg-surface-container-lowest rounded-2xl p-4">
       <div className="mb-7 grid gap-3">
         <div className="flex items-center justify-between">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">
+          <Typography
+            as="h2"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="text-on-surface m-0 text-base leading-6 font-semibold"
+          >
             آگهی منتشر شده در آژانس
           </Typography>
-          <DashboardPeriodControl
-            onChange={onPeriodChange}
-            period={period}
-          />
+          <DashboardPeriodControl onChange={onPeriodChange} period={period} />
         </div>
         <div className="flex items-center justify-start gap-2">
-          <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-primary">
+          <Typography
+            as="span"
+            variant="label"
+            size="large"
+            weight="semibold"
+            className="text-primary rounded px-2 py-0.5 text-base leading-6 font-semibold"
+          >
             {isLoading ? "—" : dashboard ? formatNumber(dashboard.publishedAdvertises.total) : "—"}
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-on-surface-var">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var text-sm font-normal"
+          >
             آگهی منتشر شده
           </Typography>
         </div>
       </div>
 
-      <div
-        className="relative mx-auto h-[180px] max-w-[180px]"
-        dir="ltr"
-        ref={pieContainerRef}
-      >
+      <div className="relative mx-auto h-[180px] max-w-[180px]" dir="ltr" ref={pieContainerRef}>
         {pieData.length === 0 ? (
-          <div className="flex h-full items-center justify-center rounded-full border border-outline-var px-5 text-center [direction:rtl]">
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs text-outline">
+          <div className="border-outline-var flex h-full items-center justify-center rounded-full border px-5 text-center [direction:rtl]">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-outline m-0 text-xs"
+            >
               {isLoading ? "در حال دریافت اطلاعات..." : "داده‌ای دریافت نشده است."}
             </Typography>
           </div>
@@ -972,7 +1014,7 @@ function PublishedAgencyAdsCard({
               />
             </svg>
             <div
-              className="absolute z-20 grid place-items-center rounded-lg bg-inverse-surface text-center text-xs font-semibold leading-4 text-inverse-on-surface shadow-md"
+              className="bg-inverse-surface text-inverse-on-surface absolute z-20 grid place-items-center rounded-lg text-center text-xs leading-4 font-semibold shadow-md"
               style={{
                 height: dashboardPieTooltipHeight,
                 left: selectedGeometry.tooltipLeft,
@@ -990,36 +1032,36 @@ function PublishedAgencyAdsCard({
         ) : null}
 
         {pieData.length > 0 ? (
-        <ResponsiveContainer height="100%" width="100%">
-          <PieChart className="outline-none [&_*:focus]:outline-none" tabIndex={-1}>
-            <Pie
-              data={pieData}
-              dataKey="value"
-              endAngle={dashboardPieEndAngle}
-              isAnimationActive={false}
-              nameKey="name"
-              outerRadius={dashboardPieOuterRadius}
-              startAngle={dashboardPieStartAngle}
-              stroke="none"
-            >
-              {pieData.map((entry, index) => (
-                <Cell
-                  className="cursor-pointer outline-none"
-                  fill={selectedIndex === index ? "transparent" : entry.color}
-                  key={entry.name}
-                  onClick={() => setSelectedIndex(index)}
-                />
-              ))}
-            </Pie>
-            {selectedIndex !== null ? (
-              <DashboardPulledPieSlice
-                color={pieData[selectedIndex].color}
+          <ResponsiveContainer height="100%" width="100%">
+            <PieChart className="outline-none [&_*:focus]:outline-none" tabIndex={-1}>
+              <Pie
                 data={pieData}
-                selectedIndex={selectedIndex}
-              />
-            ) : null}
-          </PieChart>
-        </ResponsiveContainer>
+                dataKey="value"
+                endAngle={dashboardPieEndAngle}
+                isAnimationActive={false}
+                nameKey="name"
+                outerRadius={dashboardPieOuterRadius}
+                startAngle={dashboardPieStartAngle}
+                stroke="none"
+              >
+                {pieData.map((entry, index) => (
+                  <Cell
+                    className="cursor-pointer outline-none"
+                    fill={selectedIndex === index ? "transparent" : entry.color}
+                    key={entry.name}
+                    onClick={() => setSelectedIndex(index)}
+                  />
+                ))}
+              </Pie>
+              {selectedIndex !== null ? (
+                <DashboardPulledPieSlice
+                  color={pieData[selectedIndex].color}
+                  data={pieData}
+                  selectedIndex={selectedIndex}
+                />
+              ) : null}
+            </PieChart>
+          </ResponsiveContainer>
         ) : null}
       </div>
 
@@ -1057,18 +1099,13 @@ function getDashboardPieSelectionGeometry(
   selectedIndex: number,
 ) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
-  const precedingValue = data
-    .slice(0, selectedIndex)
-    .reduce((sum, item) => sum + item.value, 0);
+  const precedingValue = data.slice(0, selectedIndex).reduce((sum, item) => sum + item.value, 0);
   const selectedValue = data[selectedIndex]?.value ?? 0;
-  const startAngle =
-    dashboardPieStartAngle - (precedingValue / total) * 360;
+  const startAngle = dashboardPieStartAngle - (precedingValue / total) * 360;
   const midAngle = startAngle - (selectedValue / total) * 180;
   const radians = (Math.PI / 180) * midAngle;
-  const selectedCenterX =
-    dashboardPieCenter + dashboardPieSelectedOffset * Math.cos(radians);
-  const selectedCenterY =
-    dashboardPieCenter - dashboardPieSelectedOffset * Math.sin(radians);
+  const selectedCenterX = dashboardPieCenter + dashboardPieSelectedOffset * Math.cos(radians);
+  const selectedCenterY = dashboardPieCenter - dashboardPieSelectedOffset * Math.sin(radians);
   const pointAt = (radius: number) => ({
     x: selectedCenterX + radius * Math.cos(radians),
     y: selectedCenterY - radius * Math.sin(radians),
@@ -1115,10 +1152,8 @@ function DashboardPulledPieSlice({
 }) {
   const geometry = getDashboardPieSelectionGeometry(data, selectedIndex);
   const radians = (Math.PI / 180) * geometry.midAngle;
-  const cx =
-    dashboardPieCenter + dashboardPieSelectedOffset * Math.cos(radians);
-  const cy =
-    dashboardPieCenter - dashboardPieSelectedOffset * Math.sin(radians);
+  const cx = dashboardPieCenter + dashboardPieSelectedOffset * Math.cos(radians);
+  const cy = dashboardPieCenter - dashboardPieSelectedOffset * Math.sin(radians);
 
   return (
     <Sector
@@ -1143,19 +1178,13 @@ function ConsultantBarTooltip({ active, payload }: any) {
   const label = chartNameMap[String(item.dataKey)] ?? item.name;
 
   return (
-    <div className="rounded-lg bg-inverse-surface px-2.5 py-2 text-center text-xs font-bold leading-4 text-inverse-on-surface shadow-none [direction:rtl]">
+    <div className="bg-inverse-surface text-inverse-on-surface rounded-lg px-2.5 py-2 text-center text-xs leading-4 font-bold shadow-none [direction:rtl]">
       {formatNumber(String(item.value))} {label}
     </div>
   );
 }
 
-function topRoundedBarPath(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-) {
+function topRoundedBarPath(x: number, y: number, width: number, height: number, radius: number) {
   const safeRadius = Math.min(radius, width / 2, height);
   const right = x + width;
   const bottom = y + height;
@@ -1172,21 +1201,9 @@ function topRoundedBarPath(
 }
 
 function ConsultantBarShape(props: any) {
-  const {
-    fill,
-    height,
-    payload,
-    selectedBar,
-    seriesKey,
-    value,
-    width,
-    x,
-    y,
-    onSelect,
-  } = props;
+  const { fill, height, payload, selectedBar, seriesKey, value, width, x, y, onSelect } = props;
 
-  const isSelected =
-    selectedBar?.name === payload.name && selectedBar?.dataKey === seriesKey;
+  const isSelected = selectedBar?.name === payload.name && selectedBar?.dataKey === seriesKey;
   const centerX = x + width / 2;
   const tooltipY = Math.max(2, y - 38);
   const label = chartNameMap[seriesKey] ?? seriesKey;
@@ -1261,87 +1278,124 @@ function ConsultantActivityCard({
 }) {
   const chartScrollRef = useRef<HTMLDivElement>(null);
   const [selectedBar, setSelectedBar] = useState<SelectedConsultantBar>(null);
-  const chartData: DashboardConsultantDatum[] = (dashboard?.consultantActivity ?? []).map((consultant) => ({
-    ads: consultant.advertiseCount,
-    name: consultant.name,
-    renewals: consultant.renewCount,
-    specials: consultant.specialCount,
-  }));
+  const chartData: DashboardConsultantDatum[] = (dashboard?.consultantActivity ?? []).map(
+    (consultant) => ({
+      ads: consultant.advertiseCount,
+      name: consultant.name,
+      renewals: consultant.renewCount,
+      specials: consultant.specialCount,
+    }),
+  );
   const registeredAds = (dashboard?.consultantActivity ?? []).reduce(
     (total, consultant) => total + consultant.advertiseCount,
     0,
   );
   const consultantChartWidth =
-    Math.max(chartData.length, consultantVisibleItems) *
-      consultantChartItemWidth +
+    Math.max(chartData.length, consultantVisibleItems) * consultantChartItemWidth +
     consultantChartAxisWidth;
 
   function scrollConsultantChart(direction: "next" | "previous") {
     chartScrollRef.current?.scrollBy({
       behavior: "smooth",
-      left:
-        direction === "next"
-          ? consultantChartItemWidth
-          : -consultantChartItemWidth,
+      left: direction === "next" ? consultantChartItemWidth : -consultantChartItemWidth,
     });
   }
 
   return (
-    <article className="overflow-hidden rounded-2xl bg-surface-container-lowest p-4">
+    <article className="bg-surface-container-lowest overflow-hidden rounded-2xl p-4">
       <div className="mb-7 grid gap-2">
         <div className="flex items-center justify-between">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6 text-on-surface">
+          <Typography
+            as="h2"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="text-on-surface m-0 text-base leading-6 font-semibold"
+          >
             فعالیت مشاورین
           </Typography>
-          <DashboardPeriodControl
-            onChange={onPeriodChange}
-            period={period}
-          />
+          <DashboardPeriodControl onChange={onPeriodChange} period={period} />
         </div>
         <div className="flex items-center justify-start gap-2">
-          <Typography as="span" variant="label" size="large" weight="semibold" className="rounded px-2 py-0.5 text-base font-semibold leading-6 text-primary">
+          <Typography
+            as="span"
+            variant="label"
+            size="large"
+            weight="semibold"
+            className="text-primary rounded px-2 py-0.5 text-base leading-6 font-semibold"
+          >
             {isLoading ? "—" : dashboard ? formatNumber(registeredAds) : "—"}
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-sm font-normal text-on-surface-var">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var text-sm font-normal"
+          >
             آگهی ثبت شده
           </Typography>
         </div>
       </div>
 
       <div className="mb-4 flex items-center justify-between px-1">
-        <Button unstyled
+        <Button
+          unstyled
           aria-label="قبلی"
-          className="grid h-8 w-8 place-items-center rounded-full text-on-surface-var transition"
+          className="text-on-surface-var grid h-8 w-8 place-items-center rounded-full transition"
           onClick={() => scrollConsultantChart("previous")}
           type="button"
         >
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15 19l-7-7 7-7"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
+            />
           </svg>
         </Button>
-        <Button unstyled
+        <Button
+          unstyled
           aria-label="بعدی"
-          className="grid h-8 w-8 place-items-center rounded-full text-on-surface-var transition"
+          className="text-on-surface-var grid h-8 w-8 place-items-center rounded-full transition"
           onClick={() => scrollConsultantChart("next")}
           type="button"
         >
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 5l7 7-7 7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9 5l7 7-7 7"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
+            />
           </svg>
         </Button>
       </div>
 
       {isLoading && chartData.length === 0 ? (
-        <div className="grid h-[240px] place-items-center text-sm text-outline">
+        <div className="text-outline grid h-[240px] place-items-center text-sm">
           در حال دریافت فعالیت مشاورین...
         </div>
       ) : chartData.length === 0 ? (
-        <div className="grid h-[240px] place-items-center text-sm text-outline">
+        <div className="text-outline grid h-[240px] place-items-center text-sm">
           فعالیتی برای مشاوران در این دوره ثبت نشده است.
         </div>
       ) : (
         <div
-          className="mx-auto h-[240px] max-w-full overflow-x-auto overscroll-x-contain scroll-smooth [&_.recharts-layer:focus]:outline-none [&_.recharts-rectangle:focus]:outline-none [&_.recharts-surface_*:focus]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-surface]:[user-select:none] [&_.recharts-surface:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper:focus]:outline-none"
+          className="mx-auto h-[240px] max-w-full overflow-x-auto overscroll-x-contain scroll-smooth [&_.recharts-layer:focus]:outline-none [&_.recharts-rectangle:focus]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-surface]:[user-select:none] [&_.recharts-surface_*:focus]:outline-none [&_.recharts-surface:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper:focus]:outline-none"
           dir="ltr"
           ref={chartScrollRef}
           style={{ width: consultantChartViewportWidth }}
@@ -1355,83 +1409,83 @@ function ConsultantActivityCard({
                 margin={{ bottom: 0, left: -18, right: 4, top: 34 }}
                 tabIndex={-1}
               >
-              <CartesianGrid
-                horizontal
-                stroke="var(--outline-var)"
-                strokeDasharray="5 6"
-                vertical={false}
-              />
-              <XAxis
-                axisLine={false}
-                dataKey="name"
-                interval={0}
-                tick={{ fill: "var(--on-surface)", fontSize: 13, fontWeight: 500 }}
-                tickLine={false}
-                tickMargin={10}
-              />
-              <YAxis
-                allowDecimals={false}
-                axisLine={false}
-                domain={[0, "auto"]}
-                tick={{ fill: "var(--outline)", fontSize: 12 }}
-                tickFormatter={(value) => formatNumber(value)}
-                tickLine={false}
-                width={50}
-              />
-              <Tooltip
-                allowEscapeViewBox={{ x: true, y: true }}
-                content={<ConsultantBarTooltip />}
-                cursor={false}
-                offset={8}
-                shared={false}
-                wrapperStyle={{
-                  outline: "none",
-                  pointerEvents: "none",
-                  transform: "translate(-50%, -115%)",
-                }}
-              />
-              <Bar
-                barSize={10}
-                dataKey="ads"
-                fill="var(--primary)"
-                radius={[6, 6, 0, 0]}
-                shape={(props: any) => (
-                  <ConsultantBarShape
-                    {...props}
-                    selectedBar={selectedBar}
-                    seriesKey="ads"
-                    onSelect={setSelectedBar}
-                  />
-                )}
-              />
-              <Bar
-                barSize={10}
-                dataKey="renewals"
-                fill="var(--tertiary)"
-                radius={[6, 6, 0, 0]}
-                shape={(props: any) => (
-                  <ConsultantBarShape
-                    {...props}
-                    selectedBar={selectedBar}
-                    seriesKey="renewals"
-                    onSelect={setSelectedBar}
-                  />
-                )}
-              />
-              <Bar
-                barSize={10}
-                dataKey="specials"
-                fill="var(--warning)"
-                radius={[6, 6, 0, 0]}
-                shape={(props: any) => (
-                  <ConsultantBarShape
-                    {...props}
-                    selectedBar={selectedBar}
-                    seriesKey="specials"
-                    onSelect={setSelectedBar}
-                  />
-                )}
-              />
+                <CartesianGrid
+                  horizontal
+                  stroke="var(--outline-var)"
+                  strokeDasharray="5 6"
+                  vertical={false}
+                />
+                <XAxis
+                  axisLine={false}
+                  dataKey="name"
+                  interval={0}
+                  tick={{ fill: "var(--on-surface)", fontSize: 13, fontWeight: 500 }}
+                  tickLine={false}
+                  tickMargin={10}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  axisLine={false}
+                  domain={[0, "auto"]}
+                  tick={{ fill: "var(--outline)", fontSize: 12 }}
+                  tickFormatter={(value) => formatNumber(value)}
+                  tickLine={false}
+                  width={50}
+                />
+                <Tooltip
+                  allowEscapeViewBox={{ x: true, y: true }}
+                  content={<ConsultantBarTooltip />}
+                  cursor={false}
+                  offset={8}
+                  shared={false}
+                  wrapperStyle={{
+                    outline: "none",
+                    pointerEvents: "none",
+                    transform: "translate(-50%, -115%)",
+                  }}
+                />
+                <Bar
+                  barSize={10}
+                  dataKey="ads"
+                  fill="var(--primary)"
+                  radius={[6, 6, 0, 0]}
+                  shape={(props: any) => (
+                    <ConsultantBarShape
+                      {...props}
+                      selectedBar={selectedBar}
+                      seriesKey="ads"
+                      onSelect={setSelectedBar}
+                    />
+                  )}
+                />
+                <Bar
+                  barSize={10}
+                  dataKey="renewals"
+                  fill="var(--tertiary)"
+                  radius={[6, 6, 0, 0]}
+                  shape={(props: any) => (
+                    <ConsultantBarShape
+                      {...props}
+                      selectedBar={selectedBar}
+                      seriesKey="renewals"
+                      onSelect={setSelectedBar}
+                    />
+                  )}
+                />
+                <Bar
+                  barSize={10}
+                  dataKey="specials"
+                  fill="var(--warning)"
+                  radius={[6, 6, 0, 0]}
+                  shape={(props: any) => (
+                    <ConsultantBarShape
+                      {...props}
+                      selectedBar={selectedBar}
+                      seriesKey="specials"
+                      onSelect={setSelectedBar}
+                    />
+                  )}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -1452,41 +1506,54 @@ function DashboardMetricCard({ metric }: { metric: DashboardMetric }) {
   const tone = toneClasses[metric.tone];
 
   return (
-    <article className="flex items-center gap-3 rounded-2xl bg-surface-container-lowest p-4 shadow-none">
-      <Typography as="span" variant="body" size="medium" weight="regular"
+    <article className="bg-surface-container-lowest flex items-center gap-3 rounded-2xl p-4 shadow-none">
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
         className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ring-1 ${tone.bg} ${tone.icon} ${tone.ring}`}
       >
         <Icon className="h-6 w-6" />
       </Typography>
 
       <div className="w-full">
-        <div className="flex w-full justify-between items-center">
-          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 truncate text-sm font-medium leading-6 text-on-surface-var">
+        <div className="flex w-full items-center justify-between">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="medium"
+            className="text-on-surface-var m-0 truncate text-sm leading-6 font-medium"
+          >
             {metric.title}
           </Typography>
-          <strong className="font-semibold leading-none text-on-surface">
-            {metric.value}
-          </strong>
+          <strong className="text-on-surface leading-none font-semibold">{metric.value}</strong>
         </div>
 
         <div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs font-medium leading-5 text-outline">
+          <div className="text-outline mt-1 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs leading-5 font-medium">
             {metric.descriptionIcon === "clock" ? (
-              <LinearClock className="h-4 w-4 text-on-surface-var" />
+              <LinearClock className="text-on-surface-var h-4 w-4" />
             ) : null}
             {metric.trend ? (
-              <Typography as="span" variant="label" size="medium" weight="semibold"
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="semibold"
                 className={`inline-flex items-center gap-0.5 font-bold ${trendClasses[metric.trendTone]}`}
               >
                 <LinearChartUp className="h-4 w-4" />
                 {metric.trend}
               </Typography>
             ) : null}
-            <Typography as="span" variant="body" size="medium" weight="regular">{metric.description}</Typography>
+            <Typography as="span" variant="body" size="medium" weight="regular">
+              {metric.description}
+            </Typography>
           </div>
         </div>
       </div>
-
     </article>
   );
 }
@@ -1501,35 +1568,47 @@ function PublishedAdsLegendItem({
   value: string;
 }) {
   return (
-    <div className="w-[28%] flex flex-col items-center gap-1">
+    <div className="flex w-[28%] flex-col items-center gap-1">
       <div className="flex items-center gap-1.5">
-        <Typography as="span" variant="body" size="medium" weight="regular"
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
           aria-hidden="true"
           className="h-2.5 w-2.5 rounded-full"
           style={{ backgroundColor: color }}
         />
-        <Typography as="span" variant="body" size="small" weight="regular" className="text-xs font-normal text-on-surface-var text-nowrap">
+        <Typography
+          as="span"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var text-xs font-normal text-nowrap"
+        >
           {label}
         </Typography>
       </div>
-      <strong className="text-base font-semibold text-on-surface">
-        {value}
-      </strong>
+      <strong className="text-on-surface text-base font-semibold">{value}</strong>
     </div>
   );
 }
 
-function ConsultantActivityLegendItem({
-  color,
-  label,
-}: {
-  color: string;
-  label: string;
-}) {
+function ConsultantActivityLegendItem({ color, label }: { color: string; label: string }) {
   return (
-    <Typography as="span" variant="label" size="large" weight="medium" className="inline-flex items-center justify-center gap-2 text-base font-medium leading-6 text-on-surface-var">
+    <Typography
+      as="span"
+      variant="label"
+      size="large"
+      weight="medium"
+      className="text-on-surface-var inline-flex items-center justify-center gap-2 text-base leading-6 font-medium"
+    >
       {label}
-      <Typography as="span" variant="body" size="medium" weight="regular"
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
         aria-hidden="true"
         className="h-3.5 w-3.5 rounded-full"
         style={{ backgroundColor: color }}

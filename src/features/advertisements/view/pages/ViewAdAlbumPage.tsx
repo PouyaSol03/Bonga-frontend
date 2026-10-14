@@ -45,14 +45,17 @@ export function ViewAdAlbumPage({
 }) {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const swiperRef = useRef<SwiperInstance | null>(null);
-  const dotSizes = mediaItems.map((_, index) => getAlbumDotSize(index, activeIndex, mediaItems.length));
+  const dotSizes = mediaItems.map((_, index) =>
+    getAlbumDotSize(index, activeIndex, mediaItems.length),
+  );
 
   return (
     <div className="absolute inset-0 z-[60] flex flex-col overflow-hidden bg-black text-white">
       <header className="flex h-14 shrink-0 items-center justify-between bg-black px-1 [direction:ltr]">
         <div className="h-12 w-40 shrink-0" />
         <div className="min-w-0 flex-1" />
-        <Button unstyled
+        <Button
+          unstyled
           aria-label="بستن آلبوم"
           className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white/40"
           onClick={onClose}
@@ -85,11 +88,7 @@ export function ViewAdAlbumPage({
                     src={item.src}
                   />
                 ) : (
-                  <img
-                    alt=""
-                    className="max-h-full max-w-full object-contain"
-                    src={item.src}
-                  />
+                  <img alt="" className="max-h-full max-w-full object-contain" src={item.src} />
                 )}
               </div>
             </SwiperSlide>
@@ -97,7 +96,7 @@ export function ViewAdAlbumPage({
         </Swiper>
 
         {/* Indicator pill container */}
-        <div className="pointer-events-none absolute bottom-13 left-0 right-0 z-10 flex justify-center">
+        <div className="pointer-events-none absolute right-0 bottom-13 left-0 z-10 flex justify-center">
           <div
             aria-label={`رسانه ${activeIndex + 1} از ${mediaItems.length}`}
             className="pointer-events-auto flex h-6 items-center justify-center rounded-full bg-black/40 px-3 backdrop-blur-sm"
@@ -105,7 +104,8 @@ export function ViewAdAlbumPage({
           >
             <div className="flex h-2 items-center gap-2">
               {mediaItems.map((item, index) => (
-                <Button unstyled
+                <Button
+                  unstyled
                   aria-label={`نمایش رسانه ${index + 1}`}
                   className={`block h-2 rounded-full transition-all ${index === activeIndex ? "bg-white" : "bg-white/40"}`}
                   key={`${item.src}-${item.type}-${index}`}

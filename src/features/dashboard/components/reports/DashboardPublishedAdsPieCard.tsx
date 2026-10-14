@@ -37,8 +37,7 @@ export function DashboardPublishedAdsPieCard({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const isManager = role === "REAL_ESTATE_MANAGER";
-  const displayTitle =
-    title ?? (isManager ? "آگهی منتشر شده در آژانس" : "آگهی منتشر شده");
+  const displayTitle = title ?? (isManager ? "آگهی منتشر شده در آژانس" : "آگهی منتشر شده");
 
   const effectivePeriod = period
     ? period
@@ -62,7 +61,7 @@ export function DashboardPublishedAdsPieCard({
   };
 
   return (
-    <section className="w-full bg-surface-container-lowest p-4 [direction:rtl]">
+    <section className="bg-surface-container-lowest w-full p-4 [direction:rtl]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <Typography
@@ -78,7 +77,7 @@ export function DashboardPublishedAdsPieCard({
         {/* Period Selector Dropdown */}
         <div className="relative">
           <button
-            className="flex items-center gap-1 rounded-lg px-2 py-1 text-on-surface transition active:scale-95 cursor-pointer border-none bg-transparent"
+            className="text-on-surface flex cursor-pointer items-center gap-1 rounded-lg border-none bg-transparent px-2 py-1 transition active:scale-95"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             type="button"
           >
@@ -91,38 +90,34 @@ export function DashboardPublishedAdsPieCard({
             >
               {effectivePeriod === "year" ? "در سال" : "در ماه"}
             </Typography>
-            <LinearArrowDown1 className="h-3.5 w-3.5 text-on-surface" />
+            <LinearArrowDown1 className="text-on-surface h-3.5 w-3.5" />
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute left-0 top-full mt-1 z-30 min-w-[110px] rounded-lg border border-outline-var bg-surface-container-lowest py-1 shadow-md">
+            <div className="border-outline-var bg-surface-container-lowest absolute top-full left-0 z-30 mt-1 min-w-[110px] rounded-lg border py-1 shadow-md">
               <button
-                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition cursor-pointer border-none ${
+                className={`flex w-full cursor-pointer items-center justify-between border-none px-3 py-2 text-right text-xs transition ${
                   effectivePeriod === "month"
-                    ? "font-bold text-primary bg-primary/5"
+                    ? "text-primary bg-primary/5 font-bold"
                     : "text-on-surface-var bg-transparent"
                 }`}
                 onClick={() => handleSelectPeriod("month")}
                 type="button"
               >
                 <span>در ماه</span>
-                {effectivePeriod === "month" && (
-                  <LinearTick className="h-3.5 w-3.5 text-primary" />
-                )}
+                {effectivePeriod === "month" && <LinearTick className="text-primary h-3.5 w-3.5" />}
               </button>
               <button
-                className={`flex w-full items-center justify-between px-3 py-2 text-right text-xs transition cursor-pointer border-none ${
+                className={`flex w-full cursor-pointer items-center justify-between border-none px-3 py-2 text-right text-xs transition ${
                   effectivePeriod === "year"
-                    ? "font-bold text-primary bg-primary/5"
+                    ? "text-primary bg-primary/5 font-bold"
                     : "text-on-surface-var bg-transparent"
                 }`}
                 onClick={() => handleSelectPeriod("year")}
                 type="button"
               >
                 <span>در سال</span>
-                {effectivePeriod === "year" && (
-                  <LinearTick className="h-3.5 w-3.5 text-primary" />
-                )}
+                {effectivePeriod === "year" && <LinearTick className="text-primary h-3.5 w-3.5" />}
               </button>
             </div>
           )}
@@ -184,11 +179,12 @@ export function DashboardPublishedAdsPieCard({
           {/* Legend - Exact 3-column RTL layout */}
           <div className="mt-2 grid grid-cols-3 gap-2 pt-3 text-center">
             {currentData.map((item) => {
-              const percent = item.percentage != null
-                ? item.percentage
-                : currentTotal > 0
-                  ? Math.round((item.value / currentTotal) * 100)
-                  : null;
+              const percent =
+                item.percentage != null
+                  ? item.percentage
+                  : currentTotal > 0
+                    ? Math.round((item.value / currentTotal) * 100)
+                    : null;
 
               return (
                 <div key={item.name} className="flex flex-col items-center">
@@ -212,7 +208,7 @@ export function DashboardPublishedAdsPieCard({
                     variant="title"
                     size="medium"
                     weight="semibold"
-                    className="mt-1 text-on-surface"
+                    className="text-on-surface mt-1"
                   >
                     {percent !== null
                       ? `${toPersianNumber(percent)}٪`

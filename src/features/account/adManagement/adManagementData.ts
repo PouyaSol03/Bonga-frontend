@@ -98,7 +98,12 @@ export const adManagementPropertyGroupsByTransaction: Record<
     },
     {
       title: "روزانه",
-      items: ["daily-apartment-suite", "daily-garden-villa", "daily-hotel-apartment", "daily-workspace"],
+      items: [
+        "daily-apartment-suite",
+        "daily-garden-villa",
+        "daily-hotel-apartment",
+        "daily-workspace",
+      ],
     },
     {
       title: "اداری، تجاری، صنعتی، اقامتی",
@@ -113,7 +118,6 @@ export const adManagementPropertyGroupsByTransaction: Record<
     },
   ],
 };
-
 
 export type StatisticsAd = Pick<
   AdCardData,
@@ -198,50 +202,34 @@ const newAdCheckoutStoragePrefix = "bonga:new-ad-checkout:";
 
 export function markAgencyAllocationCheckout(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.setItem(
-    `${agencyAllocationCheckoutStoragePrefix}${String(adId)}`,
-    "1",
-  );
+  window.sessionStorage.setItem(`${agencyAllocationCheckoutStoragePrefix}${String(adId)}`, "1");
 }
 
 export function clearAgencyAllocationCheckout(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.removeItem(
-    `${agencyAllocationCheckoutStoragePrefix}${String(adId)}`,
-  );
+  window.sessionStorage.removeItem(`${agencyAllocationCheckoutStoragePrefix}${String(adId)}`);
 }
 
 export function hasAgencyAllocationCheckoutMarker(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return false;
   return (
-    window.sessionStorage.getItem(
-      `${agencyAllocationCheckoutStoragePrefix}${String(adId)}`,
-    ) === "1"
+    window.sessionStorage.getItem(`${agencyAllocationCheckoutStoragePrefix}${String(adId)}`) === "1"
   );
 }
 
 export function markNewAdCheckout(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.setItem(
-    `${newAdCheckoutStoragePrefix}${String(adId)}`,
-    "1",
-  );
+  window.sessionStorage.setItem(`${newAdCheckoutStoragePrefix}${String(adId)}`, "1");
 }
 
 export function clearNewAdCheckout(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.removeItem(
-    `${newAdCheckoutStoragePrefix}${String(adId)}`,
-  );
+  window.sessionStorage.removeItem(`${newAdCheckoutStoragePrefix}${String(adId)}`);
 }
 
 export function hasNewAdCheckoutMarker(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return false;
-  return (
-    window.sessionStorage.getItem(
-      `${newAdCheckoutStoragePrefix}${String(adId)}`,
-    ) === "1"
-  );
+  return window.sessionStorage.getItem(`${newAdCheckoutStoragePrefix}${String(adId)}`) === "1";
 }
 
 export function getAdStatePath(adId: ConsultantAd["id"] | string) {
@@ -273,7 +261,9 @@ export function getAdManagementRouteState(): AdManagementRouteState {
 }
 
 function getAdIdFromPath() {
-  const match = window.location.pathname.match(/\/account\/ad-management\/allocation-review\/([^/]+)\/?$/);
+  const match = window.location.pathname.match(
+    /\/account\/ad-management\/allocation-review\/([^/]+)\/?$/,
+  );
 
   return match?.[1];
 }

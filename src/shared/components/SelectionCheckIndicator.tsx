@@ -5,9 +5,6 @@ type SelectionCheckIndicatorProps = {
   className?: string;
 };
 
-export function SelectionCheckIndicator({
-  checked,
-  className = "",
-}: SelectionCheckIndicatorProps) {
+export function SelectionCheckIndicator({ checked, className = "" }: SelectionCheckIndicatorProps) {
   return <ChoiceIndicator checked={checked} className={className} />;
 }

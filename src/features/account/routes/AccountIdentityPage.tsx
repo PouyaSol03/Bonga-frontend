@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react";
 import { useToast } from "../../../shared/hooks/useToast";
-import { useAuthorizeMeMutation, useMyProfileQuery, useTransferSimOwnershipMutation } from "../api/account.hooks";
+import {
+  useAuthorizeMeMutation,
+  useMyProfileQuery,
+  useTransferSimOwnershipMutation,
+} from "../api/account.hooks";
 import { getStoredAuthSession, clearStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { isUserIdentityVerified } from "../api/account.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Button } from "../../../shared/ui/Button";
-import { IdentityPendingState, IdentityVerifiedState, SimCardOwnershipChangeState, WarningTriangleIcon } from "../accountPageViews";
+import {
+  IdentityPendingState,
+  IdentityVerifiedState,
+  SimCardOwnershipChangeState,
+  WarningTriangleIcon,
+} from "../accountPageViews";
 import type { IdentityPageStep } from "../accountPageViews";
 import { Typography } from "../../../shared/ui/Typography";
 
@@ -23,7 +32,9 @@ export function AccountIdentityPage() {
   const isAuthenticated = Boolean(authSession);
   const mobile = authSession?.mobile ?? "-";
   const isRejected = Number(profile?.authorized) === 2;
-  const isPendingReview = Boolean(profile?.nationalnumber && !isUserIdentityVerified(profile) && !isRejected);
+  const isPendingReview = Boolean(
+    profile?.nationalnumber && !isUserIdentityVerified(profile) && !isRejected,
+  );
 
   useEffect(() => {
     if (isUserIdentityVerified(profile) && step === "pending") {
@@ -39,7 +50,7 @@ export function AccountIdentityPage() {
         : "ثبت تغییر مالکیت سیم‌کارت";
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]">
+    <div className="bg-surface-container text-on-surface relative flex h-full min-h-0 flex-col overflow-hidden [direction:rtl]">
       <TopBar
         backTo="/account"
         onBack={
@@ -52,7 +63,7 @@ export function AccountIdentityPage() {
         }
         title={title}
       />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-24">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-24">
         {step === "pending" ? (
           <IdentityPendingState
             initialNationalnumber={profile?.nationalnumber ?? ""}
@@ -66,10 +77,18 @@ export function AccountIdentityPage() {
                 { nationalnumber },
                 {
                   onError: (error) => {
-                    showToast(getApiErrorMessage(error, "تایید کد ملی با خطا مواجه شد"), undefined, "error");
+                    showToast(
+                      getApiErrorMessage(error, "تایید کد ملی با خطا مواجه شد"),
+                      undefined,
+                      "error",
+                    );
                   },
                   onSuccess: () => {
-                    showToast("کد ملی با موفقیت ثبت شد و در انتظار تایید ادمین است", undefined, "success");
+                    showToast(
+                      "کد ملی با موفقیت ثبت شد و در انتظار تایید ادمین است",
+                      undefined,
+                      "success",
+                    );
                   },
                 },
               );
@@ -85,15 +104,13 @@ export function AccountIdentityPage() {
         ) : null}
 
         {step === "ownership" ? (
-          <SimCardOwnershipChangeState
-            onSubmit={() => setIsOwnershipWarningOpen(true)}
-          />
+          <SimCardOwnershipChangeState onSubmit={() => setIsOwnershipWarningOpen(true)} />
         ) : null}
       </main>
 
       <BottomSheet
         ariaLabel="هشدار تغییر مالکیت سیم‌کارت"
-        className="!rounded-t-[16px] flex flex-col"
+        className="flex flex-col !rounded-t-[16px]"
         contentClassName="flex min-h-0 flex-1 flex-col"
         handleClassName="h-1 w-[60px] rounded-full bg-outline-var"
         isOpen={isOwnershipWarningOpen}
@@ -103,23 +120,42 @@ export function AccountIdentityPage() {
         variant="confirm"
       >
         <div className="min-h-0 flex-1 px-4 pt-4">
-          <div className="flex items-center justify-start gap-2 text-on-surface">
+          <div className="text-on-surface flex items-center justify-start gap-2">
             <WarningTriangleIcon className="h-6 w-6 shrink-0" />
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">هشدار</Typography>
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="m-0 text-base leading-6 font-semibold"
+            >
+              هشدار
+            </Typography>
           </div>
 
-          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-right text-base font-normal leading-8 text-on-surface">
-            با اعلام «تغییر مالکیت سیم‌کارت»، همهٔ آگهی‌های این حساب کاربری
-            {" "}
-            <Typography as="span" variant="body" size="medium" weight="regular" dir="ltr" className="whitespace-nowrap text-on-surface">
+          <Typography
+            as="p"
+            variant="body"
+            size="large"
+            weight="regular"
+            className="text-on-surface m-0 mt-4 text-right text-base leading-8 font-normal"
+          >
+            با اعلام «تغییر مالکیت سیم‌کارت»، همهٔ آگهی‌های این حساب کاربری{" "}
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              dir="ltr"
+              className="text-on-surface whitespace-nowrap"
+            >
               ({mobile})
-            </Typography>
-            {" "}
+            </Typography>{" "}
             غیرفعال می‌شود.
           </Typography>
         </div>
 
-        <div className="shrink-0 bg-surface-container-lowest px-4 py-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
+        <div className="bg-surface-container-lowest shrink-0 px-4 py-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
           <Button
             className="h-10"
             disabled={transferOwnership.isPending}
@@ -134,13 +170,21 @@ export function AccountIdentityPage() {
                   onSuccess: (data) => {
                     setIsOwnershipWarningOpen(false);
                     clearStoredAuthSession();
-                    showToast(data?.message || "تغییر مالکیت سیم‌کارت با موفقیت ثبت شد", undefined, "success");
+                    showToast(
+                      data?.message || "تغییر مالکیت سیم‌کارت با موفقیت ثبت شد",
+                      undefined,
+                      "success",
+                    );
                     setTimeout(() => {
                       window.location.assign("/");
                     }, 1200);
                   },
                   onError: (error) => {
-                    showToast(getApiErrorMessage(error, "خطایی در ثبت تغییر مالکیت سیم‌کارت رخ داد"), undefined, "error");
+                    showToast(
+                      getApiErrorMessage(error, "خطایی در ثبت تغییر مالکیت سیم‌کارت رخ داد"),
+                      undefined,
+                      "error",
+                    );
                   },
                 },
               );

@@ -7,12 +7,12 @@ import { SUPPORT_CHAT_PATH, SupportMenuItem, supportItems } from "../accountSupp
 export function AccountSupportPage() {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden"
       variant="flush"
     >
       <TopBar backTo="/account" title="پشتیبانی" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto">
         <nav aria-label="گزینه‌های پشتیبانی" className="w-full">
           {supportItems.map((item, index) => (
             <SupportMenuItem
@@ -26,7 +26,7 @@ export function AccountSupportPage() {
 
       <Link
         aria-label="گفتگوی آنلاین با پشتیبانی"
-        className="absolute bottom-6 right-4 grid h-14 w-14 place-items-center rounded-full bg-primary text-on-primary shadow-lg outline-none active:scale-[0.98] focus-visible:ring-3 focus-visible:ring-primary"
+        className="bg-primary text-on-primary focus-visible:ring-primary absolute right-4 bottom-6 grid h-14 w-14 place-items-center rounded-full shadow-lg outline-none focus-visible:ring-3 active:scale-[0.98]"
         to={SUPPORT_CHAT_PATH}
       >
         <LinearChat className="h-6 w-6" />

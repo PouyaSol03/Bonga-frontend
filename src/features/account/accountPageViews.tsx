@@ -4,7 +4,10 @@ import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
 import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { useMyAdsInfiniteQuery } from "./api/account.hooks";
 import { useDeleteAdvertisementMutation } from "../advertisements/api/advertisement.hooks";
-import { mapAdvertisementToAdCard, type AdvertisementItem } from "../advertisements/api/advertisement.service";
+import {
+  mapAdvertisementToAdCard,
+  type AdvertisementItem,
+} from "../advertisements/api/advertisement.service";
 import type { BadgeItem, MyAdsType, NoteItem, WalletPayment } from "./api/account.service";
 import { AdCard, truncateAdCardText } from "../advertisements/components/AdCard";
 import type { AdCardData } from "../advertisements/components/AdCard";
@@ -44,19 +47,16 @@ type TopBarProps = {
 
 export type IdentityPageStep = "pending" | "verified" | "ownership";
 
-type SimCardOwnershipReason =
-  | "selling"
-  | "transferred"
-  | "purchased";
+type SimCardOwnershipReason = "selling" | "transferred" | "purchased";
 
 const simCardOwnershipReasons: Array<{
   id: SimCardOwnershipReason;
   label: string;
 }> = [
-    { id: "selling", label: "می‌خواهم سیم‌کارتم را بفروشم" },
-    { id: "transferred", label: "سیم‌کارتم را واگذار کرده‌ام" },
-    { id: "purchased", label: "سیم‌کارتم را تازه خریده‌ام" },
-  ];
+  { id: "selling", label: "می‌خواهم سیم‌کارتم را بفروشم" },
+  { id: "transferred", label: "سیم‌کارتم را واگذار کرده‌ام" },
+  { id: "purchased", label: "سیم‌کارتم را تازه خریده‌ام" },
+];
 
 const profileAvatarMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
 
@@ -95,7 +95,7 @@ export function AccountProfileForm({
   const { showToast } = useToast();
   const initialNationalNumber =
     profile?.nationalnumber ??
-    (profile as Record<string, unknown> | undefined)?.national_number as string ??
+    ((profile as Record<string, unknown> | undefined)?.national_number as string) ??
     "";
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -124,18 +124,24 @@ export function AccountProfileForm({
   return (
     <>
       <section className="flex flex-col items-center px-4 pt-4">
-        <div className="relative grid h-[100px] w-[100px] place-items-center overflow-visible text-outline">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-surface-container">
+        <div className="text-outline relative grid h-[100px] w-[100px] place-items-center overflow-visible">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="bg-surface-container grid h-full w-full place-items-center overflow-hidden rounded-full"
+          >
             {avatarSrc ? (
               <img alt="تصویر پروفایل" className="h-full w-full object-cover" src={avatarSrc} />
             ) : (
-              <UserIcon className="h-10 w-10 text-outline" />
+              <UserIcon className="text-outline h-10 w-10" />
             )}
           </Typography>
 
           <label
             aria-label="ویرایش تصویر"
-            className="absolute -bottom-1 -left-1 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full border-4 border-surface-container-lowest bg-primary text-on-primary"
+            className="border-surface-container-lowest bg-primary text-on-primary absolute -bottom-1 -left-1 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full border-4"
             htmlFor="profile-avatar-upload"
           >
             <EditIcon className="h-4 w-4" />
@@ -183,25 +189,25 @@ export function AccountProfileForm({
         <ReadonlyField label="کد ملی" value={form.nationalnumber || initialNationalNumber || "-"} />
       </section>
 
-      <div className="mt-4 h-4 bg-surface-container" />
+      <div className="bg-surface-container mt-4 h-4" />
 
       <section className="space-y-6 px-4 pt-4">
         <TextField
-          className={`text-sm placeholder:text-outline ${form.name ? "text-on-surface" : "text-outline"}`}
+          className={`placeholder:text-outline text-sm ${form.name ? "text-on-surface" : "text-outline"}`}
           label="نام خود را وارد کنید"
           placeholder="نام خود را وارد کنید"
           value={form.name}
           onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
         />
         <TextField
-          className={`text-sm placeholder:text-outline ${form.family ? "text-on-surface" : "text-outline"}`}
+          className={`placeholder:text-outline text-sm ${form.family ? "text-on-surface" : "text-outline"}`}
           label="نام خانوادگی خود را وارد کنید"
           placeholder="نام خانوادگی خود را وارد کنید"
           value={form.family}
           onChange={(event) => setForm((current) => ({ ...current, family: event.target.value }))}
         />
         <TextField
-          className={`text-sm placeholder:text-outline ${form.email ? "text-on-surface" : "text-outline"}`}
+          className={`placeholder:text-outline text-sm ${form.email ? "text-on-surface" : "text-outline"}`}
           label="پست الکترونیکی"
           placeholder="پست الکترونیکی"
           value={form.email}
@@ -209,9 +215,10 @@ export function AccountProfileForm({
         />
       </section>
 
-      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <Button unstyled
-          className="h-10 w-full rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary disabled:opacity-50"
+      <div className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-4 pt-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+        <Button
+          unstyled
+          className="bg-primary text-on-primary h-10 w-full rounded-lg text-sm leading-5 font-medium disabled:opacity-50"
           disabled={isSubmitting}
           type="button"
           onClick={() => {
@@ -234,7 +241,6 @@ export function AccountProfileForm({
     </>
   );
 }
-
 
 export function AccountMyAdsEmptyState({
   description: customDescription,
@@ -264,22 +270,36 @@ export function AccountMyAdsEmptyState({
   const shouldShowAction = showAction ?? (customTitle ? false : isAllFilter);
 
   return (
-    <section className={`mx-auto flex ${heightClass} w-full flex-col items-center justify-center px-10 text-center`}>
+    <section
+      className={`mx-auto flex ${heightClass} w-full flex-col items-center justify-center px-10 text-center`}
+    >
       <img
         alt=""
         aria-hidden="true"
         className="mb-4 h-[66px] w-[66px] object-contain"
         src="/vectors/NoAdd.svg"
       />
-      <Typography as="p" variant="title" size="medium" weight="semibold" className="m-0 text-on-surface">
+      <Typography
+        as="p"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0"
+      >
         {title}
       </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 text-on-surface-var">
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-on-surface-var m-0 mt-2"
+      >
         {description}
       </Typography>
       {shouldShowAction ? (
         <Link
-          className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium leading-5 text-on-primary"
+          className="bg-primary text-on-primary mt-4 inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm leading-5 font-medium"
           to="/new-ad/category"
         >
           <PlusIcon className="h-5 w-5" />
@@ -406,9 +426,17 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
   const showEmptyState = !isLoading && !isError && !hasAds;
 
   return (
-    <main className={`flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden ${showEmptyState ? "bg-surface-container-lowest" : "bg-surface-container"}`}>
-      <AdFilterTabs activeFilter={activeFilter} filters={availableFilters} onSelect={setActiveFilter} />
-      <div className={`${showEmptyState ? "flex min-h-0 flex-1 flex-col bg-surface-container-lowest" : "space-y-2 bg-surface-container"}`}>
+    <main
+      className={`flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto ${showEmptyState ? "bg-surface-container-lowest" : "bg-surface-container"}`}
+    >
+      <AdFilterTabs
+        activeFilter={activeFilter}
+        filters={availableFilters}
+        onSelect={setActiveFilter}
+      />
+      <div
+        className={`${showEmptyState ? "bg-surface-container-lowest flex min-h-0 flex-1 flex-col" : "bg-surface-container space-y-2"}`}
+      >
         {isLoading ? <MyAdsAdCardsSkeleton /> : null}
         {isError ? (
           <AccountRetryState
@@ -417,48 +445,45 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
             onRetry={() => void refetch()}
           />
         ) : null}
-        {!isLoading && !isError && ads.map(({ ad, card }, index) => {
-          const shouldAttachLoadMoreRef =
-            index === loadMoreTriggerIndex &&
-            hasNextPage &&
-            !isFetchingNextPage;
-          const statusInfo = getMyAdStatusInfo(ad);
-          const adId = String(ad.id ?? ad._id ?? card.id);
-          const cardWithStatus: AdCardData = {
-            ...card,
-            status: statusInfo.label,
-            statusBadgeClassName: statusInfo.badgeClassName,
-          };
-          const isIncomplete = statusInfo.key === "incomplete";
-          const destination = isIncomplete
-            ? getAdEditPath(adId, "/account/my-ads")
-            : `/account/my-ads/${encodeURIComponent(adId)}/state-ad`;
-          const destinationState = isIncomplete
-            ? {
-                ad,
-                card: cardWithStatus,
-                editReturnTo: "/account/my-ads",
-                isEditMode: true,
-                status: statusInfo.key,
-                tab: "status",
-              }
-            : { ad, card: cardWithStatus, status: statusInfo.key };
+        {!isLoading &&
+          !isError &&
+          ads.map(({ ad, card }, index) => {
+            const shouldAttachLoadMoreRef =
+              index === loadMoreTriggerIndex && hasNextPage && !isFetchingNextPage;
+            const statusInfo = getMyAdStatusInfo(ad);
+            const adId = String(ad.id ?? ad._id ?? card.id);
+            const cardWithStatus: AdCardData = {
+              ...card,
+              status: statusInfo.label,
+              statusBadgeClassName: statusInfo.badgeClassName,
+            };
+            const isIncomplete = statusInfo.key === "incomplete";
+            const destination = isIncomplete
+              ? getAdEditPath(adId, "/account/my-ads")
+              : `/account/my-ads/${encodeURIComponent(adId)}/state-ad`;
+            const destinationState = isIncomplete
+              ? {
+                  ad,
+                  card: cardWithStatus,
+                  editReturnTo: "/account/my-ads",
+                  isEditMode: true,
+                  status: statusInfo.key,
+                  tab: "status",
+                }
+              : { ad, card: cardWithStatus, status: statusInfo.key };
 
-          return (
-            <div
-              key={adId}
-              ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}
-            >
-              <AdCard
-                ad={cardWithStatus}
-                onDeleteIncomplete={isIncomplete ? (e) => handleOpenDelete(adId, e) : undefined}
-                showStatusBadge
-                state={destinationState}
-                to={destination}
-              />
-            </div>
-          );
-        })}
+            return (
+              <div key={adId} ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}>
+                <AdCard
+                  ad={cardWithStatus}
+                  onDeleteIncomplete={isIncomplete ? (e) => handleOpenDelete(adId, e) : undefined}
+                  showStatusBadge
+                  state={destinationState}
+                  to={destination}
+                />
+              </div>
+            );
+          })}
         {isFetchingNextPage ? <MyAdsAdCardsSkeleton count={2} /> : null}
         {showEmptyState ? (
           <AccountMyAdsEmptyState filterLabel={activeFilter.label} mode={emptyMode} />
@@ -488,25 +513,26 @@ export type AccountToast = {
   variant: "error" | "success" | "info" | "warning";
 };
 
-export function AccountPageShell({ action, children, onBack, title }: React.PropsWithChildren<TopBarProps>) {
+export function AccountPageShell({
+  action,
+  children,
+  onBack,
+  title,
+}: React.PropsWithChildren<TopBarProps>) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
         backTo="/account"
         onBack={onBack}
         startSlot={
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center">
-            {action}
-          </div>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center">{action}</div>
         }
         title={title}
       />
-      <div className="min-h-0 flex flex-1 flex-col">
-        {children}
-      </div>
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
     </PageFrame>
   );
 }
@@ -523,18 +549,14 @@ function AdFilterTabs({
   return (
     <HorizontalFilterBar
       ariaLabel="فیلتر آگهی‌های من"
-      className="h-[52px] bg-surface-container"
+      className="bg-surface-container h-[52px]"
       contentClassName="h-9"
     >
       {filters.map((filter) => {
         const isActive = activeFilter.label === filter.label;
 
         return (
-          <Chip
-            key={filter.label}
-            onClick={() => onSelect(filter)}
-            selected={isActive}
-          >
+          <Chip key={filter.label} onClick={() => onSelect(filter)} selected={isActive}>
             {filter.label}
           </Chip>
         );
@@ -555,10 +577,22 @@ export function EmptyAccountState({
   return (
     <section className="mx-auto flex h-full min-h-0 w-full flex-1 flex-col items-center justify-center px-9 text-center">
       <img alt="" aria-hidden="true" className="mb-5 h-[66px] w-[66px]" src={iconSrc} />
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-bold leading-6 text-on-surface">
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0 text-base leading-6 font-bold"
+      >
         {title}
       </Typography>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-2 max-w-[290px] text-sm font-normal leading-6 text-on-surface-var">
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="text-on-surface-var m-0 mt-2 max-w-[290px] text-sm leading-6 font-normal"
+      >
         {description}
       </Typography>
     </section>
@@ -566,23 +600,12 @@ export function EmptyAccountState({
 }
 
 function getBadgeAdvertiseSource(badge: BadgeItem): AdvertisementItem {
-  return (
-    badge.ad ??
-    badge.advertise ??
-    badge.advertisement ??
-    (badge as AdvertisementItem)
-  );
+  return badge.ad ?? badge.advertise ?? badge.advertisement ?? (badge as AdvertisementItem);
 }
 
 export function getBadgeAdvertiseId(badge: BadgeItem) {
   const ad = getBadgeAdvertiseSource(badge);
-  const id =
-    badge.advertiseId ??
-    badge.advertise_id ??
-    ad.id ??
-    ad._id ??
-    badge.id ??
-    badge._id;
+  const id = badge.advertiseId ?? badge.advertise_id ?? ad.id ?? ad._id ?? badge.id ?? badge._id;
 
   return id === undefined || id === null ? "" : String(id);
 }
@@ -604,12 +627,13 @@ export function BookmarkAdCard({
   } satisfies AdCardData;
 
   return (
-    <div className="relative bg-surface-container-lowest">
+    <div className="bg-surface-container-lowest relative">
       <AdCard ad={card} />
 
-      <Button unstyled
+      <Button
+        unstyled
         aria-label="حذف نشان"
-        className="absolute left-6 top-6 z-10 grid h-10 w-10 place-items-center rounded-xl bg-surface-container-lowest text-on-surface shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
+        className="bg-surface-container-lowest text-on-surface absolute top-6 left-6 z-10 grid h-10 w-10 place-items-center rounded-xl shadow-[0_2px_8px_rgba(26,26,26,0.16)] disabled:opacity-50"
         disabled={disabled || !advertiseId}
         onClick={(event) => {
           event.preventDefault();
@@ -620,19 +644,14 @@ export function BookmarkAdCard({
         }}
         type="button"
       >
-        <LinearDelete className="text-on-surface-var w-6 h-6" />
+        <LinearDelete className="text-on-surface-var h-6 w-6" />
       </Button>
     </div>
   );
 }
 
 function getNoteAdvertiseSource(note: NoteItem): AdvertisementItem {
-  return (
-    note.ad ??
-    note.advertise ??
-    note.advertisement ??
-    (note as AdvertisementItem)
-  );
+  return note.ad ?? note.advertise ?? note.advertisement ?? (note as AdvertisementItem);
 }
 
 export function getNoteId(note: NoteItem) {
@@ -709,11 +728,12 @@ export function NoteCard({
   };
 
   return (
-    <article className="relative h-[137px] overflow-hidden border-b border-outline-var bg-surface-container-lowest text-right [direction:rtl]">
-      <Button unstyled
+    <article className="border-outline-var bg-surface-container-lowest relative h-[137px] overflow-hidden border-b text-right [direction:rtl]">
+      <Button
+        unstyled
         data-note-action
         aria-label="حذف یادداشت"
-        className="absolute left-0 top-0 flex h-[136px] w-[59px] flex-col items-center justify-center gap-2 bg-error-container text-error disabled:opacity-50"
+        className="bg-error-container text-error absolute top-0 left-0 flex h-[136px] w-[59px] flex-col items-center justify-center gap-2 disabled:opacity-50"
         disabled={disabled || !noteId}
         onClick={() => noteId && onDelete(noteId)}
         type="button"
@@ -725,7 +745,7 @@ export function NoteCard({
       </Button>
 
       <div
-        className="relative z-10 h-[136px] touch-pan-y bg-surface-container-lowest px-4 py-4 transition-transform duration-150 ease-out"
+        className="bg-surface-container-lowest relative z-10 h-[136px] touch-pan-y px-4 py-4 transition-transform duration-150 ease-out"
         onClick={(event) => {
           const target = event.target as HTMLElement;
           if (target.closest("button, a, [data-note-action]")) return;
@@ -760,10 +780,11 @@ export function NoteCard({
         tabIndex={advertiseId ? 0 : undefined}
       >
         <div className="flex items-center justify-end gap-4 py-2 [direction:ltr]">
-          <Button unstyled
+          <Button
+            unstyled
             data-note-action
             aria-label="ویرایش یادداشت"
-            className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var disabled:opacity-50"
+            className="text-on-surface-var grid h-6 w-6 shrink-0 place-items-center disabled:opacity-50"
             disabled={!noteId || disabled}
             onPointerDown={(event) => {
               event.stopPropagation();
@@ -779,24 +800,42 @@ export function NoteCard({
           >
             <LinearEdit className="h-5 w-5" />
           </Button>
-          <Typography as="h2" variant="body" size="large" weight="regular" className="m-0 min-w-0 text-right text-on-surface [direction:rtl]">
+          <Typography
+            as="h2"
+            variant="body"
+            size="large"
+            weight="regular"
+            className="text-on-surface m-0 min-w-0 text-right [direction:rtl]"
+          >
             {noteText}
           </Typography>
         </div>
 
-        <div className="mt-2 py-2 gap-x-2 flex min-w-0 items-center [direction:rtl]">
+        <div className="mt-2 flex min-w-0 items-center gap-x-2 py-2 [direction:rtl]">
           <Link
             aria-label={`مشاهده آگهی ${mappedAd.title}`}
-            className={`relative h-10 w-[60px] shrink-0 overflow-hidden rounded-lg bg-surface-container bg-cover bg-center ${mappedAd.imageClassName}`}
+            className={`bg-surface-container relative h-10 w-[60px] shrink-0 overflow-hidden rounded-lg bg-cover bg-center ${mappedAd.imageClassName}`}
             style={mappedAd.imageUrl ? { backgroundImage: `url(${mappedAd.imageUrl})` } : undefined}
             to={advertiseId ? `/ads/${advertiseId}` : "/search"}
           />
 
           <div className="min-w-0 flex-1 text-right">
-            <Typography as="p" variant="body" size="small" weight="medium" className="m-0 text-on-surface">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="medium"
+              className="text-on-surface m-0"
+            >
               {adTitle}
             </Typography>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-outline">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-outline m-0 mt-2"
+            >
               {dateText}
             </Typography>
           </div>
@@ -839,11 +878,23 @@ export function IdentityPendingState({
     <>
       {showRequiredNotice ? (
         <section className="px-2 pt-3">
-          <div className="rounded-xl border border-warning bg-warning-container px-4 py-3 text-right text-warning">
-            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold leading-6">
+          <div className="border-warning bg-warning-container text-warning rounded-xl border px-4 py-3 text-right">
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="medium"
+              className="m-0 text-sm leading-6 font-semibold"
+            >
               احراز هویت مورد نیاز است!
             </Typography>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs font-normal leading-5">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="m-0 mt-1 text-xs leading-5 font-normal"
+            >
               برای ادامه استفاده از حساب، ابتدا کد ملی مالک شماره همراه را تایید کنید.
             </Typography>
           </div>
@@ -852,17 +903,31 @@ export function IdentityPendingState({
 
       {!isAuthenticated ? (
         <section className="px-4 pt-3">
-          <div className="rounded-xl border border-primary bg-primary-container p-4 text-right">
-            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold text-primary">
+          <div className="border-primary bg-primary-container rounded-xl border p-4 text-right">
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="medium"
+              className="text-primary m-0 text-sm font-semibold"
+            >
               برای تایید هویت، ابتدا وارد شوید
             </Typography>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-xs text-on-surface-var leading-5">
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-on-surface-var m-0 mt-1 text-xs leading-5"
+            >
               برای ثبت و اعتبارسنجی کد ملی، لازم است ابتدا با شماره همراه خود وارد حساب کاربری شوید.
             </Typography>
             <div className="mt-3">
               <Button
                 onClick={() => {
-                  window.location.assign(`/login/phone?returnTo=${encodeURIComponent("/account/identity")}`);
+                  window.location.assign(
+                    `/login/phone?returnTo=${encodeURIComponent("/account/identity")}`,
+                  );
                 }}
                 size="sm"
                 type="button"
@@ -877,15 +942,28 @@ export function IdentityPendingState({
 
       {isRejected && !isPending ? (
         <section className="px-4 pt-3">
-          <div className="rounded-xl border border-error bg-error-container p-4 text-right">
-            <div className="flex items-center gap-2 text-error">
+          <div className="border-error bg-error-container rounded-xl border p-4 text-right">
+            <div className="text-error flex items-center gap-2">
               <LinearInfoCircle className="h-5 w-5 shrink-0" />
-              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold">
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="medium"
+                className="m-0 text-sm font-semibold"
+              >
                 احراز هویت شما تایید نشد
               </Typography>
             </div>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1.5 text-xs text-on-error-container leading-5">
-              اطلاعات احراز هویت قبلی شما تایید نشد. لطفاً کد ملی صحیح متعلق به مالک این شماره همراه را وارد و مجدداً ارسال فرمایید.
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-on-error-container m-0 mt-1.5 text-xs leading-5"
+            >
+              اطلاعات احراز هویت قبلی شما تایید نشد. لطفاً کد ملی صحیح متعلق به مالک این شماره همراه
+              را وارد و مجدداً ارسال فرمایید.
             </Typography>
           </div>
         </section>
@@ -893,15 +971,28 @@ export function IdentityPendingState({
 
       {isVerifying && !isRejected && !isPending ? (
         <section className="px-4 pt-3">
-          <div className="rounded-xl border border-warning bg-warning-container p-4 text-right">
-            <div className="flex items-center gap-2 text-on-warning-container">
+          <div className="border-warning bg-warning-container rounded-xl border p-4 text-right">
+            <div className="text-on-warning-container flex items-center gap-2">
               <LinearInfoCircle className="h-5 w-5 shrink-0" />
-              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-semibold">
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="medium"
+                className="m-0 text-sm font-semibold"
+              >
                 در انتظار تایید ادمین
               </Typography>
             </div>
-            <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1.5 text-xs text-on-surface-var leading-5">
-              کد ملی شما ({initialNationalnumber}) با موفقیت ثبت شده و در انتظار بررسی و تایید توسط ادمین است.
+            <Typography
+              as="p"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-on-surface-var m-0 mt-1.5 text-xs leading-5"
+            >
+              کد ملی شما ({initialNationalnumber}) با موفقیت ثبت شده و در انتظار بررسی و تایید توسط
+              ادمین است.
             </Typography>
           </div>
         </section>
@@ -909,8 +1000,8 @@ export function IdentityPendingState({
 
       {isPending ? (
         <section className="px-4 pt-3">
-          <div className="flex items-center gap-2.5 rounded-xl border border-primary bg-primary-container p-4 text-primary">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent shrink-0" />
+          <div className="border-primary bg-primary-container text-primary flex items-center gap-2.5 rounded-xl border p-4">
+            <div className="border-primary h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-t-transparent" />
             <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm">
               در حال اعتبارسنجی شما هستیم...
             </Typography>
@@ -919,21 +1010,41 @@ export function IdentityPendingState({
       ) : null}
 
       <section className="p-4 pb-0">
-        <div className="rounded-xl border border-primary bg-primary-container p-6">
-          <div className="flex items-center justify-start gap-2.5 text-primary">
+        <div className="border-primary bg-primary-container rounded-xl border p-6">
+          <div className="text-primary flex items-center justify-start gap-2.5">
             <LinearUserAccount className="h-6 w-6" />
             <Typography as="p" variant="body" size="large" className="m-0 font-medium">
               ملاحظات در تایید هویت
             </Typography>
           </div>
 
-          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-on-surface">
-            برای افزایش امنیت حساب و جلوگیری از سوءاستفاده، هویت شما با کد ملی و مالکیت شماره همراه بررسی می‌شود.
+          <Typography
+            as="p"
+            variant="body"
+            size="large"
+            weight="regular"
+            className="text-on-surface m-0 mt-4"
+          >
+            برای افزایش امنیت حساب و جلوگیری از سوءاستفاده، هویت شما با کد ملی و مالکیت شماره همراه
+            بررسی می‌شود.
           </Typography>
 
-          <Typography as="p" variant="body" size="large" weight="regular" className="m-0 mt-4 text-on-surface">
+          <Typography
+            as="p"
+            variant="body"
+            size="large"
+            weight="regular"
+            className="text-on-surface m-0 mt-4"
+          >
             شماره همراه فعال:{" "}
-            <Typography as="span" variant="body" size="large" weight="medium" dir="ltr" className="text-tertiary">
+            <Typography
+              as="span"
+              variant="body"
+              size="large"
+              weight="medium"
+              dir="ltr"
+              className="text-tertiary"
+            >
               {mobile}
             </Typography>
           </Typography>
@@ -941,11 +1052,17 @@ export function IdentityPendingState({
       </section>
 
       <section className="p-4">
-        <Typography as="h2" variant="title" size="medium" weight="medium" className="m-0 text-on-surface">
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="medium"
+          className="text-on-surface m-0"
+        >
           تایید با کد ملی
         </Typography>
 
-        <div className="mt-2 flex gap-1 text-outline">
+        <div className="text-outline mt-2 flex gap-1">
           <LinearInfoCircle className="h-4.5 w-4.5 shrink-0" />
           <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs">
             کد ملی باید متعلق به مالک همین شماره همراه باشد.
@@ -953,7 +1070,7 @@ export function IdentityPendingState({
         </div>
 
         <TextField
-          className="text-sm text-on-surface"
+          className="text-on-surface text-sm"
           containerClassName="mt-4"
           disabled={isPending}
           inputMode="numeric"
@@ -961,11 +1078,13 @@ export function IdentityPendingState({
           maxLength={10}
           placeholder="کد ملی مالک شماره همراه"
           value={nationalnumber}
-          onChange={(event) => setNationalnumber(normalizeNumericInput(event.target.value).slice(0, 10))}
+          onChange={(event) =>
+            setNationalnumber(normalizeNumericInput(event.target.value).slice(0, 10))
+          }
         />
       </section>
 
-      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-2 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <Button
           disabled={!isAuthenticated || !isNationalnumberComplete || isPending}
           fullWidth
@@ -976,7 +1095,13 @@ export function IdentityPendingState({
           type="button"
           variant="primary"
         >
-          {isPending ? "در حال اعتبارسنجی شما هستیم..." : isRejected ? "ثبت مجدد کد ملی" : isVerifying ? "ویرایش و ثبت مجدد کد ملی" : "بررسی و تایید هویت"}
+          {isPending
+            ? "در حال اعتبارسنجی شما هستیم..."
+            : isRejected
+              ? "ثبت مجدد کد ملی"
+              : isVerifying
+                ? "ویرایش و ثبت مجدد کد ملی"
+                : "بررسی و تایید هویت"}
         </Button>
       </div>
     </>
@@ -1023,40 +1148,50 @@ export function IdentityVerifiedState({
   return (
     <>
       <section className="p-4">
-        <div className="rounded-xl border border-tertiary bg-tertiary-container p-5">
-          <div className="flex gap-2 text-tertiary">
+        <div className="border-tertiary bg-tertiary-container rounded-xl border p-5">
+          <div className="text-tertiary flex gap-2">
             <LinearUserConfirmation className="h-6 w-6" />
             <Typography as="p" variant="body" size="large" className="m-0">
               هویت شما تایید شده است
             </Typography>
           </div>
 
-          <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 text-on-surface-var">
+          <Typography
+            as="p"
+            variant="body"
+            size="large"
+            weight="regular"
+            className="text-on-surface-var mt-4"
+          >
             احراز هویت شما
             {formattedDate ? (
               <>
-                {" "}در{" "}
+                {" "}
+                در{" "}
                 <Typography as="span" variant="body" size="large" weight="medium" className="">
                   {formattedDate}
                 </Typography>
               </>
-            ) : ""}
-            {" "}با موفقیت انجام شده است.
+            ) : (
+              ""
+            )}{" "}
+            با موفقیت انجام شده است.
           </Typography>
         </div>
       </section>
 
-      <div className="mt-3 h-px bg-outline-var" />
+      <div className="bg-outline-var mt-3 h-px" />
 
       <section className="p-4">
-        <Typography as="h2" variant="title" size="medium" className="m-0 text-on-surface">
+        <Typography as="h2" variant="title" size="medium" className="text-on-surface m-0">
           مالکیت سیم‌کارت
         </Typography>
 
-        <div className="mt-2 flex items-start gap-1 text-outline">
-          <LinearInfoCircle className="h-4.5 w-4.5 shrink-0 text-on-surface-var" />
+        <div className="text-outline mt-2 flex items-start gap-1">
+          <LinearInfoCircle className="text-on-surface-var h-4.5 w-4.5 shrink-0" />
           <Typography as="p" variant="body" size="small" weight="regular" className="">
-            در صورتی که سیم‌کارت را تازه خریده‌اید و یا قصد فروش دارید، حتماً تغییر مالکیت آن را اعلام کنید.
+            در صورتی که سیم‌کارت را تازه خریده‌اید و یا قصد فروش دارید، حتماً تغییر مالکیت آن را
+            اعلام کنید.
             <br />
             در غیر این صورت، عواقب هرگونه تخلف مالک قبلی یا جدید، بر عهدهٔ شما است.
           </Typography>
@@ -1070,7 +1205,9 @@ export function IdentityVerifiedState({
           type="button"
           variant="secondary"
         >
-          <Typography as="span" variant="label" size="large" weight="medium">ثبت تغییر مالکیت سیم‌کارت</Typography>
+          <Typography as="span" variant="label" size="large" weight="medium">
+            ثبت تغییر مالکیت سیم‌کارت
+          </Typography>
           <LinearArrowLeft1 className="h-6 w-6" />
         </Button>
       </section>
@@ -1079,23 +1216,18 @@ export function IdentityVerifiedState({
 }
 
 export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void }) {
-  const [selectedReason, setSelectedReason] =
-    useState<SimCardOwnershipReason>("selling");
+  const [selectedReason, setSelectedReason] = useState<SimCardOwnershipReason>("selling");
 
   return (
     <>
       <section className="px-9 pt-8">
-        <div
-          aria-label="دلیل تغییر مالکیت سیم‌کارت"
-          className="space-y-12"
-          role="radiogroup"
-        >
+        <div aria-label="دلیل تغییر مالکیت سیم‌کارت" className="space-y-12" role="radiogroup">
           {simCardOwnershipReasons.map((reason) => {
             const isSelected = selectedReason === reason.id;
 
             return (
               <label
-                className="flex min-h-6 w-full cursor-pointer items-center justify-between gap-3 text-right outline-none ring-0 border-0 focus:outline-none focus:ring-0 focus-visible:outline-none"
+                className="flex min-h-6 w-full cursor-pointer items-center justify-between gap-3 border-0 text-right ring-0 outline-none focus:ring-0 focus:outline-none focus-visible:outline-none"
                 key={reason.id}
               >
                 <input
@@ -1107,7 +1239,13 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
                   value={reason.id}
                 />
 
-                <Typography as="span" variant="body" size="large" weight="regular" className="text-on-surface">
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="large"
+                  weight="regular"
+                  className="text-on-surface"
+                >
                   {reason.label}
                 </Typography>
 
@@ -1118,14 +1256,8 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
         </div>
       </section>
 
-      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
-        <Button
-          fullWidth
-          onClick={onSubmit}
-          size="x-medium"
-          type="button"
-          variant="primary"
-        >
+      <div className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_16px_rgba(77,77,77,0.08)]">
+        <Button fullWidth onClick={onSubmit} size="x-medium" type="button" variant="primary">
           ثبت
         </Button>
       </div>
@@ -1135,7 +1267,13 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
 
 export function EmptyMessage({ text }: { text: string }) {
   return (
-    <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 flex min-h-0 w-full flex-1 items-center justify-center bg-surface-container-lowest px-4 text-center text-sm font-medium text-outline">
+    <Typography
+      as="p"
+      variant="body"
+      size="medium"
+      weight="medium"
+      className="bg-surface-container-lowest text-outline m-0 mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-4 text-center text-sm font-medium"
+    >
       {text}
     </Typography>
   );
@@ -1154,7 +1292,7 @@ export function AccountProfileSkeleton() {
         <ProfileFieldSkeleton />
       </section>
 
-      <div className="mt-4 h-4 bg-surface-container" />
+      <div className="bg-surface-container mt-4 h-4" />
 
       <section className="space-y-6 px-4 pt-4">
         <ProfileFieldSkeleton />
@@ -1162,7 +1300,7 @@ export function AccountProfileSkeleton() {
         <ProfileFieldSkeleton />
       </section>
 
-      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-4 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+      <div className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-4 pt-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
         <AccountSkeletonBlock className="h-10 w-full rounded-lg" />
       </div>
     </div>
@@ -1179,7 +1317,7 @@ function ProfileFieldSkeleton() {
 
 export function AccountLoadingState({ text }: { text: string }) {
   return (
-    <div className="space-y-3 bg-surface-container-lowest px-4 py-5" aria-label={text}>
+    <div className="bg-surface-container-lowest space-y-3 px-4 py-5" aria-label={text}>
       <AccountSkeletonBlock className="ml-auto h-5 w-32" />
       <AccountSkeletonBlock className="h-14 w-full" />
       <AccountSkeletonBlock className="h-14 w-full" />
@@ -1211,7 +1349,7 @@ export function WalletPageSkeleton() {
   return (
     <section className="space-y-5 px-3 pt-4 text-right" aria-label="در حال بارگذاری کیف پول">
       {/* Credit Card */}
-      <div className="flex items-center justify-between rounded-xl border border-primary/8 bg-primary-container p-4 [direction:rtl]">
+      <div className="border-primary/8 bg-primary-container flex items-center justify-between rounded-xl border p-4 [direction:rtl]">
         <div className="space-y-2">
           <AccountSkeletonBlock className="h-4 w-28" />
           <AccountSkeletonBlock className="h-7 w-36" />
@@ -1219,7 +1357,7 @@ export function WalletPageSkeleton() {
         <AccountSkeletonBlock className="h-14 w-14 rounded-full" />
       </div>
 
-      <div className="-mx-3 border-t border-outline-var" />
+      <div className="border-outline-var -mx-3 border-t" />
 
       {/* Increase credit header */}
       <div className="flex items-center gap-2">
@@ -1252,10 +1390,10 @@ export function PaymentHistorySkeleton({ count = 4 }: { count?: number }) {
       {Array.from({ length: count }).map((_, index) => (
         <article
           key={index}
-          className="border-b border-outline-var bg-surface-container-lowest p-4 flex flex-col gap-y-3 text-right"
+          className="border-outline-var bg-surface-container-lowest flex flex-col gap-y-3 border-b p-4 text-right"
         >
           {Array.from({ length: 4 }).map((_, rowIndex) => (
-            <div key={rowIndex} className="flex items-center justify-between py-1.5 gap-4">
+            <div key={rowIndex} className="flex items-center justify-between gap-4 py-1.5">
               <AccountSkeletonBlock className="h-4 w-20" />
               <AccountSkeletonBlock className="h-4 w-28" />
             </div>
@@ -1280,7 +1418,10 @@ export function AccountNotesSkeleton({ count = 3 }: { count?: number }) {
   return (
     <>
       {Array.from({ length: count }).map((_, index) => (
-        <article className="h-[137px] border-b border-outline-var bg-surface-container-lowest px-4 py-4" key={index}>
+        <article
+          className="border-outline-var bg-surface-container-lowest h-[137px] border-b px-4 py-4"
+          key={index}
+        >
           <div className="flex h-10 items-center justify-end gap-3">
             <AccountSkeletonBlock className="h-5 w-5 shrink-0" />
             <AccountSkeletonBlock className="h-5 w-36" />
@@ -1314,10 +1455,12 @@ export function AccountRetryState({
 
   return (
     <>
-      <div className="fixed inset-0 z-[999] bg-surface-container-lowest">
+      <div className="bg-surface-container-lowest fixed inset-0 z-[999]">
         <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
       </div>
-      <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">{message}</Typography>
+      <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">
+        {message}
+      </Typography>
     </>
   );
 }
@@ -1386,7 +1529,7 @@ function formatPaymentDate(value?: string) {
 function ReadonlyField({ label, value }: { label: string; value: string }) {
   return (
     <TextField
-      className="text-sm text-on-surface cursor-default select-text"
+      className="text-on-surface cursor-default text-sm select-text"
       readOnly
       forceLabel
       highlightWhenFilled={false}
@@ -1398,7 +1541,7 @@ function ReadonlyField({ label, value }: { label: string; value: string }) {
 
 export function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
   return (
-    <article className="border-b border-outline-var bg-surface-container-lowest p-4 flex flex-col gap-y-2 text-right">
+    <article className="border-outline-var bg-surface-container-lowest flex flex-col gap-y-2 border-b p-4 text-right">
       <PaymentHistoryRow
         label="وضعیت"
         value={readPaymentStatus(payment)}
@@ -1406,21 +1549,14 @@ export function PaymentHistoryCard({ payment }: { payment: WalletPayment }) {
       />
 
       <PaymentHistoryRow
-        icon={<AdCardTomanIcon className="h-6 w-6 text-on-surface-var" />}
+        icon={<AdCardTomanIcon className="text-on-surface-var h-6 w-6" />}
         label="هزینه"
         value={formatMoney(payment.price ?? 0)}
       />
 
-      <PaymentHistoryRow
-        label="زمان پرداخت"
-        value={formatPaymentDate(payment.created_at)}
-      />
+      <PaymentHistoryRow label="زمان پرداخت" value={formatPaymentDate(payment.created_at)} />
 
-      <PaymentHistoryRow
-        label="شناسه پرداخت"
-        value={String(payment.ref_id ?? "-")}
-        isLast
-      />
+      <PaymentHistoryRow label="شناسه پرداخت" value={String(payment.ref_id ?? "-")} isLast />
     </article>
   );
 }
@@ -1438,16 +1574,27 @@ function PaymentHistoryRow({
   valueColor?: string;
 }) {
   return (
-    <div className={`flex items-center justify-between py-2 gap-4`}>
-      <Typography as="span" variant="label" size="medium" weight="medium" className="shrink-0 font-medium leading-5 text-outline">
+    <div className={`flex items-center justify-between gap-4 py-2`}>
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="text-outline shrink-0 leading-5 font-medium"
+      >
         {label}
       </Typography>
 
-      <Typography as="span" variant="label" size="medium" weight="medium"
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
         className="flex min-w-0 items-center gap-1 text-left font-medium"
         style={{ color: valueColor }}
       >
-        {value}{icon}
+        {value}
+        {icon}
       </Typography>
     </div>
   );
@@ -1455,7 +1602,16 @@ function PaymentHistoryRow({
 
 function EditIcon({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
     </svg>
@@ -1464,7 +1620,16 @@ function EditIcon({ className = "" }: { className?: string }) {
 
 export function PlusIcon({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
       <path d="M12 5v14M5 12h14" />
     </svg>
   );
@@ -1472,7 +1637,16 @@ export function PlusIcon({ className = "" }: { className?: string }) {
 
 function UserIcon({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
       <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
       <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
     </svg>

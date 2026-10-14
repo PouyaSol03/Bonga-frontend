@@ -15,10 +15,7 @@ import {
   MIN_CAPTURE_DISTANCE_PX,
   SIMPLIFY_TOLERANCE_METERS,
 } from "./geofenceGeometry";
-import {
-  resolveFreehandPointerTermination,
-  restoreMapDragging,
-} from "./geofenceInteraction";
+import { resolveFreehandPointerTermination, restoreMapDragging } from "./geofenceInteraction";
 import type {
   DrawingState,
   GeofenceCoordinate,
@@ -26,10 +23,7 @@ import type {
   GeofenceValidationResult,
 } from "./geofenceTypes";
 
-type InvalidGeofenceResult = Exclude<
-  GeofenceValidationResult,
-  { isValid: true }
->;
+type InvalidGeofenceResult = Exclude<GeofenceValidationResult, { isValid: true }>;
 
 type UseFreehandGeofenceOptions = {
   enabled: boolean;
@@ -101,10 +95,7 @@ function ensurePolyline(map: LeafletMap, layerRef: { current: Polyline | null })
   return layerRef.current;
 }
 
-function ensureTemporaryPolygon(
-  map: LeafletMap,
-  layerRef: { current: Polygon | null },
-) {
+function ensureTemporaryPolygon(map: LeafletMap, layerRef: { current: Polygon | null }) {
   if (!layerRef.current) {
     layerRef.current = polygon([], TEMPORARY_POLYGON_OPTIONS).addTo(map);
   }
@@ -120,10 +111,7 @@ function ensureFinalPolygon(map: LeafletMap, layerRef: { current: Polygon | null
   return layerRef.current;
 }
 
-function ensureInvalidPolygon(
-  map: LeafletMap,
-  layerRef: { current: Polygon | null },
-) {
+function ensureInvalidPolygon(map: LeafletMap, layerRef: { current: Polygon | null }) {
   if (!layerRef.current) {
     layerRef.current = polygon([], INVALID_POLYGON_OPTIONS).addTo(map);
   }
@@ -204,9 +192,7 @@ export function useFreehandGeofence({
       ensurePolyline(map, temporaryLineRef).setLatLngs(leafletCoordinates);
 
       if (coordinates.length >= 3) {
-        ensureTemporaryPolygon(map, temporaryPolygonRef).setLatLngs(
-          leafletCoordinates,
-        );
+        ensureTemporaryPolygon(map, temporaryPolygonRef).setLatLngs(leafletCoordinates);
       } else {
         temporaryPolygonRef.current?.setLatLngs([]);
       }
@@ -224,28 +210,19 @@ export function useFreehandGeofence({
       return [latLng.lng, latLng.lat];
     }
 
-    function acceptPointerCoordinate(
-      event: PointerEvent,
-      options: { force?: boolean } = {},
-    ) {
+    function acceptPointerCoordinate(event: PointerEvent, options: { force?: boolean } = {}) {
       const point = map.mouseEventToContainerPoint(event);
       const previousPoint = lastAcceptedPointRef.current;
       const distancePixels = previousPoint?.distanceTo(point) ?? Number.POSITIVE_INFINITY;
 
-      if (
-        !options.force &&
-        distancePixels < minCaptureDistancePx
-      ) {
+      if (!options.force && distancePixels < minCaptureDistancePx) {
         return;
       }
 
       const coordinate = getPointerCoordinate(event);
       const previousCoordinate = rawCoordinatesRef.current.at(-1);
 
-      if (
-        previousCoordinate &&
-        geographicDistanceMeters(previousCoordinate, coordinate) <= 0.05
-      ) {
+      if (previousCoordinate && geographicDistanceMeters(previousCoordinate, coordinate) <= 0.05) {
         return;
       }
 
@@ -307,9 +284,7 @@ export function useFreehandGeofence({
       invalidPolygonRef.current?.setLatLngs([]);
       const finalLayer = ensureFinalPolygon(map, finalPolygonRef);
       finalLayer.setStyle(FINAL_POLYGON_OPTIONS);
-      finalLayer.setLatLngs(
-        toLeafletCoordinates(finalized.result.simplifiedCoordinates),
-      );
+      finalLayer.setLatLngs(toLeafletCoordinates(finalized.result.simplifiedCoordinates));
       finalLayer.bringToFront();
       onComplete(finalized.result);
     }
@@ -380,11 +355,7 @@ export function useFreehandGeofence({
     container.addEventListener("pointermove", handlePointerMove, true);
     container.addEventListener("pointerup", finishDrawing, true);
     container.addEventListener("pointercancel", handlePointerCancel, true);
-    container.addEventListener(
-      "lostpointercapture",
-      handleLostPointerCapture,
-      true,
-    );
+    container.addEventListener("lostpointercapture", handleLostPointerCapture, true);
     window.addEventListener("pointerup", finishDrawing, true);
     window.addEventListener("pointercancel", handlePointerCancel, true);
     window.addEventListener("keydown", handleKeyDown);
@@ -400,11 +371,7 @@ export function useFreehandGeofence({
       container.removeEventListener("pointermove", handlePointerMove, true);
       container.removeEventListener("pointerup", finishDrawing, true);
       container.removeEventListener("pointercancel", handlePointerCancel, true);
-      container.removeEventListener(
-        "lostpointercapture",
-        handleLostPointerCapture,
-        true,
-      );
+      container.removeEventListener("lostpointercapture", handleLostPointerCapture, true);
       window.removeEventListener("pointerup", finishDrawing, true);
       window.removeEventListener("pointercancel", handlePointerCancel, true);
       window.removeEventListener("keydown", handleKeyDown);

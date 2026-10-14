@@ -1,13 +1,43 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { Fragment, useState, useEffect } from "react";
-import { listCrmCities, getCrmRecordId, listCrmNeighborhoods, type CrmRecord, saveCrmCity, deleteCrmCity, saveCrmNeighborhood, deleteCrmNeighborhood } from "../api/crm.service";
-import { ConfirmModal, CrmIcon, DEFAULT_CENTER, DEFAULT_COUNTRY_ID, EditorModal, FilterField, Panel, PanelHeader, PrimaryButton, SmallActionButton, TableCell, TableEmptyRow, SearchTableEmptyRow, TableHead, TableLoadingRows, cleanEmptyValues, inputClassName, parseMapPointValue, readText, stringifyValue, useQueryErrorToast } from "../CrmLayout";
+import {
+  listCrmCities,
+  getCrmRecordId,
+  listCrmNeighborhoods,
+  type CrmRecord,
+  saveCrmCity,
+  deleteCrmCity,
+  saveCrmNeighborhood,
+  deleteCrmNeighborhood,
+} from "../api/crm.service";
+import {
+  ConfirmModal,
+  CrmIcon,
+  DEFAULT_CENTER,
+  DEFAULT_COUNTRY_ID,
+  EditorModal,
+  FilterField,
+  Panel,
+  PanelHeader,
+  PrimaryButton,
+  SmallActionButton,
+  TableCell,
+  TableEmptyRow,
+  SearchTableEmptyRow,
+  TableHead,
+  TableLoadingRows,
+  cleanEmptyValues,
+  inputClassName,
+  parseMapPointValue,
+  readText,
+  stringifyValue,
+  useQueryErrorToast,
+} from "../CrmLayout";
 import type { ConfirmState, CrmRoutePageProps, EditorState } from "../CrmLayout";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import { useNavigate } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
-
 
 function getSubNeighborhoodNames(value: unknown) {
   if (!value) return [] as string[];
@@ -17,7 +47,10 @@ function getSubNeighborhoodNames(value: unknown) {
     try {
       parsed = JSON.parse(value) as unknown;
     } catch {
-      return value.split(/[،,|]/).map((item) => item.trim()).filter(Boolean);
+      return value
+        .split(/[،,|]/)
+        .map((item) => item.trim())
+        .filter(Boolean);
     }
   }
 
@@ -104,7 +137,12 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
     setEditor({
       fields: [
         { label: "نام شهر", name: "name", value: city.name },
-        { label: "شناسه کشور", name: "country_id", type: "number", value: city.country_id ?? DEFAULT_COUNTRY_ID },
+        {
+          label: "شناسه کشور",
+          name: "country_id",
+          type: "number",
+          value: city.country_id ?? DEFAULT_COUNTRY_ID,
+        },
         {
           label: "موقعیت شهر روی نقشه",
           name: "location",
@@ -140,8 +178,18 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
       fields: [
         { label: "نام محله", name: "name", value: neighborhood.name },
         { label: "شناسه شهر", name: "city_id", value: neighborhood.city_id ?? cityId },
-        { label: "عرض جغرافیایی", name: "lat", type: "number", value: neighborhood.lat ?? DEFAULT_CENTER[0] },
-        { label: "طول جغرافیایی", name: "lng", type: "number", value: neighborhood.lng ?? DEFAULT_CENTER[1] },
+        {
+          label: "عرض جغرافیایی",
+          name: "lat",
+          type: "number",
+          value: neighborhood.lat ?? DEFAULT_CENTER[0],
+        },
+        {
+          label: "طول جغرافیایی",
+          name: "lng",
+          type: "number",
+          value: neighborhood.lng ?? DEFAULT_CENTER[1],
+        },
       ],
       onSubmit: async (values) => {
         await neighborhoodSaveMutation.mutateAsync({
@@ -180,8 +228,7 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
     if (cityId === id) setCityId("");
   };
 
-  const handleDeleteNeighborhood = (id: string) =>
-    neighborhoodDeleteMutation.mutateAsync(id);
+  const handleDeleteNeighborhood = (id: string) => neighborhoodDeleteMutation.mutateAsync(id);
 
   return (
     <>
@@ -197,7 +244,12 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
             onSubmit={(event) => event.preventDefault()}
           >
             <FilterField className="flex-1" label="جستجوی شهر">
-              <input className={inputClassName} onChange={(event) => setCitySearch(event.target.value)} placeholder="نام شهر" value={citySearch} />
+              <input
+                className={inputClassName}
+                onChange={(event) => setCitySearch(event.target.value)}
+                placeholder="نام شهر"
+                value={citySearch}
+              />
             </FilterField>
           </form>
 
@@ -222,23 +274,44 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     return (
                       <tr className={selected ? "bg-[#f6f9ff]" : ""} key={id}>
                         <TableCell>
-                          <Button unstyled className={`text-sm font-bold ${selected ? "text-[#0048c4]" : "text-[#1a1a1a]"}`} onClick={() => setCityId(id)} type="button">
+                          <Button
+                            unstyled
+                            className={`text-sm font-bold ${selected ? "text-[#0048c4]" : "text-[#1a1a1a]"}`}
+                            onClick={() => setCityId(id)}
+                            type="button"
+                          >
                             {readText(city, ["name"])}
                           </Button>
                         </TableCell>
                         <TableCell>{id}</TableCell>
-                        <TableCell><Typography as="span" variant="body" size="medium" weight="regular" className="text-sm" dir="ltr">{readText(city, ["lat"])}, {readText(city, ["lng"])}</Typography></TableCell>
+                        <TableCell>
+                          <Typography
+                            as="span"
+                            variant="body"
+                            size="medium"
+                            weight="regular"
+                            className="text-sm"
+                            dir="ltr"
+                          >
+                            {readText(city, ["lat"])}, {readText(city, ["lng"])}
+                          </Typography>
+                        </TableCell>
                         <TableCell>
                           <div className="flex gap-1">
-                            <SmallActionButton label="ویرایش" onClick={() => openCityEditor(city)} />
+                            <SmallActionButton
+                              label="ویرایش"
+                              onClick={() => openCityEditor(city)}
+                            />
                             <SmallActionButton
                               label="حذف"
-                              onClick={() => setConfirm({
-                                body: "با حذف شهر ممکن است محله‌های وابسته قابل استفاده نباشند.",
-                                confirmLabel: "حذف شهر",
-                                onConfirm: () => handleDeleteCity(id),
-                                title: "حذف شهر",
-                              })}
+                              onClick={() =>
+                                setConfirm({
+                                  body: "با حذف شهر ممکن است محله‌های وابسته قابل استفاده نباشند.",
+                                  confirmLabel: "حذف شهر",
+                                  onConfirm: () => handleDeleteCity(id),
+                                  title: "حذف شهر",
+                                })
+                              }
                               tone="danger"
                             />
                           </div>
@@ -259,20 +332,54 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
         <Panel>
           <PanelHeader
             action={
-              <Button disabled={!cityId} onClick={() => openCityMap()} size="x-medium" variant="secondary">
+              <Button
+                disabled={!cityId}
+                onClick={() => openCityMap()}
+                size="x-medium"
+                variant="secondary"
+              >
                 <CrmIcon name="location" size={18} />
                 نقشه و مرزبندی
               </Button>
             }
-            subtitle={cityId ? "محله‌های اصلی، زیرمحله‌های وابسته و محدوده جغرافیایی آن‌ها" : "ابتدا یک شهر را انتخاب کنید."}
+            subtitle={
+              cityId
+                ? "محله‌های اصلی، زیرمحله‌های وابسته و محدوده جغرافیایی آن‌ها"
+                : "ابتدا یک شهر را انتخاب کنید."
+            }
             title="محله‌ها"
           />
 
           <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] p-3">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-10 w-10 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"><CrmIcon name="location" size={20} /></Typography>
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="grid h-10 w-10 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]"
+            >
+              <CrmIcon name="location" size={20} />
+            </Typography>
             <div className="min-w-0 flex-1">
-              <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-bold text-[#4f5a6c]">شناسه شهر انتخاب‌شده</Typography>
-              <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-1 truncate text-sm text-[#9098a6]" dir="ltr">{cityId || "-"}</Typography>
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="medium"
+                className="m-0 text-sm font-bold text-[#4f5a6c]"
+              >
+                شناسه شهر انتخاب‌شده
+              </Typography>
+              <Typography
+                as="p"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="m-0 mt-1 truncate text-sm text-[#9098a6]"
+                dir="ltr"
+              >
+                {cityId || "-"}
+              </Typography>
             </div>
           </div>
 
@@ -298,39 +405,95 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
                 ) : neighborhoodsQuery.data?.length ? (
                   neighborhoodsQuery.data.map((neighborhood) => {
                     const id = getCrmRecordId(neighborhood);
-                    const subNeighborhoodNames = getSubNeighborhoodNames(neighborhood.sub_neighbors);
+                    const subNeighborhoodNames = getSubNeighborhoodNames(
+                      neighborhood.sub_neighbors,
+                    );
                     const isExpanded = expandedNeighborhoodId === id;
 
                     return (
                       <Fragment key={id}>
                         <tr
                           className={`cursor-pointer transition-colors hover:bg-[#fafcff] ${isExpanded ? "bg-[#f6f9ff]" : ""}`}
-                          onClick={() => setExpandedNeighborhoodId((current) => current === id ? "" : id)}
+                          onClick={() =>
+                            setExpandedNeighborhoodId((current) => (current === id ? "" : id))
+                          }
                         >
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div className="min-w-0">
-                                <Typography as="span" variant="label" size="medium" weight="semibold" className="block truncate text-[#1a1a1a]">{readText(neighborhood, ["name"])}</Typography>
-                                <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-[#808080]">
-                                  {subNeighborhoodNames.length ? `${subNeighborhoodNames.length} زیرمحله` : "بدون زیرمحله"}
+                                <Typography
+                                  as="span"
+                                  variant="label"
+                                  size="medium"
+                                  weight="semibold"
+                                  className="block truncate text-[#1a1a1a]"
+                                >
+                                  {readText(neighborhood, ["name"])}
+                                </Typography>
+                                <Typography
+                                  as="span"
+                                  variant="body"
+                                  size="small"
+                                  weight="regular"
+                                  className="mt-1 block text-[#808080]"
+                                >
+                                  {subNeighborhoodNames.length
+                                    ? `${subNeighborhoodNames.length} زیرمحله`
+                                    : "بدون زیرمحله"}
                                 </Typography>
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell><Typography as="span" variant="body" size="medium" weight="regular" className="block max-w-[130px] truncate text-sm" dir="ltr">{readText(neighborhood, ["city_id"], cityId)}</Typography></TableCell>
-                          <TableCell><Typography as="span" variant="body" size="medium" weight="regular" className="text-sm" dir="ltr">{readText(neighborhood, ["lat"])}, {readText(neighborhood, ["lng"])}</Typography></TableCell>
                           <TableCell>
-                            <div className="flex gap-1" onClick={(event) => event.stopPropagation()}>
-                              <SmallActionButton label="نقشه" onClick={() => openCityMap(id)} tone="primary" />
-                              <SmallActionButton label="ویرایش" onClick={() => openNeighborhoodEditor(neighborhood)} />
+                            <Typography
+                              as="span"
+                              variant="body"
+                              size="medium"
+                              weight="regular"
+                              className="block max-w-[130px] truncate text-sm"
+                              dir="ltr"
+                            >
+                              {readText(neighborhood, ["city_id"], cityId)}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography
+                              as="span"
+                              variant="body"
+                              size="medium"
+                              weight="regular"
+                              className="text-sm"
+                              dir="ltr"
+                            >
+                              {readText(neighborhood, ["lat"])}, {readText(neighborhood, ["lng"])}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <div
+                              className="flex gap-1"
+                              onClick={(event) => event.stopPropagation()}
+                            >
+                              <SmallActionButton
+                                label="نقشه"
+                                onClick={() => openCityMap(id)}
+                                tone="primary"
+                              />
+                              <SmallActionButton
+                                label="ویرایش"
+                                onClick={() => openNeighborhoodEditor(neighborhood)}
+                              />
                               <SmallActionButton
                                 label="حذف"
-                                onClick={() => setConfirm({
-                                  body: "این محله و محدوده جغرافیایی ثبت‌شده آن حذف می‌شود.",
-                                  confirmLabel: "حذف محله",
-                                  onConfirm: async () => { await handleDeleteNeighborhood(id); },
-                                  title: "حذف محله",
-                                })}
+                                onClick={() =>
+                                  setConfirm({
+                                    body: "این محله و محدوده جغرافیایی ثبت‌شده آن حذف می‌شود.",
+                                    confirmLabel: "حذف محله",
+                                    onConfirm: async () => {
+                                      await handleDeleteNeighborhood(id);
+                                    },
+                                    title: "حذف محله",
+                                  })
+                                }
                                 tone="danger"
                               />
                             </div>
@@ -349,10 +512,30 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
                               <div className="rounded-xl border border-[#e6e8ec] bg-white p-3">
                                 <div className="flex items-center justify-between gap-3">
                                   <div>
-                                    <Typography as="p" variant="label" size="medium" weight="semibold" className="m-0 text-[#1a1a1a]">زیرمحله‌ها</Typography>
-                                    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-1 text-[#808080]">زیرمحله‌های این محله فقط در همین بخش نمایش داده می‌شوند.</Typography>
+                                    <Typography
+                                      as="p"
+                                      variant="label"
+                                      size="medium"
+                                      weight="semibold"
+                                      className="m-0 text-[#1a1a1a]"
+                                    >
+                                      زیرمحله‌ها
+                                    </Typography>
+                                    <Typography
+                                      as="p"
+                                      variant="body"
+                                      size="small"
+                                      weight="regular"
+                                      className="m-0 mt-1 text-[#808080]"
+                                    >
+                                      زیرمحله‌های این محله فقط در همین بخش نمایش داده می‌شوند.
+                                    </Typography>
                                   </div>
-                                  <Button onClick={() => openCityMap(id)} size="small" variant="primary">
+                                  <Button
+                                    onClick={() => openCityMap(id)}
+                                    size="small"
+                                    variant="primary"
+                                  >
                                     افزودن زیرمحله
                                   </Button>
                                 </div>
@@ -360,13 +543,32 @@ export function CrmLocationsPage({ notify, refreshNonce }: CrmRoutePageProps) {
                                 {subNeighborhoodNames.length ? (
                                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                                     {subNeighborhoodNames.map((name) => (
-                                      <div className="rounded-lg border border-[#eeeeee] bg-[#fafafa] px-3 py-2" key={name}>
-                                        <Typography as="span" variant="body" size="medium" weight="medium" className="text-[#333333]">{name}</Typography>
+                                      <div
+                                        className="rounded-lg border border-[#eeeeee] bg-[#fafafa] px-3 py-2"
+                                        key={name}
+                                      >
+                                        <Typography
+                                          as="span"
+                                          variant="body"
+                                          size="medium"
+                                          weight="medium"
+                                          className="text-[#333333]"
+                                        >
+                                          {name}
+                                        </Typography>
                                       </div>
                                     ))}
                                   </div>
                                 ) : (
-                                  <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 mt-3 rounded-lg bg-[#fafafa] px-3 py-3 text-[#909090]">هنوز زیرمحله‌ای برای این محله ثبت نشده است.</Typography>
+                                  <Typography
+                                    as="p"
+                                    variant="body"
+                                    size="medium"
+                                    weight="regular"
+                                    className="m-0 mt-3 rounded-lg bg-[#fafafa] px-3 py-3 text-[#909090]"
+                                  >
+                                    هنوز زیرمحله‌ای برای این محله ثبت نشده است.
+                                  </Typography>
                                 )}
                               </div>
                             </td>

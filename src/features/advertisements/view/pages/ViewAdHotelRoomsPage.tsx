@@ -14,10 +14,7 @@ import {
   useAdvertisementDetailQuery,
   useAdvertisementPreviewQuery,
 } from "../../api/advertisement.hooks";
-import {
-    mapAdToDetails,
-  parseViewAdIdFromPath,
-} from "../viewAdDetails";
+import { mapAdToDetails, parseViewAdIdFromPath } from "../viewAdDetails";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "../ViewAdRouteStates";
 import { shouldUseAgencyAllocationPreview } from "../viewAdPreviewContext";
 
@@ -32,7 +29,13 @@ export function ViewAdHotelRoomsPage() {
   const previewQuery = useAdvertisementPreviewQuery(
     isPreview && (!useAgencyAllocationPreview || agencyPreviewQuery.isError) ? adId : null,
   );
-  const { data: ad, error, isError, isLoading, refetch } = isPreview
+  const {
+    data: ad,
+    error,
+    isError,
+    isLoading,
+    refetch,
+  } = isPreview
     ? useAgencyAllocationPreview && !agencyPreviewQuery.isError
       ? agencyPreviewQuery
       : previewQuery
@@ -62,12 +65,12 @@ export function ViewAdHotelRoomsPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo={adId ? `/ads/${adId}` : "/home"} title="اطلاعات هتل" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container divide-y-8 divide-surface-container">
+      <main className="bg-surface-container divide-surface-container min-h-0 flex-1 divide-y-8 overflow-x-hidden overflow-y-auto">
         {rooms.length > 0 ? (
           rooms.map((room, idx) => {
             const isExpanded = expandedIndex === idx;
@@ -91,9 +94,9 @@ export function ViewAdHotelRoomsPage() {
                   <motion.div
                     animate={{ rotate: isExpanded ? 180 : 0 }}
                     transition={{ duration: 0.25, ease: "easeInOut" }}
-                    className="inline-flex items-center justify-center shrink-0"
+                    className="inline-flex shrink-0 items-center justify-center"
                   >
-                    <LinearArrowDown1 className="h-5 w-5 text-on-surface-var shrink-0" />
+                    <LinearArrowDown1 className="text-on-surface-var h-5 w-5 shrink-0" />
                   </motion.div>
                 </button>
 
@@ -107,166 +110,166 @@ export function ViewAdHotelRoomsPage() {
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-4">
-                        <div className="mb-4 h-px w-full bg-outline-var" />
+                        <div className="bg-outline-var mb-4 h-px w-full" />
 
-                    {/* Metadata items */}
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <LinearUserSolid className="h-5 w-5 text-on-surface-var shrink-0" />
-                        <Typography
-                          as="span"
-                          variant="label"
-                          size="medium"
-                          weight="medium"
-                          className="text-outline"
-                        >
-                          ظرفیت:
-                        </Typography>
-                        <Typography
-                          as="span"
-                          variant="label"
-                          size="medium"
-                          weight="semibold"
-                          className="text-on-surface"
-                        >
-                          {room.guestCount} نفر
-                        </Typography>
-                      </div>
+                        {/* Metadata items */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <LinearUserSolid className="text-on-surface-var h-5 w-5 shrink-0" />
+                            <Typography
+                              as="span"
+                              variant="label"
+                              size="medium"
+                              weight="medium"
+                              className="text-outline"
+                            >
+                              ظرفیت:
+                            </Typography>
+                            <Typography
+                              as="span"
+                              variant="label"
+                              size="medium"
+                              weight="semibold"
+                              className="text-on-surface"
+                            >
+                              {room.guestCount} نفر
+                            </Typography>
+                          </div>
 
-                      <div className="flex items-center gap-2">
-                        <LinearUserAdd className="h-5 w-5 text-on-surface-var shrink-0" />
-                        <Typography
-                          as="span"
-                          variant="label"
-                          size="medium"
-                          weight="medium"
-                          className="text-outline"
-                        >
-                          ظرفیت اضافه:
-                        </Typography>
-                        <Typography
-                          as="span"
-                          variant="label"
-                          size="medium"
-                          weight="semibold"
-                          className="text-on-surface"
-                        >
-                          {room.extraGuestCount}
-                        </Typography>
-                      </div>
+                          <div className="flex items-center gap-2">
+                            <LinearUserAdd className="text-on-surface-var h-5 w-5 shrink-0" />
+                            <Typography
+                              as="span"
+                              variant="label"
+                              size="medium"
+                              weight="medium"
+                              className="text-outline"
+                            >
+                              ظرفیت اضافه:
+                            </Typography>
+                            <Typography
+                              as="span"
+                              variant="label"
+                              size="medium"
+                              weight="semibold"
+                              className="text-on-surface"
+                            >
+                              {room.extraGuestCount}
+                            </Typography>
+                          </div>
 
-                      <div className="flex items-center gap-2">
-                        <LinearMeal className="h-5 w-5 text-on-surface-var shrink-0" />
-                        <Typography
-                          as="span"
-                          variant="label"
-                          size="medium"
-                          weight="medium"
-                          className="text-outline"
-                        >
-                          وعده غذایی:
-                        </Typography>
-                        <Typography
-                          as="span"
-                          variant="label"
-                          size="medium"
-                          weight="semibold"
-                          className="text-on-surface"
-                        >
-                          {room.mealPlan}
-                        </Typography>
-                      </div>
-                    </div>
+                          <div className="flex items-center gap-2">
+                            <LinearMeal className="text-on-surface-var h-5 w-5 shrink-0" />
+                            <Typography
+                              as="span"
+                              variant="label"
+                              size="medium"
+                              weight="medium"
+                              className="text-outline"
+                            >
+                              وعده غذایی:
+                            </Typography>
+                            <Typography
+                              as="span"
+                              variant="label"
+                              size="medium"
+                              weight="semibold"
+                              className="text-on-surface"
+                            >
+                              {room.mealPlan}
+                            </Typography>
+                          </div>
+                        </div>
 
-                    <div className="my-3 border-b border-dashed border-outline-var" />
+                        <div className="border-outline-var my-3 border-b border-dashed" />
 
-                    {/* Price items */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Typography
-                          as="span"
-                          variant="label"
-                          size="medium"
-                          weight="medium"
-                          className="text-outline"
-                        >
-                          روزهای عادی:
-                        </Typography>
-                        <div className="flex items-center gap-1">
-                          <Typography
-                            as="span"
-                            variant="label"
-                            size="large"
-                            weight="semibold"
-                            className="text-on-surface"
-                          >
-                            {room.normalPrice}
-                          </Typography>
-                          <LinearTooman className="h-4 w-4 text-on-surface-var shrink-0" />
+                        {/* Price items */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <Typography
+                              as="span"
+                              variant="label"
+                              size="medium"
+                              weight="medium"
+                              className="text-outline"
+                            >
+                              روزهای عادی:
+                            </Typography>
+                            <div className="flex items-center gap-1">
+                              <Typography
+                                as="span"
+                                variant="label"
+                                size="large"
+                                weight="semibold"
+                                className="text-on-surface"
+                              >
+                                {room.normalPrice}
+                              </Typography>
+                              <LinearTooman className="text-on-surface-var h-4 w-4 shrink-0" />
+                            </div>
+                          </div>
+
+                          <div className="border-outline-var border-b border-dashed" />
+
+                          <div className="flex items-center justify-between">
+                            <Typography
+                              as="span"
+                              variant="label"
+                              size="medium"
+                              weight="medium"
+                              className="text-outline"
+                            >
+                              آخر هفته:
+                            </Typography>
+                            <div className="flex items-center gap-1">
+                              <Typography
+                                as="span"
+                                variant="label"
+                                size="large"
+                                weight="semibold"
+                                className="text-on-surface"
+                              >
+                                {room.weekendPrice}
+                              </Typography>
+                              <LinearTooman className="text-on-surface-var h-4 w-4 shrink-0" />
+                            </div>
+                          </div>
+
+                          <div className="border-outline-var border-b border-dashed" />
+
+                          <div className="flex items-center justify-between">
+                            <Typography
+                              as="span"
+                              variant="label"
+                              size="medium"
+                              weight="medium"
+                              className="text-outline"
+                            >
+                              روزهای خاص:
+                            </Typography>
+                            <div className="flex items-center gap-1">
+                              <Typography
+                                as="span"
+                                variant="label"
+                                size="large"
+                                weight="semibold"
+                                className="text-on-surface"
+                              >
+                                {room.specialPrice}
+                              </Typography>
+                              <LinearTooman className="text-on-surface-var h-4 w-4 shrink-0" />
+                            </div>
+                          </div>
                         </div>
                       </div>
-
-                      <div className="border-b border-dashed border-outline-var" />
-
-                      <div className="flex items-center justify-between">
-                        <Typography
-                          as="span"
-                          variant="label"
-                          size="medium"
-                          weight="medium"
-                          className="text-outline"
-                        >
-                          آخر هفته:
-                        </Typography>
-                        <div className="flex items-center gap-1">
-                          <Typography
-                            as="span"
-                            variant="label"
-                            size="large"
-                            weight="semibold"
-                            className="text-on-surface"
-                          >
-                            {room.weekendPrice}
-                          </Typography>
-                          <LinearTooman className="h-4 w-4 text-on-surface-var shrink-0" />
-                        </div>
-                      </div>
-
-                      <div className="border-b border-dashed border-outline-var" />
-
-                      <div className="flex items-center justify-between">
-                        <Typography
-                          as="span"
-                          variant="label"
-                          size="medium"
-                          weight="medium"
-                          className="text-outline"
-                        >
-                          روزهای خاص:
-                        </Typography>
-                        <div className="flex items-center gap-1">
-                          <Typography
-                            as="span"
-                            variant="label"
-                            size="large"
-                            weight="semibold"
-                            className="text-on-surface"
-                          >
-                            {room.specialPrice}
-                          </Typography>
-                          <LinearTooman className="h-4 w-4 text-on-surface-var shrink-0" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        );
-      })
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })
         ) : (
-          <div className="mx-auto w-full bg-surface-container-lowest px-4 py-10 text-center text-sm font-medium leading-5 text-outline">
+          <div className="bg-surface-container-lowest text-outline mx-auto w-full px-4 py-10 text-center text-sm leading-5 font-medium">
             اطلاعاتی برای نمایش وجود ندارد.
           </div>
         )}

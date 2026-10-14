@@ -38,7 +38,8 @@ export function AdDeleteReasonPage() {
   const adId = readAdId(routeState);
 
   const handleConfirm = async () => {
-    const selectedReasonLabel = deleteReasons.find((reason) => reason.id === selectedReason)?.label ?? "";
+    const selectedReasonLabel =
+      deleteReasons.find((reason) => reason.id === selectedReason)?.label ?? "";
     const completeTo = routeState.deleteCompleteTo ?? adManagementPaths.root;
 
     if (!adId) {
@@ -72,24 +73,29 @@ export function AdDeleteReasonPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
-        backState={{ ad: routeState.ad, card: routeState.card, returnTo: routeState.returnTo, tab: routeState.tab }}
+        backState={{
+          ad: routeState.ad,
+          card: routeState.card,
+          returnTo: routeState.returnTo,
+          tab: routeState.tab,
+        }}
         backTo={backTo}
         className="[&_a]:text-on-surface"
         title="حذف آگهی"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-24">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-24">
         {errorMessage ? (
-          <div className="mx-4 mt-4 rounded-lg bg-error-container/20 p-3 text-sm text-error">
+          <div className="bg-error-container/20 text-error mx-4 mt-4 rounded-lg p-3 text-sm">
             {errorMessage}
           </div>
         ) : null}
 
-        <fieldset className="m-0 border-0 px-4 pb-6 pt-6">
+        <fieldset className="m-0 border-0 px-4 pt-6 pb-6">
           <legend className="sr-only">دلیل حذف آگهی</legend>
 
           <div className="space-y-8">
@@ -99,7 +105,13 @@ export function AdDeleteReasonPage() {
                 key={reason.id}
               >
                 <RadioIndicator checked={selectedReason === reason.id} />
-                <Typography as="span" variant="label" size="medium" weight="medium" className="text-right text-sm font-medium leading-5 text-on-surface [direction:rtl]">
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="medium"
+                  className="text-on-surface text-right text-sm leading-5 font-medium [direction:rtl]"
+                >
                   {reason.label}
                 </Typography>
                 <input
@@ -119,9 +131,10 @@ export function AdDeleteReasonPage() {
         </fieldset>
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
-        <Button unstyled
-          className="h-10 w-full rounded-lg bg-primary text-sm font-medium leading-5 text-on-primary disabled:opacity-50"
+      <div className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-3 pt-3 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] shadow-[0_-8px_24px_rgba(26,26,26,0.08)]">
+        <Button
+          unstyled
+          className="bg-primary text-on-primary h-10 w-full rounded-lg text-sm leading-5 font-medium disabled:opacity-50"
           disabled={deleteMutation.isPending}
           onClick={handleConfirm}
           type="button"

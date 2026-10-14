@@ -78,7 +78,10 @@ const formCodeByListingKey: Record<string, string> = {
 };
 
 export function getFormCodeForListing(transaction: string, category: string): string {
-  return formCodeByListingKey[`${transaction}:${category}`] ?? [transaction, category].filter(Boolean).join("-");
+  return (
+    formCodeByListingKey[`${transaction}:${category}`] ??
+    [transaction, category].filter(Boolean).join("-")
+  );
 }
 
 export function getFormSchema(formCode: string): AdFormSchema | null {

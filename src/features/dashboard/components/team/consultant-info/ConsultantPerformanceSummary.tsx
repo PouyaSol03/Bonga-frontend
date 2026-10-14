@@ -84,19 +84,31 @@ export function ConsultantPerformanceSummary({
 
   return (
     <div className="space-y-2.5">
-      <section className="w-full bg-surface-container-lowest p-4">
-        <Typography as="h2" variant="title" size="medium" weight="semibold" className="font-bold text-on-surface">
+      <section className="bg-surface-container-lowest w-full p-4">
+        <Typography
+          as="h2"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-on-surface font-bold"
+        >
           نمودارها
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="mt-0.5 text-on-surface-var">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-on-surface-var mt-0.5"
+        >
           تحلیل عملکرد مشاور
         </Typography>
 
-        <div className="mt-3 flex items-center justify-between rounded-2xl border border-outline-var bg-surface-container-lowest p-3.5 shadow-2xs">
+        <div className="border-outline-var bg-surface-container-lowest mt-3 flex items-center justify-between rounded-2xl border p-3.5 shadow-2xs">
           <button
             type="button"
             onClick={onViewCharts}
-            className="cursor-pointer rounded-xl bg-primary/10 px-4 py-2.5 text-xs font-semibold text-primary transition active:scale-98"
+            className="bg-primary/10 text-primary cursor-pointer rounded-xl px-4 py-2.5 text-xs font-semibold transition active:scale-98"
           >
             مشاهده نمودارها
           </button>

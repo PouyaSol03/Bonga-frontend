@@ -8,9 +8,15 @@ import type { PublicAgentListDto } from "../../../../agencies/api/agency.service
 
 function AddConsultantEmptyState() {
   return (
-    <div className="mx-auto flex h-[104px] w-full items-center justify-center gap-3 bg-surface-container-lowest px-4 text-center">
+    <div className="bg-surface-container-lowest mx-auto flex h-[104px] w-full items-center justify-center gap-3 px-4 text-center">
       <img src={NoSearchIcon} alt="" className="h-[40px] w-[40px]" />
-      <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-outline">
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="text-outline font-medium"
+      >
         مشاوری برای نمایش نیست!
       </Typography>
     </div>
@@ -35,7 +41,13 @@ export function AddConsultantSearchResults({
   if (hasSearch && results.length > 0) {
     return (
       <section className="bg-surface-container-lowest px-4 py-4">
-        <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-xs font-semibold leading-5 text-on-surface">
+        <Typography
+          as="h2"
+          variant="title"
+          size="small"
+          weight="semibold"
+          className="text-on-surface m-0 text-xs leading-5 font-semibold"
+        >
           نتیجه جستجو
         </Typography>
         <div className="mt-3 space-y-2">
@@ -64,20 +76,41 @@ export function AddConsultantSearchResults({
                       src={consultant.avatar}
                     />
                   ) : (
-                    <Typography as="span" variant="body" size="medium" weight="regular" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-surface-container-high text-outline">
+                    <Typography
+                      as="span"
+                      variant="body"
+                      size="medium"
+                      weight="regular"
+                      className="bg-surface-container-high text-outline grid h-11 w-11 shrink-0 place-items-center rounded-full"
+                    >
                       <LinearUserSolid className="h-6 w-6" />
                     </Typography>
                   )}
                   <div className="flex flex-col justify-center">
-                    <Typography as="span" variant="label" size="medium" weight="semibold" className="block truncate text-sm font-semibold text-on-surface">
+                    <Typography
+                      as="span"
+                      variant="label"
+                      size="medium"
+                      weight="semibold"
+                      className="text-on-surface block truncate text-sm font-semibold"
+                    >
                       {consultant.fullName}
                     </Typography>
-                    <Typography as="span" variant="label" size="small" weight="medium" className="block text-xs font-medium text-outline">
+                    <Typography
+                      as="span"
+                      variant="label"
+                      size="small"
+                      weight="medium"
+                      className="text-outline block text-xs font-medium"
+                    >
                       {consultant.mobile ?? ""}
                     </Typography>
                   </div>
                 </div>
-                <SelectionCheckIndicator className="!h-4.5 !w-4.5 rounded-sm" checked={isSelected} />
+                <SelectionCheckIndicator
+                  className="!h-4.5 !w-4.5 rounded-sm"
+                  checked={isSelected}
+                />
               </Button>
             );
           })}

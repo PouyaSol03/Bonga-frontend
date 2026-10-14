@@ -10,7 +10,13 @@ export const inputClass =
 function Field({ children, label }: { children: ReactNode; label: string }) {
   return (
     <label>
-      <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="semibold"
+        className="mb-2 block text-sm font-bold text-[#4f5a6c]"
+      >
         {label}
       </Typography>
       {children}
@@ -43,11 +49,22 @@ export function PackageModalFields({ draft, onChange }: PackageModalFieldsProps)
   return (
     <>
       <div className="mt-5">
-        <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">
+        <Typography
+          as="span"
+          variant="label"
+          size="medium"
+          weight="semibold"
+          className="mb-2 block text-sm font-bold text-[#4f5a6c]"
+        >
           نوع بسته
         </Typography>
-        <div className="grid h-11 grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]" role="tablist" aria-label="نوع بسته">
-          <Button unstyled
+        <div
+          className="grid h-11 grid-cols-2 overflow-hidden rounded-xl border border-[#0048c4]"
+          role="tablist"
+          aria-label="نوع بسته"
+        >
+          <Button
+            unstyled
             aria-selected={isPanelSubscription}
             className={`text-sm font-bold transition ${
               isPanelSubscription ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
@@ -58,7 +75,8 @@ export function PackageModalFields({ draft, onChange }: PackageModalFieldsProps)
           >
             اعتبار پنل
           </Button>
-          <Button unstyled
+          <Button
+            unstyled
             aria-selected={!isPanelSubscription}
             className={`border-r border-[#0048c4] text-sm font-bold transition ${
               !isPanelSubscription ? "bg-[#0048c4] text-white" : "bg-white text-[#0048c4]"
@@ -70,7 +88,13 @@ export function PackageModalFields({ draft, onChange }: PackageModalFieldsProps)
             بسته‌ها
           </Button>
         </div>
-        <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 text-xs text-[#7b8494]">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="m-0 mt-2 text-xs text-[#7b8494]"
+        >
           {isPanelSubscription
             ? "برای اعتبار پنل فقط مدت زمان بسته ثبت می‌شود."
             : "برای بسته‌ها تعداد آگهی، ویژه و بروزرسانی ثبت می‌شود."}
@@ -167,7 +191,13 @@ export function PackageModalFields({ draft, onChange }: PackageModalFieldsProps)
         <div className="flex items-center justify-between rounded-xl border border-[#e1e5eb] p-4">
           <div>
             <strong className="block text-sm">وضعیت بسته</strong>
-            <Typography as="span" variant="body" size="small" weight="regular" className="mt-1 block text-xs text-[#7b8494]">
+            <Typography
+              as="span"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="mt-1 block text-xs text-[#7b8494]"
+            >
               بسته فعال برای استفاده در پنل در دسترس است.
             </Typography>
           </div>

@@ -3,11 +3,8 @@ import {
   type DashboardConversionFunnelCardProps,
 } from "../../components/reports/DashboardConversionFunnelCard";
 
-export interface AgentConversionFunnelCardProps
-  extends DashboardConversionFunnelCardProps {}
+export interface AgentConversionFunnelCardProps extends DashboardConversionFunnelCardProps {}
 
-export function AgentConversionFunnelCard(
-  props: AgentConversionFunnelCardProps,
-) {
+export function AgentConversionFunnelCard(props: AgentConversionFunnelCardProps) {
   return <DashboardConversionFunnelCard {...props} />;
 }

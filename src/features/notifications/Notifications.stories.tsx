@@ -422,13 +422,26 @@ export default meta;
 export const AdsNotificationsStory: StoryObj = {
   name: "۱. پیام‌های آگهی (۱۵ حالت فیگما)",
   render: () => (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-container-lowest font-sans [direction:rtl]">
-      <div className="border-b border-outline-var p-4 bg-surface-container-low">
-        <Typography as="h1" variant="title" size="large" weight="semibold" className="text-on-surface">
+    <div className="bg-surface-container-lowest mx-auto flex min-h-screen w-full max-w-md flex-col font-sans [direction:rtl]">
+      <div className="border-outline-var bg-surface-container-low border-b p-4">
+        <Typography
+          as="h1"
+          variant="title"
+          size="large"
+          weight="semibold"
+          className="text-on-surface"
+        >
           پیام‌های دسته آگهی (۱۵ حالت)
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="mt-1 text-outline">
-          استخراج دقیق از «پیام های آگهی.svg» شامل اکشن‌های مشاهده، ویرایش، تمدید، بازیابی و مشاهده دلیل.
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline mt-1"
+        >
+          استخراج دقیق از «پیام های آگهی.svg» شامل اکشن‌های مشاهده، ویرایش، تمدید، بازیابی و مشاهده
+          دلیل.
         </Typography>
       </div>
       <div className="flex flex-col">
@@ -454,13 +467,26 @@ export const AdsNotificationsStory: StoryObj = {
 export const TradesNotificationsStory: StoryObj = {
   name: "۲. پیام‌های معاملات (۴ حالت فیگما)",
   render: () => (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-container-lowest font-sans [direction:rtl]">
-      <div className="border-b border-outline-var p-4 bg-surface-container-low">
-        <Typography as="h1" variant="title" size="large" weight="semibold" className="text-on-surface">
+    <div className="bg-surface-container-lowest mx-auto flex min-h-screen w-full max-w-md flex-col font-sans [direction:rtl]">
+      <div className="border-outline-var bg-surface-container-low border-b p-4">
+        <Typography
+          as="h1"
+          variant="title"
+          size="large"
+          weight="semibold"
+          className="text-on-surface"
+        >
           پیام‌های دسته معاملات (۴ حالت)
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="mt-1 text-outline">
-          استخراج شده از «پیام های دسته بندی معاملات.svg» شامل دو دکمه «تایید» و «عدم تایید» و مشاهده معامله.
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline mt-1"
+        >
+          استخراج شده از «پیام های دسته بندی معاملات.svg» شامل دو دکمه «تایید» و «عدم تایید» و
+          مشاهده معامله.
         </Typography>
       </div>
       <div className="flex flex-col">
@@ -486,13 +512,26 @@ export const TradesNotificationsStory: StoryObj = {
 export const RequestsNotificationsStory: StoryObj = {
   name: "۳. اعلان‌های درخواست (۴ حالت فیگما)",
   render: () => (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-container-lowest font-sans [direction:rtl]">
-      <div className="border-b border-outline-var p-4 bg-surface-container-low">
-        <Typography as="h1" variant="title" size="large" weight="semibold" className="text-on-surface">
+    <div className="bg-surface-container-lowest mx-auto flex min-h-screen w-full max-w-md flex-col font-sans [direction:rtl]">
+      <div className="border-outline-var bg-surface-container-low border-b p-4">
+        <Typography
+          as="h1"
+          variant="title"
+          size="large"
+          weight="semibold"
+          className="text-on-surface"
+        >
           اعلان‌های دسته درخواست (۴ حالت)
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="mt-1 text-outline">
-          استخراج شده از «اعلان های درخواست.svg» با دکمه‌های مشاهده درخواست، مشاهده آگهی و مشاهده نتایج.
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline mt-1"
+        >
+          استخراج شده از «اعلان های درخواست.svg» با دکمه‌های مشاهده درخواست، مشاهده آگهی و مشاهده
+          نتایج.
         </Typography>
       </div>
       <div className="flex flex-col">
@@ -518,12 +557,24 @@ export const RequestsNotificationsStory: StoryObj = {
 export const ChatsNotificationsStory: StoryObj = {
   name: "۴. نوتیف‌های چت (۳ حالت فیگما)",
   render: () => (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-container-lowest font-sans [direction:rtl]">
-      <div className="border-b border-outline-var p-4 bg-surface-container-low">
-        <Typography as="h1" variant="title" size="large" weight="semibold" className="text-on-surface">
+    <div className="bg-surface-container-lowest mx-auto flex min-h-screen w-full max-w-md flex-col font-sans [direction:rtl]">
+      <div className="border-outline-var bg-surface-container-low border-b p-4">
+        <Typography
+          as="h1"
+          variant="title"
+          size="large"
+          weight="semibold"
+          className="text-on-surface"
+        >
           نوتیف‌های پیام‌رسان و چت (۳ حالت)
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="mt-1 text-outline">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline mt-1"
+        >
           استخراج شده از «نوتیف های چت.svg» با دکمه «مشاهده گفتگو».
         </Typography>
       </div>
@@ -550,13 +601,26 @@ export const ChatsNotificationsStory: StoryObj = {
 export const SystemNotificationsStory: StoryObj = {
   name: "۵. پیام‌های سیستمی سامانه (۱۳ حالت فیگما)",
   render: () => (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-container-lowest font-sans [direction:rtl]">
-      <div className="border-b border-outline-var p-4 bg-surface-container-low">
-        <Typography as="h1" variant="title" size="large" weight="semibold" className="text-on-surface">
+    <div className="bg-surface-container-lowest mx-auto flex min-h-screen w-full max-w-md flex-col font-sans [direction:rtl]">
+      <div className="border-outline-var bg-surface-container-low border-b p-4">
+        <Typography
+          as="h1"
+          variant="title"
+          size="large"
+          weight="semibold"
+          className="text-on-surface"
+        >
           پیام‌های سیستمی و پشتیبانی سامانه (۱۳ حالت)
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="mt-1 text-outline">
-          استخراج شده از «پیام های سیستمی سامانه.svg» شامل کپی کد تخفیف، مدیریت اعلان‌ها، قوانین، بروزرسانی و پشتیبانی.
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline mt-1"
+        >
+          استخراج شده از «پیام های سیستمی سامانه.svg» شامل کپی کد تخفیف، مدیریت اعلان‌ها، قوانین،
+          بروزرسانی و پشتیبانی.
         </Typography>
       </div>
       <div className="flex flex-col">
@@ -582,12 +646,24 @@ export const SystemNotificationsStory: StoryObj = {
 export const AllUserNotificationsShowcase: StoryObj = {
   name: "۶. کل ۳۹ نوتیفیکیشن کاربر عادی در یکجا",
   render: () => (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-container-lowest font-sans [direction:rtl]">
-      <div className="border-b border-outline-var p-4 bg-surface-container-low">
-        <Typography as="h1" variant="title" size="large" weight="semibold" className="text-on-surface">
+    <div className="bg-surface-container-lowest mx-auto flex min-h-screen w-full max-w-md flex-col font-sans [direction:rtl]">
+      <div className="border-outline-var bg-surface-container-low border-b p-4">
+        <Typography
+          as="h1"
+          variant="title"
+          size="large"
+          weight="semibold"
+          className="text-on-surface"
+        >
           تمامی ۳۹ مدل نوتیفیکیشن کاربر عادی
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="mt-1 text-outline">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline mt-1"
+        >
           بر اساس ۵ فایل SVG دانلود شده، هماهنگ با طراحی فیگما بونگا.
         </Typography>
       </div>
@@ -614,29 +690,53 @@ export const AllUserNotificationsShowcase: StoryObj = {
 export const EmptyStatesComparison: StoryObj = {
   name: "۷. مقایسه حالت‌های خالی (عادی و فیلتر پیدا نشده)",
   render: () => (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col gap-6 bg-surface-container p-4 font-sans [direction:rtl]">
-      <div className="rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-        <Typography as="h3" variant="title" size="small" weight="semibold" className="mb-2 text-primary">
+    <div className="bg-surface-container mx-auto flex min-h-screen w-full max-w-md flex-col gap-6 p-4 font-sans [direction:rtl]">
+      <div className="border-outline-var bg-surface-container-lowest rounded-xl border p-4">
+        <Typography
+          as="h3"
+          variant="title"
+          size="small"
+          weight="semibold"
+          className="text-primary mb-2"
+        >
           ۱. حالت بدون هیچ اعلان (عادی):
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="mb-4 text-outline">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline mb-4"
+        >
           عنوان: «هنوز اعلانی دریافت نکرده‌اید» (title medium semibold)
         </Typography>
-        <div className="rounded-lg border border-outline-var bg-surface-container-lowest py-8">
+        <div className="border-outline-var bg-surface-container-lowest rounded-lg border py-8">
           <NotificationsEmptyState isFiltered={false} />
         </div>
       </div>
 
-      <div className="rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-        <Typography as="h3" variant="title" size="small" weight="semibold" className="mb-2 text-primary">
+      <div className="border-outline-var bg-surface-container-lowest rounded-xl border p-4">
+        <Typography
+          as="h3"
+          variant="title"
+          size="small"
+          weight="semibold"
+          className="text-primary mb-2"
+        >
           ۲. حالت فیلتر روشن و بدون نتیجه (فیلتر پیدا نشد):
         </Typography>
-        <Typography as="p" variant="body" size="small" weight="regular" className="mb-4 text-outline">
+        <Typography
+          as="p"
+          variant="body"
+          size="small"
+          weight="regular"
+          className="text-outline mb-4"
+        >
           عنوان: «اعلانی با فیلترهای انتخاب‌شده پیدا نشد» (title medium semibold)
           <br />
           توضیحات: «فیلترها را تغییر دهید یا پاک کنید.»
         </Typography>
-        <div className="rounded-lg border border-outline-var bg-surface-container-lowest py-8">
+        <div className="border-outline-var bg-surface-container-lowest rounded-lg border py-8">
           <NotificationsEmptyState isFiltered={true} />
         </div>
       </div>
@@ -650,7 +750,7 @@ export const EmptyStatesComparison: StoryObj = {
 export const NotificationManagementTypography: StoryObj = {
   name: "۸. صفحه مدیریت اعلان‌ها (تایپوگرافی body large regular)",
   render: () => (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-surface-container-lowest font-sans [direction:rtl]">
+    <div className="bg-surface-container-lowest mx-auto flex min-h-screen w-full max-w-md flex-col font-sans [direction:rtl]">
       <NotificationManagementPage />
     </div>
   ),

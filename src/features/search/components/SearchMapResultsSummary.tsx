@@ -21,20 +21,35 @@ export function SearchMapResultsSummary({
       aria-live="polite"
       dir="rtl"
     >
-      <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 min-w-0 rounded-full bg-surface-container-lowest/95 px-4 py-1 text-center text-[13px] font-semibold leading-5 text-on-surface-var shadow-[0_4px_14px_rgba(26,26,26,0.13)] backdrop-blur-sm min-[400px]:px-5 min-[400px]:text-sm">
+      <Typography
+        as="p"
+        variant="body"
+        size="medium"
+        weight="medium"
+        className="bg-surface-container-lowest/95 text-on-surface-var m-0 min-w-0 rounded-full px-4 py-1 text-center text-[13px] leading-5 font-semibold shadow-[0_4px_14px_rgba(26,26,26,0.13)] backdrop-blur-sm min-[400px]:px-5 min-[400px]:text-sm"
+      >
         {isLoading
           ? "در حال دریافت تعداد آگهی‌ها..."
           : `${count.toLocaleString("fa-IR")} آگهی در این محدوده`}
       </Typography>
 
       {hasGeofence ? (
-        <Button unstyled
-          className="pointer-events-auto flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2 leading-5 text-on-primary shadow-[0_5px_16px_rgba(0,72,196,0.24)] transition-colors focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25 min-[400px]:gap-2 min-[400px]:px-5 min-[400px]:text-sm"
+        <Button
+          unstyled
+          className="bg-primary text-on-primary focus-visible:outline-primary/25 pointer-events-auto flex shrink-0 items-center justify-center gap-1.5 rounded-full px-4 py-2 leading-5 shadow-[0_5px_16px_rgba(0,72,196,0.24)] transition-colors focus-visible:outline-[3px] focus-visible:outline-offset-2 min-[400px]:gap-2 min-[400px]:px-5 min-[400px]:text-sm"
           type="button"
           onClick={onRemoveGeofence}
         >
-          <LinearCancel className="w-4 h-4" />
-          <Typography as="span" variant="label" size="small" weight="medium" className="text-xs font-medium">حذف محدوده</Typography>
+          <LinearCancel className="h-4 w-4" />
+          <Typography
+            as="span"
+            variant="label"
+            size="small"
+            weight="medium"
+            className="text-xs font-medium"
+          >
+            حذف محدوده
+          </Typography>
         </Button>
       ) : null}
     </div>

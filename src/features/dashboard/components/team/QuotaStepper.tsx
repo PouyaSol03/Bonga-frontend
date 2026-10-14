@@ -20,13 +20,19 @@ export function QuotaStepper({
 }) {
   return (
     <div>
-      <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-right text-base font-semibold leading-6 text-on-surface">
+      <Typography
+        as="h2"
+        variant="title"
+        size="medium"
+        weight="semibold"
+        className="text-on-surface m-0 text-right text-base leading-6 font-semibold"
+      >
         {label}
       </Typography>
-      <div className="mt-3 grid h-14 grid-cols-[80px_1fr_80px] overflow-hidden rounded-xl border border-outline-var transition-colors bg-surface-container-lowest">
+      <div className="border-outline-var bg-surface-container-lowest mt-3 grid h-14 grid-cols-[80px_1fr_80px] overflow-hidden rounded-xl border transition-colors">
         <Button
           unstyled
-          className="grid place-items-center border-r border-outline-var bg-surface-container text-2xl font-normal text-on-surface-var disabled:cursor-not-allowed disabled:opacity-40"
+          className="border-outline-var bg-surface-container text-on-surface-var grid place-items-center border-r text-2xl font-normal disabled:cursor-not-allowed disabled:opacity-40"
           disabled={value <= 0}
           onClick={() => setValue((current) => Math.max(0, current - 1))}
           type="button"
@@ -35,7 +41,7 @@ export function QuotaStepper({
         </Button>
         <input
           aria-label={label}
-          className="w-full bg-transparent text-center text-base font-medium leading-6 text-on-surface outline-none"
+          className="text-on-surface w-full bg-transparent text-center text-base leading-6 font-medium outline-none"
           inputMode="numeric"
           onChange={(e) => {
             const raw = toEnglishDigits(e.target.value).replace(/\D/g, "");
@@ -47,17 +53,33 @@ export function QuotaStepper({
         />
         <Button
           unstyled
-          className="grid place-items-center border-l border-outline-var bg-surface-container text-2xl font-normal text-on-surface-var disabled:cursor-not-allowed disabled:opacity-40"
+          className="border-outline-var bg-surface-container text-on-surface-var grid place-items-center border-l text-2xl font-normal disabled:cursor-not-allowed disabled:opacity-40"
           disabled={max !== undefined && value >= max}
-          onClick={() => setValue((current) => (max !== undefined ? Math.min(max, current + 1) : current + 1))}
+          onClick={() =>
+            setValue((current) => (max !== undefined ? Math.min(max, current + 1) : current + 1))
+          }
           type="button"
         >
           +
         </Button>
       </div>
-      <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-2 pr-3 text-xs font-medium leading-5 text-outline">
-        <Typography as="span" variant="body" size="medium" weight="regular">باقیمانده سهمیه آژانس: </Typography>
-        <Typography as="span" variant="body" size="medium" weight="regular" className={remainingClassName}>
+      <Typography
+        as="p"
+        variant="body"
+        size="small"
+        weight="medium"
+        className="text-outline m-0 mt-2 pr-3 text-xs leading-5 font-medium"
+      >
+        <Typography as="span" variant="body" size="medium" weight="regular">
+          باقیمانده سهمیه آژانس:{" "}
+        </Typography>
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className={remainingClassName}
+        >
           {remaining.split(": ")[1]}
         </Typography>
       </Typography>

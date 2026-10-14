@@ -59,9 +59,12 @@ const weightClasses: Record<TypographyWeight, string> = {
   semibold: "font-semibold",
 };
 
-const textSizePattern = /(?:^|\s)(?:[^\s:]+:)*(?:text-(?:xs|sm|base|lg|xl|[2-9]xl)|text-\[\s*-?\d+(?:\.\d+)?(?:px|rem)\s*\])(?=\s|$)/;
-const lineHeightClassPattern = /^(?:[^\s:]+:)*!?leading-(?:none|tight|snug|normal|relaxed|loose|\d+|\[[^\]]+\])!?$/;
-const fontWeightPattern = /(?:^|\s)(?:[^\s:]+:)*font-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?=\s|$)/;
+const textSizePattern =
+  /(?:^|\s)(?:[^\s:]+:)*(?:text-(?:xs|sm|base|lg|xl|[2-9]xl)|text-\[\s*-?\d+(?:\.\d+)?(?:px|rem)\s*\])(?=\s|$)/;
+const lineHeightClassPattern =
+  /^(?:[^\s:]+:)*!?leading-(?:none|tight|snug|normal|relaxed|loose|\d+|\[[^\]]+\])!?$/;
+const fontWeightPattern =
+  /(?:^|\s)(?:[^\s:]+:)*font-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?=\s|$)/;
 
 function resolveWeight(variant: TypographyVariant, weight?: TypographyWeight): TypographyWeight {
   if (variant === "display" || variant === "headline") {
@@ -119,9 +122,5 @@ export function Typography<T extends TypographyElement = "p">({
     ),
   };
 
-  return createElement(
-    Component,
-    elementProps,
-    children,
-  );
+  return createElement(Component, elementProps, children);
 }

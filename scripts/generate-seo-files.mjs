@@ -1,11 +1,11 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import process from 'node:process';
-import { fileURLToPath } from 'node:url';
+import fs from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
+import { fileURLToPath } from "node:url";
 
-const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const publicDir = path.join(rootDir, 'public');
-const tempDir = path.join(rootDir, '.seo-sitemap-tmp');
+const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const publicDir = path.join(rootDir, "public");
+const tempDir = path.join(rootDir, ".seo-sitemap-tmp");
 const MAX_URLS_PER_SITEMAP = 50_000;
 const PAGE_SIZE = 100;
 const REQUEST_TIMEOUT_MS = 12_000;
@@ -15,13 +15,13 @@ async function loadEnvFile(fileName) {
   const filePath = path.join(rootDir, fileName);
 
   try {
-    const contents = await fs.readFile(filePath, 'utf8');
+    const contents = await fs.readFile(filePath, "utf8");
 
     for (const rawLine of contents.split(/\r?\n/)) {
       const line = rawLine.trim();
-      if (!line || line.startsWith('#')) continue;
+      if (!line || line.startsWith("#")) continue;
 
-      const separatorIndex = line.indexOf('=');
+      const separatorIndex = line.indexOf("=");
       if (separatorIndex <= 0) continue;
 
       const key = line.slice(0, separatorIndex).trim();
@@ -39,22 +39,24 @@ async function loadEnvFile(fileName) {
       }
     }
   } catch (error) {
-    if (error?.code !== 'ENOENT') throw error;
+    if (error?.code !== "ENOENT") throw error;
   }
 }
 
-await loadEnvFile('.env');
-await loadEnvFile('.env.local');
-await loadEnvFile('.env.production');
-await loadEnvFile('.env.production.local');
+await loadEnvFile(".env");
+await loadEnvFile(".env.local");
+await loadEnvFile(".env.production");
+await loadEnvFile(".env.production.local");
 
 function trimTrailingSlash(value) {
-  return String(value ?? '').trim().replace(/\/+$/, '');
+  return String(value ?? "")
+    .trim()
+    .replace(/\/+$/, "");
 }
 
 function normalizeSiteUrl(value) {
   const normalized = trimTrailingSlash(value);
-  return normalized || 'https://bonga.exirfirm.com';
+  return normalized || "https://bonga.exirfirm.com";
 }
 
 function normalizeApiBaseUrl(value, siteUrl) {
@@ -64,26 +66,26 @@ function normalizeApiBaseUrl(value, siteUrl) {
 }
 
 const siteUrl = normalizeSiteUrl(
-  process.env.SEO_SITE_URL || process.env.VITE_SITE_URL || 'https://bonga.exirfirm.com',
+  process.env.SEO_SITE_URL || process.env.VITE_SITE_URL || "https://bonga.exirfirm.com",
 );
 const apiBaseUrl = normalizeApiBaseUrl(
   process.env.SEO_API_BASE_URL || process.env.VITE_API_BASE_URL,
   siteUrl,
 );
 
-const staticPublicPages = ['/home', '/consultants', '/search'];
+const staticPublicPages = ["/home", "/consultants", "/search"];
 
 function escapeXml(value) {
   return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&apos;');
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
 }
 
 function toAbsoluteUrl(pathname) {
-  const normalizedPath = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  const normalizedPath = pathname.startsWith("/") ? pathname : `/${pathname}`;
   return `${siteUrl}${normalizedPath}`;
 }
 
@@ -95,26 +97,26 @@ function normalizeLastModified(value) {
 }
 
 function readItemId(item, candidateKeys) {
-  if (!item || typeof item !== 'object') return '';
+  if (!item || typeof item !== "object") return "";
 
   for (const key of candidateKeys) {
-    const id = String(item[key] ?? '').trim();
+    const id = String(item[key] ?? "").trim();
     if (id) return id;
   }
 
-  return '';
+  return "";
 }
 
 function readItemLastModified(item) {
-  if (!item || typeof item !== 'object') return undefined;
+  if (!item || typeof item !== "object") return undefined;
 
   for (const key of [
-    'updated_at',
-    'updatedAt',
-    'modified_at',
-    'modifiedAt',
-    'published_at',
-    'publishedAt',
+    "updated_at",
+    "updatedAt",
+    "modified_at",
+    "modifiedAt",
+    "published_at",
+    "publishedAt",
   ]) {
     const normalized = normalizeLastModified(item[key]);
     if (normalized) return normalized;
@@ -126,27 +128,30 @@ function readItemLastModified(item) {
 function createUrlSet(entries) {
   const body = entries
     .map(({ loc, lastmod }) => {
-      const lastmodLine = lastmod ? `\n    <lastmod>${escapeXml(lastmod)}</lastmod>` : '';
+      const lastmodLine = lastmod ? `\n    <lastmod>${escapeXml(lastmod)}</lastmod>` : "";
       return `  <url>\n    <loc>${escapeXml(loc)}</loc>${lastmodLine}\n  </url>`;
     })
-    .join('\n');
+    .join("\n");
 
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body ? `\n${body}\n` : '\n'}</urlset>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body ? `\n${body}\n` : "\n"}</urlset>\n`;
 }
 
 function createSitemapIndex(fileNames) {
   const body = fileNames
-    .map((fileName) => `  <sitemap>\n    <loc>${escapeXml(toAbsoluteUrl(`/${fileName}`))}</loc>\n  </sitemap>`)
-    .join('\n');
+    .map(
+      (fileName) =>
+        `  <sitemap>\n    <loc>${escapeXml(toAbsoluteUrl(`/${fileName}`))}</loc>\n  </sitemap>`,
+    )
+    .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</sitemapindex>\n`;
 }
 
 function extractCollection(payload) {
   if (Array.isArray(payload)) return payload;
-  if (!payload || typeof payload !== 'object') return [];
+  if (!payload || typeof payload !== "object") return [];
 
-  for (const key of ['data', 'items', 'results', 'list']) {
+  for (const key of ["data", "items", "results", "list"]) {
     if (Array.isArray(payload[key])) return payload[key];
   }
 
@@ -154,13 +159,15 @@ function extractCollection(payload) {
 }
 
 function getPaginationInfo(payload, page, perPage, itemCount) {
-  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     return { hasNextPage: itemCount >= perPage, nextPage: page + 1 };
   }
 
   const meta =
-    (payload.meta && typeof payload.meta === 'object' ? payload.meta : undefined) ||
-    (payload.pagination && typeof payload.pagination === 'object' ? payload.pagination : undefined) ||
+    (payload.meta && typeof payload.meta === "object" ? payload.meta : undefined) ||
+    (payload.pagination && typeof payload.pagination === "object"
+      ? payload.pagination
+      : undefined) ||
     payload;
 
   const currentPage = Number(meta.current_page ?? meta.page ?? page);
@@ -185,8 +192,8 @@ function getPaginationInfo(payload, page, perPage, itemCount) {
 async function fetchJson(url) {
   const response = await fetch(url, {
     headers: {
-      Accept: 'application/json',
-      'User-Agent': 'BongaSitemapGenerator/1.0',
+      Accept: "application/json",
+      "User-Agent": "BongaSitemapGenerator/1.0",
     },
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
@@ -195,9 +202,9 @@ async function fetchJson(url) {
     throw new Error(`${response.status} ${response.statusText}`);
   }
 
-  const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
-  if (!contentType.includes('json')) {
-    throw new Error(`Expected JSON but received ${contentType || 'unknown content type'}`);
+  const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+  if (!contentType.includes("json")) {
+    throw new Error(`Expected JSON but received ${contentType || "unknown content type"}`);
   }
 
   return response.json();
@@ -207,9 +214,9 @@ async function* fetchPaginatedItems(endpoint) {
   let page = 1;
 
   while (page <= MAX_PAGES_SAFETY_GUARD) {
-    const url = new URL(`${apiBaseUrl}/${endpoint.replace(/^\/+/, '')}`);
-    url.searchParams.set('page', String(page));
-    url.searchParams.set('per_page', String(PAGE_SIZE));
+    const url = new URL(`${apiBaseUrl}/${endpoint.replace(/^\/+/, "")}`);
+    url.searchParams.set("page", String(page));
+    url.searchParams.set("per_page", String(PAGE_SIZE));
 
     const payload = await fetchJson(url);
     const items = extractCollection(payload);
@@ -233,10 +240,8 @@ function getShardFileName(baseFileName, shardNumber) {
 }
 
 function getShardFilePattern(baseFileName) {
-  const escapedStem = baseFileName
-    .replace(/\.xml$/i, '')
-    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`^${escapedStem}(?:-\\d+)?\\.xml$`, 'i');
+  const escapedStem = baseFileName.replace(/\.xml$/i, "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`^${escapedStem}(?:-\\d+)?\\.xml$`, "i");
 }
 
 async function listExistingShardFiles(baseFileName) {
@@ -269,21 +274,18 @@ async function replaceShardFiles(baseFileName, newFileNames) {
 async function normalizeExistingShardOrigins(fileNames) {
   for (const fileName of fileNames) {
     const filePath = path.join(publicDir, fileName);
-    const xml = await fs.readFile(filePath, 'utf8');
-    const normalizedXml = xml.replace(
-      /<loc>\s*([^<]+?)\s*<\/loc>/gi,
-      (_match, rawUrl) => {
-        try {
-          const parsed = new URL(String(rawUrl).trim());
-          return `<loc>${escapeXml(toAbsoluteUrl(`${parsed.pathname}${parsed.search}`))}</loc>`;
-        } catch {
-          return _match;
-        }
-      },
-    );
+    const xml = await fs.readFile(filePath, "utf8");
+    const normalizedXml = xml.replace(/<loc>\s*([^<]+?)\s*<\/loc>/gi, (_match, rawUrl) => {
+      try {
+        const parsed = new URL(String(rawUrl).trim());
+        return `<loc>${escapeXml(toAbsoluteUrl(`${parsed.pathname}${parsed.search}`))}</loc>`;
+      } catch {
+        return _match;
+      }
+    });
 
     if (normalizedXml !== xml) {
-      await fs.writeFile(filePath, normalizedXml, 'utf8');
+      await fs.writeFile(filePath, normalizedXml, "utf8");
     }
   }
 }
@@ -299,7 +301,7 @@ async function writeDynamicSitemapGroup({ baseFileName, endpoint, pathPrefix, id
     if (shardEntries.length === 0 && writtenFileNames.length > 0) return;
 
     const fileName = getShardFileName(baseFileName, shardNumber);
-    await fs.writeFile(path.join(tempDir, fileName), createUrlSet(shardEntries), 'utf8');
+    await fs.writeFile(path.join(tempDir, fileName), createUrlSet(shardEntries), "utf8");
     writtenFileNames.push(fileName);
     totalEntries += shardEntries.length;
     shardEntries = [];
@@ -327,7 +329,9 @@ async function writeDynamicSitemapGroup({ baseFileName, endpoint, pathPrefix, id
     }
 
     await replaceShardFiles(baseFileName, writtenFileNames);
-    console.log(`[seo] ${baseFileName}: ${totalEntries} URLs across ${writtenFileNames.length} sitemap file(s)`);
+    console.log(
+      `[seo] ${baseFileName}: ${totalEntries} URLs across ${writtenFileNames.length} sitemap file(s)`,
+    );
     return writtenFileNames;
   } catch (error) {
     console.warn(
@@ -341,7 +345,7 @@ async function writeDynamicSitemapGroup({ baseFileName, endpoint, pathPrefix, id
     }
 
     const fallbackPath = path.join(publicDir, baseFileName);
-    await fs.writeFile(fallbackPath, createUrlSet([]), 'utf8');
+    await fs.writeFile(fallbackPath, createUrlSet([]), "utf8");
     return [baseFileName];
   }
 }
@@ -352,45 +356,41 @@ await fs.mkdir(tempDir, { recursive: true });
 
 try {
   await fs.writeFile(
-    path.join(publicDir, 'sitemap-pages.xml'),
+    path.join(publicDir, "sitemap-pages.xml"),
     createUrlSet(staticPublicPages.map((pathname) => ({ loc: toAbsoluteUrl(pathname) }))),
-    'utf8',
+    "utf8",
   );
 
-  const sitemapFiles = ['sitemap-pages.xml'];
+  const sitemapFiles = ["sitemap-pages.xml"];
 
   sitemapFiles.push(
     ...(await writeDynamicSitemapGroup({
-      baseFileName: 'sitemap-ads.xml',
-      endpoint: 'public/advertise',
-      pathPrefix: '/ads',
-      idKeys: ['id', '_id', 'advertise_id', 'advertisement_id'],
+      baseFileName: "sitemap-ads.xml",
+      endpoint: "public/advertise",
+      pathPrefix: "/ads",
+      idKeys: ["id", "_id", "advertise_id", "advertisement_id"],
     })),
   );
 
   sitemapFiles.push(
     ...(await writeDynamicSitemapGroup({
-      baseFileName: 'sitemap-agencies.xml',
-      endpoint: 'public/agencies',
-      pathPrefix: '/agencies',
-      idKeys: ['id', '_id', 'agency_id'],
+      baseFileName: "sitemap-agencies.xml",
+      endpoint: "public/agencies",
+      pathPrefix: "/agencies",
+      idKeys: ["id", "_id", "agency_id"],
     })),
   );
 
   sitemapFiles.push(
     ...(await writeDynamicSitemapGroup({
-      baseFileName: 'sitemap-agents.xml',
-      endpoint: 'public/agents',
-      pathPrefix: '/agents',
-      idKeys: ['id', '_id', 'agent_id', 'user_id'],
+      baseFileName: "sitemap-agents.xml",
+      endpoint: "public/agents",
+      pathPrefix: "/agents",
+      idKeys: ["id", "_id", "agent_id", "user_id"],
     })),
   );
 
-  await fs.writeFile(
-    path.join(publicDir, 'sitemap.xml'),
-    createSitemapIndex(sitemapFiles),
-    'utf8',
-  );
+  await fs.writeFile(path.join(publicDir, "sitemap.xml"), createSitemapIndex(sitemapFiles), "utf8");
 
   console.log(`[seo] sitemap index generated for ${siteUrl}`);
 } finally {

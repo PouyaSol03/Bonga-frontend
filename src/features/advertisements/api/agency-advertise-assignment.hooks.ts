@@ -47,8 +47,7 @@ export function useAgencyAdvertiseAssignmentsInfiniteQuery({
     number
   >({
     enabled,
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getMyAgencyAdvertiseAssignments({
@@ -71,7 +70,6 @@ export function useAgencyAdvertiseAssignmentsInfiniteQuery({
   });
 }
 
-
 export function useRejectAgencyAdvertiseAssignmentMutation() {
   return useMutation({
     mutationFn: rejectAgencyAdvertiseAssignment,
@@ -88,8 +86,7 @@ export function useRejectAgencyAdvertiseAssignmentMutation() {
 
 export function useApproveAgencyAdvertiseAssignmentMutation() {
   return useMutation({
-    mutationFn: (assignmentId: number | string) =>
-      approveAgencyAdvertiseAssignment(assignmentId),
+    mutationFn: (assignmentId: number | string) => approveAgencyAdvertiseAssignment(assignmentId),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.agencyAdvertiseAssignments.all,
@@ -125,7 +122,12 @@ export function useDecideAgencyAdvertiseAssignmentMutation() {
 export function useV2AdvertiseAssignmentQuery(advertiseId?: string | number | null) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["advertisement", "v2-assignment", advertiseId ? String(advertiseId) : "", activeRole],
+    queryKey: [
+      "advertisement",
+      "v2-assignment",
+      advertiseId ? String(advertiseId) : "",
+      activeRole,
+    ],
     queryFn: () => getV2AdvertiseAssignment(advertiseId!),
     enabled: Boolean(advertiseId),
     staleTime: 30_000,
@@ -193,8 +195,9 @@ export function useCancelStopPublishRequestMutation() {
 
 export function useApproveAgencyStopRequestMutation() {
   return useMutation({
-    mutationFn: (payload: string | number | { requestId: string | number; agencyResponse?: string }) =>
-      approveAgencyStopRequest(payload),
+    mutationFn: (
+      payload: string | number | { requestId: string | number; agencyResponse?: string },
+    ) => approveAgencyStopRequest(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.account.myAdsRoot() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.advertisements.all });
@@ -205,8 +208,9 @@ export function useApproveAgencyStopRequestMutation() {
 
 export function useRejectAgencyStopRequestMutation() {
   return useMutation({
-    mutationFn: (payload: string | number | { requestId: string | number; agencyResponse?: string }) =>
-      rejectAgencyStopRequest(payload),
+    mutationFn: (
+      payload: string | number | { requestId: string | number; agencyResponse?: string },
+    ) => rejectAgencyStopRequest(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.account.myAdsRoot() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.advertisements.all });
@@ -222,21 +226,34 @@ export function useSubmitAdvertiseDealResultMutation() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.account.myAdsRoot() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.advertisements.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.agencyAdvertiseAssignments.all });
-      void queryClient.invalidateQueries({ queryKey: ["advertisement", "submit-result-status", String(variables.advertiseId)] });
-      void queryClient.invalidateQueries({ queryKey: ["advertisement", "history", String(variables.advertiseId)] });
+      void queryClient.invalidateQueries({
+        queryKey: ["advertisement", "submit-result-status", String(variables.advertiseId)],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["advertisement", "history", String(variables.advertiseId)],
+      });
     },
   });
 }
 
 export function useConfirmUserDealResultMutation() {
   return useMutation({
-    mutationFn: ({ advertiseId, confirmed }: { advertiseId: string | number; confirmed: boolean }) =>
-      confirmUserDealResult(advertiseId, confirmed),
+    mutationFn: ({
+      advertiseId,
+      confirmed,
+    }: {
+      advertiseId: string | number;
+      confirmed: boolean;
+    }) => confirmUserDealResult(advertiseId, confirmed),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.account.myAdsRoot() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.advertisements.all });
-      void queryClient.invalidateQueries({ queryKey: ["advertisement", "submit-result-status", String(variables.advertiseId)] });
-      void queryClient.invalidateQueries({ queryKey: ["advertisement", "history", String(variables.advertiseId)] });
+      void queryClient.invalidateQueries({
+        queryKey: ["advertisement", "submit-result-status", String(variables.advertiseId)],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["advertisement", "history", String(variables.advertiseId)],
+      });
     },
   });
 }
@@ -248,8 +265,12 @@ export function useRepublishAdAsPersonalMutation() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.account.myAdsRoot() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.advertisements.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.agencyAdvertiseAssignments.all });
-      void queryClient.invalidateQueries({ queryKey: ["advertisement", "re-register-status", String(advertiseId)] });
-      void queryClient.invalidateQueries({ queryKey: ["advertisement", "history", String(advertiseId)] });
+      void queryClient.invalidateQueries({
+        queryKey: ["advertisement", "re-register-status", String(advertiseId)],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["advertisement", "history", String(advertiseId)],
+      });
     },
   });
 }
@@ -284,7 +305,12 @@ export function useAdvertisementHistoryQuery(advertiseId?: string | number | nul
 export function useAdvertisementReRegisterStatusQuery(advertiseId?: string | number | null) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["advertisement", "re-register-status", advertiseId ? String(advertiseId) : "", activeRole],
+    queryKey: [
+      "advertisement",
+      "re-register-status",
+      advertiseId ? String(advertiseId) : "",
+      activeRole,
+    ],
     queryFn: () => getAdvertisementReRegisterStatus(advertiseId!),
     enabled: Boolean(advertiseId),
     staleTime: 30_000,
@@ -294,7 +320,12 @@ export function useAdvertisementReRegisterStatusQuery(advertiseId?: string | num
 export function useAdvertisementSubmitResultStatusQuery(advertiseId?: string | number | null) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["advertisement", "submit-result-status", advertiseId ? String(advertiseId) : "", activeRole],
+    queryKey: [
+      "advertisement",
+      "submit-result-status",
+      advertiseId ? String(advertiseId) : "",
+      activeRole,
+    ],
     queryFn: () => getAdvertisementSubmitResultStatus(advertiseId!),
     enabled: Boolean(advertiseId),
     staleTime: 30_000,
@@ -304,7 +335,12 @@ export function useAdvertisementSubmitResultStatusQuery(advertiseId?: string | n
 export function useAdvertisementArchiveStatusQuery(advertiseId?: string | number | null) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["advertisement", "archive-status", advertiseId ? String(advertiseId) : "", activeRole],
+    queryKey: [
+      "advertisement",
+      "archive-status",
+      advertiseId ? String(advertiseId) : "",
+      activeRole,
+    ],
     queryFn: () => getAdvertisementArchiveStatus(advertiseId!),
     enabled: Boolean(advertiseId),
     staleTime: 30_000,

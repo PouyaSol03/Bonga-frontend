@@ -1,15 +1,14 @@
 import type { NavigateFunction } from "react-router";
 import { getApiErrorMessage, getApiFieldError } from "../../../../../shared/api/api";
 import { USER } from "../../../../../shared/constants/roles.constants";
-import { adManagementPaths } from "../../../../account/adManagement/adManagementData";
+import { adManagementPaths,
+  getAdPaymentPath,
+  getAdStatePath,
+  markNewAdCheckout } from "../../../../account/adManagement/adManagementData";
 import { mapAdvertisementToAdCard } from "../../../api/advertisement.service";
 import type { FlowStep, NewAdFormValues } from "../../types";
 import { clearNewAdDraftStorage } from "../../utils";
-import {
-  getAdPaymentPath,
-  getAdStatePath,
-  markNewAdCheckout,
-} from "../../../../account/adManagement/adManagementData";
+
 
 interface SubmitCreateAdvertiseParams {
   activeAdId: string | null;

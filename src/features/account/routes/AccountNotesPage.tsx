@@ -15,9 +15,9 @@ import {
   EmptyAccountState,
   NoteCard,
   getNoteId,
-  readNoteText,
+  readNoteText, type AccountToast 
 } from "../accountPageViews";
-import type { AccountToast } from "../accountPageViews";
+
 import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountNotesPage() {

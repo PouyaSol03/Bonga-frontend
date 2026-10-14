@@ -2888,7 +2888,7 @@ function readDateLike(value: unknown, hoursAgo?: unknown) {
 }
 
 function readExpirationRemaining(value: unknown, fallbackPublishedDate?: unknown) {
-  let raw = typeof value === "string" && value.trim() ? value.trim() : "";
+  const raw = typeof value === "string" && value.trim() ? value.trim() : "";
   let timestamp = raw ? Date.parse(raw) : NaN;
 
   if (

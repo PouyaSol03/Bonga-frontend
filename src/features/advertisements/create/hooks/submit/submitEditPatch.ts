@@ -1,15 +1,15 @@
 import type { NavigateFunction } from "react-router";
 import { getApiErrorMessage } from "../../../../../shared/api/api";
 import { USER } from "../../../../../shared/constants/roles.constants";
-import { adManagementPaths } from "../../../../account/adManagement/adManagementData";
-import { mapAdvertisementToAdCard } from "../../../api/advertisement.service";
-import type { AdvertisementItem } from "../../../api/advertisement.service";
+import { adManagementPaths, getAdStatePath  } from "../../../../account/adManagement/adManagementData";
+import { mapAdvertisementToAdCard, type AdvertisementItem  } from "../../../api/advertisement.service";
+
 import { getMyAdStatusInfo } from "../../../../account/myAdsStatus";
 import { getEditAdRouteState } from "../../routeState";
 import type { NewAdFormValues } from "../../types";
 import { clearNewAdDraftStorage, getDefaultValues } from "../../utils";
 import { buildEditPatchFormData } from "../../edit-patch";
-import { getAdStatePath } from "../../../../account/adManagement/adManagementData";
+
 
 interface SubmitEditPatchParams {
   activeRole: string;

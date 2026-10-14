@@ -15,9 +15,9 @@ import {
   IdentityPendingState,
   IdentityVerifiedState,
   SimCardOwnershipChangeState,
-  WarningTriangleIcon,
+  WarningTriangleIcon, type IdentityPageStep 
 } from "../accountPageViews";
-import type { IdentityPageStep } from "../accountPageViews";
+
 import { Typography } from "../../../shared/ui/Typography";
 
 export function AccountIdentityPage() {

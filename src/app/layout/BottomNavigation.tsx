@@ -1,5 +1,5 @@
-import { lazy, memo, Suspense, useState } from "react";
-import type { ComponentType, SVGProps } from "react";
+import { lazy, memo, Suspense, useState, type ComponentType, type SVGProps  } from "react";
+
 import { Link, useNavigate } from "react-router";
 import {
   getStoredAuthSession,

@@ -1,8 +1,8 @@
 import type { CategoryItem } from "../../../categories/api/category.service";
 import type { CrmAdvertisePayload, CrmRecord } from "../../../crm/api/crm.service";
-import type { AdvertisementItem } from "../../api/advertisement.service";
+import { type AdvertisementItem, type AdvertisementFeature  } from "../../api/advertisement.service";
 import { locationLatKey, locationLngKey, neighborhoodIdKey } from "../data";
-import type { AdvertisementFeature } from "../../api/advertisement.service";
+
 import type { NewAdFormValues } from "../types";
 
 export type EditableAdvertisementFeature = AdvertisementFeature & { key?: string };

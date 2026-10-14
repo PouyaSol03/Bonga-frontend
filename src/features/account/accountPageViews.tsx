@@ -9,8 +9,8 @@ import {
   type AdvertisementItem,
 } from "../advertisements/api/advertisement.service";
 import type { BadgeItem, MyAdsType, NoteItem, WalletPayment } from "./api/account.service";
-import { AdCard, truncateAdCardText } from "../advertisements/components/AdCard";
-import type { AdCardData } from "../advertisements/components/AdCard";
+import { AdCard, truncateAdCardText, type AdCardData  } from "../advertisements/components/AdCard";
+
 import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
 import { getRequestErrorState } from "../../shared/components/ErrorState";
 import { TopBar } from "../../shared/components/TopBar";

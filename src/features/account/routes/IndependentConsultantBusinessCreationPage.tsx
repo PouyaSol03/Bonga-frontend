@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useCreateMyAgentMutation, useMyProfileQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { useToast } from "../../../shared/hooks/useToast";
-import { BusinessFormPage, RequiredLabel, normalizePhoneDigits } from "../businessCreationShared";
-import type { BusinessToast } from "../businessCreationShared";
+import { BusinessFormPage, RequiredLabel, normalizePhoneDigits, type BusinessToast  } from "../businessCreationShared";
+
 
 export function IndependentConsultantBusinessCreationPage() {
   const { showToast: showGlobalToast } = useToast();

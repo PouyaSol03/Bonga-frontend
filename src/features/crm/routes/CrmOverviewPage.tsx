@@ -16,9 +16,9 @@ import {
   StatusBadge,
   TextLink,
   readText,
-  useQueryErrorToast,
+  useQueryErrorToast, type CrmRoutePageProps 
 } from "../CrmLayout";
-import type { CrmRoutePageProps } from "../CrmLayout";
+
 import { Typography } from "../../../shared/ui/Typography";
 
 export function CrmOverviewPage({ notify, refreshNonce }: CrmRoutePageProps) {

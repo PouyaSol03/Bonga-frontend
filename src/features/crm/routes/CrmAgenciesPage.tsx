@@ -31,9 +31,9 @@ import {
   inputClassName,
   normalizeAgencyStatus,
   readText,
-  useQueryErrorToast,
+  useQueryErrorToast, type CrmRoutePageProps, type EditorState 
 } from "../CrmLayout";
-import type { CrmRoutePageProps, EditorState } from "../CrmLayout";
+
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import { SwitchButton } from "../../../shared/components/SwitchButton";

@@ -4,8 +4,8 @@ import { useCreateMyAgencyMutation, useMyProfileQuery } from "../api/account.hoo
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { useNavigate } from "react-router";
 import { useToast } from "../../../shared/hooks/useToast";
-import { AgencyFields, BusinessFormPage, getNeighborhoodId } from "../businessCreationShared";
-import type { BusinessToast } from "../businessCreationShared";
+import { AgencyFields, BusinessFormPage, getNeighborhoodId, type BusinessToast  } from "../businessCreationShared";
+
 import {
   clearAgencyCreationDraft,
   readAgencyCreationDraft,

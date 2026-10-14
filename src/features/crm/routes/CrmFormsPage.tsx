@@ -8,9 +8,9 @@ import {
   Panel,
   PanelHeader,
   readText,
-  useQueryErrorToast,
+  useQueryErrorToast, type CrmRoutePageProps 
 } from "../CrmLayout";
-import type { CrmRoutePageProps } from "../CrmLayout";
+
 
 export function CrmFormsPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const [selectedForm, setSelectedForm] = useState("");

@@ -81,9 +81,9 @@ export function IndependentConsultantBadgeDetailsPage({ badgeKey }: { badgeKey: 
               : 0,
           title: `سطح ${index + 1}`,
           variant,
-        };
-      })
-    : readAgentBadgeProgressLevels(badge as any);
+          };
+          })
+          : readAgentBadgeProgressLevels(badge);
   const starCount = Number(badge?.level ?? 0);
 
   return (

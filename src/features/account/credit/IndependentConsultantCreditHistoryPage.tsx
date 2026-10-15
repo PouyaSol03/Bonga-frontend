@@ -87,8 +87,8 @@ function resolvePaymentStatus(item: PaymentHistoryItem): {
 function isPackageOrPanelPayment(item: PaymentHistoryItem): boolean {
   const paymentFor = String(item.payment_for || "").toLowerCase();
   const paymentForCode = Number(item.payment_for_code);
-  const metadata = (item as any)?.metadata;
-  const packageId = (item as any)?.package_id;
+  const metadata = item.metadata;
+  const packageId = item.package_id;
 
   if (paymentFor === "package" || paymentForCode === 2 || Boolean(packageId)) {
     return true;
@@ -113,7 +113,7 @@ function isPackageOrPanelPayment(item: PaymentHistoryItem): boolean {
 }
 
 function resolveServiceLabel(item: PaymentHistoryItem): string {
-  const metadata = (item as any)?.metadata;
+  const metadata = item.metadata;
   const title = metadata?.package_title || metadata?.title;
   const kind = metadata?.package_kind || metadata?.kind;
 

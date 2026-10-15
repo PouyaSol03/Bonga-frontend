@@ -157,6 +157,15 @@ export type WalletPaymentsResult = {
   total: number;
 };
 
+export type PaymentHistoryMetadata = {
+  package_kind?: string;
+  package_scope?: string;
+  package_title?: string;
+  title?: string;
+  kind?: string;
+  [key: string]: unknown;
+};
+
 export type PaymentHistoryItem = {
   id: number | string;
   _id: number | string;
@@ -169,6 +178,8 @@ export type PaymentHistoryItem = {
   price: number;
   ref_code: string | number | null;
   created_at: string;
+  package_id?: number | string | null;
+  metadata?: PaymentHistoryMetadata | null;
 };
 
 export type AccountCreditHistoryPage = {

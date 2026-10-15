@@ -106,8 +106,8 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
           variant,
         };
       })
-    : readBadgeProgressLevels(badge as any);
-  const starCount = Number(badge?.level ?? readBadgeLevelCount(badge as any));
+    : readBadgeProgressLevels(badge);
+  const starCount = Number(badge?.level ?? readBadgeLevelCount(badge));
 
   return (
     <PageFrame

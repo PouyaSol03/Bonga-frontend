@@ -207,7 +207,9 @@ export function ViewAdPerformanceProgressCharts({
                     />
                   ))}
                   <LabelList
-                    content={(props: any) => renderChartTooltip(selectedIndex, tooltipText, props)}
+                    content={(props) =>
+                      renderChartTooltip(selectedIndex, tooltipText, props as Record<string, unknown>)
+                    }
                     dataKey="value"
                   />
                 </Bar>

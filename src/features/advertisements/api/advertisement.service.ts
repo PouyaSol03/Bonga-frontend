@@ -96,6 +96,17 @@ export type AdvertisementItem = Record<string, unknown> & {
   isAssigned?: boolean;
   assignment_status?: string | number | null;
   assigned_agency_id?: number | string | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+  long?: number | string | null;
+  neighborhoodId?: number | string | null;
+  subNeighborhoodId?: number | string | null;
+  project_type?: string | null;
+  document_type?: string | null;
+  total_floors?: number | string | null;
+  total_units?: number | string | null;
+  sale_terms_percent?: number | string | null;
+  sale_terms_installment_months?: number | string | null;
   city?: AdvertisementLocationEntity | null;
   city_id?: number | string | null;
   city_name?: string;

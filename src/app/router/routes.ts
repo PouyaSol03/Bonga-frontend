@@ -29,7 +29,7 @@ export function preloadRoute(pathname: string) {
   const normalized = pathname.split("?")[0].split("#")[0];
   for (const route of routes) {
     if (matchPath(route.path, normalized)) {
-      const preload = (route.Component as any)?.preload;
+      const preload = route.Component.preload;
       if (typeof preload === "function") {
         preload();
       }

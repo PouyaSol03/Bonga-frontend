@@ -246,6 +246,12 @@ type EditAdCard = Partial<{
   timeAndLocation: string;
   title: string;
   year: string;
+  owner_contact_phone: string;
+  owner_contact_name: string;
+  owner_name: string;
+  owner_contact_address: string;
+  owner_address: string;
+  floor: number | string;
 }>;
 
 export type EditAdRouteState = {
@@ -390,37 +396,37 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
   const location =
     confirmedLocation ||
     readText(
-      (ad.location as any)?.label,
+      ad.location?.label,
       ad.location_label,
       ad.user_address,
       ad.location,
       ad.address,
-      (ad.neighborhood as any)?.name,
+      ad.neighborhood?.name,
       ad.neighborhood_name,
       card.timeAndLocation ? locationFromTimeAndLocation(card.timeAndLocation) : "",
     );
   const publisherName = readText(card.agency, ad.agency, ad.publisherName, ad.publisher_name);
   const phoneNumber = readText(ad.owner_phone, ad.phone, ad.phoneNumber, ad.phone_number);
   const ownerPhone = readText(
-    (ad as any).owner_contact_phone,
-    (ad as any).ownerContactPhone,
-    (card as any).owner_contact_phone,
+    ad.owner_contact_phone,
+    ad.ownerContactPhone,
+    card.owner_contact_phone,
   );
   const ownerFullName = readText(
-    (ad as any).owner_contact_name,
-    (ad as any).ownerContactName,
-    (card as any).owner_contact_name,
+    ad.owner_contact_name,
+    ad.ownerContactName,
+    card.owner_contact_name,
     ad.owner_name,
-    (ad as any).ownerName,
-    (card as any).owner_name,
+    ad.ownerName,
+    card.owner_name,
   );
   const ownerExactAddress = readText(
-    (ad as any).owner_contact_address,
-    (ad as any).ownerContactAddress,
-    (card as any).owner_contact_address,
+    ad.owner_contact_address,
+    ad.ownerContactAddress,
+    card.owner_contact_address,
     ad.owner_address,
-    (ad as any).ownerAddress,
-    (card as any).owner_address,
+    ad.ownerAddress,
+    card.owner_address,
   );
   const price = priceTextToNumberString(readText(card.pricePrimary, ad.price, ad.total_price));
   const mortgagePrice = priceTextToNumberString(
@@ -429,21 +435,21 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
   const rentPrice = priceTextToNumberString(
     readText(card.priceSecondary, ad.rentPrice, ad.rent_price),
   );
-  const features = Array.isArray((ad as any).features) ? (ad as any).features : [];
+  const features = Array.isArray(ad.features) ? ad.features : [];
   const getFeature = (name: string) =>
-    features.find((f: any) => f?.label === name || f?.key === name)?.value;
+    features.find((f) => f?.label === name || f?.key === name)?.value;
   const loanAmount = readText(
-    (ad as any).loan?.amount,
+    ad.loan?.amount,
     getFeature("loan_amount"),
-    (ad as any).loan_amount,
+    ad.loan_amount,
   );
   const loanInstallment = readText(
-    (ad as any).loan?.installment,
+    ad.loan?.installment,
     getFeature("loan_installment"),
-    (ad as any).loan_installment,
+    ad.loan_installment,
   );
   const hasLoan = Boolean(
-    loanAmount || loanInstallment || getFeature("has_loan") || (ad as any).has_loan,
+    loanAmount || loanInstallment || getFeature("has_loan") || ad.has_loan,
   );
 
   return {
@@ -466,8 +472,8 @@ function buildEditDefaultValues(routeState: EditAdRouteState): Partial<NewAdForm
     rentPrice,
     rooms: pickFirstNumber(readText(card.rooms, ad.rooms, getFeature("rooms"))),
     floor: readText(
-      (card as any).floor,
-      (ad as any).floor,
+      card.floor,
+      ad.floor,
       getFeature("floor"),
       getFeature("unit_floor"),
       getFeature("apartment_floor"),
@@ -1151,11 +1157,11 @@ export function buildNewAdFormData(
   const storedNeighborhoodId =
     cleanValues.neighborhoodId ||
     window.localStorage.getItem(neighborhoodIdKey) ||
-    (cleanValues as any).neighborhood_id;
+    (cleanValues as NewAdFormValues & { neighborhood_id?: string }).neighborhood_id;
   const storedSubNeighborhoodId =
     cleanValues.subNeighborhoodId ||
     window.localStorage.getItem(subNeighborhoodIdKey) ||
-    (cleanValues as any).sub_neighborhood_id;
+    (cleanValues as NewAdFormValues & { sub_neighborhood_id?: string }).sub_neighborhood_id;
   appendBaseValue("neighborhood_id", storedNeighborhoodId);
   appendBaseValue("sub_neighborhood_id", storedSubNeighborhoodId);
   appendBaseValue("lat", getStoredNewAdLocationNumber(locationLatKey));

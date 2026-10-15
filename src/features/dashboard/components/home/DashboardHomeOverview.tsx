@@ -714,8 +714,18 @@ function ScrollableProgressLineChart({
     </div>
   );
 }
-function ProgressChartDot(props: any) {
-  const { cx, cy, payload, selectedMonth, valueSuffix, onSelect } = props;
+interface ProgressChartDotProps {
+  cx?: number;
+  cy?: number;
+  payload?: { month: string; value: number };
+  selectedMonth?: string | null;
+  valueSuffix?: string;
+  onSelect?: (month: string) => void;
+}
+
+function ProgressChartDot(props: ProgressChartDotProps) {
+  const { cx = 0, cy = 0, payload, selectedMonth, valueSuffix, onSelect } = props;
+  if (!payload || !onSelect) return null;
 
   const isSelected = selectedMonth === payload.month;
 
@@ -793,8 +803,15 @@ function ProgressChartDot(props: any) {
   );
 }
 
-function ProgressMonthTick(props: any) {
-  const { x, y, payload } = props;
+interface ProgressMonthTickProps {
+  x?: number;
+  y?: number;
+  payload?: { value: string | number };
+}
+
+function ProgressMonthTick(props: ProgressMonthTickProps) {
+  const { x = 0, y = 0, payload } = props;
+  if (!payload) return null;
 
   return (
     <g transform={`translate(${x}, ${y + 28})`}>
@@ -1169,7 +1186,12 @@ function DashboardPulledPieSlice({
   );
 }
 
-function ConsultantBarTooltip({ active, payload }: any) {
+interface ConsultantBarTooltipProps {
+  active?: boolean;
+  payload?: Array<{ dataKey?: string | number; name?: string; value?: string | number }>;
+}
+
+function ConsultantBarTooltip({ active, payload }: ConsultantBarTooltipProps) {
   if (!active || !payload?.length) {
     return null;
   }
@@ -1200,8 +1222,32 @@ function topRoundedBarPath(x: number, y: number, width: number, height: number, 
   ].join(" ");
 }
 
-function ConsultantBarShape(props: any) {
-  const { fill, height, payload, selectedBar, seriesKey, value, width, x, y, onSelect } = props;
+interface ConsultantBarShapeProps {
+  fill?: string;
+  height?: number;
+  payload: { name: string };
+  selectedBar?: SelectedConsultantBar | null;
+  seriesKey: ConsultantBarKey;
+  value?: number | string;
+  width?: number;
+  x?: number;
+  y?: number;
+  onSelect: (bar: { dataKey: ConsultantBarKey; name: string }) => void;
+}
+
+function ConsultantBarShape(props: ConsultantBarShapeProps) {
+  const {
+    fill,
+    height = 0,
+    payload,
+    selectedBar,
+    seriesKey,
+    value = 0,
+    width = 0,
+    x = 0,
+    y = 0,
+    onSelect,
+  } = props;
 
   const isSelected = selectedBar?.name === payload.name && selectedBar?.dataKey === seriesKey;
   const centerX = x + width / 2;
@@ -1449,12 +1495,12 @@ function ConsultantActivityCard({
                   dataKey="ads"
                   fill="var(--primary)"
                   radius={[6, 6, 0, 0]}
-                  shape={(props: any) => (
+                  shape={(barProps: unknown) => (
                     <ConsultantBarShape
-                      {...props}
+                      {...(barProps as ConsultantBarShapeProps)}
+                      onSelect={setSelectedBar}
                       selectedBar={selectedBar}
                       seriesKey="ads"
-                      onSelect={setSelectedBar}
                     />
                   )}
                 />
@@ -1463,12 +1509,12 @@ function ConsultantActivityCard({
                   dataKey="renewals"
                   fill="var(--tertiary)"
                   radius={[6, 6, 0, 0]}
-                  shape={(props: any) => (
+                  shape={(barProps: unknown) => (
                     <ConsultantBarShape
-                      {...props}
+                      {...(barProps as ConsultantBarShapeProps)}
+                      onSelect={setSelectedBar}
                       selectedBar={selectedBar}
                       seriesKey="renewals"
-                      onSelect={setSelectedBar}
                     />
                   )}
                 />
@@ -1477,12 +1523,12 @@ function ConsultantActivityCard({
                   dataKey="specials"
                   fill="var(--warning)"
                   radius={[6, 6, 0, 0]}
-                  shape={(props: any) => (
+                  shape={(barProps: unknown) => (
                     <ConsultantBarShape
-                      {...props}
+                      {...(barProps as ConsultantBarShapeProps)}
+                      onSelect={setSelectedBar}
                       selectedBar={selectedBar}
                       seriesKey="specials"
-                      onSelect={setSelectedBar}
                     />
                   )}
                 />

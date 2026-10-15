@@ -22,7 +22,7 @@ import {
 import { BottomSheet, BottomSheetActionList } from "../../shared/components/BottomSheet";
 import { Button } from "../../shared/ui/Button";
 import { Chip } from "../../shared/ui/Chip";
-import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { RequestErrorState } from "../../shared/components/ErrorState";
 import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import {
@@ -2954,7 +2954,7 @@ export function UserChatDetailPage() {
   const pendingOutgoingBodiesRef = useRef<Map<string, number>>(new Map());
   const typingTimeoutRef = useRef<number | null>(null);
   const [, setHasMoreMessagesBelow] = useState(false);
-  const currentUserId = useMemo(readCurrentUserId, []);
+  const currentUserId = useMemo(() => readCurrentUserId(), []);
   const blockChatMutation = useBlockChatMutation();
   const unblockChatMutation = useUnblockChatMutation();
   const deleteChatMutation = useDeleteChatMutation();
@@ -3606,7 +3606,6 @@ export function UserChatHomePage() {
     () => (chatsPage?.data ?? []).map(mapChatThreadToChatItem),
     [chatsPage?.data],
   );
-  const RequestErrorState = isChatsError ? getRequestErrorState(chatsError) : null;
 
   const handleMenuSelect = useCallback(
     (id: string) => {
@@ -3679,8 +3678,8 @@ export function UserChatHomePage() {
       }
     >
       {isChatsLoading && chats.length === 0 ? <ChatListSkeleton /> : null}
-      {RequestErrorState && chats.length === 0 ? (
-        <RequestErrorState className="h-full min-h-0 flex-1" onRetry={() => void refetchChats()} />
+      {isChatsError && chats.length === 0 ? (
+        <RequestErrorState error={chatsError} className="h-full min-h-0 flex-1" onRetry={() => void refetchChats()} />
       ) : null}
       {visibleChats.map((item, index) => {
         const chatId = item.id ?? String(index);
@@ -3830,7 +3829,6 @@ export function UserChatBulkDeletePage() {
   );
   const areAllSelected =
     selectableChatIds.length > 0 && selectableChatIds.every((id) => selectedChatIds.has(id));
-  const RequestErrorState = isError ? getRequestErrorState(error) : null;
 
   const toggleSelectedChat = useCallback((id: string) => {
     if (!id) return;
@@ -3902,8 +3900,8 @@ export function UserChatBulkDeletePage() {
     >
       <main className="bg-surface-container-lowest flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pb-[72px]">
         {isLoading && chats.length === 0 ? <ChatListSkeleton count={5} /> : null}
-        {RequestErrorState && chats.length === 0 ? (
-          <RequestErrorState className="h-full min-h-0 flex-1" onRetry={() => void refetch()} />
+        {isError && chats.length === 0 ? (
+          <RequestErrorState error={error} className="h-full min-h-0 flex-1" onRetry={() => void refetch()} />
         ) : null}
         {chats.map((item, index) => {
           const chatId = item.id ?? "";

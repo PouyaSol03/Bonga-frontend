@@ -1,5 +1,5 @@
 import type { RefCallback } from "react";
-import { getRequestErrorState } from "../../../shared/components/ErrorState";
+import { RequestErrorState } from "../../../shared/components/ErrorState";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
 import { DirectoryCard, DirectoryCardSkeleton } from "./DirectoryCard";
 import type { DirectoryItem, DirectoryMode } from "../types";
@@ -29,8 +29,6 @@ export function DirectoryList({
   onItemClick: (item: DirectoryItem) => void;
   onRetry: () => void;
 }) {
-  const DirectoryErrorState = getRequestErrorState(error);
-
   if (isLoading && items.length === 0) {
     return (
       <div className="space-y-4 pb-20">
@@ -42,7 +40,7 @@ export function DirectoryList({
   }
 
   if (isError && items.length === 0) {
-    return <DirectoryErrorState className="min-h-[420px]" onRetry={onRetry} />;
+    return <RequestErrorState error={error} className="min-h-[420px]" onRetry={onRetry} />;
   }
 
   if (items.length === 0) {

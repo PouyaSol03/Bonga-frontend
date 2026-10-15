@@ -906,15 +906,15 @@ const minNeighborhoodSearchLength = 2;
 const neighborhoodSearchDebounceMs = 250;
 
 function useOpenOnFilterFocus(sectionId?: string, focusTarget?: string | null) {
-  const didOpenRef = useRef(false);
+  const [openedTarget, setOpenedTarget] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!sectionId || focusTarget !== sectionId || didOpenRef.current) return;
+    if (!sectionId || focusTarget !== sectionId || openedTarget === sectionId) return;
 
-    didOpenRef.current = true;
-  }, [focusTarget, sectionId]);
+    setOpenedTarget(sectionId);
+  }, [focusTarget, openedTarget, sectionId]);
 
-  return !didOpenRef.current && Boolean(sectionId && focusTarget === sectionId);
+  return openedTarget !== sectionId && Boolean(sectionId && focusTarget === sectionId);
 }
 
 function useDebouncedValue<T>(value: T, delay: number) {

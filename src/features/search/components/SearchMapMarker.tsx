@@ -29,20 +29,14 @@ const staticDotIcon = new DivIcon({
   iconAnchor: [7, 7],
 });
 
-function SearchMapMarkerComponent(props: SearchMapMarkerProps) {
-  if ("marker" in props) {
-    return (
-      <Marker
-        position={[props.marker.latitude, props.marker.longitude]}
-        icon={staticDotIcon}
-        interactive={false}
-        zIndexOffset={0}
-      />
-    );
-  }
-
-  const { listing, isSeen, isSelected, onSelect } = props;
-  const isPrice = props.isPriceVisible || isSelected;
+function ListingMapMarker({
+  listing,
+  isSeen,
+  isSelected,
+  isPriceVisible,
+  onSelect,
+}: SearchMapListingMarkerProps) {
+  const isPrice = isPriceVisible || isSelected;
   const markerIcon = useMemo(() => {
     return isPrice
       ? createSearchPricePillIcon(listing.priceValue, isSelected, isSeen)
@@ -62,6 +56,29 @@ function SearchMapMarkerComponent(props: SearchMapMarkerProps) {
           onSelect(listing);
         },
       }}
+    />
+  );
+}
+
+function SearchMapMarkerComponent(props: SearchMapMarkerProps) {
+  if ("marker" in props) {
+    return (
+      <Marker
+        position={[props.marker.latitude, props.marker.longitude]}
+        icon={staticDotIcon}
+        interactive={false}
+        zIndexOffset={0}
+      />
+    );
+  }
+
+  return (
+    <ListingMapMarker
+      listing={props.listing}
+      isSeen={props.isSeen}
+      isSelected={props.isSelected}
+      isPriceVisible={props.isPriceVisible}
+      onSelect={props.onSelect}
     />
   );
 }

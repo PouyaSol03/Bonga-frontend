@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getSupportRequests } from "../../support/api/support-request.service";
-import { getRequestErrorState } from "../../../shared/components/ErrorState";
+import { RequestErrorState } from "../../../shared/components/ErrorState";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
@@ -35,9 +35,6 @@ export function AccountSupportRequestsPage() {
         : requests.filter((request) => request.status === activeFilter),
     [activeFilter, requests],
   );
-  const RequestErrorState = requestsQuery.isError
-    ? getRequestErrorState(requestsQuery.error)
-    : null;
 
   return (
     <PageFrame
@@ -71,8 +68,8 @@ export function AccountSupportRequestsPage() {
           >
             در حال دریافت درخواست‌ها...
           </Typography>
-        ) : RequestErrorState ? (
-          <RequestErrorState onRetry={() => void requestsQuery.refetch()} />
+        ) : requestsQuery.isError ? (
+          <RequestErrorState error={requestsQuery.error} onRetry={() => void requestsQuery.refetch()} />
         ) : requests.length === 0 ? (
           <SupportRequestsEmptyState />
         ) : (

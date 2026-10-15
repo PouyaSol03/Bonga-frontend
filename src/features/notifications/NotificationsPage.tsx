@@ -1,6 +1,6 @@
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { Typography } from "../../shared/ui/Typography";
-import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { RequestErrorState } from "../../shared/components/ErrorState";
 import { useNotificationsController } from "./useNotificationsController";
 import { NotificationHeader } from "./components/NotificationHeader";
 import { NotificationFilterBar } from "./components/NotificationFilterBar";
@@ -66,8 +66,6 @@ export function NotificationsPage() {
     toggleFilter,
     visibleNotifications,
   } = useNotificationsController();
-
-  const ErrorState = getRequestErrorState(notificationsQuery.error);
   const isFilteredEmpty = selectedFilterIds.size > 0 && visibleNotifications.length === 0;
 
   return (
@@ -99,7 +97,8 @@ export function NotificationsPage() {
         ) : null}
 
         {notificationsQuery.isError ? (
-          <ErrorState
+          <RequestErrorState
+            error={notificationsQuery.error}
             className="h-full min-h-0 flex-1"
             onRetry={() => void refreshNotifications()}
           />

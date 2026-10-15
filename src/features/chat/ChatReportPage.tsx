@@ -50,8 +50,8 @@ function getReportReturnPath(threadId: string) {
 
 export function ChatReportPage() {
   const navigate = useNavigate();
-  const threadId = useMemo(getReportThreadId, []);
-  const messageId = useMemo(getReportMessageId, []);
+  const threadId = useMemo(() => getReportThreadId(), []);
+  const messageId = useMemo(() => getReportMessageId(), []);
   const returnPath = useMemo(() => getReportReturnPath(threadId), [threadId]);
   const [selectedReasonId, setSelectedReasonId] = useState<ReportReasonId>("fraud");
   const [description, setDescription] = useState("");

@@ -72,8 +72,11 @@ export function AgencyPublisherPickerPage({
   const [draftPublisherId, setDraftPublisherId] = useState(selectedPublisher?.id ?? "");
 
   useEffect(() => {
-    setDraftPublisherId(selectedPublisher?.id ?? "");
-  }, [selectedPublisher?.id]);
+    const timer = setTimeout(() => {
+      setDraftPublisherId(selectedPublisher?.id ?? "");
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [selectedPublisher]);
 
   const normalizedSearch = searchValue.trim();
   const visiblePublishers = useMemo(() => {

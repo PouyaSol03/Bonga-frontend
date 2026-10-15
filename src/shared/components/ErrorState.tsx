@@ -108,6 +108,18 @@ export function isNoConnectionError(error: unknown) {
   return typeof navigator !== "undefined" && navigator.onLine === false;
 }
 
+export function RequestErrorState({
+  error,
+  onRetry,
+  className,
+}: ErrorStateProps & { error?: unknown }) {
+  const isNoConnection = isNoConnectionError(error);
+  if (isNoConnection) {
+    return <NoConnectionState onRetry={onRetry} className={className} />;
+  }
+  return <ServerErrorState onRetry={onRetry} className={className} />;
+}
+
 export function getRequestErrorState(error: unknown): ComponentType<ErrorStateProps> {
   return isNoConnectionError(error) ? NoConnectionState : ServerErrorState;
 }

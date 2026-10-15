@@ -25,7 +25,6 @@ interface NewAdStepRendererProps {
   saveDraftPending: boolean;
   setStep: (step: FlowStep) => void;
   step: FlowStep;
-  submitLockRef: React.MutableRefObject<boolean>;
   updateAdvertisementPending: boolean;
 }
 
@@ -46,7 +45,6 @@ export function NewAdStepRenderer({
   saveDraftPending,
   setStep,
   step,
-  submitLockRef,
   updateAdvertisementPending,
 }: NewAdStepRendererProps) {
   if (isCrmEditMode && editAdIsLoading) {
@@ -90,7 +88,7 @@ export function NewAdStepRenderer({
         onSelect={actions.selectAgency}
         selectedAgencyId={methods.watch("agencyId")}
         selectedAgencyName={methods.watch("publisherName")}
-        submitDisabled={createAdvertisementPending || submitLockRef.current}
+        submitDisabled={createAdvertisementPending}
       />
     );
   }

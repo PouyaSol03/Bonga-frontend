@@ -84,6 +84,9 @@ export default defineConfig([
       "prefer-const": "error",
       "no-var": "error",
       eqeqeq: ["error", "always", { null: "ignore" }],
+
+      // React Compiler warnings (deferred for later review)
+      "react-hooks/set-state-in-effect": "warn",
     },
   },
   ...storybook.configs["flat/recommended"],

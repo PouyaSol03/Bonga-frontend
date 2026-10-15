@@ -52,7 +52,7 @@ export function useInitialAdValues(
       (editAdState.ad as Record<string, unknown> | undefined)?.status_code === -5 ||
       String((editAdState.ad as Record<string, unknown> | undefined)?.status_code) === "-5");
 
-  const restoredSessionRef = useRef(resolveRestoredSession(isEditMode));
+  const [restoredSession] = useState(() => resolveRestoredSession(isEditMode));
 
   const initialEditValuesRef = useRef<NewAdFormValues | null>(
     isEditMode && editAdState.ad
@@ -64,7 +64,7 @@ export function useInitialAdValues(
   );
 
   const [initialValues] = useState<NewAdFormValues>(() => {
-    const restoredValues = restoredSessionRef.current?.values;
+    const restoredValues = restoredSession?.values;
     if (!restoredValues) return getDefaultValues(editAdState);
 
     const confirmedLocation = window.localStorage.getItem(locationKey)?.trim();
@@ -111,9 +111,9 @@ export function useInitialAdValues(
     };
   });
 
-  const [initialStep] = useState<FlowStep>(() => restoredSessionRef.current?.step ?? "details");
+  const [initialStep] = useState<FlowStep>(() => restoredSession?.step ?? "details");
   const [initialDraftAdId] = useState<string | null>(
-    () => restoredSessionRef.current?.draftAdId ?? (isInitialIncomplete ? editAdId : null),
+    () => restoredSession?.draftAdId ?? (isInitialIncomplete ? editAdId : null),
   );
 
   return {
@@ -123,6 +123,6 @@ export function useInitialAdValues(
     initialValues,
     isEditMode,
     isInitialIncomplete,
-    restoredSessionRef,
+    restoredSession,
   };
 }

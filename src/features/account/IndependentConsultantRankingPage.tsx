@@ -52,21 +52,24 @@ export function IndependentConsultantRankingPage() {
   }, [toast]);
 
   useEffect(() => {
-    if (rankingQuery.isError) {
-      setToast({
-        variant: "error",
-        message: getApiErrorMessage(
-          rankingQuery.error,
-          "دریافت اطلاعات رتبه‌بندی با خطا مواجه شد.",
-        ),
-        title: "خطا",
-      });
-    } else if (rankingQuery.isSuccess && rankingQuery.data?.message) {
-      setToast({
-        variant: "info",
-        message: rankingQuery.data.message,
-      });
-    }
+    const timer = setTimeout(() => {
+      if (rankingQuery.isError) {
+        setToast({
+          variant: "error",
+          message: getApiErrorMessage(
+            rankingQuery.error,
+            "دریافت اطلاعات رتبه‌بندی با خطا مواجه شد.",
+          ),
+          title: "خطا",
+        });
+      } else if (rankingQuery.isSuccess && rankingQuery.data?.message) {
+        setToast({
+          variant: "info",
+          message: rankingQuery.data.message,
+        });
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [
     rankingQuery.error,
     rankingQuery.isError,

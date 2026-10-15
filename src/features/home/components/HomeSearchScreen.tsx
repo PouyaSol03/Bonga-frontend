@@ -9,7 +9,7 @@ import { useQuickAdvertisementSearchQuery } from "../api/quick-advertisement-sea
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { TopBar } from "../../../shared/components/TopBar";
 import LinearDelete from "../../../shared/icons/LinearDelete";
-import { getRequestErrorState } from "../../../shared/components/ErrorState";
+import { RequestErrorState } from "../../../shared/components/ErrorState";
 import { SearchInputBar } from "../../../shared/ui/SearchBar";
 import SearchErrors from "./SearchErrors";
 import type { SearchHistoryItem } from "../../search/api/search-history.service";
@@ -117,14 +117,12 @@ export function HomeSearchScreen({
       deleteSavedSearchMutation.mutate(String(id));
     });
   const visibleRecentSearches = isAuthenticated ? (savedSearchesQuery.data ?? []) : [];
-  const RecentSearchErrorState = getRequestErrorState(savedSearchesQuery.error);
-  const QuickSearchErrorState = getRequestErrorState(quickSearchError);
-  const activeErrorState = isResultsView
+  const activeError = isResultsView
     ? hasEnoughSearchQueryLength && !isWaitingForDebounce && isQuickSearchError
-      ? QuickSearchErrorState
+      ? quickSearchError
       : null
     : savedSearchesQuery.isError
-      ? RecentSearchErrorState
+      ? savedSearchesQuery.error
       : null;
   const retryActiveError = isResultsView
     ? () => void refetchQuickSearch()
@@ -198,15 +196,13 @@ export function HomeSearchScreen({
     );
   }
 
-  if (!isResultsView && activeErrorState) {
-    const ActiveErrorState = activeErrorState;
-
+  if (!isResultsView && activeError) {
     return (
       <section
         className={`bg-surface-container-lowest absolute inset-0 z-[600] overflow-hidden ${isOpen ? "visible" : "invisible"}`}
         aria-hidden={!isOpen}
       >
-        <ActiveErrorState className="h-full" onRetry={retryActiveError} />
+        <RequestErrorState error={activeError} className="h-full" onRetry={retryActiveError} />
       </section>
     );
   }
@@ -274,7 +270,8 @@ export function HomeSearchScreen({
           ) : isWaitingForDebounce || isQuickSearchFetching ? (
             <SearchRowsSkeleton variant="results" />
           ) : isQuickSearchError ? (
-            <QuickSearchErrorState
+            <RequestErrorState
+              error={quickSearchError}
               className="min-h-full"
               onRetry={() => void refetchQuickSearch()}
             />
@@ -299,7 +296,8 @@ export function HomeSearchScreen({
         ) : savedSearchesQuery.isLoading ? (
           <SearchRowsSkeleton variant="records" />
         ) : savedSearchesQuery.isError ? (
-          <RecentSearchErrorState
+          <RequestErrorState
+            error={savedSearchesQuery.error}
             className="min-h-full"
             onRetry={() => void savedSearchesQuery.refetch()}
           />

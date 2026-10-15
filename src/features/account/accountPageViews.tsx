@@ -12,7 +12,7 @@ import type { BadgeItem, MyAdsType, NoteItem, WalletPayment } from "./api/accoun
 import { AdCard, truncateAdCardText, type AdCardData  } from "../advertisements/components/AdCard";
 
 import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
-import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { RequestErrorState } from "../../shared/components/ErrorState";
 import { TopBar } from "../../shared/components/TopBar";
 import { Link, useNavigate } from "react-router";
 import { AdCardTomanIcon } from "../advertisements/components/AdCardIcons";
@@ -109,14 +109,22 @@ export function AccountProfileForm({
 
   useEffect(() => {
     if (!avatarFile) {
-      setAvatarPreview("");
       return;
     }
 
-    const previewUrl = URL.createObjectURL(avatarFile);
-    setAvatarPreview(previewUrl);
+    let previewUrl = "";
+    const timer = setTimeout(() => {
+      previewUrl = URL.createObjectURL(avatarFile);
+      setAvatarPreview(previewUrl);
+    }, 0);
 
-    return () => URL.revokeObjectURL(previewUrl);
+    return () => {
+      clearTimeout(timer);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setAvatarPreview("");
+    };
   }, [avatarFile]);
 
   const avatarSrc = avatarPreview || (profile?.avatar ? getApiAssetUrl(profile.avatar) : "");
@@ -864,12 +872,14 @@ export function IdentityPendingState({
 }) {
   const mobile = getStoredAuthSession()?.mobile ?? "-";
   const [nationalnumber, setNationalnumber] = useState(initialNationalnumber);
+  const [prevInitial, setPrevInitial] = useState(initialNationalnumber);
 
-  useEffect(() => {
-    if (initialNationalnumber && !nationalnumber) {
+  if (initialNationalnumber !== prevInitial) {
+    setPrevInitial(initialNationalnumber);
+    if (!nationalnumber) {
       setNationalnumber(initialNationalnumber);
     }
-  }, [initialNationalnumber]);
+  }
 
   const normalizedNationalnumber = nationalnumber.trim();
   const isNationalnumberComplete = normalizedNationalnumber.length === 10;
@@ -1448,7 +1458,6 @@ export function AccountRetryState({
   message: string;
   onRetry?: () => void;
 }) {
-  const ErrorState = getRequestErrorState(error);
   const reloadPage = () => {
     window.location.reload();
   };
@@ -1456,7 +1465,7 @@ export function AccountRetryState({
   return (
     <>
       <div className="bg-surface-container-lowest fixed inset-0 z-[999]">
-        <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
+        <RequestErrorState error={error} className="h-full" onRetry={onRetry ?? reloadPage} />
       </div>
       <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">
         {message}

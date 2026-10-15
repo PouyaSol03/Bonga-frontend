@@ -8,7 +8,6 @@ export function DetailsStepSkeleton({ desktop = false }: { desktop?: boolean }) 
             : "bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-3"
         }
       >
-        {/* Section 1: Location */}
         <section
           className={
             desktop
@@ -23,7 +22,6 @@ export function DetailsStepSkeleton({ desktop = false }: { desktop?: boolean }) 
           <div className="animate-skeleton h-12 w-full rounded-xl" />
         </section>
 
-        {/* Section 2: Property Specifications */}
         <section
           className={
             desktop
@@ -43,7 +41,6 @@ export function DetailsStepSkeleton({ desktop = false }: { desktop?: boolean }) 
           </div>
         </section>
 
-        {/* Section 3: Pricing */}
         <section
           className={
             desktop
@@ -61,7 +58,6 @@ export function DetailsStepSkeleton({ desktop = false }: { desktop?: boolean }) 
           </div>
         </section>
 
-        {/* Section 4: Facilities / Features */}
         <section
           className={
             desktop
@@ -81,7 +77,6 @@ export function DetailsStepSkeleton({ desktop = false }: { desktop?: boolean }) 
         </section>
       </main>
 
-      {/* Footer Skeleton */}
       <footer
         className={
           desktop

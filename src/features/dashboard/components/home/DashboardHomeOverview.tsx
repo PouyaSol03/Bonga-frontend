@@ -1049,7 +1049,7 @@ function PublishedAgencyAdsCard({
         ) : null}
 
         {pieData.length > 0 ? (
-          <ResponsiveContainer height="100%" width="100%">
+          <ResponsiveContainer height="100%" width="100%" minWidth={0}>
             <PieChart className="outline-none [&_*:focus]:outline-none" tabIndex={-1}>
               <Pie
                 data={pieData}
@@ -1447,7 +1447,7 @@ function ConsultantActivityCard({
           style={{ width: consultantChartViewportWidth }}
         >
           <div className="h-full" style={{ width: consultantChartWidth }}>
-            <ResponsiveContainer height="100%" width="100%">
+            <ResponsiveContainer height="100%" width="100%" minWidth={0}>
               <BarChart
                 barCategoryGap={20}
                 barGap={5}

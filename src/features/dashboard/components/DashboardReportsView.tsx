@@ -104,7 +104,6 @@ export function DashboardReportsView({
       {/* TopBar - Registered to App TopBar without notifications */}
       <TopBar
         actions={[]}
-        backTo="/account/dashboard"
         onBack={onBack}
         title="گزارش‌ها و نمودارها"
       />

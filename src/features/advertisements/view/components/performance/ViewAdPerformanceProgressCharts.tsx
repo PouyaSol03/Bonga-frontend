@@ -164,7 +164,7 @@ export function ViewAdPerformanceProgressCharts({
           {isLoading && !chartData ? (
             <div className="bg-surface-container h-full w-full animate-pulse rounded-xl" />
           ) : (
-            <ResponsiveContainer height="100%" width="100%">
+            <ResponsiveContainer height="100%" width="100%" minWidth={0}>
               <BarChart
                 barCategoryGap={16}
                 data={days}

@@ -427,7 +427,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
               </Typography>
             </div>
           ) : (
-            <ResponsiveContainer height="100%" width="100%">
+            <ResponsiveContainer height="100%" width="100%" minWidth={0}>
               <BarChart
                 barCategoryGap={isUserMode ? 26 : 20}
                 data={visibleChartData}

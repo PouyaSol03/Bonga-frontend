@@ -77,8 +77,8 @@ export function ConsultantProgressLineCard({
           <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
         </div>
       ) : data && data.length > 0 ? (
-        <div className="h-[260px] w-full" dir="ltr">
-          <ResponsiveContainer height="100%" width="100%">
+        <div className="h-[260px] w-full min-w-0" dir="ltr">
+          <ResponsiveContainer height="100%" width="100%" minWidth={0}>
             <LineChart data={data} margin={{ bottom: 20, left: -20, right: 15, top: 45 }}>
               <CartesianGrid
                 horizontal

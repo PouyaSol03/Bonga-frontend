@@ -23,18 +23,18 @@ export function syncEditLocationStorage(
     window.localStorage.setItem(locationKey, values.location);
   }
 
-  const lat = numericInputText(ad.lat ?? ad.latitude ?? (ad.location as any)?.coordinates?.[1]);
+  const lat = numericInputText(ad.lat ?? ad.latitude ?? ad.location?.coordinates?.[1]);
   const lng = numericInputText(
-    ad.lng ?? ad.long ?? ad.longitude ?? (ad.location as any)?.coordinates?.[0],
+    ad.lng ?? ad.long ?? ad.longitude ?? ad.location?.coordinates?.[0],
   );
   const neighborhoodId =
     readTextValue(ad, features, ["neighborhood_id"], ["neighborhood_id"]) ||
-    readText((ad.neighborhood as any)?.id) ||
-    readText((ad as any).neighborhoodId);
+    readText(ad.neighborhood?.id) ||
+    readText(ad.neighborhoodId);
   const subNeighborhoodId =
     readTextValue(ad, features, ["sub_neighborhood_id"], ["sub_neighborhood_id"]) ||
-    readText((ad.sub_neighborhood as any)?.id) ||
-    readText((ad as any).subNeighborhoodId);
+    readText(ad.sub_neighborhood?.id) ||
+    readText(ad.subNeighborhoodId);
 
   if (!existingLat && lat) window.localStorage.setItem(locationLatKey, lat);
   if (!existingLng && lng) window.localStorage.setItem(locationLngKey, lng);

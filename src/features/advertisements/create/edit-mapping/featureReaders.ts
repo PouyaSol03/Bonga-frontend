@@ -4,8 +4,9 @@ import { normalizeLookupText, readText } from "./featureFormatters";
 
 export function readFeatureValue(features: AdvertisementFeature[], labels: string[]): unknown {
   const normalizedLabels = labels.map(normalizeLookupText);
-  const feature = features.find((item: any) => {
-    const lookupValues = [item.key, item.label, (item as any).name]
+  const feature = features.find((item) => {
+    const raw = item as AdvertisementFeature & { name?: string };
+    const lookupValues = [raw.key, raw.label, raw.name]
       .map(normalizeLookupText)
       .filter(Boolean);
 
@@ -47,7 +48,7 @@ export function readTextValue(
 export function readContactTypes(ad: AdvertisementItem): string[] {
   const contactTypes = Array.isArray(ad.contact_type) ? ad.contact_type : [];
 
-  return contactTypes.map((item: any) => normalizeLookupText(item));
+  return contactTypes.map((item) => normalizeLookupText(item));
 }
 
 export function readSocialValue(ad: AdvertisementItem, key: "telegram" | "whatsapp"): string {

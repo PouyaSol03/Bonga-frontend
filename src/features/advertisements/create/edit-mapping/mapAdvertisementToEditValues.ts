@@ -616,8 +616,8 @@ export function mapAdvertisementToEditValues(
   if (resolvedConsultantId) {
     next.consultantAssignmentSelected = false;
     next.consultantId = String(
-      typeof resolvedConsultantId === "object"
-        ? (resolvedConsultantId as any)?.id
+      resolvedConsultantId && typeof resolvedConsultantId === "object" && "id" in resolvedConsultantId
+        ? (resolvedConsultantId as { id: unknown }).id
         : resolvedConsultantId,
     );
   }

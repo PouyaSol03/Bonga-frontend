@@ -56,6 +56,7 @@ import type {
   MoreFeaturesFormValues,
   NewAdFormValues,
 } from "./types";
+import type { AdvertisementItem } from "../api/advertisement.service";
 import { clearNewAdFlowSession, shouldPreserveNewAdDraft } from "./session";
 import { getFormSchemaByListing } from "../forms";
 
@@ -248,9 +249,12 @@ type EditAdCard = Partial<{
 }>;
 
 export type EditAdRouteState = {
-  ad?: Record<string, unknown>;
-  card?: EditAdCard;
+  ad?: AdvertisementItem;
+  assigned_agency_id?: number | string | null;
+  assignment_status?: string | number | null;
+  card?: EditAdCard & { isAssigned?: boolean };
   editReturnTo?: string;
+  isAssigned?: boolean;
   isEditMode?: boolean;
   returnTo?: string;
   status?: string | number;

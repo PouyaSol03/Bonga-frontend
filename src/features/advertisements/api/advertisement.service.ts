@@ -93,6 +93,9 @@ export type AdvertisementItem = Record<string, unknown> & {
   badges?: string[];
   is_ladder?: boolean | number | string;
   is_special?: boolean | number | string;
+  isAssigned?: boolean;
+  assignment_status?: string | number | null;
+  assigned_agency_id?: number | string | null;
   city?: AdvertisementLocationEntity | null;
   city_id?: number | string | null;
   city_name?: string;

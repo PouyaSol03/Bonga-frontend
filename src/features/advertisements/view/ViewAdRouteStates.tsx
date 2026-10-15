@@ -1,5 +1,5 @@
 import { PageFrame } from "../../../shared/layout/PageFrame";
-import { getRequestErrorState, NotFoundErrorState } from "../../../shared/components/ErrorState";
+import { NotFoundErrorState, RequestErrorState } from "../../../shared/components/ErrorState";
 import { ViewAdTopBar } from "./viewAdComponents";
 import { Typography } from "../../../shared/ui/Typography";
 
@@ -95,7 +95,6 @@ export function ViewAdErrorState({
   message: string;
   onRetry?: () => void;
 }) {
-  const ErrorState = getRequestErrorState(error);
   const reloadPage = () => {
     window.location.reload();
   };
@@ -103,7 +102,7 @@ export function ViewAdErrorState({
   return (
     <div className="bg-surface-container-lowest fixed inset-0 z-[999]">
       <div className="bg-surface-container-lowest h-full min-h-0">
-        <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
+        <RequestErrorState error={error} className="h-full" onRetry={onRetry ?? reloadPage} />
         <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">
           {message}
         </Typography>

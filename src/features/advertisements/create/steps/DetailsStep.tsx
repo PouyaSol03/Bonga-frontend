@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useFormContext } from "react-hook-form";
 import { AnimatePresence, motion } from "motion/react";
@@ -288,9 +288,10 @@ export function DetailsStep({
                       ? rentHeatingItems
                       : heatingItems);
 
-  const facilityItemsForCategory = useMemo(() => {
-    if (formSchema?.create?.facilities?.items) {
-      return formSchema.create.facilities.items;
+  const schemaFacilities = formSchema?.create?.facilities?.items;
+  const facilityItemsForCategory = (() => {
+    if (schemaFacilities) {
+      return schemaFacilities;
     }
     if (isProject) return projectFacilityItems;
     if (isSaleApartment) return saleApartmentFacilityItems;
@@ -313,28 +314,7 @@ export function DetailsStep({
     return category === "land" || category === "factory-workshop"
       ? landFacilityItems
       : facilityItems;
-  }, [
-    formSchema,
-    category,
-    isProject,
-    isDailyApartmentRent,
-    isDailyHotelRent,
-    isDailyVillaRent,
-    isDailyWorkspaceRent,
-    isRentApartment,
-    isRentCommercial,
-    isRentFactory,
-    isRentHotel,
-    isRentOffice,
-    isRentVillaHouse,
-    isSaleApartment,
-    isSaleCommercial,
-    isSaleFactory,
-    isSaleHotel,
-    isSaleLand,
-    isSaleOffice,
-    isSaleVillaHouse,
-  ]);
+  })();
 
   const heatingMeasureRef = useRef<HTMLDivElement>(null);
   const facilitiesMeasureRef = useRef<HTMLDivElement>(null);

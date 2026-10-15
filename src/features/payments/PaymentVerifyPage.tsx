@@ -25,8 +25,8 @@ function readCallbackParameters() {
 export function PaymentVerifyPage() {
   const navigate = useNavigate();
   const callback = useVerifyPaymentCallbackMutation();
-  const parameters = useMemo(readCallbackParameters, []);
-  const returnTarget = useMemo(readPaymentReturnTarget, []);
+  const parameters = useMemo(() => readCallbackParameters(), []);
+  const returnTarget = useMemo(() => readPaymentReturnTarget(), []);
   const isPackagePayment =
     returnTarget.kind === "package" ||
     returnTarget.path === "/account/dashboard/payments" ||

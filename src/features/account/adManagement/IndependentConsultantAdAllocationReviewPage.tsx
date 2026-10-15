@@ -92,9 +92,10 @@ export function IndependentConsultantAdAllocationReviewPage(
     page: 1,
     perPage: 100,
   });
+  const mockConsultants = props?.mockConsultants;
   const selectableConsultants = useMemo(
     () =>
-      props?.mockConsultants ??
+      mockConsultants ??
       (consultantsQuery.data?.data ?? []).map((consultant) => {
         const id = String(consultant.agentId ?? consultant.userId);
         return {
@@ -103,7 +104,7 @@ export function IndependentConsultantAdAllocationReviewPage(
           name: consultant.name || `مشاور شماره ${id}`,
         };
       }),
-    [props?.mockConsultants, consultantsQuery.data],
+    [mockConsultants, consultantsQuery.data],
   );
   const initialConsultantId = String(routeState.consultantId ?? assignment?.consultantId ?? "");
   const assignmentId = routeState.assignmentId ?? assignment?.id;
@@ -131,16 +132,19 @@ export function IndependentConsultantAdAllocationReviewPage(
       : "";
 
   useEffect(() => {
-    if (assignedConsultant || !initialConsultantId) return;
+    const timer = setTimeout(() => {
+      if (assignedConsultant || !initialConsultantId) return;
 
-    const currentConsultant = selectableConsultants.find(
-      (consultant) => consultant.id === initialConsultantId,
-    );
+      const currentConsultant = selectableConsultants.find(
+        (consultant) => consultant.id === initialConsultantId,
+      );
 
-    if (currentConsultant) {
-      setAssignedConsultant(currentConsultant);
-      setPublisher("consultant");
-    }
+      if (currentConsultant) {
+        setAssignedConsultant(currentConsultant);
+        setPublisher("consultant");
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [assignedConsultant, initialConsultantId, selectableConsultants]);
 
   function navigateToPayment(consultant = assignedConsultant) {
@@ -599,7 +603,7 @@ function ConsultantPickerPage({
 }) {
   const [searchValue, setSearchValue] = useState("");
   const [draftConsultantId, setDraftConsultantId] = useState<string | null>(
-    selectedConsultant?.id ?? null,
+    selectedConsultant?.id ?? consultants[0]?.id ?? null,
   );
   const normalizedSearch = searchValue.trim();
   const visibleConsultants = normalizedSearch
@@ -607,11 +611,6 @@ function ConsultantPickerPage({
     : consultants;
   const draftConsultant =
     consultants.find((consultant) => consultant.id === draftConsultantId) ?? null;
-
-  useEffect(() => {
-    if (draftConsultantId || consultants.length === 0) return;
-    setDraftConsultantId(consultants[0].id);
-  }, [consultants, draftConsultantId]);
 
   return (
     <section

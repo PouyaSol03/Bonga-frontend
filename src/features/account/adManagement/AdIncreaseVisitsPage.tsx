@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { getApiErrorMessage } from "../../../shared/api/api";
@@ -118,21 +118,16 @@ export function AdIncreaseVisitsPage() {
   const walletMethod = checkout ? findMethod(checkout, "wallet") : undefined;
   const gatewayMethod = checkout ? findMethod(checkout, "gateway") : undefined;
 
-  useEffect(() => {
-    if (gatewayMethod?.available === false && walletMethod?.available !== false)
-      setMethod("wallet");
-  }, [gatewayMethod?.available, walletMethod?.available]);
-
-  useEffect(() => {
-    const is100Percent = Boolean(
-      appliedDiscount?.is_free ||
-      appliedDiscount?.disable_gateway ||
-      (appliedDiscount && finalPayable === 0),
-    );
-    if (is100Percent && method === "online") {
-      setMethod("wallet");
-    }
-  }, [appliedDiscount, finalPayable, method]);
+  const is100Percent = Boolean(
+    appliedDiscount?.is_free ||
+    appliedDiscount?.disable_gateway ||
+    (appliedDiscount && finalPayable === 0),
+  );
+  const effectiveMethod =
+    (gatewayMethod?.available === false && walletMethod?.available !== false) ||
+    (is100Percent && method === "online")
+      ? "wallet"
+      : method;
 
   async function handleApplyDiscount() {
     const code = discountInput.trim();
@@ -245,7 +240,7 @@ export function AdIncreaseVisitsPage() {
         discountInput={discountInput}
         discountLoading={discountLoading}
         gatewayMethod={gatewayMethod}
-        method={method}
+        method={effectiveMethod}
         onApplyDiscount={handleApplyDiscount}
         onBack={() => setStep("options")}
         onDiscountInputChange={(val) => {
@@ -254,7 +249,7 @@ export function AdIncreaseVisitsPage() {
         }}
         onMethodChange={setMethod}
         onRemoveDiscount={handleRemoveDiscount}
-        onSubmit={() => submit(method === "wallet" ? "wallet" : "gateway")}
+        onSubmit={() => submit(effectiveMethod === "wallet" ? "wallet" : "gateway")}
         payableAmount={finalPayable}
         pending={checkoutMutation.isPending}
         submitLabelPrefix="پرداخت و افزایش بازدید"

@@ -63,7 +63,7 @@ export function CrmSupportView({ notify }: Partial<CrmRoutePageProps>) {
   const [isCustomerTyping, setIsCustomerTyping] = useState(false);
   const [liveMessages, setLiveMessages] = useState<SupportChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const currentUserId = useMemo(readCurrentAccountUserId, []);
+  const currentUserId = useMemo(() => readCurrentAccountUserId(), []);
   const chatsQuery = usePanelSupportChatsQuery();
   const threads = chatsQuery.data ?? [];
   const normalizedSearch = normalizeSearch(search);

@@ -30,7 +30,7 @@ type DeleteAdRouteState = {
 
 export function AdDeleteReasonPage() {
   const navigate = useNavigate();
-  const routeState = useMemo(readRouteState, []);
+  const routeState = useMemo(() => readRouteState(), []);
   const [selectedReason, setSelectedReason] = useState<DeleteReasonId>(deleteReasons[0].id);
   const [errorMessage, setErrorMessage] = useState("");
   const deleteMutation = useDeleteAdvertisementMutation();

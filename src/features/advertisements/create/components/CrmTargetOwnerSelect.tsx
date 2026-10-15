@@ -26,11 +26,14 @@ export function CrmTargetOwnerSelect({
 
   // When value changes externally (e.g. cleared), clear our local state
   useEffect(() => {
-    if (!value) {
-      setQuery("");
-      setDebouncedQuery("");
-      setSelectedLabel("");
-    }
+    const timer = setTimeout(() => {
+      if (!value) {
+        setQuery("");
+        setDebouncedQuery("");
+        setSelectedLabel("");
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [value]);
 
   const { data, isLoading } = useQuery({

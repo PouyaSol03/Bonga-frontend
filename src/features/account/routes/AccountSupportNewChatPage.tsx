@@ -47,7 +47,7 @@ export function AccountSupportNewChatPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isAgentTyping, setIsAgentTyping] = useState(false);
   const [liveMessages, setLiveMessages] = useState<SupportChatMessage[]>([]);
-  const currentUserId = useMemo(readCurrentAccountUserId, []);
+  const currentUserId = useMemo(() => readCurrentAccountUserId(), []);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const scrollAreaRef = useRef<HTMLElement | null>(null);

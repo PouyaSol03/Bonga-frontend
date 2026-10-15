@@ -398,7 +398,7 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
   const [liveMessages, setLiveMessages] = useState<SupportChatMessage[]>([]);
   const composerRef = useRef<HTMLInputElement | null>(null);
   const conversationEndRef = useRef<HTMLDivElement | null>(null);
-  const currentUserId = useMemo(readCurrentAccountUserId, []);
+  const currentUserId = useMemo(() => readCurrentAccountUserId(), []);
 
   const filters = useMemo(
     () => ({
@@ -456,9 +456,10 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
     setDraft("");
   }, [selectedRequest?.assignedSupportId, selectedRequest?.id]);
 
-  const messagesQuery = useInfiniteChatMessagesQuery(selectedRequest?.threadId || null, 30);
+  const threadId = selectedRequest?.threadId;
+  const messagesQuery = useInfiniteChatMessagesQuery(threadId || null, 30);
   const apiMessages = useMemo(() => {
-    if (!selectedRequest?.threadId) return [];
+    if (!threadId) return [];
     const rawMessages = (messagesQuery.data?.pages ?? [])
       .flatMap((messagePage) => messagePage.data)
       .sort((first, second) => messageTimestamp(first) - messageTimestamp(second));
@@ -468,18 +469,18 @@ export function CrmSupportRequestsView({ notify, refreshNonce }: CrmRoutePagePro
         message,
         index,
         currentUserId,
-        selectedRequest.threadId,
+        threadId,
       );
       return mapped ? [mapped] : [];
     });
-  }, [currentUserId, messagesQuery.data?.pages, selectedRequest?.threadId]);
+  }, [currentUserId, messagesQuery.data?.pages, threadId]);
   const messages = useMemo(
     () =>
       mergeSupportChatMessages([
         ...apiMessages,
-        ...liveMessages.filter((message) => message.threadId === selectedRequest?.threadId),
+        ...liveMessages.filter((message) => message.threadId === threadId),
       ]),
-    [apiMessages, liveMessages, selectedRequest?.threadId],
+    [apiMessages, liveMessages, threadId],
   );
 
   useEffect(() => {

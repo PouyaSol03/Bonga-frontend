@@ -37,9 +37,12 @@ export function AccountIdentityPage() {
   );
 
   useEffect(() => {
-    if (isUserIdentityVerified(profile) && step === "pending") {
-      setStep("verified");
-    }
+    const timer = setTimeout(() => {
+      if (isUserIdentityVerified(profile) && step === "pending") {
+        setStep("verified");
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [profile, step]);
 
   const title =

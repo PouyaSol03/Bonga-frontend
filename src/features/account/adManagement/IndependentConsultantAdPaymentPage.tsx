@@ -597,64 +597,67 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   useEffect(() => {
     if (!checkout) return;
 
-    const gatewayAvailable = gatewayMethod?.available !== false;
-    const walletBalance = toSafeNumber(walletMethod?.balance);
-    const walletRequired = toSafeNumber(walletMethod?.required, payableAmount);
-    const walletShortage = Math.max(
-      toSafeNumber(walletMethod?.shortage, walletRequired - walletBalance),
-      0,
-    );
-    const walletAvailable = Boolean(walletMethod && walletShortage <= 0);
-    const walletSelectable = Boolean(walletMethod);
-    const creditSelectable = Boolean(
-      agencyCreditMethod && (agencyCreditAvailable || agencyCreditShortage > 0),
-    );
+    const timer = setTimeout(() => {
+      const gatewayAvailable = gatewayMethod?.available !== false;
+      const walletBalance = toSafeNumber(walletMethod?.balance);
+      const walletRequired = toSafeNumber(walletMethod?.required, payableAmount);
+      const walletShortage = Math.max(
+        toSafeNumber(walletMethod?.shortage, walletRequired - walletBalance),
+        0,
+      );
+      const walletAvailable = Boolean(walletMethod && walletShortage <= 0);
+      const walletSelectable = Boolean(walletMethod);
+      const creditSelectable = Boolean(
+        agencyCreditMethod && (agencyCreditAvailable || agencyCreditShortage > 0),
+      );
 
-    if (usesAgencyCheckoutOptions) {
-      if (onlyShowByConsultant) {
-        if (agencyMethod !== "by_consultant") {
-          setAgencyMethod("by_consultant");
+      if (usesAgencyCheckoutOptions) {
+        if (onlyShowByConsultant) {
+          if (agencyMethod !== "by_consultant") {
+            setAgencyMethod("by_consultant");
+          }
+          return;
         }
+
+        const byConsultantAvailable = showByConsultant && byConsultantMethod?.available !== false;
+        const currentMethodSelectable =
+          ((agencyMethod === "free_quota" ||
+            agencyMethod === "package_credit" ||
+            agencyMethod === "ad_credit") &&
+            agencyMethod === agencyCreditMethod &&
+            creditSelectable) ||
+          (agencyMethod === "by_consultant" && byConsultantAvailable) ||
+          (agencyMethod === "wallet" && walletSelectable) ||
+          (agencyMethod === "gateway" && gatewayAvailable && Boolean(gatewayMethod));
+
+        // Keep a user-selected insufficient-balance method selected. The radio remains
+        // interactive and the submit button is what becomes disabled.
+        if (currentMethodSelectable) return;
+
+        if (byConsultantAvailable) {
+          setAgencyMethod("by_consultant");
+        } else if (agencyCreditMethod && agencyCreditAvailable) {
+          setAgencyMethod(agencyCreditMethod);
+        } else if (walletAvailable) {
+          setAgencyMethod("wallet");
+        } else if (gatewayAvailable && gatewayMethod) {
+          setAgencyMethod("gateway");
+        } else if (creditSelectable && agencyCreditMethod) {
+          setAgencyMethod(agencyCreditMethod);
+        } else if (walletSelectable) {
+          setAgencyMethod("wallet");
+        }
+
         return;
       }
 
-      const byConsultantAvailable = showByConsultant && byConsultantMethod?.available !== false;
-      const currentMethodSelectable =
-        ((agencyMethod === "free_quota" ||
-          agencyMethod === "package_credit" ||
-          agencyMethod === "ad_credit") &&
-          agencyMethod === agencyCreditMethod &&
-          creditSelectable) ||
-        (agencyMethod === "by_consultant" && byConsultantAvailable) ||
-        (agencyMethod === "wallet" && walletSelectable) ||
-        (agencyMethod === "gateway" && gatewayAvailable && Boolean(gatewayMethod));
-
-      // Keep a user-selected insufficient-balance method selected. The radio remains
-      // interactive and the submit button is what becomes disabled.
-      if (currentMethodSelectable) return;
-
-      if (byConsultantAvailable) {
-        setAgencyMethod("by_consultant");
-      } else if (agencyCreditMethod && agencyCreditAvailable) {
-        setAgencyMethod(agencyCreditMethod);
-      } else if (walletAvailable) {
-        setAgencyMethod("wallet");
-      } else if (gatewayAvailable && gatewayMethod) {
-        setAgencyMethod("gateway");
-      } else if (creditSelectable && agencyCreditMethod) {
-        setAgencyMethod(agencyCreditMethod);
-      } else if (walletSelectable) {
-        setAgencyMethod("wallet");
+      if (gatewayAvailable && walletShortage > 0) {
+        setMethod("online");
+      } else if (!gatewayAvailable && walletAvailable) {
+        setMethod("wallet");
       }
-
-      return;
-    }
-
-    if (gatewayAvailable && walletShortage > 0) {
-      setMethod("online");
-    } else if (!gatewayAvailable && walletAvailable) {
-      setMethod("wallet");
-    }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [
     agencyMethod,
     agencyCreditAvailable,
@@ -672,9 +675,12 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   ]);
 
   useEffect(() => {
-    if (is100PercentDiscount && method === "online") {
-      setMethod("wallet");
-    }
+    const timer = setTimeout(() => {
+      if (is100PercentDiscount && method === "online") {
+        setMethod("wallet");
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [is100PercentDiscount, method]);
 
   async function handleApplyDiscount() {
@@ -1055,8 +1061,11 @@ function AgencyCombinedCheckoutView({
           : gatewayAvailable;
 
   useEffect(() => {
-    if (upgradeSelectionEnabled) return;
-    setSelectedUpgradeProducts([]);
+    const timer = setTimeout(() => {
+      if (upgradeSelectionEnabled) return;
+      setSelectedUpgradeProducts([]);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [upgradeSelectionEnabled]);
 
   function toggleUpgrade(product: string) {

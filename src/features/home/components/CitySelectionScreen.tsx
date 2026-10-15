@@ -5,7 +5,7 @@ import { TopBar } from "../../../shared/components/TopBar";
 import SearchErrors from "./SearchErrors";
 import { useCitySearchQuery } from "../../cities/api/city.hooks";
 import type { CityDto } from "../../cities/api/city.service";
-import { getRequestErrorState } from "../../../shared/components/ErrorState";
+import { RequestErrorState } from "../../../shared/components/ErrorState";
 import { readStoredSelectedCity, saveSelectedCity } from "../../../shared/lib/selectedCityStorage";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
@@ -63,7 +63,6 @@ export function CitySelectionScreen({
     enabled: isOpen,
     q: isSearching ? debouncedQuery : "",
   });
-  const CityErrorState = getRequestErrorState(error);
   const cityList = useMemo<UiCityOption[]>(() => {
     if (isError) {
       return [];
@@ -143,7 +142,7 @@ export function CitySelectionScreen({
         }
         aria-hidden={!isOpen}
       >
-        <CityErrorState className="h-full" onRetry={() => void refetch()} />
+        <RequestErrorState error={error} className="h-full" onRetry={() => void refetch()} />
       </section>
     );
   }

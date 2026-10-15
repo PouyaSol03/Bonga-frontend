@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
-import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { RequestErrorState } from "../../shared/components/ErrorState";
 import { useToast } from "../../shared/hooks/useToast";
 import { getApiErrorMessage } from "../../shared/api/api";
 import { storePaymentReturnTarget } from "../../shared/utils/payment-return";
@@ -451,8 +451,6 @@ function DashboardPaymentMobilePage({
     ? (packages.find((p) => String(p.id) === String(selectedPackageId)) ?? null)
     : null;
 
-  const ErrorState = getRequestErrorState(error);
-
   function handlePay(packageId: string | number) {
     if (packagePaymentMutation.isPending) return;
     const strId = String(packageId);
@@ -565,7 +563,7 @@ function DashboardPaymentMobilePage({
       <MobileCreditTabs activeTab={activeTab} onChange={setActiveTab} />
 
       <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pb-4">
-        {isError ? <ErrorState className="min-h-[420px]" onRetry={() => void refetch()} /> : null}
+        {isError ? <RequestErrorState error={error} className="min-h-[420px]" onRetry={() => void refetch()} /> : null}
 
         {!isError && isLoading ? <MobilePlansSkeleton showGift={showGift} /> : null}
 
@@ -630,7 +628,6 @@ function DashboardPaymentDesktopPage({
   const selectedPackage = selectedPackageId
     ? (packages.find((p) => String(p.id) === String(selectedPackageId)) ?? null)
     : null;
-  const ErrorState = getRequestErrorState(error);
 
   function handlePay(packageId: string | number) {
     if (packagePaymentMutation.isPending) return;
@@ -739,7 +736,7 @@ function DashboardPaymentDesktopPage({
         </Link>
       </div>
 
-      {isError ? <ErrorState className="min-h-[420px]" onRetry={() => void refetch()} /> : null}
+      {isError ? <RequestErrorState error={error} className="min-h-[420px]" onRetry={() => void refetch()} /> : null}
 
       {!isError ? (
         <>

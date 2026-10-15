@@ -105,7 +105,7 @@ export function useNewAdEditSync({
     if (shouldPreserveNewAdDraft(window.history.state) && restoredValues) {
       editDataAppliedRef.current = appliedKey;
       if (routeChanged) {
-        setEditRouteVersion((version) => version + 1);
+        setTimeout(() => setEditRouteVersion((version) => version + 1), 0);
       }
       return undefined;
     }

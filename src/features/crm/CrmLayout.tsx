@@ -536,10 +536,6 @@ export function CrmLayout({
     return () => window.clearTimeout(notifyTimer);
   }, [notify]);
 
-  if (!isDesktop) {
-    return <DesktopRequiredPage />;
-  }
-
   const crmRoleSlugs = crmSessionRoleSlugs();
   const allowedSections = allowedCrmSectionsForRoles(crmRoleSlugs);
   const visibleNavigationItems = navigationItems.filter((item) =>
@@ -557,28 +553,28 @@ export function CrmLayout({
   const isSuperAdmin = crmRoleSlugs.includes(SUPER_ADMIN);
 
   const { data: pendingAdsCount } = useQuery({
-    enabled: isSuperAdmin || allowedSections.has("advertises"),
+    enabled: isDesktop && (isSuperAdmin || allowedSections.has("advertises")),
     queryFn: () => countCrmAdvertisesByStatus("wait_for_admin"),
     queryKey: ["crm", "badges", "advertises", refreshNonce],
     staleTime: 30_000,
   });
 
   const { data: crmUsers } = useQuery({
-    enabled: isSuperAdmin || allowedSections.has("users"),
+    enabled: isDesktop && (isSuperAdmin || allowedSections.has("users")),
     queryFn: () => listCrmUsers(),
     queryKey: ["crm", "badges", "users", refreshNonce],
     staleTime: 30_000,
   });
 
   const { data: crmAgencies } = useQuery({
-    enabled: isSuperAdmin || allowedSections.has("agencies"),
+    enabled: isDesktop && (isSuperAdmin || allowedSections.has("agencies")),
     queryFn: () => listCrmAgencies(),
     queryKey: ["crm", "badges", "agencies", refreshNonce],
     staleTime: 30_000,
   });
 
   const { data: crmConsultants } = useQuery({
-    enabled: isSuperAdmin || allowedSections.has("consultants"),
+    enabled: isDesktop && (isSuperAdmin || allowedSections.has("consultants")),
     queryFn: () => listCrmAgents(),
     queryKey: ["crm", "badges", "consultants", refreshNonce],
     staleTime: 30_000,
@@ -620,6 +616,10 @@ export function CrmLayout({
 
     return counts;
   }, [pendingAdsCount, crmUsers, crmAgencies, crmConsultants]);
+
+  if (!isDesktop) {
+    return <DesktopRequiredPage />;
+  }
 
   return (
     <div

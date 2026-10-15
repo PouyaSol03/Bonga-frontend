@@ -463,20 +463,23 @@ export function NewAdLocationPage() {
     if (locationByCoordinatesQuery.isFetching || isManualSearch) return;
     if (selectedNeighborhood && !isResolvingLocation) return;
 
-    const neighborhood = locationByCoordinatesQuery.data;
+    const timer = setTimeout(() => {
+      const neighborhood = locationByCoordinatesQuery.data;
 
-    if (!neighborhood || !getNeighborhoodId(neighborhood) || !neighborhood.name.trim()) {
-      setSelectedNeighborhood(null);
-      setSelectedSearchSubNeighborhood(null);
-      setQuery("");
+      if (!neighborhood || !getNeighborhoodId(neighborhood) || !neighborhood.name.trim()) {
+        setSelectedNeighborhood(null);
+        setSelectedSearchSubNeighborhood(null);
+        setQuery("");
+        setIsResolvingLocation(false);
+        return;
+      }
+
+      setSelectedNeighborhood(neighborhood);
+      setSelectedSearchSubNeighborhood(neighborhood.matched_sub_neighborhood ?? null);
+      setQuery(neighborhood.name);
       setIsResolvingLocation(false);
-      return;
-    }
-
-    setSelectedNeighborhood(neighborhood);
-    setSelectedSearchSubNeighborhood(neighborhood.matched_sub_neighborhood ?? null);
-    setQuery(neighborhood.name);
-    setIsResolvingLocation(false);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [
     isManualSearch,
     locationByCoordinatesQuery.data,

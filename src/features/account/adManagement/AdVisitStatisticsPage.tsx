@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -355,7 +355,8 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
 
     return markedIndex >= 0 ? markedIndex : Math.max(0, visibleChartData.length - 1);
   }, [visibleChartData]);
-  const [selectedIndex, setSelectedIndex] = useState(defaultSelectedIndex);
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState<number | null>(null);
+  const selectedIndex = selectedColumnIndex ?? defaultSelectedIndex;
   const isUserMode = mode === "user";
   const selectedColumn =
     visibleChartData[selectedIndex] ??
@@ -364,13 +365,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
   const tooltipText = selectedColumn?.tooltip ?? chart.selectedTooltip;
   const chartInfo = getChartInfo(chart.metric);
 
-  useEffect(() => {
-    setSelectedIndex(defaultSelectedIndex);
-  }, [defaultSelectedIndex]);
-
-  useEffect(() => {
-    setOffset((current) => Math.min(current, maxOffset));
-  }, [maxOffset]);
+  const effectiveOffset = Math.min(offset, maxOffset);
 
   return (
     <section
@@ -379,7 +374,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
     >
       <div className="flex h-12 items-center justify-between [direction:ltr]">
         {chartData.length > rangeSize ? (
-          <ChartRangeControls maxOffset={maxOffset} offset={offset} setOffset={setOffset} />
+          <ChartRangeControls maxOffset={maxOffset} offset={effectiveOffset} setOffset={setOffset} />
         ) : (
           <div className="h-12 w-24" aria-hidden="true" />
         )}
@@ -463,7 +458,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
                   isAnimationActive={false}
                   maxBarSize={6}
                   minPointSize={2}
-                  onClick={(_, index) => setSelectedIndex(index)}
+                  onClick={(_, index) => setSelectedColumnIndex(index)}
                   radius={[999, 999, 0, 0]}
                   style={{ outline: "none" }}
                 >
@@ -472,7 +467,7 @@ function VisitBarChart({ chart, mode }: { chart: ChartConfig; mode: "manager" | 
                       cursor="pointer"
                       fill={index === selectedIndex ? "var(--tertiary)" : "var(--tertiary)"}
                       key={column.date}
-                      onClick={() => setSelectedIndex(index)}
+                      onClick={() => setSelectedColumnIndex(index)}
                       style={{ outline: "none" }}
                       tabIndex={-1}
                     />

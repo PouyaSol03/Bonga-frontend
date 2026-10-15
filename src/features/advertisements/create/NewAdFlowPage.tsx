@@ -28,7 +28,7 @@ export function NewAdFlowPage() {
   const isCrmSource = isCrmAdvertiseSource();
   const isCrmEditMode = isEditMode && isCrmSource;
 
-  const { initialDraftAdId, initialEditValuesRef, initialStep, initialValues, restoredSessionRef } =
+  const { initialDraftAdId, initialEditValuesRef, initialStep, initialValues, restoredSession } =
     useInitialAdValues(editAdState, editAdId);
 
   const [step, setStep] = useState<FlowStep>(initialStep);
@@ -59,7 +59,7 @@ export function NewAdFlowPage() {
     isCrmSource,
     isEditMode,
     methods,
-    restoredValues: restoredSessionRef.current?.values,
+    restoredValues: restoredSession?.values,
     setSubmitError,
   });
 
@@ -169,7 +169,6 @@ export function NewAdFlowPage() {
               saveDraftPending={saveDraftMutation.isPending}
               setStep={setStep}
               step={step}
-              submitLockRef={submitLockRef}
               updateAdvertisementPending={updateAdvertisement.isPending}
             />
           </div>

@@ -1116,12 +1116,30 @@ function AccountProfileAvatar({
   iconClassName: string;
   label: string;
 }) {
+  return (
+    <AccountProfileAvatarInner
+      key={avatarUrl ?? ""}
+      avatarUrl={avatarUrl}
+      className={className}
+      iconClassName={iconClassName}
+      label={label}
+    />
+  );
+}
+
+function AccountProfileAvatarInner({
+  avatarUrl,
+  className,
+  iconClassName,
+  label,
+}: {
+  avatarUrl?: string;
+  className: string;
+  iconClassName: string;
+  label: string;
+}) {
   const [hasImageError, setHasImageError] = useState(false);
   const showAvatar = Boolean(avatarUrl) && !hasImageError;
-
-  useEffect(() => {
-    setHasImageError(false);
-  }, [avatarUrl]);
 
   return (
     <div className={`relative shrink-0 overflow-visible ${className}`}>

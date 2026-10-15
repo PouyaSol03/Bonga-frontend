@@ -66,7 +66,6 @@ export function SearchMapSearchScreen({
   const lastPublishedQueryRef = useRef(normalizeQuery(initialQuery));
   const normalizedInitialQuery = normalizeQuery(initialQuery);
   const normalizedQuery = normalizeQuery(query);
-  const shouldSyncQueryFromUrl = normalizedInitialQuery !== lastPublishedQueryRef.current;
   const isAuthenticated = Boolean(getStoredAuthSession());
   const {
     data: recentSearches = [],
@@ -114,11 +113,12 @@ export function SearchMapSearchScreen({
   }, [initialQuery, initialView, isOpen]);
 
   useEffect(() => {
-    if (!isOpen || !wasOpenRef.current || !shouldSyncQueryFromUrl) return;
+    if (!isOpen || !wasOpenRef.current) return;
+    if (normalizedInitialQuery === lastPublishedQueryRef.current) return;
 
     setQuery(initialQuery);
     lastPublishedQueryRef.current = normalizedInitialQuery;
-  }, [initialQuery, isOpen, normalizedInitialQuery, shouldSyncQueryFromUrl]);
+  }, [initialQuery, isOpen, normalizedInitialQuery]);
 
   const publishQuery = (nextQuery: string, closeAfterPublish = false) => {
     const normalized = normalizeQuery(nextQuery);

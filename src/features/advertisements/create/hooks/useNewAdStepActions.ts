@@ -1,7 +1,12 @@
-import type { UseQueryResult } from "@tanstack/react-query";
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query";
 import type { MutableRefObject } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type { PublicAgencyDto } from "../../../agencies/api/agency.service";
+import type {
+  AdvertiseFormDefinition,
+  AdvertisementItem,
+  saveAdvertiseDraft,
+} from "../../api/advertisement.service";
 import type { CategoryItem } from "../../../categories/api/category.service";
 import { getEditAdRouteState } from "../routeState";
 import type { FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
@@ -12,7 +17,7 @@ import { saveDraftBeforeMedia } from "./submit/saveDraftBeforeMedia";
 import { useNewAdBackNavigation } from "./useNewAdBackNavigation";
 
 interface UseNewAdStepActionsProps {
-  advertiseFormQuery: UseQueryResult<any, Error>;
+  advertiseFormQuery: UseQueryResult<AdvertiseFormDefinition, Error>;
   categoriesQuery: UseQueryResult<CategoryItem[], Error>;
   clearFieldError: (key: NewAdFieldErrorKey) => void;
   createAdvertisementPending: boolean;
@@ -27,7 +32,11 @@ interface UseNewAdStepActionsProps {
   isEditingIncomplete: boolean;
   methods: UseFormReturn<NewAdFormValues>;
   routeParams: { category: string; publisherType?: string };
-  saveDraftMutation: any;
+  saveDraftMutation: UseMutationResult<
+    AdvertisementItem,
+    Error,
+    Parameters<typeof saveAdvertiseDraft>[0]
+  >;
   setDraftAdId: (id: string | null) => void;
   setFieldErrors: React.Dispatch<React.SetStateAction<NewAdFieldErrors>>;
   setStep: (step: FlowStep) => void;

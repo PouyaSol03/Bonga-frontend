@@ -1,15 +1,20 @@
+import type { Dispatch, SetStateAction } from "react";
 import type { NavigateFunction } from "react-router";
+import type { UseMutationResult } from "@tanstack/react-query";
 import { getApiErrorMessage } from "../../../../../shared/api/api";
 import { USER } from "../../../../../shared/constants/roles.constants";
-import { adManagementPaths, getAdStatePath  } from "../../../../account/adManagement/adManagementData";
-import { mapAdvertisementToAdCard, type AdvertisementItem  } from "../../../api/advertisement.service";
+import { adManagementPaths, getAdStatePath } from "../../../../account/adManagement/adManagementData";
+import {
+  mapAdvertisementToAdCard,
+  updateAdvertisement as updateAdvertisementFn,
+  type AdvertisementItem,
+} from "../../../api/advertisement.service";
 
 import { getMyAdStatusInfo } from "../../../../account/myAdsStatus";
 import { getEditAdRouteState } from "../../routeState";
 import type { NewAdFormValues } from "../../types";
 import { clearNewAdDraftStorage, getDefaultValues } from "../../utils";
 import { buildEditPatchFormData } from "../../edit-patch";
-
 
 interface SubmitEditPatchParams {
   activeRole: string;
@@ -21,10 +26,14 @@ interface SubmitEditPatchParams {
   formCode: string;
   initialEditValuesRef: React.MutableRefObject<NewAdFormValues | null>;
   navigate: NavigateFunction;
-  setFieldErrors: (errors: any) => void;
+  setFieldErrors: Dispatch<SetStateAction<Record<string, string>>>;
   setSubmitError: (error: string) => void;
   submitLockRef: React.MutableRefObject<boolean>;
-  updateAdvertisement: any;
+  updateAdvertisement: UseMutationResult<
+    AdvertisementItem,
+    Error,
+    Parameters<typeof updateAdvertisementFn>[0]
+  >;
   values: NewAdFormValues;
 }
 
@@ -94,7 +103,7 @@ export function submitEditPatch({
       onSettled: () => {
         submitLockRef.current = false;
       },
-      onSuccess: (updatedAd: any) => {
+      onSuccess: (updatedAd: AdvertisementItem) => {
         clearNewAdDraftStorage();
         const updatedCard = mapAdvertisementToAdCard(updatedAd, 0);
         const statusInfo = getMyAdStatusInfo(updatedAd);

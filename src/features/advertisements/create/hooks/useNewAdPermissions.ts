@@ -42,14 +42,14 @@ export function useNewAdPermissions(
     isAgencyConsultantManager;
 
   const isAssigned = Boolean(
-    (editAdState as any)?.isAssigned ||
-    (editAdState.ad as any)?.isAssigned ||
-    (editAdState.ad as any)?.assignment_status ||
-    (editAdState.ad as any)?.assigned_agency_id ||
-    (editAdData as any)?.isAssigned ||
-    (editAdData as any)?.assignment_status ||
-    (editAdData as any)?.assigned_agency_id ||
-    (editAdState.card as any)?.isAssigned,
+    editAdState?.isAssigned ||
+    editAdState.ad?.isAssigned ||
+    editAdState.ad?.assignment_status ||
+    editAdState.ad?.assigned_agency_id ||
+    editAdData?.isAssigned ||
+    editAdData?.assignment_status ||
+    editAdData?.assigned_agency_id ||
+    editAdState.card?.isAssigned,
   );
 
   return {

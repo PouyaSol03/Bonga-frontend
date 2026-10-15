@@ -1,6 +1,8 @@
+import type { Dispatch, SetStateAction } from "react";
 import type { NavigateFunction } from "react-router";
+import type { UseMutationResult } from "@tanstack/react-query";
 import { getApiErrorMessage } from "../../../../../shared/api/api";
-import { getCrmRecordId, type CrmRecord  } from "../../../../crm/api/crm.service";
+import { getCrmRecordId, type CrmRecord } from "../../../../crm/api/crm.service";
 
 import { getEditAdRouteState } from "../../routeState";
 import type { NewAdFormValues } from "../../types";
@@ -8,12 +10,16 @@ import { clearNewAdDraftStorage } from "../../utils";
 
 interface SubmitCrmAdvertiseParams {
   crmEditRecord?: CrmRecord;
-  crmSaveMutation: any;
+  crmSaveMutation: UseMutationResult<
+    CrmRecord,
+    unknown,
+    { id: string | null; original?: CrmRecord; values: NewAdFormValues }
+  >;
   editAdId: string | null;
   editAdState: ReturnType<typeof getEditAdRouteState>;
   isEditMode: boolean;
   navigate: NavigateFunction;
-  setFieldErrors: (errors: any) => void;
+  setFieldErrors: Dispatch<SetStateAction<Record<string, string>>>;
   setSubmitError: (error: string) => void;
   submitLockRef: React.MutableRefObject<boolean>;
   values: NewAdFormValues;
@@ -52,7 +58,7 @@ export function submitCrmAdvertise({
       onSettled: () => {
         submitLockRef.current = false;
       },
-      onSuccess: (savedAdvertise: any) => {
+      onSuccess: (savedAdvertise: CrmRecord) => {
         clearNewAdDraftStorage();
         if (isEditMode && editAdId) {
           const returnTo =

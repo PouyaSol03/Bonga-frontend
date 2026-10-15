@@ -1,23 +1,34 @@
+import type { Dispatch, SetStateAction } from "react";
 import type { NavigateFunction } from "react-router";
+import type { UseMutationResult } from "@tanstack/react-query";
 import { getApiErrorMessage, getApiFieldError } from "../../../../../shared/api/api";
 import { USER } from "../../../../../shared/constants/roles.constants";
-import { adManagementPaths,
+import {
+  adManagementPaths,
   getAdPaymentPath,
   getAdStatePath,
-  markNewAdCheckout } from "../../../../account/adManagement/adManagementData";
-import { mapAdvertisementToAdCard } from "../../../api/advertisement.service";
+  markNewAdCheckout,
+} from "../../../../account/adManagement/adManagementData";
+import {
+  createAdvertisement,
+  mapAdvertisementToAdCard,
+  type AdvertisementItem,
+} from "../../../api/advertisement.service";
 import type { FlowStep, NewAdFormValues } from "../../types";
 import { clearNewAdDraftStorage } from "../../utils";
-
 
 interface SubmitCreateAdvertiseParams {
   activeAdId: string | null;
   activeRole: string;
-  createAdvertisement: any;
+  createAdvertisement: UseMutationResult<
+    AdvertisementItem,
+    Error,
+    Parameters<typeof createAdvertisement>[0]
+  >;
   formData: FormData;
   navigate: NavigateFunction;
   routeParams: { category: string; publisherType?: string };
-  setFieldErrors: (errors: any) => void;
+  setFieldErrors: Dispatch<SetStateAction<Record<string, string>>>;
   setStep: (step: FlowStep) => void;
   setSubmitError: (error: string) => void;
   submitLockRef: React.MutableRefObject<boolean>;
@@ -49,7 +60,7 @@ export function submitCreateAdvertise({
       const agencyError = getApiFieldError(error, "agency_id");
       const errorMessage = getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد.");
       if (agencyError) {
-        setFieldErrors((current: any) => ({ ...current, agencyId: agencyError }));
+        setFieldErrors((current) => ({ ...current, agencyId: agencyError }));
         setStep("agencySelection");
       }
       setSubmitError(agencyError ?? errorMessage);
@@ -59,7 +70,7 @@ export function submitCreateAdvertise({
     onSettled: () => {
       submitLockRef.current = false;
     },
-    onSuccess: (createdAd: any) => {
+    onSuccess: (createdAd: AdvertisementItem) => {
       const createdAdId = createdAd.id ?? createdAd._id ?? activeAdId;
       if (!createdAdId) {
         setSubmitError("شناسه آگهی ثبت‌شده از سرور دریافت نشد.");

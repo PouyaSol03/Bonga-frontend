@@ -100,8 +100,10 @@ export function ConsultantEditForm({
           showToast("اطلاعات مشاور با موفقیت بروزرسانی شد.");
           navigate("/account/dashboard/team", { replace: true });
         },
-        onError: (err: any) => {
-          const msg = err?.message || "خطا در اعمال تغییرات";
+        onError: (err: unknown) => {
+          const msg = (err && typeof err === "object" && "message" in err && typeof (err as { message: unknown }).message === "string")
+            ? (err as { message: string }).message
+            : "خطا در اعمال تغییرات";
           setErrorMessage(msg);
           showToast(msg, "خطا", "error");
         },

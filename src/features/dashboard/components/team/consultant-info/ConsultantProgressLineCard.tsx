@@ -92,9 +92,10 @@ export function ConsultantProgressLineCard({
                 height={55}
                 interval={0}
                 tickLine={false}
-                tick={(props: any) => {
+                tick={(props: Record<string, unknown>) => {
                   const x = Number(props.x) || 0;
                   const y = Number(props.y) || 0;
+                  const payload = props.payload as { value?: string | number } | undefined;
                   return (
                     <g transform={`translate(${x}, ${y + 24})`}>
                       <text
@@ -105,7 +106,7 @@ export function ConsultantProgressLineCard({
                         textAnchor="start"
                         transform="rotate(90)"
                       >
-                        {props.payload?.value}
+                        {payload?.value}
                       </text>
                     </g>
                   );
@@ -121,8 +122,10 @@ export function ConsultantProgressLineCard({
               <Line
                 activeDot={false}
                 dataKey="value"
-                dot={(props: any) => {
-                  const { cx, cy, payload } = props;
+                dot={(props: Record<string, unknown>) => {
+                  const cx = Number(props.cx) || 0;
+                  const cy = Number(props.cy) || 0;
+                  const payload = (props.payload || {}) as { month?: string; value?: number | string };
                   const isSelected = selectedMonth === payload.month;
                   return (
                     <g key={payload.month}>
@@ -153,7 +156,7 @@ export function ConsultantProgressLineCard({
                         cx={cx}
                         cy={cy}
                         fill={isSelected ? "var(--primary-400)" : "var(--surface-container-lowest)"}
-                        onClick={() => setSelectedMonth(payload.month)}
+                        onClick={() => setSelectedMonth(payload.month ?? null)}
                         r={isSelected ? 6 : 4.5}
                         stroke="var(--primary-400)"
                         strokeWidth="2"

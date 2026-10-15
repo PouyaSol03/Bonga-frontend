@@ -57,7 +57,7 @@ import {
   type SearchMapListingId,
 } from "./searchMapData";
 import { getIpDefaultMapCenter } from "./searchMapLocation";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import type { SavedSearchItem, SaveSearchInput } from "./api/saved-search.service";
 import { getNeighborhoodPolygonPoints } from "../locations/api/neighborhood.service";
 import { getPropertyRequestScope } from "../property-requests/api/property-request.service";
@@ -1282,6 +1282,7 @@ function getInitialMapCenter(): SearchMapCenter {
 
 export function SearchMapPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedListingId, setSelectedListingId] = useState<string | number | null>(null);
   const [isOffline, setIsOffline] = useState(
     () => typeof window !== "undefined" && !window.navigator.onLine,
@@ -1325,7 +1326,6 @@ export function SearchMapPage() {
   const [isRequestSuccessOpen, setIsRequestSuccessOpen] = useState(false);
   const [savedSearchUrl, setSavedSearchUrl] = useState<string | null>(null);
   const didResolveIpLocationRef = useRef(false);
-  const [searchSnapshot, setSearchSnapshot] = useState(() => window.location.search);
   const { showToast } = useToast();
   const showNotice = useCallback(
     (msg: string | null | undefined, variant?: "error" | "success" | "info" | "warning") => {
@@ -1344,7 +1344,7 @@ export function SearchMapPage() {
       : "/account/requests?tab=results";
   const savedSearchesQuery = useSavedSearchesQuery(isAuthenticated);
   const saveSearchMutation = useSaveSearchMutation();
-  const currentSearch = searchSnapshot;
+  const currentSearch = location.search;
   const selectedNeighborhoodIds = useMemo(() => {
     const params = getSearchParamsFromSnapshot(currentSearch);
 
@@ -1470,18 +1470,9 @@ export function SearchMapPage() {
   }, [selectedListingId, visibleListings]);
 
   useEffect(() => {
-    const handleSearchSnapshotChange = () => {
-      const nextSearch = window.location.search;
-
-      setSearchSnapshot(nextSearch);
-      setMode(getInitialSearchMode());
-      setSelectedListingId(null);
-    };
-
-    window.addEventListener("popstate", handleSearchSnapshotChange);
-
-    return () => window.removeEventListener("popstate", handleSearchSnapshotChange);
-  }, []);
+    setMode(getInitialSearchMode());
+    setSelectedListingId(null);
+  }, [location.search]);
 
   useEffect(() => {
     const params = getSearchParams();
@@ -1722,8 +1713,7 @@ export function SearchMapPage() {
     setIsSearchOpen(false);
     setSelectedListingId(null);
     writeSearchParams(params, navigate, { replace: true });
-    setSearchSnapshot(window.location.search);
-  }, []);
+  }, [navigate]);
 
   const handleLiveSearchQueryChange = useCallback(
     (query: string) => {
@@ -1750,7 +1740,6 @@ export function SearchMapPage() {
       params.delete("q");
       setSelectedListingId(null);
       writeSearchParams(params, navigate, { replace: true });
-      setSearchSnapshot(window.location.search);
     },
     [navigate],
   );
@@ -1776,7 +1765,6 @@ export function SearchMapPage() {
       params.delete("focus");
       params.delete("view");
       writeSearchParams(params, navigate);
-      setSearchSnapshot(window.location.search);
       setSelectedListingId(null);
       setMode("map");
     },
@@ -1978,15 +1966,11 @@ export function SearchMapPage() {
     }
 
     const queryString = params.toString();
-    window.history.replaceState(
-      window.history.state ?? {},
-      "",
-      queryString ? `/search?${queryString}` : "/search",
-    );
-    setSearchSnapshot(window.location.search);
+    const nextUrl = queryString ? `/search?${queryString}` : "/search";
+    navigate(nextUrl, { replace: true });
     setSelectedListingId(null);
     setMode(nextMode);
-  }, []);
+  }, [navigate]);
 
   const returnToMapView = useCallback(() => {
     changeViewMode("map");

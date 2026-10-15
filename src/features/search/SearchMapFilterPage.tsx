@@ -655,7 +655,9 @@ function buildSearchUrl(filters: FilterState, applyBasePath = "/search") {
   params.delete("categoryId");
   params.delete("focus");
   params.delete("returnTo");
-  params.set("view", "list");
+  if (!params.get("view")) {
+    params.set("view", "map");
+  }
 
   setOrDelete("form_code", formCode);
   setOrDelete("from_code", formCode);

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { useFormContext } from "react-hook-form";
 import { AnimatePresence, motion } from "motion/react";
@@ -1031,7 +1031,7 @@ export function DetailsStep({
                 const placeholder = `${field.label}${field.required ? " *" : ""}`;
                 const value = values[field.key];
 
-                let controlNode = null;
+                let controlNode: ReactNode;
                 if (field.control === "input") {
                   controlNode = (
                     <InputBox

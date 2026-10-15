@@ -31,7 +31,7 @@ function FeedbackThumbIcon({
   className?: string;
   direction: FeedbackValue;
 }) {
-  if (direction == "positive") return <LinearLike className={className} />;
+  if (direction === "positive") return <LinearLike className={className} />;
   return <LinearDislike className={className} />;
 }
 

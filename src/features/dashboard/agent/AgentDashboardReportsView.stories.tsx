@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AgentDashboardReportsView } from "./AgentDashboardReportsView";
 import { AgentPublishedAdsPieCard } from "./reports/AgentPublishedAdsPieCard";
 import { AgentViewsBarChartCard } from "./reports/AgentViewsBarChartCard";

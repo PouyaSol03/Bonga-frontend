@@ -44,7 +44,7 @@ export function ViewAdPerformanceProgressCharts({
     PERFORMANCE_METRICS.find((m) => m.key === activeKey) ?? PERFORMANCE_METRICS[0];
   const days = (chartData?.days ?? []).map((d) => {
     const day = d as PerformanceDayData;
-    let displayName = "";
+    let displayName: string;
     if (day.date) {
       try {
         displayName = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {

@@ -1301,6 +1301,16 @@ export type DashboardReportsOverviewData = {
   rankingScore?: DashboardReportRankingScoreData;
 };
 
+type RawDashboardReportsOverview = {
+  period?: unknown;
+  published_ads?: DashboardReportPublishedAdsData;
+  views?: DashboardReportViewsData;
+  consultants_activity?: DashboardReportConsultantsActivityData;
+  registration_progress?: DashboardReportRegistrationProgressData;
+  conversion_funnel?: DashboardReportConversionFunnelData;
+  ranking_score?: DashboardReportRankingScoreData;
+};
+
 export async function getDashboardReportsOverview(
   role: DashboardRolePersona,
   period = "month",
@@ -1309,16 +1319,16 @@ export async function getDashboardReportsOverview(
   try {
     const res = await apiV2
       .get(`${context}/dashboard/reports/overview`, { searchParams: { period } })
-      .json<{ data?: RawRecord }>();
+      .json<{ data?: RawDashboardReportsOverview }>();
     const d = res.data ?? {};
     return {
       period: toStringValue(d.period, period),
-      publishedAds: d.published_ads ? (d.published_ads as any) : undefined,
-      views: d.views ? (d.views as any) : undefined,
-      consultantsActivity: d.consultants_activity ? (d.consultants_activity as any) : undefined,
-      registrationProgress: d.registration_progress ? (d.registration_progress as any) : undefined,
-      conversionFunnel: d.conversion_funnel ? (d.conversion_funnel as any) : undefined,
-      rankingScore: d.ranking_score ? (d.ranking_score as any) : undefined,
+      publishedAds: d.published_ads,
+      views: d.views,
+      consultantsActivity: d.consultants_activity,
+      registrationProgress: d.registration_progress,
+      conversionFunnel: d.conversion_funnel,
+      rankingScore: d.ranking_score,
     };
   } catch {
     return null;

@@ -10,7 +10,6 @@ import {
 import {
   DASHBOARD_ROLES,
   INDEPENDENT_CONSULTANT,
-  REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
 } from "../../shared/constants/roles.constants";
 import { isForbiddenApiError } from "../../shared/api/api";
@@ -62,9 +61,9 @@ export function DashboardHomePage() {
   const sessionRoles = getSessionRoleSlugs(session);
 
   const effectiveRole =
-    activeRole && DASHBOARD_ROLES.includes(activeRole as any)
+    activeRole && (DASHBOARD_ROLES as readonly string[]).includes(activeRole)
       ? activeRole
-      : ((sessionRoles.find((r) => DASHBOARD_ROLES.includes(r as any)) as AuthRoleSlug) ??
+      : ((sessionRoles.find((r) => (DASHBOARD_ROLES as readonly string[]).includes(r)) as AuthRoleSlug) ??
         activeRole ??
         "user");
 
@@ -75,9 +74,7 @@ export function DashboardHomePage() {
     ? "agency"
     : isIndependent
       ? "agent"
-      : effectiveRole === REAL_ESTATE_CONSULTANT
-        ? "agent_in_agency"
-        : (effectiveRole as any);
+      : "agent_in_agency";
 
   const roleType: DashboardRole = isRealEstateManager
     ? "REAL_ESTATE_MANAGER"

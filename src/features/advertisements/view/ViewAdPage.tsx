@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { SEO } from "../../../shared/components/SEO";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -1875,6 +1875,20 @@ function readAdvertisementBookmarkState(advertisement: AdvertisementItem | undef
 
 export function ViewAdPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleBack = useCallback(() => {
+    const from = (location.state as { from?: string } | null)?.from;
+    if (from) {
+      navigate(from, { replace: true });
+      return;
+    }
+    if (window.history.state?.idx > 0) {
+      navigate(-1);
+      return;
+    }
+    navigate("/home", { replace: true });
+  }, [location.state, navigate]);
 
   const navigateToLoginRequiredPage = (actionLabel: string) => {
     const redirectPath = `${window.location.pathname}${window.location.search}`;
@@ -2358,6 +2372,7 @@ export function ViewAdPage() {
         backTo="/home"
         bookmarked={isBookmarked}
         onAction={handleTopBarAction}
+        onBack={handleBack}
       />
 
       <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-[#F0F0F0]">

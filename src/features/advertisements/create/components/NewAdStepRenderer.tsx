@@ -1,5 +1,6 @@
 import type { UseFormReturn } from "react-hook-form";
 import type { useNewAdStepActions } from "../hooks/useNewAdStepActions";
+import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { AgencySelectionStep } from "../steps/AgencySelectionStep";
 import { DetailsStep } from "../steps/DetailsStep";
 import { MediaStep } from "../steps/MediaStep";
@@ -7,6 +8,7 @@ import { MoreFeaturesStep } from "../steps/MoreFeaturesStep";
 import { ProjectDetailsStep } from "../steps/project/ProjectDetailsStep";
 import { PublisherSelectionStep } from "../steps/PublisherSelectionStep";
 import type { FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
+import { DetailsStepSkeleton } from "./DetailsStepSkeleton";
 
 interface NewAdStepRendererProps {
   actions: ReturnType<typeof useNewAdStepActions>;
@@ -47,12 +49,10 @@ export function NewAdStepRenderer({
   step,
   updateAdvertisementPending,
 }: NewAdStepRendererProps) {
-  if (isCrmEditMode && editAdIsLoading) {
-    return (
-      <div className="bg-surface-container text-on-surface-var grid min-h-0 flex-1 place-items-center text-sm font-medium">
-        در حال دریافت اطلاعات آگهی...
-      </div>
-    );
+  const desktop = useNewAdDesktopLayout();
+
+  if (isEditMode && editAdIsLoading) {
+    return <DetailsStepSkeleton desktop={desktop} />;
   }
 
   if (step === "details") {

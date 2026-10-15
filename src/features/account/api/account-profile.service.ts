@@ -142,6 +142,36 @@ export function syncStoredRolesFromProfile(response: unknown, profile: UserProfi
     ? selectedContext?.permissions
     : undefined;
 
+  const nextContextIdentity = String(selectedContext?.agency?.id ?? selectedContext?.id ?? "");
+  const nextContextPermissions = Object.fromEntries(
+    (accountsToScan ?? []).map((item) => {
+      const acc = item as ProfileAccountItem;
+      const role =
+        acc.context === "agency"
+          ? "real_estate_manager"
+          : acc.context === "agency-consultant"
+            ? "real_estate_consultant"
+            : "user";
+      return [role, acc.permissions];
+    }),
+  );
+
+  const isSameRoles =
+    Array.isArray(session.roles) &&
+    session.roles.length === roles.length &&
+    session.roles.every((r, idx) => r.slug === roles[idx]?.slug && r.name === roles[idx]?.name);
+
+  const isUnchanged =
+    session.activeRole === activeRole &&
+    session.role === activeRole &&
+    session.accountType === activeRole &&
+    isSameRoles &&
+    session.contextIdentity === nextContextIdentity &&
+    JSON.stringify(session.managerPermissions) === JSON.stringify(managerPermissions) &&
+    JSON.stringify(session.contextPermissions) === JSON.stringify(nextContextPermissions);
+
+  if (isUnchanged) return;
+
   setStoredAuthSession({
     ...session,
     activeRole,
@@ -149,19 +179,8 @@ export function syncStoredRolesFromProfile(response: unknown, profile: UserProfi
     role: activeRole,
     roles,
     managerPermissions,
-    contextIdentity: String(selectedContext?.agency?.id ?? selectedContext?.id ?? ""),
-    contextPermissions: Object.fromEntries(
-      (accountsToScan ?? []).map((item) => {
-        const acc = item as ProfileAccountItem;
-        const role =
-          acc.context === "agency"
-            ? "real_estate_manager"
-            : acc.context === "agency-consultant"
-              ? "real_estate_consultant"
-              : "user";
-        return [role, acc.permissions];
-      }),
-    ),
+    contextIdentity: nextContextIdentity,
+    contextPermissions: nextContextPermissions,
   });
 }
 

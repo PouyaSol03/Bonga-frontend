@@ -192,7 +192,7 @@ export function useChatUnreadCountQuery({
     enabled,
     queryFn: getChatUnreadCount,
     queryKey: queryKeys.chats.unreadCount(),
-    refetchOnMount: "always",
+    staleTime: 30_000,
   });
 }
 

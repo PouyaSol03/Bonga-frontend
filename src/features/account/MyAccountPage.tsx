@@ -189,11 +189,14 @@ export function MyAccountPage() {
     };
   }, []);
 
+  const sessionUserId = authSession?.userId;
+  const sessionActiveRole = authSession?.activeRole;
+
   useEffect(() => {
     if (authSession) {
       void useProfileStore.getState().fetchProfile(true);
     }
-  }, [authSession]);
+  }, [sessionUserId, sessionActiveRole]);
   const businessSuccessSheet = (
     <AccountBusinessSuccessSheet
       isOpen={isBusinessSuccessOpen}

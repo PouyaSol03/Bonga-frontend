@@ -2,7 +2,6 @@ import { test, expect } from "@playwright/test";
 import {
   formatCardPrice,
   formatDetailPrice,
-  formatBigNumber,
 } from "../../src/shared/lib/MoneyHandler";
 
 test.describe("MoneyHandler price formatting", () => {

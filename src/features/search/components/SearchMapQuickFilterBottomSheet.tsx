@@ -301,27 +301,53 @@ export function SearchMapQuickFilterBottomSheet({
         break;
       }
       case "area":
-        areaMinimum ? params.set("area_min", areaMinimum) : params.delete("area_min");
-        areaMaximum ? params.set("area_max", areaMaximum) : params.delete("area_max");
+        if (areaMinimum) {
+          params.set("area_min", areaMinimum);
+        } else {
+          params.delete("area_min");
+        }
+        if (areaMaximum) {
+          params.set("area_max", areaMaximum);
+        } else {
+          params.delete("area_max");
+        }
         break;
       case "price":
-        priceMinimum ? params.set("price_min", priceMinimum) : params.delete("price_min");
-        priceMaximum ? params.set("price_max", priceMaximum) : params.delete("price_max");
+        if (priceMinimum) {
+          params.set("price_min", priceMinimum);
+        } else {
+          params.delete("price_min");
+        }
+        if (priceMaximum) {
+          params.set("price_max", priceMaximum);
+        } else {
+          params.delete("price_max");
+        }
         break;
       case "rooms": {
         const value = selectedChoices.join("_");
-        value ? params.set("rooms", value) : params.delete("rooms");
+        if (value) {
+          params.set("rooms", value);
+        } else {
+          params.delete("rooms");
+        }
         break;
       }
       case "floor": {
         const value = selectedChoices.join("_");
-        value ? params.set("floor", value) : params.delete("floor");
+        if (value) {
+          params.set("floor", value);
+        } else {
+          params.delete("floor");
+        }
         break;
       }
       case "building_age":
-        selectedChoices[0]
-          ? params.set("building_age", selectedChoices[0])
-          : params.delete("building_age");
+        if (selectedChoices[0]) {
+          params.set("building_age", selectedChoices[0]);
+        } else {
+          params.delete("building_age");
+        }
         break;
     }
 
@@ -393,27 +419,53 @@ export function SearchMapQuickFilterBottomSheet({
         break;
       }
       case "area":
-        areaMinimum ? params.set("area_min", areaMinimum) : params.delete("area_min");
-        areaMaximum ? params.set("area_max", areaMaximum) : params.delete("area_max");
+        if (areaMinimum) {
+          params.set("area_min", areaMinimum);
+        } else {
+          params.delete("area_min");
+        }
+        if (areaMaximum) {
+          params.set("area_max", areaMaximum);
+        } else {
+          params.delete("area_max");
+        }
         break;
       case "price":
-        priceMinimum ? params.set("price_min", priceMinimum) : params.delete("price_min");
-        priceMaximum ? params.set("price_max", priceMaximum) : params.delete("price_max");
+        if (priceMinimum) {
+          params.set("price_min", priceMinimum);
+        } else {
+          params.delete("price_min");
+        }
+        if (priceMaximum) {
+          params.set("price_max", priceMaximum);
+        } else {
+          params.delete("price_max");
+        }
         break;
       case "rooms": {
         const value = selectedChoices.join("_");
-        value ? params.set("rooms", value) : params.delete("rooms");
+        if (value) {
+          params.set("rooms", value);
+        } else {
+          params.delete("rooms");
+        }
         break;
       }
       case "floor": {
         const value = selectedChoices.join("_");
-        value ? params.set("floor", value) : params.delete("floor");
+        if (value) {
+          params.set("floor", value);
+        } else {
+          params.delete("floor");
+        }
         break;
       }
       case "building_age":
-        selectedChoices[0]
-          ? params.set("building_age", selectedChoices[0])
-          : params.delete("building_age");
+        if (selectedChoices[0]) {
+          params.set("building_age", selectedChoices[0]);
+        } else {
+          params.delete("building_age");
+        }
         break;
       default:
         break;

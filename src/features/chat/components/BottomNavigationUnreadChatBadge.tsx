@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 import { useChatUnreadCountQuery } from "../api/chat.hooks";
 import { Typography } from "../../../shared/ui/Typography";
 
@@ -8,26 +6,9 @@ type BottomNavigationUnreadChatBadgeProps = {
 };
 
 export function BottomNavigationUnreadChatBadge({
-  activeKey,
+  activeKey: _activeKey,
 }: BottomNavigationUnreadChatBadgeProps) {
-  const { data: unreadChatsCount = 0, refetch: refetchUnreadChatsCount } =
-    useChatUnreadCountQuery();
-
-  useEffect(() => {
-    void refetchUnreadChatsCount();
-  }, [activeKey, refetchUnreadChatsCount]);
-
-  useEffect(() => {
-    function handleRouteChange() {
-      void refetchUnreadChatsCount();
-    }
-
-    window.addEventListener("popstate", handleRouteChange);
-
-    return () => {
-      window.removeEventListener("popstate", handleRouteChange);
-    };
-  }, [refetchUnreadChatsCount]);
+  const { data: unreadChatsCount = 0 } = useChatUnreadCountQuery();
 
   if (unreadChatsCount <= 0) return null;
 

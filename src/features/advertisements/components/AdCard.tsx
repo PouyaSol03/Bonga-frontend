@@ -937,7 +937,7 @@ export function getAdCardProperties(ad: AdCardData): AdCardPropertyItem[] {
 
   const category = resolveAdCategory(ad);
 
-  let items: Array<{ icon: ReactNode; value?: string }> = [];
+  let items: Array<{ icon: ReactNode; value?: string }>;
 
   switch (category) {
     // === فروش ===

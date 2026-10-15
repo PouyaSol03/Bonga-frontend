@@ -529,8 +529,9 @@ export function getApiAssetUrl(path: string) {
     return normalizedPath;
   }
 
-  const backendOrigin = (import.meta as any).env?.VITE_API_URL
-    ? String((import.meta as any).env.VITE_API_URL)
+  const viteApiUrl = import.meta.env?.VITE_API_URL;
+  const backendOrigin = viteApiUrl
+    ? String(viteApiUrl)
         .replace(/\/api.*$/, "")
         .replace(/\/+$/, "")
     : "";

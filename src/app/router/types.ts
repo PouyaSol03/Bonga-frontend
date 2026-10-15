@@ -6,23 +6,30 @@ import {
 } from "../../shared/constants/roles.constants";
 import { normalizeAuthRoleSlug, type AuthSession } from "../../shared/auth/auth-storage";
 
-export type RouteComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>;
+export type PreloadableComponent<P = Record<string, unknown>> = (
+  | ComponentType<P>
+  | LazyExoticComponent<ComponentType<P>>
+) & {
+  preload?: () => Promise<{ default: ComponentType<P> }>;
+};
+
+export type RouteComponent = PreloadableComponent<Record<string, unknown>>;
 
 export function lazyNamed<TModule extends Record<string, unknown>>(
   loader: () => Promise<TModule>,
   exportName: keyof TModule,
 ) {
-  let loadPromise: Promise<{ default: ComponentType<any> }> | null = null;
+  let loadPromise: Promise<{ default: ComponentType<Record<string, unknown>> }> | null = null;
   const load = () => {
     if (!loadPromise) {
       loadPromise = loader().then((module) => ({
-        default: module[exportName] as ComponentType<any>,
+        default: module[exportName] as ComponentType<Record<string, unknown>>,
       }));
     }
     return loadPromise;
   };
-  const LazyComponent = lazy(load);
-  (LazyComponent as any).preload = load;
+  const LazyComponent = lazy(load) as PreloadableComponent<Record<string, unknown>>;
+  LazyComponent.preload = load;
   return LazyComponent;
 }
 
@@ -85,7 +92,7 @@ export function canAccessRoute(route: AppRoute, session: AuthSession | null): bo
   if (
     route.requiresNonUser &&
     route.path !== "/account/dashboard" &&
-    !sessionRoles.some((role) => DASHBOARD_ROLES.includes(role as any))
+    !sessionRoles.some((role) => (DASHBOARD_ROLES as readonly string[]).includes(role))
   ) {
     return false;
   }

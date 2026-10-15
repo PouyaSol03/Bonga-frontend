@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { getApiErrorMessage } from "../../shared/api/api";
 
 import { PageFrame } from "../../shared/layout/PageFrame";
 import {
@@ -89,12 +90,10 @@ export function AccountDeleteUserPage() {
     try {
       await deleteMutation.mutateAsync();
       downgradeBusinessToUser(navigate);
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "خطا در حذف کسب‌وکار. لطفاً مجدداً تلاش کنید.";
-      setErrorMessage(typeof msg === "string" ? msg : "خطا در حذف کسب‌وکار.");
+    } catch (err: unknown) {
+      setErrorMessage(
+        getApiErrorMessage(err, "خطا در حذف کسب‌وکار. لطفاً مجدداً تلاش کنید."),
+      );
     }
   };
 

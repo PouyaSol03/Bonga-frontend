@@ -41,7 +41,8 @@ export async function getAdLeadsList(
       ? (resUnknown as { data: unknown[] }).data
       : ((resUnknown as { leads?: unknown[] })?.leads ?? []);
 
-  return leads.map((item: any) => {
+  return leads.map((lead: unknown) => {
+    const item = (lead && typeof lead === "object" ? lead : {}) as AdvertisementV2Lead;
     const rawDate = item.created_at || item.date || item.appointment?.date_jalali;
     let formattedDate = "";
     if (rawDate) {

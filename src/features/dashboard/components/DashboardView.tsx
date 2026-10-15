@@ -308,7 +308,7 @@ export function DashboardView({
         />
 
         {/* 8. Recent Ads Card */}
-        <DashboardRecentAdsCard ads={recentAds as any} isLoading={recentAdsApiQuery.isLoading} />
+        <DashboardRecentAdsCard ads={recentAds} isLoading={recentAdsApiQuery.isLoading} />
       </main>
     </div>
   );

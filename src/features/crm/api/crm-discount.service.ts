@@ -41,7 +41,9 @@ export type ValidateDiscountCodeResult = {
 
 export async function listCrmDiscountCodes(): Promise<CrmDiscountCode[]> {
   try {
-    const res = await api.get("panel/discount-codes").json<any>();
+    const res = await api
+      .get("panel/discount-codes")
+      .json<CrmDiscountCode[] | { data?: CrmDiscountCode[]; list?: CrmDiscountCode[] }>();
     if (Array.isArray(res)) return res;
     if (Array.isArray(res?.data)) return res.data;
     if (Array.isArray(res?.list)) return res.list;

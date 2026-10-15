@@ -118,41 +118,41 @@ export function ViewAdProjectDetailsPage() {
   }
 
   const projectType =
-    toText(featureMap.project_type ?? featureMap.projectType ?? (resolvedAd as any).project_type) ||
+    toText(featureMap.project_type ?? featureMap.projectType ?? resolvedAd?.project_type) ||
     "مسکونی";
   const documentType =
     toText(
       featureMap.document_type ??
         featureMap.documentType ??
         featureMap.document ??
-        (resolvedAd as any).document_type,
+        resolvedAd?.document_type,
     ) || "ملکی";
   const totalFloors =
     toText(
       featureMap.project_total_floors ??
         featureMap.projectTotalFloors ??
         featureMap.total_floors ??
-        (resolvedAd as any).total_floors,
+        resolvedAd?.total_floors,
     ) || "۱۴";
   const totalUnits =
     toText(
       featureMap.project_total_units ??
         featureMap.projectTotalUnits ??
         featureMap.total_units ??
-        (resolvedAd as any).total_units,
+        resolvedAd?.total_units,
     ) || "۲۵۶";
 
   const rawPrepayment =
     featureMap.sale_terms_percent ??
     featureMap.sale_terms_down_payment ??
     featureMap.prepayment_percent ??
-    (resolvedAd as any).sale_terms_percent;
+    resolvedAd?.sale_terms_percent;
   const prepaymentPercent = rawPrepayment ? `${toPersianDigits(rawPrepayment)}٪` : "۵۰٪";
 
   const rawInstallments =
     featureMap.sale_terms_installment_months ??
     featureMap.installment_months ??
-    (resolvedAd as any).sale_terms_installment_months;
+    resolvedAd?.sale_terms_installment_months;
   const installmentMonths = rawInstallments ? `${toPersianDigits(rawInstallments)} ماه` : "۱۲ ماه";
 
   return (

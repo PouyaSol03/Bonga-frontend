@@ -1,14 +1,19 @@
 import type { MutableRefObject } from "react";
 import type { UseFormReturn } from "react-hook-form";
+import type { UseQueryResult } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { getApiErrorMessage } from "../../../../shared/api/api";
 import type { CrmRecord } from "../../../crm/api/crm.service";
+import type { CategoryItem } from "../../../categories/api/category.service";
 import {
   useCreateAdvertisementMutation,
   useSaveAdvertiseDraftMutation,
   useUpdateAdvertisementMutation,
 } from "../../api/advertisement.hooks";
-import type { AdvertisementItem } from "../../api/advertisement.service";
+import type {
+  AdvertiseFormDefinition,
+  AdvertisementItem,
+} from "../../api/advertisement.service";
 import { findCategoryId } from "../edit-mapping/crmEditNormalizer";
 import { getEditAdRouteState } from "../routeState";
 import type { FlowStep, NewAdFieldErrors, NewAdFormValues } from "../types";
@@ -22,8 +27,8 @@ import { useCrmSaveMutation } from "./submit/useCrmSaveMutation";
 
 interface UseNewAdSubmitProps {
   activeRole: string;
-  advertiseFormQuery: any;
-  categoriesQuery: any;
+  advertiseFormQuery: UseQueryResult<AdvertiseFormDefinition, Error>;
+  categoriesQuery: UseQueryResult<CategoryItem[], Error>;
   crmEditRecord?: CrmRecord;
   currentFormCode: string;
   draftAdId: string | null;
@@ -144,7 +149,7 @@ export function useNewAdSubmit({
         activeRole,
         categoryId,
         currentAd: editAdData,
-        dynamicFieldKeys: advertiseFormQuery.data.fields.map((field: any) => field.key),
+        dynamicFieldKeys: advertiseFormQuery.data.fields.map((field) => field.key),
         editAdId,
         editAdState,
         formCode: resolvedFormCode,
@@ -161,7 +166,7 @@ export function useNewAdSubmit({
 
     const formData = buildNewAdFormData(values, {
       categoryId,
-      dynamicFieldKeys: advertiseFormQuery.data.fields.map((field: any) => field.key),
+      dynamicFieldKeys: advertiseFormQuery.data.fields.map((field) => field.key),
       formCode: resolvedFormCode,
       isEdit: isEditMode,
     });

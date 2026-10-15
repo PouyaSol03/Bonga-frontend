@@ -51,8 +51,8 @@ export function useNewAdEditSync({
     enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),
     queryFn: async () => {
       const id = String(editAdId);
-      const res = (await getV2Edit(id)) as any;
-      return (res?.data ?? res) as AdvertisementItem;
+      const res = (await getV2Edit(id)) as { data?: AdvertisementItem } | AdvertisementItem;
+      return ("data" in res && res.data ? res.data : res) as AdvertisementItem;
     },
     queryKey: ["advertisement", "edit-fields", editAdId, activeRole],
   });
@@ -79,8 +79,8 @@ export function useNewAdEditSync({
     !isCrmSource &&
     (String(editAdData?.status) === "-5" ||
       editAdData?.status === "incomplete" ||
-      (editAdData as any)?.status_code === -5 ||
-      String((editAdData as any)?.status_code) === "-5" ||
+      editAdData?.status_code === -5 ||
+      String(editAdData?.status_code) === "-5" ||
       String(editAdState.ad?.status) === "-5" ||
       editAdState.ad?.status === "incomplete" ||
       editAdState.status === "incomplete" ||

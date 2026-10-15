@@ -1,4 +1,6 @@
 import { expect, test } from "@playwright/test";
+import type { UseFormGetValues, UseFormSetValue } from "react-hook-form";
+import type { NewAdFormValues } from "../../../src/features/advertisements/create/types";
 import {
   calculateRentPriceConversion,
   clampRentConversionMortgage,
@@ -8,43 +10,44 @@ import { expandErrorSections } from "../../../src/features/advertisements/create
 
 test.describe("Ad pricing and section expansion validations", () => {
   test("expandErrorSections detects errors and activates matching accordions", () => {
-    const values: Record<string, any> = {
+    const values: Partial<NewAdFormValues> = {
       loanEnabled: false,
       exchangeEnabled: false,
       saleTermsEnabled: false,
       rentConversionEnabled: false,
     };
 
-    const setValue = (key: string, val: any) => {
+    const setValue: UseFormSetValue<NewAdFormValues> = (key, val) => {
       values[key] = val;
     };
-    const getValues = (key?: string) => (key ? values[key] : values);
+    const getValues: UseFormGetValues<NewAdFormValues> = ((key?: keyof NewAdFormValues) =>
+      key ? values[key] : values) as UseFormGetValues<NewAdFormValues>;
 
     // Loan error triggers loan section expansion
-    expandErrorSections({ loanAmount: "مبلغ وام نامعتبر است" }, setValue as any, getValues as any);
+    expandErrorSections({ loanAmount: "مبلغ وام نامعتبر است" }, setValue, getValues);
     expect(values.loanEnabled).toBe(true);
 
     // Exchange error triggers exchange section expansion
     expandErrorSections(
       { exchangeTargets: "لطفا مورد معاوضه را انتخاب کنید" },
-      setValue as any,
-      getValues as any,
+      setValue,
+      getValues,
     );
     expect(values.exchangeEnabled).toBe(true);
 
     // Sale terms error triggers sale terms section expansion
     expandErrorSections(
       { saleTermsPercent: "درصد نامعتبر است" },
-      setValue as any,
-      getValues as any,
+      setValue,
+      getValues,
     );
     expect(values.saleTermsEnabled).toBe(true);
 
     // Rent conversion error triggers conversion expansion
     expandErrorSections(
       { rentConversionMortgagePrice: "تبدیل رهن غیرمجاز است" },
-      setValue as any,
-      getValues as any,
+      setValue,
+      getValues,
     );
     expect(values.rentConversionEnabled).toBe(true);
   });

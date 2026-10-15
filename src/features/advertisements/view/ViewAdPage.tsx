@@ -2484,18 +2484,18 @@ export function ViewAdPage() {
               void refetch();
             }}
             ownerContactAddress={
-              typeof (ad as any)?.owner_contact_address === "string"
-                ? (ad as any).owner_contact_address
+              typeof ad?.owner_contact_address === "string"
+                ? ad.owner_contact_address
                 : undefined
             }
             ownerContactName={
-              typeof (ad as any)?.owner_contact_name === "string"
-                ? (ad as any).owner_contact_name
+              typeof ad?.owner_contact_name === "string"
+                ? ad.owner_contact_name
                 : undefined
             }
             ownerContactPhone={
-              typeof (ad as any)?.owner_contact_phone === "string"
-                ? (ad as any).owner_contact_phone
+              typeof ad?.owner_contact_phone === "string"
+                ? ad.owner_contact_phone
                 : undefined
             }
           />

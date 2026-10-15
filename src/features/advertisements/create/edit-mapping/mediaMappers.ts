@@ -27,7 +27,7 @@ export function getExistingPhotoMedia(ad: AdvertisementItem): UploadedMediaFile[
 
   const seen = new Set<string>();
 
-  return imageValues.flatMap((value: any, index: number) => {
+  return imageValues.flatMap((value: unknown, index: number) => {
     const source = mediaSource(value);
     if (!source) return [];
 

@@ -399,7 +399,7 @@ function getResolvedAdvertisementFeatures(
   // detail UI does not silently lose data that the API did return.
   addRootValue("form_code", ad.form_code);
   addRootValue("area", ad.area);
-  addRootValue("floor", ad.floor ?? (ad as any).unit_floor);
+  addRootValue("floor", ad.floor ?? ad.unit_floor);
   addRootValue("rooms", ad.rooms);
   addRootValue("building_age", ad.building_age ?? ad.year);
 
@@ -483,7 +483,7 @@ function getResolvedAdvertisementFeatures(
   const hasLoanPresent = isFilledValue(loanAmountVal) || isFilledValue(loanInstallmentVal);
   if (hasLoanPresent) {
     const existingIndex = resolved.findIndex(
-      (item) => item.label === "has_loan" || (item as any).key === "has_loan",
+      (item) => item.label === "has_loan" || ("key" in item && item.key === "has_loan"),
     );
     if (existingIndex >= 0) {
       resolved[existingIndex] = { ...resolved[existingIndex], value: true };
@@ -510,7 +510,7 @@ function getFeatureValue(features: NonNullable<AdvertisementItem["features"]>, l
     const l = String(feature.label ?? "")
       .toLowerCase()
       .trim();
-    const k = String((feature as any).key ?? "")
+    const k = String(feature.key ?? "")
       .toLowerCase()
       .trim();
     return l === target || k === target;
@@ -3861,18 +3861,19 @@ function buildDailyPropertyDetailSections(
     const rawRooms = getFirstExistingFeatureValue(features, ["daily_hotel_rooms"]);
     let roomItems: DetailInfoItem[] = [];
     if (Array.isArray(rawRooms)) {
-      roomItems = rawRooms.flatMap((room: any) => {
+      roomItems = rawRooms.flatMap((room: unknown) => {
         if (!room || typeof room !== "object") return [];
-        const label = toText(room.label ?? room.room_label ?? room.room_type, "اتاق");
+        const r = room as Record<string, unknown>;
+        const label = toText(r.label ?? r.room_label ?? r.room_type, "اتاق");
         const details = [
-          isFilledValue(room.guest_count) ? `ظرفیت: ${toText(room.guest_count)} نفر` : "",
-          isFilledValue(room.extra_guest_count)
-            ? `نفر اضافه: ${toText(room.extra_guest_count)}`
+          isFilledValue(r.guest_count) ? `ظرفیت: ${toText(r.guest_count)} نفر` : "",
+          isFilledValue(r.extra_guest_count)
+            ? `نفر اضافه: ${toText(r.extra_guest_count)}`
             : "",
-          isFilledValue(room.meal_plan) ? `پذیرایی: ${toText(room.meal_plan)}` : "",
-          isFilledValue(room.normal_price) ? `عادی: ${formatPrice(room.normal_price)}` : "",
-          isFilledValue(room.weekend_price) ? `آخر هفته: ${formatPrice(room.weekend_price)}` : "",
-          isFilledValue(room.special_price) ? `ویژه: ${formatPrice(room.special_price)}` : "",
+          isFilledValue(r.meal_plan) ? `پذیرایی: ${toText(r.meal_plan)}` : "",
+          isFilledValue(r.normal_price) ? `عادی: ${formatPrice(r.normal_price)}` : "",
+          isFilledValue(r.weekend_price) ? `آخر هفته: ${formatPrice(r.weekend_price)}` : "",
+          isFilledValue(r.special_price) ? `ویژه: ${formatPrice(r.special_price)}` : "",
         ].filter(Boolean);
         return [
           {

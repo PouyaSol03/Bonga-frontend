@@ -297,14 +297,15 @@ function AgencyDashboardRankingPage() {
           </>
         )}
         <AgencyBadgesPanel />
-        {v2SummaryQuery.isLoading ? (
-          <RankingIndicatorsPanelSkeleton />
-        ) : (
-          <RankingIndicatorsPanel indicators={indicators} period={period} setPeriod={setPeriod} />
-        )}
+        <RankingIndicatorsPanel
+          indicators={indicators}
+          period={period}
+          setPeriod={setPeriod}
+          isLoading={v2SummaryQuery.isLoading || v2SummaryQuery.isFetching}
+        />
         <TopAgenciesPanel
           agencies={leaderboard}
-          isLoading={v2LeaderboardQuery.isLoading || v2SummaryQuery.isLoading}
+          isLoading={v2LeaderboardQuery.isLoading}
         />
       </main>
       <Toast onDismiss={() => setToast(null)} toast={toast} />

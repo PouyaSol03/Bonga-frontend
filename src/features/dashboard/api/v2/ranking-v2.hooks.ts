@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   getV2RankingBadges,
   getV2RankingLeaderboard,
@@ -18,6 +18,7 @@ export function useV2RankingSummaryQuery(period: "week" | "month" = "month") {
   return useQuery({
     queryKey: rankingV2QueryKeys.summary(period),
     queryFn: () => getV2RankingSummary(period),
+    placeholderData: keepPreviousData,
   });
 }
 

@@ -217,8 +217,8 @@ export function DashboardConsultantsBarChartCard({
             className="mt-4 h-56 w-full scrollbar-none overflow-x-auto scroll-smooth [direction:ltr]"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            <div style={{ width: contentWidth, height: "100%" }}>
-              <ResponsiveContainer height="100%" width="100%">
+            <div style={{ width: contentWidth, height: "100%", minWidth: 0 }}>
+              <ResponsiveContainer height="100%" width="100%" minWidth={0}>
                 <BarChart
                   barGap={4}
                   barCategoryGap={32}

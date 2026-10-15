@@ -220,7 +220,7 @@ export function ConsultantPieCard({
               </div>
             </>
           ) : null}
-          <ResponsiveContainer height="100%" width="100%">
+          <ResponsiveContainer height="100%" width="100%" minWidth={0}>
             <PieChart className="outline-none [&_*:focus]:outline-none" tabIndex={-1}>
               <Pie
                 data={data}

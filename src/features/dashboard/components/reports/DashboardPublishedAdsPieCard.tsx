@@ -154,8 +154,8 @@ export function DashboardPublishedAdsPieCard({
       ) : (
         <>
           {/* Pie Chart */}
-          <div className="relative mt-2 h-44 w-full">
-            <ResponsiveContainer height="100%" width="100%">
+          <div className="relative mt-2 h-44 w-full min-w-0">
+            <ResponsiveContainer height="100%" width="100%" minWidth={0}>
               <PieChart>
                 <Pie
                   cx="50%"

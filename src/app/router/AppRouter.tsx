@@ -150,7 +150,12 @@ function AppRouterInner() {
 
   const chromeConfig = getAppChromeConfig(canonicalPath, route.title, <NotificationTopBarIcon />);
 
-  const content: ReactNode = renderWithChrome(page, chromeConfig, canonicalPath);
+  const content: ReactNode = renderWithChrome(
+    page,
+    chromeConfig,
+    canonicalPath,
+    `${location.pathname}${location.search}`,
+  );
 
   return (
     <MobileAppShell>

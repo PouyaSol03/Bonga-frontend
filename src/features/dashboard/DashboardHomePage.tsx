@@ -50,11 +50,18 @@ export function DashboardHomePage() {
   };
 
   const handleCloseReports = () => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.delete("view");
-      return next;
-    });
+    if (window.history.state?.idx > 0) {
+      navigate(-1);
+    } else {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete("view");
+          return next;
+        },
+        { replace: true }
+      );
+    }
   };
 
   const session = getStoredAuthSession();

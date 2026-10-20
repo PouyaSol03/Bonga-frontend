@@ -231,7 +231,11 @@ export function MediaStep({
           <div>
             <Toggle
               checked={values.images_belong_to_ad}
-              label="عکسها متعلق به آگهی میباشد"
+              label={
+                values.images_belong_to_ad
+                  ? "عکس‌ها متعلق به این آگهی نیست"
+                  : "عکس‌ها متعلق به این آگهی هست"
+              }
               onChange={(checked) => setField("images_belong_to_ad", checked)}
             />
           </div>

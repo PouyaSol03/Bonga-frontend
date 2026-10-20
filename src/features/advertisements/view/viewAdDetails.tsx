@@ -2267,6 +2267,15 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
         featureMap.images_belong_to_ad ??
         getFeatureValue(features, "images_belong_to_ad"),
     ),
+    imagesNotBelongToAd: toBooleanLike(
+      ad.images_not_belong_to_ad ??
+        ad.imagesNotBelongToAd ??
+        featureMap.images_not_belong_to_ad ??
+        getFeatureValue(features, "images_not_belong_to_ad") ??
+        ad.images_belong_to_ad ??
+        featureMap.images_belong_to_ad ??
+        getFeatureValue(features, "images_belong_to_ad"),
+    ) === true,
     isSpecial:
       toBooleanLike(
         ad.is_special ??

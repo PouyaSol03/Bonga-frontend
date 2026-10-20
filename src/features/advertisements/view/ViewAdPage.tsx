@@ -792,12 +792,14 @@ function ProjectUnitDetailsSection({
 function GalleryHero({
   hasTour3d = false,
   imagesBelongToAd,
+  imagesNotBelongToAd,
   mediaItems = [{ src: "/figma/view-ad-gallery.png", type: "image" }],
   onOpenAlbum,
   tour3dUrl = "",
 }: {
   hasTour3d?: boolean;
   imagesBelongToAd?: boolean;
+  imagesNotBelongToAd?: boolean;
   mediaItems?: AlbumMediaItem[];
   onOpenAlbum: (initialIndex?: number) => void;
   tour3dUrl?: string;
@@ -927,7 +929,7 @@ function GalleryHero({
           </div>
         </div>
       </div>
-      {imagesBelongToAd === true ? (
+      {imagesNotBelongToAd ?? imagesBelongToAd ? (
         <div className="mt-2.5 flex items-center gap-1.5 px-1 [direction:rtl]">
           <LinearInfoCircle className="text-outline h-4 w-4 shrink-0" />
           <Typography
@@ -937,7 +939,7 @@ function GalleryHero({
             weight="regular"
             className="text-outline"
           >
-            عکس‌ها متعلق به این آگهی است
+            عکس‌ها متعلق به این آگهی نیست
           </Typography>
         </div>
       ) : null}
@@ -1385,6 +1387,7 @@ function ViewAdContent({
         <GalleryHero
           hasTour3d={hasTour3d}
           imagesBelongToAd={details.imagesBelongToAd}
+          imagesNotBelongToAd={details.imagesNotBelongToAd}
           mediaItems={mediaItems}
           onOpenAlbum={onOpenAlbum}
           tour3dUrl={tour3dUrl}

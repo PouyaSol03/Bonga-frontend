@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { getApiErrorMessage } from "../../shared/api/api";
+import { RequestErrorState } from "../../shared/components/ErrorState";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import {
@@ -186,8 +187,9 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     readEntityId(props?.card) ??
     readEntityId(routeState.ad) ??
     readEntityId(routeState.card);
+  const isAfterEdit = Boolean(routeState.isEditMode);
   const detailQuery = useMyAdvertisementDetailQuery(
-    props?.card || props?.ad ? null : (adId ?? null),
+    !isAfterEdit && (props?.card || props?.ad) ? null : (adId ?? null),
   );
   const statusQuery = new URLSearchParams(window.location.search).get("status") ?? undefined;
   const sourceAd = props?.ad ?? detailQuery.data ?? routeState.ad;
@@ -226,6 +228,14 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const backTo = props?.backTo ?? getStateAdBackPath(routeState, isAssigned);
   const backState = cameFromAdManagement ? { tab: routeState.tab } : undefined;
   const activeRole = props?.role ?? getActiveAuthRole(getStoredAuthSession());
+
+  const handleBack = () => {
+    if (backTo) {
+      navigate(backTo, { replace: true, state: backState });
+      return;
+    }
+    navigate("/account/my-ads", { replace: true });
+  };
 
   const [isCancelAssignmentModalOpen, setIsCancelAssignmentModalOpen] = useState(false);
   const [isRepostChoiceModalOpen, setIsRepostChoiceModalOpen] = useState(false);
@@ -266,8 +276,41 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     }
   }, [statusInfo.key, currentAdId, backTo]);
 
-  if (detailQuery.isLoading && !detailQuery.data && !routeState.ad && !routeState.card) {
-    return <MyAdStateSkeleton backState={backState} backTo={backTo} />;
+  if (detailQuery.isError && !detailQuery.data && !routeState.ad && !routeState.card) {
+    return (
+      <PageFrame
+        className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
+        variant="flush"
+      >
+        <TopBar
+          backState={backState}
+          backTo={backTo}
+          className="[&_a]:text-on-surface"
+          onBack={handleBack}
+          title="مدیریت آگهی"
+        />
+        <main className="bg-surface-container flex min-h-0 flex-1 flex-col items-center justify-center p-4">
+          <RequestErrorState
+            error={detailQuery.error}
+            onRetry={() => void detailQuery.refetch()}
+          />
+        </main>
+      </PageFrame>
+    );
+  }
+
+  const isPendingInitialData =
+    (detailQuery.isLoading || detailQuery.isFetching) &&
+    !detailQuery.data &&
+    !routeState.ad &&
+    !routeState.card;
+
+  const isPendingEditUpdate =
+    isAfterEdit &&
+    (detailQuery.isFetching || (detailQuery.isLoading && !detailQuery.data));
+
+  if (isPendingInitialData || isPendingEditUpdate) {
+    return <MyAdStateSkeleton backState={backState} backTo={backTo} onBack={handleBack} />;
   }
 
   // Draft ads do not have a state page
@@ -372,6 +415,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
           backState={backState}
           backTo={backTo}
           className="[&_a]:text-on-surface"
+          onBack={handleBack}
           title="مدیریت آگهی"
         />
 
@@ -415,6 +459,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
         backState={backState}
         backTo={backTo}
         className="[&_a]:text-on-surface"
+        onBack={handleBack}
         title="مدیریت آگهی"
       />
 
@@ -530,6 +575,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
                 card={card}
                 deleteCompleteTo={backTo}
                 returnTo={backTo}
+                backTo={backTo}
               />
               {index < actions.length - 1 ? <ActionDivider /> : null}
             </div>
@@ -652,6 +698,14 @@ function RealEstateManagerAdStatePage({
   const currentRole = role ?? getActiveAuthRole(getStoredAuthSession());
   const isIndependentConsultant =
     currentRole === INDEPENDENT_CONSULTANT || currentRole === "independent-consultant";
+
+  const handleBack = () => {
+    if (backTo) {
+      navigate(backTo, { replace: true, state: backState });
+      return;
+    }
+    navigate("/account/ad-management", { replace: true });
+  };
 
   const agencyQuery = useMyAgencyProfileQuery({ enabled: !isIndependentConsultant });
   const consultantsQuery = useAgencyConsultantsQuery({
@@ -812,6 +866,7 @@ function RealEstateManagerAdStatePage({
         backState={backState}
         backTo={backTo}
         className="[&_a]:text-on-surface"
+        onBack={handleBack}
         title="مدیریت آگهی"
       />
 
@@ -1046,6 +1101,7 @@ function RealEstateManagerAdStatePage({
                         card={card}
                         deleteCompleteTo={backTo}
                         returnTo={backTo}
+                        backTo={backTo}
                       />
                       {index < managerActions.length - 1 ? <ActionDivider /> : null}
                     </div>
@@ -1339,9 +1395,15 @@ function getStateAdBackPath(routeState: MyAdRouteState, isAssigned = false) {
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const returnTo = normalizeLocalPath(routeState.returnTo);
 
+  // If returnTo points back to state-ad, ignore it to prevent navigation loop
+  const isValidReturnTo =
+    returnTo &&
+    !returnTo.includes("/state-ad") &&
+    !returnTo.includes("/state-ads");
+
   if (isAssigned) {
     if (
-      returnTo &&
+      isValidReturnTo &&
       !returnTo.startsWith("/account/manage-ads") &&
       !returnTo.startsWith("/account/ad-management")
     ) {
@@ -1350,7 +1412,7 @@ function getStateAdBackPath(routeState: MyAdRouteState, isAssigned = false) {
     return "/account/my-ads";
   }
 
-  if (returnTo) return returnTo;
+  if (isValidReturnTo) return returnTo;
   if (activeRole === USER || !activeRole) return "/account/my-ads";
 
   if (routeState.tab) return getBusinessAdManagementFallbackPath();
@@ -1623,6 +1685,7 @@ function NeedsEditNotice({
 
       <Link
         className="bg-primary text-on-primary mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg text-sm leading-5 font-medium no-underline"
+        replace
         state={{
           ad,
           card,
@@ -1787,12 +1850,14 @@ function StateAdAction({
   card,
   deleteCompleteTo,
   returnTo,
+  backTo,
 }: {
   action: StateAction;
   ad?: Record<string, unknown>;
   card: AdCardData;
   deleteCompleteTo: string;
   returnTo: string;
+  backTo?: string;
 }) {
   const content = (
     <>
@@ -1836,6 +1901,7 @@ function StateAdAction({
     return (
       <Link
         className="text-on-surface-var flex h-14 w-full items-center justify-between px-4 no-underline [direction:ltr]"
+        replace={action.icon === "edit"}
         state={{
           ad: action.icon === "upgrade" && !ad ? card : ad,
           card,
@@ -1852,7 +1918,7 @@ function StateAdAction({
                 : undefined,
           paymentHistoryReturnTo: action.icon === "history" ? window.location.pathname : undefined,
           visitStatisticsReturnTo: action.icon === "stats" ? window.location.pathname : undefined,
-          returnTo,
+          returnTo: backTo ?? returnTo,
         }}
         to={action.to}
       >
@@ -2957,9 +3023,11 @@ function readText(value: unknown) {
 function MyAdStateSkeleton({
   backState,
   backTo,
+  onBack,
 }: {
   backState?: Record<string, unknown>;
   backTo: string;
+  onBack?: () => void;
 }) {
   return (
     <PageFrame
@@ -2970,6 +3038,7 @@ function MyAdStateSkeleton({
         backState={backState}
         backTo={backTo}
         className="[&_a]:text-on-surface"
+        onBack={onBack}
         title="مدیریت آگهی"
       />
 

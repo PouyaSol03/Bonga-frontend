@@ -603,6 +603,7 @@ export function AgencyAssignedUserAdView({
               onClick={() => {
                 if (!currentAdId) return;
                 navigate(getAdEditPath(currentAdId), {
+                  replace: true,
                   state: {
                     ad,
                     card,

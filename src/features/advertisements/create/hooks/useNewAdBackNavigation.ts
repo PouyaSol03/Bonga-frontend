@@ -21,6 +21,9 @@ export function useNewAdBackNavigation({ editAdId, editAdState }: UseNewAdBackNa
   };
 
   const getEditBackTarget = () => {
+    if (editAdState.returnTo && !editAdState.returnTo.includes("/state-ad") && !editAdState.returnTo.includes("/state-ads")) {
+      return editAdState.returnTo;
+    }
     if (editAdState.editReturnTo) return editAdState.editReturnTo;
     if (editAdState.returnTo) return editAdState.returnTo;
     if (editAdId) return getAdStatePath(editAdId);

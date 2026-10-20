@@ -331,7 +331,7 @@ export type NewAdFormValues = {
   elevatorCount: string;
   parkingCount: string;
   terraceCount: string;
-  images_belong_to_ad: boolean;
+  images_not_belong_to_ad: boolean;
   singleRoomCount: string;
   doubleRoomCount: string;
   suiteCount: string;

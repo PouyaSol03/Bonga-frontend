@@ -187,7 +187,7 @@ export const blankValues: NewAdFormValues = {
   elevatorCount: "",
   parkingCount: "",
   terraceCount: "",
-  images_belong_to_ad: false,
+  images_not_belong_to_ad: false,
   singleRoomCount: "",
   doubleRoomCount: "",
   suiteCount: "",

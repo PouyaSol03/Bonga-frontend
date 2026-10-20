@@ -177,7 +177,7 @@ export function getChangedFieldKeys(
     "separateEntrance",
     "constructionPermit",
     "commercialPermit",
-    "images_belong_to_ad",
+    "images_not_belong_to_ad",
     "rentConversionEnabled",
     "loanEnabled",
     "exchangeEnabled",

@@ -180,12 +180,12 @@ export function mapAdvertisementSpecs(
     readFirstValue(ad, features, ["has_virtual_tour"], ["has_virtual_tour"]),
   );
   setBool(
-    "images_belong_to_ad",
+    "images_not_belong_to_ad",
     readFirstValue(
       ad,
       features,
-      ["images_belong_to_ad", "imagesBelongToAd"],
-      ["images_belong_to_ad", "imagesBelongToAd"],
+      ["images_not_belong_to_ad", "imagesNotBelongToAd"],
+      ["images_not_belong_to_ad", "imagesNotBelongToAd"],
     ),
   );
 

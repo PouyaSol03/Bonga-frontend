@@ -872,7 +872,7 @@ export function buildPayload(values: NewAdFormValues) {
     "terrace_count",
     values.facilities.includes("terrace") ? toNumber(values.terraceCount) : null,
   );
-  addFeature(features, "images_belong_to_ad", values.images_belong_to_ad);
+  addFeature(features, "images_not_belong_to_ad", values.images_not_belong_to_ad);
   addFeature(features, "single_room_count", toNumber(pickFirstNumber(values.singleRoomCount)));
   addFeature(features, "double_room_count", toNumber(pickFirstNumber(values.doubleRoomCount)));
   addFeature(features, "suite_count", toNumber(pickFirstNumber(values.suiteCount)));
@@ -1351,8 +1351,8 @@ export function buildNewAdFormData(
     "terrace_count",
     values.facilities.includes("terrace") ? toNumber(values.terraceCount) : null,
   );
-  appendBaseValue("images_belong_to_ad", values.images_belong_to_ad);
-  appendDynamicValue("images_belong_to_ad", values.images_belong_to_ad);
+  appendBaseValue("images_not_belong_to_ad", values.images_not_belong_to_ad);
+  appendDynamicValue("images_not_belong_to_ad", values.images_not_belong_to_ad);
   appendDynamicValue("facade_material", values.facadeMaterial);
   appendDynamicValue("floor_material", values.floorMaterial);
   appendDynamicValue("cabinet_material", values.cabinetMaterial);

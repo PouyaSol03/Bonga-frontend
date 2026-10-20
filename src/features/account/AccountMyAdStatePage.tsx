@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { getApiErrorMessage } from "../../shared/api/api";
+import { RequestErrorState } from "../../shared/components/ErrorState";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import {
@@ -275,11 +276,40 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     }
   }, [statusInfo.key, currentAdId, backTo]);
 
-  if (
-    (detailQuery.isLoading && !detailQuery.data && !routeState.ad && !routeState.card) ||
-    (!detailQuery.data && !routeState.ad && !routeState.card && statusInfo.key === "unknown") ||
-    (isAfterEdit && (detailQuery.isFetching || statusInfo.key === "unknown"))
-  ) {
+  if (detailQuery.isError && !detailQuery.data && !routeState.ad && !routeState.card) {
+    return (
+      <PageFrame
+        className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
+        variant="flush"
+      >
+        <TopBar
+          backState={backState}
+          backTo={backTo}
+          className="[&_a]:text-on-surface"
+          onBack={handleBack}
+          title="مدیریت آگهی"
+        />
+        <main className="bg-surface-container flex min-h-0 flex-1 flex-col items-center justify-center p-4">
+          <RequestErrorState
+            error={detailQuery.error}
+            onRetry={() => void detailQuery.refetch()}
+          />
+        </main>
+      </PageFrame>
+    );
+  }
+
+  const isPendingInitialData =
+    (detailQuery.isLoading || detailQuery.isFetching) &&
+    !detailQuery.data &&
+    !routeState.ad &&
+    !routeState.card;
+
+  const isPendingEditUpdate =
+    isAfterEdit &&
+    (detailQuery.isFetching || (detailQuery.isLoading && !detailQuery.data));
+
+  if (isPendingInitialData || isPendingEditUpdate) {
     return <MyAdStateSkeleton backState={backState} backTo={backTo} onBack={handleBack} />;
   }
 

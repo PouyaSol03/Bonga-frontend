@@ -2262,31 +2262,13 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     status: toText(ad.status_label ?? ad.status),
     title,
     totalPrice: pricePresentation.primaryValue,
-    imagesBelongToAd: toBooleanLike(
-      ad.images_belong_to_ad ??
-        featureMap.images_belong_to_ad ??
-        getFeatureValue(features, "images_belong_to_ad"),
-    ),
-    imagesNotBelongToAd: (() => {
-      const explicitNotBelong = toBooleanLike(
+    imagesNotBelongToAd:
+      toBooleanLike(
         ad.images_not_belong_to_ad ??
           ad.imagesNotBelongToAd ??
           featureMap.images_not_belong_to_ad ??
           getFeatureValue(features, "images_not_belong_to_ad"),
-      );
-      if (explicitNotBelong !== null) {
-        return explicitNotBelong === true;
-      }
-      const legacyBelong = toBooleanLike(
-        ad.images_belong_to_ad ??
-          featureMap.images_belong_to_ad ??
-          getFeatureValue(features, "images_belong_to_ad"),
-      );
-      if (legacyBelong !== null) {
-        return !legacyBelong;
-      }
-      return false;
-    })(),
+      ) === true,
     isSpecial:
       toBooleanLike(
         ad.is_special ??

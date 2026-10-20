@@ -797,7 +797,6 @@ function GalleryHero({
   tour3dUrl = "",
 }: {
   hasTour3d?: boolean;
-  imagesBelongToAd?: boolean;
   imagesNotBelongToAd?: boolean;
   mediaItems?: AlbumMediaItem[];
   onOpenAlbum: (initialIndex?: number) => void;
@@ -1385,7 +1384,6 @@ function ViewAdContent({
       <section className="bg-surface-container-lowest pb-4">
         <GalleryHero
           hasTour3d={hasTour3d}
-          imagesBelongToAd={details.imagesBelongToAd}
           imagesNotBelongToAd={details.imagesNotBelongToAd}
           mediaItems={mediaItems}
           onOpenAlbum={onOpenAlbum}

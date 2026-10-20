@@ -128,7 +128,6 @@ export type ViewAdDetails = {
   status: string;
   title: string;
   totalPrice: string;
-  imagesBelongToAd?: boolean;
   imagesNotBelongToAd?: boolean;
   isSpecial?: boolean;
   isLadder?: boolean;

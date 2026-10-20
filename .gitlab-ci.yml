@@ -44,7 +44,7 @@ pr_agent_review:
     GITLAB__AUTH_TYPE: "private_token"
     CONFIG__PUBLISH_OUTPUT: "true"
     CONFIG__PROPAGATE_TOOL_ERRORS: "true"
-    OPENAI__API_BASE: "http://127.0.0.1:20128/v1"
+    OPENAI__API_BASE: "http://195.248.241.196:20128/v1"
     CONFIG__MODEL: "openai/cx/gpt-6.1-sol"
     CONFIG__MODEL_WEAK: "openai/cx/gpt-6.1-sol"
     CONFIG__FALLBACK_MODELS: '["openai/cx/gpt-6.1-sol"]'

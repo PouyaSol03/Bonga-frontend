@@ -1438,20 +1438,15 @@ function buildFacilityItems(
   const supportsStructuralFacilities = parkingFacilityFormCodes.has(formCode);
 
   const hasElevator =
-    (facilitySet.has("آسانسور") || facilitySet.has("elevator") || Boolean(elevatorCount)) &&
-    (elevatorNum !== 0 || !elevatorCount);
+    facilitySet.has("آسانسور") || facilitySet.has("elevator");
   const hasParking =
-    (facilitySet.has("پارکینگ") || facilitySet.has("parking") || Boolean(parkingCount)) &&
-    (parkingNum !== 0 || !parkingCount);
+    facilitySet.has("پارکینگ") || facilitySet.has("parking");
   const hasTerrace =
-    (facilitySet.has("تراس") || facilitySet.has("terrace") || Boolean(terraceCount)) &&
-    (terraceNum !== 0 || !terraceCount);
+    facilitySet.has("تراس") || facilitySet.has("terrace");
   const hasWarehouse =
-    (facilitySet.has("انباری") ||
-      facilitySet.has("warehouse") ||
-      facilitySet.has("storage") ||
-      Boolean(warehouseCount)) &&
-    (warehouseNum !== 0 || !warehouseCount);
+    facilitySet.has("انباری") ||
+    facilitySet.has("warehouse") ||
+    facilitySet.has("storage");
 
   const makeFeatureItem = (feature: string): DetailItem => ({
     icon: "apartment",
@@ -4416,20 +4411,15 @@ export function buildFacilitiesDetailSections(ad: AdvertisementItem): DetailInfo
   const facilitySet = new Set(rawList);
 
   const hasElevator =
-    (facilitySet.has("آسانسور") || facilitySet.has("elevator") || Boolean(elevatorCount)) &&
-    (elevatorNum !== 0 || !elevatorCount);
+    facilitySet.has("آسانسور") || facilitySet.has("elevator");
   const hasParking =
-    (facilitySet.has("پارکینگ") || facilitySet.has("parking") || Boolean(parkingCount)) &&
-    (parkingNum !== 0 || !parkingCount);
+    facilitySet.has("پارکینگ") || facilitySet.has("parking");
   const hasTerrace =
-    (facilitySet.has("تراس") || facilitySet.has("terrace") || Boolean(terraceCount)) &&
-    (terraceNum !== 0 || !terraceCount);
+    facilitySet.has("تراس") || facilitySet.has("terrace");
   const hasWarehouse =
-    (facilitySet.has("انباری") ||
-      facilitySet.has("warehouse") ||
-      facilitySet.has("storage") ||
-      Boolean(warehouseCount)) &&
-    (warehouseNum !== 0 || !warehouseCount);
+    facilitySet.has("انباری") ||
+    facilitySet.has("warehouse") ||
+    facilitySet.has("storage");
 
   const elevatorItem = {
     icon: "apartment" as IconName,

@@ -96,17 +96,17 @@ function mapCollections(
   formCode: string,
   params: ReturnType<typeof getParams>,
 ): void {
-  if (changed.has("elevatorCount"))
+  if (changed.has("elevatorCount") || changed.has("facilities"))
     appender.appendFacilityCount(
       "elevator_count",
       clean.facilities.includes("elevator") ? toNumber(clean.elevatorCount) : null,
     );
-  if (changed.has("parkingCount"))
+  if (changed.has("parkingCount") || changed.has("facilities"))
     appender.appendFacilityCount(
       "parking_count",
       clean.facilities.includes("parking") ? toNumber(clean.parkingCount) : null,
     );
-  if (changed.has("terraceCount"))
+  if (changed.has("terraceCount") || changed.has("facilities"))
     appender.appendFacilityCount(
       "terrace_count",
       clean.facilities.includes("terrace") ? toNumber(clean.terraceCount) : null,

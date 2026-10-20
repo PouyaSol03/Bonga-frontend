@@ -33,12 +33,16 @@ export function createPatchAppender(
 
   const appendDynamicArray = (key: string, value: string[]) => {
     if (!dynamicFieldKeysSet.has(key)) return;
-    value
+    const items = value
       .map((item) => (typeof item === "string" ? item.trim() : item))
-      .filter(Boolean)
-      .forEach((item) => {
-        formData.append(key, String(item));
-      });
+      .filter(Boolean);
+    if (items.length === 0) {
+      formData.append(key, "[]");
+      return;
+    }
+    items.forEach((item) => {
+      formData.append(key, String(item));
+    });
   };
 
   const appendDynamicJson = (key: string, value: unknown) => {

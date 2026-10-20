@@ -47,7 +47,7 @@ export function AdIncreaseVisitsPage() {
   const checkoutMutation = useSubmitAdvertisementCheckoutMutation();
   const [step, setStep] = useState<"options" | "checkout">("options");
   const [method, setMethod] = useState<PaymentMethod>("online");
-  const [selectedTariffs, setSelectedTariffs] = useState<AdTariffOptionId[]>(["special"]);
+  const [selectedTariffs, setSelectedTariffs] = useState<AdTariffOptionId[]>([]);
   const [discountInput, setDiscountInput] = useState("");
   const [discountLoading, setDiscountLoading] = useState(false);
   const [discountError, setDiscountError] = useState<string | null>(null);

@@ -72,13 +72,12 @@ export function submitEditPatch({
       ? "/account/my-ads"
       : adManagementPaths.root;
   const targetPath = editAdState.editReturnTo ?? editAdState.returnTo ?? fallbackTarget;
-  const separator = targetPath.includes("?") ? "&" : "?";
 
   if (!patchResult.hasChanges) {
     clearNewAdDraftStorage();
     const currentCard = resolvedAd ? mapAdvertisementToAdCard(resolvedAd, 0) : undefined;
     const statusInfo = resolvedAd ? getMyAdStatusInfo(resolvedAd) : { key: "status" };
-    navigate(`${targetPath}${separator}updated=1`, {
+    navigate(targetPath, {
       replace: true,
       state: {
         ad: resolvedAd,
@@ -107,7 +106,7 @@ export function submitEditPatch({
         clearNewAdDraftStorage();
         const updatedCard = mapAdvertisementToAdCard(updatedAd, 0);
         const statusInfo = getMyAdStatusInfo(updatedAd);
-        navigate(`${targetPath}${separator}updated=1`, {
+        navigate(targetPath, {
           replace: true,
           state: {
             ad: updatedAd,

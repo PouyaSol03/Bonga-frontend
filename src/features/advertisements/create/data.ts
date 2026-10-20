@@ -205,7 +205,11 @@ export const partnershipCurrentStatusOptions = [
   "ساختمان نوساز",
 ];
 
-export const projectFloorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
+export const projectFloorOptions = [
+  "همکف",
+  ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۳۰ و بیشتر",
+];
 
 export const projectRoomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
 
@@ -786,7 +790,11 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
   "suiteCount",
 ];
 
-export const floorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
+export const floorOptions = [
+  "همکف",
+  ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۳۰ و بیشتر",
+];
 export const roomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
 export const unitsPerFloorOptions = Array.from(
   { length: 30 },
@@ -850,14 +858,8 @@ export const participationTypeOptions = [
 
 export const ageOptions = [
   "نوساز",
-  "۱ سال",
-  "۲ سال",
-  "۳ سال",
-  "۴ سال",
-  "۱۰ سال",
-  "۱۵ سال",
-  "۲۰ سال",
-  "بیشتر از ۳۰ سال",
+  ...Array.from({ length: 29 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} سال`),
+  "۳۰ سال و بیشتر",
 ];
 
 export const usageTypeOptions = [
@@ -1627,14 +1629,8 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   floor: floorOptions,
   rooms: roomOptions,
   totalFloors: [
-    "۱ طبقه",
-    "۲ طبقه",
-    "۳ طبقه",
-    "۴ طبقه",
-    "۵ طبقه",
-    "۶ طبقه",
-    "۷ طبقه",
-    "۸ طبقه و بیشتر",
+    ...Array.from({ length: 29 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} طبقه`),
+    "۳۰ طبقه و بیشتر",
   ],
   unitsPerFloor: unitsPerFloorOptions,
   unitType: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش"],

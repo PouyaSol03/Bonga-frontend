@@ -377,7 +377,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const showAgencyBottomBar = Boolean(
     (isAssigned ||
       statusInfo.key === "wait_for_agency" ||
-      statusInfo.key === "pending" ||
+      (isAssigned && statusInfo.key === "pending") ||
       statusInfo.key === "wait_for_stop") &&
     statusInfo.key !== "rejected_by_agency",
   );

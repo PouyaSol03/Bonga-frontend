@@ -7,6 +7,7 @@ import {
   storeLoginRedirectPath,
 } from "../../shared/auth/auth-storage";
 import { clearNewAdDraftStorage } from "../../features/advertisements/create/utils";
+import { hasBusinessPublisherRoles } from "../../features/advertisements/api/publisher-options.hooks";
 import LinearAddCircle from "../../shared/icons/LinearAddCircle";
 import LinearChat from "../../shared/icons/LinearChat";
 import LinearHome3 from "../../shared/icons/LinearHome3";
@@ -114,6 +115,13 @@ function BottomNavigationComponent({ activeKey = "account" }: { activeKey?: stri
                   if (!session) {
                     storeLoginRedirectPath("/new-ad/category");
                     navigate(getLoginRequiredPath("/new-ad/category"));
+                    return;
+                  }
+
+                  if (!hasBusinessPublisherRoles(session)) {
+                    setStoredActiveRole("user");
+                    clearNewAdDraftStorage();
+                    navigate("/new-ad/personal?registrantType=personal&context=personal");
                     return;
                   }
 

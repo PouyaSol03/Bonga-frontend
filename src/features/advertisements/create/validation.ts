@@ -331,6 +331,8 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
       errors.loanInstallment = "لطفا قسط وام را وارد کنید.";
     } else if (loanInstallment === null || loanInstallment <= 0) {
       errors.loanInstallment = "مبلغ قسط وام باید بزرگتر از صفر باشد.";
+    } else if (loanAmount !== null && loanAmount > 0 && loanInstallment > loanAmount / 2) {
+      errors.loanInstallment = "مبلغ قسط نمی‌تواند بیشتر از نصف مبلغ کل وام باشد.";
     }
   }
 

@@ -1313,15 +1313,9 @@ function getProjectPresaleBlocks(): FilterBlock[] {
 }
 
 const approvedSaleFilterAgeOptions = [
-  "۱ سال",
   "نوساز",
-  "۲ سال",
-  "۳ سال",
-  "۴ سال",
-  "۱۰ سال",
-  "۱۵ سال",
-  "۲۰ سال",
-  "بیشتر از ۳۰ سال",
+  ...Array.from({ length: 29 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} سال`),
+  "۳۰ سال و بیشتر",
 ];
 
 const approvedSaleFilterDocumentTypeOptions = [
@@ -1396,7 +1390,11 @@ const approvedSaleFilterVillaTypeOptions = [
   "فورلکس",
 ];
 
-const approvedSaleFilterFloorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
+const approvedSaleFilterFloorOptions = [
+  "همکف",
+  ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۳۰ و بیشتر",
+];
 const approvedSaleFilterUnitsPerFloorOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "+۸"];
 
 // The supplied filter SVGs show the first six heating/cooling chips and five more.
@@ -1472,7 +1470,10 @@ const approvedHotelAccommodationOptions = [
   "مجتمع توریستی",
 ];
 const approvedHotelStarOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷"];
-const approvedTotalFloorsOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
+const approvedTotalFloorsOptions = [
+  ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۳۰ و بیشتر",
+];
 export const approvedRentUnitLayoutOptions = [
   "تک طبقه",
   "دو طبقه",

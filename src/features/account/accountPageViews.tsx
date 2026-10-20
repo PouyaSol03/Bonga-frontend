@@ -859,7 +859,6 @@ export function IdentityPendingState({
   isAuthenticated = true,
   isVerifying = false,
   isRejected = false,
-  showRequiredNotice = false,
   onVerify,
 }: {
   initialNationalnumber?: string;
@@ -886,31 +885,6 @@ export function IdentityPendingState({
 
   return (
     <>
-      {showRequiredNotice ? (
-        <section className="px-2 pt-3">
-          <div className="border-warning bg-warning-container text-warning rounded-xl border px-4 py-3 text-right">
-            <Typography
-              as="p"
-              variant="body"
-              size="medium"
-              weight="medium"
-              className="m-0 text-sm leading-6 font-semibold"
-            >
-              احراز هویت مورد نیاز است!
-            </Typography>
-            <Typography
-              as="p"
-              variant="body"
-              size="small"
-              weight="regular"
-              className="m-0 mt-1 text-xs leading-5 font-normal"
-            >
-              برای ادامه استفاده از حساب، ابتدا کد ملی مالک شماره همراه را تایید کنید.
-            </Typography>
-          </div>
-        </section>
-      ) : null}
-
       {!isAuthenticated ? (
         <section className="px-4 pt-3">
           <div className="border-primary bg-primary-container rounded-xl border p-4 text-right">

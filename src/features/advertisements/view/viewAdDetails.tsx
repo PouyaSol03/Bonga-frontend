@@ -2267,15 +2267,26 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
         featureMap.images_belong_to_ad ??
         getFeatureValue(features, "images_belong_to_ad"),
     ),
-    imagesNotBelongToAd: toBooleanLike(
-      ad.images_not_belong_to_ad ??
-        ad.imagesNotBelongToAd ??
-        featureMap.images_not_belong_to_ad ??
-        getFeatureValue(features, "images_not_belong_to_ad") ??
+    imagesNotBelongToAd: (() => {
+      const explicitNotBelong = toBooleanLike(
+        ad.images_not_belong_to_ad ??
+          ad.imagesNotBelongToAd ??
+          featureMap.images_not_belong_to_ad ??
+          getFeatureValue(features, "images_not_belong_to_ad"),
+      );
+      if (explicitNotBelong !== null) {
+        return explicitNotBelong === true;
+      }
+      const legacyBelong = toBooleanLike(
         ad.images_belong_to_ad ??
-        featureMap.images_belong_to_ad ??
-        getFeatureValue(features, "images_belong_to_ad"),
-    ) === true,
+          featureMap.images_belong_to_ad ??
+          getFeatureValue(features, "images_belong_to_ad"),
+      );
+      if (legacyBelong !== null) {
+        return !legacyBelong;
+      }
+      return false;
+    })(),
     isSpecial:
       toBooleanLike(
         ad.is_special ??

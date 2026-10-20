@@ -179,15 +179,25 @@ export function mapAdvertisementSpecs(
     "hasVirtualTour",
     readFirstValue(ad, features, ["has_virtual_tour"], ["has_virtual_tour"]),
   );
-  setBool(
-    "images_belong_to_ad",
-    readFirstValue(
+  const explicitNotBelong = readFirstValue(
+    ad,
+    features,
+    ["images_not_belong_to_ad", "imagesNotBelongToAd"],
+    ["images_not_belong_to_ad", "imagesNotBelongToAd"],
+  );
+  if (explicitNotBelong !== undefined && explicitNotBelong !== null) {
+    setBool("images_belong_to_ad", explicitNotBelong);
+  } else {
+    const legacyBelong = readFirstValue(
       ad,
       features,
       ["images_belong_to_ad", "imagesBelongToAd"],
       ["images_belong_to_ad", "imagesBelongToAd"],
-    ),
-  );
+    );
+    if (legacyBelong !== undefined && legacyBelong !== null) {
+      setBool("images_belong_to_ad", !legacyBelong);
+    }
+  }
 
   if (next.virtualTourLink) next.hasVirtualTour = true;
   if (readText(ad.video ?? ad.video_url ?? ad.video_path)) next.hasVideo = true;

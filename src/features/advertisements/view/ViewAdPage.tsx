@@ -791,7 +791,6 @@ function ProjectUnitDetailsSection({
 
 function GalleryHero({
   hasTour3d = false,
-  imagesBelongToAd,
   imagesNotBelongToAd,
   mediaItems = [{ src: "/figma/view-ad-gallery.png", type: "image" }],
   onOpenAlbum,
@@ -929,7 +928,7 @@ function GalleryHero({
           </div>
         </div>
       </div>
-      {imagesNotBelongToAd ?? imagesBelongToAd ? (
+      {imagesNotBelongToAd ? (
         <div className="mt-2.5 flex items-center gap-1.5 px-1 [direction:rtl]">
           <LinearInfoCircle className="text-outline h-4 w-4 shrink-0" />
           <Typography

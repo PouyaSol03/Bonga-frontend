@@ -65,7 +65,9 @@ export function mapAdvertisementToEditValues(
     ad.contacts && typeof ad.contacts === "object" ? (ad.contacts as Record<string, unknown>) : {};
 
   const confirmedLocation =
-    typeof window !== "undefined" ? window.localStorage.getItem(locationKey)?.trim() : "";
+    typeof window !== "undefined" && !base.location
+      ? window.localStorage.getItem(locationKey)?.trim()
+      : "";
   if (confirmedLocation) {
     next.location = confirmedLocation;
   } else {

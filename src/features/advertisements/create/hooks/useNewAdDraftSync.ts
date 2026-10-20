@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import type { UseFormReturn } from "react-hook-form";
-import { locationKey } from "../data";
+import { locationKey, locationLatKey, locationLngKey } from "../data";
 import { saveAtomicDraft } from "../draft/adDraftStore";
 import { saveNewAdFlowSession, shouldPreserveNewAdDraft } from "../session";
 import type { FlowStep, NewAdFieldErrors, NewAdFormValues } from "../types";
@@ -30,12 +30,16 @@ export function useNewAdDraftSync({
     const persistDraft = () => {
       const values = methods.getValues();
       const currentConfirmedLoc = window.localStorage.getItem(locationKey)?.trim();
+      const currentLat = window.localStorage.getItem(locationLatKey)?.trim();
+      const currentLng = window.localStorage.getItem(locationLngKey)?.trim();
       const resolvedLoc = values.location || currentConfirmedLoc || "";
       const currentNeighborhoodId = values.neighborhoodId || "";
       const currentSubNeighborhoodId = values.subNeighborhoodId || "";
 
       saveAtomicDraft({
         draftAdId,
+        lat: currentLat,
+        lng: currentLng,
         location: resolvedLoc,
         neighborhoodId: currentNeighborhoodId,
         step,

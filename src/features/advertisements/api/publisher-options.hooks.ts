@@ -14,6 +14,27 @@ export type PublisherOption = {
   title: string;
 };
 
+export function hasBusinessPublisherRoles(session: ReturnType<typeof getStoredAuthSession>): boolean {
+  if (!session) return false;
+  const availableRoles = new Set<string>(
+    [
+      session.activeRole,
+      session.role,
+      ...(session.roles ?? []).map((role) => role.slug),
+    ].filter(Boolean) as string[],
+  );
+
+  return (
+    availableRoles.has("independent_consultant") ||
+    availableRoles.has("independent-consultant") ||
+    availableRoles.has("real_estate_manager") ||
+    availableRoles.has("agency") ||
+    availableRoles.has("real_estate_consultant") ||
+    availableRoles.has("agency_consultant") ||
+    availableRoles.has("agency-consultant")
+  );
+}
+
 export function usePublisherOptions(enabled = true) {
   const session = getStoredAuthSession();
   const availableRoles = useMemo(

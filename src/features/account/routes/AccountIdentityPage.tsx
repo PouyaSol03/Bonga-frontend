@@ -27,7 +27,6 @@ export function AccountIdentityPage() {
   const authorize = useAuthorizeMeMutation();
   const transferOwnership = useTransferSimOwnershipMutation();
   const { data: profile } = useMyProfileQuery();
-  const isAuthRequired = new URLSearchParams(window.location.search).get("required") === "1";
   const authSession = getStoredAuthSession();
   const isAuthenticated = Boolean(authSession);
   const mobile = authSession?.mobile ?? "-";
@@ -74,7 +73,6 @@ export function AccountIdentityPage() {
             isPending={authorize.isPending}
             isVerifying={isPendingReview}
             isRejected={isRejected}
-            showRequiredNotice={isAuthRequired}
             onVerify={(nationalnumber) => {
               authorize.mutate(
                 { nationalnumber },

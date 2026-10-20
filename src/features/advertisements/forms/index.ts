@@ -1,4 +1,5 @@
 import type { AdFormSchema } from "./types";
+import { ageOptions, floorOptions, totalFloorsOptions } from "../create/data";
 
 import saleApartment from "./sale-apartment.json";
 import saleVillaHouse from "./sale-villa-house.json";
@@ -84,8 +85,57 @@ export function getFormCodeForListing(transaction: string, category: string): st
   );
 }
 
+function normalizeOptions(options: string[] | undefined, key?: string): string[] | undefined {
+  if (!options) return options;
+  if (key === "floor") return floorOptions;
+  if (key === "totalFloors") return totalFloorsOptions;
+  if (key === "age") return ageOptions;
+  return options;
+}
+
+function normalizeSchemaOptions(schema: AdFormSchema | null): AdFormSchema | null {
+  if (!schema) return null;
+  const clone = { ...schema };
+  if (clone.create?.basicFields) {
+    clone.create = {
+      ...clone.create,
+      basicFields: clone.create.basicFields.map((f) => ({
+        ...f,
+        options: normalizeOptions(f.options, f.key),
+      })),
+    };
+  }
+  if (clone.create?.moreFeatures?.fields) {
+    clone.create = {
+      ...clone.create,
+      moreFeatures: {
+        ...clone.create.moreFeatures,
+        fields: clone.create.moreFeatures.fields.map((f) => ({
+          ...f,
+          options: normalizeOptions(f.options, f.key),
+        })),
+      },
+    };
+  }
+  if (clone.filter?.sections) {
+    clone.filter = {
+      ...clone.filter,
+      sections: clone.filter.sections.map((section) => ({
+        ...section,
+        options: normalizeOptions(
+          Array.isArray(section.options)
+            ? (section.options.filter((o) => typeof o === "string") as string[])
+            : undefined,
+          section.id,
+        ),
+      })),
+    };
+  }
+  return clone;
+}
+
 export function getFormSchema(formCode: string): AdFormSchema | null {
-  return formSchemas[formCode] ?? null;
+  return normalizeSchemaOptions(formSchemas[formCode] ?? null);
 }
 
 export function getFormSchemaByListing(transaction: string, category: string): AdFormSchema | null {

@@ -205,7 +205,11 @@ export const partnershipCurrentStatusOptions = [
   "ساختمان نوساز",
 ];
 
-export const projectFloorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
+export const projectFloorOptions = [
+  "همکف",
+  ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۳۰ و بیشتر",
+];
 
 export const projectRoomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
 
@@ -786,7 +790,11 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
   "suiteCount",
 ];
 
-export const floorOptions = ["همکف", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸ و بیشتر"];
+export const floorOptions = [
+  "همکف",
+  ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۳۰ و بیشتر",
+];
 export const roomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
 export const unitsPerFloorOptions = Array.from(
   { length: 30 },
@@ -850,14 +858,8 @@ export const participationTypeOptions = [
 
 export const ageOptions = [
   "نوساز",
-  "۱ سال",
-  "۲ سال",
-  "۳ سال",
-  "۴ سال",
-  "۱۰ سال",
-  "۱۵ سال",
-  "۲۰ سال",
-  "بیشتر از ۳۰ سال",
+  ...Array.from({ length: 29 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} سال`),
+  "۳۰ سال و بیشتر",
 ];
 
 export const usageTypeOptions = [
@@ -1622,20 +1624,16 @@ export const basicPropertyFieldsByListingType: Record<string, BasicPropertyField
   "rent:daily-hotel-apartment": dailyHotelRentBasicFields,
 };
 
+export const totalFloorsOptions = [
+  ...Array.from({ length: 29 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} طبقه`),
+  "۳۰ طبقه و بیشتر",
+];
+
 export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   age: ageOptions,
   floor: floorOptions,
   rooms: roomOptions,
-  totalFloors: [
-    "۱ طبقه",
-    "۲ طبقه",
-    "۳ طبقه",
-    "۴ طبقه",
-    "۵ طبقه",
-    "۶ طبقه",
-    "۷ طبقه",
-    "۸ طبقه و بیشتر",
-  ],
+  totalFloors: totalFloorsOptions,
   unitsPerFloor: unitsPerFloorOptions,
   unitType: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش"],
   unitPosition: ["جلو", "عقب", "وسط", "کنج", "دوبلکس"],
@@ -1702,7 +1700,7 @@ const saleApartmentOccupancyStatusOptions = ["تخلیه", "مالک", "مستا
 export const saleApartmentKitchenTypeOptions = ["اپن", "جزیره", "بسته", "نیمه اپن"];
 
 const saleApartmentMoreFeatureFields: MoreFeatureField[] = [
-  { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select" },
+  { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select", options: totalFloorsOptions },
   {
     key: "unitsPerFloor",
     label: "تعداد واحد در طبقه",
@@ -1747,7 +1745,7 @@ const saleApartmentMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const apartmentMoreFeatureFields: MoreFeatureField[] = [
-  { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select" },
+  { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select", options: totalFloorsOptions },
   { key: "unitsPerFloor", label: "تعداد واحد در طبقه", control: "select" },
   { key: "unitType", label: "جهت ساختمان", control: "select" },
   { key: "unitPosition", label: "موقعیت واحد", control: "select" },
@@ -1783,7 +1781,7 @@ const rentApartmentMoreFeatureFields: MoreFeatureField[] = [
     control: "multiSelect",
     options: rentApartmentSuitableForOptions,
   },
-  { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select" },
+  { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select", options: totalFloorsOptions },
   {
     key: "unitsPerFloor",
     label: "تعداد واحد در طبقه",
@@ -1842,7 +1840,7 @@ const saleVillaHouseMoreFeatureFields: MoreFeatureField[] = [
   },
   { key: "villaType", label: "تیپ بنا", control: "select", options: saleVillaHouseTypeOptions },
   { key: "documentType", label: "سند", control: "select", options: saleLandDocumentTypeOptions },
-  { key: "totalFloors", label: "تعداد طبقات", control: "select" },
+  { key: "totalFloors", label: "تعداد طبقات", control: "select", options: totalFloorsOptions },
   { key: "streetWidth", label: "عرض گذر", control: "number", leftText: "متر" },
   {
     key: "kitchenType",
@@ -1888,7 +1886,7 @@ const rentVillaHouseMoreFeatureFields: MoreFeatureField[] = [
     options: saleVillaHouseBuildingTypeOptions,
   },
   { key: "villaType", label: "تیپ بنا", control: "select", options: saleVillaHouseTypeOptions },
-  { key: "totalFloors", label: "تعداد طبقات", control: "select" },
+  { key: "totalFloors", label: "تعداد طبقات", control: "select", options: totalFloorsOptions },
   { key: "streetWidth", label: "عرض گذر", control: "number", leftText: "متر" },
   { key: "petPolicy", label: "حیوان خانگی", control: "select", options: rentPetPolicyOptions },
   { key: "renovated", label: "بازسازی", control: "toggle" },
@@ -1949,7 +1947,7 @@ const saleLandMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const officeMoreFeatureFields: MoreFeatureField[] = [
-  { key: "floor", label: "طبقه", control: "select" },
+  { key: "floor", label: "طبقه", control: "select", options: floorOptions },
   { key: "commercialLicense", label: "مجوز تجاری", control: "select" },
   { key: "renovated", label: "بازسازی شده", control: "toggle" },
   { key: "furnished", label: "مبله با لوازم", control: "toggle" },
@@ -1994,7 +1992,7 @@ const dailyOfficeMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const saleOfficeMoreFeatureFields: MoreFeatureField[] = [
-  { key: "totalFloors", label: "تعداد کل طبقات", control: "select" },
+  { key: "totalFloors", label: "تعداد کل طبقات", control: "select", options: totalFloorsOptions },
   {
     key: "suitableFor",
     label: "مناسب برای",
@@ -2076,14 +2074,14 @@ const rentOfficeMoreFeatureFields: MoreFeatureField[] = [
 const commercialUnitMoreFeatureFields: MoreFeatureField[] = [
   { key: "rooms", label: "تعداد اتاق", control: "select" },
   { key: "commercialLicense", label: "مجوز تجاری", control: "select" },
-  { key: "floor", label: "طبقه", control: "select" },
-  { key: "totalFloors", label: "تعداد کل طبقات", control: "select" },
+  { key: "floor", label: "طبقه", control: "select", options: floorOptions },
+  { key: "totalFloors", label: "تعداد کل طبقات", control: "select", options: totalFloorsOptions },
 ];
 
 const saleCommercialUnitMoreFeatureFields: MoreFeatureField[] = [
   { key: "age", label: "سال ساخت", control: "select", options: ageOptions },
   { key: "floor", label: "طبقه", control: "select", options: floorOptions },
-  { key: "totalFloors", label: "تعداد کل طبقات", control: "select" },
+  { key: "totalFloors", label: "تعداد کل طبقات", control: "select", options: totalFloorsOptions },
   { key: "rooms", label: "تعداد اتاق", control: "select", options: roomOptions },
   { key: "openingCount", label: "تعداد دهنه", control: "select", options: openingCountOptions },
   {
@@ -2160,7 +2158,7 @@ const saleFactoryWorkshopMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const hotelApartmentMoreFeatureFields: MoreFeatureField[] = [
-  { key: "totalFloors", label: "تعداد طبقات", control: "select" },
+  { key: "totalFloors", label: "تعداد طبقات", control: "select", options: totalFloorsOptions },
   { key: "singleRoomCount", label: "تعداد اتاق یک تخته", control: "select" },
   { key: "doubleRoomCount", label: "تعداد اتاق دو تخته", control: "select" },
   { key: "suiteCount", label: "تعداد سوییت‌ها", control: "select" },
@@ -2176,7 +2174,7 @@ const saleHotelApartmentMoreFeatureFields: MoreFeatureField[] = [
     options: saleLandPositionOptions,
   },
   { key: "age", label: "سن ساخت", control: "select", options: ageOptions },
-  { key: "totalFloors", label: "تعداد طبقات", control: "select" },
+  { key: "totalFloors", label: "تعداد طبقات", control: "select", options: totalFloorsOptions },
   { key: "singleRoomCount", label: "تعداد اتاق یک تخته", control: "select" },
   { key: "doubleRoomCount", label: "تعداد اتاق دو تخته", control: "select" },
   { key: "suiteCount", label: "تعداد سوییت ها", control: "select" },
@@ -2192,7 +2190,7 @@ const rentHotelApartmentMoreFeatureFields: MoreFeatureField[] = [
     control: "select",
     options: saleLandPositionOptions,
   },
-  { key: "totalFloors", label: "تعداد طبقات", control: "select" },
+  { key: "totalFloors", label: "تعداد طبقات", control: "select", options: totalFloorsOptions },
   { key: "singleRoomCount", label: "تعداد اتاق یک تخته", control: "select" },
   { key: "doubleRoomCount", label: "تعداد اتاق دو تخته", control: "select" },
   { key: "suiteCount", label: "تعداد سوییت ها", control: "select" },

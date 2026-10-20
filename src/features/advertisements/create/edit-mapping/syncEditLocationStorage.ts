@@ -1,4 +1,5 @@
 import type { AdvertisementFeature, AdvertisementItem } from "../../api/advertisement.service";
+import { saveSelectedCity } from "../../../../shared/lib/selectedCityStorage";
 import {
   locationKey,
   locationLatKey,
@@ -7,25 +8,38 @@ import {
   subNeighborhoodIdKey,
 } from "../data";
 import type { NewAdFormValues } from "../types";
-import { numericInputText, readText, readTextValue } from "./featureReaders";
+import { readText, readTextValue } from "./featureReaders";
+
+function toFiniteCoordinate(value: unknown): string {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? String(value) : "";
+  }
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value.trim());
+    return Number.isFinite(parsed) ? String(parsed) : "";
+  }
+  return "";
+}
 
 export function syncEditLocationStorage(
   ad: AdvertisementItem,
   features: AdvertisementFeature[],
   values: NewAdFormValues,
 ) {
-  const existingLocation = window.localStorage.getItem(locationKey);
-  const existingLat = window.localStorage.getItem(locationLatKey);
-  const existingLng = window.localStorage.getItem(locationLngKey);
-  const existingNeighborhoodId = window.localStorage.getItem(neighborhoodIdKey);
-
-  if (!existingLocation && values.location) {
+  if (values.location) {
     window.localStorage.setItem(locationKey, values.location);
   }
 
-  const lat = numericInputText(ad.lat ?? ad.latitude ?? ad.location?.coordinates?.[1]);
-  const lng = numericInputText(
-    ad.lng ?? ad.long ?? ad.longitude ?? ad.location?.coordinates?.[0],
+  const lat = toFiniteCoordinate(
+    ad.lat ??
+      ad.latitude ??
+      (ad.location as { coordinates?: [number, number] } | undefined)?.coordinates?.[1],
+  );
+  const lng = toFiniteCoordinate(
+    ad.lng ??
+      ad.long ??
+      ad.longitude ??
+      (ad.location as { coordinates?: [number, number] } | undefined)?.coordinates?.[0],
   );
   const neighborhoodId =
     readTextValue(ad, features, ["neighborhood_id"], ["neighborhood_id"]) ||
@@ -36,11 +50,24 @@ export function syncEditLocationStorage(
     readText(ad.sub_neighborhood?.id) ||
     readText(ad.subNeighborhoodId);
 
-  if (!existingLat && lat) window.localStorage.setItem(locationLatKey, lat);
-  if (!existingLng && lng) window.localStorage.setItem(locationLngKey, lng);
-  if (!existingNeighborhoodId && neighborhoodId)
-    window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
-  if (!window.localStorage.getItem(subNeighborhoodIdKey) && subNeighborhoodId) {
+  if (lat) window.localStorage.setItem(locationLatKey, lat);
+  if (lng) window.localStorage.setItem(locationLngKey, lng);
+  if (neighborhoodId) window.localStorage.setItem(neighborhoodIdKey, neighborhoodId);
+  if (subNeighborhoodId) {
     window.localStorage.setItem(subNeighborhoodIdKey, subNeighborhoodId);
+  } else {
+    window.localStorage.removeItem(subNeighborhoodIdKey);
+  }
+
+  const cityObj = ad.city && typeof ad.city === "object" ? (ad.city as Record<string, unknown>) : null;
+  const cityId = readText(cityObj?.id) || readText(ad.city_id);
+  const cityName = readText(cityObj?.name) || readText(ad.city_name);
+  if (cityId || cityName) {
+    saveSelectedCity({
+      id: cityId || undefined,
+      name: cityName || "مشهد",
+      latitude: lat ? Number(lat) : undefined,
+      longitude: lng ? Number(lng) : undefined,
+    });
   }
 }

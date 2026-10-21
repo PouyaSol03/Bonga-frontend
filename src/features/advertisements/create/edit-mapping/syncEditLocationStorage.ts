@@ -70,12 +70,17 @@ export function syncEditLocationStorage(
   const cityId = readText(cityObj?.id) || readText(ad.city_id);
   const cityName = readText(cityObj?.name) || readText(ad.city_name);
   const storedCity = typeof window !== "undefined" ? readStoredSelectedCity() : null;
+  const isMatchingStoredCity = Boolean(
+    storedCity?.id &&
+      cityId &&
+      String(storedCity.id).trim() === String(cityId).trim(),
+  );
   const resolvedCityName =
-    cityName || (storedCity?.id && storedCity.id === cityId ? storedCity.name : "");
+    cityName || (isMatchingStoredCity ? storedCity?.name || "" : "");
 
   if (resolvedCityName) {
     saveSelectedCity({
-      id: cityId || undefined,
+      id: cityId || (isMatchingStoredCity ? storedCity?.id : undefined),
       name: resolvedCityName,
       latitude: lat ? Number(lat) : undefined,
       longitude: lng ? Number(lng) : undefined,

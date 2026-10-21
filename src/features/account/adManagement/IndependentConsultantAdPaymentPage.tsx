@@ -948,6 +948,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   }
 
   function toggleUpgrade(product: string) {
+    setAppliedDiscount(null);
     setSelectedUpgradeProducts((current) => {
       const isSelected = current.includes(product);
       if (isSelected) return current.filter((item) => item !== product);

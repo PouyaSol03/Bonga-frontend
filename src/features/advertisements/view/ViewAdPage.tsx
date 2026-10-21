@@ -2011,7 +2011,10 @@ export function ViewAdPage() {
   const resolvedAd = ad;
 
   if (!resolvedAd) {
-    return <NotFoundState />;
+    if (isError) {
+      return <NotFoundState />;
+    }
+    return <LoadingState />;
   }
 
   const details = mapAdToDetails(resolvedAd);

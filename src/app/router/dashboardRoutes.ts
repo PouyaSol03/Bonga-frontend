@@ -1,3 +1,5 @@
+import { createElement } from "react";
+import { Navigate } from "react-router";
 import {
   INDEPENDENT_CONSULTANT,
   REAL_ESTATE_CONSULTANT,
@@ -16,10 +18,6 @@ const DashboardAgencyPage = lazyNamed(
 const DashboardAgentPage = lazyNamed(
   () => import("../../features/dashboard/AgentProfilePage"),
   "AgentProfilePage",
-);
-const DashboardAdsPage = lazyNamed(
-  () => import("../../features/dashboard/DashboardAdsPage"),
-  "DashboardAdsPage",
 );
 const ViewAdLeadDetailsPage = lazyNamed(
   () => import("../../features/advertisements/view/components/ViewAdLeadDetailsPage"),
@@ -148,10 +146,8 @@ export const dashboardRoutes: AppRoute[] = [
   {
     path: `${DASHBOARD_PATH}/ads`,
     title: "مدیریت آگهی‌ها",
-    Component: DashboardAdsPage,
-    layout: "dashboard",
+    Component: () => createElement(Navigate, { to: "/account/manage-ads", replace: true }),
     requiresAuth: true,
-    requiresNonUser: true,
   },
   {
     path: `${DASHBOARD_PATH}/lead-details`,

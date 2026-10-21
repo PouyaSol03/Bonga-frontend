@@ -3,7 +3,7 @@ import { getAdStatePath } from "../account/adManagement/adManagementData";
 
 export function DashboardAdCard({
   ad,
-  returnTo = "/account/dashboard/ads",
+  returnTo = "/account/manage-ads",
   to,
 }: {
   ad: AdCardData;

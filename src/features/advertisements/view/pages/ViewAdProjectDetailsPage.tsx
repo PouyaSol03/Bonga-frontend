@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { getApiErrorMessage } from "../../../../shared/api/api";
 import { PageFrame } from "../../../../shared/layout/PageFrame";
 import { TopBar } from "../../../../shared/components/TopBar";
@@ -155,14 +156,22 @@ export function ViewAdProjectDetailsPage() {
     resolvedAd?.sale_terms_installment_months;
   const installmentMonths = rawInstallments ? `${toPersianDigits(rawInstallments)} ماه` : "۱۲ ماه";
 
+  const navigate = useNavigate();
+  const backTarget = adId
+    ? isPreview
+      ? `/preview-ad/${encodeURIComponent(String(adId))}`
+      : `/ads/${encodeURIComponent(String(adId))}`
+    : "/home";
+
   return (
     <PageFrame
       className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
-        backTo={adId ? `/ads/${adId}` : "/home"}
+        backTo={backTarget}
         className="bg-surface-container shrink-0"
+        onBack={() => navigate(backTarget, { replace: true })}
         title="اطلاعات پروژه"
       />
 

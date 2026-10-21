@@ -467,13 +467,13 @@ export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "ful
             };
             const isIncomplete = statusInfo.key === "incomplete";
             const destination = isIncomplete
-              ? getAdEditPath(adId, "/account/my-ads")
-              : `/account/my-ads/${encodeURIComponent(adId)}/state-ad`;
+              ? getAdEditPath(adId, "/account/manage-ads")
+              : `/account/manage-ads/${encodeURIComponent(adId)}/state-ad`;
             const destinationState = isIncomplete
               ? {
                   ad,
                   card: cardWithStatus,
-                  editReturnTo: "/account/my-ads",
+                  editReturnTo: "/account/manage-ads",
                   isEditMode: true,
                   status: statusInfo.key,
                   tab: "status",
@@ -527,6 +527,7 @@ export function AccountPageShell({
   onBack,
   title,
 }: React.PropsWithChildren<TopBarProps>) {
+  const navigate = useNavigate();
   return (
     <PageFrame
       className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
@@ -534,7 +535,7 @@ export function AccountPageShell({
     >
       <TopBar
         backTo="/account"
-        onBack={onBack}
+        onBack={onBack ?? (() => navigate("/account", { replace: true }))}
         startSlot={
           <div className="flex h-12 w-12 shrink-0 items-center justify-center">{action}</div>
         }

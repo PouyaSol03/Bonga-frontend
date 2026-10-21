@@ -21,6 +21,12 @@ export function getCanonicalDashboardPath(path: string): string {
   if (path.startsWith(`${LEGACY_DASHBOARD_PATH}/`)) {
     return `${DASHBOARD_PATH}${path.slice(LEGACY_DASHBOARD_PATH.length)}`;
   }
+  if (path === "/account/my-ads" || path === "/account/my-ads/empty") {
+    return "/account/manage-ads";
+  }
+  if (path.startsWith("/account/my-ads/")) {
+    return `/account/manage-ads${path.slice("/account/my-ads".length)}`;
+  }
   return path;
 }
 

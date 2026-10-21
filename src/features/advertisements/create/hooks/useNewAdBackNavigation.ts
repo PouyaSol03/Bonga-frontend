@@ -27,7 +27,7 @@ export function useNewAdBackNavigation({ editAdId, editAdState }: UseNewAdBackNa
     if (editAdState.editReturnTo) return editAdState.editReturnTo;
     if (editAdState.returnTo) return editAdState.returnTo;
     if (editAdId) return getAdStatePath(editAdId);
-    return "/account/my-ads";
+    return "/account/manage-ads";
   };
 
   const handleEditBack = () => {

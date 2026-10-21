@@ -230,11 +230,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const activeRole = props?.role ?? getActiveAuthRole(getStoredAuthSession());
 
   const handleBack = () => {
-    if (backTo) {
-      navigate(backTo, { replace: true, state: backState });
-      return;
-    }
-    navigate("/account/my-ads", { replace: true });
+    navigate("/account/manage-ads", { replace: true });
   };
 
   const [isCancelAssignmentModalOpen, setIsCancelAssignmentModalOpen] = useState(false);
@@ -700,11 +696,7 @@ function RealEstateManagerAdStatePage({
     currentRole === INDEPENDENT_CONSULTANT || currentRole === "independent-consultant";
 
   const handleBack = () => {
-    if (backTo) {
-      navigate(backTo, { replace: true, state: backState });
-      return;
-    }
-    navigate("/account/ad-management", { replace: true });
+    navigate("/account/manage-ads", { replace: true });
   };
 
   const agencyQuery = useMyAgencyProfileQuery({ enabled: !isIndependentConsultant });
@@ -1409,17 +1401,17 @@ function getStateAdBackPath(routeState: MyAdRouteState, isAssigned = false) {
     ) {
       return returnTo;
     }
-    return "/account/my-ads";
+    return "/account/manage-ads";
   }
 
   if (isValidReturnTo) return returnTo;
-  if (activeRole === USER || !activeRole) return "/account/my-ads";
+  if (activeRole === USER || !activeRole) return "/account/manage-ads";
 
   if (routeState.tab) return getBusinessAdManagementFallbackPath();
 
   if (activeRole) return getBusinessAdManagementFallbackPath();
 
-  return "/account/my-ads";
+  return "/account/manage-ads";
 }
 
 function getBusinessAdManagementFallbackPath() {

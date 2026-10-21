@@ -82,7 +82,7 @@ test.describe("Notification Routing & Actions Unit/Logic Tests", () => {
       title: "آگهی شما رد شد",
       payload: { target: "advertise" },
     };
-    expect(getNotificationPath(adNotificationWithoutId)).toBe("/account/my-ads");
+    expect(getNotificationPath(adNotificationWithoutId)).toBe("/account/manage-ads");
 
     // 2. Chat target
     const chatNotification: NotificationItem = {

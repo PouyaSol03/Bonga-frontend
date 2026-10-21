@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { ColorableSvgIcon } from "../../../shared/components/ColorableSvgIcon";
 import { FeaturesIcons } from "../components/FeaturesIcons";
@@ -4843,12 +4844,24 @@ export function DetailInfoFullPage({
   sections: DetailInfoSection[];
   adId: string;
 }) {
+  const navigate = useNavigate();
+  const isPreview = window.location.pathname.startsWith("/preview-ad/");
+  const backTarget = adId
+    ? isPreview
+      ? `/preview-ad/${encodeURIComponent(String(adId))}`
+      : `/ads/${encodeURIComponent(String(adId))}`
+    : "/home";
+
   return (
     <PageFrame
       className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <TopBar backTo={adId ? `/ads/${adId}` : "/home"} title={title} />
+      <TopBar
+        backTo={backTarget}
+        onBack={() => navigate(backTarget, { replace: true })}
+        title={title}
+      />
 
       <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         {sections.length > 0 ? (

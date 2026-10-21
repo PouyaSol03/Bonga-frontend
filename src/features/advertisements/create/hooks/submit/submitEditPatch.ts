@@ -2,7 +2,6 @@ import type { Dispatch, SetStateAction } from "react";
 import type { NavigateFunction } from "react-router";
 import type { UseMutationResult } from "@tanstack/react-query";
 import { getApiErrorMessage } from "../../../../../shared/api/api";
-import { USER } from "../../../../../shared/constants/roles.constants";
 import { adManagementPaths, getAdStatePath } from "../../../../account/adManagement/adManagementData";
 import {
   mapAdvertisementToAdCard,
@@ -17,7 +16,7 @@ import { clearNewAdDraftStorage, getDefaultValues } from "../../utils";
 import { buildEditPatchFormData } from "../../edit-patch";
 
 interface SubmitEditPatchParams {
-  activeRole: string;
+  activeRole?: string;
   categoryId: string | null;
   currentAd?: AdvertisementItem;
   dynamicFieldKeys: string[];
@@ -38,7 +37,7 @@ interface SubmitEditPatchParams {
 }
 
 export function submitEditPatch({
-  activeRole,
+  activeRole: _activeRole,
   categoryId,
   currentAd,
   dynamicFieldKeys,
@@ -68,9 +67,7 @@ export function submitEditPatch({
   const resolvedAd = currentAd ?? editAdState.ad;
   const fallbackTarget = editAdId
     ? getAdStatePath(editAdId)
-    : activeRole === USER || !activeRole
-      ? "/account/my-ads"
-      : adManagementPaths.root;
+    : adManagementPaths.root;
   const targetPath = editAdState.editReturnTo ?? editAdState.returnTo ?? fallbackTarget;
 
   if (!patchResult.hasChanges) {

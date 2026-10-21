@@ -343,7 +343,9 @@ function findMethod(
 }
 
 function readAdIdFromPath() {
-  const match = window.location.pathname.match(/^\/account\/my-ads\/([^/]+)\/increase-visits\/?$/);
+  const match = window.location.pathname.match(
+    /^\/account\/(?:my-ads|manage-ads)\/([^/]+)\/increase-visits\/?$/,
+  );
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }
 

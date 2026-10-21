@@ -233,23 +233,23 @@ export function hasNewAdCheckoutMarker(adId: ConsultantAd["id"] | string) {
 }
 
 export function getAdStatePath(adId: ConsultantAd["id"] | string) {
-  return `/account/my-ads/${encodeURIComponent(String(adId))}/state-ad`;
+  return `/account/manage-ads/${encodeURIComponent(String(adId))}/state-ad`;
 }
 
 export function getAdPaymentHistoryPath(adId: ConsultantAd["id"] | string) {
-  return `/account/my-ads/${encodeURIComponent(String(adId))}/payment-history`;
+  return `/account/manage-ads/${encodeURIComponent(String(adId))}/payment-history`;
 }
 
 export function getAdIncreaseVisitsPath(adId: ConsultantAd["id"] | string) {
-  return `/account/my-ads/${encodeURIComponent(String(adId))}/increase-visits`;
+  return `/account/manage-ads/${encodeURIComponent(String(adId))}/increase-visits`;
 }
 
 export function getAdVisitStatisticsPath(adId: ConsultantAd["id"] | string) {
-  return `/account/my-ads/${encodeURIComponent(String(adId))}/visit-statistics`;
+  return `/account/manage-ads/${encodeURIComponent(String(adId))}/visit-statistics`;
 }
 
 export function getAdCloseResultPath(adId: ConsultantAd["id"] | string) {
-  return `/account/my-ads/${encodeURIComponent(String(adId))}/close-result`;
+  return `/account/manage-ads/${encodeURIComponent(String(adId))}/close-result`;
 }
 
 export function getAllocationReviewPath(adId: ConsultantAd["id"]) {

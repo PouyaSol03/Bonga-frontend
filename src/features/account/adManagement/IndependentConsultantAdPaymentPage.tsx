@@ -255,8 +255,7 @@ function getFreeQuotaRemaining(
 
 export function IndependentConsultantAdPaymentPage() {
   const advertiseId = readCheckoutAdvertiseId();
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
-  const fallbackBackTo = activeRole === USER ? "/account/my-ads" : adManagementPaths.root;
+  const fallbackBackTo = adManagementPaths.root;
 
   if (advertiseId) {
     return <AdvertisementCheckoutFlow advertiseId={advertiseId} />;
@@ -286,7 +285,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     (activeRole === REAL_ESTATE_CONSULTANT || activeV2Role === "agency-consultant") &&
     hasAdManagementPermission;
 
-  const adsHomePath = activeRole === USER ? "/account/my-ads" : adManagementPaths.root;
+  const adsHomePath = adManagementPaths.root;
   const isBusinessRole =
     activeRole !== USER &&
     Boolean(

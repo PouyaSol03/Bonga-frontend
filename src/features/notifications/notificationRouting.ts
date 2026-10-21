@@ -79,7 +79,7 @@ export function getNotificationPath(notification: NotificationItem): string {
   switch (target) {
     case "advertise": {
       const advertiseId = readPayloadId(payload.advertise_id);
-      return advertiseId ? `/ads/${advertiseId}` : "/account/my-ads";
+      return advertiseId ? `/ads/${advertiseId}` : "/account/manage-ads";
     }
 
     case "chat": {
@@ -108,7 +108,7 @@ export function getNotificationPath(notification: NotificationItem): string {
       return payload.support_ticket_id ? "/account/support/requests" : "/account/requests";
 
     case "trade":
-      return "/account/my-ads";
+      return "/account/manage-ads";
 
     case "system":
       return "/notifications/settings";

@@ -34,7 +34,7 @@ export function AdCloseResultPage(props?: AdCloseResultPageProps) {
     readEntityId(routeState.ad);
   const returnTo =
     normalizeLocalPath(routeState.returnTo) ??
-    (adId ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad` : adManagementPaths.root);
+    (adId ? `/account/manage-ads/${encodeURIComponent(adId)}/state-ad` : adManagementPaths.root);
   const [selectedReason, setSelectedReason] = useState<CloseResultReason | null>(
     props?.initialReason ?? null,
   );
@@ -187,7 +187,9 @@ export function AdCloseResultPage(props?: AdCloseResultPageProps) {
 }
 
 function readAdIdFromCloseResultPath() {
-  const match = window.location.pathname.match(/^\/account\/my-ads\/([^/]+)\/close-result\/?$/);
+  const match = window.location.pathname.match(
+    /^\/account\/(?:my-ads|manage-ads)\/([^/]+)\/close-result\/?$/,
+  );
 
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }

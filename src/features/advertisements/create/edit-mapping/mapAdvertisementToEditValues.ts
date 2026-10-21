@@ -20,7 +20,7 @@ import {
 } from "./featureReaders";
 import { mapAdvertisementSpecs } from "./mapAdvertisementSpecs";
 import { getExistingPhotoMedia, getExistingVideoMedia } from "./mediaMappers";
-import { syncEditLocationStorage } from "./syncEditLocationStorage";
+import { syncEditLocationStorage, toFiniteCoordinate } from "./syncEditLocationStorage";
 
 export { syncEditLocationStorage } from "./syncEditLocationStorage";
 
@@ -664,6 +664,20 @@ export function mapAdvertisementToEditValues(
     next.phoneEnabled = Boolean(phoneNumber || next.phoneEnabled);
     if (phoneNumber) next.phoneNumber = phoneNumber;
   }
+
+  const lat = toFiniteCoordinate(
+    ad.lat ??
+      ad.latitude ??
+      (ad.location as { coordinates?: [number, number] } | undefined)?.coordinates?.[1],
+  );
+  const lng = toFiniteCoordinate(
+    ad.lng ??
+      ad.long ??
+      ad.longitude ??
+      (ad.location as { coordinates?: [number, number] } | undefined)?.coordinates?.[0],
+  );
+  if (lat) next.lat = lat;
+  if (lng) next.lng = lng;
 
   syncEditLocationStorage(ad, features, next);
 

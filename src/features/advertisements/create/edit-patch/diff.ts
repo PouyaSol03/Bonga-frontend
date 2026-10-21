@@ -1,5 +1,22 @@
 import type { NewAdFormValues, UploadedMediaFile } from "../types";
+import { locationLatKey, locationLngKey } from "../data";
 import { canonicalizeMediaPath, mediaSource } from "../utils";
+
+export function areCoordinatesChanged(
+  curr?: string | number | null,
+  prev?: string | number | null,
+): boolean {
+  const c = curr !== undefined && curr !== null ? String(curr).trim() : "";
+  const p = prev !== undefined && prev !== null ? String(prev).trim() : "";
+  if (!c && !p) return false;
+  if (!c || !p) return true;
+  const cNum = Number(c);
+  const pNum = Number(p);
+  if (Number.isFinite(cNum) && Number.isFinite(pNum)) {
+    return Math.abs(cNum - pNum) > 0.000001;
+  }
+  return c !== p;
+}
 
 function isStringChanged(curr?: string, prev?: string): boolean {
   return (curr ?? "").trim() !== (prev ?? "").trim();
@@ -216,6 +233,21 @@ export function getChangedFieldKeys(
     changed.add("projectDetails");
   if (areComplexObjectsChanged(curr.dailyHotelRooms, prev.dailyHotelRooms))
     changed.add("dailyHotelRooms");
+
+  const currLat =
+    curr.lat ||
+    (typeof window !== "undefined" ? window.localStorage.getItem(locationLatKey) : undefined);
+  const currLng =
+    curr.lng ||
+    (typeof window !== "undefined" ? window.localStorage.getItem(locationLngKey) : undefined);
+  if (areCoordinatesChanged(currLat, prev.lat)) {
+    changed.add("lat");
+    changed.add("location");
+  }
+  if (areCoordinatesChanged(currLng, prev.lng)) {
+    changed.add("lng");
+    changed.add("location");
+  }
 
   return changed;
 }

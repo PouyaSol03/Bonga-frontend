@@ -25,13 +25,20 @@ import {
 import type { NewAdFormValues } from "../types";
 import {
   idsFromLabels,
-  isFilledValue,
   readArrayValue,
   readFirstValue,
   readText,
   toBooleanValue,
 } from "./featureReaders";
+import { numericInputText } from "./featureFormatters";
 import { mapDailyHotelRooms, mapProjectDetails } from "./specMappers";
+
+function hasNumericLoan(value: unknown): boolean {
+  const text = numericInputText(value);
+  if (!text) return false;
+  const num = Number(text);
+  return Number.isFinite(num) && num > 0;
+}
 
 export function mapAdvertisementSpecs(
   ad: AdvertisementItem,
@@ -150,24 +157,21 @@ export function mapAdvertisementSpecs(
     readFirstValue(ad, features, ["loan_installment"], ["loan_installment", "loanInstallment"]) ??
     ad.loan?.installment;
   const hasLoanExplicit = readFirstValue(ad, features, ["has_loan"], ["has_loan", "loanEnabled"]);
-  const hasLoanFromValues = Boolean(
-    next.loanAmount ||
-    next.loanInstallment ||
-    isFilledValue(rawLoanAmount) ||
-    isFilledValue(rawLoanInstallment) ||
-    isFilledValue(ad.loan?.amount) ||
-    isFilledValue(ad.loan?.installment) ||
-    readFirstValue(
-      ad,
-      features,
-      ["loan_amount", "loan_installment"],
-      ["loan_amount", "loan_installment"],
-    ),
-  );
-  if (hasLoanFromValues) {
-    next.loanEnabled = true;
+  const explicitBool = toBooleanValue(hasLoanExplicit);
+
+  const hasLoanAmount =
+    hasNumericLoan(next.loanAmount) ||
+    hasNumericLoan(rawLoanAmount) ||
+    hasNumericLoan(ad.loan?.amount);
+  const hasLoanInstallment =
+    hasNumericLoan(next.loanInstallment) ||
+    hasNumericLoan(rawLoanInstallment) ||
+    hasNumericLoan(ad.loan?.installment);
+
+  if (explicitBool !== null) {
+    next.loanEnabled = explicitBool;
   } else {
-    setBool("loanEnabled", hasLoanExplicit);
+    next.loanEnabled = hasLoanAmount || hasLoanInstallment;
   }
 
   setBool(

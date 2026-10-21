@@ -151,8 +151,14 @@ export function mapPermitsAndTerms(
     );
   }
 
-  if (changed.has("loanEnabled") || changed.has("loanAmount") || changed.has("loanInstallment")) {
-    const isLoanActive = Boolean(clean.loanEnabled || clean.loanAmount || clean.loanInstallment);
+  if (
+    changed.has("loanEnabled") ||
+    changed.has("loanAmount") ||
+    changed.has("loanInstallment") ||
+    !clean.loanEnabled
+  ) {
+    const isLoanActive = Boolean(clean.loanEnabled);
+    appender.appendDynamic("has_loan", isLoanActive);
     appender.appendDynamic("loan_amount", isLoanActive ? toNumber(clean.loanAmount) : null);
     appender.appendDynamic(
       "loan_installment",

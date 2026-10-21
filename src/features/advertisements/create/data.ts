@@ -59,6 +59,8 @@ function createDefaultDailyHotelRooms(): DailyHotelRoomConfig[] {
 
 export const blankValues: NewAdFormValues = {
   location: "",
+  lat: "",
+  lng: "",
 
   meterage: "",
   landArea: "",

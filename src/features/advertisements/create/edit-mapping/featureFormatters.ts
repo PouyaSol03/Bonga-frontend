@@ -38,7 +38,9 @@ export function readText(value: unknown): string {
 }
 
 export function isFilledValue(value: unknown): boolean {
-  return value !== undefined && value !== null && value !== "";
+  if (value === undefined || value === null) return false;
+  const str = String(value).trim();
+  return str !== "" && str !== "null" && str !== "undefined";
 }
 
 export function readNestedText(source: Record<string, unknown>, keys: string[]): string {

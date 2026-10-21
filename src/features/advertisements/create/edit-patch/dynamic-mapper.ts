@@ -89,6 +89,26 @@ function mapAreasAndPrices(
     appender.appendDynamic("extra_person_price", toNumber(clean.extraPersonPrice));
 }
 
+function resolveFeatureLabels(items: ReturnType<typeof getFacilityItemsForListing>, ids: string[]): string[] {
+  const result: string[] = [];
+  for (const id of ids) {
+    if (!id || !id.trim()) continue;
+    const trimmed = id.trim();
+    const matchedById = items.find((item) => item.id === trimmed);
+    if (matchedById) {
+      result.push(matchedById.label);
+      continue;
+    }
+    const matchedByLabel = items.find((item) => item.label === trimmed);
+    if (matchedByLabel) {
+      result.push(matchedByLabel.label);
+      continue;
+    }
+    result.push(trimmed);
+  }
+  return Array.from(new Set(result));
+}
+
 function mapCollections(
   clean: NewAdFormValues,
   changed: Set<keyof NewAdFormValues>,
@@ -96,21 +116,31 @@ function mapCollections(
   formCode: string,
   params: ReturnType<typeof getParams>,
 ): void {
-  if (changed.has("elevatorCount"))
-    appender.appendFacilityCount(
-      "elevator_count",
-      clean.facilities.includes("elevator") ? toNumber(clean.elevatorCount) : null,
-    );
-  if (changed.has("parkingCount"))
-    appender.appendFacilityCount(
-      "parking_count",
-      clean.facilities.includes("parking") ? toNumber(clean.parkingCount) : null,
-    );
-  if (changed.has("terraceCount"))
-    appender.appendFacilityCount(
-      "terrace_count",
-      clean.facilities.includes("terrace") ? toNumber(clean.terraceCount) : null,
-    );
+  if (changed.has("elevatorCount") || changed.has("facilities")) {
+    const hasElevator =
+      clean.facilities.includes("elevator") || clean.facilities.includes("آسانسور");
+    const countElevator =
+      hasElevator && clean.elevatorCount ? toNumber(clean.elevatorCount) : null;
+    appender.appendFacilityCount("elevator_count", countElevator);
+  }
+
+  if (changed.has("parkingCount") || changed.has("facilities")) {
+    const hasParking =
+      clean.facilities.includes("parking") || clean.facilities.includes("پارکینگ");
+    const countParking =
+      hasParking && clean.parkingCount ? toNumber(clean.parkingCount) : null;
+    appender.appendFacilityCount("parking_count", countParking);
+  }
+
+  if (changed.has("terraceCount") || changed.has("facilities")) {
+    const hasTerrace =
+      clean.facilities.includes("terrace") ||
+      clean.facilities.includes("تراس") ||
+      clean.facilities.includes("بالکن");
+    const countTerrace =
+      hasTerrace && clean.terraceCount ? toNumber(clean.terraceCount) : null;
+    appender.appendFacilityCount("terrace_count", countTerrace);
+  }
 
   if (changed.has("singleRoomCount"))
     appender.appendDynamic("single_room_count", toNumber(pickFirstNumber(clean.singleRoomCount)));
@@ -121,20 +151,18 @@ function mapCollections(
 
   if (changed.has("usageType")) appender.appendDynamicArray("land_use", clean.usageType);
   if (changed.has("suitableFor")) appender.appendDynamicArray("suitable_for", clean.suitableFor);
-  if (changed.has("heatingCooling")) {
-    const heating = labels(
-      getHeatingItemsForListing(params.transaction, params.category),
-      clean.heatingCooling,
-    );
-    appender.appendDynamicArray("heating_cooling", heating);
-  }
-  if (changed.has("facilities")) {
-    const facs = labels(
-      getFacilityItemsForListing(params.transaction, params.category),
-      clean.facilities,
-    );
-    appender.appendDynamicArray("facilities", facs);
-  }
+
+  const heating = resolveFeatureLabels(
+    getHeatingItemsForListing(params.transaction, params.category),
+    clean.heatingCooling,
+  );
+  appender.appendDynamicArray("heating_cooling", heating);
+
+  const facs = resolveFeatureLabels(
+    getFacilityItemsForListing(params.transaction, params.category),
+    clean.facilities,
+  );
+  appender.appendDynamicArray("facilities", facs);
 
   if (changed.has("exchangeEnabled") || changed.has("exchangeTargets")) {
     const exchangeAllowed = !formCode.startsWith("rent-");

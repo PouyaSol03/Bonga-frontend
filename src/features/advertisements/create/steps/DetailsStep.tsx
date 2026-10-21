@@ -339,7 +339,7 @@ export function DetailsStep({
     onClearError?.(key);
   };
 
-  const isLoanActive = Boolean(values.loanEnabled || values.loanAmount || values.loanInstallment);
+  const isLoanActive = Boolean(values.loanEnabled);
 
   const handleLoanToggle = (checked: boolean) => {
     setField("loanEnabled", checked);
@@ -348,12 +348,6 @@ export function DetailsStep({
       setField("loanInstallment", "");
     }
   };
-
-  useEffect(() => {
-    if ((values.loanAmount || values.loanInstallment) && !values.loanEnabled) {
-      setField("loanEnabled", true);
-    }
-  }, [values.loanAmount, values.loanInstallment, values.loanEnabled]);
 
   const handleFacilityClick = (id: string) => {
     if (id === "elevator") {

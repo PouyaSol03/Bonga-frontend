@@ -1,5 +1,8 @@
 import type { AdvertisementFeature, AdvertisementItem } from "../../api/advertisement.service";
-import { saveSelectedCity } from "../../../../shared/lib/selectedCityStorage";
+import {
+  readStoredSelectedCity,
+  saveSelectedCity,
+} from "../../../../shared/lib/selectedCityStorage";
 import {
   locationKey,
   locationLatKey,
@@ -7,10 +10,11 @@ import {
   neighborhoodIdKey,
   subNeighborhoodIdKey,
 } from "../data";
+import { shouldPreserveNewAdDraft } from "../session";
 import type { NewAdFormValues } from "../types";
 import { readText, readTextValue } from "./featureReaders";
 
-function toFiniteCoordinate(value: unknown): string {
+export function toFiniteCoordinate(value: unknown): string {
   if (typeof value === "number") {
     return Number.isFinite(value) ? String(value) : "";
   }
@@ -26,6 +30,12 @@ export function syncEditLocationStorage(
   features: AdvertisementFeature[],
   values: NewAdFormValues,
 ) {
+  if (typeof window === "undefined") return;
+
+  if (shouldPreserveNewAdDraft(window.history?.state)) {
+    return;
+  }
+
   if (values.location) {
     window.localStorage.setItem(locationKey, values.location);
   }
@@ -63,9 +73,14 @@ export function syncEditLocationStorage(
   const cityId = readText(cityObj?.id) || readText(ad.city_id);
   const cityName = readText(cityObj?.name) || readText(ad.city_name);
   if (cityId || cityName) {
+    const existingCity = readStoredSelectedCity();
     saveSelectedCity({
-      id: cityId || undefined,
-      name: cityName || "مشهد",
+      id: cityId || existingCity?.id || undefined,
+      name:
+        cityName ||
+        (existingCity?.id && cityId && existingCity.id === cityId ? existingCity.name : "") ||
+        existingCity?.name ||
+        "",
       latitude: lat ? Number(lat) : undefined,
       longitude: lng ? Number(lng) : undefined,
     });

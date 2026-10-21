@@ -1,7 +1,6 @@
 import type { NewAdFormValues } from "../types";
 import type { PatchAppender } from "./types";
 import {
-  locationKey,
   locationLatKey,
   locationLngKey,
   neighborhoodIdKey,
@@ -29,19 +28,31 @@ export function mapChangedBaseFields(
   if (
     changed.has("location") ||
     changed.has("neighborhoodId") ||
-    changed.has("subNeighborhoodId")
+    changed.has("subNeighborhoodId") ||
+    changed.has("lat") ||
+    changed.has("lng")
   ) {
     const nId = clean.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey) || "";
     const subNId =
       clean.subNeighborhoodId || window.localStorage.getItem(subNeighborhoodIdKey) || "";
-    appender.appendBase("neighborhood_id", nId);
-    appender.appendBase("sub_neighborhood_id", subNId);
-    appender.appendBase("lat", getStoredNewAdLocationNumber(locationLatKey));
-    appender.appendBase("lng", getStoredNewAdLocationNumber(locationLngKey));
-    appender.appendBase(
-      "location_label",
-      clean.location || window.localStorage.getItem(locationKey) || "",
-    );
+    if (nId) appender.appendBase("neighborhood_id", nId);
+    if (subNId) appender.appendBase("sub_neighborhood_id", subNId);
+
+    const latVal =
+      clean.lat !== undefined && clean.lat !== ""
+        ? clean.lat
+        : getStoredNewAdLocationNumber(locationLatKey);
+    const lngVal =
+      clean.lng !== undefined && clean.lng !== ""
+        ? clean.lng
+        : getStoredNewAdLocationNumber(locationLngKey);
+
+    if (latVal !== null && latVal !== undefined && latVal !== "") {
+      appender.appendBase("lat", latVal);
+    }
+    if (lngVal !== null && lngVal !== undefined && lngVal !== "") {
+      appender.appendBase("lng", lngVal);
+    }
   }
 
   if (changed.has("virtualTourLink") || changed.has("hasVirtualTour")) {

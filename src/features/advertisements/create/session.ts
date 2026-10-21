@@ -90,14 +90,30 @@ export function getNewAdFlowSession() {
   } satisfies NewAdFlowSession;
 }
 
-export function updateNewAdFlowSessionLocation(location: string) {
+export function updateNewAdFlowSessionLocation(
+  location: string,
+  options?: {
+    neighborhoodId?: string | null;
+    subNeighborhoodId?: string | null;
+    lat?: string | null;
+    lng?: string | null;
+  },
+) {
   if (!activeSession) return;
 
   activeSession = {
     ...activeSession,
+    neighborhoodId: options?.neighborhoodId ?? activeSession.neighborhoodId,
+    subNeighborhoodId: options?.subNeighborhoodId ?? activeSession.subNeighborhoodId,
     values: {
       ...cloneValues(activeSession.values),
       location,
+      ...(options?.neighborhoodId ? { neighborhoodId: options.neighborhoodId } : {}),
+      ...(options?.subNeighborhoodId !== undefined
+        ? { subNeighborhoodId: options.subNeighborhoodId ?? undefined }
+        : {}),
+      ...(options?.lat ? { lat: options.lat } : {}),
+      ...(options?.lng ? { lng: options.lng } : {}),
     },
   };
 }

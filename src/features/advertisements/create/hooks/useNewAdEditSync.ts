@@ -17,6 +17,7 @@ interface UseNewAdEditSyncProps {
   activeRole: string;
   editAdId: string | null;
   editAdState: ReturnType<typeof getEditAdRouteState>;
+  initialEditValuesRef?: React.MutableRefObject<NewAdFormValues | null>;
   isCrmEditMode: boolean;
   isCrmSource: boolean;
   isEditMode: boolean;
@@ -29,6 +30,7 @@ export function useNewAdEditSync({
   activeRole,
   editAdId,
   editAdState,
+  initialEditValuesRef: externalInitialEditValuesRef,
   isCrmEditMode,
   isCrmSource,
   isEditMode,
@@ -38,14 +40,14 @@ export function useNewAdEditSync({
 }: UseNewAdEditSyncProps) {
   const [, setEditRouteVersion] = useState(0);
   const editDataAppliedRef = useRef<string | null>(null);
-  const initialEditValuesRef = useRef<NewAdFormValues | null>(
-    isEditMode && editAdState.ad
-      ? mapAdvertisementToEditValues(
-          editAdState.ad,
-          getDefaultValues({ ...editAdState, isEditMode: true }),
-        )
-      : null,
-  );
+  const localInitialEditValuesRef = useRef<NewAdFormValues | null>(null);
+  const initialEditValuesRef = externalInitialEditValuesRef ?? localInitialEditValuesRef;
+  if (initialEditValuesRef.current === null && isEditMode && editAdState.ad) {
+    initialEditValuesRef.current = mapAdvertisementToEditValues(
+      editAdState.ad,
+      getDefaultValues({ ...editAdState, isEditMode: true }),
+    );
+  }
 
   const editAdQuery = useQuery<AdvertisementItem, Error>({
     enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),

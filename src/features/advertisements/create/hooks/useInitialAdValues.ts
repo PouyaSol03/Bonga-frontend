@@ -1,5 +1,12 @@
 import { useRef, useState } from "react";
-import { blankValues, locationKey, neighborhoodIdKey, subNeighborhoodIdKey } from "../data";
+import {
+  blankValues,
+  locationKey,
+  locationLatKey,
+  locationLngKey,
+  neighborhoodIdKey,
+  subNeighborhoodIdKey,
+} from "../data";
 import { loadAtomicDraft } from "../draft/adDraftStore";
 import { readArrayValue } from "../edit-mapping/featureReaders";
 import { mapAdvertisementToEditValues } from "../edit-mapping/mapAdvertisementToEditValues";
@@ -54,20 +61,21 @@ export function useInitialAdValues(
 
   const [restoredSession] = useState(() => resolveRestoredSession(isEditMode));
 
-  const initialEditValuesRef = useRef<NewAdFormValues | null>(
-    isEditMode && editAdState.ad
-      ? mapAdvertisementToEditValues(
-          editAdState.ad,
-          getDefaultValues({ ...editAdState, isEditMode: true }),
-        )
-      : null,
-  );
+  const initialEditValuesRef = useRef<NewAdFormValues | null>(null);
+  if (initialEditValuesRef.current === null && isEditMode && editAdState.ad) {
+    initialEditValuesRef.current = mapAdvertisementToEditValues(
+      editAdState.ad,
+      getDefaultValues({ ...editAdState, isEditMode: true }),
+    );
+  }
 
   const [initialValues] = useState<NewAdFormValues>(() => {
     const restoredValues = restoredSession?.values;
     if (!restoredValues) return getDefaultValues(editAdState);
 
     const confirmedLocation = window.localStorage.getItem(locationKey)?.trim();
+    const confirmedLat = window.localStorage.getItem(locationLatKey)?.trim();
+    const confirmedLng = window.localStorage.getItem(locationLngKey)?.trim();
     const storedNeighborhoodId =
       restoredValues?.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey) || undefined;
     const storedSubNeighborhoodId =
@@ -80,6 +88,12 @@ export function useInitialAdValues(
     }
     if (storedSubNeighborhoodId && typeof window !== "undefined") {
       window.localStorage.setItem(subNeighborhoodIdKey, storedSubNeighborhoodId);
+    }
+    if (confirmedLat && typeof window !== "undefined") {
+      window.localStorage.setItem(locationLatKey, confirmedLat);
+    }
+    if (confirmedLng && typeof window !== "undefined") {
+      window.localStorage.setItem(locationLngKey, confirmedLng);
     }
 
     return {
@@ -97,6 +111,8 @@ export function useInitialAdValues(
         ? restoredValues.heatingCooling
         : [],
       location: confirmedLocation || restoredValues.location || blankValues.location,
+      lat: confirmedLat || (restoredValues.lat as string) || blankValues.lat,
+      lng: confirmedLng || (restoredValues.lng as string) || blankValues.lng,
       neighborhoodId: storedNeighborhoodId,
       photos: Array.isArray(restoredValues.photos) ? restoredValues.photos : [],
       projectDetails: Array.isArray(restoredValues.projectDetails)

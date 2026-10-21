@@ -55,6 +55,7 @@ export function NewAdFlowPage() {
     activeRole,
     editAdId,
     editAdState,
+    initialEditValuesRef,
     isCrmEditMode,
     isCrmSource,
     isEditMode,

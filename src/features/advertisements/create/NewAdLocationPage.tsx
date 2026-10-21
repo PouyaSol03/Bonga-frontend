@@ -800,9 +800,16 @@ export function NewAdLocationPage() {
                 } else {
                   window.localStorage.removeItem(subNeighborhoodIdKey);
                 }
-                window.localStorage.setItem(locationLatKey, String(mapCenter.lat));
-                window.localStorage.setItem(locationLngKey, String(mapCenter.lng));
-                updateNewAdFlowSessionLocation(confirmedLocation);
+                const latStr = String(mapCenter.lat);
+                const lngStr = String(mapCenter.lng);
+                window.localStorage.setItem(locationLatKey, latStr);
+                window.localStorage.setItem(locationLngKey, lngStr);
+                updateNewAdFlowSessionLocation(confirmedLocation, {
+                  neighborhoodId,
+                  subNeighborhoodId: subNeighborhoodId || null,
+                  lat: latStr,
+                  lng: lngStr,
+                });
                 const currentState =
                   typeof window !== "undefined" &&
                   window.history.state &&
@@ -815,6 +822,11 @@ export function NewAdLocationPage() {
                     replace: true,
                     state: {
                       ...currentState,
+                      confirmedLocation,
+                      confirmedNeighborhoodId: neighborhoodId,
+                      confirmedSubNeighborhoodId: subNeighborhoodId || null,
+                      confirmedLat: latStr,
+                      confirmedLng: lngStr,
                       [preserveNewAdDraftStateKey]: true,
                     },
                   },

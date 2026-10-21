@@ -44,7 +44,7 @@ function readRouteState(): Record<string, unknown> {
 
 function readAdIdFromPathname(): string | undefined {
   if (typeof window === "undefined") return undefined;
-  const match = window.location.pathname.match(/\/account\/my-ads\/([^/]+)/);
+  const match = window.location.pathname.match(/\/account\/(?:my-ads|manage-ads)\/([^/]+)/);
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }
 
@@ -80,8 +80,8 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
   };
 
   const defaultBackPath = currentAdId
-    ? `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`
-    : "/account/my-ads";
+    ? `/account/manage-ads/${encodeURIComponent(currentAdId)}/state-ad`
+    : "/account/manage-ads";
   const backTo = props?.backTo ?? (routeState?.returnTo as string) ?? defaultBackPath;
 
   const [note, setNote] = useState(leadDetails?.notes ?? "");

@@ -782,7 +782,9 @@ function formatFaNumber(value: number) {
 }
 
 function readAdIdFromPath() {
-  const match = window.location.pathname.match(/^\/account\/my-ads\/([^/]+)\/visit-statistics\/?$/);
+  const match = window.location.pathname.match(
+    /^\/account\/(?:my-ads|manage-ads)\/([^/]+)\/visit-statistics\/?$/,
+  );
 
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }

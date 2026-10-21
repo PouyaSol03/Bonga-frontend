@@ -25,10 +25,10 @@ export function getBottomNavigationKey(path: string) {
     path === "/account/ad-management/payment" ||
     /^\/account\/ad-management\/payment\/[^/]+\/?$/.test(path) ||
     path === "/account/ad-management/delete" ||
-    /^\/account\/my-ads\/[^/]+\/payment-history\/?$/.test(path) ||
-    /^\/account\/my-ads\/[^/]+\/increase-visits\/?$/.test(path) ||
-    /^\/account\/my-ads\/[^/]+\/visit-statistics\/?$/.test(path) ||
-    /^\/account\/my-ads\/[^/]+\/close-result\/?$/.test(path) ||
+    /^\/account\/(?:my-ads|manage-ads)\/[^/]+\/payment-history\/?$/.test(path) ||
+    /^\/account\/(?:my-ads|manage-ads)\/[^/]+\/increase-visits\/?$/.test(path) ||
+    /^\/account\/(?:my-ads|manage-ads)\/[^/]+\/visit-statistics\/?$/.test(path) ||
+    /^\/account\/(?:my-ads|manage-ads)\/[^/]+\/close-result\/?$/.test(path) ||
     path === "/account/ad-management/filter" ||
     path === "/account/credit/history" ||
     path === "/account/wallet/history" ||
@@ -39,7 +39,7 @@ export function getBottomNavigationKey(path: string) {
     path.startsWith("/account/dashboard/requests") ||
     path.startsWith("/account/dashboard/team") ||
     path.startsWith("/account/ad-management/published") ||
-    /^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)
+    /^\/account\/(?:my-ads|manage-ads)\/[^/]+\/state-ad\/?$/.test(path)
   ) {
     return undefined;
   }
@@ -68,14 +68,14 @@ export function getAccountFallbackBackTo(path: string) {
   if (path.startsWith("/account/ad-management/")) return "/account/ad-management";
 
   const myAdActionMatch = path.match(
-    /^\/account\/my-ads\/([^/]+)\/(payment-history|increase-visits|visit-statistics|close-result|state-ad)\/?$/,
+    /^\/account\/(?:my-ads|manage-ads)\/([^/]+)\/(payment-history|increase-visits|visit-statistics|close-result|state-ad)\/?$/,
   );
 
   if (myAdActionMatch?.[1] && myAdActionMatch[2] !== "state-ad") {
-    return `/account/my-ads/${myAdActionMatch[1]}/state-ad`;
+    return `/account/manage-ads/${myAdActionMatch[1]}/state-ad`;
   }
 
-  if (myAdActionMatch?.[2] === "state-ad") return "/account/my-ads";
+  if (myAdActionMatch?.[2] === "state-ad") return "/account/manage-ads";
 
   if (path === "/account/dashboard/agency/preview/qr-code") {
     return "/account/dashboard/agency/preview";

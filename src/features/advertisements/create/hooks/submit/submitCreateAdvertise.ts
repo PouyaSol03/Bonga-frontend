@@ -2,7 +2,6 @@ import type { Dispatch, SetStateAction } from "react";
 import type { NavigateFunction } from "react-router";
 import type { UseMutationResult } from "@tanstack/react-query";
 import { getApiErrorMessage, getApiFieldError } from "../../../../../shared/api/api";
-import { USER } from "../../../../../shared/constants/roles.constants";
 import {
   adManagementPaths,
   getAdPaymentPath,
@@ -93,7 +92,7 @@ export function submitCreateAdvertise({
             ad: createdAd,
             card: ad,
             isAssigned: true,
-            returnTo: "/account/my-ads",
+            returnTo: adManagementPaths.root,
             status: "wait_for_agency",
             tab: "status",
           },
@@ -107,8 +106,7 @@ export function submitCreateAdvertise({
           state: {
             ad: createdAd,
             card: ad,
-            returnTo:
-              activeRole === USER || !activeRole ? "/account/my-ads" : adManagementPaths.root,
+            returnTo: adManagementPaths.root,
             status: "published",
             tab: "status",
           },

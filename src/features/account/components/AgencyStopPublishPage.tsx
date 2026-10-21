@@ -26,7 +26,7 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
   const adId = props?.adId ?? readAdIdFromPath();
   const returnTo =
     props?.returnTo ??
-    (adId ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad` : "/account/my-ads");
+    (adId ? `/account/manage-ads/${encodeURIComponent(adId)}/state-ad` : "/account/manage-ads");
   const [selectedReason, setSelectedReason] = useState<string>(STOP_PUBLISH_OPTIONS[0].id);
   const [customDescription, setCustomDescription] = useState("");
 
@@ -169,6 +169,8 @@ export function AgencyStopPublishPage(props?: AgencyStopPublishPageProps) {
 }
 
 function readAdIdFromPath() {
-  const match = window.location.pathname.match(/^\/account\/my-ads\/([^/]+)\/stop-publish\/?$/);
+  const match = window.location.pathname.match(
+    /^\/account\/(?:my-ads|manage-ads)\/([^/]+)\/stop-publish\/?$/,
+  );
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }

@@ -431,7 +431,7 @@ export function AgencyAssignedUserAdView({
     if (onNavigateToStopPublish) {
       onNavigateToStopPublish();
     } else if (currentAdId) {
-      navigate(`/account/my-ads/${encodeURIComponent(currentAdId)}/stop-publish`);
+      navigate(`/account/manage-ads/${encodeURIComponent(currentAdId)}/stop-publish`);
     }
   };
 
@@ -439,7 +439,7 @@ export function AgencyAssignedUserAdView({
     if (onNavigateToDealResult) {
       onNavigateToDealResult();
     } else if (currentAdId) {
-      navigate(`/account/my-ads/${encodeURIComponent(currentAdId)}/deal-result`);
+      navigate(`/account/manage-ads/${encodeURIComponent(currentAdId)}/deal-result`);
     }
   };
 
@@ -607,10 +607,10 @@ export function AgencyAssignedUserAdView({
                   state: {
                     ad,
                     card,
-                    editReturnTo: `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`,
+                    editReturnTo: `/account/manage-ads/${encodeURIComponent(currentAdId)}/state-ad`,
                     isAssigned: true,
                     isEditMode: true,
-                    returnTo: `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`,
+                    returnTo: `/account/manage-ads/${encodeURIComponent(currentAdId)}/state-ad`,
                     status: statusKey,
                   },
                 });

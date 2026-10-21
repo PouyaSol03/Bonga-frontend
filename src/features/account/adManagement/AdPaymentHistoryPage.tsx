@@ -98,7 +98,9 @@ export function AdPaymentHistoryPage() {
 }
 
 function readAdIdFromPath() {
-  const match = window.location.pathname.match(/^\/account\/my-ads\/([^/]+)\/payment-history\/?$/);
+  const match = window.location.pathname.match(
+    /^\/account\/(?:my-ads|manage-ads)\/([^/]+)\/payment-history\/?$/,
+  );
 
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }

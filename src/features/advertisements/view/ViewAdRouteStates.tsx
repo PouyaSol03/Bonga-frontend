@@ -3,13 +3,13 @@ import { NotFoundErrorState, RequestErrorState } from "../../../shared/component
 import { ViewAdTopBar } from "./viewAdComponents";
 import { Typography } from "../../../shared/ui/Typography";
 
-export function NotFoundState() {
+export function NotFoundState({ onBack }: { onBack?: () => void } = {}) {
   return (
     <PageFrame
       className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <ViewAdTopBar actionIcons={[]} backTo="/home" />
+      <ViewAdTopBar actionIcons={[]} backTo="/home" onBack={onBack} />
       <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto">
         <NotFoundErrorState />
       </main>
@@ -17,13 +17,13 @@ export function NotFoundState() {
   );
 }
 
-export function LoadingState() {
+export function LoadingState({ onBack }: { onBack?: () => void } = {}) {
   return (
     <PageFrame
       className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <ViewAdTopBar actionIcons={[]} backTo="/home" />
+      <ViewAdTopBar actionIcons={[]} backTo="/home" onBack={onBack} />
       <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         <ViewAdPageSkeleton />
       </main>

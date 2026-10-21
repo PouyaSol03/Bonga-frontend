@@ -2019,7 +2019,10 @@ export function ViewAdPage() {
   const resolvedAd = ad;
 
   if (!resolvedAd) {
-    return <NotFoundState onBack={handleBack} />;
+    if (isError) {
+      return <NotFoundState onBack={handleBack} />;
+    }
+    return <LoadingState />;
   }
 
   const details = mapAdToDetails(resolvedAd);

@@ -295,11 +295,16 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     );
   }
 
+  const hasLoadedData = Boolean(
+    detailQuery.data ||
+    props?.ad ||
+    props?.card ||
+    routeState.ad ||
+    routeState.card,
+  );
+
   const isPendingInitialData =
-    (detailQuery.isLoading || detailQuery.isFetching) &&
-    !detailQuery.data &&
-    !routeState.ad &&
-    !routeState.card;
+    !hasLoadedData && !detailQuery.isError;
 
   const isPendingEditUpdate =
     isAfterEdit &&
@@ -1379,6 +1384,11 @@ function ManagerPublisherPickerPage({
 }
 
 function getStateAdBackPath(routeState: MyAdRouteState, isAssigned = false) {
+  const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+  if (currentPath.includes("/manage-ads") || currentPath.includes("/ad-management")) {
+    return "/account/manage-ads";
+  }
+
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const returnTo = normalizeLocalPath(routeState.returnTo);
 
@@ -1402,17 +1412,7 @@ function getStateAdBackPath(routeState: MyAdRouteState, isAssigned = false) {
   if (isValidReturnTo) return returnTo;
   if (activeRole === USER || !activeRole) return "/account/manage-ads";
 
-  if (routeState.tab) return getBusinessAdManagementFallbackPath();
-
-  if (activeRole) return getBusinessAdManagementFallbackPath();
-
   return "/account/manage-ads";
-}
-
-function getBusinessAdManagementFallbackPath() {
-  return window.matchMedia("(min-width: 501px)").matches
-    ? "/account/dashboard/ads"
-    : adManagementPaths.root;
 }
 
 function normalizeLocalPath(path?: string) {

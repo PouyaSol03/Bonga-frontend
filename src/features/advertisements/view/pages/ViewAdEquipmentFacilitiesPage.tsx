@@ -50,7 +50,7 @@ export function ViewAdEquipmentFacilitiesPage() {
   }
 
   const resolvedAd = ad;
-  if (!resolvedAd) return <NotFoundState />;
+  if (!resolvedAd) return isError ? <NotFoundState /> : <LoadingState />;
 
   return (
     <DetailInfoFullPage

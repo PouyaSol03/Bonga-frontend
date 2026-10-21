@@ -19,7 +19,7 @@ export interface DashboardExpiringAdCardProps {
 
 export function DashboardExpiringAdCard({ ad }: DashboardExpiringAdCardProps) {
   const targetLink =
-    ad.to || (ad.adId ? `/account/dashboard/ads?adId=${ad.adId}` : `/account/dashboard/ads`);
+    ad.to || (ad.adId ? `/account/my-ads/${encodeURIComponent(String(ad.adId))}/state-ad` : "/account/manage-ads");
 
   return (
     <Link

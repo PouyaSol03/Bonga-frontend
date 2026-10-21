@@ -107,7 +107,7 @@ export function ViewAdProjectDetailsPage() {
     );
   }
 
-  if (!resolvedAd) return <NotFoundState />;
+  if (!resolvedAd) return isError ? <NotFoundState /> : <LoadingState />;
 
   // Dynamic feature extraction with faithful fallbacks matching the Figma frame
   const features = Array.isArray(resolvedAd.features) ? resolvedAd.features : [];

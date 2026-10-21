@@ -160,7 +160,7 @@ function AppRouterInner() {
   return (
     <MobileAppShell>
       <div className="bg-surface-container-lowest relative grid h-full w-full grid-cols-1 grid-rows-1 overflow-hidden">
-        <AnimatePresence initial={false}>
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={canonicalPath}
             initial={{ opacity: 0 }}

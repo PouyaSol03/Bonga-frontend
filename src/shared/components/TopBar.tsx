@@ -298,8 +298,7 @@ export function TopBar({ placement = "layout", ...props }: TopBarProps) {
     if (!shouldUseLayout || !layoutContext) return;
 
     layoutContext.setTopBar(props);
-
-    return () => layoutContext.setTopBar(null);
+    // ponytail: preserve top bar configuration across unmount so entering page replaces it smoothly without teardown flicker
   }, [
     layoutContext,
     shouldUseLayout,

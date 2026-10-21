@@ -59,7 +59,7 @@ export function ViewAdHotelRoomsPage() {
   }
 
   const resolvedAd = ad;
-  if (!resolvedAd) return <NotFoundState />;
+  if (!resolvedAd) return isError ? <NotFoundState /> : <LoadingState />;
 
   const details = mapAdToDetails(resolvedAd);
   const rooms = details.dailyHotelRooms ?? [];

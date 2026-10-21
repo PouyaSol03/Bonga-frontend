@@ -51,7 +51,7 @@ export function ViewAdPropertyInfoPage() {
   }
 
   const resolvedAd = ad;
-  if (!resolvedAd) return <NotFoundState />;
+  if (!resolvedAd) return isError ? <NotFoundState /> : <LoadingState />;
 
   const features = Array.isArray(resolvedAd.features) ? resolvedAd.features : [];
 

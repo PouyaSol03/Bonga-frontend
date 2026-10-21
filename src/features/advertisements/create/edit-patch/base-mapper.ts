@@ -36,7 +36,7 @@ export function mapChangedBaseFields(
     const subNId =
       clean.subNeighborhoodId || window.localStorage.getItem(subNeighborhoodIdKey) || "";
     if (nId) appender.appendBase("neighborhood_id", nId);
-    if (subNId) appender.appendBase("sub_neighborhood_id", subNId);
+    appender.appendBase("sub_neighborhood_id", subNId || "null");
 
     const latVal =
       clean.lat !== undefined && clean.lat !== ""

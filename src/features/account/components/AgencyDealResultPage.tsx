@@ -21,7 +21,7 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
   const adId = props?.adId ?? readAdIdFromPath();
   const returnTo =
     props?.returnTo ??
-    (adId ? `/account/my-ads/${encodeURIComponent(adId)}/state-ad` : "/account/my-ads");
+    (adId ? `/account/manage-ads/${encodeURIComponent(adId)}/state-ad` : "/account/manage-ads");
   const [selectedResult, setSelectedResult] = useState<"success" | "unsuccessful">("success");
 
   const confirmDealResultMutation = useConfirmUserDealResultMutation();
@@ -130,7 +130,7 @@ export function AgencyDealResultPage(props?: AgencyDealResultPageProps) {
 
 function readAdIdFromPath() {
   const match = window.location.pathname.match(
-    /^\/account\/my-ads\/([^/]+)\/(?:deal-result|close-result)\/?$/,
+    /^\/account\/(?:my-ads|manage-ads)\/([^/]+)\/(?:deal-result|close-result)\/?$/,
   );
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }

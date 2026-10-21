@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { getApiErrorMessage } from "../../../../shared/api/api";
 import { PageFrame } from "../../../../shared/layout/PageFrame";
@@ -63,12 +64,23 @@ export function ViewAdHotelRoomsPage() {
   const details = mapAdToDetails(resolvedAd);
   const rooms = details.dailyHotelRooms ?? [];
 
+  const navigate = useNavigate();
+  const backTarget = adId
+    ? isPreview
+      ? `/preview-ad/${encodeURIComponent(String(adId))}`
+      : `/ads/${encodeURIComponent(String(adId))}`
+    : "/home";
+
   return (
     <PageFrame
       className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <TopBar backTo={adId ? `/ads/${adId}` : "/home"} title="اطلاعات هتل" />
+      <TopBar
+        backTo={backTarget}
+        onBack={() => navigate(backTarget, { replace: true })}
+        title="اطلاعات هتل"
+      />
 
       <main className="bg-surface-container divide-surface-container min-h-0 flex-1 divide-y-8 overflow-x-hidden overflow-y-auto">
         {rooms.length > 0 ? (

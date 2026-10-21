@@ -1877,7 +1877,17 @@ export function ViewAdPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const adId = parseViewAdIdFromPath(window.location.pathname);
+  const isPreview = window.location.pathname.startsWith("/preview-ad/");
+
   const handleBack = useCallback(() => {
+    if (isPreview) {
+      const target = adId
+        ? `/account/manage-ads/${encodeURIComponent(String(adId))}/state-ad`
+        : "/account/manage-ads";
+      navigate(target, { replace: true });
+      return;
+    }
     const from = (location.state as { from?: string } | null)?.from;
     if (from) {
       navigate(from, { replace: true });
@@ -1888,7 +1898,7 @@ export function ViewAdPage() {
       return;
     }
     navigate("/home", { replace: true });
-  }, [location.state, navigate]);
+  }, [isPreview, adId, location.state, navigate]);
 
   const navigateToLoginRequiredPage = (actionLabel: string) => {
     const redirectPath = `${window.location.pathname}${window.location.search}`;
@@ -1910,8 +1920,6 @@ export function ViewAdPage() {
   const [noteText, setNoteText] = useState("");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [toast, setToast] = useState<ActionToast | null>(null);
-  const adId = parseViewAdIdFromPath(window.location.pathname);
-  const isPreview = window.location.pathname.startsWith("/preview-ad/");
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const isAgencyManager = activeRole === REAL_ESTATE_MANAGER;
   const initialAgencyPreview = isPreview && (isAgencyManager || shouldUseAgencyAllocationPreview());
@@ -1991,11 +1999,11 @@ export function ViewAdPage() {
   }, [isViolationReportOpen, reportReasonsQuery.error, reportReasonsQuery.isError]);
 
   if (adId == null) {
-    return <NotFoundState />;
+    return <NotFoundState onBack={handleBack} />;
   }
 
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingState onBack={handleBack} />;
   }
 
   if (isError) {
@@ -2012,7 +2020,7 @@ export function ViewAdPage() {
 
   if (!resolvedAd) {
     if (isError) {
-      return <NotFoundState />;
+      return <NotFoundState onBack={handleBack} />;
     }
     return <LoadingState />;
   }
@@ -2372,7 +2380,11 @@ export function ViewAdPage() {
               ? undefined
               : ["share"]
         }
-        backTo="/home"
+        backTo={
+          isPreview && adId
+            ? `/account/manage-ads/${encodeURIComponent(String(adId))}/state-ad`
+            : "/home"
+        }
         bookmarked={isBookmarked}
         onAction={handleTopBarAction}
         onBack={handleBack}

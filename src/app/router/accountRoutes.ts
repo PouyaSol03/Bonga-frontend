@@ -129,13 +129,9 @@ const IndependentConsultantBusinessCreationPage = lazyNamed(
 );
 
 // Ad Management & My Ads
-const AccountMyAdsPage = lazyNamed(
-  () => import("../../features/account/routes/AccountMyAdsPage"),
-  "AccountMyAdsPage",
-);
-const AccountMyAdsEmptyPage = lazyNamed(
-  () => import("../../features/account/routes/AccountMyAdsEmptyPage"),
-  "AccountMyAdsEmptyPage",
+const ManageAdsPage = lazyNamed(
+  () => import("../../features/account/manage-ads/ManageAdsPage"),
+  "ManageAdsPage",
 );
 const AccountMyAdStatePage = lazyNamed(
   () => import("../../features/account/AccountMyAdStatePage"),
@@ -168,10 +164,6 @@ const AgencyStopPublishPage = lazyNamed(
 const AgencyDealResultPage = lazyNamed(
   () => import("../../features/account/components/AgencyDealResultPage"),
   "AgencyDealResultPage",
-);
-const IndependentConsultantAdManagementPage = lazyNamed(
-  () => import("../../features/account/IndependentConsultantAdManagementPage"),
-  "IndependentConsultantAdManagementPage",
 );
 const IndependentConsultantAdAllocationPage = lazyNamed(
   () => import("../../features/account/adManagement/IndependentConsultantAdAllocationPage"),
@@ -410,27 +402,39 @@ export const accountRoutes: AppRoute[] = [
     requiresAuth: true,
   },
 
-  // My Ads & Ad State Management
+  // Manage Ads & Ad State Management
+  {
+    path: "/account/manage-ads",
+    title: "مدیریت آگهی‌ها",
+    Component: ManageAdsPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/manage-ads",
+    title: "مدیریت آگهی‌ها",
+    Component: ManageAdsPage,
+    requiresAuth: true,
+  },
   {
     path: "/account/my-ads",
-    title: "آگهی‌های من",
-    Component: AccountMyAdsPage,
+    title: "مدیریت آگهی‌ها",
+    Component: ManageAdsPage,
     requiresAuth: true,
   },
   {
     path: "/account/my-ads/empty",
-    title: "آگهی‌های من",
-    Component: AccountMyAdsEmptyPage,
+    title: "مدیریت آگهی‌ها",
+    Component: ManageAdsPage,
     requiresAuth: true,
   },
   {
-    path: "/account/my-ads/:id/state-ad",
+    path: "/account/manage-ads/:id/state-ad",
     title: "مدیریت آگهی",
     Component: AccountMyAdStatePage,
     requiresAuth: true,
   },
   {
-    path: "/account/my-ads/:id/state-ads",
+    path: "/account/manage-ads/:id/state-ads",
     title: "مدیریت آگهی",
     Component: AccountMyAdStatePage,
     requiresAuth: true,
@@ -448,15 +452,63 @@ export const accountRoutes: AppRoute[] = [
     requiresAuth: true,
   },
   {
-    path: "/account/manage-ads/:id/state-ad",
+    path: "/account/my-ads/:id/state-ad",
     title: "مدیریت آگهی",
     Component: AccountMyAdStatePage,
     requiresAuth: true,
   },
   {
-    path: "/account/manage-ads/:id/state-ads",
+    path: "/account/my-ads/:id/state-ads",
     title: "مدیریت آگهی",
     Component: AccountMyAdStatePage,
+    requiresAuth: true,
+  },
+  {
+    path: "/account/manage-ads/:id/lead-details",
+    title: "جزئیات سرنخ",
+    Component: ViewAdLeadDetailsPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/account/manage-ads/lead-details",
+    title: "جزئیات سرنخ",
+    Component: ViewAdLeadDetailsPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/account/manage-ads/:id/payment-history",
+    title: "تاریخچه پرداخت",
+    Component: AdPaymentHistoryPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/account/manage-ads/:id/increase-visits",
+    title: "افزایش بازدید",
+    Component: AdIncreaseVisitsPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/account/manage-ads/:id/visit-statistics",
+    title: "آمار بازدید",
+    Component: AdVisitStatisticsPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/account/manage-ads/:id/close-result",
+    title: "ثبت نتیجه آگهی",
+    Component: AdCloseResultPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/account/manage-ads/:id/stop-publish",
+    title: "درخواست توقف انتشار",
+    Component: AgencyStopPublishPage,
+    requiresAuth: true,
+  },
+  {
+    path: "/account/manage-ads/:id/deal-result",
+    title: "نتیجه درخواست",
+    Component: AgencyDealResultPage,
     requiresAuth: true,
   },
   {
@@ -512,19 +564,7 @@ export const accountRoutes: AppRoute[] = [
   {
     path: "/account/ad-management",
     title: "مدیریت آگهی‌ها",
-    Component: IndependentConsultantAdManagementPage,
-    requiresAuth: true,
-  },
-  {
-    path: "/account/manage-ads",
-    title: "مدیریت آگهی‌ها",
-    Component: IndependentConsultantAdManagementPage,
-    requiresAuth: true,
-  },
-  {
-    path: "/manage-ads",
-    title: "مدیریت آگهی‌ها",
-    Component: IndependentConsultantAdManagementPage,
+    Component: ManageAdsPage,
     requiresAuth: true,
   },
   {

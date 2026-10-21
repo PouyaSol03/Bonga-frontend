@@ -105,26 +105,8 @@ const upgradeProductByOption: Record<UpgradeOptionId, string> = {
 function resolveUpgradeCheckoutItem(
   optionId: UpgradeOptionId,
   items: AdvertisementCheckoutItem[],
-): AdvertisementCheckoutItem {
-  const found = items.find((item) => item.product === upgradeProductByOption[optionId]);
-  if (found) return found;
-  return {
-    product: upgradeProductByOption[optionId],
-    price: 30000,
-    credit_cost: 1,
-    credit_requirements: [
-      {
-        amount: 1,
-        credit_type:
-          optionId === "renew"
-            ? "renew_credit"
-            : optionId === "special"
-              ? "special_credit"
-              : "ad_credit",
-      },
-    ],
-    selected: false,
-  };
+): AdvertisementCheckoutItem | undefined {
+  return items.find((item) => item.product === upgradeProductByOption[optionId]);
 }
 
 function getUpgradeDescription(optionId: UpgradeOptionId, item?: AdvertisementCheckoutItem) {
@@ -255,8 +237,7 @@ function getFreeQuotaRemaining(
 
 export function IndependentConsultantAdPaymentPage() {
   const advertiseId = readCheckoutAdvertiseId();
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
-  const fallbackBackTo = activeRole === USER ? "/account/my-ads" : adManagementPaths.root;
+  const fallbackBackTo = adManagementPaths.root;
 
   if (advertiseId) {
     return <AdvertisementCheckoutFlow advertiseId={advertiseId} />;
@@ -286,7 +267,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     (activeRole === REAL_ESTATE_CONSULTANT || activeV2Role === "agency-consultant") &&
     hasAdManagementPermission;
 
-  const adsHomePath = activeRole === USER ? "/account/my-ads" : adManagementPaths.root;
+  const adsHomePath = adManagementPaths.root;
   const isBusinessRole =
     activeRole !== USER &&
     Boolean(
@@ -340,6 +321,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
       ? consultantCheckoutMutation.isPending
       : personalCheckoutMutation.isPending;
   const [step, setStep] = useState<PaymentStep>(routeState.paymentStep ?? "options");
+  const [selectedUpgradeProducts, setSelectedUpgradeProducts] = useState<string[]>([]);
   const [method, setMethod] = useState<PaymentMethod>("online");
   const [agencyMethod, setAgencyMethod] = useState<AgencyPaymentMethod>("ad_credit");
   const { showToast } = useToast();
@@ -390,6 +372,13 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
 
   const checkout = checkoutQuery.data;
   const upgradeItems = getUpgradeCheckoutItems(checkout);
+  const selectedUpgradeItems = upgradeItems.filter((item) =>
+    selectedUpgradeProducts.includes(item.product),
+  );
+  const selectedUpgradePrice = selectedUpgradeItems.reduce(
+    (total, item) => total + Math.max(toSafeNumber(item.price), 0),
+    0,
+  );
   const publishItem = checkout ? getCheckoutItem(checkout, "advertise_publish") : undefined;
   const freeQuotaRemaining = checkout ? getFreeQuotaRemaining(checkout, publishItem) : 0;
   const freeQuotaMethod = checkout ? getCheckoutMethod(checkout, "free_quota") : undefined;
@@ -533,11 +522,18 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     publishItem?.price,
     toSafeNumber(checkout?.summary.total_price, toSafeNumber(gatewayMethod?.required)),
   );
-  const payableAmount = toSafeNumber(
-    checkout?.summary.payable_amount,
-    toSafeNumber(gatewayMethod?.required, publishPrice),
-  );
-  const totalPrice = toSafeNumber(checkout?.summary.total_price, publishPrice);
+  const totalWithUpgrades = (hasFreeQuota ? 0 : publishPrice) + selectedUpgradePrice;
+  const payableAmount =
+    selectedUpgradeProducts.length > 0
+      ? totalWithUpgrades
+      : toSafeNumber(
+          checkout?.summary.payable_amount,
+          toSafeNumber(gatewayMethod?.required, publishPrice),
+        );
+  const totalPrice =
+    selectedUpgradeProducts.length > 0
+      ? publishPrice + selectedUpgradePrice
+      : toSafeNumber(checkout?.summary.total_price, publishPrice);
   const finalPayable = appliedDiscount ? appliedDiscount.final_price : payableAmount;
   const is100PercentDiscount = Boolean(
     appliedDiscount?.is_free ||
@@ -812,7 +808,7 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
   }
 
   function handleCompleteOptions() {
-    if (hasFreeQuota) {
+    if (hasFreeQuota && selectedUpgradeProducts.length === 0) {
       finishCheckout("free_quota");
       return;
     }
@@ -936,7 +932,12 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
         }}
         onMethodChange={setMethod}
         onRemoveDiscount={handleRemoveDiscount}
-        onSubmit={() => finishCheckout(method === "wallet" ? "wallet" : "gateway")}
+        onSubmit={() =>
+          finishCheckout(
+            method === "wallet" ? "wallet" : "gateway",
+            selectedUpgradeProducts,
+          )
+        }
         payableAmount={finalPayable}
         pending={checkoutPending}
         totalPrice={totalPrice}
@@ -945,14 +946,37 @@ function AdvertisementCheckoutFlow({ advertiseId }: { advertiseId: string }) {
     );
   }
 
+  function toggleUpgrade(product: string) {
+    setAppliedDiscount(null);
+    setSelectedUpgradeProducts((current) => {
+      const isSelected = current.includes(product);
+      if (isSelected) return current.filter((item) => item !== product);
+
+      if (product === "advertise_update_special") {
+        return [
+          ...current.filter((item) => item !== "advertise_update" && item !== "advertise_special"),
+          product,
+        ];
+      }
+
+      if (product === "advertise_update" || product === "advertise_special") {
+        return [...current.filter((item) => item !== "advertise_update_special"), product];
+      }
+
+      return [...current, product];
+    });
+  }
+
   return (
     <CheckoutTariffView
       backTo={checkoutBackTo}
       freeQuotaRemaining={freeQuotaRemaining}
       hasFreeQuota={hasFreeQuota}
       onComplete={handleCompleteOptions}
+      onToggleUpgrade={toggleUpgrade}
       pending={checkoutPending}
       price={publishPrice}
+      selectedUpgradeProducts={selectedUpgradeProducts}
       upgradeItems={upgradeItems}
     ></CheckoutTariffView>
   );
@@ -1302,8 +1326,10 @@ function CheckoutTariffView({
   freeQuotaRemaining,
   hasFreeQuota,
   onComplete,
+  onToggleUpgrade,
   pending,
   price,
+  selectedUpgradeProducts = [],
   upgradeItems,
 }: {
   backTo: string;
@@ -1311,8 +1337,10 @@ function CheckoutTariffView({
   freeQuotaRemaining: number;
   hasFreeQuota: boolean;
   onComplete: () => void;
+  onToggleUpgrade?: (product: string) => void;
   pending: boolean;
   price: number;
+  selectedUpgradeProducts?: string[];
   upgradeItems: AdvertisementCheckoutItem[];
 }) {
   return (
@@ -1382,6 +1410,9 @@ function CheckoutTariffView({
           disabledWarning={
             hasFreeQuota ? unavailableAfterPublishWarning : unavailableAfterPaidPublishWarning
           }
+          enabled
+          onToggle={onToggleUpgrade}
+          selectedProducts={selectedUpgradeProducts}
           showCombinedOption
           upgradeItems={upgradeItems}
         />
@@ -1444,12 +1475,13 @@ function DisabledUpgradeOptionsSection({
       <div className="divide-outline-var/40 divide-y px-4">
         {visibleOptions.map((option) => {
           const checkoutItem = resolveUpgradeCheckoutItem(option.id, upgradeItems);
-          const optionEnabled = Boolean(enabled && checkoutItem);
+          const itemExists = Boolean(checkoutItem);
+          const optionEnabled = Boolean(enabled && itemExists);
           const checked = Boolean(checkoutItem && selectedProducts.includes(checkoutItem.product));
           const itemPrice =
             checkoutItem?.price !== undefined ? toSafeNumber(checkoutItem.price) : 30000;
           const itemCredit = checkoutItem?.credit_requirements?.[0]?.amount ?? 1;
-          const unavailableWarning = enabled
+          const unavailableWarning = !itemExists
             ? "این قابلیت در حال حاضر در دسترس نیست."
             : disabledWarning;
 
@@ -1519,7 +1551,7 @@ function DisabledUpgradeOptionsSection({
               </div>
 
               {enabled && option.id === "refresh" ? (
-                <div className="mt-3 flex w-full items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
+                <div className="bg-tertiary-container/30 text-tertiary mt-3 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-right text-xs font-medium">
                   <LinearStairs className="h-4 w-4 shrink-0" />
                   <span>
                     اعتبار باقیمانده:{" "}
@@ -1527,7 +1559,7 @@ function DisabledUpgradeOptionsSection({
                   </span>
                 </div>
               ) : enabled && option.id === "special" ? (
-                <div className="mt-3 flex w-full items-center gap-2 rounded-lg bg-[#FFF8E6] px-3 py-2 text-right text-xs font-medium text-[#FF8A00]">
+                <div className="bg-warning-container/30 text-warning mt-3 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-right text-xs font-medium">
                   <LinearStartup className="h-4 w-4 shrink-0" />
                   <span>
                     اعتبار باقیمانده:{" "}
@@ -1535,7 +1567,7 @@ function DisabledUpgradeOptionsSection({
                   </span>
                 </div>
               ) : enabled && option.id === "renew" ? (
-                <div className="mt-3 flex w-full items-center gap-2 rounded-lg bg-[#E8F8F0] px-3 py-2 text-right text-xs font-medium text-[#11A366]">
+                <div className="bg-tertiary-container/30 text-tertiary mt-3 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-right text-xs font-medium">
                   <LinearRefresh className="h-4 w-4 shrink-0" />
                   <span>
                     اعتبار باقیمانده:{" "}

@@ -37,8 +37,8 @@ export function ViewAdLeadCard({
   className = "",
 }: ViewAdLeadCardProps) {
   const detailsHref = adId
-    ? `/account/my-ads/${encodeURIComponent(String(adId))}/lead-details?leadId=${encodeURIComponent(lead.id)}`
-    : lead.detailsUrl || `/account/my-ads/lead-details?leadId=${encodeURIComponent(lead.id)}`;
+    ? `/account/manage-ads/${encodeURIComponent(String(adId))}/lead-details?leadId=${encodeURIComponent(lead.id)}`
+    : lead.detailsUrl || `/account/manage-ads/lead-details?leadId=${encodeURIComponent(lead.id)}`;
 
   return (
     <article

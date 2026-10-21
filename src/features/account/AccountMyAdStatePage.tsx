@@ -230,11 +230,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
   const activeRole = props?.role ?? getActiveAuthRole(getStoredAuthSession());
 
   const handleBack = () => {
-    if (backTo) {
-      navigate(backTo, { replace: true, state: backState });
-      return;
-    }
-    navigate("/account/my-ads", { replace: true });
+    navigate("/account/manage-ads", { replace: true });
   };
 
   const [isCancelAssignmentModalOpen, setIsCancelAssignmentModalOpen] = useState(false);
@@ -557,9 +553,6 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
               }}
             />
           ) : null}
-          {statusInfo.key === "wait_for_payment" ? (
-            <WaitForPaymentNotice adId={adId ?? String(card.id)} />
-          ) : null}
           {statusInfo.key === "pending" ? <PendingReviewNotice /> : null}
           {statusInfo.key === "needs_edit" ? (
             <NeedsEditNotice ad={sourceAd} card={card} returnTo={backTo} />
@@ -705,11 +698,7 @@ function RealEstateManagerAdStatePage({
     currentRole === INDEPENDENT_CONSULTANT || currentRole === "independent-consultant";
 
   const handleBack = () => {
-    if (backTo) {
-      navigate(backTo, { replace: true, state: backState });
-      return;
-    }
-    navigate("/account/ad-management", { replace: true });
+    navigate("/account/manage-ads", { replace: true });
   };
 
   const agencyQuery = useMyAgencyProfileQuery({ enabled: !isIndependentConsultant });
@@ -890,8 +879,6 @@ function RealEstateManagerAdStatePage({
           </div>
 
           <ManagerAdSummary ad={ad} card={card} />
-
-          {statusInfo.key === "wait_for_payment" ? <WaitForPaymentNotice adId={adId} /> : null}
 
           {["published", "wait_for_stop", "wait_for_deal_confirmation"].includes(statusInfo.key) ? (
             <PublishedMeta ad={ad} />
@@ -1423,7 +1410,7 @@ function getStateAdBackPath(routeState: MyAdRouteState, isAssigned = false) {
   }
 
   if (isValidReturnTo) return returnTo;
-  if (activeRole === USER || !activeRole) return "/account/my-ads";
+  if (activeRole === USER || !activeRole) return "/account/manage-ads";
 
   return "/account/manage-ads";
 }
@@ -1702,24 +1689,7 @@ function NeedsEditNotice({
   );
 }
 
-function WaitForPaymentNotice({ adId }: { adId?: string }) {
-  return (
-    <div className="bg-warning-container text-on-warning-container mt-4 flex items-center justify-between rounded-xl p-3">
-      <span className="text-sm font-medium">
-        برای ادامه فرایند انتشار آگهی، پرداخت را تکمیل کنید.
-      </span>
-      {adId ? (
-        <Link
-          className="bg-primary text-on-primary inline-flex h-8 items-center justify-center rounded-lg px-3 text-xs font-medium no-underline"
-          to={getAdPaymentPath(adId)}
-          state={{ paymentFlow: "new-ad" }}
-        >
-          پرداخت
-        </Link>
-      ) : null}
-    </div>
-  );
-}
+
 
 function getStateActions(
   status: MyAdStatusKey,

@@ -1,8 +1,5 @@
 import type { AdvertisementFeature, AdvertisementItem } from "../../api/advertisement.service";
-import {
-  readStoredSelectedCity,
-  saveSelectedCity,
-} from "../../../../shared/lib/selectedCityStorage";
+import { readStoredSelectedCity, saveSelectedCity } from "../../../../shared/lib/selectedCityStorage";
 import {
   locationKey,
   locationLatKey,
@@ -72,15 +69,14 @@ export function syncEditLocationStorage(
   const cityObj = ad.city && typeof ad.city === "object" ? (ad.city as Record<string, unknown>) : null;
   const cityId = readText(cityObj?.id) || readText(ad.city_id);
   const cityName = readText(cityObj?.name) || readText(ad.city_name);
-  if (cityId || cityName) {
-    const existingCity = readStoredSelectedCity();
+  const storedCity = typeof window !== "undefined" ? readStoredSelectedCity() : null;
+  const resolvedCityName =
+    cityName || (storedCity?.id && storedCity.id === cityId ? storedCity.name : "");
+
+  if (resolvedCityName) {
     saveSelectedCity({
-      id: cityId || existingCity?.id || undefined,
-      name:
-        cityName ||
-        (existingCity?.id && cityId && existingCity.id === cityId ? existingCity.name : "") ||
-        existingCity?.name ||
-        "",
+      id: cityId || undefined,
+      name: resolvedCityName,
       latitude: lat ? Number(lat) : undefined,
       longitude: lng ? Number(lng) : undefined,
     });

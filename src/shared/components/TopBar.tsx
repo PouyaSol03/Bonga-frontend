@@ -137,13 +137,13 @@ function TopBarBackButton({
           return;
         }
 
-        if (window.history.state?.idx > 0 || canGoBackInApp()) {
-          navigate(-1);
+        if (backTo) {
+          navigate(backTo, { replace: true, state: backState });
           return;
         }
 
-        if (backTo) {
-          navigate(backTo, { replace: true, state: backState });
+        if (window.history.state?.idx > 0 || canGoBackInApp()) {
+          navigate(-1);
           return;
         }
 

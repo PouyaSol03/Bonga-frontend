@@ -66,7 +66,6 @@ import {
   getAdPaymentHistoryPath,
   getAdPaymentPath,
   getAdPreviewPath,
-  getAdStatePath,
   getAdVisitStatisticsPath,
 } from "./adManagement/adManagementData";
 import { getMyAdStatusInfo, type MyAdStatusKey } from "./myAdsStatus";
@@ -449,6 +448,7 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
     isAssigned,
     sourceAd,
     () => setIsStopPublishModalOpen(true),
+    backTo,
   );
 
   return (
@@ -849,6 +849,7 @@ function RealEstateManagerAdStatePage({
     adId,
     () => setIsDeleteDialogOpen(true),
     isAdDeleted,
+    backTo,
   );
 
   return (
@@ -1183,12 +1184,13 @@ function getManagerActions(
   adId: string,
   onDelete?: () => void,
   isAdDeleted?: boolean,
+  returnTo?: string,
 ): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
   const edit: StateAction = {
     icon: "edit",
     label: "ویرایش",
-    to: getAdEditPath(adId, getAdStatePath(adId)),
+    to: getAdEditPath(adId, returnTo || adManagementPaths.root),
   };
   const payment: StateAction = { icon: "payment", label: "پرداخت", to: getAdPaymentPath(adId) };
   const result: StateAction = {
@@ -1680,7 +1682,7 @@ function NeedsEditNotice({
           isEditMode: true,
           returnTo,
         }}
-        to={getAdEditPath(card.id, getAdStatePath(card.id))}
+        to={getAdEditPath(card.id, returnTo || adManagementPaths.root)}
       >
         ویرایش آگهی
         <StateIcon icon="edit" />
@@ -1697,12 +1699,13 @@ function getStateActions(
   isAssigned?: boolean,
   ad?: Record<string, unknown>,
   onStopPublish?: () => void,
+  returnTo?: string,
 ): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
   const edit: StateAction = {
     icon: "edit",
     label: "ویرایش",
-    to: getAdEditPath(adId, getAdStatePath(adId)),
+    to: getAdEditPath(adId, returnTo || (isAssigned ? "/account/my-ads" : adManagementPaths.root)),
   };
   const remove: StateAction = {
     icon: "delete",

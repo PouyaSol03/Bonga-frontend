@@ -5,6 +5,7 @@ import { getApiErrorMessage } from "../../shared/api/api";
 import { SwitchButton } from "../../shared/components/SwitchButton";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { toPersianDigits } from "../../shared/lib/numberUtils";
 import type { CrmRoutePageProps } from "./CrmLayout";
 import {
   listCrmProfileFeedbackItems,
@@ -26,11 +27,6 @@ const emptyDraft: DraftItem = {
   sort_order: 0,
   is_active: true,
 };
-
-function toPersianDigits(value: number | string): string {
-  const persianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
-  return String(value).replace(/\d/g, (d) => persianDigits[Number(d)]);
-}
 
 export function CrmFeedbackViews({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();

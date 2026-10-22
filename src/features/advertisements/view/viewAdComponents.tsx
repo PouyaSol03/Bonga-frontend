@@ -164,23 +164,8 @@ export function MoreButton({
   );
 }
 
-const persianDigitMap: Record<string, string> = {
-  "0": "۰",
-  "1": "۱",
-  "2": "۲",
-  "3": "۳",
-  "4": "۴",
-  "5": "۵",
-  "6": "۶",
-  "7": "۷",
-  "8": "۸",
-  "9": "۹",
-};
-
-export function toPersianDigits(value: unknown): string {
-  const text = String(value ?? "");
-  return text.replace(/[0-9]/g, (digit) => persianDigitMap[digit] ?? digit);
-}
+import { toPersianDigits } from "../../../shared/lib/numberUtils";
+export { toPersianDigits };
 
 export function AccommodationRatingBanner({
   count,

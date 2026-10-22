@@ -10,6 +10,7 @@ import type { SupportRequestItem } from "../support/api/support-request.service"
 
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { toPersianDigits } from "../../shared/lib/numberUtils";
 
 export const SUPPORT_PATH = "/account/support";
 export const REQUESTS_PATH = "/account/support/requests";
@@ -77,10 +78,6 @@ const statusPresentation: Record<SupportRequestStatus, { label: string; classNam
     className: "bg-surface-container text-outline",
   },
 };
-
-function toPersianDigits(value: number | string) {
-  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
-}
 
 export function mapSupportRequest(item: SupportRequestItem): SupportRequest {
   const id = item.id === undefined || item.id === null ? "" : String(item.id);

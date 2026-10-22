@@ -19,6 +19,7 @@ import type { QuickAdvertisementSearchItem } from "../api/quick-advertisement-se
 import { Typography } from "../../../shared/ui/Typography";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import { Button } from "../../../shared/ui/Button";
+import { toPersianDigits } from "../../../shared/lib/numberUtils";
 
 type HomeSearchScreenProps = {
   initialQuery?: string;
@@ -59,23 +60,6 @@ function useDelayedSearchDelete(onDelete: (id: string | number) => void) {
   };
 
   return { deleteItem, removingId };
-}
-
-const persianDigits: Record<string, string> = {
-  "0": "۰",
-  "1": "۱",
-  "2": "۲",
-  "3": "۳",
-  "4": "۴",
-  "5": "۵",
-  "6": "۶",
-  "7": "۷",
-  "8": "۸",
-  "9": "۹",
-};
-
-function toPersianDigits(value: string | number) {
-  return String(value).replace(/\d/g, (digit) => persianDigits[digit] ?? digit);
 }
 
 export function HomeSearchScreen({

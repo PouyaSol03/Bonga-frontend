@@ -1,5 +1,7 @@
 import type { AgencyAdvertiseAssignmentDto } from "../../advertisements/api/agency-advertise-assignment.service";
 import { mapAdvertisementToAdCard } from "../../advertisements/api/advertisement.service";
+import { toPersianDigits } from "../../../shared/lib/numberUtils";
+export { toPersianDigits };
 import type {
   AdManagementFilters,
   AdManagementPropertyType,
@@ -140,8 +142,4 @@ export function getAssignmentCountdown(assignment: AgencyAdvertiseAssignmentDto)
   if (diff <= 0) return { hours: 0, minutes: 0, isExpired: true };
   const remaining = Math.ceil(diff / 60_000);
   return { hours: Math.floor(remaining / 60), minutes: remaining % 60, isExpired: false };
-}
-
-export function toPersianDigits(value: number | string): string {
-  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }

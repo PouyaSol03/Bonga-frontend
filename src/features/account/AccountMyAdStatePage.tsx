@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { getApiErrorMessage } from "../../shared/api/api";
 import { RequestErrorState } from "../../shared/components/ErrorState";
+import { toPersianDigits } from "../../shared/lib/numberUtils";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import {
@@ -2961,10 +2962,6 @@ function readExpirationRemaining(value: unknown, fallbackPublishedDate?: unknown
     remainingDays === 0 ? "امروز" : `${toPersianDigits(remainingDays)} روز دیگر`;
 
   return `${remainingLabel} (${expirationDate})`;
-}
-
-function toPersianDigits(value: number | string) {
-  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }
 
 function readModerationReasons(ad?: Record<string, unknown>) {

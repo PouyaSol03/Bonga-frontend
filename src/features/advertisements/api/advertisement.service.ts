@@ -291,6 +291,13 @@ export type AdvertiseFormDefinition = {
 };
 
 export type AdvertisementCheckoutItem = {
+  available?: boolean;
+  available_at?: string | null;
+  available_in?: {
+    days?: number;
+    hours?: number;
+    total_seconds?: number;
+  } | null;
   credit_cost?: number;
   credit_requirements?: Array<{
     amount?: number;

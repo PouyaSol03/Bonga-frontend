@@ -30,7 +30,12 @@ import {
   type ValidateDiscountCodeResult,
 } from "../../crm/api/crm-discount.service";
 import { PaymentOptionIcon } from "./AdManagementIcons";
-import { formatTariffToman } from "./AdTariffOptionsView";
+import {
+  formatTariffToman,
+  formatAvailableInNotice,
+  resolveAvailableIn,
+  TariffNotice,
+} from "./AdTariffOptionsView";
 import { useAgentEntitlementsQuery } from "../../packages/api/package.hooks";
 import { useAgencyConsultantsQuery } from "../../agencies/api/agency.hooks";
 import LinearAdd from "../../../shared/icons/LinearAdd";
@@ -1476,22 +1481,26 @@ function DisabledUpgradeOptionsSection({
         {visibleOptions.map((option) => {
           const checkoutItem = resolveUpgradeCheckoutItem(option.id, upgradeItems);
           const itemExists = Boolean(checkoutItem);
-          const optionEnabled = Boolean(enabled && itemExists);
+          const isAvailable = checkoutItem?.available !== false;
+          const optionEnabled = Boolean(enabled && itemExists && isAvailable);
           const checked = Boolean(checkoutItem && selectedProducts.includes(checkoutItem.product));
           const itemPrice =
             checkoutItem?.price !== undefined ? toSafeNumber(checkoutItem.price) : 30000;
           const itemCredit = checkoutItem?.credit_requirements?.[0]?.amount ?? 1;
           const unavailableWarning = !itemExists
             ? "این قابلیت در حال حاضر در دسترس نیست."
-            : disabledWarning;
+            : !isAvailable
+              ? formatAvailableInNotice(resolveAvailableIn(checkoutItem))
+              : disabledWarning;
 
           return (
             <Button
               unstyled
               aria-disabled={!optionEnabled}
               aria-pressed={checked}
+              disabled={!optionEnabled}
               className={`bg-surface-container-lowest block w-full border-0 py-4 text-inherit ${
-                optionEnabled ? "cursor-pointer" : "cursor-default"
+                optionEnabled ? "cursor-pointer" : "cursor-not-allowed"
               }`}
               key={option.id}
               onClick={() => {
@@ -1501,31 +1510,14 @@ function DisabledUpgradeOptionsSection({
               }}
               type="button"
             >
-              <div className="flex items-start justify-between gap-5 [direction:ltr]">
-                <Typography
-                  as="span"
-                  variant="label"
-                  size="medium"
-                  weight="semibold"
-                  className={`flex shrink-0 items-center gap-1 pt-1 text-sm leading-5 font-semibold [direction:rtl] ${
-                    optionEnabled || isCreditMethod ? "text-on-surface" : "text-outline"
-                  }`}
-                >
-                  {isCreditMethod ? (
-                    `${new Intl.NumberFormat("fa-IR").format(itemCredit)} اعتبار`
-                  ) : itemPrice !== undefined ? (
-                    <>
-                      {formatTariffToman(itemPrice)}
-                      <LinearTooman className="h-5 w-5" />
-                    </>
-                  ) : (
-                    "—"
-                  )}
-                </Typography>
-
-                <div className="min-w-0 flex-1 text-right [direction:rtl]">
-                  <div
-                    className={`flex items-center justify-start gap-2 text-base leading-6 font-medium ${
+              <div className="flex flex-col gap-3 [direction:rtl]">
+                <div className="flex items-center justify-between gap-4">
+                  <Typography
+                    as="p"
+                    variant="title"
+                    size="medium"
+                    weight="semibold"
+                    className={`m-0 flex items-center justify-start gap-2 ${
                       optionEnabled || isCreditMethod ? "text-on-surface" : "text-outline"
                     }`}
                   >
@@ -1535,19 +1527,41 @@ function DisabledUpgradeOptionsSection({
                       disabled={!optionEnabled}
                     />
                     {option.title}
-                  </div>
+                  </Typography>
+
                   <Typography
                     as="p"
-                    variant="body"
-                    size="medium"
-                    weight="regular"
-                    className={`m-0 mt-3 text-sm leading-6 font-normal ${
-                      optionEnabled || isCreditMethod ? "text-on-surface-var" : "text-outline"
+                    variant="label"
+                    size="large"
+                    weight="semibold"
+                    className={`m-0 flex shrink-0 items-center gap-1 ${
+                      optionEnabled || isCreditMethod ? "text-on-surface" : "text-outline"
                     }`}
                   >
-                    {getUpgradeDescription(option.id, checkoutItem)}
+                    {isCreditMethod ? (
+                      `${new Intl.NumberFormat("fa-IR").format(itemCredit)} اعتبار`
+                    ) : itemPrice !== undefined ? (
+                      <>
+                        {formatTariffToman(itemPrice)}
+                        <LinearTooman className="h-5 w-5" />
+                      </>
+                    ) : (
+                      "—"
+                    )}
                   </Typography>
                 </div>
+
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="large"
+                  weight="regular"
+                  className={`m-0 text-right ${
+                    optionEnabled || isCreditMethod ? "text-on-surface-var" : "text-outline"
+                  }`}
+                >
+                  {getUpgradeDescription(option.id, checkoutItem)}
+                </Typography>
               </div>
 
               {enabled && option.id === "refresh" ? (
@@ -1576,19 +1590,10 @@ function DisabledUpgradeOptionsSection({
                 </div>
               ) : null}
 
-              {!optionEnabled && !isCreditMethod ? (
-                <Typography
-                  as="p"
-                  variant="body"
-                  size="small"
-                  weight="medium"
-                  className="bg-warning-container/30 text-warning m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg px-3 py-2 text-right text-xs leading-5 font-medium"
-                >
-                  <LinearInfoCircle className="h-5 w-5 shrink-0" />
-                  <Typography as="span" variant="body" size="medium" weight="regular">
-                    {unavailableWarning}
-                  </Typography>
-                </Typography>
+              {!optionEnabled && (!isCreditMethod || !isAvailable) ? (
+                <div className="mt-3">
+                  <TariffNotice>{unavailableWarning}</TariffNotice>
+                </div>
               ) : null}
             </Button>
           );

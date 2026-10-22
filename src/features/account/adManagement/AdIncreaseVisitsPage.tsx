@@ -25,7 +25,9 @@ import {
 import {
   AdTariffOptionsList,
   createAdTariffOptions,
+  formatAvailableInNotice,
   getTariffTotal,
+  resolveAvailableIn,
   type AdTariffOptionId,
 } from "./AdTariffOptionsView";
 import { adManagementPaths, getAdManagementRouteState, getAdStatePath } from "./adManagementData";
@@ -65,11 +67,19 @@ export function AdIncreaseVisitsPage() {
           : undefined;
         if (!checkoutItem) return [];
 
+        const isAvailable = checkoutItem.available !== false;
+        const availableIn = resolveAvailableIn(checkoutItem);
+        const warning = !isAvailable
+          ? formatAvailableInNotice(availableIn)
+          : option.warning;
+
         return [
           {
             ...option,
             description: getUpgradeDescription(option.id, checkoutItem, option.description),
+            disabled: !isAvailable,
             price: checkoutItem.price ?? 0,
+            warning,
           },
         ];
       }),
@@ -80,11 +90,12 @@ export function AdIncreaseVisitsPage() {
       Array.from(
         new Set(
           selectedTariffs
+            .filter((id) => !tariffOptions.find((opt) => opt.id === id)?.disabled)
             .map((id) => resolveProductForOption(id, products))
             .filter((product): product is string => product !== undefined),
         ),
       ),
-    [products, selectedTariffs],
+    [products, selectedTariffs, tariffOptions],
   );
   const payableAmount = useMemo(() => {
     const amount = selectedProducts.reduce(
@@ -163,6 +174,9 @@ export function AdIncreaseVisitsPage() {
   }
 
   function toggleTariff(id: AdTariffOptionId) {
+    const target = tariffOptions.find((item) => item.id === id);
+    if (target?.disabled) return;
+
     setSelectedTariffs((current) => {
       if (current.includes(id)) return current.filter((item) => item !== id);
 

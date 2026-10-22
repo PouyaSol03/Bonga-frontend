@@ -1,5 +1,3 @@
-const BONGA_ROUTE_CHANGE_EVENT = "bonga:route-change";
-
 // Set on every history entry the app pushes. An entry carrying it was pushed
 // from another in-app entry, so history.back() stays inside the app. The first
 // entry of a session (typed URL, external link, new tab) never has it.
@@ -16,7 +14,6 @@ export function installHistoryNavigationBridge() {
   // No-op in React Router v7. Native history is managed directly by BrowserRouter.
 }
 
-export const historyRouteChangeEvent = BONGA_ROUTE_CHANGE_EVENT;
 
 type RouterNavigateFn = (
   to: string | number,
@@ -129,24 +126,6 @@ export function prefetchRoute(path: string) {
   activeRoutePrefetcher?.(path);
 }
 
-export function pushRoute(path: string, state?: unknown, options?: { rememberCurrent?: boolean }) {
-  const currentPath = getCurrentFullPath();
-
-  // Prevent accidental duplicate history entries when the same navigation is
-  // triggered twice from nested click handlers (for example card + link).
-  if (currentPath === path) {
-    return;
-  }
-
-  prefetchRoute(path);
-  const nextState = createNavigationState(state, options);
-  if (activeRouterNavigate) {
-    activeRouterNavigate(path, { state: nextState });
-  } else {
-    window.history.pushState(nextState, "", path);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  }
-}
 
 export function replaceRoute(
   path: string,
@@ -162,35 +141,4 @@ export function replaceRoute(
   }
 }
 
-/**
- * Return to the previous SPA history entry when the current screen was opened
- * through pushRoute. If the page was opened directly, replace it with the
- * fallback route instead of pushing another entry that would require an extra
- * Back click later.
- */
-export function backRoute(fallbackPath: string, fallbackState?: unknown) {
-  const storedBackTarget = getStoredBackTarget();
 
-  if (storedBackTarget) {
-    window.history.go(-1);
-    return;
-  }
-
-  replaceRoute(fallbackPath, fallbackState, { rememberCurrent: false });
-}
-
-/**
- * Navigate back if the previous entry is an app page, otherwise navigate to
- * fallback path.
- */
-export function goBackOrNavigate(fallbackPath: string) {
-  if (typeof window !== "undefined" && canGoBackInApp()) {
-    if (activeRouterNavigate) {
-      activeRouterNavigate(-1);
-    } else {
-      window.history.back();
-    }
-    return;
-  }
-  replaceRoute(fallbackPath, undefined, { rememberCurrent: false });
-}

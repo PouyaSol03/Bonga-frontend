@@ -10,14 +10,12 @@ import {
   useDashboardReportsConversionFunnelQuery,
   useDashboardReportsRankingScoreQuery,
 } from "../api/dashboard.hooks";
-import {
-  DashboardPublishedAdsPieCard,
-  DashboardViewsBarChartCard,
-  DashboardConsultantsBarChartCard,
-  DashboardRegistrationProgressLineCard,
-  DashboardConversionFunnelCard,
-  DashboardRankScoreCard,
-} from "./reports";
+import { DashboardPublishedAdsPieCard } from "./reports/DashboardPublishedAdsPieCard";
+import { DashboardViewsBarChartCard } from "./reports/DashboardViewsBarChartCard";
+import { DashboardConsultantsBarChartCard } from "./reports/DashboardConsultantsBarChartCard";
+import { DashboardRegistrationProgressLineCard } from "./reports/DashboardRegistrationProgressLineCard";
+import { DashboardConversionFunnelCard } from "./reports/DashboardConversionFunnelCard";
+import { DashboardRankScoreCard } from "./reports/DashboardRankScoreCard";
 
 export interface DashboardReportsViewProps {
   role?: DashboardRole;

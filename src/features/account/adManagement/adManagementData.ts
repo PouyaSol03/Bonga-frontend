@@ -9,11 +9,6 @@ export type AdManagementPublisherOption = {
   image: string;
   name: string;
 };
-
-export const adManagementPublisherOptions: AdManagementPublisherOption[] = [
-  { id: "owner", image: "", name: "مالک" },
-];
-
 export type AdsTab = "active" | "status";
 
 export type AdManagementSelectedNeighborhood = {
@@ -165,11 +160,6 @@ export const adManagementPaths = {
   statisticsDetails: "/account/ad-management/statistics/details",
   statusDesk: "/account/ad-management/status-desk",
 } as const;
-
-export function getAgencyAdStatusDeskPath(adId: ConsultantAd["id"] | string) {
-  return `${adManagementPaths.statusDesk}/${encodeURIComponent(String(adId))}`;
-}
-
 export function getAdPreviewPath(adId: ConsultantAd["id"] | string) {
   return `/preview-ad/${encodeURIComponent(String(adId))}`;
 }

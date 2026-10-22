@@ -118,7 +118,3 @@ export function getAdvertisementImageUrls(source: unknown): string[] {
 export function getPrimaryAdvertisementImageUrl(source: unknown): string | undefined {
   return getAdvertisementImageUrls(source)[0];
 }
-
-export function hasAdvertisementImage(source: unknown) {
-  return Boolean(getPrimaryAdvertisementImageUrl(source));
-}

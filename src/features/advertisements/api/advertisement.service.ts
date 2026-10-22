@@ -1666,9 +1666,6 @@ export async function submitAdvertisementCheckout({
     response,
   };
 }
-
-export const submitPersonalAdvertisementCheckout = submitAdvertisementCheckout;
-
 export async function submitConsultantAdvertisementCheckout(
   payload: SubmitAdvertisementCheckoutPayload,
 ): Promise<SubmitAdvertisementCheckoutResult> {
@@ -1822,12 +1819,6 @@ export async function removeAgencyAdvertisement(
 }
 
 export type AdvertisementEngagementEventType = "impression" | "call";
-
-export interface AdvertisementEngagementPayload {
-  event_type: AdvertisementEngagementEventType;
-  idempotency_key: string;
-}
-
 export async function reportAdvertisementEngagement(
   adId: string | number,
   eventType: AdvertisementEngagementEventType,

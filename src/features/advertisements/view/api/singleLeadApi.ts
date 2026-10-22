@@ -1,22 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useActiveAuthRole } from "../../../../shared/auth/use-active-auth-role";
 import {
-  addV2AdvertisementLeadNote,
   getV2AdvertisementLeadActivities,
   getV2AdvertisementLeadDetail,
   getV2AdvertisementLeads,
   updateV2AdvertisementLeadStage,
   type AdvertisementV2Activity,
   type AdvertisementV2Lead,
-  type AdvertisementV2Note
 } from "../../api/v2";
-
-
-export type ViewAdLeadClient = NonNullable<AdvertisementV2Lead["client"]>;
 export type ViewAdLeadDetail = AdvertisementV2Lead;
 export type ViewAdLeadActivity = AdvertisementV2Activity;
-export type ViewAdLeadNote = AdvertisementV2Note;
-
 export interface NormalizedAdLeadItem {
   id: string;
   name: string;
@@ -146,22 +139,6 @@ export function useUpdateLeadStageMutation(adId?: string | number, leadId?: stri
         queryKey: ["lead-activities", String(adId), String(leadId), activeRole],
       });
       void qc.invalidateQueries({ queryKey: ["ad-leads", String(adId), activeRole] });
-    },
-  });
-}
-
-export function useAddLeadNoteMutation(adId?: string | number, leadId?: string | number) {
-  const qc = useQueryClient();
-  const activeRole = useActiveAuthRole();
-  return useMutation({
-    mutationFn: (content: string) => {
-      if (!adId || !leadId) throw new Error("Missing ad or lead id");
-      return addV2AdvertisementLeadNote(adId, leadId, content);
-    },
-    onSuccess: () => {
-      void qc.invalidateQueries({
-        queryKey: ["single-lead-details", String(adId), String(leadId), activeRole],
-      });
     },
   });
 }

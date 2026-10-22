@@ -1,4 +1,4 @@
-import { useState, type ComponentType, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 import { ApiError } from "../api/api";
 import NoConnectionIcon from "../assets/icons/NoConnection.svg";
@@ -119,11 +119,6 @@ export function RequestErrorState({
   }
   return <ServerErrorState onRetry={onRetry} className={className} />;
 }
-
-export function getRequestErrorState(error: unknown): ComponentType<ErrorStateProps> {
-  return isNoConnectionError(error) ? NoConnectionState : ServerErrorState;
-}
-
 export function NoConnectionState({ onRetry, className }: ErrorStateProps) {
   return (
     <BaseErrorState

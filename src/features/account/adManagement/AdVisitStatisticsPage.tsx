@@ -17,6 +17,7 @@ import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/au
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { TopBar } from "../../../shared/components/TopBar";
 import { USER } from "../../../shared/constants/roles.constants";
+import { isRecord, readText } from "../../../shared/lib/textUtils";
 import {
   useAdvertisementDailyViewsQuery,
   useMyAdvertisementDetailQuery,
@@ -806,17 +807,6 @@ function readEntityId(entity: unknown) {
 
 function readImageUrl(record: Record<string, unknown>) {
   return getPrimaryAdvertisementImageUrl(record);
-}
-
-function readText(value: unknown, fallback = "") {
-  if (typeof value === "string" && value.trim()) return value;
-  if (typeof value === "number") return String(value);
-
-  return fallback;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
 function InlineNotice({ text }: { text: string }) {

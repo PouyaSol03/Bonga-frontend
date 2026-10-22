@@ -3,6 +3,7 @@ import "../../advertisements/components/AdCard.css";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Typography } from "../../../shared/ui/Typography";
+import { isRecord, readText } from "../../../shared/lib/textUtils";
 import {
   adManagementPaths,
   getAdManagementRouteState,
@@ -177,16 +178,6 @@ function readStatistic(ad: unknown, keys: string[]) {
 
 function readImageUrl(record: Record<string, unknown>) {
   return getPrimaryAdvertisementImageUrl(record);
-}
-
-function readText(value: unknown) {
-  if (typeof value === "string" && value.trim()) return value;
-  if (typeof value === "number") return String(value);
-  return "";
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
 function TrendIcon({ className = "" }: { className?: string }) {

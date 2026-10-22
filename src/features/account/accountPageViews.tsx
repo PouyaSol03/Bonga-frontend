@@ -1,14 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PageFrame } from "../../shared/layout/PageFrame";
-import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
+import { getApiAssetUrl } from "../../shared/api/api";
 import { getStoredAuthSession } from "../../shared/auth/auth-storage";
-import { useMyAdsInfiniteQuery } from "./api/account.hooks";
-import { useDeleteAdvertisementMutation } from "../advertisements/api/advertisement.hooks";
 import {
   mapAdvertisementToAdCard,
   type AdvertisementItem,
 } from "../advertisements/api/advertisement.service";
-import type { BadgeItem, MyAdsType, NoteItem, WalletPayment } from "./api/account.service";
+import type { BadgeItem, NoteItem, WalletPayment } from "./api/account.service";
 import { AdCard, truncateAdCardText, type AdCardData  } from "../advertisements/components/AdCard";
 
 import { AdCardSkeleton } from "../advertisements/components/AdCardSkeleton";
@@ -16,8 +14,6 @@ import { RequestErrorState } from "../../shared/components/ErrorState";
 import { TopBar } from "../../shared/components/TopBar";
 import { Link, useNavigate } from "react-router";
 import { AdCardTomanIcon } from "../advertisements/components/AdCardIcons";
-import { getMyAdStatusInfo } from "./myAdsStatus";
-import { getAdEditPath } from "./adManagement/adManagementData";
 import LinearUserConfirmation from "../../shared/icons/LinearUserConfirmation";
 import LinearInfoCircle from "../../shared/icons/LinearInfoCircle";
 import { useToast } from "../../shared/hooks/useToast";
@@ -29,13 +25,10 @@ import {
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import LinearUserAccount from "../../shared/icons/LinearUserAccount";
 import { RadioIndicator } from "../../shared/components/RadioIndicator";
-import { HorizontalFilterBar } from "../../shared/components/HorizontalFilterBar";
-import { DeleteAdBottomSheet } from "./components/DeleteAdBottomSheet";
 
 import { Typography } from "../../shared/ui/Typography";
 import { TextField } from "../../shared/ui/TextField";
 import { Button } from "../../shared/ui/Button";
-import { Chip } from "../../shared/ui/Chip";
 import LinearDelete from "../../shared/icons/LinearDelete";
 import LinearEdit from "../../shared/icons/LinearEdit";
 
@@ -59,14 +52,6 @@ const simCardOwnershipReasons: Array<{
 ];
 
 const profileAvatarMimeTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
-
-const adFilters: Array<{ label: string; type: MyAdsType }> = [
-  { label: "همه", type: "all" },
-  { label: "در انتظار", type: "pending" },
-  { label: "فعال", type: "active" },
-  { label: "غیر فعال", type: "deactive" },
-  { label: "نیمه کاره", type: "incomplete" },
-];
 
 export function AccountProfileForm({
   isSubmitting,
@@ -318,194 +303,6 @@ export function AccountMyAdsEmptyState({
   );
 }
 
-export function AccountMyAdsContent({ emptyMode }: { emptyMode: "compact" | "full" }) {
-  const availableFilters = adFilters;
-  const [activeFilter, setActiveFilter] = useState(availableFilters[0]);
-  const [deletingAdId, setDeletingAdId] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const { showToast } = useToast();
-  const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
-  const deleteMutation = useDeleteAdvertisementMutation();
-
-  const handleOpenDelete = useCallback((targetAdId: string, event?: React.MouseEvent) => {
-    event?.preventDefault();
-    event?.stopPropagation();
-    setDeletingAdId(targetAdId);
-  }, []);
-
-  const handleConfirmDelete = useCallback(async () => {
-    if (!deletingAdId) return;
-    setIsDeleting(true);
-    try {
-      await deleteMutation.mutateAsync({
-        advertiseId: deletingAdId,
-        deleteReasonId: "other",
-        description: "حذف آگهی نیمه کاره",
-      });
-      showToast("آگهی با موفقیت حذف شد.", undefined, "success");
-      setDeletingAdId(null);
-    } catch (err) {
-      showToast(getApiErrorMessage(err, "حذف آگهی با خطا مواجه شد."), "خطا", "error");
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [deletingAdId, deleteMutation, showToast]);
-  const {
-    data: adsPages,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isError,
-    isFetchingNextPage,
-    isLoading,
-    refetch,
-  } = useMyAdsInfiniteQuery({
-    type: activeFilter.type,
-  });
-  const ads = useMemo(() => {
-    const rawAds =
-      adsPages?.pages.flatMap((page, pageIndex) =>
-        page.data.map((ad, adIndex) => ({
-          ad,
-          card: mapAdvertisementToAdCard(ad, pageIndex * page.perPage + adIndex),
-        })),
-      ) ?? [];
-
-    if (!activeFilter || activeFilter.type === "all") {
-      return rawAds;
-    }
-
-    return rawAds.filter(({ ad }) => {
-      const statusKey = getMyAdStatusInfo(ad).key;
-      if (activeFilter.type === "pending") {
-        return (
-          statusKey === "pending" ||
-          statusKey === "wait_for_payment" ||
-          statusKey === "wait_for_agency" ||
-          statusKey === "wait_for_repost" ||
-          statusKey === "wait_for_stop" ||
-          statusKey === "wait_for_deal_confirmation"
-        );
-      }
-      if (activeFilter.type === "active") {
-        return statusKey === "published" || statusKey === "deal_success";
-      }
-      if (activeFilter.type === "deactive") {
-        return (
-          statusKey === "expired" ||
-          statusKey === "deleted" ||
-          statusKey === "deal_unsuccessful" ||
-          statusKey === "rejected_by_agency" ||
-          statusKey === "archived" ||
-          statusKey === "incomplete_deleted"
-        );
-      }
-      if (activeFilter.type === "incomplete") {
-        return statusKey === "incomplete";
-      }
-      return true;
-    });
-  }, [adsPages, activeFilter]);
-  const loadMoreTriggerIndex = Math.max(ads.length - 3, 0);
-  const loadMoreSentinelRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      loadMoreObserverRef.current?.disconnect();
-      loadMoreObserverRef.current = null;
-
-      if (!node || !hasNextPage || isFetchingNextPage) {
-        return;
-      }
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-            void fetchNextPage();
-          }
-        },
-        { root: null, rootMargin: "240px 0px", threshold: 0 },
-      );
-
-      observer.observe(node);
-      loadMoreObserverRef.current = observer;
-    },
-    [fetchNextPage, hasNextPage, isFetchingNextPage],
-  );
-  const hasAds = ads.length > 0;
-  const showEmptyState = !isLoading && !isError && !hasAds;
-
-  return (
-    <main
-      className={`flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto ${showEmptyState ? "bg-surface-container-lowest" : "bg-surface-container"}`}
-    >
-      <AdFilterTabs
-        activeFilter={activeFilter}
-        filters={availableFilters}
-        onSelect={setActiveFilter}
-      />
-      <div
-        className={`${showEmptyState ? "bg-surface-container-lowest flex min-h-0 flex-1 flex-col" : "bg-surface-container space-y-2"}`}
-      >
-        {isLoading ? <MyAdsAdCardsSkeleton /> : null}
-        {isError ? (
-          <AccountRetryState
-            error={error}
-            message={getApiErrorMessage(error, "دریافت آگهی‌ها با خطا مواجه شد.")}
-            onRetry={() => void refetch()}
-          />
-        ) : null}
-        {!isLoading &&
-          !isError &&
-          ads.map(({ ad, card }, index) => {
-            const shouldAttachLoadMoreRef =
-              index === loadMoreTriggerIndex && hasNextPage && !isFetchingNextPage;
-            const statusInfo = getMyAdStatusInfo(ad);
-            const adId = String(ad.id ?? ad._id ?? card.id);
-            const cardWithStatus: AdCardData = {
-              ...card,
-              status: statusInfo.label,
-              statusBadgeClassName: statusInfo.badgeClassName,
-            };
-            const isIncomplete = statusInfo.key === "incomplete";
-            const destination = isIncomplete
-              ? getAdEditPath(adId, "/account/manage-ads")
-              : `/account/manage-ads/${encodeURIComponent(adId)}/state-ad`;
-            const destinationState = isIncomplete
-              ? {
-                  ad,
-                  card: cardWithStatus,
-                  editReturnTo: "/account/manage-ads",
-                  isEditMode: true,
-                  status: statusInfo.key,
-                  tab: "status",
-                }
-              : { ad, card: cardWithStatus, status: statusInfo.key };
-
-            return (
-              <div key={adId} ref={shouldAttachLoadMoreRef ? loadMoreSentinelRef : undefined}>
-                <AdCard
-                  ad={cardWithStatus}
-                  onDeleteIncomplete={isIncomplete ? (e) => handleOpenDelete(adId, e) : undefined}
-                  showStatusBadge
-                  state={destinationState}
-                  to={destination}
-                />
-              </div>
-            );
-          })}
-        {isFetchingNextPage ? <MyAdsAdCardsSkeleton count={2} /> : null}
-        {showEmptyState ? (
-          <AccountMyAdsEmptyState filterLabel={activeFilter.label} mode={emptyMode} />
-        ) : null}
-      </div>
-      <DeleteAdBottomSheet
-        isDeleting={isDeleting}
-        isOpen={Boolean(deletingAdId)}
-        onClose={() => !isDeleting && setDeletingAdId(null)}
-        onConfirm={handleConfirmDelete}
-      />
-    </main>
-  );
-}
 
 export function normalizeWalletAmount(value: string) {
   return value
@@ -543,34 +340,6 @@ export function AccountPageShell({
       />
       <div className="flex min-h-0 flex-1 flex-col">{children}</div>
     </PageFrame>
-  );
-}
-
-function AdFilterTabs({
-  activeFilter,
-  filters = adFilters,
-  onSelect,
-}: {
-  activeFilter: { label: string; type: MyAdsType };
-  filters?: Array<{ label: string; type: MyAdsType }>;
-  onSelect: (filter: { label: string; type: MyAdsType }) => void;
-}) {
-  return (
-    <HorizontalFilterBar
-      ariaLabel="فیلتر آگهی‌های من"
-      className="bg-surface-container h-[52px]"
-      contentClassName="h-9"
-    >
-      {filters.map((filter) => {
-        const isActive = activeFilter.label === filter.label;
-
-        return (
-          <Chip key={filter.label} onClick={() => onSelect(filter)} selected={isActive}>
-            {filter.label}
-          </Chip>
-        );
-      })}
-    </HorizontalFilterBar>
   );
 }
 
@@ -1250,20 +1019,6 @@ export function SimCardOwnershipChangeState({ onSubmit }: { onSubmit: () => void
   );
 }
 
-export function EmptyMessage({ text }: { text: string }) {
-  return (
-    <Typography
-      as="p"
-      variant="body"
-      size="medium"
-      weight="medium"
-      className="bg-surface-container-lowest text-outline m-0 mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-4 text-center text-sm font-medium"
-    >
-      {text}
-    </Typography>
-  );
-}
-
 export function AccountProfileSkeleton() {
   return (
     <div aria-label="در حال دریافت مشخصات" className="bg-surface-container-lowest pb-24">
@@ -1296,16 +1051,6 @@ function ProfileFieldSkeleton() {
   return (
     <div className="relative">
       <AccountSkeletonBlock className="h-14 w-full rounded-xl" />
-    </div>
-  );
-}
-
-export function AccountLoadingState({ text }: { text: string }) {
-  return (
-    <div className="bg-surface-container-lowest space-y-3 px-4 py-5" aria-label={text}>
-      <AccountSkeletonBlock className="ml-auto h-5 w-32" />
-      <AccountSkeletonBlock className="h-14 w-full" />
-      <AccountSkeletonBlock className="h-14 w-full" />
     </div>
   );
 }
@@ -1386,16 +1131,6 @@ export function PaymentHistorySkeleton({ count = 4 }: { count?: number }) {
         </article>
       ))}
     </div>
-  );
-}
-
-function MyAdsAdCardsSkeleton({ count = 3 }: { count?: number }) {
-  return (
-    <>
-      {Array.from({ length: count }).map((_, index) => (
-        <AdCardSkeleton key={index} />
-      ))}
-    </>
   );
 }
 

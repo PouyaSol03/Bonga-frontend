@@ -93,19 +93,12 @@ export function getNotificationPath(notification: NotificationItem): string {
   const payload = notification.payload ?? {};
   const target = typeof payload.target === "string" ? payload.target : "";
 
-  if (target === "advertise") {
-    const advertiseId = readPayloadId(payload.advertise_id);
-    return advertiseId ? getAdvertiseStatePath(advertiseId) : "/account/manage-ads";
-  }
-
-  if (
-    notification.title?.includes("احراز هویت") ||
-    notification.description?.includes("احراز هویت")
-  ) {
-    return "/account/identity";
-  }
-
   switch (target) {
+    case "advertise": {
+      const advertiseId = readPayloadId(payload.advertise_id);
+      return advertiseId ? getAdvertiseStatePath(advertiseId) : "/account/manage-ads";
+    }
+
     case "chat": {
       const threadId = readPayloadId(payload.chat_thread_id);
       return threadId ? `/chat/${threadId}` : "/chat";
@@ -125,6 +118,10 @@ export function getNotificationPath(notification: NotificationItem): string {
       return "/account/support/requests";
     }
 
+    case "identity":
+    case "verification":
+      return "/account/identity";
+
     case "profile":
       return "/account/profile";
 
@@ -136,8 +133,24 @@ export function getNotificationPath(notification: NotificationItem): string {
 
     case "system":
       return "/notifications/settings";
-
-    default:
-      return "";
   }
+
+  const threadId = readPayloadId(payload.chat_thread_id);
+  if (threadId) {
+    return `/chat/${threadId}`;
+  }
+
+  const advertiseId = readPayloadId(payload.advertise_id);
+  if (advertiseId) {
+    return getAdvertiseStatePath(advertiseId);
+  }
+
+  if (
+    notification.title?.includes("احراز هویت") ||
+    notification.description?.includes("احراز هویت")
+  ) {
+    return "/account/identity";
+  }
+
+  return "";
 }

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { SearchInputBar } from "../../../../shared/ui/SearchBar";
 import LinearUserAdd from "../../../../shared/icons/LinearUserAdd";
 import { SearchEmptyState } from "../../../../shared/components/SearchEmptyState";
@@ -85,6 +85,9 @@ function ConsultantEmptyState() {
 
 export function ConsultantManagementPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const backTo =
+    searchParams.get("from") === "dashboard" ? "/account/dashboard" : "/account";
   const [activeFilter, setActiveFilter] = useState<TeamFilter>("consultants");
   const [searchValue, setSearchValue] = useState("");
   const agencyConsultantsQuery = useAgencyConsultantsQuery({ perPage: 100 });
@@ -115,7 +118,7 @@ export function ConsultantManagementPage() {
       dir="rtl"
     >
       <TopBar
-        backTo="/account"
+        backTo={backTo}
         centerClassName="px-0"
         reserveStartSpace
         title="مدیریت مشاورین"

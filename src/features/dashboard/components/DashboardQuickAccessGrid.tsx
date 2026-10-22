@@ -23,14 +23,14 @@ const allActions: QuickActionItem[] = [
   {
     id: "consultants",
     label: "مشاورین",
-    to: "/account/dashboard/team",
+    to: "/account/dashboard/team?from=dashboard",
     icon: LinearEditUser,
     hideForIndependent: true,
   },
   {
     id: "requests",
     label: "درخواست",
-    to: "/account/dashboard/requests",
+    to: "/account/dashboard/requests?from=dashboard",
     icon: LinearDocument,
   },
   {

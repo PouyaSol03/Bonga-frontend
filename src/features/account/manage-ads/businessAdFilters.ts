@@ -1,4 +1,5 @@
 import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
+import type { MyAdsType } from "../api/account.service";
 import { toPersianDigits } from "../../../shared/lib/numberUtils";
 export { toPersianDigits };
 import type {
@@ -22,6 +23,15 @@ export {
 } from "./businessAdAssignmentMapping";
 
 export const emptyBusinessFilters: AdManagementFilters = { neighborhoods: [] };
+
+export function mapStatusToApiType(status?: string): MyAdsType | undefined {
+  if (!status) return undefined;
+  if (status === "فعال") return "active";
+  if (status === "در انتظار") return "pending";
+  if (status === "غیر فعال") return "deactive";
+  if (status === "نیمه کاره") return "incomplete";
+  return undefined;
+}
 
 export function isAssignedTab(tab: AdsTab): boolean {
   return tab === "status";

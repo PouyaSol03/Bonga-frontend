@@ -246,8 +246,12 @@ export function getAllocationReviewPath(adId: ConsultantAd["id"]) {
   return `${adManagementPaths.allocationReview}/${adId}`;
 }
 
-export function getAdManagementRouteState(): AdManagementRouteState {
-  return (window.history.state as AdManagementRouteState | null) ?? {};
+export function getAdManagementRouteState(rawState?: unknown): AdManagementRouteState {
+  const state = rawState ?? window.history.state;
+  if (!state || typeof state !== "object") return {};
+  const usr = (state as { usr?: unknown }).usr;
+  if (usr && typeof usr === "object") return { ...state, ...(usr as AdManagementRouteState) };
+  return state as AdManagementRouteState;
 }
 
 function getAdIdFromPath() {

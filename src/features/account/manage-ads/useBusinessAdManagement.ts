@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { getApiErrorMessage, isForbiddenApiError } from "../../../shared/api/api";
 import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
 import { INDEPENDENT_CONSULTANT } from "../../../shared/constants/roles.constants";
@@ -24,6 +24,7 @@ import {
   hasActiveFilters,
   isAssignedTab,
   mapAssignmentToAd,
+  mapStatusToApiType,
   matchesAdFilters,
 } from "./businessAdFilters";
 
@@ -32,14 +33,27 @@ const loadMoreRemainingCount = 10;
 
 export function useBusinessAdManagement() {
   const navigate = useNavigate();
-  const routeState = getAdManagementRouteState();
+  const location = useLocation();
+  const routeState = useMemo(() => getAdManagementRouteState(location.state), [location.state]);
   const activeRole = useActiveAuthRole();
   const canAccessAssignments = activeRole !== INDEPENDENT_CONSULTANT;
-  const [activeTab, setActiveTab] = useState<AdsTab>(() =>
-    canAccessAssignments ? (routeState.tab ?? "active") : "active",
-  );
-  const [showMineOnly, setShowMineOnly] = useState(routeState.onlyMine ?? false);
-  const [filters] = useState<AdManagementFilters>(routeState.filters ?? emptyBusinessFilters);
+
+  const [localTab, setActiveTab] = useState<AdsTab | null>(null);
+  const [localMineOnly, setShowMineOnly] = useState<boolean | null>(null);
+  const [localFilters, setFilters] = useState<AdManagementFilters | null>(null);
+  const [prevKey, setPrevKey] = useState(location.key);
+
+  if (prevKey !== location.key) {
+    setPrevKey(location.key);
+    if (localFilters !== null) setFilters(null);
+    if (localMineOnly !== null) setShowMineOnly(null);
+    if (localTab !== null) setActiveTab(null);
+  }
+
+  const activeTab = localTab ?? (canAccessAssignments ? (routeState.tab ?? "active") : "active");
+  const showMineOnly = localMineOnly ?? routeState.onlyMine ?? false;
+  const filters = localFilters ?? routeState.filters ?? emptyBusinessFilters;
+
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebouncedValue(searchQuery.trim(), 300);
@@ -58,6 +72,7 @@ export function useBusinessAdManagement() {
     isMine: showMineOnly ? true : undefined,
     perPage: assignmentPageSize,
     search: isSearching && debouncedSearchQuery ? debouncedSearchQuery : undefined,
+    type: mapStatusToApiType(scopedFilters.status),
   });
 
   const [deletingAdId, setDeletingAdId] = useState<string | null>(null);
@@ -165,30 +180,11 @@ export function useBusinessAdManagement() {
   }, [assignedTab, assignmentsQuery.isError, assignmentsQuery.error, navigate]);
 
   return {
-    activeAdvertisements,
-    activeFiltersPresent,
-    activeRole,
-    activeTab,
-    assignedAdvertisements,
-    assignedTab,
-    assignmentsQuery,
-    canAccessAssignments,
-    deletingAdId,
-    filters,
-    handleConfirmDelete,
-    handleOpenDelete,
-    isDeleting,
-    isSearching,
-    loadMoreRef,
-    preloadIndex,
-    scopedFilters,
-    searchQuery,
-    setActiveTab,
-    setDeletingAdId,
-    setIsSearching,
-    setSearchQuery,
-    setShowMineOnly,
-    showMineOnly,
-    adsQuery,
+    activeAdvertisements, activeFiltersPresent, activeRole, activeTab,
+    assignedAdvertisements, assignedTab, assignmentsQuery, canAccessAssignments,
+    deletingAdId, filters, handleConfirmDelete, handleOpenDelete, isDeleting,
+    isSearching, loadMoreRef, preloadIndex, scopedFilters, searchQuery,
+    setActiveTab, setDeletingAdId, setIsSearching, setSearchQuery, setShowMineOnly,
+    showMineOnly, adsQuery,
   };
 }

@@ -46,29 +46,120 @@ export const PROPERTY_KEYWORDS: Record<string, string[]> = {
   "factory-workshop": ["کارخانه", "کارگاه"],
 };
 
+const EXACT_PROPERTY_IDENTIFIERS: Record<
+  AdManagementPropertyType,
+  { isDaily?: boolean; nonDaily?: boolean; identifiers: string[] }
+> = {
+  apartment: {
+    nonDaily: true,
+    identifiers: ["apartment", "suite"],
+  },
+  "villa-house": {
+    nonDaily: true,
+    identifiers: ["villa-house", "house"],
+  },
+  "garden-villa": {
+    nonDaily: true,
+    identifiers: ["garden-villa", "villa"],
+  },
+  land: {
+    nonDaily: true,
+    identifiers: ["land"],
+  },
+  office: {
+    nonDaily: true,
+    identifiers: ["office"],
+  },
+  "commercial-unit": {
+    nonDaily: true,
+    identifiers: ["commercial", "commercial-unit"],
+  },
+  warehouse: {
+    nonDaily: true,
+    identifiers: ["warehouse"],
+  },
+  "hotel-apartment": {
+    nonDaily: true,
+    identifiers: ["hotel", "hotel-apartment"],
+  },
+  "factory-workshop": {
+    nonDaily: true,
+    identifiers: ["factory", "factory-workshop"],
+  },
+  "daily-apartment-suite": {
+    isDaily: true,
+    identifiers: ["apartment-suite", "apartment", "suite", "daily-apartment-suite"],
+  },
+  "daily-garden-villa": {
+    isDaily: true,
+    identifiers: ["garden-villa", "villa", "daily-garden-villa"],
+  },
+  "daily-hotel-apartment": {
+    isDaily: true,
+    identifiers: ["hotel", "hotel-apartment", "daily-hotel", "daily-hotel-apartment"],
+  },
+  "daily-workspace": {
+    isDaily: true,
+    identifiers: ["office-booth", "workspace", "office", "daily-office-booth", "daily-workspace"],
+  },
+  "project-presale": {
+    identifiers: ["presale-special", "presale", "project-presale"],
+  },
+  "project-partnership": {
+    identifiers: ["partnership", "project-partnership"],
+  },
+};
+
+function matchesExactFormCode(
+  formCode: string,
+  propertyType: AdManagementPropertyType,
+): boolean {
+  const cleanCode = formCode.trim().toLowerCase();
+  if (!cleanCode) return false;
+
+  const config = EXACT_PROPERTY_IDENTIFIERS[propertyType];
+  if (!config) return false;
+
+  const match = cleanCode.match(/^(sale|rent|daily|project)-(.*)$/);
+  const transactionPrefix = match ? match[1] : "";
+  const identifier = match ? match[2] : cleanCode;
+
+  if (config.isDaily && transactionPrefix !== "daily") {
+    return false;
+  }
+  if (config.nonDaily && transactionPrefix === "daily") {
+    return false;
+  }
+
+  return (
+    config.identifiers.includes(identifier) ||
+    config.identifiers.includes(cleanCode)
+  );
+}
+
 export function matchesSinglePropertyType(
   adTitle: string,
   propertyType: AdManagementPropertyType,
   sourceAd?: AdvertisementItem | Record<string, unknown>,
 ): boolean {
-  const formCode = String(sourceAd?.form_code ?? "").toLowerCase();
+  const rawFormCode =
+    sourceAd?.form_code ??
+    (sourceAd as Record<string, unknown> | undefined)?.formCode ??
+    ((sourceAd as Record<string, unknown> | undefined)?.advertise as Record<string, unknown> | undefined)?.form_code ??
+    ((sourceAd as Record<string, unknown> | undefined)?.metadata as Record<string, unknown> | undefined)?.form_code ??
+    "";
+  const formCode = String(rawFormCode).toLowerCase().trim();
+
   if (formCode) {
-    if (propertyType === "apartment" && (formCode.includes("apartment") || formCode.includes("suite"))) return true;
-    if (propertyType === "daily-apartment-suite" && formCode.includes("daily") && (formCode.includes("apartment") || formCode.includes("suite"))) return true;
-    if (propertyType === "garden-villa" && (formCode.includes("garden") || formCode.includes("villa"))) return true;
-    if (propertyType === "daily-garden-villa" && formCode.includes("daily") && (formCode.includes("garden") || formCode.includes("villa"))) return true;
-    if (propertyType === "villa-house" && (formCode.includes("villa-house") || formCode.includes("house"))) return true;
-    if (propertyType === "land" && formCode.includes("land")) return true;
-    if (propertyType === "office" && formCode.includes("office")) return true;
-    if (propertyType === "daily-workspace" && (formCode.includes("workspace") || (formCode.includes("daily") && formCode.includes("office")))) return true;
-    if (propertyType === "commercial-unit" && (formCode.includes("commercial") || formCode.includes("shop"))) return true;
-    if (propertyType === "warehouse" && formCode.includes("warehouse")) return true;
-    if (propertyType === "hotel-apartment" && formCode.includes("hotel")) return true;
-    if (propertyType === "daily-hotel-apartment" && formCode.includes("daily") && formCode.includes("hotel")) return true;
-    if (propertyType === "factory-workshop" && (formCode.includes("factory") || formCode.includes("workshop"))) return true;
+    return matchesExactFormCode(formCode, propertyType);
   }
 
   const category = String(sourceAd?.category ?? "");
+
+  if (propertyType === "apartment" && (adTitle.includes("هتل") || category.includes("هتل"))) {
+    return false;
+  }
+
   const keywords = PROPERTY_KEYWORDS[propertyType];
   if (keywords) {
     if (category && keywords.some((kw) => category.includes(kw))) return true;

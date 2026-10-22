@@ -120,7 +120,15 @@ export function useBusinessAdManagement() {
           ad: mapAssignmentToAd(assignment, index),
           assignment,
         }))
-        .filter(({ ad }) => matchesAdFilters(ad, scopedFilters, true))
+        .filter(({ ad, assignment }) =>
+          matchesAdFilters(
+            ad,
+            scopedFilters,
+            true,
+            undefined,
+            assignment.advertise ?? (assignment as unknown as Record<string, unknown>),
+          ),
+        )
         .filter(({ ad }) => {
           if (!isSearching || !debouncedSearchQuery) return true;
           const q = debouncedSearchQuery.toLowerCase();

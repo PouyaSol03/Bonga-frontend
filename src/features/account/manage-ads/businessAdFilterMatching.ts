@@ -103,7 +103,7 @@ const EXACT_PROPERTY_IDENTIFIERS: Record<
     identifiers: ["office-booth", "workspace", "office", "daily-office-booth", "daily-workspace"],
   },
   "project-presale": {
-    identifiers: ["presale-special", "presale", "project-presale"],
+    identifiers: ["special", "presale-special", "presale", "project-presale"],
   },
   "project-partnership": {
     identifiers: ["partnership", "project-partnership"],
@@ -120,7 +120,7 @@ function matchesExactFormCode(
   const config = EXACT_PROPERTY_IDENTIFIERS[propertyType];
   if (!config) return false;
 
-  const match = cleanCode.match(/^(sale|rent|daily|project)-(.*)$/);
+  const match = cleanCode.match(/^(sale|rent|daily|project|presale)-(.*)$/);
   const transactionPrefix = match ? match[1] : "";
   const identifier = match ? match[2] : cleanCode;
 

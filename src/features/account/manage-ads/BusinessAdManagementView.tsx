@@ -6,6 +6,7 @@ import { Button } from "../../../shared/ui/Button";
 import { SwitchButton } from "../../../shared/components/SwitchButton";
 import LinearCancelCircle from "../../../shared/icons/LinearCancelCircle";
 import LinearFilterHorizontal from "../../../shared/icons/LinearFilterHorizontal";
+import LinearAnalytict from "../../../shared/icons/LinearAnalytics";
 import {
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
@@ -103,9 +104,14 @@ export function BusinessAdManagementView() {
         className="bg-surface-container"
         startSlot={
           isSearching ? undefined : (
-            <Button unstyled aria-label="جستجو" className="text-on-surface focus-visible:outline-primary/40 grid h-12 w-12 place-items-center rounded-full" onClick={() => setIsSearching(true)} type="button">
-              <SearchIcon className="h-6 w-6" />
-            </Button>
+            <>
+              <Button unstyled aria-label="جستجو" className="text-on-surface focus-visible:outline-primary/40 grid h-12 w-12 place-items-center rounded-full" onClick={() => setIsSearching(true)} type="button">
+                <SearchIcon className="h-6 w-6" />
+              </Button>
+              <Button unstyled aria-label="نمودارها و گزارش‌ها" className="text-on-surface focus-visible:outline-primary/40 grid h-12 w-12 place-items-center rounded-full" onClick={() => navigate("/account/dashboard/charts")} type="button">
+                <LinearAnalytict className="h-6 w-6" />
+              </Button>
+            </>
           )
         }
       />

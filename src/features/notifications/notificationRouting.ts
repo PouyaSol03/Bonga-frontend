@@ -1,4 +1,13 @@
 import type { NotificationItem } from "./api/notification.service";
+import {
+  getActiveAuthRole,
+  getStoredAuthSession,
+} from "../../shared/auth/auth-storage";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+} from "../../shared/constants/roles.constants";
 
 export { getNotificationActionLabel } from "./notificationActionLabels";
 
@@ -72,16 +81,31 @@ export function formatNotificationTime(value?: string): string {
   }).format(date);
 }
 
+const AD_MANAGED_AD_ROLES = [REAL_ESTATE_MANAGER, REAL_ESTATE_CONSULTANT, INDEPENDENT_CONSULTANT];
+
+function getAdvertiseStatePath(advertiseId: string) {
+  const role = getActiveAuthRole(getStoredAuthSession()) ?? "";
+  const base = AD_MANAGED_AD_ROLES.includes(role) ? "/account/manage-ads" : "/account/my-ads";
+  return `${base}/${encodeURIComponent(advertiseId)}/state-ad`;
+}
+
 export function getNotificationPath(notification: NotificationItem): string {
   const payload = notification.payload ?? {};
   const target = typeof payload.target === "string" ? payload.target : "";
 
-  switch (target) {
-    case "advertise": {
-      const advertiseId = readPayloadId(payload.advertise_id);
-      return advertiseId ? `/ads/${advertiseId}` : "/account/manage-ads";
-    }
+  if (target === "advertise") {
+    const advertiseId = readPayloadId(payload.advertise_id);
+    return advertiseId ? getAdvertiseStatePath(advertiseId) : "/account/manage-ads";
+  }
 
+  if (
+    notification.title?.includes("احراز هویت") ||
+    notification.description?.includes("احراز هویت")
+  ) {
+    return "/account/identity";
+  }
+
+  switch (target) {
     case "chat": {
       const threadId = readPayloadId(payload.chat_thread_id);
       return threadId ? `/chat/${threadId}` : "/chat";

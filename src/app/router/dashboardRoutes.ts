@@ -126,6 +126,15 @@ export const dashboardRoutes: AppRoute[] = [
     requiresNonUser: true,
   },
   {
+    path: `${DASHBOARD_PATH}/charts`,
+    title: "نمودارها و گزارش‌ها",
+    Component: () =>
+      createElement(Navigate, { to: `${DASHBOARD_PATH}?view=reports`, replace: true }),
+    layout: "dashboard",
+    requiresAuth: true,
+    requiresNonUser: true,
+  },
+  {
     path: `${DASHBOARD_PATH}/agency`,
     title: "صفحه آژانس",
     Component: DashboardAgencyPage,

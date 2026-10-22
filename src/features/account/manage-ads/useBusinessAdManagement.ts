@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { getApiErrorMessage, isForbiddenApiError } from "../../../shared/api/api";
 import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
 import { INDEPENDENT_CONSULTANT } from "../../../shared/constants/roles.constants";
@@ -24,6 +24,7 @@ import {
   hasActiveFilters,
   isAssignedTab,
   mapAssignmentToAd,
+  mapStatusToApiType,
   matchesAdFilters,
 } from "./businessAdFilters";
 
@@ -32,14 +33,27 @@ const loadMoreRemainingCount = 10;
 
 export function useBusinessAdManagement() {
   const navigate = useNavigate();
-  const routeState = getAdManagementRouteState();
+  const location = useLocation();
+  const routeState = useMemo(() => getAdManagementRouteState(location.state), [location.state]);
   const activeRole = useActiveAuthRole();
   const canAccessAssignments = activeRole !== INDEPENDENT_CONSULTANT;
-  const [activeTab, setActiveTab] = useState<AdsTab>(() =>
-    canAccessAssignments ? (routeState.tab ?? "active") : "active",
-  );
-  const [showMineOnly, setShowMineOnly] = useState(routeState.onlyMine ?? false);
-  const [filters] = useState<AdManagementFilters>(routeState.filters ?? emptyBusinessFilters);
+
+  const [localTab, setActiveTab] = useState<AdsTab | null>(null);
+  const [localMineOnly, setShowMineOnly] = useState<boolean | null>(null);
+  const [localFilters, setFilters] = useState<AdManagementFilters | null>(null);
+  const [prevKey, setPrevKey] = useState(location.key);
+
+  if (prevKey !== location.key) {
+    setPrevKey(location.key);
+    if (localFilters !== null) setFilters(null);
+    if (localMineOnly !== null) setShowMineOnly(null);
+    if (localTab !== null) setActiveTab(null);
+  }
+
+  const activeTab = localTab ?? (canAccessAssignments ? (routeState.tab ?? "active") : "active");
+  const showMineOnly = localMineOnly ?? routeState.onlyMine ?? false;
+  const filters = localFilters ?? routeState.filters ?? emptyBusinessFilters;
+
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebouncedValue(searchQuery.trim(), 300);
@@ -56,8 +70,14 @@ export function useBusinessAdManagement() {
   });
   const adsQuery = useMyAdsInfiniteQuery({
     isMine: showMineOnly ? true : undefined,
+    neighborhoods: scopedFilters.neighborhoods,
     perPage: assignmentPageSize,
+    propertyType: scopedFilters.propertyType,
+    propertyTypes: scopedFilters.propertyTypes,
+    publisher: scopedFilters.publisher,
     search: isSearching && debouncedSearchQuery ? debouncedSearchQuery : undefined,
+    transaction: scopedFilters.transaction,
+    type: mapStatusToApiType(scopedFilters.status),
   });
 
   const [deletingAdId, setDeletingAdId] = useState<string | null>(null);
@@ -100,7 +120,15 @@ export function useBusinessAdManagement() {
           ad: mapAssignmentToAd(assignment, index),
           assignment,
         }))
-        .filter(({ ad }) => matchesAdFilters(ad, scopedFilters, true))
+        .filter(({ ad, assignment }) =>
+          matchesAdFilters(
+            ad,
+            scopedFilters,
+            true,
+            undefined,
+            assignment.advertise ?? (assignment as unknown as Record<string, unknown>),
+          ),
+        )
         .filter(({ ad }) => {
           if (!isSearching || !debouncedSearchQuery) return true;
           const q = debouncedSearchQuery.toLowerCase();
@@ -118,14 +146,15 @@ export function useBusinessAdManagement() {
           const card = {
             ...mapAdvertisementToAdCard(sourceAd, index),
             publisher: getAdvertisementPublisherName(sourceAd),
-            status: statusInfo.label,
+            status: sourceAd.status_label || statusInfo.label,
           };
           return { card, sourceAd, statusInfo };
         })
-        .filter(({ card, statusInfo }) =>
-          matchesAdFilters(card, scopedFilters, false, statusInfo.key),
-        ),
-    [adsQuery.data, scopedFilters],
+        .filter(({ card, sourceAd, statusInfo }) => {
+          if (showMineOnly && sourceAd.is_mine === false) return false;
+          return matchesAdFilters(card, scopedFilters, false, statusInfo.key, sourceAd);
+        }),
+    [adsQuery.data, scopedFilters, showMineOnly],
   );
 
   const visibleCount = assignedTab ? assignedAdvertisements.length : activeAdvertisements.length;
@@ -164,30 +193,11 @@ export function useBusinessAdManagement() {
   }, [assignedTab, assignmentsQuery.isError, assignmentsQuery.error, navigate]);
 
   return {
-    activeAdvertisements,
-    activeFiltersPresent,
-    activeRole,
-    activeTab,
-    assignedAdvertisements,
-    assignedTab,
-    assignmentsQuery,
-    canAccessAssignments,
-    deletingAdId,
-    filters,
-    handleConfirmDelete,
-    handleOpenDelete,
-    isDeleting,
-    isSearching,
-    loadMoreRef,
-    preloadIndex,
-    scopedFilters,
-    searchQuery,
-    setActiveTab,
-    setDeletingAdId,
-    setIsSearching,
-    setSearchQuery,
-    setShowMineOnly,
-    showMineOnly,
-    adsQuery,
+    activeAdvertisements, activeFiltersPresent, activeRole, activeTab,
+    assignedAdvertisements, assignedTab, assignmentsQuery, canAccessAssignments,
+    deletingAdId, filters, handleConfirmDelete, handleOpenDelete, isDeleting,
+    isSearching, loadMoreRef, preloadIndex, scopedFilters, searchQuery,
+    setActiveTab, setDeletingAdId, setIsSearching, setSearchQuery, setShowMineOnly,
+    showMineOnly, adsQuery,
   };
 }

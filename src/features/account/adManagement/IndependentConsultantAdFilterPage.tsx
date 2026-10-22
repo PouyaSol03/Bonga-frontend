@@ -15,7 +15,7 @@ import { useNeighborhoodListQuery } from "../../locations/api/neighborhood.hooks
 import { useAgencyConsultantsQuery } from "../../agencies/api/agency.hooks";
 import { useMyAgencyProfileQuery } from "../api/account.hooks";
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import {
   getNeighborhoodHierarchyDescription,
   type NeighborhoodDto,
@@ -91,7 +91,8 @@ function useDebouncedValue<T>(value: T, delay: number) {
 }
 
 export function IndependentConsultantAdFilterPage() {
-  const routeState = getAdManagementRouteState();
+  const location = useLocation();
+  const routeState = useMemo(() => getAdManagementRouteState(location.state), [location.state]);
   const tab = routeState.tab ?? "active";
   const isAssignedTab = tab === "status";
   const initialFilters = routeState.filters ?? emptyFilters;
@@ -236,13 +237,11 @@ export function IndependentConsultantAdFilterPage() {
 
           <Button
             unstyled
-            aria-disabled={!transaction}
-            className={`mt-4 flex h-10 w-full items-center justify-between [direction:ltr] ${
-              transaction ? "active:bg-primary-container/20" : "cursor-not-allowed"
-            }`}
-            disabled={!transaction}
+            className="mt-4 flex h-10 w-full items-center justify-between active:bg-primary-container/20 [direction:ltr]"
             onClick={() => {
-              if (!transaction) return;
+              if (!transaction) {
+                setTransaction("sale");
+              }
               setIsPropertyTypePickerOpen(true);
             }}
             type="button"
@@ -252,9 +251,7 @@ export function IndependentConsultantAdFilterPage() {
               variant="label"
               size="medium"
               weight="medium"
-              className={`flex min-w-0 items-center gap-1 text-sm leading-5 font-medium ${
-                transaction ? "text-primary" : "text-outline-var"
-              }`}
+              className="flex min-w-0 items-center gap-1 text-sm leading-5 font-medium text-primary"
             >
               <LinearArrowLeft1 className="text-on-surface-var h-6 w-6" />
             </Typography>
@@ -263,9 +260,7 @@ export function IndependentConsultantAdFilterPage() {
               variant="label"
               size="large"
               weight="medium"
-              className={`flex shrink-0 items-center gap-2 text-base leading-6 font-medium [direction:rtl] ${
-                transaction ? "text-on-surface" : "text-outline-var"
-              }`}
+              className="text-on-surface flex shrink-0 items-center gap-2 text-base leading-6 font-medium [direction:rtl]"
             >
               <Typography as="span" variant="label" size="large" weight="medium">
                 نوع ملک
@@ -946,12 +941,12 @@ function SingleSelectField({
       <BottomSheet
         ariaLabel={label}
         contentClassName="px-4 mb-0 pt-4"
-        heightClassName=""
+        maxHeight="50svh"
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title={label}
       >
-        <div className="space-y-2" dir="rtl">
+        <div className="space-y-2 pb-6" dir="rtl">
           {options.map((option) => {
             const isSelected = value === option;
 
@@ -965,6 +960,7 @@ function SingleSelectField({
                 key={option}
                 onClick={() => {
                   onChange(isSelected ? undefined : option);
+                  setIsOpen(false);
                 }}
                 type="button"
               >

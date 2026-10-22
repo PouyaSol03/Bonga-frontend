@@ -88,6 +88,7 @@ export type AdvertisementItem = Record<string, unknown> & {
   agency?: AdvertisementAgency | string | null;
   agency_id?: number | string | null;
   agent?: AdvertisementAgent | null;
+  consultant?: AdvertisementAgent | null;
   agent_id?: number | string | null;
   area?: string | number;
   badges?: string[];
@@ -146,6 +147,12 @@ export type AdvertisementItem = Record<string, unknown> & {
   owner_name?: string | null;
   ownerAddress?: string | null;
   owner_address?: string | null;
+  owner_profile?: {
+    display_name?: string;
+    first_name?: string;
+    last_name?: string;
+    mobile?: string;
+  } | null;
   loan_amount?: number | string | null;
   loan_installment?: number | string | null;
   has_loan?: boolean | number | string | null;
@@ -579,6 +586,7 @@ export function getAdvertisementPublisherName(item: AdvertisementItem) {
 
   if (publisherType === "agent") {
     if (item.agent?.name?.trim()) return item.agent.name.trim();
+    if (item.consultant?.name?.trim()) return item.consultant.name.trim();
 
     return readRecordText(record, ["agent_name", "consultant_name", "publisher_agent_name"]);
   }
@@ -590,6 +598,12 @@ export function getAdvertisementPublisherName(item: AdvertisementItem) {
     }
 
     return readRecordText(record, ["agency_name", "publisher_agency_name"]);
+  }
+
+  const ownerProfile = item.owner_profile;
+  if (ownerProfile?.display_name?.trim()) return ownerProfile.display_name.trim();
+  if (ownerProfile?.first_name?.trim()) {
+    return `${ownerProfile.first_name.trim()} ${ownerProfile.last_name?.trim() ?? ""}`.trim();
   }
 
   return readRecordText(record, [

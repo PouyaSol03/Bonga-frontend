@@ -359,9 +359,14 @@ export const queryKeys = {
     myAdsRoot: () => [...queryKeys.account.all, "my-ads"] as const,
     myAds: (filters: {
       isMine?: boolean;
+      neighborhoods?: unknown;
       perPage: number;
+      propertyType?: string;
+      propertyTypes?: unknown;
+      publisher?: string;
       query?: string;
       search?: string;
+      transaction?: string;
       type: string;
       userType: string;
     }) =>
@@ -372,6 +377,11 @@ export const queryKeys = {
         filters.perPage,
         filters.isMine,
         filters.search ?? filters.query,
+        filters.transaction,
+        filters.propertyType,
+        filters.propertyTypes,
+        filters.publisher,
+        filters.neighborhoods,
       ] as const,
   },
 

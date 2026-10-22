@@ -25,15 +25,45 @@ function resolveRoleSubtitle(
   roleLabel?: string,
   adPublisher?: string,
   adAgency?: string,
+  sourceAd?: Record<string, unknown>,
 ) {
-  const name =
-    publisherName?.trim() ||
-    adPublisher?.trim() ||
+  const pubType = String(
+    sourceAd?.publisher_type ?? sourceAd?.owner_type ?? "",
+  ).toLowerCase();
+
+  let name = publisherName?.trim() || adPublisher?.trim();
+  let role = roleLabel?.trim();
+
+  if (!name && sourceAd) {
+    if (pubType === "agent") {
+      const agent = (sourceAd.agent ?? sourceAd.consultant) as { name?: string } | undefined;
+      name = agent?.name?.trim();
+      role = role || "مشاور";
+    } else if (pubType === "agency") {
+      const agency = sourceAd.agency as { name?: string } | string | undefined;
+      name = typeof agency === "string" ? agency.trim() : agency?.name?.trim();
+      role = role || (roleType === "agency" ? "آژانس" : "مدیر آژانس");
+    } else if (pubType === "user" || pubType === "personal") {
+      const owner = sourceAd.owner_profile as {
+        display_name?: string;
+        first_name?: string;
+        last_name?: string;
+      } | undefined;
+      name =
+        owner?.display_name?.trim() ||
+        (owner?.first_name ? `${owner.first_name} ${owner.last_name ?? ""}`.trim() : "") ||
+        (typeof sourceAd.owner_name === "string" ? sourceAd.owner_name.trim() : "");
+      role = role || "مالک";
+    }
+  }
+
+  name =
+    name ||
     adAgency?.trim() ||
     (roleType === "agency" ? "آژانس املاک" : "مشاور");
 
-  const role =
-    roleLabel?.trim() ||
+  role =
+    role ||
     (roleType === "agency" ? "آژانس" : roleType === "agent" ? "مشاور مستقل" : "مشاور");
 
   return { name, role };
@@ -51,7 +81,14 @@ export const ManagementAdHeader: React.FC<Props> = ({
   to,
   state,
 }) => {
-  const { name, role } = resolveRoleSubtitle(roleType, publisherName, roleLabel, ad.agency);
+  const { name, role } = resolveRoleSubtitle(
+    roleType,
+    publisherName,
+    roleLabel,
+    ad.agency,
+    undefined,
+    sourceAd as Record<string, unknown> | undefined,
+  );
 
   const titleNode = (
     <Typography
@@ -96,7 +133,16 @@ export const ManagementAdHeader: React.FC<Props> = ({
       <div className="flex h-20 min-w-0 flex-1 flex-col justify-between py-0.5">
         {showStatusBadge ? (
           <div className="flex justify-start">
-            <ManagementAdStatusBadge label={statusLabel} source={sourceAd} statusKey={statusKey} />
+            <ManagementAdStatusBadge
+              label={
+                statusLabel ||
+                (typeof sourceAd?.status_label === "string"
+                  ? sourceAd.status_label
+                  : undefined)
+              }
+              source={sourceAd}
+              statusKey={statusKey}
+            />
           </div>
         ) : (
           <div />

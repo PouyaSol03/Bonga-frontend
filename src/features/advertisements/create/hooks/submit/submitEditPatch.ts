@@ -65,10 +65,9 @@ export function submitEditPatch({
   });
 
   const resolvedAd = currentAd ?? editAdState.ad;
-  const fallbackTarget = editAdId
+  const targetPath = editAdId
     ? getAdStatePath(editAdId)
-    : adManagementPaths.root;
-  const targetPath = editAdState.editReturnTo ?? editAdState.returnTo ?? fallbackTarget;
+    : (editAdState.editReturnTo ?? editAdState.returnTo ?? adManagementPaths.root);
 
   if (!patchResult.hasChanges) {
     clearNewAdDraftStorage();

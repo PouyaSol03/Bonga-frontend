@@ -229,18 +229,28 @@ export function useVerifyPaymentCallbackMutation() {
 export function useMyAdsInfiniteQuery({
   enabled = true,
   isMine,
+  neighborhoods,
   perPage = 20,
+  propertyType,
+  propertyTypes,
+  publisher,
   query: queryArg,
   search: searchArg,
+  transaction,
   type,
 }: {
   enabled?: boolean;
   isMine?: boolean;
+  neighborhoods?: Array<{ id?: string | number; name?: string } | string | number> | string;
   perPage?: number;
+  propertyType?: string;
+  propertyTypes?: string[] | string;
+  publisher?: string;
   query?: string;
   search?: string;
+  transaction?: string;
   type?: MyAdsType;
-}) {
+} = {}) {
   const userType = useActiveAuthRole();
   const navigate = useNavigate();
   const search = searchArg ?? queryArg;
@@ -255,8 +265,31 @@ export function useMyAdsInfiniteQuery({
     enabled,
     getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => getMyAds({ isMine, page: pageParam, perPage, search, type }),
-    queryKey: queryKeys.account.myAds({ isMine, perPage, search, type: type ?? "all", userType }),
+    queryFn: ({ pageParam }) =>
+      getMyAds({
+        isMine,
+        neighborhoods,
+        page: pageParam,
+        perPage,
+        propertyType,
+        propertyTypes,
+        publisher,
+        search,
+        transaction,
+        type,
+      }),
+    queryKey: queryKeys.account.myAds({
+      isMine,
+      neighborhoods,
+      perPage,
+      propertyType,
+      propertyTypes,
+      publisher,
+      search,
+      transaction,
+      type: type ?? "all",
+      userType,
+    }),
   });
 
   useEffect(() => {

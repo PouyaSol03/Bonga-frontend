@@ -773,17 +773,27 @@ export function verifyPaymentCallback(
 
 export async function getMyAds({
   isMine,
+  neighborhoods,
   page = 1,
   perPage = 20,
+  propertyType,
+  propertyTypes,
+  publisher,
   query,
   search,
+  transaction,
   type,
 }: {
   isMine?: boolean;
+  neighborhoods?: Array<{ id?: string | number; name?: string } | string | number> | string;
   page?: number;
   perPage?: number;
+  propertyType?: string;
+  propertyTypes?: string[] | string;
+  publisher?: string;
   query?: string;
   search?: string;
+  transaction?: string;
   type?: MyAdsType;
 }) {
   const v2Role = getActiveV2Role();
@@ -801,6 +811,22 @@ export async function getMyAds({
   if (isMine !== undefined) searchParams.is_mine = isMine;
   const searchTerm = (search ?? query)?.trim();
   if (searchTerm) searchParams.search = searchTerm;
+  if (transaction) searchParams.transaction = transaction;
+  if (propertyType) searchParams.property_type = propertyType;
+  if (propertyTypes) {
+    searchParams.property_types = Array.isArray(propertyTypes) ? propertyTypes.join(",") : propertyTypes;
+  }
+  if (publisher) searchParams.publisher = publisher;
+  if (neighborhoods) {
+    if (Array.isArray(neighborhoods)) {
+      const ids = neighborhoods
+        .map((n) => (typeof n === "object" && n ? (n.id || n.name) : String(n)))
+        .filter(Boolean);
+      if (ids.length) searchParams.neighborhoods = ids.join(",");
+    } else {
+      searchParams.neighborhoods = String(neighborhoods);
+    }
+  }
 
   const response = await apiV2.get(endpoint, { searchParams }).json<MyAdsResponse>();
   const record = Array.isArray(response) ? {} : (response as Record<string, unknown>);

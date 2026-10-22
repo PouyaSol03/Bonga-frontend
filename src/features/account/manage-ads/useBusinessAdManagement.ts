@@ -70,8 +70,13 @@ export function useBusinessAdManagement() {
   });
   const adsQuery = useMyAdsInfiniteQuery({
     isMine: showMineOnly ? true : undefined,
+    neighborhoods: scopedFilters.neighborhoods,
     perPage: assignmentPageSize,
+    propertyType: scopedFilters.propertyType,
+    propertyTypes: scopedFilters.propertyTypes,
+    publisher: scopedFilters.publisher,
     search: isSearching && debouncedSearchQuery ? debouncedSearchQuery : undefined,
+    transaction: scopedFilters.transaction,
     type: mapStatusToApiType(scopedFilters.status),
   });
 

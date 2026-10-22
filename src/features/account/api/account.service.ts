@@ -788,11 +788,13 @@ export async function getMyAds({
 }) {
   const v2Role = getActiveV2Role();
   const endpoint =
-    v2Role === "agency-consultant"
-      ? "agency-consultant/advertise"
-      : v2Role === "independent-consultant"
-        ? "independent-consultant/advertise"
-        : "advertise";
+    v2Role === "agency"
+      ? "agency/advertise"
+      : v2Role === "agency-consultant"
+        ? "agency-consultant/advertise"
+        : v2Role === "independent-consultant"
+          ? "independent-consultant/advertise"
+          : "personal/advertise";
 
   const searchParams: Record<string, string | number | boolean> = { page, per_page: perPage };
   if (type && type !== "all") searchParams.type = type;

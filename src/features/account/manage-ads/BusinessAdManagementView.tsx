@@ -187,7 +187,17 @@ export function BusinessAdManagementView() {
               const roleType = activeRole === REAL_ESTATE_MANAGER ? "agency" : activeRole === REAL_ESTATE_CONSULTANT ? "agent_in_agency" : "agent";
               return (
                 <div key={String(sourceAd.id ?? sourceAd._id ?? card.id)} ref={i === preloadIndex ? loadMoreRef : undefined}>
-                  <ConsultantAdCard ad={card} onDeleteIncomplete={isIncomplete ? (e) => handleOpenDelete(String(sourceAd.id ?? sourceAd._id ?? card.id), e) : undefined} roleType={roleType} showStatusBadge sourceAd={sourceAd} state={destState} statusKey={statusInfo.key} statusLabel={statusInfo.label} to={dest} />
+                  <ConsultantAdCard
+                    ad={card}
+                    onDeleteIncomplete={isIncomplete ? (e) => handleOpenDelete(String(sourceAd.id ?? sourceAd._id ?? card.id), e) : undefined}
+                    roleType={roleType}
+                    showStatusBadge
+                    sourceAd={sourceAd}
+                    state={destState}
+                    statusKey={statusInfo.key}
+                    statusLabel={sourceAd.status_label || statusInfo.label}
+                    to={dest}
+                  />
                 </div>
               );
             })

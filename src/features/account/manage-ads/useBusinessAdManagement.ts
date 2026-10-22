@@ -118,14 +118,15 @@ export function useBusinessAdManagement() {
           const card = {
             ...mapAdvertisementToAdCard(sourceAd, index),
             publisher: getAdvertisementPublisherName(sourceAd),
-            status: statusInfo.label,
+            status: sourceAd.status_label || statusInfo.label,
           };
           return { card, sourceAd, statusInfo };
         })
-        .filter(({ card, statusInfo }) =>
-          matchesAdFilters(card, scopedFilters, false, statusInfo.key),
-        ),
-    [adsQuery.data, scopedFilters],
+        .filter(({ card, sourceAd, statusInfo }) => {
+          if (showMineOnly && sourceAd.is_mine === false) return false;
+          return matchesAdFilters(card, scopedFilters, false, statusInfo.key, sourceAd);
+        }),
+    [adsQuery.data, scopedFilters, showMineOnly],
   );
 
   const visibleCount = assignedTab ? assignedAdvertisements.length : activeAdvertisements.length;

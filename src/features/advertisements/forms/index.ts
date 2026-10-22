@@ -142,7 +142,3 @@ export function getFormSchemaByListing(transaction: string, category: string): A
   const formCode = getFormCodeForListing(transaction, category);
   return getFormSchema(formCode);
 }
-
-export function getAllFormSchemas(): AdFormSchema[] {
-  return Object.values(formSchemas);
-}

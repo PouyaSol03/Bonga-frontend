@@ -36,7 +36,7 @@ export const defaultUrgentActions: DashboardUrgentActionItem[] = [
     title: "بازدید نزدیک",
     description: "۳ ساعت تا اولین بازدید",
     urgency: "critical",
-    to: "/account/dashboard/requests",
+    to: "/account/dashboard/requests?from=dashboard",
   },
   {
     id: "waiting_client",
@@ -44,7 +44,7 @@ export const defaultUrgentActions: DashboardUrgentActionItem[] = [
     title: "مشتری منتظر پاسخ",
     description: "بیش از چند ساعت منتظر پاسخ‌اند",
     urgency: "critical",
-    to: "/account/dashboard/requests",
+    to: "/account/dashboard/requests?from=dashboard",
   },
   {
     id: "expiring_ad",

@@ -22,7 +22,7 @@ export interface DashboardLeadFollowupCardProps {
 export function DashboardLeadFollowupCard({ item }: DashboardLeadFollowupCardProps) {
   const targetLink =
     item.to ||
-    (item.adId ? `/account/dashboard/requests?adId=${item.adId}` : "/account/dashboard/requests");
+    (item.adId ? `/account/dashboard/requests?adId=${item.adId}&from=dashboard` : "/account/dashboard/requests?from=dashboard");
 
   return (
     <div className="flex flex-col justify-between rounded-[12px] border border-[#CCCCCC]/40 bg-white p-4 [direction:rtl]">

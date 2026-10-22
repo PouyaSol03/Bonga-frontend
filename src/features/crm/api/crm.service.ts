@@ -504,11 +504,6 @@ export function saveCrmUser(id: string | null, payload: CrmRecord) {
 export function toggleCrmUserStatus(id: string) {
   return api.get(`panel/user/status/${id}`).json<unknown>();
 }
-
-export function toggleCrmUserAuthorization(id: string) {
-  return api.get(`panel/user/authorize/${id}`).json<unknown>();
-}
-
 export function updateCrmUserAuthorization(
   id: string,
   status: "accept" | "reject" | "toggle",

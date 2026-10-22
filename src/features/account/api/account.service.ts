@@ -3,15 +3,9 @@ import { type ApiDataResponse, type ApiListResponse, unwrapList  } from "../../.
 
 import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
 
-export type {
-  ProfileAccountItem,
-  ProfileContextItem,
-  UserProfile,
-  UserProfileV2Response,
-} from "./account-profile.types";
-export { getMyProfile, syncStoredRolesFromProfile } from "./account-profile.service";
-
 import type { UserProfile } from "./account-profile.types";
+export type { UserProfile };
+export { getMyProfile } from "./account-profile.service";
 
 export function isUserIdentityVerified(profile?: UserProfile | null) {
   const authorizedValue = profile?.authorized;

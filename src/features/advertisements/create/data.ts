@@ -863,17 +863,6 @@ export const ageOptions = [
   ...Array.from({ length: 29 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} سال`),
   "۳۰ سال و بیشتر",
 ];
-
-export const usageTypeOptions = [
-  "مسکونی",
-  "تجاری",
-  "اداری",
-  "صنعتی",
-  "کشاورزی",
-  "گلخانه",
-  "مسکونی تجاری",
-];
-
 const saleLandUsageTypeOptions = [
   "مسکونی",
   "اداری",
@@ -961,14 +950,10 @@ export const suitableForOptions = [
   "صنایع پلاستیکی",
   "صنایع چوبی",
 ];
-
-export const hotelStarsOptions = ["۱", "۲", "۳", "۴", "۵"];
 const saleHotelStarsOptions = ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"];
 const saleAccommodationTypeOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه", "مجتمع توریستی"];
 
 export const commercialLicenseOptions = ["دائم", "موقت", "ندارد"];
-export const constructionLicenseOptions = yesNoOptions;
-
 const saleCommercialPositionOptions = [
   "بر خیابان اصلی",
   "داخل پاساژ",

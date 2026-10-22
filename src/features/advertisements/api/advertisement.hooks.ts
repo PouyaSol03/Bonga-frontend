@@ -1,4 +1,4 @@
-import { keepPreviousData, useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
@@ -6,7 +6,6 @@ import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
 import {
   createAdvertisement,
   deleteAdvertisement,
-  finalizeAdvertisement,
   saveAdvertiseDraft,
   updateAdvertisement,
   getAdvertisementCheckout,
@@ -33,37 +32,10 @@ import {
   type AdvertisementItem,
   type AdvertisementListParams,
   type AdvertisementMapParams,
-  type AdvertisementPage,
   type SubmitAdvertisementCheckoutPayload,
   type SubmitAgencyAdvertisementCheckoutPayload,
   type SubmitAdvertisementCheckoutResult,
 } from "./advertisement.service";
-
-export function useAdvertisementInfiniteQuery({
-  cityId,
-  filters,
-  perPage = 10,
-}: Pick<AdvertisementListParams, "cityId" | "filters" | "perPage">) {
-  return useInfiniteQuery<
-    AdvertisementPage,
-    Error,
-    { pages: AdvertisementPage[]; pageParams: number[] },
-    ReturnType<typeof queryKeys.advertisements.list>,
-    number
-  >({
-    getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
-    initialPageParam: 1,
-    queryFn: ({ pageParam }) =>
-      getAdvertisementList({
-        cityId,
-        filters,
-        page: pageParam,
-        perPage,
-      }),
-    queryKey: queryKeys.advertisements.list({ cityId, filters, perPage }),
-  });
-}
-
 export function useTopViewedAdvertisementsQuery() {
   return useQuery({
     queryFn: getTopViewedAdvertisements,
@@ -157,22 +129,6 @@ export function useCreateAdvertisementMutation() {
     },
   });
 }
-
-export function useFinalizeAdvertisementMutation() {
-  return useMutation({
-    mutationFn: ({ advertiseId, payload }: { advertiseId: string | number; payload: FormData }) =>
-      finalizeAdvertisement(advertiseId, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.advertisements.all,
-      });
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.account.myAdsRoot(),
-      });
-    },
-  });
-}
-
 export function useSaveAdvertiseDraftMutation() {
   return useMutation({
     mutationFn: saveAdvertiseDraft,

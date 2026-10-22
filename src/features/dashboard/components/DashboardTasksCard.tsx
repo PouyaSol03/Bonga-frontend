@@ -28,15 +28,15 @@ export function DashboardTasksCard({
   const isAssigned = role === "REAL_ESTATE_CONSULTANT" || (role as string) === "agency-consultant";
 
   const defaultItems: DashboardTaskItem[] = [
-    { id: "leads", count: 3, label: "پیگیری سرنخ", to: "/account/dashboard/requests" },
-    { id: "visits", count: 12, label: "بازدید امروز", to: "/account/dashboard/requests" },
+    { id: "leads", count: 3, label: "پیگیری سرنخ", to: "/account/dashboard/requests?from=dashboard" },
+    { id: "visits", count: 12, label: "بازدید امروز", to: "/account/dashboard/requests?from=dashboard" },
     {
       id: "ads",
       count: 20,
       label: isAssigned ? "آگهی تخصیصی" : "آگهی تخصصی",
       to: "/account/manage-ads",
     },
-    { id: "others", count: 11, label: "سایر موارد", to: "/account/dashboard/requests" },
+    { id: "others", count: 11, label: "سایر موارد", to: "/account/dashboard/requests?from=dashboard" },
   ];
 
   const taskList = Array.isArray(items) && items.length > 0 ? items : defaultItems;

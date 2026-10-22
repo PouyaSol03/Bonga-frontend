@@ -70,4 +70,5 @@ export function parseNumericValue(value: unknown): number | null {
   return Number.isFinite(number) ? number : null;
 }
 
+export const toPersianDigits = toPersianNumber;
 export const toNumericValue = parseNumericValue;

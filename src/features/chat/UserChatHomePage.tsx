@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
+import { readText } from "../../shared/lib/textUtils";
 import { getPrimaryAdvertisementImageUrl } from "../advertisements/utils/advertisement-images";
 import {
   joinChatThread,
@@ -124,13 +125,6 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined;
-}
-
-function readText(value: unknown) {
-  if (typeof value === "string" && value.trim()) return value;
-  if (typeof value === "number") return String(value);
-
-  return "";
 }
 
 function readString(value: unknown) {

@@ -142,7 +142,7 @@ export function DashboardInactiveConsultantsPage() {
           {consultants.map((consultant) => (
             <Link
               key={consultant.id}
-              to={`/account/dashboard/team`}
+              to={`/account/dashboard/team?from=dashboard`}
               className="flex h-[88px] items-center justify-between rounded-[16px] border border-[#F0F0F0] bg-white p-4 shadow-2xs transition-transform active:scale-[0.99]"
             >
               {/* Right: Avatar + Name + Inactive Badge */}

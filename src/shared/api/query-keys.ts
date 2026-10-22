@@ -308,17 +308,6 @@ export const queryKeys = {
   dashboard: {
     all: ["dashboard"] as const,
     agency: (period: string) => [...queryKeys.dashboard.all, "agency", period] as const,
-    agencyCredits: (period: string) =>
-      [...queryKeys.dashboard.all, "agency", "credits", period] as const,
-    agencyConsultantActivity: (period: string) =>
-      [...queryKeys.dashboard.all, "agency", "consultant-activity", period] as const,
-    agencyPublishedAdvertises: (period: string) =>
-      [...queryKeys.dashboard.all, "agency", "published-advertises", period] as const,
-    agencyAdvertiseRegistrationProgress: (period: string) =>
-      [...queryKeys.dashboard.all, "agency", "advertise-registration-progress", period] as const,
-    agencyRankingProgress: (period: string) =>
-      [...queryKeys.dashboard.all, "agency", "ranking-progress", period] as const,
-    agencyRanking: () => [...queryKeys.dashboard.all, "agency", "ranking"] as const,
     agent: (period: string) => [...queryKeys.dashboard.all, "agent", period] as const,
     agentBadges: () => [...queryKeys.dashboard.all, "agent", "badges"] as const,
     agentBadgeDetail: (slug: string) =>

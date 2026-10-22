@@ -21,7 +21,6 @@ import {
   getConsultantProfile,
   getMyAds,
   getMyAgencyProfile,
-  getMyBadges,
   getMyNotes,
   getMyProfile,
   getWallet,
@@ -266,14 +265,6 @@ export function useMyAdsInfiniteQuery({
 
   return query;
 }
-
-export function useMyBadgesQuery() {
-  return useQuery({
-    queryFn: getMyBadges,
-    queryKey: queryKeys.account.badges(),
-  });
-}
-
 export function useAdvertiseBadgesQuery({ perPage = 10 }: { perPage?: number } = {}) {
   return useInfiniteQuery<
     AdvertiseBadgesPage,

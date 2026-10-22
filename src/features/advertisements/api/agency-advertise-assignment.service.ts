@@ -527,12 +527,6 @@ export type AdvertisementHistoryItem = {
   message: string;
   created_at: string;
 };
-
-export type AdvertisementHistoryResponse = {
-  status: boolean;
-  data: AdvertisementHistoryItem[];
-};
-
 export type AdvertisementExpireInfo = {
   hours?: number;
   minutes?: number;

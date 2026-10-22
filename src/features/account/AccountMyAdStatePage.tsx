@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { getApiErrorMessage } from "../../shared/api/api";
 import { RequestErrorState } from "../../shared/components/ErrorState";
+import { toPersianDigits } from "../../shared/lib/numberUtils";
+import { readText } from "../../shared/lib/textUtils";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../shared/auth/auth-storage";
 import {
@@ -2963,10 +2965,6 @@ function readExpirationRemaining(value: unknown, fallbackPublishedDate?: unknown
   return `${remainingLabel} (${expirationDate})`;
 }
 
-function toPersianDigits(value: number | string) {
-  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
-}
-
 function readModerationReasons(ad?: Record<string, unknown>) {
   if (!ad) return ["جزئیات اصلاح از سرور دریافت نشده است."];
   const values = [
@@ -2984,13 +2982,6 @@ function readModerationReasons(ad?: Record<string, unknown>) {
   return reasons.length > 0
     ? Array.from(new Set(reasons))
     : ["جزئیات اصلاح از سرور دریافت نشده است."];
-}
-
-function readText(value: unknown) {
-  if (typeof value === "string" && value.trim()) return value;
-  if (typeof value === "number") return String(value);
-
-  return "";
 }
 
 function MyAdStateSkeleton({

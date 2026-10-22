@@ -12,9 +12,13 @@ import {
   REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
 } from "../../shared/constants/roles.constants";
+import { useSearchParams } from "react-router";
 import { RequestManagementView } from "../property-requests/RequestManagementView";
 
 export function DashboardRequestsPage() {
+  const [searchParams] = useSearchParams();
+  const backTo =
+    searchParams.get("from") === "dashboard" ? "/account/dashboard" : "/account";
   const session = getStoredAuthSession();
   const activeRole = getActiveAuthRole(session);
   const canManageRequests = Boolean(session?.managerPermissions?.manage_requests);
@@ -22,7 +26,7 @@ export function DashboardRequestsPage() {
     activeRole === REAL_ESTATE_MANAGER ||
     (activeRole === REAL_ESTATE_CONSULTANT && canManageRequests);
 
-  return <RequestManagementView backTo="/account/dashboard" showReceivedTab={showReceivedTab} />;
+  return <RequestManagementView backTo={backTo} showReceivedTab={showReceivedTab} />;
 }
 
 export function DashboardTeamPage() {

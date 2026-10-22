@@ -39,25 +39,6 @@ export function SearchIcon({ className = "" }: { className?: string }) {
     </svg>
   );
 }
-
-export function AnalyticsIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.7"
-      viewBox="0 0 24 24"
-    >
-      <rect height="17" rx="2" width="16" x="4" y="3" />
-      <path d="M8 16V12M12 16V8M16 16v-5M7 18h10" />
-    </svg>
-  );
-}
-
 export function StatisticsIcon({
   className = "",
   icon,

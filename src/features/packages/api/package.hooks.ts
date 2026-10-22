@@ -4,11 +4,8 @@ import { getActiveV2Role, type V2RoleSegment } from "../../../shared/api/api";
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
 import {
-  getAgentEntitlementLedger,
   getAgentEntitlements,
   getPackages,
-  payAgencyPackage,
-  payAgentPackage,
   payPackage,
   type PackagePaymentPayload,
   type PackageQueryParams,
@@ -41,19 +38,6 @@ export function usePackagePaymentMutation() {
     },
   });
 }
-
-export function useAgencyPackagePaymentMutation() {
-  return useMutation({
-    mutationFn: (packageId: string) => payAgencyPackage(packageId),
-  });
-}
-
-export function useAgentPackagePaymentMutation() {
-  return useMutation({
-    mutationFn: (packageId: string) => payAgentPackage(packageId),
-  });
-}
-
 export function useAgentEntitlementsQuery({
   enabled = true,
   context = getActiveV2Role(),
@@ -65,23 +49,5 @@ export function useAgentEntitlementsQuery({
     enabled: enabled && ["agency", "agency-consultant", "independent-consultant"].includes(context),
     queryFn: () => getAgentEntitlements(context),
     queryKey: queryKeys.packages.agentEntitlements(context),
-  });
-}
-
-export function useAgentEntitlementLedgerQuery({
-  enabled = true,
-  page = 1,
-  perPage = 20,
-  context = getActiveV2Role(),
-}: {
-  enabled?: boolean;
-  page?: number;
-  perPage?: number;
-  context?: V2RoleSegment;
-} = {}) {
-  return useQuery({
-    enabled: enabled && ["agency", "agency-consultant", "independent-consultant"].includes(context),
-    queryFn: () => getAgentEntitlementLedger({ page, perPage, context }),
-    queryKey: queryKeys.packages.agentEntitlementLedger(page, perPage, context),
   });
 }

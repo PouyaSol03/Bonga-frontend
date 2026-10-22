@@ -17,6 +17,7 @@ import {
 } from "./adManagementData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import { readText } from "../../../shared/lib/textUtils";
 
 type AdPayment = AdvertisementPayment;
 
@@ -411,13 +412,6 @@ function readPaymentTrackingCode(payment: AdPayment) {
       payment.id,
     "-",
   );
-}
-
-function readText(value: unknown, fallback = "") {
-  if (typeof value === "string" && value.trim()) return value;
-  if (typeof value === "number") return String(value);
-
-  return fallback;
 }
 
 function formatMoney(value: unknown) {

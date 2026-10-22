@@ -37,7 +37,7 @@ const urgentActionsList: UrgentActionPageItem[] = [
     description: "۳ ساعت تا اولین بازدید",
     priority: "critical",
     priorityLabel: "خیلی بالا",
-    to: "/account/dashboard/requests",
+    to: "/account/dashboard/requests?from=dashboard",
   },
   {
     id: "waiting_client",
@@ -46,7 +46,7 @@ const urgentActionsList: UrgentActionPageItem[] = [
     description: "بیش از چند ساعت منتظر پاسخ‌اند",
     priority: "critical",
     priorityLabel: "خیلی بالا",
-    to: "/account/dashboard/requests",
+    to: "/account/dashboard/requests?from=dashboard",
   },
   {
     id: "expiring_ad",

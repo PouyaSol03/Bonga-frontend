@@ -1,6 +1,7 @@
 import type { AdCardData } from "../../advertisements/components/AdCard";
 import type { AgencyAdvertiseAssignmentDto } from "../../advertisements/api/agency-advertise-assignment.service";
 import { mapAdvertisementToAdCard } from "../../advertisements/api/advertisement.service";
+import { resolveEditRouteParams } from "../../advertisements/create/edit-mapping/editRouteParams";
 
 export type ConsultantAd = AdCardData;
 
@@ -159,12 +160,17 @@ export function getAdPreviewPath(adId: ConsultantAd["id"] | string) {
   return `/preview-ad/${encodeURIComponent(String(adId))}`;
 }
 
-export function getAdEditPath(adId?: ConsultantAd["id"] | string, returnTo?: string) {
+export function getAdEditPath(
+  adId?: ConsultantAd["id"] | string,
+  returnTo?: string,
+  adSource?: unknown,
+) {
+  const resolved = resolveEditRouteParams(adSource as never);
   const params = new URLSearchParams({
-    category: "apartment",
+    category: resolved?.category ?? "apartment",
     edit: "true",
-    label: "آپارتمان",
-    transaction: "sale",
+    label: resolved?.label ?? "آپارتمان",
+    transaction: resolved?.transaction ?? "sale",
   });
 
   if (adId !== undefined && adId !== null && adId !== "") {

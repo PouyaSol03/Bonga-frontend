@@ -51,18 +51,19 @@ export function NewAdFlowPage() {
     queryKey: ["categories", "list"],
   });
 
-  const { crmEditRecord, editAdData, editAdIsLoading, isEditingIncomplete } = useNewAdEditSync({
-    activeRole,
-    editAdId,
-    editAdState,
-    initialEditValuesRef,
-    isCrmEditMode,
-    isCrmSource,
-    isEditMode,
-    methods,
-    restoredValues: restoredSession?.values,
-    setSubmitError,
-  });
+  const { crmEditRecord, editAdData, editAdIsLoading, editRouteVersion, isEditingIncomplete } =
+    useNewAdEditSync({
+      activeRole,
+      editAdId,
+      editAdState,
+      initialEditValuesRef,
+      isCrmEditMode,
+      isCrmSource,
+      isEditMode,
+      methods,
+      restoredValues: restoredSession?.values,
+      setSubmitError,
+    });
 
   useNewAdDraftSync({ draftAdId, fieldErrors, isEditMode, methods, step });
 
@@ -154,6 +155,7 @@ export function NewAdFlowPage() {
             ) : null}
 
             <NewAdStepRenderer
+              key={isEditMode ? `${currentFormCode}-${editRouteVersion}` : undefined}
               actions={actions}
               canChangePublisher={canChangePublisher}
               clearFieldError={clearFieldError}

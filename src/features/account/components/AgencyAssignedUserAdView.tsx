@@ -602,18 +602,25 @@ export function AgencyAssignedUserAdView({
               type="button"
               onClick={() => {
                 if (!currentAdId) return;
-                navigate(getAdEditPath(currentAdId), {
-                  replace: true,
-                  state: {
-                    ad,
-                    card,
-                    editReturnTo: `/account/manage-ads/${encodeURIComponent(currentAdId)}/state-ad`,
-                    isAssigned: true,
-                    isEditMode: true,
-                    returnTo: `/account/manage-ads/${encodeURIComponent(currentAdId)}/state-ad`,
-                    status: statusKey,
+                navigate(
+                  getAdEditPath(
+                    currentAdId,
+                    `/account/manage-ads/${encodeURIComponent(currentAdId)}/state-ad`,
+                    ad ?? card,
+                  ),
+                  {
+                    replace: true,
+                    state: {
+                      ad,
+                      card,
+                      editReturnTo: `/account/manage-ads/${encodeURIComponent(currentAdId)}/state-ad`,
+                      isAssigned: true,
+                      isEditMode: true,
+                      returnTo: `/account/manage-ads/${encodeURIComponent(currentAdId)}/state-ad`,
+                      status: statusKey,
+                    },
                   },
-                });
+                );
               }}
               className="active:bg-surface-container-low flex h-14 w-full items-center justify-between text-right transition-colors [direction:rtl]"
             >

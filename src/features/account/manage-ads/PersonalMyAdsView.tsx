@@ -94,7 +94,7 @@ export function PersonalMyAdsView({ emptyMode = "compact" }: { emptyMode?: "comp
               };
               const isIncomplete = statusInfo.key === "incomplete";
               const destination = isIncomplete
-                ? getAdEditPath(adId, adManagementPaths.root)
+                ? getAdEditPath(adId, adManagementPaths.root, ad ?? cardWithStatus)
                 : `${adManagementPaths.root}/${encodeURIComponent(adId)}/state-ad`;
               const destinationState = isIncomplete
                 ? {

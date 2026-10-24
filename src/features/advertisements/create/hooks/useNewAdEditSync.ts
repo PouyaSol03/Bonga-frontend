@@ -38,7 +38,7 @@ export function useNewAdEditSync({
   restoredValues,
   setSubmitError,
 }: UseNewAdEditSyncProps) {
-  const [, setEditRouteVersion] = useState(0);
+  const [editRouteVersion, setEditRouteVersion] = useState(0);
   const editDataAppliedRef = useRef<string | null>(null);
   const localInitialEditValuesRef = useRef<NewAdFormValues | null>(
     isEditMode && editAdState.ad
@@ -139,6 +139,7 @@ export function useNewAdEditSync({
     crmEditRecord,
     editAdData,
     editAdIsLoading,
+    editRouteVersion,
     initialEditValuesRef,
     isEditingIncomplete,
   };

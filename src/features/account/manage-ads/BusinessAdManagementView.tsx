@@ -182,7 +182,9 @@ export function BusinessAdManagementView() {
           ) : activeAdvertisements.length > 0 ? (
             activeAdvertisements.map(({ card, sourceAd, statusInfo }, i) => {
               const isIncomplete = statusInfo.key === "incomplete";
-              const dest = isIncomplete ? getAdEditPath(card.id, adManagementPaths.root) : getAdStatePath(card.id);
+              const dest = isIncomplete
+                ? getAdEditPath(card.id, adManagementPaths.root, sourceAd ?? card)
+                : getAdStatePath(card.id);
               const destState = isIncomplete ? { card, ad: sourceAd, editReturnTo: adManagementPaths.root, isEditMode: true, returnTo: adManagementPaths.root, tab: "active" as const } : { card, ad: sourceAd, returnTo: adManagementPaths.root, tab: "active" as const };
               const roleType = activeRole === REAL_ESTATE_MANAGER ? "agency" : activeRole === REAL_ESTATE_CONSULTANT ? "agent_in_agency" : "agent";
               return (

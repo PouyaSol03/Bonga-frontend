@@ -128,4 +128,29 @@ export function readRegistrantType(
   return "";
 }
 
+export function getAdvertisementFeatures(
+  ad: AdvertisementItem | Record<string, unknown> | undefined,
+): AdvertisementFeature[] {
+  if (!ad || !Array.isArray(ad.features)) return [];
+
+  return ad.features.flatMap((feature) => {
+    if (!feature || typeof feature !== "object") return [];
+    const item = feature as Record<string, unknown>;
+    const label =
+      (typeof item.label === "string" && item.label.trim()) ||
+      (typeof item.key === "string" && item.key.trim()) ||
+      (typeof item.name === "string" && item.name.trim()) ||
+      "";
+    if (!label) return [];
+
+    return [
+      {
+        key: typeof item.key === "string" ? item.key : undefined,
+        label,
+        value: item.value,
+      },
+    ];
+  });
+}
+
 export * from "./featureFormatters";

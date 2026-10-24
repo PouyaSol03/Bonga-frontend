@@ -273,6 +273,11 @@ function readRouteState(): EditAdRouteState {
 
   if (!state || typeof state !== "object") return {};
 
+  const usr = (state as { usr?: unknown }).usr;
+  if (usr && typeof usr === "object") {
+    return { ...state, ...(usr as EditAdRouteState) };
+  }
+
   return state as EditAdRouteState;
 }
 

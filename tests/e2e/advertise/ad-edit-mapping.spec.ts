@@ -78,13 +78,21 @@ test.describe("Ad Edit Form Code Mapping", () => {
   });
 
   test("resolves fallback from category text when form_code is absent", () => {
-    const adWithoutFormCode = {
-      id: 101,
-      category: "فروش زمین و کلنگی",
-    };
+    const testCases = [
+      { text: "فروش زمین و کلنگی", expectedCat: "land", expectedTx: "sale" },
+      { text: "اجاره کارخانه", expectedCat: "factory-workshop", expectedTx: "rent" },
+      { text: "فروش کارخانه صنعتی", expectedCat: "factory-workshop", expectedTx: "sale" },
+      { text: "اجاره خانه ویلایی", expectedCat: "villa-house", expectedTx: "rent" },
+      { text: "فروش خانه و ویلا", expectedCat: "villa-house", expectedTx: "sale" },
+      { text: "اجاره انبار و سوله", expectedCat: "warehouse", expectedTx: "rent" },
+      { text: "اجاره مغازه تجاری", expectedCat: "commercial-unit", expectedTx: "rent" },
+      { text: "فروش واحد اداری", expectedCat: "office", expectedTx: "sale" },
+    ];
 
-    const resolved = resolveEditRouteParams(adWithoutFormCode as never);
-    expect(resolved?.category).toBe("land");
-    expect(resolved?.transaction).toBe("sale");
+    for (const { text, expectedCat, expectedTx } of testCases) {
+      const resolved = resolveEditRouteParams({ id: 101, category: text } as never);
+      expect(resolved?.category, `failed on ${text}`).toBe(expectedCat);
+      expect(resolved?.transaction, `failed on ${text}`).toBe(expectedTx);
+    }
   });
 });

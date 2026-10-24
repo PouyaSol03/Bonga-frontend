@@ -130,16 +130,6 @@ function resolveFromCategoryText(text: string): EditRouteParams | null {
   }
 
   if (isRent) {
-    if (normalized.includes("ویلا") || normalized.includes("خانه")) {
-      return editRouteParamsByFormCode["rent-villa-house"];
-    }
-    if (normalized.includes("باغ")) return editRouteParamsByFormCode["rent-garden-villa"];
-    if (normalized.includes("اداری") || normalized.includes("دفتر")) {
-      return editRouteParamsByFormCode["rent-office"];
-    }
-    if (normalized.includes("تجاری") || normalized.includes("مغازه")) {
-      return editRouteParamsByFormCode["rent-commercial"];
-    }
     if (
       normalized.includes("صنعتی") ||
       normalized.includes("کارگاه") ||
@@ -150,27 +140,23 @@ function resolveFromCategoryText(text: string): EditRouteParams | null {
     if (normalized.includes("انبار") || normalized.includes("سوله")) {
       return editRouteParamsByFormCode["rent-warehouse"];
     }
+    if (normalized.includes("تجاری") || normalized.includes("مغازه")) {
+      return editRouteParamsByFormCode["rent-commercial"];
+    }
+    if (normalized.includes("اداری") || normalized.includes("دفتر")) {
+      return editRouteParamsByFormCode["rent-office"];
+    }
     if (normalized.includes("هتل") || normalized.includes("اقامت")) {
       return editRouteParamsByFormCode["rent-hotel"];
+    }
+    if (normalized.includes("باغ")) return editRouteParamsByFormCode["rent-garden-villa"];
+    if (normalized.includes("ویلا") || normalized.includes("خانه")) {
+      return editRouteParamsByFormCode["rent-villa-house"];
     }
     return editRouteParamsByFormCode["rent-apartment"];
   }
 
   if (isSale) {
-    if (normalized.includes("ویلا") || normalized.includes("خانه")) {
-      if (normalized.includes("باغ")) return editRouteParamsByFormCode["sale-garden-villa"];
-      return editRouteParamsByFormCode["sale-villa-house"];
-    }
-    if (normalized.includes("باغ")) return editRouteParamsByFormCode["sale-garden-villa"];
-    if (normalized.includes("زمین") || normalized.includes("کلنگی")) {
-      return editRouteParamsByFormCode["sale-land"];
-    }
-    if (normalized.includes("اداری") || normalized.includes("دفتر")) {
-      return editRouteParamsByFormCode["sale-office"];
-    }
-    if (normalized.includes("تجاری") || normalized.includes("مغازه")) {
-      return editRouteParamsByFormCode["sale-commercial"];
-    }
     if (
       normalized.includes("صنعتی") ||
       normalized.includes("کارگاه") ||
@@ -181,8 +167,21 @@ function resolveFromCategoryText(text: string): EditRouteParams | null {
     if (normalized.includes("انبار") || normalized.includes("سوله")) {
       return editRouteParamsByFormCode["sale-warehouse"];
     }
+    if (normalized.includes("زمین") || normalized.includes("کلنگی")) {
+      return editRouteParamsByFormCode["sale-land"];
+    }
+    if (normalized.includes("تجاری") || normalized.includes("مغازه")) {
+      return editRouteParamsByFormCode["sale-commercial"];
+    }
+    if (normalized.includes("اداری") || normalized.includes("دفتر")) {
+      return editRouteParamsByFormCode["sale-office"];
+    }
     if (normalized.includes("هتل") || normalized.includes("اقامت")) {
       return editRouteParamsByFormCode["sale-hotel"];
+    }
+    if (normalized.includes("باغ")) return editRouteParamsByFormCode["sale-garden-villa"];
+    if (normalized.includes("ویلا") || normalized.includes("خانه")) {
+      return editRouteParamsByFormCode["sale-villa-house"];
     }
     return editRouteParamsByFormCode["sale-apartment"];
   }

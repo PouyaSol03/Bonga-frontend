@@ -1,8 +1,5 @@
 import { expect, test } from "@playwright/test";
-import {
-  editRouteParamsByFormCode,
-  resolveEditRouteParams,
-} from "../../../src/features/advertisements/create/edit-mapping/editRouteParams";
+import { resolveEditRouteParams } from "../../../src/features/advertisements/create/edit-mapping/editRouteParams";
 import { getAdEditPath } from "../../../src/features/account/adManagement/adManagementData";
 
 test.describe("Ad Edit Form Code Mapping", () => {

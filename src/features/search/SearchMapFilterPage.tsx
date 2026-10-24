@@ -1380,8 +1380,8 @@ const approvedSaleFilterVillaTypeOptions = [
 
 const approvedSaleFilterFloorOptions = [
   "همکف",
-  ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
-  "۳۰ و بیشتر",
+  ...Array.from({ length: 39 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۴۰ و بیشتر",
 ];
 const approvedSaleFilterUnitsPerFloorOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "+۸"];
 
@@ -1432,8 +1432,8 @@ const approvedHotelAccommodationOptions = [
 ];
 const approvedHotelStarOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷"];
 const approvedTotalFloorsOptions = [
-  ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
-  "۳۰ و بیشتر",
+  ...Array.from({ length: 39 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۴۰ و بیشتر",
 ];
 
 const approvedRentApartmentBuildingPositionOptions = [
@@ -1448,7 +1448,14 @@ const approvedRentApartmentBuildingPositionOptions = [
 ];
 const approvedRentVillaLandPositionOptions = ["شمالی", "جنوبی", "دونبش", "سه نبش", "چهارنبش"];
 const approvedRentVillaBuildingTypeOptions = ["ویلایی مستقل", "آپارتمانی", "شهرکی"];
-const approvedRentVillaTypeOptions = ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"];
+const approvedRentVillaTypeOptions = [
+  "فلت",
+  "چند طبقه مجزا",
+  "تک طبقه",
+  "دوبلکس",
+  "تریبلکس",
+  "خونه باغ",
+];
 
 const approvedSaleOfficeSuitableOptions = [
   "شرکت‌ها",

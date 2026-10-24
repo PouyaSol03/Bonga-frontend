@@ -75,6 +75,8 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
   if (hasRequiredText(values.totalFloors)) {
     if (numTotalFloors === null || numTotalFloors <= 0) {
       errors.totalFloors = "تعداد کل طبقات باید بزرگتر از صفر باشد.";
+    } else if (category === "villa-house" && numTotalFloors > 8) {
+      errors.totalFloors = "تعداد کل طبقات برای خانه، ویلا نمی‌تواند بیشتر از ۸ طبقه باشد.";
     } else if (numTotalFloors > 70) {
       errors.totalFloors = "تعداد کل طبقات نمی‌تواند بیشتر از ۷۰ طبقه باشد.";
     }
@@ -91,8 +93,8 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
   if (hasRequiredText(values.unitsPerFloor) && numUnitsPerFloor !== null) {
     if (numUnitsPerFloor <= 0) {
       errors.unitsPerFloor = "تعداد واحد در هر طبقه باید بزرگتر از صفر باشد.";
-    } else if (numUnitsPerFloor > 30) {
-      errors.unitsPerFloor = "تعداد واحد در هر طبقه نمی‌تواند بیشتر از ۳۰ واحد باشد.";
+    } else if (numUnitsPerFloor > 60) {
+      errors.unitsPerFloor = "تعداد واحد در هر طبقه نمی‌تواند بیشتر از ۶۰ واحد باشد.";
     }
   }
 

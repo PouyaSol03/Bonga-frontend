@@ -9,6 +9,8 @@ import {
   saleLandPositionOptions,
   saleOfficePositionOptions,
   totalFloorsOptions,
+  unitsPerFloorOptions,
+  villaTotalFloorsOptions,
   capacityOptions,
   dailyRentalPeriodOptions,
   rentApartmentSuitableForOptions,
@@ -32,10 +34,7 @@ import {
   industrialPropertyTypeOptions,
 } from "./propertyOptions";
 import { projectStatusOptions } from "./projectOptions";
-const saleApartmentUnitsPerFloorOptions = Array.from(
-  { length: 30 },
-  (_, index) => `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`,
-);
+const saleApartmentUnitsPerFloorOptions = unitsPerFloorOptions;
 
 const saleApartmentBuildingPositionOptions = [
   "شمالی",
@@ -189,7 +188,14 @@ const rentApartmentMoreFeatureFields: MoreFeatureField[] = [
 ];
 
 const saleVillaHouseBuildingTypeOptions = ["ویلایی مستقل", "شهرکی", "آپارتمانی"];
-const saleVillaHouseTypeOptions = ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ"];
+export const saleVillaHouseTypeOptions = [
+  "فلت",
+  "چند طبقه مجزا",
+  "تک طبقه",
+  "دوبلکس",
+  "تریبلکس",
+  "خونه باغ",
+];
 
 const saleVillaHouseMoreFeatureFields: MoreFeatureField[] = [
   {
@@ -206,7 +212,7 @@ const saleVillaHouseMoreFeatureFields: MoreFeatureField[] = [
   },
   { key: "villaType", label: "تیپ بنا", control: "select", options: saleVillaHouseTypeOptions },
   { key: "documentType", label: "سند", control: "select", options: saleLandDocumentTypeOptions },
-  { key: "totalFloors", label: "تعداد طبقات", control: "select", options: totalFloorsOptions },
+  { key: "totalFloors", label: "تعداد طبقات", control: "select", options: villaTotalFloorsOptions },
   { key: "streetWidth", label: "عرض گذر", control: "number", leftText: "متر" },
   {
     key: "kitchenType",
@@ -252,7 +258,7 @@ const rentVillaHouseMoreFeatureFields: MoreFeatureField[] = [
     options: saleVillaHouseBuildingTypeOptions,
   },
   { key: "villaType", label: "تیپ بنا", control: "select", options: saleVillaHouseTypeOptions },
-  { key: "totalFloors", label: "تعداد طبقات", control: "select", options: totalFloorsOptions },
+  { key: "totalFloors", label: "تعداد طبقات", control: "select", options: villaTotalFloorsOptions },
   { key: "streetWidth", label: "عرض گذر", control: "number", leftText: "متر" },
   { key: "petPolicy", label: "حیوان خانگی", control: "select", options: rentPetPolicyOptions },
   { key: "renovated", label: "بازسازی", control: "toggle" },

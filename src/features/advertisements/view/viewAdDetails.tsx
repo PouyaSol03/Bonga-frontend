@@ -1,14 +1,8 @@
-import { useNavigate } from "react-router";
-import { PageFrame } from "../../../shared/layout/PageFrame";
-import { ColorableSvgIcon } from "../../../shared/components/ColorableSvgIcon";
-import { FeaturesIcons } from "../components/FeaturesIcons";
-import { TopBar } from "../../../shared/components/TopBar";
 import { getApiAssetUrl } from "../../../shared/api/api";
 import { getAdvertisementImageUrls } from "../utils/advertisement-images";
 import { getBuildingInfo } from "../../../shared/lib/handleBuildingInfo";
 import { getFeatureIconSrc } from "../../../shared/lib/handleFeaturesIcons";
 import type { AdvertisementItem } from "../api/advertisement.service";
-import { ViewAdIcon } from "./ViewAdIcon";
 import { parseAdIdFromPath } from "./viewAdData";
 import type {
   DetailItem,
@@ -17,14 +11,11 @@ import type {
   ViewAdDetails,
   ViewAdProjectDetailVariant,
 } from "./viewAdTypes";
-import LinearStar from "../../../shared/icons/LinearStar";
-import { AccommodationRatingBanner, FormattedDetailValueView } from "./viewAdComponents";
 import {
   toEnglishDigits,
   toPersianNumber as toPersianDigits,
 } from "../../../shared/lib/numberUtils";
 import { formatDetailPrice as formatPrice } from "../../../shared/lib/MoneyHandler";
-import { Typography } from "../../../shared/ui/Typography";
 
 export type AlbumMediaItem = {
   src: string;
@@ -1812,7 +1803,7 @@ function buildCategoryNeighborhoodLabel(
   return listingCategory || fallback;
 }
 
-function parseHotelStarCount(value: unknown): number | undefined {
+export function parseHotelStarCount(value: unknown): number | undefined {
   if (typeof value === "number" && Number.isFinite(value) && value > 0) {
     return Math.min(5, Math.max(1, Math.round(value)));
   }
@@ -2282,19 +2273,19 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   };
 }
 
-const PROPERTY_DETAIL_ICONS = {
+export const PROPERTY_DETAIL_ICONS = {
   loan: "/icons/loan.svg",
   exchange: "/icons/exchange.svg",
   selected: "/icons/selected-icon.svg",
 };
 
-type DetailInfoValue = string | string[];
+export type DetailInfoValue = string | string[];
 
-type DetailInfoTone = "neutral" | "success" | "warning" | "danger";
+export type DetailInfoTone = "neutral" | "success" | "warning" | "danger";
 
-type DetailInfoLayout = "grid" | "rows";
+export type DetailInfoLayout = "grid" | "rows";
 
-type DetailInfoItem = {
+export type DetailInfoItem = {
   icon: IconName;
   label: string;
   value: DetailInfoValue;
@@ -2309,7 +2300,7 @@ type DetailInfoItem = {
   }>;
 };
 
-type DetailInfoSection = {
+export type DetailInfoSection = {
   title: string;
   items: DetailInfoItem[];
   layout?: DetailInfoLayout;
@@ -4516,360 +4507,4 @@ export function buildFacilitiesDetailSections(ad: AdvertisementItem): DetailInfo
   return sections;
 }
 
-function DetailInfoIcon({
-  item,
-  className = "h-6 w-6 shrink-0 text-on-surface-var",
-}: {
-  item: DetailInfoItem;
-  className?: string;
-}) {
-  if (item.featureIconLabel) {
-    return <FeaturesIcons feature={item.featureIconLabel} className={className} />;
-  }
-
-  if (item.iconSrc) {
-    return <ColorableSvgIcon className={className} src={item.iconSrc} />;
-  }
-
-  if (item.hideFallbackIcon) {
-    return (
-      <Typography
-        as="span"
-        variant="body"
-        size="medium"
-        weight="regular"
-        aria-hidden="true"
-        className={className}
-      />
-    );
-  }
-
-  return <ViewAdIcon className={className} name={item.icon} />;
-}
-
-function DetailInfoValueView({
-  item,
-  align = "start",
-}: {
-  item: DetailInfoItem;
-  align?: "start" | "center" | "end";
-}) {
-  const alignClassName =
-    align === "center" ? "justify-center" : align === "end" ? "justify-end" : "justify-start";
-
-  if (Array.isArray(item.value)) {
-    return (
-      <div className={`flex flex-wrap gap-2 ${alignClassName}`}>
-        {item.value.map((value) => (
-          <Typography
-            as="span"
-            variant="label"
-            size="large"
-            weight="semibold"
-            className="bg-surface-container-high text-on-surface rounded-md px-2.5 py-1.5 text-base leading-6 font-semibold"
-            key={value}
-          >
-            {value}
-          </Typography>
-        ))}
-      </div>
-    );
-  }
-
-  if (
-    item.label === "رتبه اقامتگاه" ||
-    item.label.includes("رتبه") ||
-    item.label.includes("ستاره") ||
-    item.icon === "star"
-  ) {
-    const count = parseHotelStarCount(item.value);
-    if (count) {
-      return (
-        <div
-          className="flex items-center gap-0.5 [direction:ltr]"
-          aria-label={`${count} ستاره از ۵`}
-        >
-          {[1, 2, 3, 4, 5].map((star) => (
-            <LinearStar
-              aria-hidden="true"
-              className={`h-5 w-5 ${star <= count ? "text-warning" : "text-outline-var"}`}
-              innerColor={star <= count ? "currentColor" : "transparent"}
-              key={star}
-            />
-          ))}
-        </div>
-      );
-    }
-  }
-
-  if (item.badge) {
-    const badgeClassName =
-      item.tone === "success"
-        ? "bg-tertiary-container text-tertiary"
-        : item.tone === "danger"
-          ? "bg-error-container text-error border border-error"
-          : item.tone === "warning"
-            ? "bg-warning-container text-on-warning-container border border-on-warning-container"
-            : "bg-surface-container-high text-on-surface-var";
-
-    return (
-      <Typography
-        as="span"
-        variant="label"
-        size="medium"
-        weight="semibold"
-        className={`rounded-lg p-2 ${badgeClassName}`}
-      >
-        {item.value}
-      </Typography>
-    );
-  }
-
-  return <FormattedDetailValueView tone={item.tone} value={item.value} />;
-}
-
-function DetailInfoItemCard({
-  item,
-  showIcon = false,
-}: {
-  item: DetailInfoItem;
-  showIcon?: boolean;
-}) {
-  const labelPaddingClassName = showIcon ? "pr-[32px]" : "pr-0";
-
-  return (
-    <div className="flex w-full flex-col items-start justify-start text-right [direction:rtl]">
-      <div className="flex min-h-7 w-full items-center justify-start gap-2 text-right text-base font-semibold [direction:rtl]">
-        {showIcon ? <DetailInfoIcon item={item} /> : null}
-
-        <div className="text-on-surface text-base font-semibold">
-          <DetailInfoValueView align="start" item={item} />
-        </div>
-      </div>
-
-      <Typography
-        variant="label"
-        size="small"
-        weight="medium"
-        className={`text-outline ${labelPaddingClassName}`}
-      >
-        {item.label}
-      </Typography>
-    </div>
-  );
-}
-
-function DetailInfoChoiceRows({ rows }: { rows: DetailInfoItem[] }) {
-  if (rows.length === 0) {
-    return null;
-  }
-
-  return (
-    <div>
-      {rows.map((row) => (
-        <div
-          className="border-outline-var flex flex-wrap items-center justify-start gap-2 border-t border-dashed py-4 [direction:rtl]"
-          key={row.label}
-        >
-          <div className="text-outline inline-flex shrink-0 items-center gap-1">
-            <ColorableSvgIcon
-              className="h-5 w-5 shrink-0"
-              src={row.iconSrc ?? PROPERTY_DETAIL_ICONS.selected}
-            />
-            <Typography as="span" variant="label" size="large" weight="medium">
-              {row.label}:
-            </Typography>
-          </div>
-          <DetailInfoValueView item={row} />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function DetailInfoCheckBadges({ badges }: { badges: DetailInfoItem[] }) {
-  if (badges.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="border-outline-var border-t border-dashed">
-      <div className="flex flex-wrap justify-start gap-2 pt-4 pb-4 [direction:rtl]">
-        {badges.map((badge) => (
-          <Typography
-            as="span"
-            variant="label"
-            size="medium"
-            weight="semibold"
-            className="bg-surface-container-high text-on-surface-var inline-flex min-h-9 items-center gap-1 rounded-lg p-2 text-sm leading-5 font-semibold"
-            key={badge.label}
-          >
-            <ColorableSvgIcon
-              className="h-5 w-5 shrink-0"
-              src={badge.iconSrc ?? PROPERTY_DETAIL_ICONS.selected}
-            />
-            <Typography as="span" variant="label" size="medium" weight="semibold">
-              {badge.value}
-            </Typography>
-          </Typography>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function DetailInfoRowCard({ item, showDivider }: { item: DetailInfoItem; showDivider: boolean }) {
-  return (
-    <div>
-      <div
-        className={`flex items-center justify-start ${Array.isArray(item.value) ? "min-h-9" : "h-9"} my-4 text-right [direction:rtl]`}
-      >
-        {item.iconSrc ? (
-          <ColorableSvgIcon className="text-on-surface-var h-6 w-6 shrink-0" src={item.iconSrc} />
-        ) : null}
-
-        <Typography
-          as="span"
-          variant="label"
-          size="large"
-          weight="medium"
-          className="text-outline mr-1 text-base font-medium"
-        >
-          {item.label}
-        </Typography>
-
-        <div className="mr-2">
-          <DetailInfoValueView align="start" item={item} />
-        </div>
-      </div>
-
-      {item.extraRows && item.extraRows.length > 0 ? (
-        <div className="space-y-3 pb-5 text-left [direction:ltr]">
-          {item.extraRows.map((row) => (
-            <div
-              className="flex items-center justify-start gap-2 text-sm leading-5 font-medium [direction:rtl]"
-              key={row.label}
-            >
-              <Typography
-                as="span"
-                variant="label"
-                size="medium"
-                weight="medium"
-                className="text-outline text-sm leading-5 font-medium"
-              >
-                {row.label}
-              </Typography>
-              <strong className="text-on-surface text-sm leading-5 font-semibold">
-                {row.value}
-              </strong>
-            </div>
-          ))}
-        </div>
-      ) : null}
-
-      {showDivider ? <div aria-hidden="true" className="bg-outline-var h-px w-full" /> : null}
-    </div>
-  );
-}
-
-function DetailInfoSectionBlock({
-  section,
-  separated = false,
-}: {
-  section: DetailInfoSection;
-  separated?: boolean;
-}) {
-  const isRowsLayout = section.layout === "rows";
-
-  return (
-    <section
-      className={`bg-surface-container-lowest px-4 ${separated ? "border-surface-container border-t-8" : ""}`}
-    >
-      <div className="py-4">
-        <Typography variant="label" size="medium" weight="medium" className="text-outline">
-          {section.title}
-        </Typography>
-      </div>
-      <div aria-hidden="true" className="bg-outline-var h-px w-full" />
-
-      {section.ratingBanner ? (
-        <div className="pt-4">
-          <AccommodationRatingBanner
-            count={section.ratingBanner.count}
-            label={section.ratingBanner.label}
-          />
-        </div>
-      ) : null}
-
-      {isRowsLayout ? (
-        <div>
-          {section.items.map((item, index) => (
-            <DetailInfoRowCard
-              item={item}
-              key={`${section.title}-${item.label}`}
-              showDivider={index < section.items.length - 1}
-            />
-          ))}
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 justify-items-start gap-x-6 gap-y-6 py-4 [direction:rtl]">
-            {section.items.map((item) => (
-              <DetailInfoItemCard
-                item={item}
-                key={`${section.title}-${item.label}`}
-                showIcon={section.showIcons === true}
-              />
-            ))}
-          </div>
-
-          <DetailInfoChoiceRows rows={section.choiceRows ?? []} />
-          <DetailInfoCheckBadges badges={section.badges ?? []} />
-        </>
-      )}
-    </section>
-  );
-}
-
-export function DetailInfoFullPage({
-  title,
-  sections,
-  adId,
-}: {
-  title: string;
-  sections: DetailInfoSection[];
-  adId: string;
-}) {
-  const navigate = useNavigate();
-  const isPreview = window.location.pathname.startsWith("/preview-ad/");
-  const backTarget = adId
-    ? isPreview
-      ? `/preview-ad/${encodeURIComponent(String(adId))}`
-      : `/ads/${encodeURIComponent(String(adId))}`
-    : "/home";
-
-  return (
-    <PageFrame
-      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
-      variant="flush"
-    >
-      <TopBar
-        backTo={backTarget}
-        onBack={() => navigate(backTarget, { replace: true })}
-        title={title}
-      />
-
-      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-        {sections.length > 0 ? (
-          sections.map((section, index) => (
-            <DetailInfoSectionBlock key={section.title} section={section} separated={index > 0} />
-          ))
-        ) : (
-          <div className="bg-surface-container-lowest text-outline mx-auto w-full px-4 py-10 text-center text-sm leading-5 font-medium">
-            اطلاعاتی برای نمایش وجود ندارد.
-          </div>
-        )}
-      </main>
-    </PageFrame>
-  );
-}
+export { DetailInfoFullPage } from "./components/DetailInfoFullPage";

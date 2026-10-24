@@ -16,6 +16,7 @@ import { TextField } from "../../../../shared/ui/TextField";
 import { FeaturesIcons } from "../../components/FeaturesIcons";
 import { TopBar } from "../../../../shared/components/TopBar";
 import { normalizeNumberInput } from "../utils";
+import { formatNumber as formatPrice } from "../../../../shared/lib/numberUtils";
 import { preserveNewAdDraftStateKey } from "../session";
 import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
@@ -125,13 +126,6 @@ function ClearFieldButton({ onClick }: { onClick: () => void }) {
       <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
     </Button>
   );
-}
-
-function formatPrice(value: number | string) {
-  const number = typeof value === "number" ? value : Number(String(value).replace(/,/g, ""));
-  return Number.isFinite(number)
-    ? new Intl.NumberFormat("fa-IR").format(number)
-    : String(value ?? "");
 }
 
 export function InputBox({

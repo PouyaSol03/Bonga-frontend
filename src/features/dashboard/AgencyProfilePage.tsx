@@ -16,6 +16,7 @@ import { SelectionCheckIndicator } from "../../shared/components/SelectionCheckI
 import { TopBar } from "../../shared/components/TopBar";
 import { Toast } from "../../shared/components/Toast";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
+import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { Link } from "react-router";
 import { SearchInputBar } from "../../shared/ui/SearchBar";
 import { getApiAssetUrl, getApiErrorMessage } from "../../shared/api/api";
@@ -195,18 +196,6 @@ function resolveProfileNeighborhoodIds(profile: MyAgencyProfile) {
         .filter(Boolean),
     ),
   );
-}
-
-function useDebouncedValue<T>(value: T, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => setDebouncedValue(value), delay);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [delay, value]);
-
-  return debouncedValue;
 }
 
 export function AgencyProfilePage() {

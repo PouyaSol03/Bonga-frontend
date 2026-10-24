@@ -31,7 +31,8 @@ import {
   getNeighborhoodDescription,
   type NeighborhoodDto,
 } from "../locations/api/neighborhood.service";
-import { toEnglishDigits } from "../../shared/lib/numberUtils";
+import { toEnglishDigits, toPersianDigits } from "../../shared/lib/numberUtils";
+import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { useAdvertisementListQuery } from "../advertisements/api/advertisement.hooks";
 import { readSearchFilters } from "./SearchMapPage";
 import type { AdvertisementListParams } from "../advertisements/api/advertisement.service";
@@ -399,10 +400,6 @@ function normalizeRangeNumber(value: string | undefined) {
   if (!value) return "";
 
   return toEnglishDigits(value).replace(/[^\d.]/g, "");
-}
-
-function toPersianDigits(value: string | number) {
-  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }
 
 function formatPersianGroupedNumberInput(value: string) {
@@ -924,18 +921,6 @@ function useOpenOnFilterFocus(sectionId?: string, focusTarget?: string | null) {
   }, [focusTarget, openedTarget, sectionId]);
 
   return openedTarget !== sectionId && Boolean(sectionId && focusTarget === sectionId);
-}
-
-function useDebouncedValue<T>(value: T, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDebouncedValue(value), delay);
-
-    return () => window.clearTimeout(timer);
-  }, [delay, value]);
-
-  return debouncedValue;
 }
 
 function getNeighborhoodOptionId(neighborhood: Pick<NeighborhoodDto, "_id" | "id" | "name">) {

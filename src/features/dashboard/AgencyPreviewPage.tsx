@@ -52,7 +52,7 @@ import { mapAdvertisementToAdCard } from "../advertisements/api/advertisement.se
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
 import { useToast } from "../../shared/hooks/useToast";
-import { toEnglishDigits } from "../../shared/lib/numberUtils";
+import { toEnglishDigits, toPersianDigits as toPersianNumber } from "../../shared/lib/numberUtils";
 import LinearAddToList from "../../shared/icons/LinearAddToList";
 import TonalInstagram from "../../shared/icons/TonalInstagram";
 import TonalTelegram from "../../shared/icons/TonalTelegram";
@@ -118,7 +118,7 @@ function getPreviewNeighborhoodIds() {
 
 function toPersianDigits(value: number | string | null | undefined) {
   if (value === null || value === undefined || value === "") return "—";
-  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)] ?? digit);
+  return toPersianNumber(value) || "—";
 }
 
 function toOptionalCoordinate(value: number | string | null | undefined) {

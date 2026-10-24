@@ -23,7 +23,7 @@ import {
   toEnglishDigits,
   toPersianNumber as toPersianDigits,
 } from "../../../shared/lib/numberUtils";
-import { formatDetailPrice } from "../../../shared/lib/MoneyHandler";
+import { formatDetailPrice as formatPrice } from "../../../shared/lib/MoneyHandler";
 import { Typography } from "../../../shared/ui/Typography";
 
 export type AlbumMediaItem = {
@@ -111,10 +111,6 @@ function formatPublishedAge(
   }
 
   return toText(getFeatureValue(features, "published_at"));
-}
-
-function formatPrice(value: unknown) {
-  return formatDetailPrice(value);
 }
 
 export function readVideoUrl(ad: AdvertisementItem) {

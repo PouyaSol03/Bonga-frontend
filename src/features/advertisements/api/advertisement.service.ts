@@ -1,6 +1,6 @@
 import { v7 as uuidv7 } from "uuid";
 import { ApiError, api, apiV2, baseUrl, getActiveV2Role, publicApi } from "../../../shared/api/api";
-import { formatCardPrice } from "../../../shared/lib/MoneyHandler";
+import { formatCardPrice as formatPrice } from "../../../shared/lib/MoneyHandler";
 import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
 import { getAdvertisementImageUrls } from "../utils/advertisement-images";
 import {
@@ -619,10 +619,6 @@ export function getAdvertisementPublisherName(item: AdvertisementItem) {
     "user_name",
     "publisher_user_name",
   ]);
-}
-
-function formatPrice(value: unknown) {
-  return formatCardPrice(value);
 }
 
 export function readFeatureValue(item: AdvertisementItem, labels: string[]) {

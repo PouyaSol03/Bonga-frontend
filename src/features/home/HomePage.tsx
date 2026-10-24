@@ -156,11 +156,8 @@ function getStoredCity(): SelectedCity {
   }
 
   return {
-    id: window.localStorage.getItem("bonga-selected-city-id") ?? undefined,
-    name:
-      window.localStorage.getItem("bonga-selected-city") ??
-      window.sessionStorage.getItem("bonga-selected-city") ??
-      "مشهد",
+    id: undefined,
+    name: "مشهد",
   };
 }
 
@@ -253,7 +250,7 @@ export function HomePage() {
 
   const navigateToSearch = (options: { formCode?: string; query?: string } = {}) => {
     const params = new URLSearchParams();
-    const cityId = selectedCity.id ?? window.localStorage.getItem("bonga-selected-city-id") ?? "";
+    const cityId = selectedCity.id ?? readStoredSelectedCity()?.id ?? "";
 
     if (cityId) {
       params.set("city_id", cityId);

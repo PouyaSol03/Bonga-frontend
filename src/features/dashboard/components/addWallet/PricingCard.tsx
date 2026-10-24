@@ -1,4 +1,5 @@
 import { AdCardTomanIcon } from "../../../advertisements/components/AdCardIcons";
+import { formatNumber as formatPrice } from "../../../../shared/lib/numberUtils";
 import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
 
@@ -15,14 +16,6 @@ type PricingCardProps = {
   items?: PricingCardItem[];
   onPay?: () => void;
 };
-
-function formatPrice(value: string | number) {
-  if (typeof value === "number") {
-    return value.toLocaleString("fa-IR");
-  }
-
-  return value;
-}
 
 function DiscountBadge({ value }: { value?: string | number }) {
   if (!value) return null;

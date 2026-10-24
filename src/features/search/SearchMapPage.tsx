@@ -19,7 +19,8 @@ import {
   getBrowserLocationNotice,
   type BrowserLocation,
 } from "../../shared/lib/browserLocation";
-import { formatCardPrice } from "../../shared/lib/MoneyHandler";
+import { formatCardPrice as formatPrice } from "../../shared/lib/MoneyHandler";
+import { toEnglishDigits, toPersianDigits } from "../../shared/lib/numberUtils";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import {
   mapAdvertisementToAdCard,
@@ -353,52 +354,6 @@ const formCodeLabels: Record<string, string> = {
   "sale-warehouse": "فروش انبار و سوله",
 };
 
-const persianDigitMap: Record<string, string> = {
-  "0": "۰",
-  "1": "۱",
-  "2": "۲",
-  "3": "۳",
-  "4": "۴",
-  "5": "۵",
-  "6": "۶",
-  "7": "۷",
-  "8": "۸",
-  "9": "۹",
-  "٠": "۰",
-  "١": "۱",
-  "٢": "۲",
-  "٣": "۳",
-  "٤": "۴",
-  "٥": "۵",
-  "٦": "۶",
-  "٧": "۷",
-  "٨": "۸",
-  "٩": "۹",
-};
-
-const englishDigitMap: Record<string, string> = {
-  "۰": "0",
-  "۱": "1",
-  "۲": "2",
-  "۳": "3",
-  "۴": "4",
-  "۵": "5",
-  "۶": "6",
-  "۷": "7",
-  "۸": "8",
-  "۹": "9",
-  "٠": "0",
-  "١": "1",
-  "٢": "2",
-  "٣": "3",
-  "٤": "4",
-  "٥": "5",
-  "٦": "6",
-  "٧": "7",
-  "٨": "8",
-  "٩": "9",
-};
-
 function getSearchQuery(params: URLSearchParams) {
   return (params.get("query") || params.get("qsearch") || params.get("q") || "").trim();
 }
@@ -633,15 +588,11 @@ function removeFilterFromSearch(
   writeSearchParams(params, navigate);
 }
 
-function toPersianDigits(value: unknown) {
-  return String(value).replace(/[0-9٠-٩]/g, (digit) => persianDigitMap[digit] ?? digit);
-}
-
 function toNumber(value: unknown) {
   if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
 
   if (typeof value === "string" && value.trim()) {
-    const normalizedValue = value.replace(/[۰-۹٠-٩]/g, (digit) => englishDigitMap[digit] ?? digit);
+    const normalizedValue = toEnglishDigits(value);
     const parsed = Number(normalizedValue.replace(/[^\d.-]/g, ""));
 
     return Number.isFinite(parsed) ? parsed : undefined;
@@ -656,10 +607,6 @@ function toText(value: unknown, fallback = "") {
   if (typeof value === "boolean") return value ? "دارد" : "ندارد";
 
   return fallback;
-}
-
-function formatPrice(value: unknown) {
-  return formatCardPrice(value);
 }
 
 function readFeatureRaw(item: AdvertisementItem, labels: string[]) {

@@ -10,23 +10,14 @@ import {
   propertyRequestFilterLabels,
   roomLabels,
 } from "./property-request-constants";
+import { toEnglishDigits as toLatinDigits, toPersianDigits } from "../../../shared/lib/numberUtils";
 
-export { propertyRequestCategoryLabels, propertyRequestFilterLabels };
-
-export function toPersianDigits(value: number | string) {
-  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)] ?? digit);
-}
+export { propertyRequestCategoryLabels, propertyRequestFilterLabels, toPersianDigits };
 
 export function formatPropertyRequestValue(value: string) {
   if (value === "true" || value === "1") return "بله";
   if (value === "false" || value === "0") return "خیر";
   return toPersianDigits(value.replace(/_/g, "، "));
-}
-
-function toLatinDigits(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
 }
 
 function formatCompactToman(value: string) {

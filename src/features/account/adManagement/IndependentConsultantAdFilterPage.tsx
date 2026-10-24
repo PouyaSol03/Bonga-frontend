@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import LinearLocation from "../../../shared/icons/LinearLocation";
@@ -76,18 +77,6 @@ function buildFilters({
 
 function getInitialPropertyTypes(filters: AdManagementFilters) {
   return filters.propertyTypes ?? (filters.propertyType ? [filters.propertyType] : []);
-}
-
-function useDebouncedValue<T>(value: T, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => setDebouncedValue(value), delay);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [delay, value]);
-
-  return debouncedValue;
 }
 
 export function IndependentConsultantAdFilterPage() {

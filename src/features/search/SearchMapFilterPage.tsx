@@ -628,10 +628,6 @@ function buildSearchUrl(filters: FilterState, applyBasePath = "/search") {
     ? getAdvertiseFormCode(filters.transaction, filters.category)
     : "";
   const neighborhoods = filters.neighborhoods.map((item) => item.id).join("_");
-  // Only the generic `area`/`price` fields use these legacy params.
-  // land_area, building_area, rent_price and mortgage_price are emitted below
-  // through filterFieldParamMap so independent ranges do not accidentally AND
-  // against a non-existent generic attribute.
   const areaRange = getRange(filters, ["meterage", "projectMeterage"]);
   const priceRange = getRange(filters, ["price", "projectPrice", "dailyPrice"]);
   const rooms =
@@ -1391,8 +1387,6 @@ const approvedSaleFilterUnitsPerFloorOptions = ["۱", "۲", "۳", "۴", "۵", "�
 
 const approvedSaleFilterExchangeTargets = exchangeTargets;
 
-// Exact filter-screen contracts transcribed from the supplied sale/rent SVG references.
-// These lists are intentionally filter-only so create/edit form contracts remain untouched.
 const approvedBusinessCurrentStatusOptions = ["تخلیه", "فعال"];
 const approvedOfficeCurrentStatusOptions = ["تخلیه", "فعال", "درحال بازسازی"];
 const approvedOfficePositionOptions = [
@@ -1610,8 +1604,6 @@ const approvedRentCommercialSuitableOptions = [
   "سایر",
 ];
 
-// Exact filter-only contracts transcribed from the supplied daily-rent/project SVGs.
-// These intentionally do not change create/edit-ad field definitions.
 const approvedDailyAccommodationOptions = [
   "سوئیت",
   "آپارتمان",

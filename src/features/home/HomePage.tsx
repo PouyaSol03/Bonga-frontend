@@ -180,16 +180,6 @@ export function HomePage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    console.log("[FCM Push Status on Home]:", {
-      isSecureContext: window.isSecureContext,
-      hasNotification: "Notification" in window,
-      permission: "Notification" in window ? Notification.permission : "unsupported",
-      isSupported,
-      hasAuthSession,
-      hasVapidKey: Boolean(import.meta.env.VITE_FIREBASE_VAPID_KEY),
-    });
-
     if (!isSupported) return;
 
     if (permission === "granted") {

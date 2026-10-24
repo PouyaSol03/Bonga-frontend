@@ -1123,8 +1123,8 @@ function RealEstateManagerAdStatePage({
               });
               setPublisherId(nextPublisher.id);
               setIsPublisherPickerOpen(false);
-            } catch (err) {
-              console.error("Failed to change consultant:", err);
+            } catch {
+              // Ignore failure
             }
           }}
           options={publisherOptions}

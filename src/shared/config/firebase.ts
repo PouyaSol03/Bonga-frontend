@@ -42,8 +42,8 @@ export async function getFirebaseMessaging(): Promise<Messaging | null> {
         if (supported) {
           return getMessaging(app);
         }
-      } catch (err) {
-        console.warn("[FCM] Error initializing getMessaging:", err);
+      } catch {
+        // Ignore initialization error
       }
       return null;
     })();

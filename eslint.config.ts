@@ -80,7 +80,7 @@ export default defineConfig([
       "import-x/no-self-import": "error",
 
       // 6. Clean JS / Modern Best Practices
-      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "no-console": "error",
       "prefer-const": "error",
       "no-var": "error",
       eqeqeq: ["error", "always", { null: "ignore" }],

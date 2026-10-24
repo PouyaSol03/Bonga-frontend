@@ -398,10 +398,10 @@ export const totalFloorsOptions = [
   "۴۰ طبقه و بیشتر",
 ];
 
-export const villaTotalFloorsOptions = [
-  ...Array.from({ length: 7 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} طبقه`),
-  "۸ طبقه و بیشتر",
-];
+export const villaTotalFloorsOptions = Array.from(
+  { length: 7 },
+  (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} طبقه`,
+);
 
 export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   age: ageOptions,

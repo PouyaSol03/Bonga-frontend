@@ -75,8 +75,8 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
   if (hasRequiredText(values.totalFloors)) {
     if (numTotalFloors === null || numTotalFloors <= 0) {
       errors.totalFloors = "تعداد کل طبقات باید بزرگتر از صفر باشد.";
-    } else if (category === "villa-house" && numTotalFloors > 8) {
-      errors.totalFloors = "تعداد کل طبقات برای خانه، ویلا نمی‌تواند بیشتر از ۸ طبقه باشد.";
+    } else if (category === "villa-house" && numTotalFloors > 7) {
+      errors.totalFloors = "تعداد کل طبقات برای خانه، ویلا نمی‌تواند بیشتر از ۷ طبقه باشد.";
     } else if (numTotalFloors > 70) {
       errors.totalFloors = "تعداد کل طبقات نمی‌تواند بیشتر از ۷۰ طبقه باشد.";
     }

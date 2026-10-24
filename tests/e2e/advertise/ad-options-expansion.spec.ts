@@ -69,14 +69,14 @@ test.describe("Ad options expansion (floors, units, rooms, villa type, villa max
     ]);
   });
 
-  test("villa-house moreFeatures has max 8 floors for totalFloors and has چند طبقه مجزا in villaType", () => {
+  test("villa-house moreFeatures has max 7 floors for totalFloors and has چند طبقه مجزا in villaType", () => {
     const saleVillaFields = moreFeatureFieldsByListingType["sale:villa-house"];
     expect(saleVillaFields).toBeDefined();
 
     const totalFloorsField = saleVillaFields.find((f) => f.key === "totalFloors");
     expect(totalFloorsField?.options).toEqual(villaTotalFloorsOptions);
-    expect(totalFloorsField?.options).toHaveLength(8);
-    expect(totalFloorsField?.options?.[totalFloorsField.options.length - 1]).toBe("۸ طبقه و بیشتر");
+    expect(totalFloorsField?.options).toHaveLength(7);
+    expect(totalFloorsField?.options?.[totalFloorsField.options.length - 1]).toBe("۷ طبقه");
 
     const villaTypeField = saleVillaFields.find((f) => f.key === "villaType");
     expect(villaTypeField?.options?.[0]).toBe("فلت");
@@ -110,7 +110,7 @@ test.describe("Ad options expansion (floors, units, rooms, villa type, villa max
     expect(villaSchema).toBeDefined();
     const villaMoreFields = villaSchema?.create.moreFeatures?.fields ?? [];
     const villaTotalFloors = villaMoreFields.find((f) => f.key === "totalFloors");
-    expect(villaTotalFloors?.options).toHaveLength(8);
+    expect(villaTotalFloors?.options).toHaveLength(7);
 
     const villaTypeField = villaMoreFields.find((f) => f.key === "villaType");
     expect(villaTypeField?.options?.[1]).toBe("چند طبقه مجزا");
@@ -122,7 +122,7 @@ test.describe("Ad options expansion (floors, units, rooms, villa type, villa max
     expect(aptTotalFloors?.options).toHaveLength(40);
   });
 
-  test("validation bounds: max 60 units per floor, max 8 floors for villa-house", () => {
+  test("validation bounds: max 60 units per floor, max 7 floors for villa-house", () => {
     (globalThis as unknown as { window: unknown }).window = {
       location: new URL("http://localhost/new-ad/details?transaction=sale&category=villa-house"),
     };
@@ -130,7 +130,7 @@ test.describe("Ad options expansion (floors, units, rooms, villa type, villa max
     const validValues = {
       location: "Tehran",
       unitsPerFloor: "60",
-      totalFloors: "8",
+      totalFloors: "7",
     } as unknown as NewAdFormValues;
     expect(validateNewAdDetails(validValues)?.errors?.unitsPerFloor).toBeUndefined();
     expect(validateNewAdDetails(validValues)?.errors?.totalFloors).toBeUndefined();
@@ -138,10 +138,10 @@ test.describe("Ad options expansion (floors, units, rooms, villa type, villa max
     const invalidUnits = {
       location: "Tehran",
       unitsPerFloor: "61",
-      totalFloors: "9",
+      totalFloors: "8",
     } as unknown as NewAdFormValues;
     const errors = validateNewAdDetails(invalidUnits)?.errors;
     expect(errors?.unitsPerFloor).toBe("تعداد واحد در هر طبقه نمی‌تواند بیشتر از ۶۰ واحد باشد.");
-    expect(errors?.totalFloors).toBe("تعداد کل طبقات برای خانه، ویلا نمی‌تواند بیشتر از ۸ طبقه باشد.");
+    expect(errors?.totalFloors).toBe("تعداد کل طبقات برای خانه، ویلا نمی‌تواند بیشتر از ۷ طبقه باشد.");
   });
 });

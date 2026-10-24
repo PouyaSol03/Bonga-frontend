@@ -20,6 +20,7 @@ import { preserveNewAdDraftStateKey } from "../session";
 import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { Typography } from "../../../../shared/ui/Typography";
+import { cn } from "../../../../design-system/classes";
 import LinearInformation from "../../../../shared/icons/LinearInformation";
 import LinearImage from "../../../../shared/icons/LinearImage";
 import LinearMoney from "../../../../shared/icons/LinearMoney";
@@ -286,7 +287,13 @@ export function Chip({
 }) {
   return (
     <UiChip
-      icon={<FeaturesIcons feature={item.label} className="h-5 w-5 shrink-0 object-contain" />}
+      icon={
+        <FeaturesIcons
+          feature={item.label}
+          selected={selected}
+          className={cn("h-5 w-5 shrink-0 object-contain", selected ? "text-primary" : "text-on-surface-var")}
+        />
+      }
       onClick={onClick}
       selected={selected}
     >

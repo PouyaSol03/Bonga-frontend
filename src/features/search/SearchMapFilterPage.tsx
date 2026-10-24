@@ -22,6 +22,7 @@ import { ChoiceIndicator } from "../../shared/ui/Choice";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { FeatureIcon } from "../advertisements/components/FeatureIcon";
+import { cn } from "../../design-system/classes";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { useNavigate } from "react-router";
@@ -367,7 +368,10 @@ function getBackToSearchPath(backBasePath = "/search") {
 function normalizeExactFilterValue(value: string | undefined) {
   if (!value) return "";
 
-  const normalized = toEnglishDigits(value)
+  const trimmed = value.trim();
+  if (trimmed === "همکف" || trimmed === "بدون") return "0";
+
+  const normalized = toEnglishDigits(trimmed)
     .replace(/‌/g, " ")
     .replace(/سال/g, "")
     .replace(/اتاق/g, "")
@@ -377,11 +381,14 @@ function normalizeExactFilterValue(value: string | undefined) {
     .replace(/\+/g, "")
     .trim();
 
-  if (normalized === "همکف" || normalized === "بدون") return "0";
+  if (/\d/.test(normalized)) {
+    const numericValue = normalized.replace(/[^\d.-]/g, "");
+    if (numericValue && !isNaN(Number(numericValue))) {
+      return numericValue;
+    }
+  }
 
-  const numericValue = normalized.replace(/[^\d.-]/g, "");
-
-  return numericValue || normalized;
+  return trimmed;
 }
 
 function normalizeMultiExactFilterValue(values: string[] | undefined) {
@@ -1397,16 +1404,7 @@ const approvedSaleFilterFloorOptions = [
 ];
 const approvedSaleFilterUnitsPerFloorOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "+۸"];
 
-const approvedSaleFilterExchangeTargets = [
-  "ویلا",
-  "خودرو",
-  "آپارتمان",
-  "خانه ویلایی",
-  "زمین",
-  ...exchangeTargets.filter(
-    (item) => !["ویلا", "خودرو", "آپارتمان", "خانه ویلایی", "زمین"].includes(item),
-  ),
-];
+const approvedSaleFilterExchangeTargets = exchangeTargets;
 
 // Exact filter-screen contracts transcribed from the supplied sale/rent SVG references.
 // These lists are intentionally filter-only so create/edit form contracts remain untouched.
@@ -2993,7 +2991,11 @@ function getPriceBlocks(transaction: TransactionType, category: CategoryKey): Fi
   return [createRangeBlock("price", "قیمت", "money", "تومان")];
 }
 
-function buildFilterBlocksFromSchema(sections: AdFormFilterSectionConfig[]): FilterBlock[] {
+function buildFilterBlocksFromSchema(
+  sections: AdFormFilterSectionConfig[],
+  transaction?: TransactionType,
+  category?: CategoryKey,
+): FilterBlock[] {
   return sections.map((section): FilterBlock => {
     switch (section.kind) {
       case "neighborhood":
@@ -3066,13 +3068,21 @@ function buildFilterBlocksFromSchema(sections: AdFormFilterSectionConfig[]): Fil
       }
       case "multi": {
         const icon = (section.icon ? section.icon : getFieldIcon(section.id!)) as IconName;
+        let options = (section.options ?? []).map((opt) =>
+          typeof opt === "string" ? { id: opt, label: opt } : opt,
+        );
+        if (options.length === 0 && transaction && category) {
+          if (section.id === "heatingCooling") {
+            options = [...getHeatingItems(transaction, category)];
+          } else if (section.id === "facilities") {
+            options = [...getFacilityItems(transaction, category)];
+          }
+        }
         return {
           icon,
           id: section.id!,
           kind: "multi",
-          options: (section.options ?? []).map((opt) =>
-            typeof opt === "string" ? { id: opt, label: opt } : opt,
-          ),
+          options,
           title: section.title!,
           more: section.more,
           moreLimit: section.moreLimit,
@@ -3094,7 +3104,7 @@ function getFilterBlocks(
 
   const schema = getFormSchemaByListing(transaction, category);
   if (schema?.filter?.sections && schema.filter.sections.length > 0) {
-    return buildFilterBlocksFromSchema(schema.filter.sections);
+    return buildFilterBlocksFromSchema(schema.filter.sections, transaction, category);
   }
 
   if (transaction === "rent" && category === "daily-apartment-suite") {
@@ -3901,8 +3911,22 @@ function ExchangeFilterSection({
   );
 }
 
-function FeatureChipIcon({ label }: { label: string; selected?: boolean }) {
-  return <FeatureIcon feature={label} className="h-5 w-5 shrink-0 object-contain" />;
+function FeatureChipIcon({
+  className,
+  label,
+  selected = false,
+}: {
+  className?: string;
+  label: string;
+  selected?: boolean;
+}) {
+  return (
+    <FeatureIcon
+      feature={label}
+      selected={selected}
+      className={cn("h-5 w-5 shrink-0 object-contain", selected ? "text-primary" : "text-on-surface-var", className)}
+    />
+  );
 }
 
 type SingleChoiceSectionProps = {

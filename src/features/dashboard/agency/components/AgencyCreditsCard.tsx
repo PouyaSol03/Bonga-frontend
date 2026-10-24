@@ -4,7 +4,7 @@ import {
 } from "../../components/DashboardCreditsCard";
 import type { AgencyCreditItem } from "../types";
 
-export interface AgencyCreditsCardProps {
+interface AgencyCreditsCardProps {
   items?: AgencyCreditItem[];
 }
 

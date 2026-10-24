@@ -2,7 +2,7 @@ import type { AdvertisementItem } from "../../advertisements/api/advertisement.s
 
 export type PropertyRequestOwnerType = "agency" | "user" | "agency-consultant";
 
-export type PropertyRequestFilterValue = boolean | number | string | Array<number | string>;
+type PropertyRequestFilterValue = boolean | number | string | Array<number | string>;
 
 export type PropertyRequestApiFilter = {
   field: string;

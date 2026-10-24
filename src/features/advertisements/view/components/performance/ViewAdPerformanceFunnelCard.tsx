@@ -87,7 +87,7 @@ const PERFORMANCE_FUNNEL_STAGES: FunnelStage[] = [
   },
 ];
 
-export function ViewAdPerformanceFunnelCardSkeleton() {
+function ViewAdPerformanceFunnelCardSkeleton() {
   return (
     <div className="border-surface-container bg-surface-container-lowest w-full rounded-2xl border p-4 shadow-2xs">
       <div className="bg-surface-container h-6 w-36 animate-pulse rounded" />

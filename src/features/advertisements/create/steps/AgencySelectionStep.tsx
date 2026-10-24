@@ -25,6 +25,7 @@ import { Button } from "../../../../shared/ui/Button";
 import { useNavigate } from "react-router";
 import { preserveNewAdDraftStateKey } from "../session";
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
+import { useDebouncedValue } from "../../../../shared/hooks/useDebouncedValue";
 
 type SelectedAgency = Pick<PublicAgencyDto, "id" | "name">;
 
@@ -37,17 +38,6 @@ const sortOptions: Array<{ id: AgencySort; title: string }> = [
   { id: "newest", title: "جدیدترین" },
   { id: "oldest", title: "با سابقه‌ترین" },
 ];
-
-function useDebouncedValue(value: string, delay = 300) {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const timeout = window.setTimeout(() => setDebounced(value), delay);
-    return () => window.clearTimeout(timeout);
-  }, [delay, value]);
-
-  return debounced;
-}
 
 function agencyToMapItem(agency: PublicAgencyDto): AgencyDirectoryMapItem {
   return {

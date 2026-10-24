@@ -10,7 +10,7 @@ import { readStoredSelectedCity, saveSelectedCity } from "../../../shared/lib/se
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 
-export type CitySelectionScreenProps = {
+type CitySelectionScreenProps = {
   currentCity: string;
   isOpen: boolean;
   onClose: () => void;

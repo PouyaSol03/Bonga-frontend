@@ -19,7 +19,7 @@ const closeResultReasons: { label: string; value: CloseResultReason }[] = [
   { label: "مشتری پاسخگو نبود", value: "unresponsive" },
 ];
 
-export type AdCloseResultPageProps = {
+type AdCloseResultPageProps = {
   adId?: string;
   initialReason?: CloseResultReason;
 };

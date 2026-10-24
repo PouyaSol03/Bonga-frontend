@@ -46,8 +46,7 @@ const configuredApiBaseUrlV2 =
     : "/api/v2");
 
 export const baseUrl = normalizeApiBaseUrl(configuredApiBaseUrl);
-export const baseUrlV2 = normalizeApiBaseUrl(configuredApiBaseUrlV2);
-export const baseUrl_v2 = baseUrlV2;
+const baseUrlV2 = normalizeApiBaseUrl(configuredApiBaseUrlV2);
 
 export const websocketBaseUrl = normalizeWebSocketBaseUrl(
   import.meta.env?.VITE_WEBSOCKET_BASE_URL ?? configuredApiBaseUrl,
@@ -124,7 +123,7 @@ function isCrmOrAdminContext(request?: Request): boolean {
   return false;
 }
 
-export function getApiUserType(request?: Request): ApiUserType {
+function getApiUserType(request?: Request): ApiUserType {
   const activeRole = getActiveAuthRole(getStoredAuthSession());
 
   // The frontend uses `super-admin` internally, while the backend header
@@ -355,7 +354,7 @@ export function getActiveV2Role(): V2RoleSegment {
   return getV2RoleSegment(activeRole);
 }
 
-export function resolveV2Url(inputUrl: string): string {
+function resolveV2Url(inputUrl: string): string {
   const base = baseUrlV2 || "/api/v2";
   if (!base) return inputUrl;
 
@@ -453,11 +452,8 @@ const apiOptionsV2: Options = {
 };
 
 export const api = ky.create(apiOptions);
-export const apiV1 = api;
-export const clientV1 = api;
 
 export const apiV2 = ky.create(apiOptionsV2);
-export const clientV2 = apiV2;
 
 export const publicApi = api.extend({
   context: {
@@ -472,7 +468,7 @@ export const publicApiV2 = apiV2.extend({
 });
 
 export const client = {
-  v1: apiV1,
+  v1: api,
   v2: apiV2,
 };
 

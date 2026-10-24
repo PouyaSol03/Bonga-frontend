@@ -57,7 +57,7 @@ export const DEFAULT_CENTER: LatLngTuple = [
   defaultSelectedCity.longitude,
 ];
 
-export type CrmSection =
+type CrmSection =
   | "advertises"
   | "users"
   | "consultants"
@@ -75,7 +75,7 @@ export type CrmSection =
   | "discounts"
   | "feedback";
 
-export type ToastState = {
+type ToastState = {
   id: number;
   message: string;
   tone: "error" | "success";
@@ -430,16 +430,6 @@ function primaryCrmRoleLabel(roles: string[]) {
     SUPER_ADMIN;
 
   return crmRoleLabels[primaryRole] ?? crmRoleLabels[SUPER_ADMIN];
-}
-
-export function parseJsonValue(value: string, fieldLabel: string, fallback: unknown) {
-  if (!value.trim()) return fallback;
-
-  try {
-    return JSON.parse(value) as unknown;
-  } catch {
-    throw new Error(`${fieldLabel} باید JSON معتبر باشد.`);
-  }
 }
 
 export function cleanEmptyValues(values: CrmRecord) {

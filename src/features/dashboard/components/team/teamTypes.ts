@@ -3,7 +3,7 @@ import type {
   AgencyConsultantPermissions,
 } from "../../../agencies/api/agency.service";
 
-export type ConsultantStatus = "active" | "pending";
+type ConsultantStatus = "active" | "pending";
 
 export type TeamConsultant = {
   adQuota?: number;

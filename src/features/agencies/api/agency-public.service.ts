@@ -23,7 +23,7 @@ import type {
   PublicAgencyPage,
 } from "./agency-public.types";
 
-export function normalizeAgency(item: PublicAgencyApiItem): PublicAgencyDto | null {
+function normalizeAgency(item: PublicAgencyApiItem): PublicAgencyDto | null {
   const id = String(item.id ?? item._id ?? "").trim();
   const name = toText(item.name);
 
@@ -45,7 +45,7 @@ export function normalizeAgency(item: PublicAgencyApiItem): PublicAgencyDto | nu
   };
 }
 
-export function normalizePublicAgencyDetail(
+function normalizePublicAgencyDetail(
   item: Record<string, unknown>,
 ): PublicAgencyDetailDto | null {
   const base = normalizeAgency(item);

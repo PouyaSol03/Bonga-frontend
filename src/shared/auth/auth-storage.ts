@@ -93,7 +93,7 @@ const pendingMobileKey = "bonga-pending-mobile";
 const otpResendAtKey = "bonga-otp-resend-at";
 const loginRedirectPathKey = "bonga-login-redirect-path";
 
-export const otpResendCooldownMilliseconds = 60_000;
+const otpResendCooldownMilliseconds = 60_000;
 export const authSessionChangedEventName = authSessionChangedEvent;
 
 export function setStoredAuthSession(session: AuthSession) {

@@ -1,6 +1,6 @@
 import { api } from "../../../shared/api/api";
 
-export type SupportRequestPayload = {
+type SupportRequestPayload = {
   category: string;
   priority: "normal" | "important" | "urgent";
   subject: string;
@@ -23,7 +23,7 @@ export type SupportRequestItem = Record<string, unknown> & {
   user?: Record<string, unknown>;
 };
 
-export type SupportRequestsPage = {
+type SupportRequestsPage = {
   data: SupportRequestItem[];
   page: number;
   perPage: number;

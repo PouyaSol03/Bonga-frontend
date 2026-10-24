@@ -4,7 +4,7 @@ import { getStoredAccessToken } from "../../../shared/auth/auth-storage";
 import type { NotificationCategory, NotificationItem } from "./notification.service";
 import { websocketBaseUrl } from "../../../shared/api/api";
 
-export type NotificationNewPayload = {
+type NotificationNewPayload = {
   notification?: NotificationItem;
   unread_count?: number;
 };
@@ -42,7 +42,7 @@ type NotificationSocketClientToServerEvents = {
   ) => void;
 };
 
-export type NotificationSocket = Socket<
+type NotificationSocket = Socket<
   NotificationSocketServerToClientEvents,
   NotificationSocketClientToServerEvents
 >;
@@ -56,7 +56,7 @@ function getNotificationSocketUrl() {
   return `${socketBaseUrl.replace(/\/$/, "")}/notifications`;
 }
 
-export function getNotificationSocket() {
+function getNotificationSocket() {
   const token = getStoredAccessToken();
 
   if (!notificationSocket) {

@@ -1,18 +1,7 @@
 import type { ChipItem } from "../types";
+import { toEnglishDigits as toLatinDigits, toPersianDigits } from "../../../../shared/lib/numberUtils";
 
-export function toLatinDigits(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
-}
-
-export function toPersianDigits(value: string) {
-  return value.replace(/[0-9٠-٩]/g, (digit) => {
-    const latinDigit = digit >= "0" && digit <= "9" ? digit : String("٠١٢٣٤٥٦٧٨٩".indexOf(digit));
-
-    return "۰۱۲۳۴۵۶۷۸۹"[Number(latinDigit)] ?? digit;
-  });
-}
+export { toLatinDigits, toPersianDigits };
 
 export function normalizeLookupText(value: unknown): string {
   return toLatinDigits(String(value ?? ""))

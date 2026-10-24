@@ -7,7 +7,7 @@ import {
   type PerformanceDayData,
 } from "../components/performance/viewAdPerformanceData";
 
-export interface AdPerformanceSummaryData {
+interface AdPerformanceSummaryData {
   views_count: number;
   views_growth_percent?: number;
   search_impressions_count: number;
@@ -18,7 +18,7 @@ export interface AdPerformanceSummaryData {
   chats_growth_percent?: number;
 }
 
-export interface AdPerformanceFunnelStage {
+interface AdPerformanceFunnelStage {
   id: string;
   label: string;
   count: number;
@@ -28,21 +28,21 @@ export interface AdPerformanceFunnelStage {
   is_final?: boolean;
 }
 
-export interface AdPerformanceFunnelData {
+interface AdPerformanceFunnelData {
   status?: boolean;
   available?: boolean;
   title?: string;
   stages?: AdPerformanceFunnelStage[];
 }
 
-export interface AdPerformanceChartsData {
+interface AdPerformanceChartsData {
   metric: PerformanceMetricKey;
   week_label: string;
   total_metric_value: number;
   days: PerformanceDayData[];
 }
 
-export async function getAdPerformanceSummary(
+async function getAdPerformanceSummary(
   adId?: string | number,
 ): Promise<AdPerformanceSummaryData | null> {
   if (!adId) return null;
@@ -57,7 +57,7 @@ export async function getAdPerformanceSummary(
   }
 }
 
-export async function getAdPerformanceCharts(
+async function getAdPerformanceCharts(
   adId?: string | number,
   metric: PerformanceMetricKey = "views",
   weekOffset = 0,
@@ -96,7 +96,7 @@ export function useAdPerformanceSummaryQuery(
   });
 }
 
-export async function getAdPerformanceFunnel(
+async function getAdPerformanceFunnel(
   adId?: string | number,
 ): Promise<AdPerformanceFunnelData | null> {
   if (!adId) return null;

@@ -4,7 +4,7 @@ import { Typography } from "../../../../shared/ui/Typography";
 
 export type ViewAdBusinessTabKey = "management" | "lead" | "performance";
 
-export interface ViewAdBusinessTabsProps {
+interface ViewAdBusinessTabsProps {
   activeTab?: ViewAdBusinessTabKey;
   onTabChange?: (tab: ViewAdBusinessTabKey) => void;
   adId?: string | number;

@@ -8,7 +8,7 @@ export type AgencyConsultantPermissions = {
   support: boolean;
 };
 
-export type AgencyConsultantSettingsPayload = {
+type AgencyConsultantSettingsPayload = {
   adQuota: number;
   permissions: AgencyConsultantPermissions | Record<string, boolean>;
   renewQuota: number;
@@ -41,7 +41,7 @@ export type AgencyConsultantMetrics = {
   views?: number;
 };
 
-export type AgencyConsultantPeriodActivity = {
+type AgencyConsultantPeriodActivity = {
   advertiseRegistrationProgress: Array<{ month: string; value: number }>;
   period: string;
   publishedAdvertises: number;

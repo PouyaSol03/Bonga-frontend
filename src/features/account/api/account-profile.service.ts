@@ -24,7 +24,7 @@ function normalizeProfileRoleSlug(value: unknown): AuthRoleSlug | null {
   return authRoleSlugs.includes(slug) ? slug : null;
 }
 
-export function syncStoredRolesFromProfile(response: unknown, profile: UserProfile): void {
+function syncStoredRolesFromProfile(response: unknown, profile: UserProfile): void {
   const session = getStoredAuthSession();
   if (!session) return;
 
@@ -184,7 +184,7 @@ export function syncStoredRolesFromProfile(response: unknown, profile: UserProfi
   });
 }
 
-export function getContextMeShowEndpoint(role?: string | null): string {
+function getContextMeShowEndpoint(role?: string | null): string {
   const session = getStoredAuthSession();
   const activeRole = role ?? session?.activeRole ?? session?.role;
   switch (activeRole) {

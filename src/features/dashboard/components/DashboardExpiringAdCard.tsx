@@ -13,7 +13,7 @@ export interface ExpiringAdItem {
   to?: string;
 }
 
-export interface DashboardExpiringAdCardProps {
+interface DashboardExpiringAdCardProps {
   ad: ExpiringAdItem;
 }
 

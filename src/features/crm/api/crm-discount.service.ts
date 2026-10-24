@@ -48,8 +48,7 @@ export async function listCrmDiscountCodes(): Promise<CrmDiscountCode[]> {
     if (Array.isArray(res?.data)) return res.data;
     if (Array.isArray(res?.list)) return res.list;
     return [];
-  } catch (error) {
-    console.error("Error fetching discount codes:", error);
+  } catch {
     return [];
   }
 }

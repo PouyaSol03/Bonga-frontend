@@ -1,7 +1,7 @@
 import { Typography } from "../../../../shared/ui/Typography";
 import LinearAnalytics from "../../../../shared/icons/LinearAnalytics";
 
-export interface DashboardChartEmptyStateProps {
+interface DashboardChartEmptyStateProps {
   title?: string;
   description?: string;
   className?: string;

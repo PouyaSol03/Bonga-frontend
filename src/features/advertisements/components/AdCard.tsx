@@ -26,7 +26,7 @@ import {
   AdCardYearIcon,
 } from "./AdCardIcons";
 
-export type AdCardPropertyItem = {
+type AdCardPropertyItem = {
   icon: ReactNode;
   value: string;
 };
@@ -70,7 +70,7 @@ export type AdCardData = {
 
 type AdCardVariant = "standard" | "dashboard" | "requestResult" | "mapPreview" | "carousel";
 
-export const AD_CARD_TEXT_MAX_LENGTH = 50;
+const AD_CARD_TEXT_MAX_LENGTH = 50;
 
 export function truncateAdCardText(text: string) {
   if (text.length <= AD_CARD_TEXT_MAX_LENGTH) return text;
@@ -644,7 +644,7 @@ function PriceItem({ label, price }: { label: string; price: string }) {
   );
 }
 
-export type AdCategoryType =
+type AdCategoryType =
   // فروش
   | "sale-apartment"
   | "sale-land"
@@ -670,7 +670,7 @@ export type AdCategoryType =
   | "project-partnership"
   | "default";
 
-export function isDailyRentCategory(category: AdCategoryType): boolean {
+function isDailyRentCategory(category: AdCategoryType): boolean {
   return (
     category === "daily-apartment-suite" ||
     category === "daily-garden-villa" ||
@@ -679,7 +679,7 @@ export function isDailyRentCategory(category: AdCategoryType): boolean {
   );
 }
 
-export function resolveAdCategory(ad: AdCardData): AdCategoryType {
+function resolveAdCategory(ad: AdCardData): AdCategoryType {
   const formCode = (ad.formCode ?? "").toLowerCase().trim();
   const category = (ad.category ?? "").toLowerCase().trim();
   const title = (ad.title ?? "").toLowerCase().trim();
@@ -928,7 +928,7 @@ function formatBuildingAgeClean(value?: string): string | undefined {
   return `${clean} سال`;
 }
 
-export function getAdCardProperties(ad: AdCardData): AdCardPropertyItem[] {
+function getAdCardProperties(ad: AdCardData): AdCardPropertyItem[] {
   if (ad.properties && ad.properties.length > 0) {
     return ad.properties.filter(
       (item) => item.value && item.value.trim() && item.value.trim() !== "-",

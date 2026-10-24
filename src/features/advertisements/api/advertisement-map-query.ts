@@ -1,4 +1,4 @@
-export type AdvertisementMapSearchParamValue = boolean | number | string;
+type AdvertisementMapSearchParamValue = boolean | number | string;
 
 export function buildAdvertisementMapRequestPath(
   params: Record<string, AdvertisementMapSearchParamValue>,

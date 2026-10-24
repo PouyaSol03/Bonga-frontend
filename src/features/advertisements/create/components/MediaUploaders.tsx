@@ -9,13 +9,13 @@ import LinearCancelCircle from "../../../../shared/icons/LinearCancelCircle";
 import LinearImage from "../../../../shared/icons/LinearImage";
 import { ViewAdAlbumPage } from "../../view/pages/ViewAdAlbumPage";
 
-export const allowedPhotoTypes = ["image/jpeg", "image/png", "image/webp"];
-export const allowedPhotoExtensions = ["jpg", "jpeg", "png", "webp"];
-export const allowedPhotoAccept = ".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp";
+const allowedPhotoTypes = ["image/jpeg", "image/png", "image/webp"];
+const allowedPhotoExtensions = ["jpg", "jpeg", "png", "webp"];
+const allowedPhotoAccept = ".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp";
 
-export const allowedVideoTypes = ["video/mp4"];
-export const allowedVideoExtensions = ["mp4"];
-export const allowedVideoAccept = ".mp4,video/mp4";
+const allowedVideoTypes = ["video/mp4"];
+const allowedVideoExtensions = ["mp4"];
+const allowedVideoAccept = ".mp4,video/mp4";
 
 function createMediaId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -25,12 +25,12 @@ function getFileExtension(fileName: string) {
   return fileName.split(".").pop()?.toLowerCase() ?? "";
 }
 
-export function isAllowedFile(file: File, allowedTypes: string[], allowedExtensions: string[]) {
+function isAllowedFile(file: File, allowedTypes: string[], allowedExtensions: string[]) {
   const extension = getFileExtension(file.name);
   return allowedTypes.includes(file.type) || allowedExtensions.includes(extension);
 }
 
-export function createUploadedMediaFile(file: File): UploadedMediaFile {
+function createUploadedMediaFile(file: File): UploadedMediaFile {
   return {
     id: createMediaId(),
     name: file.name,
@@ -41,13 +41,13 @@ export function createUploadedMediaFile(file: File): UploadedMediaFile {
   };
 }
 
-export function formatFileSize(size: number) {
+function formatFileSize(size: number) {
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export const MAX_PHOTO_COUNT = 10;
+const MAX_PHOTO_COUNT = 10;
 
 export function PhotoUploader({ onChange }: { onChange?: () => void } = {}) {
   const { setValue, watch } = useFormContext<NewAdFormValues>();

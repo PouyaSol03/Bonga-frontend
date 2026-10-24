@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { getActiveV2Role } from "../../../shared/api/api";
+import { toEnglishDigits as toLatinDigits } from "../../../shared/lib/numberUtils";
 
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../shared/auth/auth-storage";
 import { clearAtomicDraft } from "./draft/adDraftStore";
@@ -307,12 +308,6 @@ export function pickFirstNumber(value: string) {
   const match = value.match(/[۰-۹٠-٩0-9]+/);
 
   return match?.[0] ?? "";
-}
-
-function toLatinDigits(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
 }
 
 function priceTextToNumberString(value: string) {
@@ -1002,7 +997,7 @@ export function buildPayload(values: NewAdFormValues) {
   };
 }
 
-export function shouldOmitOwnerContactsOnAssignment(values: {
+function shouldOmitOwnerContactsOnAssignment(values: {
   registrantType?: string;
   agencyId?: string;
 }): boolean {

@@ -27,7 +27,7 @@ const TIME_OPTIONS = [
   "21:00",
 ];
 
-export interface ViewAdLeadStatusSectionProps {
+interface ViewAdLeadStatusSectionProps {
   initialStatus?: string;
   onVisitConfirmed?: (date: string, time: string) => void;
 }

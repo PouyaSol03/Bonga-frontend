@@ -9,7 +9,7 @@ import type { DetailItem, IconName } from "./viewAdTypes";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import LinearStar from "../../../shared/icons/LinearStar";
 import { Typography } from "../../../shared/ui/Typography";
-import { Button } from "../../../shared/ui/Button";
+import { toPersianDigits } from "../../../shared/lib/numberUtils";
 
 function DetailItemIcon({
   className = "h-6 w-6 shrink-0",
@@ -139,33 +139,6 @@ export function MoreLink({ children, to }: { children: ReactNode; to: string }) 
     </Link>
   );
 }
-
-export function MoreButton({
-  children,
-  icon = "arrowLeft",
-  onClick,
-}: {
-  children: ReactNode;
-  icon?: IconName;
-  onClick?: () => void;
-}) {
-  return (
-    <Button
-      unstyled
-      className="text-primary focus-visible:outline-primary/25 mx-auto mt-6 flex h-7 items-center justify-center gap-2 rounded-[10px] px-4 text-xs leading-4 font-medium focus-visible:outline-3 focus-visible:outline-offset-2"
-      onClick={onClick}
-      type="button"
-    >
-      <Typography as="span" variant="body" size="medium" weight="regular">
-        {children}
-      </Typography>
-      <ViewAdIcon className="h-4 w-4" name={icon} />
-    </Button>
-  );
-}
-
-import { toPersianDigits } from "../../../shared/lib/numberUtils";
-export { toPersianDigits };
 
 export function AccommodationRatingBanner({
   count,

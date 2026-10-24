@@ -1,6 +1,6 @@
 import { v7 as uuidv7 } from "uuid";
 import { ApiError, api, apiV2, baseUrl, getActiveV2Role, publicApi } from "../../../shared/api/api";
-import { formatCardPrice } from "../../../shared/lib/MoneyHandler";
+import { formatCardPrice as formatPrice } from "../../../shared/lib/MoneyHandler";
 import { buildAdvertisementMapRequestPath } from "./advertisement-map-query";
 import { getAdvertisementImageUrls } from "../utils/advertisement-images";
 import {
@@ -16,7 +16,7 @@ import {
   updateV2OwnerContact,
 } from "./v2";
 
-export type AdvertisementStatus =
+type AdvertisementStatus =
   | "wait_for_payment"
   | "wait_for_admin"
   | "wait_for_agency"
@@ -32,7 +32,7 @@ export type AdvertisementFeature = {
   value: unknown;
 };
 
-export type AdvertisementImage = {
+type AdvertisementImage = {
   // Detail endpoints usually normalize to url/is_main. Legacy serializers may
   // still expose path/src, and the shared image normalizer supports all of them.
   is_main?: boolean;
@@ -41,12 +41,12 @@ export type AdvertisementImage = {
   url?: string;
 };
 
-export type AdvertisementLocationEntity = {
+type AdvertisementLocationEntity = {
   id?: number | string;
   name?: string;
 };
 
-export type AdvertisementAgency = {
+type AdvertisementAgency = {
   _id?: number | string;
   id?: number | string;
   location?: string;
@@ -56,7 +56,7 @@ export type AdvertisementAgency = {
   rating_score?: number | string | null;
 };
 
-export type AdvertisementAgent = {
+type AdvertisementAgent = {
   _id?: number | string;
   agency_id?: number | string | null;
   agency_name?: string;
@@ -69,7 +69,7 @@ export type AdvertisementAgent = {
   rating_score?: number | string | null;
 };
 
-export type AdvertisementContacts = {
+type AdvertisementContacts = {
   chat?: boolean;
   instagram?: string;
   phone?: string;
@@ -77,7 +77,7 @@ export type AdvertisementContacts = {
   whatsapp?: string;
 };
 
-export type AdvertisementSocial = {
+type AdvertisementSocial = {
   instagram?: string;
   telegram?: string;
   whatsapp?: string;
@@ -218,7 +218,7 @@ type AdvertisementShowResponse = {
   status: boolean;
 };
 
-export type AdvertisementDailyViewPoint = {
+type AdvertisementDailyViewPoint = {
   count: number;
   date: string;
 };
@@ -268,12 +268,12 @@ type AdvertisementCreateResponse =
     }
   | AdvertisementItem;
 
-export type AdvertiseFormOption = {
+type AdvertiseFormOption = {
   label: string;
   value: boolean | number | string;
 };
 
-export type AdvertiseFormField = {
+type AdvertiseFormField = {
   dependsOn?: string;
   key: string;
   label: string;
@@ -402,7 +402,7 @@ type ApiMutationResponse<T = unknown> = {
   status?: boolean;
 };
 
-export type AdvertisementMapBounds = {
+type AdvertisementMapBounds = {
   east: number;
   north: number;
   south: number;
@@ -436,7 +436,7 @@ export type AdvertiseFeedbackPayload = {
   ads_are_updated: boolean;
 };
 
-export type SubmitAdvertiseFeedbackPayload = {
+type SubmitAdvertiseFeedbackPayload = {
   advertiseId: string;
   feedback: AdvertiseFeedbackPayload;
 };
@@ -456,7 +456,7 @@ type AdvertiseReportReasonsResponse =
     }
   | AdvertiseReportReason[];
 
-export type SubmitAdvertiseReportPayload = {
+type SubmitAdvertiseReportPayload = {
   advertiseId: string;
   description: string;
   reportReasonId: string;
@@ -488,14 +488,14 @@ export type AdvertisementSearchFilters = {
   featureFilters?: Record<string, boolean | number | string>;
 };
 
-export type AdvertisementPage = {
+type AdvertisementPage = {
   data: AdvertisementItem[];
   hasNextPage: boolean;
   page: number;
   total: number;
 };
 
-export type AdvertisementCardData = {
+type AdvertisementCardData = {
   id: number | string;
   title: string;
   agency: string;
@@ -621,10 +621,6 @@ export function getAdvertisementPublisherName(item: AdvertisementItem) {
   ]);
 }
 
-function formatPrice(value: unknown) {
-  return formatCardPrice(value);
-}
-
 export function readFeatureValue(item: AdvertisementItem, labels: string[]) {
   const rawFeatures = Array.isArray(item.features) ? item.features : [];
   const dynamicFields = Array.isArray((item as Record<string, unknown>).dynamicFields)
@@ -717,7 +713,7 @@ function extractAdvertisementItems(payload: unknown): AdvertisementItem[] {
   return [];
 }
 
-export function resolveAdvertisementBadges(item: AdvertisementItem): string[] {
+function resolveAdvertisementBadges(item: AdvertisementItem): string[] {
   const badges: string[] = [];
   const isSpecial =
     item.is_special === true ||
@@ -1128,7 +1124,7 @@ function extractLoanFromFeatures(features?: AdvertisementFeature[]): Advertiseme
   return undefined;
 }
 
-export function normalizeAdvertisementLoan(item: AdvertisementItem): AdvertisementItem {
+function normalizeAdvertisementLoan(item: AdvertisementItem): AdvertisementItem {
   if (!item || typeof item !== "object") return item;
 
   const loanFromFeatures = extractLoanFromFeatures(item.features);
@@ -1396,21 +1392,6 @@ export async function createAdvertisement(
           : (response as AdvertisementItem);
 
   return createdAdvertise;
-}
-
-export async function finalizeAdvertisement(advertiseId: string | number, payload: FormData) {
-  const response = (await finalizeV2Draft(advertiseId, payload)) as AdvertisementCreateResponse;
-
-  const finalizedAdvertise =
-    "data" in response && response.data
-      ? (response.data as AdvertisementItem)
-      : "result" in response && response.result
-        ? (response.result as AdvertisementItem)
-        : "advertise" in response && response.advertise
-          ? (response.advertise as AdvertisementItem)
-          : (response as AdvertisementItem);
-
-  return finalizedAdvertise;
 }
 
 export async function saveAdvertiseDraft(
@@ -1839,7 +1820,7 @@ export async function removeAgencyAdvertisement(
   return response;
 }
 
-export type AdvertisementEngagementEventType = "impression" | "call";
+type AdvertisementEngagementEventType = "impression" | "call";
 export async function reportAdvertisementEngagement(
   adId: string | number,
   eventType: AdvertisementEngagementEventType,

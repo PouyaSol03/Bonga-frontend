@@ -6,7 +6,7 @@ import { Link } from "react-router";
 import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import { toPersianNumber } from "../../shared/lib/numberUtils";
 
-export interface InactiveConsultantItem {
+interface InactiveConsultantItem {
   id: string;
   name: string;
   avatarUrl: string;

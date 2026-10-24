@@ -11,7 +11,7 @@ export type GeofenceResult = {
   perimeterMeters: number;
 };
 
-export type GeofenceValidationCode =
+type GeofenceValidationCode =
   | "invalid_coordinate"
   | "not_closed"
   | "too_few_points"

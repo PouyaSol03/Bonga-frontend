@@ -1,15 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "../../../shared/api/query-keys";
-import {
-  getMyAgencyConsultantActivities,
-  getMyAgencyConsultantActivityFeed,
-  getMyAgencyConsultantActivityStats,
-  getMyAgencyConsultantAdvertisements,
-  getMyAgencyConsultantCharts,
-  getMyAgencyConsultantPublishedAdsMetric,
-  getMyAgencyConsultantRenewalUsageMetric,
-  getMyAgencyConsultantSpecialUsageMetric,
-} from "./agency-consultant-performance.service";
+import { getMyAgencyConsultantActivityFeed, getMyAgencyConsultantActivityStats, getMyAgencyConsultantAdvertisements, getMyAgencyConsultantCharts, getMyAgencyConsultantPublishedAdsMetric, getMyAgencyConsultantRenewalUsageMetric, getMyAgencyConsultantSpecialUsageMetric } from "./agency-consultant-performance.service";
 import type {
   ConsultantActivitiesParams,
   ConsultantAdvertisementsParams,
@@ -30,26 +21,6 @@ export function useAgencyConsultantAdvertisementsQuery({
       page,
       perPage,
       status,
-    }),
-  });
-}
-
-export function useAgencyConsultantActivitiesQuery({
-  agentId,
-  enabled = true,
-  page = 1,
-  perPage = 20,
-  period = "week",
-  type = "all",
-}: ConsultantActivitiesParams & { enabled?: boolean }) {
-  return useQuery({
-    enabled: enabled && Boolean(agentId) && String(agentId) !== "0",
-    queryFn: () => getMyAgencyConsultantActivities({ agentId, page, perPage, period, type }),
-    queryKey: queryKeys.agencies.consultantActivities(agentId, {
-      page,
-      perPage,
-      period,
-      type,
     }),
   });
 }

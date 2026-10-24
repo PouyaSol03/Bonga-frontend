@@ -1,4 +1,4 @@
-export type AdCardSkeletonProps = {
+type AdCardSkeletonProps = {
   className?: string;
   showDeleteButton?: boolean;
   variant?: "standard" | "mapPreview" | "assigned" | "dashboard" | "management";

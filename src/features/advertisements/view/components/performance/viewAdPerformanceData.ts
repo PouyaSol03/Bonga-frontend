@@ -8,7 +8,7 @@ export interface PerformanceDayData {
   is_active?: boolean;
 }
 
-export interface MetricConfig {
+interface MetricConfig {
   key: PerformanceMetricKey;
   chipLabel: string;
   chartTitle: string;

@@ -9,9 +9,9 @@ import {
 } from "./v2";
 import type { AdvertisementItem } from "./advertisement.service";
 
-export type AgencyAdvertiseAssignmentStatus = "pending" | "approved" | "rejected" | "cancelled";
+type AgencyAdvertiseAssignmentStatus = "pending" | "approved" | "rejected" | "cancelled";
 
-export type AgencyAdvertiseAssignmentTargetType = "agency" | "consultant";
+type AgencyAdvertiseAssignmentTargetType = "agency" | "consultant";
 
 export type AgencyAdvertiseAssignmentDto = {
   advertise?: AdvertisementItem;
@@ -52,7 +52,7 @@ export type AgencyAdvertiseAssignmentsPage = {
   total: number;
 };
 
-export type RejectAgencyAdvertiseAssignmentPayload = {
+type RejectAgencyAdvertiseAssignmentPayload = {
   assignmentId: number | string;
   rejectReason: string;
 };
@@ -239,13 +239,13 @@ export async function getMyAgencyAdvertiseAssignments({
   };
 }
 
-export type DecideAgencyAdvertiseAssignmentPayload = {
+type DecideAgencyAdvertiseAssignmentPayload = {
   assignmentId: number | string;
   decision: "accept" | "reject";
   rejectReason?: string;
 };
 
-export async function decideAgencyAdvertiseAssignment({
+async function decideAgencyAdvertiseAssignment({
   assignmentId,
   decision,
   rejectReason,
@@ -278,15 +278,6 @@ export async function decideAgencyAdvertiseAssignment({
       : undefined);
 
   return rawAssignment ? normalizeAssignment(rawAssignment as AssignmentApiItem) : null;
-}
-
-export async function approveAgencyAdvertiseAssignment(
-  assignmentId: number | string,
-): Promise<AgencyAdvertiseAssignmentDto | null> {
-  return decideAgencyAdvertiseAssignment({
-    assignmentId,
-    decision: "accept",
-  });
 }
 
 export async function rejectAgencyAdvertiseAssignment({
@@ -341,7 +332,7 @@ export async function republishAdAsPersonal(advertiseId: string | number) {
   return apiV2.post(`personal/advertise/${encId}/assignment/republish-personal`).json();
 }
 
-export type ReassignAdToAgencyPayload = {
+type ReassignAdToAgencyPayload = {
   advertiseId: string | number;
   agencyId?: string | number;
   consultantId?: string | number;
@@ -382,14 +373,9 @@ export async function reassignAdToAgency(
     .json();
 }
 
-export async function getV2AdvertiseAssignment(advertiseId: string | number) {
-  const encId = encodeURIComponent(String(advertiseId));
-  return apiV2.get(`advertise/${encId}/assignment`).json<{ status?: boolean; data?: unknown }>();
-}
+type StopPublishReasonKey = "deal_done" | "no_longer_want_publish" | "other";
 
-export type StopPublishReasonKey = "deal_done" | "no_longer_want_publish" | "other";
-
-export function normalizeStopPublishReason(reason: string): StopPublishReasonKey {
+function normalizeStopPublishReason(reason: string): StopPublishReasonKey {
   const clean = (reason ?? "").trim().toLowerCase();
   if (clean === "deal_done" || clean.includes("معامله") || clean.includes("انجام شده")) {
     return "deal_done";
@@ -415,7 +401,7 @@ export function formatStopPublishReason(reason: unknown): string {
   return trimmed;
 }
 
-export type CreateStopPublishRequestPayload = {
+type CreateStopPublishRequestPayload = {
   advertiseId: string | number;
   reason: StopPublishReasonKey | string;
   description?: string;
@@ -483,7 +469,7 @@ export async function rejectAgencyStopRequest(
     .json();
 }
 
-export type SubmitDealResultPayload = {
+type SubmitDealResultPayload = {
   advertiseId: string | number;
   result: "successful" | "failed" | "unresponsive" | string;
   description?: string;
@@ -522,12 +508,12 @@ export async function confirmUserDealResult(advertiseId: string | number, confir
   return confirmV2DealResult(advertiseId, confirmed);
 }
 
-export type AdvertisementHistoryItem = {
+type AdvertisementHistoryItem = {
   action: string;
   message: string;
   created_at: string;
 };
-export type AdvertisementExpireInfo = {
+type AdvertisementExpireInfo = {
   hours?: number;
   minutes?: number;
   total_minutes?: number;

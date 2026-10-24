@@ -6,7 +6,7 @@ import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 
 const FCM_TOKEN_STORAGE_KEY = "bonga_fcm_token";
 
-export type FcmPermissionState = NotificationPermission | "unsupported";
+type FcmPermissionState = NotificationPermission | "unsupported";
 
 export function useFcm() {
   const [loading, setLoading] = useState(false);
@@ -91,8 +91,8 @@ export function useFcm() {
             }
           }
         });
-      } catch (error) {
-        console.warn("خطا در تنظیم گوش‌دهنده پیام‌های پیش‌زمینه FCM:", error);
+      } catch {
+        // Ignore foreground listener setup error
       }
     });
 
@@ -107,36 +107,22 @@ export function useFcm() {
   const requestToken = useCallback(async () => {
     const supported = await isMessagingSupported();
     if (!supported) {
-      console.warn("پوش‌نوتیفیکیشن در این مرورگر یا محیط پشتیبانی نمی‌شود.");
       return null;
     }
 
     const messagingInstance = await getFirebaseMessaging();
     if (!messagingInstance) {
-      console.warn("پوش‌نوتیفیکیشن در این مرورگر یا محیط پشتیبانی نمی‌شود.");
       return null;
     }
 
     const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
-    if (!vapidKey) {
-      console.warn(
-        "کلید VAPID تعریف نشده است (VITE_FIREBASE_VAPID_KEY در فایل .env). پوش نوتیفیکیشن وب به کلید VAPID نیاز دارد.",
-      );
-    }
 
     try {
       setLoading(true);
-      console.log("[FCM] Calling Notification.requestPermission()...");
       const perm = await Notification.requestPermission();
-      console.log("[FCM] Permission result:", perm);
       setPermission(perm);
 
       if (perm !== "granted") {
-        if (perm === "denied") {
-          console.warn(
-            "[FCM] دسترسی نوتیفیکیشن در مرورگر مسدود (Block / Denied) است. برای تست مجدد، روی آیکون کنار آدرس سایت در مرورگر کلیک کنید و Notifications را ریست یا مجاز (Allow) کنید.",
-          );
-        }
         setLoading(false);
         return null;
       }
@@ -159,16 +145,15 @@ export function useFcm() {
         if (hasSession) {
           try {
             await registerFcmToken(currentToken, "web");
-          } catch (apiError) {
-            console.warn("خطا در ارسال توکن به بک‌اند:", apiError);
+          } catch {
+            // Ignore backend registration error
           }
         }
       }
 
       setLoading(false);
       return currentToken;
-    } catch (error) {
-      console.error("خطا در گرفتن توکن FCM:", error);
+    } catch {
       setLoading(false);
       return null;
     }
@@ -179,8 +164,8 @@ export function useFcm() {
     if (savedToken) {
       try {
         await unregisterFcmToken(savedToken);
-      } catch (err) {
-        console.warn("خطا در حذف توکن از بک‌اند:", err);
+      } catch {
+        // Ignore backend unregistration error
       }
       window.localStorage.removeItem(FCM_TOKEN_STORAGE_KEY);
       setToken(null);

@@ -6,7 +6,7 @@ import LinearCalendar from "../../../../shared/icons/LinearCalendar";
 import LinearClock from "../../../../shared/icons/LinearClock";
 import type { ViewAdLeadItem } from "./ViewAdLeadCard";
 
-export interface ViewAdLeadProfileCardProps {
+interface ViewAdLeadProfileCardProps {
   lead: ViewAdLeadItem;
 }
 

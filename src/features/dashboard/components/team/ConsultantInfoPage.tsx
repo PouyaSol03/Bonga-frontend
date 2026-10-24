@@ -24,8 +24,6 @@ import {
 } from "./consultant-info/consultantAdsFilterTypes";
 import type { TabKey } from "./consultant-info/types";
 
-export { ConsultantInfoPageSkeleton } from "./consultant-info/ConsultantInfoSkeleton";
-
 export function ConsultantInfoPage({
   consultantOverride,
 }: {

@@ -131,7 +131,7 @@ type StateAction = {
   to?: string;
 };
 
-export type AccountMyAdStatePageProps = {
+type AccountMyAdStatePageProps = {
   ad?: Record<string, unknown>;
   card?: AdCardData;
   status?: MyAdStatusKey | string;
@@ -1123,8 +1123,8 @@ function RealEstateManagerAdStatePage({
               });
               setPublisherId(nextPublisher.id);
               setIsPublisherPickerOpen(false);
-            } catch (err) {
-              console.error("Failed to change consultant:", err);
+            } catch {
+              // Ignore failure
             }
           }}
           options={publisherOptions}

@@ -1,7 +1,7 @@
 import { apiV2 } from "../../../../shared/api/api";
 import type { DashboardRankingEntity } from "../dashboard.service";
 
-export interface V2RankingSummary {
+interface V2RankingSummary {
   current?: {
     agency_id?: string | number;
     agent_id?: string | number;
@@ -52,7 +52,7 @@ export interface V2LeaderboardItem {
   level_title?: string;
 }
 
-export interface V2RankingProgressPoint {
+interface V2RankingProgressPoint {
   month?: string;
   score?: number;
   level_slug?: string;
@@ -91,7 +91,7 @@ function rankingCount(value: unknown): number | null {
   return Number.isFinite(count) ? Math.max(0, count) : null;
 }
 
-export function normalizeV2RankingSummary(response: unknown): V2RankingSummary {
+function normalizeV2RankingSummary(response: unknown): V2RankingSummary {
   const envelope = rankingRecord(response);
   const payload = rankingRecord(envelope.data ?? envelope.ranking ?? envelope);
   const ranking = rankingRecord(payload.ranking ?? payload);

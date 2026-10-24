@@ -8,9 +8,9 @@ import LinearArrowLeft1 from "../../shared/icons/LinearArrowLeft1";
 import { toPersianNumber } from "../../shared/lib/numberUtils";
 import { cn } from "../../design-system/classes";
 
-export type UrgentPriority = "critical" | "high" | "medium";
+type UrgentPriority = "critical" | "high" | "medium";
 
-export interface UrgentActionPageItem {
+interface UrgentActionPageItem {
   id: string;
   count: number;
   title: string;

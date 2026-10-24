@@ -50,7 +50,7 @@ type ChatSocketClientToServerEvents = {
   "chat:typing": (payload: { threadId: string; typing: boolean }) => void;
 };
 
-export type ChatJoinPayload =
+type ChatJoinPayload =
   | {
       data?: {
         thread?: { _id?: number | string; id?: number | string };
@@ -64,24 +64,24 @@ export type ChatJoinPayload =
   | number
   | string;
 
-export type ChatMessageNewPayload = {
+type ChatMessageNewPayload = {
   data?: unknown;
   message?: unknown;
   [key: string]: unknown;
 };
 
-export type ChatTypingPayload = {
+type ChatTypingPayload = {
   threadId?: number | string;
   typing?: boolean;
   userId?: number | string;
 };
 
-export type ChatReadPayload = {
+type ChatReadPayload = {
   threadId?: number | string;
   userId?: number | string;
 };
 
-export type ChatSocket = Socket<ChatSocketServerToClientEvents, ChatSocketClientToServerEvents>;
+type ChatSocket = Socket<ChatSocketServerToClientEvents, ChatSocketClientToServerEvents>;
 
 const chatSockets = new Map<ChatCategory, ChatSocket>();
 
@@ -92,7 +92,7 @@ function getChatSocketUrl() {
   return `${socketBaseUrl.replace(/\/$/, "")}/chat`;
 }
 
-export function readSocketThreadId(payload: ChatJoinPayload) {
+function readSocketThreadId(payload: ChatJoinPayload) {
   if (typeof payload === "string" || typeof payload === "number") {
     return String(payload);
   }
@@ -110,7 +110,7 @@ export function readSocketThreadId(payload: ChatJoinPayload) {
   );
 }
 
-export function getChatSocket(category: ChatCategory = "advertise") {
+function getChatSocket(category: ChatCategory = "advertise") {
   const token = getStoredAccessToken();
   const activeRole = getActiveAuthRole(getStoredAuthSession());
   const userType =

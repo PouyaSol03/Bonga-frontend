@@ -17,7 +17,7 @@ export type AgencyPublisherOption = {
   type: "agency" | "consultant";
 };
 
-export function AgencyPublisherAvatar({
+function AgencyPublisherAvatar({
   publisher,
   size,
 }: {

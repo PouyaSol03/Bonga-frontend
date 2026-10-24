@@ -1,9 +1,9 @@
-export type AdFormFieldInputType =
+type AdFormFieldInputType =
   "text" | "number" | "currency" | "select" | "multiSelect" | "toggle" | "time" | "date";
 
-export type AdFormFieldUiType = "input" | "bottomSheet" | "select" | "toggle";
+type AdFormFieldUiType = "input" | "bottomSheet" | "select" | "toggle";
 
-export type AdFormFieldConfig = {
+type AdFormFieldConfig = {
   key: string;
   title: string;
   input: AdFormFieldInputType;
@@ -16,14 +16,14 @@ export type AdFormFieldConfig = {
   showPerMeter?: boolean;
 };
 
-export type AdFormChipsItem = {
+type AdFormChipsItem = {
   id: string;
   label: string;
 };
 
-export type AdFormPricingMode = "sale" | "rent" | "dailyRent" | "partnership" | "project";
+type AdFormPricingMode = "sale" | "rent" | "dailyRent" | "partnership" | "project";
 
-export type AdFormPricingConfig = {
+type AdFormPricingConfig = {
   mode: AdFormPricingMode;
   loan?: boolean;
   exchange?: boolean;
@@ -31,7 +31,7 @@ export type AdFormPricingConfig = {
   saleTerms?: boolean;
 };
 
-export type AdFormCreateConfig = {
+type AdFormCreateConfig = {
   specsTitle?: string;
   basicFields: AdFormFieldConfig[];
   pricing: AdFormPricingConfig;
@@ -49,7 +49,7 @@ export type AdFormCreateConfig = {
   };
 };
 
-export type AdFormViewConfig = {
+type AdFormViewConfig = {
   sections?: unknown[];
 };
 
@@ -79,7 +79,7 @@ export type AdFormFilterSectionConfig = {
   moreIcon?: "down" | "left";
 };
 
-export type AdFormFilterConfig = {
+type AdFormFilterConfig = {
   sections?: AdFormFilterSectionConfig[];
 };
 

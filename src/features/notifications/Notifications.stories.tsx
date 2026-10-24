@@ -452,7 +452,7 @@ export const AdsNotificationsStory: StoryObj = {
             isDeleting={false}
             isRespondingToAgencyRequest={false}
             onDelete={() => {}}
-            onOpen={() => console.log("Open:", item)}
+            onOpen={() => {}}
             onAgencyRequestDecision={() => {}}
           />
         ))}
@@ -497,7 +497,7 @@ export const TradesNotificationsStory: StoryObj = {
             isDeleting={false}
             isRespondingToAgencyRequest={false}
             onDelete={() => {}}
-            onOpen={() => console.log("Open:", item)}
+            onOpen={() => {}}
             onAgencyRequestDecision={() => {}}
           />
         ))}
@@ -542,7 +542,7 @@ export const RequestsNotificationsStory: StoryObj = {
             isDeleting={false}
             isRespondingToAgencyRequest={false}
             onDelete={() => {}}
-            onOpen={() => console.log("Open:", item)}
+            onOpen={() => {}}
             onAgencyRequestDecision={() => {}}
           />
         ))}
@@ -586,7 +586,7 @@ export const ChatsNotificationsStory: StoryObj = {
             isDeleting={false}
             isRespondingToAgencyRequest={false}
             onDelete={() => {}}
-            onOpen={() => console.log("Open:", item)}
+            onOpen={() => {}}
             onAgencyRequestDecision={() => {}}
           />
         ))}
@@ -631,7 +631,7 @@ export const SystemNotificationsStory: StoryObj = {
             isDeleting={false}
             isRespondingToAgencyRequest={false}
             onDelete={() => {}}
-            onOpen={() => console.log("Open:", item)}
+            onOpen={() => {}}
             onAgencyRequestDecision={() => {}}
           />
         ))}
@@ -675,7 +675,7 @@ export const AllUserNotificationsShowcase: StoryObj = {
             isDeleting={false}
             isRespondingToAgencyRequest={false}
             onDelete={() => {}}
-            onOpen={() => console.log("Open:", item)}
+            onOpen={() => {}}
             onAgencyRequestDecision={() => {}}
           />
         ))}

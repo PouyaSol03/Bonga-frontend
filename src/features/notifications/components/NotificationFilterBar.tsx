@@ -29,7 +29,7 @@ function CloseIcon({ className = "" }: { className?: string }) {
   );
 }
 
-export function NotificationFilterButton({
+function NotificationFilterButton({
   count,
   onClick,
 }: {

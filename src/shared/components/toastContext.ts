@@ -4,7 +4,7 @@ import type { ToastItem, ToastVariant } from "./Toast";
 
 export type ShowToast = (message: string, title?: string, variant?: ToastVariant) => void;
 
-export type ToastContextValue = {
+type ToastContextValue = {
   dismissToast: () => void;
   showToast: ShowToast;
   showToastItem: (toast: ToastItem) => void;

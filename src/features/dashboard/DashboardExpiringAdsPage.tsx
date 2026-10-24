@@ -5,7 +5,7 @@ import { DashboardExpiringAdCard, type ExpiringAdItem } from "./components/Dashb
 
 export type { ExpiringAdItem };
 
-export interface DashboardExpiringAdsPageProps {
+interface DashboardExpiringAdsPageProps {
   ads?: ExpiringAdItem[];
 }
 

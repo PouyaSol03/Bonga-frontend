@@ -17,7 +17,7 @@ export type MyAdStatusKey =
   | "wait_for_repost"
   | "wait_for_stop";
 
-export type MyAdStatusInfo = {
+type MyAdStatusInfo = {
   badgeClassName: string;
   key: MyAdStatusKey;
   label: string;

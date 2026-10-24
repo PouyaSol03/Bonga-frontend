@@ -21,49 +21,6 @@ export interface DashboardUrgentActionsCardProps {
   title?: string;
 }
 
-export const defaultUrgentActions: DashboardUrgentActionItem[] = [
-  {
-    id: "lead_followup",
-    count: 5,
-    title: "پیگیری سرنخ",
-    description: "پیگیری‌های سررسید شده امروز",
-    urgency: "critical",
-    to: "/account/dashboard/lead-followup",
-  },
-  {
-    id: "upcoming_visit",
-    count: 2,
-    title: "بازدید نزدیک",
-    description: "۳ ساعت تا اولین بازدید",
-    urgency: "critical",
-    to: "/account/dashboard/requests?from=dashboard",
-  },
-  {
-    id: "waiting_client",
-    count: 2,
-    title: "مشتری منتظر پاسخ",
-    description: "بیش از چند ساعت منتظر پاسخ‌اند",
-    urgency: "critical",
-    to: "/account/dashboard/requests?from=dashboard",
-  },
-  {
-    id: "expiring_ad",
-    count: 3,
-    title: "آگهی در آستانه انقضا",
-    description: "امروز منقضی می‌شوند",
-    urgency: "warning",
-    to: "/account/manage-ads",
-  },
-  {
-    id: "failed_payment",
-    count: 1,
-    title: "پرداخت ناموفق",
-    description: "پرداخت تمدید آگهی ناموفق بود",
-    urgency: "caution",
-    to: "/account/dashboard/payments",
-  },
-];
-
 const urgencyStyles = {
   critical: {
     bg: "bg-[#C11004]/[0.08]",

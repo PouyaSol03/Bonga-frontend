@@ -51,7 +51,7 @@ export function useTrustedAgenciesQuery({ enabled = true }: { enabled?: boolean 
   });
 }
 
-export type AgencyInfiniteQueryParams = {
+type AgencyInfiniteQueryParams = {
   enabled?: boolean;
   neighborhoodId?: string;
   perPage?: number;

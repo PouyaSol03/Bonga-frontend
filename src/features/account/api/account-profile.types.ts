@@ -1,6 +1,6 @@
 import type { AuthRole } from "../../../shared/auth/auth-storage";
 
-export type ProfileContextItem = {
+type ProfileContextItem = {
   context:
     "personal" | "agency" | "independent-consultant" | "agency-consultant" | "superadmin" | string;
   id?: number | string;

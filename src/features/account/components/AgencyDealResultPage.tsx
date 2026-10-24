@@ -10,7 +10,7 @@ import { useConfirmUserDealResultMutation } from "../../advertisements/api/agenc
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { useNavigate } from "react-router";
 
-export type AgencyDealResultPageProps = {
+type AgencyDealResultPageProps = {
   adId?: string | number;
   returnTo?: string;
   onSuccess?: () => void;

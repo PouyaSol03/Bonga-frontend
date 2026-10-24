@@ -6,14 +6,14 @@ import {
 } from "../../shared/constants/roles.constants";
 import { normalizeAuthRoleSlug, type AuthSession } from "../../shared/auth/auth-storage";
 
-export type PreloadableComponent<P = Record<string, unknown>> = (
+type PreloadableComponent<P = Record<string, unknown>> = (
   | ComponentType<P>
   | LazyExoticComponent<ComponentType<P>>
 ) & {
   preload?: () => Promise<{ default: ComponentType<P> }>;
 };
 
-export type RouteComponent = PreloadableComponent<Record<string, unknown>>;
+type RouteComponent = PreloadableComponent<Record<string, unknown>>;
 
 export function lazyNamed<TModule extends Record<string, unknown>>(
   loader: () => Promise<TModule>,

@@ -4,7 +4,7 @@ import {
 } from "../../components/DashboardBadgeBanner";
 import { getAgencyRankingLevel } from "../../utils/rankingLevels";
 
-export interface AgencyBadgeBannerProps extends DashboardBadgeBannerProps {}
+interface AgencyBadgeBannerProps extends DashboardBadgeBannerProps {}
 
 export function AgencyBadgeBanner(props: AgencyBadgeBannerProps) {
   const level = getAgencyRankingLevel({ levelTitle: props.badgeName });

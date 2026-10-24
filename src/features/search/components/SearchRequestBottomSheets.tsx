@@ -9,7 +9,7 @@ import LinearArrowRight2 from "../../../shared/icons/LinearArrowRight2";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import { Typography } from "../../../shared/ui/Typography";
 
-export type SearchRequestSenderOption = {
+type SearchRequestSenderOption = {
   description: string;
   icon: "user" | "building" | "agency";
   id: string;

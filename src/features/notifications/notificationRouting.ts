@@ -30,7 +30,7 @@ export function getAgencyConsultantRequestAgentId(notification: NotificationItem
   );
 }
 
-export function readPayloadId(value: unknown): string {
+function readPayloadId(value: unknown): string {
   if (typeof value === "string") return value.trim();
   if (typeof value === "number" && !Number.isNaN(value)) return String(value);
   return "";

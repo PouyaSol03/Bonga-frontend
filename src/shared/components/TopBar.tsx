@@ -18,7 +18,7 @@ import { SearchBar } from "../ui/SearchBar";
 import { Typography } from "../ui/Typography";
 import { Button } from "../ui/Button";
 
-export type TopBarAction = {
+type TopBarAction = {
   icon: ReactNode;
   id: string;
   label: string;

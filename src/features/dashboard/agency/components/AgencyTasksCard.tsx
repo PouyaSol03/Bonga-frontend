@@ -1,7 +1,7 @@
 import { DashboardTasksCard, type DashboardTaskItem } from "../../components/DashboardTasksCard";
 import type { AgencyTaskItem } from "../types";
 
-export interface AgencyTasksCardProps {
+interface AgencyTasksCardProps {
   totalCount?: number;
   items?: AgencyTaskItem[];
 }

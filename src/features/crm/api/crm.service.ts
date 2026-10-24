@@ -2,7 +2,7 @@ import { ApiError, api, type ApiQueryParams } from "../../../shared/api/api";
 
 export type CrmRecord = Record<string, unknown>;
 
-export type CrmAdvertiseFilters = {
+type CrmAdvertiseFilters = {
   status?: AdvertiseStatus;
   trackCode?: string;
 };
@@ -20,7 +20,7 @@ export type AdvertiseStatus =
 
 export type CrmReportKind = "advertise" | "user";
 
-export type CrmReportFilters = {
+type CrmReportFilters = {
   page?: number;
   perPage?: number;
   search?: string;
@@ -33,10 +33,10 @@ export type CrmReportListResult = {
   perPage: number;
 };
 
-export type CrmConsultantType = "independent" | "dependent";
+type CrmConsultantType = "independent" | "dependent";
 export type CrmConsultantStatus = "pending" | "accept" | "reject";
 
-export type CrmAgentFilters = {
+type CrmAgentFilters = {
   type?: CrmConsultantType;
   status?: CrmConsultantStatus;
   search?: string;
@@ -72,27 +72,27 @@ export type CrmAdvertisePayload = {
   features?: { key: string; value: unknown }[];
 };
 
-export type CrmUserFilters = {
+type CrmUserFilters = {
   mobile?: string;
   name?: string;
   nationalnumber?: string;
 };
 
-export type CrmAgencyFilters = {
+type CrmAgencyFilters = {
   name?: string;
   trusted?: boolean;
 };
 
-export type CrmCityFilters = {
+type CrmCityFilters = {
   query?: string;
 };
 
-export type CrmNeighborhoodFilters = {
+type CrmNeighborhoodFilters = {
   cityId: string;
   perPage?: number;
 };
 
-export type CrmSubNeighborhoodFilters = {
+type CrmSubNeighborhoodFilters = {
   neighborhoodId: string;
   q?: string;
 };
@@ -117,7 +117,7 @@ export type CrmPaymentFilters = {
   toDate?: string;
 };
 
-export type CrmPaymentListResult = {
+type CrmPaymentListResult = {
   data: CrmRecord[];
   total: number;
   page: number;
@@ -531,7 +531,7 @@ export async function listCrmAgencies(filters: CrmAgencyFilters = {}) {
   );
 }
 
-export type CrmAgencyReviewStatus = "accept" | "reject";
+type CrmAgencyReviewStatus = "accept" | "reject";
 
 export function updateCrmAgencyStatus(id: string, status: CrmAgencyReviewStatus) {
   return api

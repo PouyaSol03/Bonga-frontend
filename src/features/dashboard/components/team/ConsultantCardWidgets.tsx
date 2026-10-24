@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import LinearUserSolid from "../../../../shared/icons/LinearUserSolid";
 import { RadioIndicator } from "../../../../shared/components/RadioIndicator";
 import { Button } from "../../../../shared/ui/Button";
@@ -66,34 +66,6 @@ export function ConsultantAvatar({
   );
 }
 
-export function ConsultantProfileSummary({ consultant }: { consultant: TeamConsultant }) {
-  return (
-    <div className="bg-primary/12 mt-4 flex items-center gap-3 rounded-2xl px-4 py-2">
-      <ConsultantAvatar consultant={consultant} sizeClassName="h-14 w-14" />
-      <div className="grid">
-        <Typography
-          as="h1"
-          variant="body"
-          size="large"
-          weight="regular"
-          className="text-on-surface m-0"
-        >
-          {consultant.name} (مشاور)
-        </Typography>
-        <Typography
-          as="p"
-          variant="body"
-          size="medium"
-          weight="regular"
-          className="text-on-surface/40 m-0"
-        >
-          {consultant.phone}
-        </Typography>
-      </div>
-    </div>
-  );
-}
-
 export function ConsultantProfilePill({ consultant }: { consultant: TeamConsultant }) {
   return (
     <div className="border-outline-var bg-surface-container-lowest mt-4 flex items-center gap-3 rounded-2xl border px-4 py-2">
@@ -118,58 +90,6 @@ export function ConsultantProfilePill({ consultant }: { consultant: TeamConsulta
           {consultant.phone}
         </Typography>
       </div>
-    </div>
-  );
-}
-
-export function InfoStatRow({
-  className = "",
-  icon,
-  iconClassName,
-  labelClassName,
-  label,
-  value,
-}: {
-  className?: string;
-  icon?: ReactNode;
-  iconClassName?: string;
-  labelClassName?: string;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className={`flex items-center justify-between gap-4 ${className}`}>
-      <div className="flex items-center gap-4">
-        {icon ? (
-          <Typography
-            as="span"
-            variant="body"
-            size="large"
-            weight="regular"
-            className={`grid h-6 w-6 place-items-center rounded-2xl ${iconClassName ?? "text-outline"}`}
-          >
-            {icon}
-          </Typography>
-        ) : null}
-        <Typography
-          as="span"
-          variant="body"
-          size="large"
-          weight="regular"
-          className={`text-on-surface ${labelClassName}`}
-        >
-          {label}
-        </Typography>
-      </div>
-      <Typography
-        as="span"
-        variant="label"
-        size="large"
-        weight="semibold"
-        className="text-on-surface"
-      >
-        {value}
-      </Typography>
     </div>
   );
 }

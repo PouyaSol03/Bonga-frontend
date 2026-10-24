@@ -15,7 +15,7 @@ import {
   type ConsultantAd,
 } from "./adManagementData";
 
-export type AgencyAdStatusDeskVariant =
+type AgencyAdStatusDeskVariant =
   | "deal-success" // Ad status.svg (Variant 1: معامله با موفقیت انجام شده است)
   | "waiting-user-7-days" // Ad status-2.svg (Variant 2: در انتظار تایید کاربر - ۷ روز)
   | "waiting-user-3-days" // Ad status-3.svg (Variant 3: در انتظار تایید کاربر - ۳ روز)
@@ -24,7 +24,7 @@ export type AgencyAdStatusDeskVariant =
   | "user-unconfirmed" // Ad status-1.svg (Variant 6: تأیید کاربر دریافت نشد)
   | "user-unresponsive"; // Ad status-6.svg (Variant 7: مشتری پاسخگو نبود!)
 
-export type AgencyAdStatusDeskProps = {
+type AgencyAdStatusDeskProps = {
   ad?: ConsultantAd;
   adId?: string;
   agencyName?: string;

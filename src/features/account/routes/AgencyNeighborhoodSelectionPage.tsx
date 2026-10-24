@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useNeighborhoodListQuery } from "../../locations/api/neighborhood.hooks";
 import {
@@ -15,22 +15,12 @@ import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { SearchInputBar } from "../../../shared/ui/SearchBar";
 import { Typography } from "../../../shared/ui/Typography";
 import { useToast } from "../../../shared/hooks/useToast";
+import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { readAgencyCreationDraft, writeAgencyCreationDraft } from "../agencyCreationDraft";
 import { getNeighborhoodId } from "../businessCreationShared";
 
 const AGENCY_CREATE_PATH = "/account/business/create/agency";
 const SEARCH_DEBOUNCE_MS = 250;
-
-function useDebouncedValue(value: string, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDebouncedValue(value), delay);
-    return () => window.clearTimeout(timer);
-  }, [delay, value]);
-
-  return debouncedValue;
-}
 
 function NeighborhoodSkeleton() {
   return (

@@ -1,6 +1,6 @@
-export type FreehandPointerTerminationEvent = "pointerup" | "pointercancel" | "lostpointercapture";
+type FreehandPointerTerminationEvent = "pointerup" | "pointercancel" | "lostpointercapture";
 
-export type FreehandPointerTerminationAction = "finish" | "cancel" | "ignore";
+type FreehandPointerTerminationAction = "finish" | "cancel" | "ignore";
 
 export function resolveFreehandPointerTermination(
   activePointerId: number | null,

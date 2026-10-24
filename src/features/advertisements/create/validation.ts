@@ -1,8 +1,11 @@
 import { getBasicPropertyFields, getParams, trimFormValues } from "./utils";
 import { parseRentPriceValue } from "./rentPriceConversion";
+import { parseNumericValue, toEnglishDigits as toLatinDigits } from "../../../shared/lib/numberUtils";
 import type { FlowStep, NewAdFieldErrors, NewAdFormValues } from "./types";
 
-export type NewAdValidationResult = {
+export { parseNumericValue };
+
+type NewAdValidationResult = {
   errors: NewAdFieldErrors;
   step: FlowStep;
 };
@@ -11,32 +14,7 @@ const MAX_SYSTEM_PRICE = 500_000_000_000_000; // 500 Hemmat (500 trillion Tomans
 const MAX_MONTHLY_RENT = 5_000_000_000; // 5 Billion Tomans
 const MAX_DAILY_RENT = 200_000_000; // 200 Million Tomans per night
 
-export function toLatinDigits(value: string): string {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
-}
-
-export function parseNumericValue(value: unknown): number | null {
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
-  if (typeof value !== "string") return null;
-
-  const normalized = toLatinDigits(value).replace(/,/g, "").trim();
-  if (!normalized) return null;
-
-  const num = Number(normalized);
-  if (Number.isFinite(num)) return num;
-
-  const match = normalized.match(/-?\d+(?:\.\d+)?/);
-  if (match) {
-    const extracted = Number(match[0]);
-    return Number.isFinite(extracted) ? extracted : null;
-  }
-
-  return null;
-}
-
-export function parseFloorNumber(floorStr: unknown): number | null {
+function parseFloorNumber(floorStr: unknown): number | null {
   if (typeof floorStr !== "string") return null;
   const trimmed = floorStr.trim();
   if (trimmed === "همکف") return 0;
@@ -54,11 +32,11 @@ function hasRequiredText(value: unknown): boolean {
   return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
 }
 
-export function hasErrors(errors: NewAdFieldErrors): boolean {
+function hasErrors(errors: NewAdFieldErrors): boolean {
   return Object.values(errors).some(Boolean);
 }
 
-export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
+function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
   const { transaction, category } = getParams();
   const isProject = transaction === "project";
   const isPartnership = isProject && category === "project-partnership";
@@ -361,7 +339,7 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
   return errors;
 }
 
-export function getMediaValidationErrors(
+function getMediaValidationErrors(
   values: NewAdFormValues,
   options: { forceFullEditFields?: boolean } = {},
 ): NewAdFieldErrors {

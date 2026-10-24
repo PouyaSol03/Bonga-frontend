@@ -1,5 +1,5 @@
 import type { AdFormSchema } from "./types";
-import { ageOptions, floorOptions, totalFloorsOptions } from "../create/data";
+import { ageOptions, exchangeTargets, floorOptions, totalFloorsOptions } from "../create/data";
 
 import saleApartment from "./sale-apartment.json";
 import saleVillaHouse from "./sale-villa-house.json";
@@ -78,7 +78,7 @@ const formCodeByListingKey: Record<string, string> = {
   "sale:warehouse": "sale-warehouse",
 };
 
-export function getFormCodeForListing(transaction: string, category: string): string {
+function getFormCodeForListing(transaction: string, category: string): string {
   return (
     formCodeByListingKey[`${transaction}:${category}`] ??
     [transaction, category].filter(Boolean).join("-")
@@ -120,21 +120,20 @@ function normalizeSchemaOptions(schema: AdFormSchema | null): AdFormSchema | nul
   if (clone.filter?.sections) {
     clone.filter = {
       ...clone.filter,
-      sections: clone.filter.sections.map((section) => ({
-        ...section,
-        options: normalizeOptions(
-          Array.isArray(section.options)
-            ? (section.options.filter((o) => typeof o === "string") as string[])
-            : undefined,
-          section.id,
-        ),
-      })),
+      sections: clone.filter.sections.map((section) => {
+        if (!section.options) return section;
+        if (section.id === "floor") return { ...section, options: floorOptions };
+        if (section.id === "totalFloors") return { ...section, options: totalFloorsOptions };
+        if (section.id === "age") return { ...section, options: ageOptions };
+        if (section.id === "exchangeWith") return { ...section, options: exchangeTargets };
+        return section;
+      }),
     };
   }
   return clone;
 }
 
-export function getFormSchema(formCode: string): AdFormSchema | null {
+function getFormSchema(formCode: string): AdFormSchema | null {
   return normalizeSchemaOptions(formSchemas[formCode] ?? null);
 }
 

@@ -438,7 +438,7 @@ export function getNoteId(note: NoteItem) {
   return id === undefined || id === null ? "" : String(id);
 }
 
-export function getNoteAdvertiseId(note: NoteItem) {
+function getNoteAdvertiseId(note: NoteItem) {
   const ad = getNoteAdvertiseSource(note);
   const id = note.advertiseId ?? note.advertise_id ?? ad.id ?? ad._id;
 
@@ -869,7 +869,7 @@ function normalizeNumericInput(value: string) {
     .replace(/\D/g, "");
 }
 
-export function formatPersianMonthYear(dateString?: string | null): string {
+function formatPersianMonthYear(dateString?: string | null): string {
   if (!dateString) return "";
   try {
     const date = new Date(dateString);

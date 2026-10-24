@@ -22,6 +22,7 @@ import { ChoiceIndicator } from "../../shared/ui/Choice";
 import { TopBar } from "../../shared/components/TopBar";
 import { SearchEmptyState } from "../../shared/components/SearchEmptyState";
 import { FeatureIcon } from "../advertisements/components/FeatureIcon";
+import { cn } from "../../design-system/classes";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import { useNavigate } from "react-router";
@@ -30,7 +31,8 @@ import {
   getNeighborhoodDescription,
   type NeighborhoodDto,
 } from "../locations/api/neighborhood.service";
-import { toEnglishDigits } from "../../shared/lib/numberUtils";
+import { toEnglishDigits, toPersianDigits } from "../../shared/lib/numberUtils";
+import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { useAdvertisementListQuery } from "../advertisements/api/advertisement.hooks";
 import { readSearchFilters } from "./SearchMapPage";
 import type { AdvertisementListParams } from "../advertisements/api/advertisement.service";
@@ -367,7 +369,10 @@ function getBackToSearchPath(backBasePath = "/search") {
 function normalizeExactFilterValue(value: string | undefined) {
   if (!value) return "";
 
-  const normalized = toEnglishDigits(value)
+  const trimmed = value.trim();
+  if (trimmed === "همکف" || trimmed === "بدون") return "0";
+
+  const normalized = toEnglishDigits(trimmed)
     .replace(/‌/g, " ")
     .replace(/سال/g, "")
     .replace(/اتاق/g, "")
@@ -377,11 +382,14 @@ function normalizeExactFilterValue(value: string | undefined) {
     .replace(/\+/g, "")
     .trim();
 
-  if (normalized === "همکف" || normalized === "بدون") return "0";
+  if (/\d/.test(normalized)) {
+    const numericValue = normalized.replace(/[^\d.-]/g, "");
+    if (numericValue && !isNaN(Number(numericValue))) {
+      return numericValue;
+    }
+  }
 
-  const numericValue = normalized.replace(/[^\d.-]/g, "");
-
-  return numericValue || normalized;
+  return trimmed;
 }
 
 function normalizeMultiExactFilterValue(values: string[] | undefined) {
@@ -392,10 +400,6 @@ function normalizeRangeNumber(value: string | undefined) {
   if (!value) return "";
 
   return toEnglishDigits(value).replace(/[^\d.]/g, "");
-}
-
-function toPersianDigits(value: string | number) {
-  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }
 
 function formatPersianGroupedNumberInput(value: string) {
@@ -429,9 +433,9 @@ function getMoneySupportingText(value: string | number | undefined) {
   return normalized && numericValue > 0 ? `${formatBigNumber(numericValue)} تومان` : "";
 }
 
-export const customRangeOptionLabel = "مقدار دلخواه";
+const customRangeOptionLabel = "مقدار دلخواه";
 
-export const areaRangeOptions = [
+const areaRangeOptions = [
   customRangeOptionLabel,
   "۳۰",
   "۴۰",
@@ -450,7 +454,7 @@ export const areaRangeOptions = [
   "۵۰۰",
 ];
 
-export const landWidthRangeOptions = [
+const landWidthRangeOptions = [
   customRangeOptionLabel,
   "۵",
   "۶",
@@ -624,10 +628,6 @@ function buildSearchUrl(filters: FilterState, applyBasePath = "/search") {
     ? getAdvertiseFormCode(filters.transaction, filters.category)
     : "";
   const neighborhoods = filters.neighborhoods.map((item) => item.id).join("_");
-  // Only the generic `area`/`price` fields use these legacy params.
-  // land_area, building_area, rent_price and mortgage_price are emitted below
-  // through filterFieldParamMap so independent ranges do not accidentally AND
-  // against a non-existent generic attribute.
   const areaRange = getRange(filters, ["meterage", "projectMeterage"]);
   const priceRange = getRange(filters, ["price", "projectPrice", "dailyPrice"]);
   const rooms =
@@ -917,18 +917,6 @@ function useOpenOnFilterFocus(sectionId?: string, focusTarget?: string | null) {
   }, [focusTarget, openedTarget, sectionId]);
 
   return openedTarget !== sectionId && Boolean(sectionId && focusTarget === sectionId);
-}
-
-function useDebouncedValue<T>(value: T, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDebouncedValue(value), delay);
-
-    return () => window.clearTimeout(timer);
-  }, [delay, value]);
-
-  return debouncedValue;
 }
 
 function getNeighborhoodOptionId(neighborhood: Pick<NeighborhoodDto, "_id" | "id" | "name">) {
@@ -1397,35 +1385,8 @@ const approvedSaleFilterFloorOptions = [
 ];
 const approvedSaleFilterUnitsPerFloorOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "+۸"];
 
-// The supplied filter SVGs show the first six heating/cooling chips and five more.
-// Keep this filter-only list separate from create/edit feature contracts.
-const approvedSaleFilterHeatingItems: ChipItem[] = [
-  { id: "gas-cooler", label: "کولر گازی" },
-  { id: "water-cooler", label: "کولر آبی" },
-  { id: "package", label: "پکیج" },
-  { id: "water-heater", label: "آبگرمکن" },
-  { id: "heater", label: "بخاری" },
-  { id: "radiator", label: "شوفاژ" },
-  { id: "duct-split", label: "داکت اسپیلت" },
-  { id: "chiller", label: "چیلر" },
-  { id: "fan-coil", label: "فن کوئل" },
-  { id: "floor-heating", label: "گرمایش ازکف" },
-  { id: "fireplace", label: "شومینه" },
-];
+const approvedSaleFilterExchangeTargets = exchangeTargets;
 
-const approvedSaleFilterExchangeTargets = [
-  "ویلا",
-  "خودرو",
-  "آپارتمان",
-  "خانه ویلایی",
-  "زمین",
-  ...exchangeTargets.filter(
-    (item) => !["ویلا", "خودرو", "آپارتمان", "خانه ویلایی", "زمین"].includes(item),
-  ),
-];
-
-// Exact filter-screen contracts transcribed from the supplied sale/rent SVG references.
-// These lists are intentionally filter-only so create/edit form contracts remain untouched.
 const approvedBusinessCurrentStatusOptions = ["تخلیه", "فعال"];
 const approvedOfficeCurrentStatusOptions = ["تخلیه", "فعال", "درحال بازسازی"];
 const approvedOfficePositionOptions = [
@@ -1474,14 +1435,7 @@ const approvedTotalFloorsOptions = [
   ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
   "۳۰ و بیشتر",
 ];
-export const approvedRentUnitLayoutOptions = [
-  "تک طبقه",
-  "دو طبقه",
-  "سه طبقه",
-  "دوبلکس",
-  "فورلکس",
-  "پنت هاوس",
-];
+
 const approvedRentApartmentBuildingPositionOptions = [
   "شمالی",
   "جنوبی",
@@ -1650,10 +1604,6 @@ const approvedRentCommercialSuitableOptions = [
   "سایر",
 ];
 
-export const approvedRentIndustrialSuitableOptions = ["صنایع پلاستیک", "صنایع چوب"];
-
-// Exact filter-only contracts transcribed from the supplied daily-rent/project SVGs.
-// These intentionally do not change create/edit-ad field definitions.
 const approvedDailyAccommodationOptions = [
   "سوئیت",
   "آپارتمان",
@@ -1702,34 +1652,6 @@ const approvedPartnershipLandPositionOptions = [
 ];
 const approvedPartnershipDocumentOptions = ["ملکی", "آستانه", "اوقاف", "موقوفه", "قولنامه، وکالت"];
 
-export const approvedDailyFacilities: ChipItem[] = [
-  { id: "elevator", label: "آسانسور" },
-  { id: "parking", label: "پارکینگ" },
-  { id: "warehouse", label: "انباری" },
-  { id: "terrace", label: "تراس" },
-  { id: "lobby", label: "لابی" },
-  { id: "guard", label: "نگهبانی" },
-  { id: "yard", label: "حیاط" },
-  { id: "iranian", label: "سرویس ایرانی" },
-  { id: "western", label: "سرویس فرنگی" },
-  { id: "door", label: "درب ضد سرقت" },
-  { id: "video", label: "آیفون تصویری" },
-  { id: "gas-stove", label: "گاز رومیزی" },
-  { id: "hood", label: "هود" },
-  { id: "oven", label: "فرتوکار" },
-  { id: "camera", label: "دوربین امنیتی" },
-  { id: "bms", label: "سیستم هوشمند" },
-  { id: "roof", label: "روف گاردن" },
-  { id: "heated-pool", label: "استخر آب گرم" },
-  { id: "outdoor-pool", label: "استخر روباز" },
-  { id: "covered-pool", label: "استخر پوشیده" },
-  { id: "jacuzzi", label: "جکوزی" },
-  { id: "sauna", label: "سونا" },
-  { id: "gym", label: "سالن ورزشی" },
-  { id: "playground", label: "زمین بازی" },
-  { id: "internet", label: "اینترنت پر سرعت" },
-];
-
 const approvedRentBusinessHeatingItems: ChipItem[] = [
   { id: "air-handler", label: "هواساز" },
   { id: "heater", label: "بخاری" },
@@ -1765,19 +1687,6 @@ const approvedRentBusinessFacilities: ChipItem[] = [
   { id: "camera", label: "دوربین مدار بسته" },
   { id: "smart-system", label: "سیستم هوشمند" },
 ];
-
-export const approvedSaleHotelFacilities: ChipItem[] = (() => {
-  const labels = ["آسانسور", "پارکینگ", "رستوران", "کافی شاپ", "لابی", "استخر"];
-  const seen = new Set(labels);
-  for (const item of dailyHotelFacilityItems) {
-    if (labels.length >= 34) break;
-    if (!seen.has(item.label)) {
-      labels.push(item.label);
-      seen.add(item.label);
-    }
-  }
-  return labels.map((label) => ({ id: label, label }));
-})();
 
 function asChipItems(options: readonly string[]): ChipItem[] {
   return options.map((label) => ({ id: label, label }));
@@ -1887,14 +1796,6 @@ function approvedRentConversionBlock(): SingleChoiceBlock {
     options: rentConversionPolicyOptions,
     title: "تبدیل رهن و اجاره",
   };
-}
-
-export function approvedSaleHeatingBlock(): MultiChoiceBlock {
-  return approvedHeatingBlock(approvedSaleFilterHeatingItems);
-}
-
-export function approvedGenericFacilitiesBlock(): MultiChoiceBlock {
-  return approvedFacilitiesBlock(facilityItems);
 }
 
 function approvedRentBusinessHeatingBlock(): MultiChoiceBlock {
@@ -3067,7 +2968,11 @@ function getPriceBlocks(transaction: TransactionType, category: CategoryKey): Fi
   return [createRangeBlock("price", "قیمت", "money", "تومان")];
 }
 
-function buildFilterBlocksFromSchema(sections: AdFormFilterSectionConfig[]): FilterBlock[] {
+function buildFilterBlocksFromSchema(
+  sections: AdFormFilterSectionConfig[],
+  transaction?: TransactionType,
+  category?: CategoryKey,
+): FilterBlock[] {
   return sections.map((section): FilterBlock => {
     switch (section.kind) {
       case "neighborhood":
@@ -3140,13 +3045,21 @@ function buildFilterBlocksFromSchema(sections: AdFormFilterSectionConfig[]): Fil
       }
       case "multi": {
         const icon = (section.icon ? section.icon : getFieldIcon(section.id!)) as IconName;
+        let options = (section.options ?? []).map((opt) =>
+          typeof opt === "string" ? { id: opt, label: opt } : opt,
+        );
+        if (options.length === 0 && transaction && category) {
+          if (section.id === "heatingCooling") {
+            options = [...getHeatingItems(transaction, category)];
+          } else if (section.id === "facilities") {
+            options = [...getFacilityItems(transaction, category)];
+          }
+        }
         return {
           icon,
           id: section.id!,
           kind: "multi",
-          options: (section.options ?? []).map((opt) =>
-            typeof opt === "string" ? { id: opt, label: opt } : opt,
-          ),
+          options,
           title: section.title!,
           more: section.more,
           moreLimit: section.moreLimit,
@@ -3160,7 +3073,7 @@ function buildFilterBlocksFromSchema(sections: AdFormFilterSectionConfig[]): Fil
   });
 }
 
-export function getFilterBlocks(
+function getFilterBlocks(
   transaction: TransactionType,
   category?: CategoryKey,
 ): FilterBlock[] {
@@ -3168,7 +3081,7 @@ export function getFilterBlocks(
 
   const schema = getFormSchemaByListing(transaction, category);
   if (schema?.filter?.sections && schema.filter.sections.length > 0) {
-    return buildFilterBlocksFromSchema(schema.filter.sections);
+    return buildFilterBlocksFromSchema(schema.filter.sections, transaction, category);
   }
 
   if (transaction === "rent" && category === "daily-apartment-suite") {
@@ -3453,7 +3366,7 @@ export function SearchMapFilterPage() {
   return <AdvertisementFilterPage />;
 }
 
-export function AdvertisementFilterPage({
+function AdvertisementFilterPage({
   applyBasePath = "/search",
   applyButtonLabel: customApplyButtonLabel,
   backBasePath = "/search",
@@ -3975,8 +3888,22 @@ function ExchangeFilterSection({
   );
 }
 
-function FeatureChipIcon({ label }: { label: string; selected?: boolean }) {
-  return <FeatureIcon feature={label} className="h-5 w-5 shrink-0 object-contain" />;
+function FeatureChipIcon({
+  className,
+  label,
+  selected = false,
+}: {
+  className?: string;
+  label: string;
+  selected?: boolean;
+}) {
+  return (
+    <FeatureIcon
+      feature={label}
+      selected={selected}
+      className={cn("h-5 w-5 shrink-0 object-contain", selected ? "text-primary" : "text-on-surface-var", className)}
+    />
+  );
 }
 
 type SingleChoiceSectionProps = {
@@ -4881,7 +4808,7 @@ function DateFilterSection({
   );
 }
 
-export function RangeSelectField({
+function RangeSelectField({
   label,
   onChange,
   options = areaRangeOptions,

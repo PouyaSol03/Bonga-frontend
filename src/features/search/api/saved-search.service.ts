@@ -1,6 +1,6 @@
 import { api } from "../../../shared/api/api";
 
-export type SavedSearchFilters = Record<string, string | number | boolean | Array<string | number>>;
+type SavedSearchFilters = Record<string, string | number | boolean | Array<string | number>>;
 
 export type SaveSearchInput = {
   content: string[];

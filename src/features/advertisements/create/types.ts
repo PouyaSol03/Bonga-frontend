@@ -54,7 +54,7 @@ export type BasicPropertyFieldKey =
   | "accommodationType"
   | "spaceType";
 
-export type BasicPropertySelectKey =
+type BasicPropertySelectKey =
   | "floor"
   | "rooms"
   | "age"
@@ -72,7 +72,7 @@ export type BasicPropertySelectKey =
   | "accommodationType"
   | "spaceType";
 
-export type BasicPropertyMultiSelectKey = "suitableFor" | "usageType";
+type BasicPropertyMultiSelectKey = "suitableFor" | "usageType";
 
 export type BasicPropertyField = {
   key: BasicPropertyFieldKey;
@@ -124,7 +124,7 @@ export type MoreFeatureSelectKey =
 
 export type MoreFeatureMultiSelectKey = "suitableFor" | "usageType";
 
-export type MoreFeatureNumberKey =
+type MoreFeatureNumberKey =
   | "buildingArea"
   | "landWidth"
   | "streetWidth"
@@ -137,7 +137,7 @@ export type MoreFeatureDateKey = "readyDeliveryDate" | "projectDeliveryDate";
 
 export type MoreFeatureTimeKey = "checkInTime" | "checkOutTime";
 
-export type MoreFeatureToggleKey =
+type MoreFeatureToggleKey =
   | "renovated"
   | "furnished"
   | "constructionPermit"
@@ -150,7 +150,7 @@ export type MoreFeatureToggleKey =
   | "separateEntrance"
   | "hasDocument";
 
-export type MoreFeatureInputKey = "builderCompanyName";
+type MoreFeatureInputKey = "builderCompanyName";
 
 export type MoreFeatureFormKey =
   | MoreFeatureSelectKey
@@ -171,7 +171,7 @@ export type MoreFeatureField = {
 
 /* -------------------------------- Project -------------------------------- */
 
-export type ProjectSelectKey =
+type ProjectSelectKey =
   | "projectStatus"
   | "projectType"
   | "documentType"

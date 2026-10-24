@@ -8,7 +8,7 @@ import {
 
 export type { LeadFollowupItem };
 
-export interface DashboardLeadFollowupPageProps {
+interface DashboardLeadFollowupPageProps {
   items?: LeadFollowupItem[];
 }
 

@@ -23,12 +23,12 @@ type StatusResponse = {
   status: boolean;
 };
 
-export type RequestOtpResponse = StatusResponse & {
+type RequestOtpResponse = StatusResponse & {
   has_city: boolean;
   smsRes: StatusResponse;
 };
 
-export type VerifyOtpResponse = StatusResponse & {
+type VerifyOtpResponse = StatusResponse & {
   access_token?: string;
   account_type: string;
   expires_in: number;

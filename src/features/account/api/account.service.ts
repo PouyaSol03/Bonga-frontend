@@ -1,4 +1,4 @@
-import { ApiError, api, apiV2, getActiveV2Role, getApiAssetUrl } from "../../../shared/api/api";
+import { ApiError, api, apiV2, getActiveV2Role } from "../../../shared/api/api";
 import { type ApiDataResponse, type ApiListResponse, unwrapList  } from "../../../shared/api/response";
 
 import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
@@ -19,7 +19,7 @@ export function isUserIdentityVerified(profile?: UserProfile | null) {
   return isAuthorized;
 }
 
-export type UpdateProfilePayload = {
+type UpdateProfilePayload = {
   avatar?: File | null;
   email?: string | null;
   family?: string | null;
@@ -31,24 +31,24 @@ export type UpdateProfilePayload = {
   whatsapp?: string | null;
 };
 
-export type AuthorizePayload = {
+type AuthorizePayload = {
   nationalnumber: string;
 };
 
-export type CreateMyAgencyPayload = {
+type CreateMyAgencyPayload = {
   lat?: number;
   lng?: number;
   name: string;
   neighborhood_ids: string[];
 };
 
-export type CreateMyAgentPayload = {
+type CreateMyAgentPayload = {
   agency_id?: string | number | null;
   name: string;
   phonenumber?: string;
 };
 
-export type AgentRequestItem = {
+type AgentRequestItem = {
   agency_id?: string | number | null;
   created_at?: string;
   id: string | number;
@@ -112,7 +112,7 @@ export type MyAgencyProfile = {
   } | null;
 };
 
-export type UpdateMyAgencyProfilePayload = {
+type UpdateMyAgencyProfilePayload = {
   name: string;
   neighborhood_id?: string | null;
   neighborhood_ids: string[];
@@ -140,18 +140,18 @@ export type WalletPayment = Record<string, unknown> & {
   status?: number | string;
 };
 
-export type WalletResult = {
+type WalletResult = {
   credit: number | string;
 };
 
-export type WalletPaymentsResult = {
+type WalletPaymentsResult = {
   page: number;
   perPage: number;
   payments: WalletPayment[];
   total: number;
 };
 
-export type PaymentHistoryMetadata = {
+type PaymentHistoryMetadata = {
   package_kind?: string;
   package_scope?: string;
   package_title?: string;
@@ -184,22 +184,22 @@ export type AccountCreditHistoryPage = {
   total: number;
 };
 
-export type ChargeWalletPayload = {
+type ChargeWalletPayload = {
   price: number;
 };
 
-export type ChargeWalletResult = {
+type ChargeWalletResult = {
   authority?: string;
   paymentId?: string;
   paymentUrl: string;
 };
 
-export type PaymentCallbackPayload = {
+type PaymentCallbackPayload = {
   Authority: string;
   Status: string;
 };
 
-export type PaymentCallbackResult = {
+type PaymentCallbackResult = {
   redirectUrl: string;
   success: boolean;
 };
@@ -267,12 +267,12 @@ export type NoteItem = Record<string, unknown> & {
   updated_at?: string;
 };
 
-export type SaveAdvertiseNotePayload = {
+type SaveAdvertiseNotePayload = {
   advertiseId: string;
   note: string;
 };
 
-export type UpdateAdvertiseNotePayload = {
+type UpdateAdvertiseNotePayload = {
   noteId: string;
   note: string;
 };
@@ -334,7 +334,7 @@ export function authorizeMe(payload: AuthorizePayload) {
   return api.post("me/authorize", { json: payload }).json<ApiDataResponse<unknown>>();
 }
 
-export interface TransferSimOwnershipPayload {
+interface TransferSimOwnershipPayload {
   reason?: string;
   description?: string;
 }
@@ -497,7 +497,7 @@ export async function updateMyAgencyProfile(payload: UpdateMyAgencyProfilePayloa
   return unwrapMyAgencyProfile(response);
 }
 
-export interface ConsultantProfileUser {
+interface ConsultantProfileUser {
   id?: number | string;
   name?: string | null;
   family?: string | null;
@@ -506,7 +506,7 @@ export interface ConsultantProfileUser {
   avatar?: string | null;
 }
 
-export interface ConsultantProfileDetail {
+interface ConsultantProfileDetail {
   id?: number | string;
   phone?: string | null;
   telegram?: string | null;
@@ -516,7 +516,7 @@ export interface ConsultantProfileDetail {
   profile_complete?: boolean;
 }
 
-export interface ConsultantProfileResponse {
+interface ConsultantProfileResponse {
   status?: boolean;
   data: {
     user?: ConsultantProfileUser;
@@ -853,20 +853,6 @@ export async function getMyAds({
     perPage: resolvedPerPage,
     total,
   } satisfies MyAdsPage;
-}
-
-export async function getMyBadges() {
-  const badges = unwrapList(await api.get("me/badges").json<ApiListResponse<BadgeItem>>());
-
-  return badges.map((badge) => ({
-    ...badge,
-    image:
-      typeof badge.image === "string"
-        ? getApiAssetUrl(badge.image)
-        : typeof badge.logo === "string"
-          ? getApiAssetUrl(badge.logo)
-          : badge.image,
-  }));
 }
 
 export async function getAdvertiseBadges({

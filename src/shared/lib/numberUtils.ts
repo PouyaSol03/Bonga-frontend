@@ -71,4 +71,5 @@ export function parseNumericValue(value: unknown): number | null {
 }
 
 export const toPersianDigits = toPersianNumber;
+export const toLatinDigits = toEnglishDigits;
 export const toNumericValue = parseNumericValue;

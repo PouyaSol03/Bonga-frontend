@@ -4,7 +4,7 @@ import { ActivityItemIcon } from "./ConsultantActivityIcons";
 import { ConsultantPeriodDropdown, type PerformancePeriod } from "./ConsultantPeriodDropdown";
 import type { ActivityFilterType, ConsultantActivityItem } from "./types";
 
-export const ACTIVITY_FILTERS: { key: ActivityFilterType; label: string }[] = [
+const ACTIVITY_FILTERS: { key: ActivityFilterType; label: string }[] = [
   { key: "all", label: "همه" },
   { key: "ad", label: "آگهی" },
   { key: "response", label: "پاسخ به مشتری" },

@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { useMyAgencyProfileQuery } from "../../account/api/account.hooks";
 
-export type PublisherOptionId =
+type PublisherOptionId =
   "personal" | "independent-consultant" | "agency-manager" | "agency-consultant";
 
 export type PublisherOption = {

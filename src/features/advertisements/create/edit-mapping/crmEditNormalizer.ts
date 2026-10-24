@@ -5,7 +5,7 @@ import { locationLatKey, locationLngKey, neighborhoodIdKey } from "../data";
 
 import type { NewAdFormValues } from "../types";
 
-export type EditableAdvertisementFeature = AdvertisementFeature & { key?: string };
+type EditableAdvertisementFeature = AdvertisementFeature & { key?: string };
 import { buildPayload } from "../utils";
 import { isCrmAdvertiseSource } from "./editRouteParams";
 import { normalizeLookupText } from "./featureReaders";

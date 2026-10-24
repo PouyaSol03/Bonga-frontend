@@ -4,7 +4,7 @@ import { Button } from "../../../shared/ui/Button";
 
 export type AdTariffOptionId = "refresh" | "special" | "renew" | "refreshSpecial";
 
-export type AdTariffOption = {
+type AdTariffOption = {
   description: string;
   disabled?: boolean;
   id: AdTariffOptionId;
@@ -58,7 +58,7 @@ export function formatTariffToman(value: number) {
   return `${new Intl.NumberFormat("fa-IR").format(value)}`;
 }
 
-export type AvailableInDuration = {
+type AvailableInDuration = {
   days?: number;
   hours?: number;
   total_seconds?: number;
@@ -274,7 +274,7 @@ function SelectionBox({ checked, disabled = false }: { checked: boolean; disable
   );
 }
 
-export function AdCardTomanIcon({ className = "" }: { className?: string }) {
+function AdCardTomanIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -286,7 +286,7 @@ export function AdCardTomanIcon({ className = "" }: { className?: string }) {
   );
 }
 
-export function CircleAlertIcon({ className = "" }: { className?: string }) {
+function CircleAlertIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.6" />

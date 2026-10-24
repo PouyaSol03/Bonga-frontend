@@ -16,10 +16,12 @@ import { TextField } from "../../../../shared/ui/TextField";
 import { FeaturesIcons } from "../../components/FeaturesIcons";
 import { TopBar } from "../../../../shared/components/TopBar";
 import { normalizeNumberInput } from "../utils";
+import { formatNumber as formatPrice } from "../../../../shared/lib/numberUtils";
 import { preserveNewAdDraftStateKey } from "../session";
 import type { ChipItem } from "../types";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { Typography } from "../../../../shared/ui/Typography";
+import { cn } from "../../../../design-system/classes";
 import LinearInformation from "../../../../shared/icons/LinearInformation";
 import LinearImage from "../../../../shared/icons/LinearImage";
 import LinearMoney from "../../../../shared/icons/LinearMoney";
@@ -124,13 +126,6 @@ function ClearFieldButton({ onClick }: { onClick: () => void }) {
       <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
     </Button>
   );
-}
-
-function formatPrice(value: number | string) {
-  const number = typeof value === "number" ? value : Number(String(value).replace(/,/g, ""));
-  return Number.isFinite(number)
-    ? new Intl.NumberFormat("fa-IR").format(number)
-    : String(value ?? "");
 }
 
 export function InputBox({
@@ -286,7 +281,13 @@ export function Chip({
 }) {
   return (
     <UiChip
-      icon={<FeaturesIcons feature={item.label} className="h-5 w-5 shrink-0 object-contain" />}
+      icon={
+        <FeaturesIcons
+          feature={item.label}
+          selected={selected}
+          className={cn("h-5 w-5 shrink-0 object-contain", selected ? "text-primary" : "text-on-surface-var")}
+        />
+      }
       onClick={onClick}
       selected={selected}
     >

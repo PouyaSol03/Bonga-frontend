@@ -34,7 +34,7 @@ const iconMap: Record<
   urgent: { icon: LinearClock, bg: "bg-warning-container", text: "text-warning" },
 };
 
-export interface DashboardCreditsCardProps {
+interface DashboardCreditsCardProps {
   title?: string;
   items?: DashboardCreditItem[];
 }

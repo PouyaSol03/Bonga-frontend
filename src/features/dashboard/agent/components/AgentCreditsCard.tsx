@@ -3,9 +3,9 @@ import {
   type DashboardCreditItem,
 } from "../../components/DashboardCreditsCard";
 
-export interface AgentCreditItem extends DashboardCreditItem {}
+interface AgentCreditItem extends DashboardCreditItem {}
 
-export interface AgentCreditsCardProps {
+interface AgentCreditsCardProps {
   items?: AgentCreditItem[];
 }
 

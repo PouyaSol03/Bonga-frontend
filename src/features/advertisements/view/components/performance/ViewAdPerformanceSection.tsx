@@ -2,7 +2,7 @@ import { ViewAdPerformanceKpiCards } from "./ViewAdPerformanceKpiCards";
 import { ViewAdPerformanceProgressCharts } from "./ViewAdPerformanceProgressCharts";
 import { ViewAdPerformanceFunnelCard } from "./ViewAdPerformanceFunnelCard";
 
-export interface ViewAdPerformanceSectionProps {
+interface ViewAdPerformanceSectionProps {
   adId?: string | number;
   ad?: Record<string, unknown>;
   className?: string;

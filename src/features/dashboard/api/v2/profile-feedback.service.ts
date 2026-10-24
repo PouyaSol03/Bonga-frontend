@@ -9,14 +9,14 @@ export type ProfileFeedbackItem = {
   is_active: boolean;
 };
 
-export type SubmitProfileFeedbackPayload = {
+type SubmitProfileFeedbackPayload = {
   ratings: Array<{
     item_id: number;
     value: boolean;
   }>;
 };
 
-export type CrmProfileFeedbackItemPayload = {
+type CrmProfileFeedbackItemPayload = {
   title: string;
   sort_order: number;
   is_active: boolean;
@@ -35,11 +35,6 @@ export async function getProfileFeedbackItems(): Promise<ProfileFeedbackItem[]> 
   const response = await apiV2.get("profile-feedback/items").json<ProfileFeedbackItemsResponse>();
   return response?.data ?? [];
 }
-
-/**
- * Backward compatibility alias
- */
-export const getPublicProfileFeedbackItems = getProfileFeedbackItems;
 
 /**
  * Submit feedback for an agency or consultant in the current context

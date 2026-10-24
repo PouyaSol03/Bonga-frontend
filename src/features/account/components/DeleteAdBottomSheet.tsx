@@ -3,7 +3,7 @@ import { BottomSheet } from "../../../shared/components/BottomSheet";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 
-export interface DeleteAdBottomSheetProps {
+interface DeleteAdBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;

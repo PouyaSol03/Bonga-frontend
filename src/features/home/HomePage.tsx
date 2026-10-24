@@ -156,11 +156,8 @@ function getStoredCity(): SelectedCity {
   }
 
   return {
-    id: window.localStorage.getItem("bonga-selected-city-id") ?? undefined,
-    name:
-      window.localStorage.getItem("bonga-selected-city") ??
-      window.sessionStorage.getItem("bonga-selected-city") ??
-      "مشهد",
+    id: undefined,
+    name: "مشهد",
   };
 }
 
@@ -183,16 +180,6 @@ export function HomePage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    console.log("[FCM Push Status on Home]:", {
-      isSecureContext: window.isSecureContext,
-      hasNotification: "Notification" in window,
-      permission: "Notification" in window ? Notification.permission : "unsupported",
-      isSupported,
-      hasAuthSession,
-      hasVapidKey: Boolean(import.meta.env.VITE_FIREBASE_VAPID_KEY),
-    });
-
     if (!isSupported) return;
 
     if (permission === "granted") {
@@ -253,7 +240,7 @@ export function HomePage() {
 
   const navigateToSearch = (options: { formCode?: string; query?: string } = {}) => {
     const params = new URLSearchParams();
-    const cityId = selectedCity.id ?? window.localStorage.getItem("bonga-selected-city-id") ?? "";
+    const cityId = selectedCity.id ?? readStoredSelectedCity()?.id ?? "";
 
     if (cityId) {
       params.set("city_id", cityId);

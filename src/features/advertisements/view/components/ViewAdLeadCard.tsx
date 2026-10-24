@@ -21,7 +21,7 @@ export interface ViewAdLeadItem {
   detailsUrl?: string;
 }
 
-export interface ViewAdLeadCardProps {
+interface ViewAdLeadCardProps {
   lead: ViewAdLeadItem;
   adId?: string | number;
   onChatClick?: (lead: ViewAdLeadItem) => void;

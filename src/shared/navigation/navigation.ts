@@ -66,7 +66,7 @@ export function canGoBackInApp() {
   );
 }
 
-export function isSafeAppPath(path: unknown): path is string {
+function isSafeAppPath(path: unknown): path is string {
   if (typeof path !== "string") return false;
   if (!path.startsWith("/")) return false;
   if (path.startsWith("//")) return false;
@@ -94,7 +94,7 @@ export function getStoredBackTarget() {
   };
 }
 
-export function createNavigationState(
+function createNavigationState(
   state?: unknown,
   options: { rememberCurrent?: boolean } = {},
 ) {

@@ -3,25 +3,6 @@ import LinearWallet from "../../../shared/icons/LinearWallet";
 import LinearMellat from "../../../shared/icons/LinearMellat";
 import LinearWallet2 from "../../../shared/icons/LinearWallet2";
 
-export function FilterIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <path d="M4 7h5M15 7h5M4 17h11M19 17h1" />
-      <rect height="6" rx="1.5" width="6" x="9" y="4" />
-      <rect height="6" rx="1.5" width="4" x="15" y="14" />
-    </svg>
-  );
-}
-
 export function SearchIcon({ className = "" }: { className?: string }) {
   return (
     <svg

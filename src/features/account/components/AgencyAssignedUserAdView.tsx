@@ -139,7 +139,7 @@ export function formatExpireDuration(
   return fallbackReason || "امکان انجام عملیات تا پایان مهلت فراهم است.";
 }
 
-export function renderDateWithRelative(text: string) {
+function renderDateWithRelative(text: string) {
   if (!text) return null;
 
   // Pattern 1: "۳ روز پیش (۱۴۰۴/۱۱/۰۹)" or "۱۲ روز دیگر (۱۴۰۴/۱۱/۲۱)"

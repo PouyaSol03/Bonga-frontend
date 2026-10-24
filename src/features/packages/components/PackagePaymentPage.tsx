@@ -32,7 +32,7 @@ function toAmount(value: number | string | undefined) {
   return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
 }
 
-export function formatShortPayment(value: number) {
+function formatShortPayment(value: number) {
   if (value === 0) return "رایگان";
   if (value >= 1_000_000) {
     const millions = value / 1_000_000;

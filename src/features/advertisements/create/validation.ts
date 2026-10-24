@@ -11,7 +11,7 @@ const MAX_SYSTEM_PRICE = 500_000_000_000_000; // 500 Hemmat (500 trillion Tomans
 const MAX_MONTHLY_RENT = 5_000_000_000; // 5 Billion Tomans
 const MAX_DAILY_RENT = 200_000_000; // 200 Million Tomans per night
 
-export function toLatinDigits(value: string): string {
+function toLatinDigits(value: string): string {
   return value
     .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
     .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));

@@ -9,7 +9,7 @@ import {
   useAdvertisementPreviewQuery,
 } from "../../api/advertisement.hooks";
 import { mapAdToDetails, parseViewAdIdFromPath } from "../viewAdDetails";
-import { toPersianDigits } from "../viewAdComponents";
+import { toPersianDigits } from "../../../../shared/lib/numberUtils";
 import type { ViewAdProjectDetailVariant } from "../viewAdTypes";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "../ViewAdRouteStates";
 import { shouldUseAgencyAllocationPreview } from "../viewAdPreviewContext";

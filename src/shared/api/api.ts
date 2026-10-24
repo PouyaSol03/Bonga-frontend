@@ -452,11 +452,8 @@ const apiOptionsV2: Options = {
 };
 
 export const api = ky.create(apiOptions);
-export const apiV1 = api;
-export const clientV1 = api;
 
 export const apiV2 = ky.create(apiOptionsV2);
-export const clientV2 = apiV2;
 
 export const publicApi = api.extend({
   context: {
@@ -471,7 +468,7 @@ export const publicApiV2 = apiV2.extend({
 });
 
 export const client = {
-  v1: apiV1,
+  v1: api,
   v2: apiV2,
 };
 

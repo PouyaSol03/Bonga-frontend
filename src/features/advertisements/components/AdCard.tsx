@@ -670,7 +670,7 @@ type AdCategoryType =
   | "project-partnership"
   | "default";
 
-export function isDailyRentCategory(category: AdCategoryType): boolean {
+function isDailyRentCategory(category: AdCategoryType): boolean {
   return (
     category === "daily-apartment-suite" ||
     category === "daily-garden-villa" ||

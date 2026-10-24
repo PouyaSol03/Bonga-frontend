@@ -9,7 +9,7 @@ export function text(record: CrmRecord, keys: string[], fallback = ""): string {
   return fallback;
 }
 
-export function visibleNumberText(record: CrmRecord, key: string): string {
+function visibleNumberText(record: CrmRecord, key: string): string {
   const value = record[key];
   const parsed = Number(value);
   return value !== null && value !== undefined && Number.isFinite(parsed) && parsed !== 0

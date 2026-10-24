@@ -1,10 +1,10 @@
 import { api } from "../../../shared/api/api";
 
-export type SearchHistoryFilterValue = string | number | boolean | Array<string | number>;
+type SearchHistoryFilterValue = string | number | boolean | Array<string | number>;
 
-export type SearchHistoryFilters = Record<string, SearchHistoryFilterValue>;
+type SearchHistoryFilters = Record<string, SearchHistoryFilterValue>;
 
-export type SearchHistoryDto = Record<string, unknown> & {
+type SearchHistoryDto = Record<string, unknown> & {
   _id?: string | number;
   category?: { name?: string };
   category_name?: string;

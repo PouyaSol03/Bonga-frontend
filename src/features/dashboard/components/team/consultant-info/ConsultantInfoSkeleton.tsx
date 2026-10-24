@@ -5,7 +5,7 @@ function ConsultantInfoSkeletonBlock({ className = "" }: { className?: string })
   return <div className={`bg-surface-container-high animate-pulse rounded-lg ${className}`} />;
 }
 
-export function ConsultantInfoRowsSkeleton({ rows }: { rows: number }) {
+function ConsultantInfoRowsSkeleton({ rows }: { rows: number }) {
   return (
     <article className="bg-surface-container-lowest rounded-2xl px-4 py-5">
       <div className="grid gap-8">

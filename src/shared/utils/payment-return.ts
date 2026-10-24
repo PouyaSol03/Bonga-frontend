@@ -1,4 +1,4 @@
-export type PaymentReturnTarget = {
+type PaymentReturnTarget = {
   kind?: "package" | "wallet_charge";
   label: string;
   path: string;

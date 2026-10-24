@@ -6,7 +6,7 @@ import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 
 const FCM_TOKEN_STORAGE_KEY = "bonga_fcm_token";
 
-export type FcmPermissionState = NotificationPermission | "unsupported";
+type FcmPermissionState = NotificationPermission | "unsupported";
 
 export function useFcm() {
   const [loading, setLoading] = useState(false);

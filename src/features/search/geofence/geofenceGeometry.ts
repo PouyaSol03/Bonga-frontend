@@ -3,8 +3,8 @@ import type { GeofenceCoordinate, GeofenceResult, GeofenceValidationResult } fro
 export const MIN_CAPTURE_DISTANCE_PX = 5;
 export const CLOSE_SNAP_DISTANCE_METERS = 3;
 export const SIMPLIFY_TOLERANCE_METERS = 3;
-export const EFFECTIVE_DUPLICATE_DISTANCE_METERS = 0.05;
-export const MIN_GEOFENCE_AREA_SQUARE_METERS = 1;
+const EFFECTIVE_DUPLICATE_DISTANCE_METERS = 0.05;
+const MIN_GEOFENCE_AREA_SQUARE_METERS = 1;
 
 const EARTH_RADIUS_METERS = 6_371_008.8;
 const DEGREES_TO_RADIANS = Math.PI / 180;
@@ -34,7 +34,7 @@ function coordinatesExactlyEqual(first: GeofenceCoordinate, second: GeofenceCoor
   return first[0] === second[0] && first[1] === second[1];
 }
 
-export function isValidGeofenceCoordinate(coordinate: GeofenceCoordinate) {
+function isValidGeofenceCoordinate(coordinate: GeofenceCoordinate) {
   const [longitude, latitude] = coordinate;
 
   return (
@@ -74,7 +74,7 @@ export function geographicDistanceMeters(first: GeofenceCoordinate, second: Geof
   );
 }
 
-export function removeEffectivelyDuplicateCoordinates(
+function removeEffectivelyDuplicateCoordinates(
   coordinates: GeofenceCoordinate[],
   thresholdMeters = EFFECTIVE_DUPLICATE_DISTANCE_METERS,
 ) {
@@ -101,7 +101,7 @@ export function removeEffectivelyDuplicateCoordinates(
   return cleaned;
 }
 
-export function closePolygonRing(
+function closePolygonRing(
   coordinates: GeofenceCoordinate[],
   snapDistanceMeters = CLOSE_SNAP_DISTANCE_METERS,
 ) {
@@ -235,7 +235,7 @@ function ramerDouglasPeuckerIndices(points: ProjectedCoordinate[], toleranceMete
     .map(([index]) => index);
 }
 
-export function simplifyGeofenceCoordinates(
+function simplifyGeofenceCoordinates(
   coordinates: GeofenceCoordinate[],
   toleranceMeters = SIMPLIFY_TOLERANCE_METERS,
 ) {
@@ -268,7 +268,7 @@ export function simplifyGeofenceCoordinates(
   return [...simplified.map(copyCoordinate), copyCoordinate(simplified[0])];
 }
 
-export function calculatePolygonAreaSquareMeters(coordinates: GeofenceCoordinate[]) {
+function calculatePolygonAreaSquareMeters(coordinates: GeofenceCoordinate[]) {
   const closedRing = closePolygonRing(coordinates, 0);
   if (closedRing.length < 4) return 0;
 
@@ -284,7 +284,7 @@ export function calculatePolygonAreaSquareMeters(coordinates: GeofenceCoordinate
   return Math.abs(twiceArea) / 2;
 }
 
-export function calculatePolygonPerimeterMeters(coordinates: GeofenceCoordinate[]) {
+function calculatePolygonPerimeterMeters(coordinates: GeofenceCoordinate[]) {
   const closedRing = closePolygonRing(coordinates, 0);
   let perimeter = 0;
 
@@ -345,7 +345,7 @@ function segmentsIntersect(
   );
 }
 
-export function polygonHasSelfIntersections(coordinates: GeofenceCoordinate[]) {
+function polygonHasSelfIntersections(coordinates: GeofenceCoordinate[]) {
   const closedRing = closePolygonRing(coordinates, 0);
   if (closedRing.length < 5) return false;
 
@@ -387,7 +387,7 @@ function countUniqueVertices(coordinates: GeofenceCoordinate[], thresholdMeters:
   return unique.length;
 }
 
-export function validateGeofencePolygon(
+function validateGeofencePolygon(
   coordinates: GeofenceCoordinate[],
   options: {
     duplicateDistanceMeters?: number;
@@ -460,7 +460,7 @@ export function validateGeofencePolygon(
   return { isValid: true };
 }
 
-export function calculateGeofenceMeasurements(coordinates: GeofenceCoordinate[]) {
+function calculateGeofenceMeasurements(coordinates: GeofenceCoordinate[]) {
   return {
     areaSquareMeters: calculatePolygonAreaSquareMeters(coordinates),
     perimeterMeters: calculatePolygonPerimeterMeters(coordinates),

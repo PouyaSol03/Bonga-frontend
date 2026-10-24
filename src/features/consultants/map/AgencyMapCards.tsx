@@ -7,7 +7,7 @@ import LinearRanking from "../../../shared/icons/LinearRanking";
 import LinearStar from "../../../shared/icons/LinearStar";
 import type { AgencyDirectoryMapItem } from "./AgencyMap.types";
 
-export function AgencyImage({ item }: { item: AgencyDirectoryMapItem }) {
+function AgencyImage({ item }: { item: AgencyDirectoryMapItem }) {
   return item.image ? (
     <img
       alt=""
@@ -27,7 +27,7 @@ export function AgencyImage({ item }: { item: AgencyDirectoryMapItem }) {
   );
 }
 
-export function AgencySummary({ item }: { item: AgencyDirectoryMapItem }) {
+function AgencySummary({ item }: { item: AgencyDirectoryMapItem }) {
   return (
     <Typography
       as="span"

@@ -10,7 +10,7 @@ export type AppChromeConfig = {
   wrapInShell: boolean;
 };
 
-export function getBottomNavigationKey(path: string) {
+function getBottomNavigationKey(path: string) {
   if (path === "/account") return "account";
   if (path.startsWith("/account/")) return undefined;
   if (path.startsWith("/account/support")) return undefined;
@@ -47,7 +47,7 @@ export function getBottomNavigationKey(path: string) {
   return undefined;
 }
 
-export function getAccountFallbackBackTo(path: string) {
+function getAccountFallbackBackTo(path: string) {
   if (path === "/account") return "/home";
   if (path === "/account/support/chat/new") return "/account/support/chat";
   if (path === "/account/support/requests/new") return "/account/support/requests";
@@ -94,7 +94,7 @@ export function getAccountFallbackBackTo(path: string) {
   return "/account";
 }
 
-export function getRouteTopBar(
+function getRouteTopBar(
   path: string,
   title: string,
   notificationIcon?: ReactNode,

@@ -70,14 +70,14 @@ export type DetailItem = {
   iconSrc?: string | null;
 };
 
-export type PropertyInfoRow = DetailItem;
+type PropertyInfoRow = DetailItem;
 
-export type ActionRow = {
+type ActionRow = {
   icon: IconName;
   label: string;
 };
 
-export type EquipmentSection = {
+type EquipmentSection = {
   icon: IconName;
   items: DetailItem[];
   title: string;

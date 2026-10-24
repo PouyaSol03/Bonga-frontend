@@ -20,7 +20,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 
-export type IndependentConsultantAdPublishedPageProps = {
+type IndependentConsultantAdPublishedPageProps = {
   ad?: ReturnType<typeof getSelectedConsultantAd>;
   expirationLabel?: string;
   initialSuccessOpen?: boolean;

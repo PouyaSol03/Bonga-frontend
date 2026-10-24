@@ -78,7 +78,7 @@ const formCodeByListingKey: Record<string, string> = {
   "sale:warehouse": "sale-warehouse",
 };
 
-export function getFormCodeForListing(transaction: string, category: string): string {
+function getFormCodeForListing(transaction: string, category: string): string {
   return (
     formCodeByListingKey[`${transaction}:${category}`] ??
     [transaction, category].filter(Boolean).join("-")
@@ -134,7 +134,7 @@ function normalizeSchemaOptions(schema: AdFormSchema | null): AdFormSchema | nul
   return clone;
 }
 
-export function getFormSchema(formCode: string): AdFormSchema | null {
+function getFormSchema(formCode: string): AdFormSchema | null {
   return normalizeSchemaOptions(formSchemas[formCode] ?? null);
 }
 

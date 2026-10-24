@@ -3,11 +3,11 @@ import { api } from "../../../shared/api/api";
 export type ChatCategory = "advertise" | "support" | "agency_support";
 export type ChatFilter = "support" | "not_read" | "my_ads" | "others_ads";
 export type ChatMessageType = "text" | "image" | "file" | "location" | "system";
-export type ChatReportReason = "spam" | "harassment" | "fraud" | "inappropriate_content" | "other";
+type ChatReportReason = "spam" | "harassment" | "fraud" | "inappropriate_content" | "other";
 export type ChatDayOfWeek =
   "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
 
-export type ChatAvailabilityDay = {
+type ChatAvailabilityDay = {
   day_label: string;
   day_of_week: ChatDayOfWeek;
 };
@@ -97,7 +97,7 @@ export type ChatMessage = Record<string, unknown> & {
   user_id?: number | string;
 };
 
-export type ChatAttachmentUpload = {
+type ChatAttachmentUpload = {
   file_name: string;
   mime_type: string;
   size: number;
@@ -169,7 +169,7 @@ type ChatShowingNameResponse =
   | string
   | null;
 
-export type ChatsPage = {
+type ChatsPage = {
   data: ChatThread[];
   hasNextPage: boolean;
   page: number;
@@ -528,7 +528,7 @@ export async function getChatUnreadCount() {
   return readChatUnreadCount(response);
 }
 
-export type ChatReportPayload = {
+type ChatReportPayload = {
   description?: string;
   messageId?: string;
   reason: ChatReportReason;

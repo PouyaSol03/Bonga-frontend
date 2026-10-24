@@ -2,7 +2,7 @@ import { getBasicPropertyFields, getParams, trimFormValues } from "./utils";
 import { parseRentPriceValue } from "./rentPriceConversion";
 import type { FlowStep, NewAdFieldErrors, NewAdFormValues } from "./types";
 
-export type NewAdValidationResult = {
+type NewAdValidationResult = {
   errors: NewAdFieldErrors;
   step: FlowStep;
 };
@@ -36,7 +36,7 @@ export function parseNumericValue(value: unknown): number | null {
   return null;
 }
 
-export function parseFloorNumber(floorStr: unknown): number | null {
+function parseFloorNumber(floorStr: unknown): number | null {
   if (typeof floorStr !== "string") return null;
   const trimmed = floorStr.trim();
   if (trimmed === "همکف") return 0;
@@ -54,11 +54,11 @@ function hasRequiredText(value: unknown): boolean {
   return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
 }
 
-export function hasErrors(errors: NewAdFieldErrors): boolean {
+function hasErrors(errors: NewAdFieldErrors): boolean {
   return Object.values(errors).some(Boolean);
 }
 
-export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
+function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
   const { transaction, category } = getParams();
   const isProject = transaction === "project";
   const isPartnership = isProject && category === "project-partnership";
@@ -361,7 +361,7 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
   return errors;
 }
 
-export function getMediaValidationErrors(
+function getMediaValidationErrors(
   values: NewAdFormValues,
   options: { forceFullEditFields?: boolean } = {},
 ): NewAdFieldErrors {

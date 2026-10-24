@@ -7,7 +7,7 @@ import LinearTick from "../../../../shared/icons/LinearTick";
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 import type { DashboardRole } from "../DashboardQuickAccessGrid";
 
-export interface SliceData {
+interface SliceData {
   name: string;
   value: number;
   percentage?: number | null;

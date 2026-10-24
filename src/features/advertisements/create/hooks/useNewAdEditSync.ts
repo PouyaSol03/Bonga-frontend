@@ -40,14 +40,15 @@ export function useNewAdEditSync({
 }: UseNewAdEditSyncProps) {
   const [, setEditRouteVersion] = useState(0);
   const editDataAppliedRef = useRef<string | null>(null);
-  const localInitialEditValuesRef = useRef<NewAdFormValues | null>(null);
+  const localInitialEditValuesRef = useRef<NewAdFormValues | null>(
+    isEditMode && editAdState.ad
+      ? mapAdvertisementToEditValues(
+          editAdState.ad,
+          getDefaultValues({ ...editAdState, isEditMode: true }),
+        )
+      : null,
+  );
   const initialEditValuesRef = externalInitialEditValuesRef ?? localInitialEditValuesRef;
-  if (initialEditValuesRef.current === null && isEditMode && editAdState.ad) {
-    initialEditValuesRef.current = mapAdvertisementToEditValues(
-      editAdState.ad,
-      getDefaultValues({ ...editAdState, isEditMode: true }),
-    );
-  }
 
   const editAdQuery = useQuery<AdvertisementItem, Error>({
     enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),
@@ -102,7 +103,11 @@ export function useNewAdEditSync({
       isEditMode: true,
     });
     const baselineEditValues = mapAdvertisementToEditValues(editAdData, editDefaults);
-    initialEditValuesRef.current = baselineEditValues;
+    if (externalInitialEditValuesRef) {
+      externalInitialEditValuesRef.current = baselineEditValues;
+    } else {
+      localInitialEditValuesRef.current = baselineEditValues;
+    }
 
     if (shouldPreserveNewAdDraft(window.history.state) && restoredValues) {
       editDataAppliedRef.current = appliedKey;

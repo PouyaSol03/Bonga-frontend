@@ -3,9 +3,9 @@ import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import { RankIcon, StarIcon } from "./DirectoryIcons";
 
-export type DirectoryCardMode = "agency" | "consultant";
+type DirectoryCardMode = "agency" | "consultant";
 
-export type DirectoryCardItem = {
+type DirectoryCardItem = {
   badge?: string;
   image?: string;
   name: string;

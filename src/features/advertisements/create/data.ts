@@ -802,7 +802,7 @@ export const unitsPerFloorOptions = Array.from(
   { length: 30 },
   (_, index) => `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`,
 );
-export const capacityOptions = [
+const capacityOptions = [
   "۱",
   "۲",
   "۳",
@@ -820,7 +820,7 @@ export const capacityOptions = [
   "۴۰",
   "۵۰+",
 ];
-export const roomCountOptions = [
+const roomCountOptions = [
   "۱",
   "۲",
   "۳",
@@ -836,7 +836,7 @@ export const roomCountOptions = [
   "۳۰",
   "۵۰+",
 ];
-export const openingCountOptions = Array.from({ length: 20 }, (_, index) =>
+const openingCountOptions = Array.from({ length: 20 }, (_, index) =>
   new Intl.NumberFormat("fa-IR").format(index + 1),
 );
 export const elevatorCountOptions = Array.from({ length: 5 }, (_, index) =>
@@ -850,7 +850,7 @@ export const timeOptions = Array.from({ length: 48 }, (_, index) => {
   const minute = index % 2 === 0 ? "00" : "30";
   return `${hour}:${minute}`;
 });
-export const yesNoOptions = ["دارد", "ندارد"];
+
 export const participationTypeOptions = [
   "مشارکت در ساخت",
   "تهاتر",
@@ -929,7 +929,7 @@ const saleLandSuitableForOptions = [
   "تجمیع با ملک مجاور",
 ];
 
-export const suitableForOptions = [
+const suitableForOptions = [
   "مهندسین",
   "وکلا",
   "درمانگاه",
@@ -953,7 +953,7 @@ export const suitableForOptions = [
 const saleHotelStarsOptions = ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"];
 const saleAccommodationTypeOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه", "مجتمع توریستی"];
 
-export const commercialLicenseOptions = ["دائم", "موقت", "ندارد"];
+const commercialLicenseOptions = ["دائم", "موقت", "ندارد"];
 const saleCommercialPositionOptions = [
   "بر خیابان اصلی",
   "داخل پاساژ",
@@ -1064,17 +1064,17 @@ const rentOfficeSuitableForOptions = [
 ];
 const rentCurrentStatusOptions = ["تخلیه", "فعال"];
 
-export const dailyAccommodationTypeOptions = [
+const dailyAccommodationTypeOptions = [
   "سویئت",
   "آپارتمان",
   "اتاق",
   "خوابگاه یا پانسیون",
   "بوم گردی",
 ];
-export const dailyHotelAccommodationTypeOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه"];
-export const dailyHotelStarsOptions = ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"];
+const dailyHotelAccommodationTypeOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه"];
+const dailyHotelStarsOptions = ["۱ ستاره", "۲ ستاره", "۳ ستاره", "۴ ستاره", "۵ ستاره"];
 export const dailyRentalPeriodOptions = ["روزانه", "هفتگی", "ماهانه", "نصف روز", "بلند مدت"];
-export const dailyWorkspaceRentalPeriodOptions = [
+const dailyWorkspaceRentalPeriodOptions = [
   "ساعتی",
   "روزانه",
   "هفتگی",
@@ -1082,7 +1082,7 @@ export const dailyWorkspaceRentalPeriodOptions = [
   "نصف روز",
   "بلند مدت",
 ];
-export const dailyVillaViewOptions = [
+const dailyVillaViewOptions = [
   "جنگلی",
   "کوهستان",
   "دریا",
@@ -1092,7 +1092,7 @@ export const dailyVillaViewOptions = [
   "باغ",
   "بیابان",
 ];
-export const dailyWorkspaceTypeOptions = [
+const dailyWorkspaceTypeOptions = [
   "اتاق کار اشتراکی",
   "اتاق کار خصوصی",
   "اتاق جلسه",
@@ -1684,7 +1684,7 @@ const saleApartmentDocumentTypeOptions = [
 ];
 
 const saleApartmentOccupancyStatusOptions = ["تخلیه", "مالک", "مستاجر دارد"];
-export const saleApartmentKitchenTypeOptions = ["اپن", "جزیره", "بسته", "نیمه اپن"];
+const saleApartmentKitchenTypeOptions = ["اپن", "جزیره", "بسته", "نیمه اپن"];
 
 const saleApartmentMoreFeatureFields: MoreFeatureField[] = [
   { key: "totalFloors", label: "تعداد طبقات آپارتمان", control: "select", options: totalFloorsOptions },

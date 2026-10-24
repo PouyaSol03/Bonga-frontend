@@ -60,7 +60,7 @@ const publisherOptions: {
   },
 ];
 
-export type IndependentConsultantAdAllocationReviewPageProps = {
+type IndependentConsultantAdAllocationReviewPageProps = {
   ad?: ConsultantAd;
   assignment?: AgencyAdvertiseAssignmentDto;
   initialPublisherType?: PublisherType;

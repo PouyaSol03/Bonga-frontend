@@ -49,7 +49,7 @@ export type NeighborhoodListParams = {
   q?: string;
 };
 
-export type NeighborhoodInfoWithLocParams = {
+type NeighborhoodInfoWithLocParams = {
   cityId: string;
   lat: number;
   lng: number;
@@ -140,15 +140,6 @@ export async function getNeighborhoodInfo(neighborhoodId: string | number) {
     .json<NeighborhoodInfoResponse>();
 
   return unwrapNeighborhoodInfo(response);
-}
-
-export async function getSubNeighborhoodList(neighborhoodId: string | number) {
-  const neighborhood = await getNeighborhoodInfo(neighborhoodId);
-  if (!neighborhood) return [];
-
-  return getNeighborhoodSubNeighborhoods(neighborhood).filter(
-    (item) => item.id !== undefined && item.id !== null && item.name,
-  );
 }
 
 function parseMaybeJson(value: unknown): unknown {

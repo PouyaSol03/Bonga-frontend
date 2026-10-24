@@ -4,7 +4,7 @@ import {
 } from "../components/DashboardReportsView";
 import type { AgentRoleType } from "./types";
 
-export interface AgentDashboardReportsViewProps extends Omit<DashboardReportsViewProps, "role"> {
+interface AgentDashboardReportsViewProps extends Omit<DashboardReportsViewProps, "role"> {
   role?: AgentRoleType;
 }
 

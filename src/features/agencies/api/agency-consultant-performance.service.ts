@@ -3,19 +3,7 @@ import {
   mapAdvertisementToAdCard,
   type AdvertisementItem,
 } from "../../advertisements/api/advertisement.service";
-import type {
-  ConsultantActivitiesDto,
-  ConsultantActivitiesParams,
-  ConsultantActivityFeedDto,
-  ConsultantActivityItemDto,
-  ConsultantActivityStatsDto,
-  ConsultantAdvertisementsPage,
-  ConsultantAdvertisementsParams,
-  ConsultantMetricData,
-  ConsultantMetricParams,
-  ConsultantMetricType,
-  ConsultantPerformanceChartsDto,
-} from "./agency-consultants-types";
+import type { ConsultantActivitiesParams, ConsultantActivityFeedDto, ConsultantActivityItemDto, ConsultantActivityStatsDto, ConsultantAdvertisementsPage, ConsultantAdvertisementsParams, ConsultantMetricData, ConsultantMetricParams, ConsultantMetricType, ConsultantPerformanceChartsDto } from "./agency-consultants-types";
 import { agencyConsultantPath } from "./agency-consultants.service";
 import { toNumber } from "./agency-helpers";
 
@@ -121,38 +109,6 @@ export async function getMyAgencyConsultantActivityFeed({
   };
 }
 
-export async function getMyAgencyConsultantActivities({
-  agentId,
-  page = 1,
-  perPage = 20,
-  period = "week",
-  type = "all",
-}: ConsultantActivitiesParams): Promise<ConsultantActivitiesDto> {
-  const res = await apiV2
-    .get(agencyConsultantPath(agentId, "performance/activities"), {
-      searchParams: { page, per_page: perPage, period, type },
-    })
-    .json<{
-      activities?: ConsultantActivityItemDto[];
-      page?: number;
-      per_page?: number;
-      period?: string;
-      stats?: Record<string, unknown>;
-      total?: number;
-      unavailable_metrics?: string[];
-    }>();
-
-  return {
-    activities: Array.isArray(res.activities) ? res.activities : [],
-    page: Math.max(1, toNumber(res.page, page)),
-    perPage: Math.max(1, toNumber(res.per_page, perPage)),
-    period: res.period ?? period,
-    stats: normalizeStats(res.stats),
-    total: Math.max(0, toNumber(res.total, 0)),
-    unavailableMetrics: Array.isArray(res.unavailable_metrics) ? res.unavailable_metrics : [],
-  };
-}
-
 export async function getMyAgencyConsultantCharts({
   agentId,
   period = "month",
@@ -177,7 +133,7 @@ export async function getMyAgencyConsultantCharts({
   };
 }
 
-export async function getMyAgencyConsultantMetric(
+async function getMyAgencyConsultantMetric(
   metric: ConsultantMetricType,
   { agentId, period = "month", from, to }: ConsultantMetricParams,
 ): Promise<ConsultantMetricData> {

@@ -2,7 +2,7 @@ import type { AgencyConsultantDto } from "../../../agencies/api/agency.service";
 import { toEnglishDigits, toPersianNumber } from "../../../../shared/lib/numberUtils";
 import type { ConsultantRouteState, TeamConsultant } from "./teamTypes";
 
-export function getTeamRoleLabel(role: string) {
+function getTeamRoleLabel(role: string) {
   switch (role.trim().toLowerCase()) {
     case "owner":
       return "مدیر آژانس";

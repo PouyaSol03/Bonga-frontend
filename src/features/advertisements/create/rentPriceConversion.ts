@@ -18,7 +18,7 @@ export function parseRentPriceValue(value: string | number | null | undefined) {
   return normalized && Number.isFinite(number) ? Math.max(0, number) : 0;
 }
 
-export function getRentEquivalentMortgage(mortgagePrice: number, rentPrice: number) {
+function getRentEquivalentMortgage(mortgagePrice: number, rentPrice: number) {
   const mortgage = finiteNonNegative(mortgagePrice);
   const rent = finiteNonNegative(rentPrice);
 
@@ -46,7 +46,7 @@ export function clampRentConversionMortgage(
   return Math.min(maximum, stepped);
 }
 
-export type RentPriceConversionResult = {
+type RentPriceConversionResult = {
   baseMortgage: number;
   baseRent: number;
   maximumMortgage: number;

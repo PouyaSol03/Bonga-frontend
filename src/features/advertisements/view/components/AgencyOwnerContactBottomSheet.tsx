@@ -10,7 +10,7 @@ import {
 import { Typography } from "../../../../shared/ui/Typography";
 import { updateOwnerContact } from "../../api/advertisement.service";
 
-export interface AgencyOwnerContactBottomSheetProps {
+interface AgencyOwnerContactBottomSheetProps {
   adId: string;
   isOpen: boolean;
   onClose: () => void;

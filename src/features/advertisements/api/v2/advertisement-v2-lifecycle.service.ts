@@ -14,18 +14,8 @@ const enc = (id: string | number) => encodeURIComponent(String(id));
 export const getV2ArchiveEligibility = (id: string | number) =>
   apiV2.get(`advertise/${enc(id)}/archive`).json<AdvertisementV2LifecycleEligibility>();
 
-export const restoreV2Archive = (id: string | number, note?: string) =>
-  apiV2
-    .post(`advertise/${enc(id)}/archive/restore`, { json: { note: note || "درخواست کاربر" } })
-    .json();
-
 export const getV2ReRegisterEligibility = (id: string | number) =>
   apiV2.get(`advertise/${enc(id)}/re-registration`).json<AdvertisementV2LifecycleEligibility>();
-
-export const reRegisterV2 = (id: string | number, note?: string) =>
-  apiV2
-    .post(`advertise/${enc(id)}/re-registration`, { json: { note: note || "درخواست کاربر" } })
-    .json();
 
 export const getV2History = (id: string | number) =>
   apiV2.get(`advertise/${enc(id)}/history`).json<{ status?: boolean; data?: unknown[] }>();
@@ -47,10 +37,6 @@ export const getV2Checkout = (id: string | number) =>
 
 export const submitV2Checkout = (id: string | number, payload: AdvertisementV2CheckoutPayload) =>
   apiV2.post(`advertise/${enc(id)}/checkout`, { json: payload }).json();
-
-// Overview, Edit, Preview
-export const getV2Overview = (id: string | number) =>
-  apiV2.get(`advertise/${enc(id)}/overview`).json();
 
 export const getV2Edit = (id: string | number) => apiV2.get(`advertise/${enc(id)}/edit`).json();
 

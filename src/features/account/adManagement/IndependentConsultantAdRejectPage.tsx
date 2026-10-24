@@ -34,7 +34,7 @@ function getRejectAdvertiseId() {
   return match?.[1] ? decodeURIComponent(match[1]) : "";
 }
 
-export type IndependentConsultantAdRejectPageProps = {
+type IndependentConsultantAdRejectPageProps = {
   ad?: ReturnType<typeof getSelectedConsultantAd>;
   initialReason?: RejectReason;
 };

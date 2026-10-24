@@ -1,7 +1,7 @@
 import { Typography } from "../../../../shared/ui/Typography";
 import LinearNoteAdd from "../../../../shared/icons/LinearNoteAdd";
 
-export interface ViewAdLeadNotesSectionProps {
+interface ViewAdLeadNotesSectionProps {
   note: string;
   onChange: (note: string) => void;
 }

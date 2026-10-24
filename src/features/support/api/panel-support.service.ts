@@ -12,7 +12,7 @@ export type PanelSupportRequestFilters = {
   status?: PanelSupportRequestStatus;
 };
 
-export type PanelSupportRequestsPage = {
+type PanelSupportRequestsPage = {
   data: SupportRequestItem[];
   page: number;
   perPage: number;

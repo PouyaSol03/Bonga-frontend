@@ -15,7 +15,7 @@ const STOP_PUBLISH_OPTIONS = [
   { id: "other", label: "دلیل دیگری دارم" },
 ] as const;
 
-export type AgencyStopPublishPageProps = {
+type AgencyStopPublishPageProps = {
   adId?: string | number;
   returnTo?: string;
   onSuccess?: () => void;

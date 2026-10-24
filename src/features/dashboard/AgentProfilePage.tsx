@@ -76,7 +76,7 @@ function toSelectedNeighborhood(neighborhood: NeighborhoodDto): SelectedNeighbor
   };
 }
 
-export function AgentProfileSkeleton({ desktop = false }: { desktop?: boolean }) {
+function AgentProfileSkeleton({ desktop = false }: { desktop?: boolean }) {
   if (desktop) {
     return (
       <div

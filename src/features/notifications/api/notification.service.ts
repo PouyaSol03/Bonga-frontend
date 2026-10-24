@@ -3,7 +3,7 @@ import { api } from "../../../shared/api/api";
 export type NotificationCategory =
   "advertise" | "chats" | "requests" | "trades" | "systems" | "support";
 
-export type NotificationPayload = Record<string, unknown> & {
+type NotificationPayload = Record<string, unknown> & {
   advertise_id?: number | string;
   agent_id?: number | string;
   agentId?: number | string;
@@ -32,7 +32,7 @@ export type NotificationItem = Record<string, unknown> & {
   type?: string;
 };
 
-export type NotificationPreference = {
+type NotificationPreference = {
   category: NotificationCategory;
   enabled: boolean;
 };
@@ -200,7 +200,7 @@ export async function updateNotificationPreference({
   return response as NotificationPreference;
 }
 
-export type MarkNotificationsReadResponse = {
+type MarkNotificationsReadResponse = {
   affected?: number;
   status?: boolean;
 };

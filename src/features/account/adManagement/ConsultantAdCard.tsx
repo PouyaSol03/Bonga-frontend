@@ -4,7 +4,7 @@ import type { AdvertisementItem } from "../../advertisements/api/advertisement.s
 import { ManagementAdCard } from "./cards/ManagementAdCard";
 import type { ManagementAdMetrics, ManagementAdRoleType } from "./cards/types";
 
-export type ConsultantAdCardProps = {
+type ConsultantAdCardProps = {
   ad: ConsultantAd;
   sourceAd?: AdvertisementItem | Record<string, unknown>;
   roleType?: ManagementAdRoleType;

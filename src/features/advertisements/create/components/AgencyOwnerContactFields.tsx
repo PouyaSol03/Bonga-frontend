@@ -7,7 +7,7 @@ export type SetNewAdField = <T extends keyof NewAdFormValues>(
   value: NewAdFormValues[T],
 ) => void;
 
-export interface AgencyOwnerContactFieldsProps {
+interface AgencyOwnerContactFieldsProps {
   errors: NewAdFieldErrors;
   onSetField: SetNewAdField;
   ownerExactAddress: string;

@@ -44,7 +44,7 @@ function formatCompactToman(value: string) {
   return `${toPersianDigits(new Intl.NumberFormat("en-US").format(amount))} تومان`;
 }
 
-export function formatCategory(value: string) {
+function formatCategory(value: string) {
   const normalized = value.trim().toLowerCase();
   return propertyRequestCategoryLabels[normalized] ?? formatPropertyRequestValue(value);
 }

@@ -8,9 +8,9 @@ import {
   type AdvertisementV2Activity,
   type AdvertisementV2Lead,
 } from "../../api/v2";
-export type ViewAdLeadDetail = AdvertisementV2Lead;
-export type ViewAdLeadActivity = AdvertisementV2Activity;
-export interface NormalizedAdLeadItem {
+type ViewAdLeadDetail = AdvertisementV2Lead;
+type ViewAdLeadActivity = AdvertisementV2Activity;
+interface NormalizedAdLeadItem {
   id: string;
   name: string;
   phone: string;
@@ -22,7 +22,7 @@ export interface NormalizedAdLeadItem {
   callCount: number;
 }
 
-export async function getAdLeadsList(
+async function getAdLeadsList(
   adId?: string | number,
 ): Promise<NormalizedAdLeadItem[] | null> {
   if (!adId) return null;
@@ -76,7 +76,7 @@ export function useAdLeadsQuery(adId?: string | number) {
   });
 }
 
-export async function getSingleLeadDetails(
+async function getSingleLeadDetails(
   adId?: string | number,
   leadId?: string | number,
 ): Promise<ViewAdLeadDetail | null> {
@@ -84,7 +84,7 @@ export async function getSingleLeadDetails(
   return getV2AdvertisementLeadDetail(adId, leadId);
 }
 
-export async function getLeadActivities(
+async function getLeadActivities(
   adId?: string | number,
   leadId?: string | number,
 ): Promise<ViewAdLeadActivity[]> {

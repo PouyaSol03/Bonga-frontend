@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
 import { cn, focusRing } from "../../design-system/classes";
 import { Typography, type TypographySize } from "./Typography";
 
-export type ButtonVariant =
+type ButtonVariant =
   | "primary"
   | "secondary"
   | "ghost"
@@ -14,10 +14,10 @@ export type ButtonVariant =
   | "danger";
 
 type LegacyButtonSize = "sm" | "md" | "lg";
-export type ButtonSize = "small" | "x-medium" | "medium";
-export type ButtonRadius = "small" | "medium" | "x-medium";
+type ButtonSize = "small" | "x-medium" | "medium";
+type ButtonRadius = "small" | "medium" | "x-medium";
 
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   bgColor?: CSSProperties["backgroundColor"];
   color?: CSSProperties["color"];
   fullWidth?: boolean;

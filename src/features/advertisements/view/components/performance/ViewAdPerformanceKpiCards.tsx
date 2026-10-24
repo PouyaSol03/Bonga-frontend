@@ -6,7 +6,7 @@ import { toPersianNumber } from "../../../../../shared/lib/numberUtils";
 import { Typography } from "../../../../../shared/ui/Typography";
 import { useAdPerformanceSummaryQuery } from "../../api/adPerformanceApi";
 
-export interface ViewAdPerformanceKpiCardsProps {
+interface ViewAdPerformanceKpiCardsProps {
   adId?: string | number;
   views?: number | string;
   impressions?: number | string;

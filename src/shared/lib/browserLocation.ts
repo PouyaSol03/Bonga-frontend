@@ -4,10 +4,10 @@ export type BrowserLocation = {
   longitude: number;
 };
 
-export type BrowserLocationErrorCode =
+type BrowserLocationErrorCode =
   "insecure-context" | "permission-denied" | "timeout" | "unavailable" | "unsupported" | "unknown";
 
-export type BrowserLocationError = Error & {
+type BrowserLocationError = Error & {
   code: BrowserLocationErrorCode;
 };
 

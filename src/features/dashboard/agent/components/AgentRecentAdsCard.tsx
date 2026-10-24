@@ -3,9 +3,9 @@ import {
   type DashboardRecentAdItem,
 } from "../../components/DashboardRecentAdsCard";
 
-export type AgentRecentAdItem = DashboardRecentAdItem;
+type AgentRecentAdItem = DashboardRecentAdItem;
 
-export interface AgentRecentAdsCardProps {
+interface AgentRecentAdsCardProps {
   ad?: AgentRecentAdItem;
   viewAllTo?: string;
 }

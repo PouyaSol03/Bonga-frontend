@@ -8,7 +8,7 @@ import LinearArrowRight1 from "../../../../shared/icons/LinearArrowRight1";
 import LinearTick from "../../../../shared/icons/LinearTick";
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 
-export interface ConsultantDatum {
+interface ConsultantDatum {
   name: string;
   ads: number;
   updates: number;

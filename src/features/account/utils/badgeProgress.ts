@@ -12,7 +12,7 @@ export type BadgeProgressLevel = {
   variant: BadgeProgressVariant;
 };
 
-export function badgeProgressNumber(value: unknown) {
+function badgeProgressNumber(value: unknown) {
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
   if (typeof value === "string" && value.trim()) {
     const parsed = Number(value);

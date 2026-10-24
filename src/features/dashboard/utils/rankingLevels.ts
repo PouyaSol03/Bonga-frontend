@@ -98,7 +98,7 @@ function normalizeText(text?: string | null): string {
   return text.trim().toLowerCase().replace(/[-_]/g, " ");
 }
 
-export const LEVEL_SLUG_TO_PERSIAN: Record<string, string> = {
+const LEVEL_SLUG_TO_PERSIAN: Record<string, string> = {
   // Agency
   newbie: "آژانس تازه‌کار",
   new_agency: "آژانس تازه‌کار",

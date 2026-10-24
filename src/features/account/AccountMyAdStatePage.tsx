@@ -131,7 +131,7 @@ type StateAction = {
   to?: string;
 };
 
-export type AccountMyAdStatePageProps = {
+type AccountMyAdStatePageProps = {
   ad?: Record<string, unknown>;
   card?: AdCardData;
   status?: MyAdStatusKey | string;

@@ -17,7 +17,7 @@ import {
 } from "../../crm/api/crm-discount.service";
 import type { PackageItem, PackagePaymentType } from "../api/package.service";
 
-export type PackagePaymentPageProps = {
+type PackagePaymentPageProps = {
   isPending: boolean;
   onBack: () => void;
   onSubmit: (paymentType: PackagePaymentType, discountCode?: string) => void;

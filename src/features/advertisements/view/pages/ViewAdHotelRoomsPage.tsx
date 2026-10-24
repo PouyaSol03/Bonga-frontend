@@ -20,6 +20,7 @@ import { LoadingState, NotFoundState, ViewAdErrorState } from "../ViewAdRouteSta
 import { shouldUseAgencyAllocationPreview } from "../viewAdPreviewContext";
 
 export function ViewAdHotelRoomsPage() {
+  const navigate = useNavigate();
   const adId = parseViewAdIdFromPath(window.location.pathname);
   const isPreview = window.location.pathname.startsWith("/preview-ad/");
   const useAgencyAllocationPreview = isPreview && shouldUseAgencyAllocationPreview();
@@ -64,7 +65,6 @@ export function ViewAdHotelRoomsPage() {
   const details = mapAdToDetails(resolvedAd);
   const rooms = details.dailyHotelRooms ?? [];
 
-  const navigate = useNavigate();
   const backTarget = adId
     ? isPreview
       ? `/preview-ad/${encodeURIComponent(String(adId))}`

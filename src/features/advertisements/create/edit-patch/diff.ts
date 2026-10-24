@@ -2,7 +2,7 @@ import type { NewAdFormValues, UploadedMediaFile } from "../types";
 import { locationLatKey, locationLngKey } from "../data";
 import { canonicalizeMediaPath, mediaSource } from "../utils";
 
-export function areCoordinatesChanged(
+function areCoordinatesChanged(
   curr?: string | number | null,
   prev?: string | number | null,
 ): boolean {

@@ -7,7 +7,7 @@ export interface ActivityLogItem {
   description: string;
 }
 
-export interface ViewAdLeadActivitySectionProps {
+interface ViewAdLeadActivitySectionProps {
   activities: ActivityLogItem[];
 }
 

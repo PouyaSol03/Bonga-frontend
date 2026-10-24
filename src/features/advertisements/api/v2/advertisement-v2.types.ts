@@ -1,9 +1,6 @@
-export interface AdvertisementV2EventPayload {
-  event_type: "impression" | "call" | string;
-  [key: string]: unknown;
-}
 
-export interface AdvertisementV2LeadClient {
+
+interface AdvertisementV2LeadClient {
   id?: number | string;
   name: string;
   phone: string;
@@ -34,12 +31,6 @@ export interface AdvertisementV2Activity {
   title: string;
   description?: string | null;
   occurred_at: string;
-}
-
-export interface AdvertisementV2Note {
-  id: string;
-  content: string;
-  created_at: string;
 }
 
 export interface AdvertisementV2OwnerContact {

@@ -1,6 +1,6 @@
 import { publicApi } from "../../../shared/api/api";
 
-export type HomeStats = {
+type HomeStats = {
   activeAdvertises: number;
   approvedAgencies: number;
   approvedAgents: number;

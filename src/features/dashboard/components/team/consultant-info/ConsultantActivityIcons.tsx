@@ -5,7 +5,7 @@ import LinearViewOn from "../../../../../shared/icons/LinearViewOn";
 import LinearBubbleChat from "../../../../../shared/icons/LinearBubbleChat";
 import type { ActivityFilterType } from "./types";
 
-export const ActivityAdIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+const ActivityAdIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <div
     className={`bg-primary/10 text-primary flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${className}`}
   >
@@ -13,7 +13,7 @@ export const ActivityAdIcon: React.FC<{ className?: string }> = ({ className = "
   </div>
 );
 
-export const ActivityFollowupIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+const ActivityFollowupIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <div
     className={`bg-warning/10 text-warning flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${className}`}
   >
@@ -21,7 +21,7 @@ export const ActivityFollowupIcon: React.FC<{ className?: string }> = ({ classNa
   </div>
 );
 
-export const ActivityVisitIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+const ActivityVisitIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <div
     className={`bg-success/10 text-success flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${className}`}
   >
@@ -29,7 +29,7 @@ export const ActivityVisitIcon: React.FC<{ className?: string }> = ({ className 
   </div>
 );
 
-export const ActivityResponseIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+const ActivityResponseIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <div
     className={`bg-tertiary/10 text-tertiary flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${className}`}
   >

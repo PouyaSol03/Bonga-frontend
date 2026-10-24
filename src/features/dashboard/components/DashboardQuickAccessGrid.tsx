@@ -41,7 +41,7 @@ const allActions: QuickActionItem[] = [
   },
 ];
 
-export interface DashboardQuickAccessGridProps {
+interface DashboardQuickAccessGridProps {
   role?: DashboardRole;
 }
 

@@ -5,8 +5,6 @@ import type { NotificationItem } from "../../notifications/api/notification.serv
 import { getNotificationPath } from "../../notifications/notificationRouting";
 import { NotificationCardStandardContent } from "../../notifications/components/NotificationCardStandardContent";
 
-export type DashboardNotificationItem = NotificationItem;
-
 export interface DashboardNotificationsCardProps {
   items?: NotificationItem[];
   viewAllTo?: string;

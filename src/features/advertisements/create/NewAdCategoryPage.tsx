@@ -161,7 +161,7 @@ function PageHeader({ title }: { title: string }) {
   return <TopBar onBack={handleBack} title={title} />;
 }
 
-export function TransactionSelector({
+function TransactionSelector({
   activeType,
   desktop,
   onChange,
@@ -218,7 +218,7 @@ export function TransactionSelector({
   );
 }
 
-export const TransactionSegmentedControl = TransactionSelector;
+const TransactionSegmentedControl = TransactionSelector;
 
 function CategoryChip({
   isSelected,

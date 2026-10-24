@@ -1,4 +1,4 @@
-export function getCrmAdvertiseDetailPath(advertiseId: string) {
+function getCrmAdvertiseDetailPath(advertiseId: string) {
   return `/crm/advertises/${encodeURIComponent(advertiseId)}`;
 }
 

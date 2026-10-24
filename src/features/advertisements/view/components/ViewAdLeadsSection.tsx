@@ -4,9 +4,9 @@ import { ViewAdLeadCard, type ViewAdLeadItem } from "./ViewAdLeadCard";
 import { useAdLeadsQuery } from "../api/singleLeadApi";
 import { SearchEmptyState } from "../../../../shared/components/SearchEmptyState";
 
-export type LeadFilterKey = "all" | "new" | "visit" | "followup" | "cancel";
+type LeadFilterKey = "all" | "new" | "visit" | "followup" | "cancel";
 
-export interface ViewAdLeadsSectionProps {
+interface ViewAdLeadsSectionProps {
   leads?: ViewAdLeadItem[];
   adId?: string | number;
   onChatClick?: (lead: ViewAdLeadItem) => void;

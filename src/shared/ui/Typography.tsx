@@ -3,10 +3,10 @@ import { createElement, type ComponentPropsWithRef, type JSX, type ReactNode } f
 import { cn } from "../../design-system/classes";
 import { typography } from "../../design-system/typography";
 
-export type TypographyVariant = "display" | "headline" | "title" | "label" | "body";
+type TypographyVariant = "display" | "headline" | "title" | "label" | "body";
 export type TypographySize = "small" | "medium" | "large";
-export type TypographyWeight = "regular" | "medium" | "semibold";
-export type TypographyElement = Extract<keyof JSX.IntrinsicElements, string>;
+type TypographyWeight = "regular" | "medium" | "semibold";
+type TypographyElement = Extract<keyof JSX.IntrinsicElements, string>;
 
 type TypographyStyleProps =
   | { variant?: "body"; weight?: "regular" | "medium" }
@@ -22,7 +22,7 @@ type TypographyOwnProps<T extends TypographyElement> = {
 
 type TypographyReservedProp = "as" | "children" | "className" | "size" | "variant" | "weight";
 
-export type TypographyProps<T extends TypographyElement = "p"> = TypographyOwnProps<T> &
+type TypographyProps<T extends TypographyElement = "p"> = TypographyOwnProps<T> &
   Omit<ComponentPropsWithRef<T>, TypographyReservedProp>;
 
 const sizeClasses: Record<TypographyVariant, Record<TypographySize, string>> = {

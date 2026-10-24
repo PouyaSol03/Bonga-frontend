@@ -429,9 +429,9 @@ function getMoneySupportingText(value: string | number | undefined) {
   return normalized && numericValue > 0 ? `${formatBigNumber(numericValue)} تومان` : "";
 }
 
-export const customRangeOptionLabel = "مقدار دلخواه";
+const customRangeOptionLabel = "مقدار دلخواه";
 
-export const areaRangeOptions = [
+const areaRangeOptions = [
   customRangeOptionLabel,
   "۳۰",
   "۴۰",
@@ -450,7 +450,7 @@ export const areaRangeOptions = [
   "۵۰۰",
 ];
 
-export const landWidthRangeOptions = [
+const landWidthRangeOptions = [
   customRangeOptionLabel,
   "۵",
   "۶",
@@ -1397,22 +1397,6 @@ const approvedSaleFilterFloorOptions = [
 ];
 const approvedSaleFilterUnitsPerFloorOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "+۸"];
 
-// The supplied filter SVGs show the first six heating/cooling chips and five more.
-// Keep this filter-only list separate from create/edit feature contracts.
-const approvedSaleFilterHeatingItems: ChipItem[] = [
-  { id: "gas-cooler", label: "کولر گازی" },
-  { id: "water-cooler", label: "کولر آبی" },
-  { id: "package", label: "پکیج" },
-  { id: "water-heater", label: "آبگرمکن" },
-  { id: "heater", label: "بخاری" },
-  { id: "radiator", label: "شوفاژ" },
-  { id: "duct-split", label: "داکت اسپیلت" },
-  { id: "chiller", label: "چیلر" },
-  { id: "fan-coil", label: "فن کوئل" },
-  { id: "floor-heating", label: "گرمایش ازکف" },
-  { id: "fireplace", label: "شومینه" },
-];
-
 const approvedSaleFilterExchangeTargets = [
   "ویلا",
   "خودرو",
@@ -1474,14 +1458,7 @@ const approvedTotalFloorsOptions = [
   ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
   "۳۰ و بیشتر",
 ];
-export const approvedRentUnitLayoutOptions = [
-  "تک طبقه",
-  "دو طبقه",
-  "سه طبقه",
-  "دوبلکس",
-  "فورلکس",
-  "پنت هاوس",
-];
+
 const approvedRentApartmentBuildingPositionOptions = [
   "شمالی",
   "جنوبی",
@@ -1650,8 +1627,6 @@ const approvedRentCommercialSuitableOptions = [
   "سایر",
 ];
 
-export const approvedRentIndustrialSuitableOptions = ["صنایع پلاستیک", "صنایع چوب"];
-
 // Exact filter-only contracts transcribed from the supplied daily-rent/project SVGs.
 // These intentionally do not change create/edit-ad field definitions.
 const approvedDailyAccommodationOptions = [
@@ -1702,34 +1677,6 @@ const approvedPartnershipLandPositionOptions = [
 ];
 const approvedPartnershipDocumentOptions = ["ملکی", "آستانه", "اوقاف", "موقوفه", "قولنامه، وکالت"];
 
-export const approvedDailyFacilities: ChipItem[] = [
-  { id: "elevator", label: "آسانسور" },
-  { id: "parking", label: "پارکینگ" },
-  { id: "warehouse", label: "انباری" },
-  { id: "terrace", label: "تراس" },
-  { id: "lobby", label: "لابی" },
-  { id: "guard", label: "نگهبانی" },
-  { id: "yard", label: "حیاط" },
-  { id: "iranian", label: "سرویس ایرانی" },
-  { id: "western", label: "سرویس فرنگی" },
-  { id: "door", label: "درب ضد سرقت" },
-  { id: "video", label: "آیفون تصویری" },
-  { id: "gas-stove", label: "گاز رومیزی" },
-  { id: "hood", label: "هود" },
-  { id: "oven", label: "فرتوکار" },
-  { id: "camera", label: "دوربین امنیتی" },
-  { id: "bms", label: "سیستم هوشمند" },
-  { id: "roof", label: "روف گاردن" },
-  { id: "heated-pool", label: "استخر آب گرم" },
-  { id: "outdoor-pool", label: "استخر روباز" },
-  { id: "covered-pool", label: "استخر پوشیده" },
-  { id: "jacuzzi", label: "جکوزی" },
-  { id: "sauna", label: "سونا" },
-  { id: "gym", label: "سالن ورزشی" },
-  { id: "playground", label: "زمین بازی" },
-  { id: "internet", label: "اینترنت پر سرعت" },
-];
-
 const approvedRentBusinessHeatingItems: ChipItem[] = [
   { id: "air-handler", label: "هواساز" },
   { id: "heater", label: "بخاری" },
@@ -1765,19 +1712,6 @@ const approvedRentBusinessFacilities: ChipItem[] = [
   { id: "camera", label: "دوربین مدار بسته" },
   { id: "smart-system", label: "سیستم هوشمند" },
 ];
-
-export const approvedSaleHotelFacilities: ChipItem[] = (() => {
-  const labels = ["آسانسور", "پارکینگ", "رستوران", "کافی شاپ", "لابی", "استخر"];
-  const seen = new Set(labels);
-  for (const item of dailyHotelFacilityItems) {
-    if (labels.length >= 34) break;
-    if (!seen.has(item.label)) {
-      labels.push(item.label);
-      seen.add(item.label);
-    }
-  }
-  return labels.map((label) => ({ id: label, label }));
-})();
 
 function asChipItems(options: readonly string[]): ChipItem[] {
   return options.map((label) => ({ id: label, label }));
@@ -1887,14 +1821,6 @@ function approvedRentConversionBlock(): SingleChoiceBlock {
     options: rentConversionPolicyOptions,
     title: "تبدیل رهن و اجاره",
   };
-}
-
-export function approvedSaleHeatingBlock(): MultiChoiceBlock {
-  return approvedHeatingBlock(approvedSaleFilterHeatingItems);
-}
-
-export function approvedGenericFacilitiesBlock(): MultiChoiceBlock {
-  return approvedFacilitiesBlock(facilityItems);
 }
 
 function approvedRentBusinessHeatingBlock(): MultiChoiceBlock {
@@ -3160,7 +3086,7 @@ function buildFilterBlocksFromSchema(sections: AdFormFilterSectionConfig[]): Fil
   });
 }
 
-export function getFilterBlocks(
+function getFilterBlocks(
   transaction: TransactionType,
   category?: CategoryKey,
 ): FilterBlock[] {
@@ -3453,7 +3379,7 @@ export function SearchMapFilterPage() {
   return <AdvertisementFilterPage />;
 }
 
-export function AdvertisementFilterPage({
+function AdvertisementFilterPage({
   applyBasePath = "/search",
   applyButtonLabel: customApplyButtonLabel,
   backBasePath = "/search",
@@ -4881,7 +4807,7 @@ function DateFilterSection({
   );
 }
 
-export function RangeSelectField({
+function RangeSelectField({
   label,
   onChange,
   options = areaRangeOptions,

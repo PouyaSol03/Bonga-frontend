@@ -4,11 +4,6 @@ import { mapAdvertisementToAdCard } from "../../advertisements/api/advertisement
 
 export type ConsultantAd = AdCardData;
 
-export type AdManagementPublisherOption = {
-  id: string;
-  image: string;
-  name: string;
-};
 export type AdsTab = "active" | "status";
 
 export type AdManagementSelectedNeighborhood = {
@@ -119,7 +114,7 @@ export type StatisticsAd = Pick<
   "id" | "imageClassName" | "imageUrl" | "timeAndLocation" | "title"
 >;
 
-export type AdManagementRouteState = {
+type AdManagementRouteState = {
   ad?: ConsultantAd;
   assignment?: AgencyAdvertiseAssignmentDto;
   assignmentId?: number | string;

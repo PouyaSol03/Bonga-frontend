@@ -15,7 +15,7 @@ export interface LeadFollowupItem {
   to?: string;
 }
 
-export interface DashboardLeadFollowupCardProps {
+interface DashboardLeadFollowupCardProps {
   item: LeadFollowupItem;
 }
 

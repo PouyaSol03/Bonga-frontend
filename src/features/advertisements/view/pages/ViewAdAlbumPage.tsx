@@ -5,7 +5,7 @@ import type { Swiper as SwiperInstance } from "swiper";
 import "swiper/css";
 import { Button } from "../../../../shared/ui/Button";
 
-export type ViewAdAlbumMediaItem = {
+type ViewAdAlbumMediaItem = {
   src: string;
   type: "image" | "video";
 };

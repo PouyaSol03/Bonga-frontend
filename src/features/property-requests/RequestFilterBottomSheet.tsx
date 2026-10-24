@@ -8,7 +8,7 @@ import { Button } from "../../shared/ui/Button";
 import { Typography } from "../../shared/ui/Typography";
 import type { PropertySearchRequest } from "./api/property-request.service";
 
-export interface RequestFilterBottomSheetProps {
+interface RequestFilterBottomSheetProps {
   agencyStyle?: boolean;
   isOpen: boolean;
   onClose: () => void;

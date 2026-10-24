@@ -36,7 +36,7 @@ export function matchesTransaction(
   return adTitle.includes("پروژه");
 }
 
-export const PROPERTY_KEYWORDS: Record<string, string[]> = {
+const PROPERTY_KEYWORDS: Record<string, string[]> = {
   apartment: ["آپارتمان", "سوئیت", "سوییت"], "daily-apartment-suite": ["آپارتمان", "سوئیت", "سوییت"],
   "garden-villa": ["باغ", "ویلا"], "daily-garden-villa": ["باغ", "ویلا"],
   "villa-house": ["خانه", "ویلایی"], land: ["زمین"],
@@ -137,7 +137,7 @@ function matchesExactFormCode(
   );
 }
 
-export function matchesSinglePropertyType(
+function matchesSinglePropertyType(
   adTitle: string,
   propertyType: AdManagementPropertyType,
   sourceAd?: AdvertisementItem | Record<string, unknown>,
@@ -179,7 +179,7 @@ export function matchesPropertyType(
   return selectedTypes.some((type) => matchesSinglePropertyType(adTitle, type, sourceAd));
 }
 
-export const STATUS_KEYS: Record<string, string[]> = {
+const STATUS_KEYS: Record<string, string[]> = {
   "در انتظار": ["pending", "wait_for_payment", "wait_for_agency", "wait_for_repost", "wait_for_stop", "wait_for_deal_confirmation"],
   "فعال": ["published", "deal_success"],
   "غیر فعال": ["expired", "deleted", "deal_unsuccessful", "rejected_by_agency", "archived", "incomplete_deleted"],

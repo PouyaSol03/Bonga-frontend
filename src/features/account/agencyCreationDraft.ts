@@ -2,7 +2,7 @@ import type { NeighborhoodDto } from "../locations/api/neighborhood.service";
 
 const AGENCY_CREATION_DRAFT_KEY = "bonga:account:business:create:agency:draft";
 
-export type AgencyCreationDraft = {
+type AgencyCreationDraft = {
   agencyName: string;
   selectedNeighborhoods: NeighborhoodDto[];
 };

@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import { toPersianNumber } from "../../../shared/lib/numberUtils";
 
-export type DashboardTaskRole =
+type DashboardTaskRole =
   "REAL_ESTATE_MANAGER" | "REAL_ESTATE_CONSULTANT" | "INDEPENDENT_CONSULTANT" | "agency-consultant";
 
 export interface DashboardTaskItem {
@@ -14,7 +14,7 @@ export interface DashboardTaskItem {
   onClick?: () => void;
 }
 
-export interface DashboardTasksCardProps {
+interface DashboardTasksCardProps {
   role?: DashboardTaskRole;
   totalCount?: number;
   items?: DashboardTaskItem[];

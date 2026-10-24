@@ -53,29 +53,14 @@ export type ConsultantActivityFeedDto = {
   visit_semantics?: string;
 };
 
-export type ConsultantActivitiesDto = {
-  activities: ConsultantActivityItemDto[];
-  page: number;
-  perPage: number;
-  period: string;
-  stats: {
-    ad: number;
-    followup: number | null;
-    response: number | null;
-    visit: number | null;
-  };
-  total: number;
-  unavailableMetrics: string[];
-};
-
-export type ConsultantPerformanceChartSlice = {
+type ConsultantPerformanceChartSlice = {
   color: string;
   label: string;
   percentage: number;
   value: number;
 };
 
-export type ConsultantPerformanceDistribution = {
+type ConsultantPerformanceDistribution = {
   key: string;
   slices: ConsultantPerformanceChartSlice[];
   title: string;
@@ -95,7 +80,7 @@ export type ConsultantMetricParams = {
   to?: string;
 };
 
-export type ConsultantMetricSlice = {
+type ConsultantMetricSlice = {
   color?: string;
   key: "agent" | "rest_of_agency" | string;
   label: string;

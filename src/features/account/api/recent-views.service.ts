@@ -1,13 +1,13 @@
 import { api } from "../../../shared/api/api";
 
-export type RecentViewItem = Record<string, unknown> & {
+type RecentViewItem = Record<string, unknown> & {
   advertise?: Record<string, unknown> | null;
   advertise_id?: number | string;
   created_at?: string;
   id?: number | string;
 };
 
-export type RecentViewsPage = {
+type RecentViewsPage = {
   advertises: Record<string, unknown>[];
   data: RecentViewItem[];
   page: number;

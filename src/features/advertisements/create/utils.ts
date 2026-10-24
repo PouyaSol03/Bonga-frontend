@@ -1002,7 +1002,7 @@ export function buildPayload(values: NewAdFormValues) {
   };
 }
 
-export function shouldOmitOwnerContactsOnAssignment(values: {
+function shouldOmitOwnerContactsOnAssignment(values: {
   registrantType?: string;
   agencyId?: string;
 }): boolean {

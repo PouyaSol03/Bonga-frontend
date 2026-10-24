@@ -4,7 +4,7 @@ import {
 } from "../../components/DashboardNotificationsCard";
 import type { AgencyNotificationItem } from "../types";
 
-export interface AgencyNotificationsCardProps extends Omit<
+interface AgencyNotificationsCardProps extends Omit<
   DashboardNotificationsCardProps,
   "items"
 > {

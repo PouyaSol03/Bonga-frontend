@@ -365,7 +365,7 @@ const ignoredFeatureLabels = new Set([
   "loan_installment",
 ]);
 
-export type AdvertisementFeatureMap = Record<string, unknown>;
+type AdvertisementFeatureMap = Record<string, unknown>;
 
 function getResolvedAdvertisementFeatures(
   ad: AdvertisementItem,
@@ -497,7 +497,7 @@ function getResolvedAdvertisementFeatures(
   return resolved;
 }
 
-export function buildAdvertisementFeatureMap(ad: AdvertisementItem): AdvertisementFeatureMap {
+function buildAdvertisementFeatureMap(ad: AdvertisementItem): AdvertisementFeatureMap {
   return Object.fromEntries(
     getResolvedAdvertisementFeatures(ad)
       .filter((item) => typeof item.label === "string" && item.label.trim().length > 0)

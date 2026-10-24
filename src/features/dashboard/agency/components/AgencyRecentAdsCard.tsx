@@ -3,7 +3,7 @@ import {
   type DashboardRecentAdsCardProps,
 } from "../../components/DashboardRecentAdsCard";
 
-export type AgencyRecentAdsCardProps = DashboardRecentAdsCardProps;
+type AgencyRecentAdsCardProps = DashboardRecentAdsCardProps;
 
 export function AgencyRecentAdsCard({
   title = "آخرین آگهی‌ها آژانس",

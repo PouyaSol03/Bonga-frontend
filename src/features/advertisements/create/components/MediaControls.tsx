@@ -115,32 +115,3 @@ export function CheckRow({
   );
 }
 
-export function SocialInput({
-  value,
-  placeholder,
-  icon,
-  onChange,
-}: {
-  value: string;
-  placeholder: string;
-  icon: "telegram" | "whatsapp";
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label
-      className="border-outline-var bg-surface-container-lowest text-on-surface focus-within:border-primary flex h-14 w-full items-center gap-3 rounded-[12px] border px-4 text-base leading-6 font-normal"
-      dir="rtl"
-    >
-      <input
-        className="placeholder:text-outline min-w-0 flex-1 border-0 bg-transparent p-0 text-right outline-none"
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        value={value}
-      />
-      <img
-        src={`${icon === "telegram" ? "/icons/socials/telegram.svg" : "/icons/socials/whatsApp.svg"}`}
-        alt=""
-      />
-    </label>
-  );
-}

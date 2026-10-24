@@ -8,8 +8,8 @@ export const pieOuterRadius = 74;
 export const pieSelectedOffset = 9;
 export const pieTooltipWidth = 76;
 export const pieTooltipHeight = 48;
-export const pieTooltipGap = 28;
-export const pieTooltipLineOverlap = 6;
+const pieTooltipGap = 28;
+const pieTooltipLineOverlap = 6;
 
 export function getPieSelectionGeometry(data: PieSelectionDatum[], selectedIndex: number) {
   const total = data.reduce((sum, item) => sum + item.value, 0);

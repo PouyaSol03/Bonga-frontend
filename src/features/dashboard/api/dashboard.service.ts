@@ -8,21 +8,21 @@ import type { AdCardData } from "../../advertisements/components/AdCard";
 
 export type DashboardPeriod = "week" | "month" | "year" | "7d" | "30d" | "90d";
 
-export function toV2OverviewPeriod(period: DashboardPeriod): "week" | "month" | "year" {
+function toV2OverviewPeriod(period: DashboardPeriod): "week" | "month" | "year" {
   if (period === "7d" || period === "week") return "week";
   if (period === "year") return "year";
   return "month";
 }
-export type DashboardKind = "agency" | "agent";
+type DashboardKind = "agency" | "agent";
 
-export type DashboardBalanceDelta = {
+type DashboardBalanceDelta = {
   change: number;
   current: number;
   percent: number | null;
   previous: number;
 };
 
-export type DashboardConsultantActivity = {
+type DashboardConsultantActivity = {
   advertiseCount: number;
   name: string;
   period: string;
@@ -41,7 +41,7 @@ export type DashboardRankingEntity = {
   totalScore: number;
 };
 
-export type DashboardUsage = {
+type DashboardUsage = {
   current: number;
   previous: number;
   totalAvailable: number;
@@ -57,7 +57,7 @@ export type DashboardUrgentActionItem = {
   to: string;
 };
 
-export type DashboardTaskItemPayload = {
+type DashboardTaskItemPayload = {
   id: string;
   count: number;
   label: string;
@@ -121,7 +121,6 @@ export type DashboardOverview = {
   urgentActions?: DashboardUrgentActionItem[];
   tasks?: DashboardTaskItemPayload[];
 };
-
 
 type RawRecord = Record<string, unknown>;
 
@@ -550,7 +549,7 @@ export async function getAgencyDashboard(
   return normalizeAgencyDashboard(response, period);
 }
 
-export async function getAgentDashboard(
+async function getAgentDashboard(
   period: DashboardPeriod = "month",
 ): Promise<DashboardOverview> {
   const context = toV2Context("agent");
@@ -573,47 +572,6 @@ export interface AgentBadge {
   next_target: number | null;
   progress: number;
   thresholds: number[];
-}
-
-export interface AgentBadgesApiResponse {
-  status: boolean;
-  badges?: AgentBadge[];
-  data?: AgentBadge[];
-}
-
-export interface AgentBadgeDetailApiResponse {
-  status: boolean;
-  badge?: AgentBadge;
-  data?: AgentBadge;
-}
-
-export async function getAgentBadges(): Promise<AgentBadge[]> {
-  const context = toV2Context("agent");
-  const response = await apiV2.get(`${context}/ranking/badges`).json<AgentBadgesApiResponse>();
-  return response.data ?? response.badges ?? [];
-}
-
-export async function getAgentBadge(slug: string): Promise<AgentBadge | null> {
-  const context = toV2Context("agent");
-  const response = await apiV2
-    .get(`${context}/ranking/badges/${encodeURIComponent(slug)}`)
-    .json<AgentBadgeDetailApiResponse>();
-  return response.data ?? response.badge ?? null;
-}
-
-export async function getAgentRanking(): Promise<unknown> {
-  const context = toV2Context("agent");
-  return apiV2.get(`${context}/dashboard/ranking`).json();
-}
-
-export async function getAgentRankingProgress(): Promise<unknown> {
-  const context = toV2Context("agent");
-  return apiV2.get(`${context}/dashboard/ranking-progress`).json();
-}
-
-export async function getAgentWorkSummary(): Promise<unknown> {
-  const context = toV2Context("agent");
-  return apiV2.get(`${context}/dashboard/work-summary`).json();
 }
 
 export type DashboardRolePersona = "agency" | "agent" | "agent_in_agency";
@@ -677,7 +635,7 @@ export async function getDashboardUrgentActions(
   }
 }
 
-export type DashboardRankingBadgeData = {
+type DashboardRankingBadgeData = {
   categoryLabel: string;
   badgeTitle: string;
   levelSlug: string;
@@ -715,7 +673,7 @@ export async function getDashboardRankingBadge(
   }
 }
 
-export type DashboardCreditsData = {
+type DashboardCreditsData = {
   balances: {
     adCreditBalance: number;
     renewCreditBalance: number;
@@ -768,7 +726,7 @@ export async function getDashboardCredits(
   }
 }
 
-export type DashboardNotificationWidgetData = {
+type DashboardNotificationWidgetData = {
   unreadCount: number;
   latest: {
     id: string;
@@ -828,7 +786,7 @@ export async function getDashboardNotifications(
   }
 }
 
-export type DashboardReportsTeaserData = {
+type DashboardReportsTeaserData = {
   totalViews: number;
   viewsDeltaPercent: number;
   sparklineData: number[];
@@ -906,7 +864,7 @@ export async function getDashboardRecentAds(
 // Reports & Analytics Endpoints (dashboard-reports-charts-api-contract.md)
 // -------------------------------------------------------------
 
-export type DashboardReportPublishedAdsData = {
+type DashboardReportPublishedAdsData = {
   total: number;
   period: string;
   periodLabel: string;
@@ -950,7 +908,7 @@ export async function getDashboardReportsPublishedAds(
   }
 }
 
-export type DashboardReportViewsData = {
+type DashboardReportViewsData = {
   period: string;
   totalViews: number;
   deltaPercent: number;
@@ -989,7 +947,7 @@ export async function getDashboardReportsViews(
   }
 }
 
-export type DashboardReportConsultantsActivityData = {
+type DashboardReportConsultantsActivityData = {
   period: string;
   totalAds: number;
   items: Array<{
@@ -1029,7 +987,7 @@ export async function getDashboardReportsConsultantsActivity(
   }
 }
 
-export type DashboardReportRegistrationProgressData = {
+type DashboardReportRegistrationProgressData = {
   period: string;
   totalCount: number;
   deltaPercent: number;
@@ -1068,7 +1026,7 @@ export async function getDashboardReportsRegistrationProgress(
   }
 }
 
-export type DashboardReportConversionFunnelStage = {
+type DashboardReportConversionFunnelStage = {
   id: string;
   label: string;
   count: number;
@@ -1076,7 +1034,7 @@ export type DashboardReportConversionFunnelStage = {
   badgeText: string;
 };
 
-export type DashboardReportConversionFunnelData = {
+type DashboardReportConversionFunnelData = {
   period: string;
   stages: DashboardReportConversionFunnelStage[];
 };
@@ -1110,7 +1068,7 @@ export async function getDashboardReportsConversionFunnel(
   }
 }
 
-export type DashboardReportRankingScoreData = {
+type DashboardReportRankingScoreData = {
   rank: number;
   rankChangeLastMonth: number;
   rankChangeDirection: "up" | "down";
@@ -1152,46 +1110,3 @@ export async function getDashboardReportsRankingScore(
   }
 }
 
-export type DashboardReportsOverviewData = {
-  period: string;
-  publishedAds?: DashboardReportPublishedAdsData;
-  views?: DashboardReportViewsData;
-  consultantsActivity?: DashboardReportConsultantsActivityData;
-  registrationProgress?: DashboardReportRegistrationProgressData;
-  conversionFunnel?: DashboardReportConversionFunnelData;
-  rankingScore?: DashboardReportRankingScoreData;
-};
-
-type RawDashboardReportsOverview = {
-  period?: unknown;
-  published_ads?: DashboardReportPublishedAdsData;
-  views?: DashboardReportViewsData;
-  consultants_activity?: DashboardReportConsultantsActivityData;
-  registration_progress?: DashboardReportRegistrationProgressData;
-  conversion_funnel?: DashboardReportConversionFunnelData;
-  ranking_score?: DashboardReportRankingScoreData;
-};
-
-export async function getDashboardReportsOverview(
-  role: DashboardRolePersona,
-  period = "month",
-): Promise<DashboardReportsOverviewData | null> {
-  const context = toV2Context(role);
-  try {
-    const res = await apiV2
-      .get(`${context}/dashboard/reports/overview`, { searchParams: { period } })
-      .json<{ data?: RawDashboardReportsOverview }>();
-    const d = res.data ?? {};
-    return {
-      period: toStringValue(d.period, period),
-      publishedAds: d.published_ads,
-      views: d.views,
-      consultantsActivity: d.consultants_activity,
-      registrationProgress: d.registration_progress,
-      conversionFunnel: d.conversion_funnel,
-      rankingScore: d.ranking_score,
-    };
-  } catch {
-    return null;
-  }
-}

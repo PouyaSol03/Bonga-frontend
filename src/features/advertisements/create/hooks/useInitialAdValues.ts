@@ -61,13 +61,14 @@ export function useInitialAdValues(
 
   const [restoredSession] = useState(() => resolveRestoredSession(isEditMode));
 
-  const initialEditValuesRef = useRef<NewAdFormValues | null>(null);
-  if (initialEditValuesRef.current === null && isEditMode && editAdState.ad) {
-    initialEditValuesRef.current = mapAdvertisementToEditValues(
-      editAdState.ad,
-      getDefaultValues({ ...editAdState, isEditMode: true }),
-    );
-  }
+  const initialEditValuesRef = useRef<NewAdFormValues | null>(
+    isEditMode && editAdState.ad
+      ? mapAdvertisementToEditValues(
+          editAdState.ad,
+          getDefaultValues({ ...editAdState, isEditMode: true }),
+        )
+      : null,
+  );
 
   const [initialValues] = useState<NewAdFormValues>(() => {
     const restoredValues = restoredSession?.values;

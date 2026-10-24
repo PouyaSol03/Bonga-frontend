@@ -12,7 +12,7 @@ import {
   useUpdateLeadStageMutation,
 } from "../api/singleLeadApi";
 
-export interface ViewAdLeadDetailsPageProps {
+interface ViewAdLeadDetailsPageProps {
   lead?: ViewAdLeadItem;
   adId?: string;
   backTo?: string;

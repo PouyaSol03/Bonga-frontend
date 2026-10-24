@@ -12,7 +12,7 @@ import type {
   AgencyConsultantPermissions,
 } from "./agency-consultants-types";
 
-export function normalizeAgencyConsultantPermissions(value: unknown): AgencyConsultantPermissions {
+function normalizeAgencyConsultantPermissions(value: unknown): AgencyConsultantPermissions {
   const permissions = asRecord(value);
 
   return {

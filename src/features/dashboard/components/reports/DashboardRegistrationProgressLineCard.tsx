@@ -18,7 +18,7 @@ import LinearChartUp from "../../../../shared/icons/LinearChartUp";
 import LinearTick from "../../../../shared/icons/LinearTick";
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 
-export interface ProgressPoint {
+interface ProgressPoint {
   month: string;
   ads: number;
 }

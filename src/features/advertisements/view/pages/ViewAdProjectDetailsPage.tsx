@@ -29,6 +29,7 @@ function toText(val: unknown, fallback = ""): string {
 }
 
 export function ViewAdProjectDetailsPage() {
+  const navigate = useNavigate();
   const adId = parseViewAdIdFromPath(window.location.pathname);
   const isPreview = window.location.pathname.startsWith("/preview-ad/");
   const useAgencyAllocationPreview = isPreview && shouldUseAgencyAllocationPreview();
@@ -156,7 +157,6 @@ export function ViewAdProjectDetailsPage() {
     resolvedAd?.sale_terms_installment_months;
   const installmentMonths = rawInstallments ? `${toPersianDigits(rawInstallments)} ماه` : "۱۲ ماه";
 
-  const navigate = useNavigate();
   const backTarget = adId
     ? isPreview
       ? `/preview-ad/${encodeURIComponent(String(adId))}`

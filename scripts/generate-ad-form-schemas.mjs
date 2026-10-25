@@ -62,7 +62,7 @@ const totalFloorsOptions = [
   "۸ طبقه و بیشتر",
 ];
 const unitsPerFloorOptions = Array.from(
-  { length: 30 },
+  { length: 60 },
   (_, index) => `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`,
 );
 const buildingPositionOptions = ["شمالی", "جنوبی", "شرقی", "غربی", "دونبش", "سه نبش", "دوممر"];

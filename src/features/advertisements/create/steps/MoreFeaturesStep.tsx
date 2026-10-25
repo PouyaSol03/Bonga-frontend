@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../../shared/components/BottomSheet";
-import { moreFeatureKeys, moreFeatureOptions, timeOptions } from "../data";
+import { moreFeatureKeys, moreFeatureOptions, timeOptions, villaTotalFloorsOptions } from "../data";
 import type {
   MoreFeatureDateKey,
   MoreFeatureFormKey,
@@ -15,6 +15,7 @@ import type {
 import {
   formatUnitsPerFloorLabel,
   getMoreFeatureFields,
+  getParams,
   normalizeUnitsPerFloorValue,
   pickMoreFeatures,
 } from "../utils";
@@ -68,10 +69,13 @@ export function MoreFeaturesStep({
     title: string,
     options?: string[],
   ) => {
+    const { category } = getParams();
     const fallbackOptions =
       key === "checkInTime" || key === "checkOutTime"
         ? timeOptions
-        : moreFeatureOptions[key as MoreFeatureSelectKey];
+        : key === "totalFloors" && category === "villa-house"
+          ? villaTotalFloorsOptions
+          : moreFeatureOptions[key as MoreFeatureSelectKey];
     setSheet({ key, title, options: options ?? fallbackOptions });
   };
 
@@ -330,9 +334,9 @@ export function MoreFeaturesStep({
           }}
           selectedId={
             sheet
-              ? sheet.key === "unitsPerFloor"
-                ? normalizeUnitsPerFloorValue(getDraftString(sheet.key))
-                : getDraftString(sheet.key)
+              ? (sheet.key === "unitsPerFloor"
+                  ? normalizeUnitsPerFloorValue(getDraftString(sheet.key))
+                  : getDraftString(sheet.key)) || undefined
               : undefined
           }
           showDividers={false}

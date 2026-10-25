@@ -28,6 +28,7 @@ export const editRouteParamsByFormCode: Record<string, EditRouteParams> = {
   "rent-commercial": { category: "commercial-unit", transaction: "rent", label: "تجاری" },
   "rent-factory-workshop": { category: "factory-workshop", transaction: "rent", label: "صنعتی" },
   "rent-warehouse": { category: "warehouse", transaction: "rent", label: "انبار، سوله" },
+  "rent-land": { category: "land", transaction: "rent", label: "زمین، ملک کلنگی" },
   "rent-hotel": { category: "hotel-apartment", transaction: "rent", label: "هتل، اقامتگاه" },
 
   // Daily Rent
@@ -61,6 +62,7 @@ export const editRouteParamsByFormCode: Record<string, EditRouteParams> = {
   rent_residential: { category: "apartment", transaction: "rent", label: "آپارتمان" },
   rent_apartment: { category: "apartment", transaction: "rent", label: "آپارتمان" },
   rent_short_term: { category: "daily-apartment-suite", transaction: "rent", label: "آپارتمان، سوئیت" },
+  rent_land: { category: "land", transaction: "rent", label: "زمین، ملک کلنگی" },
   rent_villa: { category: "villa-house", transaction: "rent", label: "خانه، ویلا" },
   rent_villa_house: { category: "villa-house", transaction: "rent", label: "خانه، ویلا" },
   rent_garden_villa: { category: "garden-villa", transaction: "rent", label: "باغ و ویلا" },
@@ -139,6 +141,9 @@ function resolveFromCategoryText(text: string): EditRouteParams | null {
     }
     if (normalized.includes("انبار") || normalized.includes("سوله")) {
       return editRouteParamsByFormCode["rent-warehouse"];
+    }
+    if (normalized.includes("زمین") || normalized.includes("کلنگی")) {
+      return editRouteParamsByFormCode["rent-land"];
     }
     if (normalized.includes("تجاری") || normalized.includes("مغازه")) {
       return editRouteParamsByFormCode["rent-commercial"];

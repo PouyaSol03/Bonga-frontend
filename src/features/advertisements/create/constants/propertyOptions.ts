@@ -82,12 +82,22 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
 
 export const floorOptions = [
   "همکف",
-  ...Array.from({ length: 29 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
-  "۳۰ و بیشتر",
+  ...Array.from({ length: 39 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۴۰ و بیشتر",
 ];
-export const roomOptions = ["بدون اتاق", "۱", "۲", "۳", "۴", "۵+"];
+export const roomOptions = [
+  "بدون اتاق",
+  "۱",
+  "۲",
+  "۳",
+  "۴",
+  "۵",
+  "۶",
+  "۷",
+  "۸+",
+];
 export const unitsPerFloorOptions = Array.from(
-  { length: 30 },
+  { length: 60 },
   (_, index) => `${new Intl.NumberFormat("fa-IR").format(index + 1)} واحد`,
 );
 export const capacityOptions = [
@@ -384,9 +394,14 @@ export const dailyWorkspaceTypeOptions = [
 ];
 
 export const totalFloorsOptions = [
-  ...Array.from({ length: 29 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} طبقه`),
-  "۳۰ طبقه و بیشتر",
+  ...Array.from({ length: 39 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} طبقه`),
+  "۴۰ طبقه و بیشتر",
 ];
+
+export const villaTotalFloorsOptions = Array.from(
+  { length: 7 },
+  (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} طبقه`,
+);
 
 export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   age: ageOptions,
@@ -404,7 +419,7 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   cabinetMaterial: ["MDF", "های‌گلاس", "ممبران", "فلزی", "چوبی", "ندارد"],
   landPosition: landPositionOptions,
   buildingType: ["ویلایی مستقل", "شهرکی", "آپارتمانی"],
-  villaType: ["فلت", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ", "باغ‌ویلا"],
+  villaType: ["فلت", "چند طبقه مجزا", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ", "باغ‌ویلا"],
   commercialPosition: saleCommercialPositionOptions,
   ownershipStatus: saleCommercialOwnershipOptions,
   currentStatus: currentStatusOptions,
@@ -423,4 +438,4 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   viewType: dailyVillaViewOptions,
   openingCount: openingCountOptions,
   projectStatus: projectStatusOptions,
-};
+};

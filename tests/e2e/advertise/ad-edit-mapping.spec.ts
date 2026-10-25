@@ -1,8 +1,5 @@
 import { expect, test } from "@playwright/test";
-import {
-  editRouteParamsByFormCode,
-  resolveEditRouteParams,
-} from "../../../src/features/advertisements/create/edit-mapping/editRouteParams";
+import { resolveEditRouteParams } from "../../../src/features/advertisements/create/edit-mapping/editRouteParams";
 import { getAdEditPath } from "../../../src/features/account/adManagement/adManagementData";
 
 test.describe("Ad Edit Form Code Mapping", () => {
@@ -27,6 +24,7 @@ test.describe("Ad Edit Form Code Mapping", () => {
       "rent-commercial": { category: "commercial-unit", transaction: "rent" },
       "rent-factory-workshop": { category: "factory-workshop", transaction: "rent" },
       "rent-warehouse": { category: "warehouse", transaction: "rent" },
+      "rent-land": { category: "land", transaction: "rent" },
       "rent-hotel": { category: "hotel-apartment", transaction: "rent" },
 
       // Daily Rent
@@ -40,7 +38,7 @@ test.describe("Ad Edit Form Code Mapping", () => {
       partnership: { category: "project-partnership", transaction: "project" },
     };
 
-    expect(Object.keys(expectedForms).length).toBe(23);
+    expect(Object.keys(expectedForms).length).toBe(24);
 
     for (const [formCode, expected] of Object.entries(expectedForms)) {
       const resolved = resolveEditRouteParams(formCode);
@@ -48,6 +46,10 @@ test.describe("Ad Edit Form Code Mapping", () => {
       expect(resolved?.transaction).toBe(expected.transaction);
       expect(resolved?.category).toBe(expected.category);
     }
+
+    const legacyRentLand = resolveEditRouteParams("rent_land");
+    expect(legacyRentLand?.category).toBe("land");
+    expect(legacyRentLand?.transaction).toBe("rent");
   });
 
   test("resolves ad payload matching user's exact issue (rent-villa-house)", () => {
@@ -80,6 +82,7 @@ test.describe("Ad Edit Form Code Mapping", () => {
   test("resolves fallback from category text when form_code is absent", () => {
     const testCases = [
       { text: "فروش زمین و کلنگی", expectedCat: "land", expectedTx: "sale" },
+      { text: "اجاره زمین و کلنگی", expectedCat: "land", expectedTx: "rent" },
       { text: "اجاره کارخانه", expectedCat: "factory-workshop", expectedTx: "rent" },
       { text: "فروش کارخانه صنعتی", expectedCat: "factory-workshop", expectedTx: "sale" },
       { text: "اجاره خانه ویلایی", expectedCat: "villa-house", expectedTx: "rent" },

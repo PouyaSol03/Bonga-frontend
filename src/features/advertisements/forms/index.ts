@@ -1,32 +1,41 @@
 import type { AdFormSchema } from "./types";
-import { ageOptions, exchangeTargets, floorOptions, totalFloorsOptions } from "../create/data";
+import {
+  ageOptions,
+  exchangeTargets,
+  floorOptions,
+  roomOptions,
+  saleVillaHouseTypeOptions,
+  totalFloorsOptions,
+  unitsPerFloorOptions,
+  villaTotalFloorsOptions,
+} from "../create/data";
 
-import saleApartment from "./sale-apartment.json";
-import saleVillaHouse from "./sale-villa-house.json";
-import saleGardenVilla from "./sale-garden-villa.json";
-import saleLand from "./sale-land.json";
-import saleOffice from "./sale-office.json";
-import saleCommercial from "./sale-commercial.json";
-import saleFactory from "./sale-factory.json";
-import saleHotel from "./sale-hotel.json";
-import saleWarehouse from "./sale-warehouse.json";
+import saleApartment from "./sale-apartment.json" with { type: "json" };
+import saleVillaHouse from "./sale-villa-house.json" with { type: "json" };
+import saleGardenVilla from "./sale-garden-villa.json" with { type: "json" };
+import saleLand from "./sale-land.json" with { type: "json" };
+import saleOffice from "./sale-office.json" with { type: "json" };
+import saleCommercial from "./sale-commercial.json" with { type: "json" };
+import saleFactory from "./sale-factory.json" with { type: "json" };
+import saleHotel from "./sale-hotel.json" with { type: "json" };
+import saleWarehouse from "./sale-warehouse.json" with { type: "json" };
 
-import rentApartment from "./rent-apartment.json";
-import rentVillaHouse from "./rent-villa-house.json";
-import rentGardenVilla from "./rent-garden-villa.json";
-import rentOffice from "./rent-office.json";
-import rentCommercial from "./rent-commercial.json";
-import rentFactoryWorkshop from "./rent-factory-workshop.json";
-import rentHotel from "./rent-hotel.json";
-import rentWarehouse from "./rent-warehouse.json";
+import rentApartment from "./rent-apartment.json" with { type: "json" };
+import rentVillaHouse from "./rent-villa-house.json" with { type: "json" };
+import rentGardenVilla from "./rent-garden-villa.json" with { type: "json" };
+import rentOffice from "./rent-office.json" with { type: "json" };
+import rentCommercial from "./rent-commercial.json" with { type: "json" };
+import rentFactoryWorkshop from "./rent-factory-workshop.json" with { type: "json" };
+import rentHotel from "./rent-hotel.json" with { type: "json" };
+import rentWarehouse from "./rent-warehouse.json" with { type: "json" };
 
-import dailyApartmentSuite from "./daily-apartment-suite.json";
-import dailyGardenVilla from "./daily-garden-villa.json";
-import dailyHotel from "./daily-hotel.json";
-import dailyOfficeBooth from "./daily-office-booth.json";
+import dailyApartmentSuite from "./daily-apartment-suite.json" with { type: "json" };
+import dailyGardenVilla from "./daily-garden-villa.json" with { type: "json" };
+import dailyHotel from "./daily-hotel.json" with { type: "json" };
+import dailyOfficeBooth from "./daily-office-booth.json" with { type: "json" };
 
-import partnership from "./partnership.json";
-import presaleSpecial from "./presale-special.json";
+import partnership from "./partnership.json" with { type: "json" };
+import presaleSpecial from "./presale-special.json" with { type: "json" };
 
 export * from "./types";
 
@@ -85,23 +94,33 @@ function getFormCodeForListing(transaction: string, category: string): string {
   );
 }
 
-function normalizeOptions(options: string[] | undefined, key?: string): string[] | undefined {
+function normalizeOptions(
+  options: string[] | undefined,
+  key?: string,
+  category?: string,
+): string[] | undefined {
   if (!options) return options;
   if (key === "floor") return floorOptions;
-  if (key === "totalFloors") return totalFloorsOptions;
+  if (key === "totalFloors") {
+    return category === "villa-house" ? villaTotalFloorsOptions : totalFloorsOptions;
+  }
   if (key === "age") return ageOptions;
+  if (key === "rooms") return roomOptions;
+  if (key === "unitsPerFloor") return unitsPerFloorOptions;
+  if (key === "villaType") return saleVillaHouseTypeOptions;
   return options;
 }
 
 function normalizeSchemaOptions(schema: AdFormSchema | null): AdFormSchema | null {
   if (!schema) return null;
   const clone = { ...schema };
+  const category = clone.category;
   if (clone.create?.basicFields) {
     clone.create = {
       ...clone.create,
       basicFields: clone.create.basicFields.map((f) => ({
         ...f,
-        options: normalizeOptions(f.options, f.key),
+        options: normalizeOptions(f.options, f.key, category),
       })),
     };
   }
@@ -112,7 +131,7 @@ function normalizeSchemaOptions(schema: AdFormSchema | null): AdFormSchema | nul
         ...clone.create.moreFeatures,
         fields: clone.create.moreFeatures.fields.map((f) => ({
           ...f,
-          options: normalizeOptions(f.options, f.key),
+          options: normalizeOptions(f.options, f.key, category),
         })),
       },
     };
@@ -123,8 +142,16 @@ function normalizeSchemaOptions(schema: AdFormSchema | null): AdFormSchema | nul
       sections: clone.filter.sections.map((section) => {
         if (!section.options) return section;
         if (section.id === "floor") return { ...section, options: floorOptions };
-        if (section.id === "totalFloors") return { ...section, options: totalFloorsOptions };
+        if (section.id === "totalFloors") {
+          return {
+            ...section,
+            options: category === "villa-house" ? villaTotalFloorsOptions : totalFloorsOptions,
+          };
+        }
         if (section.id === "age") return { ...section, options: ageOptions };
+        if (section.id === "rooms") return { ...section, options: roomOptions };
+        if (section.id === "unitsPerFloor") return { ...section, options: unitsPerFloorOptions };
+        if (section.id === "villaType") return { ...section, options: saleVillaHouseTypeOptions };
         if (section.id === "exchangeWith") return { ...section, options: exchangeTargets };
         return section;
       }),

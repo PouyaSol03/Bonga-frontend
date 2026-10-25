@@ -575,7 +575,7 @@ function parseUnitsPerFloor(value: unknown) {
 
   const number = Number(match[0]);
 
-  return Number.isInteger(number) && number >= 1 && number <= 30 ? number : null;
+  return Number.isInteger(number) && number >= 1 && number <= 60 ? number : null;
 }
 
 export function normalizeUnitsPerFloorValue(value: unknown) {

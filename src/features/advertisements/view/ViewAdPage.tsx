@@ -1099,9 +1099,12 @@ function readRawContactText(value: unknown) {
 function readContactInfo(ad: AdvertisementItem): SingleAdContactInfo {
   const contacts = ad.contacts ?? {};
   const social = ad.social ?? {};
+  const contactType = Array.isArray(ad.contact_type)
+    ? ad.contact_type.map((item) => readRawContactText(item).toLowerCase())
+    : [];
 
   return {
-    chat: Boolean(toBooleanLike(contacts.chat)),
+    chat: toBooleanLike(contacts.chat) ?? contactType.includes("chat"),
     instagram: readRawContactText(contacts.instagram) || readRawContactText(social.instagram),
     phone: readRawContactText(contacts.phone),
     telegram: readRawContactText(contacts.telegram) || readRawContactText(social.telegram),

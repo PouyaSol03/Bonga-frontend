@@ -73,6 +73,7 @@ import {
   type AlbumMediaItem,
 } from "./viewAdDetails";
 import { shouldUseAgencyAllocationPreview } from "./viewAdPreviewContext";
+import { getPublisherContactActions } from "./details/adContactActions";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "./ViewAdRouteStates";
 import { ViewAdAlbumPage } from "./pages/ViewAdAlbumPage";
 import { ViewAdFeedbackPage } from "./pages/ViewAdFeedbackPage";
@@ -1098,12 +1099,9 @@ function readRawContactText(value: unknown) {
 function readContactInfo(ad: AdvertisementItem): SingleAdContactInfo {
   const contacts = ad.contacts ?? {};
   const social = ad.social ?? {};
-  const contactType = Array.isArray(ad.contact_type)
-    ? ad.contact_type.map((item) => readRawContactText(item).toLowerCase())
-    : [];
 
   return {
-    chat: toBooleanLike(contacts.chat) ?? contactType.includes("chat"),
+    chat: Boolean(toBooleanLike(contacts.chat)),
     instagram: readRawContactText(contacts.instagram) || readRawContactText(social.instagram),
     phone: readRawContactText(contacts.phone),
     telegram: readRawContactText(contacts.telegram) || readRawContactText(social.telegram),
@@ -1948,7 +1946,8 @@ export function ViewAdPage() {
   const isPersonalPreview =
     isPreview &&
     !useAgencyAllocationPreview &&
-    String(ad?.publisher_type ?? ad?.owner_type ?? "user").toLowerCase() === "user";
+    (String(ad?.publisher_type ?? ad?.owner_type ?? "user").toLowerCase() === "user" ||
+      String(ad?.publisher_type ?? ad?.owner_type ?? "").toLowerCase() === "personal");
   const showAgencyOwnerContact = isPreview && !useAgencyAllocationPreview && !isPersonalPreview;
   const reportedImpressionAdIdRef = useRef<string | null>(null);
 
@@ -2030,6 +2029,7 @@ export function ViewAdPage() {
   const usesPublicAdPresentation = isPreview ? !isPersonalPreview : !isOwnAd;
   const isAdPublished = isPublishedAdvertisement(resolvedAd);
   const contactInfo = readContactInfo(resolvedAd);
+  const publisherContact = getPublisherContactActions(resolvedAd);
   const rawAgencyUserContact = (window.history.state as Record<string, unknown> | null)
     ?.userContact as AgencyUserContactData | undefined;
   const rawAd = resolvedAd as Record<string, unknown> | undefined;
@@ -2120,7 +2120,9 @@ export function ViewAdPage() {
   };
 
   const openAdvertiseChat = () => {
-    const actionLabel = useAgencyAllocationPreview ? "شروع گفتگو با کاربر" : "شروع گفتگو با مشاور";
+    const actionLabel = useAgencyAllocationPreview
+      ? "شروع گفتگو با کاربر"
+      : publisherContact.chatActionLabel;
     if (!requireAuthorization(actionLabel)) return;
     if (createAdvertiseChat.isPending) return;
 
@@ -2464,7 +2466,7 @@ export function ViewAdPage() {
                   onClick={() => handleOpenContactInfo("contact")}
                   type="button"
                 >
-                  {contactInfo.phone ? "تماس با مشاور" : "راه‌های تماس"}
+                  {contactInfo.phone ? publisherContact.callLabel : "راه‌های تماس"}
                 </Button>
               ) : null}
               {hasChatContact ? (
@@ -2482,7 +2484,7 @@ export function ViewAdPage() {
                     weight="medium"
                     className="text-sm font-medium! [direction:rtl]"
                   >
-                    {createAdvertiseChat.isPending ? "در حال باز کردن چت..." : "چت با مشاور"}
+                    {createAdvertiseChat.isPending ? "در حال باز کردن چت..." : publisherContact.chatLabel}
                   </Typography>
                   <ViewAdIcon className="h-5! w-5!" name="chat" />
                 </Button>

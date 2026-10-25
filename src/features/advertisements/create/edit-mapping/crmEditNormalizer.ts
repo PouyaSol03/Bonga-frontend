@@ -8,33 +8,10 @@ import type { NewAdFormValues } from "../types";
 type EditableAdvertisementFeature = AdvertisementFeature & { key?: string };
 import { buildPayload } from "../utils";
 import { isCrmAdvertiseSource } from "./editRouteParams";
-import { normalizeLookupText } from "./featureReaders";
+import { getAdvertisementFeatures, normalizeLookupText } from "./featureReaders";
 import { mediaSource } from "./mediaMappers";
 
-export function getAdvertisementFeatures(
-  ad: AdvertisementItem | Record<string, unknown> | undefined,
-) {
-  if (!ad || !Array.isArray(ad.features)) return [];
-
-  return ad.features.flatMap((feature) => {
-    if (!feature || typeof feature !== "object") return [];
-    const item = feature as Record<string, unknown>;
-    const label =
-      (typeof item.label === "string" && item.label.trim()) ||
-      (typeof item.key === "string" && item.key.trim()) ||
-      (typeof item.name === "string" && item.name.trim()) ||
-      "";
-    if (!label) return [];
-
-    return [
-      {
-        key: typeof item.key === "string" ? item.key : undefined,
-        label,
-        value: item.value,
-      } satisfies EditableAdvertisementFeature,
-    ];
-  });
-}
+export { getAdvertisementFeatures };
 
 export function normalizeCrmDynamicFields(value: unknown): EditableAdvertisementFeature[] {
   if (Array.isArray(value)) {

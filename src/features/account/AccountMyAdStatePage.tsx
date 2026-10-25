@@ -269,9 +269,16 @@ export function AccountMyAdStatePage(props?: AccountMyAdStatePageProps) {
 
   useEffect(() => {
     if (statusInfo.key === "incomplete" && currentAdId) {
-      navigate(getAdEditPath(currentAdId, backTo), { replace: true });
+      navigate(
+        getAdEditPath(
+          currentAdId,
+          backTo,
+          (detailQuery.data?.data ?? routeState.ad ?? routeState.card) as never,
+        ),
+        { replace: true },
+      );
     }
-  }, [statusInfo.key, currentAdId, backTo]);
+  }, [statusInfo.key, currentAdId, backTo, detailQuery.data, routeState.ad, routeState.card]);
 
   if (detailQuery.isError && !detailQuery.data && !routeState.ad && !routeState.card) {
     return (
@@ -852,6 +859,7 @@ function RealEstateManagerAdStatePage({
     () => setIsDeleteDialogOpen(true),
     isAdDeleted,
     backTo,
+    (ad ?? card) as never,
   );
 
   return (
@@ -1187,12 +1195,13 @@ function getManagerActions(
   onDelete?: () => void,
   isAdDeleted?: boolean,
   returnTo?: string,
+  adSource?: unknown,
 ): StateAction[] {
   const preview: StateAction = { icon: "preview", label: "پیش‌نمایش", to: getAdPreviewPath(adId) };
   const edit: StateAction = {
     icon: "edit",
     label: "ویرایش",
-    to: getAdEditPath(adId, returnTo || adManagementPaths.root),
+    to: getAdEditPath(adId, returnTo || adManagementPaths.root, adSource),
   };
   const payment: StateAction = { icon: "payment", label: "پرداخت", to: getAdPaymentPath(adId) };
   const result: StateAction = {
@@ -1684,7 +1693,7 @@ function NeedsEditNotice({
           isEditMode: true,
           returnTo,
         }}
-        to={getAdEditPath(card.id, returnTo || adManagementPaths.root)}
+        to={getAdEditPath(card.id, returnTo || adManagementPaths.root, (ad ?? card) as never)}
       >
         ویرایش آگهی
         <StateIcon icon="edit" />
@@ -1707,7 +1716,7 @@ function getStateActions(
   const edit: StateAction = {
     icon: "edit",
     label: "ویرایش",
-    to: getAdEditPath(adId, returnTo || (isAssigned ? "/account/my-ads" : adManagementPaths.root)),
+    to: getAdEditPath(adId, returnTo || (isAssigned ? "/account/my-ads" : adManagementPaths.root), ad),
   };
   const remove: StateAction = {
     icon: "delete",

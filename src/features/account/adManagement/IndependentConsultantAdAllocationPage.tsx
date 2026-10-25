@@ -102,7 +102,7 @@ export function IndependentConsultantAdAllocationPage() {
             icon="edit"
             label="ویرایش"
             state={{ ad, card: ad, editReturnTo: adManagementPaths.allocation, isEditMode: true }}
-            to={getAdEditPath(ad.id, adManagementPaths.allocation)}
+            to={getAdEditPath(ad.id, adManagementPaths.allocation, ad)}
           />
         </div>
       </main>

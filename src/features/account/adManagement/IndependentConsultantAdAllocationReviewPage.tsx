@@ -245,7 +245,7 @@ export function IndependentConsultantAdAllocationReviewPage(
               isEditMode: true,
               tab: "status",
             }}
-            to={getAdEditPath(ad.id, getAllocationReviewPathForCurrentAd(ad.id))}
+            to={getAdEditPath(ad.id, getAllocationReviewPathForCurrentAd(ad.id), ad)}
           />
           <ActionDivider />
           <RejectAction

@@ -132,7 +132,7 @@ export function IndependentConsultantAdPublishedPage(
             icon="edit"
             label="ویرایش"
             returnTo={backTo}
-            to={getAdEditPath(ad.id, backTo)}
+            to={getAdEditPath(ad.id, backTo, ad)}
           />
           <PublishedActionDivider />
           <PublishedAction

@@ -54,7 +54,7 @@ export const ManagementAdActions: React.FC<Props> = ({
 
   const effectiveDeskPath = deskTo || to || getAdStatePath(ad.id);
   const effectivePreviewPath = previewTo || getAdPreviewPath(ad.id);
-  const effectiveEditPath = editTo || getAdEditPath(ad.id, adManagementPaths.root);
+  const effectiveEditPath = editTo || getAdEditPath(ad.id, adManagementPaths.root, sourceAd ?? ad);
   const effectiveAnalyticsPath = analyticsTo || `${getAdStatePath(ad.id)}?businessTab=performance`;
 
   const deskState = state && typeof state === "object" ? { ...state } : { ad: sourceAd, card: ad };

@@ -42,7 +42,7 @@ function readParticipant(thread: ChatThread) {
   return {
     avatar: readChatPathText(participant, ["avatar", "image", "profile_image"]),
     mobile: readChatPathText(participant, ["mobile", "phone", "phone_number"]),
-    name: showingName || name || `${firstName} ${family}`.trim() || "کاربر بنگاه",
+    name: showingName || name || `${firstName} ${family}`.trim() || "کاربر نشونو",
   };
 }
 

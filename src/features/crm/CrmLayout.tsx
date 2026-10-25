@@ -620,7 +620,7 @@ export function CrmLayout({
         <img
           className="h-[32px] w-[146px] object-contain"
           src="/images/logo/logo-dashboard.png"
-          alt="بنگاه"
+          alt="نشونو"
         />
 
         <div className="flex items-center gap-3">

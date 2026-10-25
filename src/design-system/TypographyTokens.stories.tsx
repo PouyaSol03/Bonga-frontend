@@ -8,7 +8,7 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          "مستندات تایپوگرافی رسمی بنگاه بر پایه قلم دانا (DanaFaNum). شامل اندازه فونت، ارتفاع خط (line-height) و وزن‌های استاندارد ۴۰۰، ۵۰۰، ۶۰۰، ۷۰۰ و ۹۰۰.",
+          "مستندات تایپوگرافی رسمی نشونو بر پایه قلم دانا (DanaFaNum). شامل اندازه فونت، ارتفاع خط (line-height) و وزن‌های استاندارد ۴۰۰، ۵۰۰، ۶۰۰، ۷۰۰ و ۹۰۰.",
       },
     },
   },
@@ -81,7 +81,7 @@ export const AllTypographyTokens: StoryObj = {
           lineHeightPx="64px"
           weight="Regular (400)"
           useCase="صفحات فرود، اعداد بزرگ آماری، ارقام فروش ویژه"
-          sampleText="بنگاه املاک کشور"
+          sampleText="نشونو املاک کشور"
         />
         <TypographyRow
           name="Display Medium (displayMd)"

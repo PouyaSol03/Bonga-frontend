@@ -88,7 +88,7 @@ function AboutIntroCard() {
     <section className="bg-primary-container relative mx-4 mt-4 overflow-hidden rounded-2xl p-4">
       <div className="relative">
         <img
-          alt="تصویری از خدمات بنگاه در بازار املاک"
+          alt="تصویری از خدمات نشونو در بازار املاک"
           className="block h-auto w-full"
           height={292}
           loading="eager"

@@ -7,7 +7,7 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          "مستندات پالت رنگی رسمی سیستم طراحی بنگاه (Bonga Design System). تمام رنگ‌ها به صورت متغیرهای CSS در فایل `tokens.css` و `theme.css` تعریف شده‌اند.",
+          "مستندات پالت رنگی رسمی سیستم طراحی نشونو (neshoono Design System). تمام رنگ‌ها به صورت متغیرهای CSS در فایل `tokens.css` و `theme.css` تعریف شده‌اند.",
       },
     },
   },
@@ -49,9 +49,9 @@ export const PrimaryPalette: StoryObj = {
   render: () => (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-[#1a1a1a]">طیف آبی برند بنگاه (Primary Blue)</h2>
+        <h2 className="text-lg font-bold text-[#1a1a1a]">طیف آبی برند نشونو (Primary Blue)</h2>
         <p className="mt-1 text-sm text-[#666666]">
-          رنگ اصلی برند بنگاه برای دکمه‌های فراخوان عمل (CTA)، وضعیت‌های فعال، لینک‌ها و هویت بصری.
+          رنگ اصلی برند نشونو برای دکمه‌های فراخوان عمل (CTA)، وضعیت‌های فعال، لینک‌ها و هویت بصری.
         </p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

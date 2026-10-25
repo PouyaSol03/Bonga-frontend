@@ -190,7 +190,7 @@ function mapRequest(item: SupportRequestItem): CrmSupportRequest {
     customerName:
       readChatPathText(user, ["full_name", "fullName"]) ||
       `${firstName} ${family}`.trim() ||
-      "کاربر بنگاه",
+      "کاربر نشونو",
     description:
       readChatPathText(item, ["description", "body", "message"]) ||
       "توضیحی برای این درخواست ثبت نشده است.",

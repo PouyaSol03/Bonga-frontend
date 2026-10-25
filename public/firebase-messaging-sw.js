@@ -15,7 +15,7 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
   const notificationTitle =
-    payload.notification?.title || payload.data?.title || 'اعلان جدید بنگاه';
+    payload.notification?.title || payload.data?.title || 'اعلان جدید نشونو';
   const notificationBody =
     payload.notification?.body || payload.data?.body || '';
 

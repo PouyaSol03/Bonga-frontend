@@ -27,9 +27,9 @@ export default defineConfig(({ mode }) => {
         includeAssets: ["favicon.ico", "apple-touch-icon.png"],
 
         manifest: {
-          name: "neshoono",
-          short_name: "neshoono",
-          description: "neshoono Web Application",
+          name: "نشونو | neshoono",
+          short_name: "نشونو",
+          description: "سامانه هوشمند املاک نشونو (neshoono)",
 
           start_url: "/",
           scope: "/",

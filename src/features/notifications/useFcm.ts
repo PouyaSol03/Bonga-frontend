@@ -46,7 +46,7 @@ export function useFcm() {
 
       try {
         unsubscribe = onMessage(messagingInstance, (payload) => {
-          const title = payload.notification?.title || payload.data?.title || "اعلان جدید بنگاه";
+          const title = payload.notification?.title || payload.data?.title || "اعلان جدید نشونو";
           const body = payload.notification?.body || payload.data?.body || "";
 
           const targetUrl =

@@ -12,7 +12,7 @@ const meta: Meta<typeof TopBar> = {
     docs: {
       description: {
         component:
-          "نوار بالای صفحه (TopBar / Navigation Bar) اپلیکیشن بنگاه با پشتیبانی از بازگشت، عناوین، منوی عملیات (Actions) و کادر جستجوی یکپارچه.",
+          "نوار بالای صفحه (TopBar / Navigation Bar) اپلیکیشن نشونو با پشتیبانی از بازگشت، عناوین، منوی عملیات (Actions) و کادر جستجوی یکپارچه.",
       },
     },
   },

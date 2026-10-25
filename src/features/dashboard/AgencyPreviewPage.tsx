@@ -507,10 +507,10 @@ export function AgencyPreviewPage() {
     : agencyTabs;
   const entityLabel = isAgentPreview ? "مشاور" : "آژانس";
   const pageTitle = `صفحه ${entityLabel}`;
-  const seoTitle = `${entityName} | ${entityLabel} املاک | بنگاه`;
+  const seoTitle = `${entityName} | ${entityLabel} املاک | نشونو`;
   const seoDescription =
     entityAbout?.trim() ||
-    `${entityName}، ${entityLabel} املاک${entityLocation ? ` در ${entityLocation}` : ""}. مشاهده اطلاعات، آگهی‌های فعال و راه‌های ارتباطی در بنگاه.`;
+    `${entityName}، ${entityLabel} املاک${entityLocation ? ` در ${entityLocation}` : ""}. مشاهده اطلاعات، آگهی‌های فعال و راه‌های ارتباطی در نشونو.`;
   const shareTitle = entityName;
   const shareText = `${pageTitle} ${shareTitle}`;
   const shareUrl = isPublicPreview

@@ -10,7 +10,7 @@ const meta: Meta<typeof ChoiceIndicator> = {
     docs: {
       description: {
         component:
-          "نشانگرهای انتخاب شامل چک‌باکس (Checkbox) و رادیوباتن (Radio) با استایل استاندارد دیزاین سیستم بنگاه.",
+          "نشانگرهای انتخاب شامل چک‌باکس (Checkbox) و رادیوباتن (Radio) با استایل استاندارد دیزاین سیستم نشونو.",
       },
     },
   },

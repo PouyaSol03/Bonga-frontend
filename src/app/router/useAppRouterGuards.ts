@@ -108,7 +108,7 @@ export function useAppRouterGuards(
 
   // Set document title
   useEffect(() => {
-    document.title = `بنگاه | ${route.title}`;
+    document.title = `نشونو | ${route.title}`;
   }, [route.title]);
 
   // Handle access denied dashboard fallback

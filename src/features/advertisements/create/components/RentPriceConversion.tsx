@@ -1,12 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
 import { Typography } from "../../../../shared/ui/Typography";
 import { SwitchButton } from "./NewAdControls";
 import {
   calculateRentPriceConversion,
+  getRentConversionSnapPoints,
   parseRentPriceValue,
   RENT_CONVERSION_MORTGAGE_UNIT,
+  resolveMagneticRentValue,
 } from "../rentPriceConversion";
 import LinearArrowRight1 from "../../../../shared/icons/LinearArrowRight1";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
@@ -150,6 +152,7 @@ export function RentPriceConversion({
   );
 
   const draggingRef = useRef(false);
+  const snappedPointRef = useRef<number | null>(null);
 
   const activeBaseline = enabled ? baseline : { mortgage: sourceMortgage, rent: sourceRent };
   const activeMortgage = enabled
@@ -162,6 +165,10 @@ export function RentPriceConversion({
     activeMortgage,
   );
   const hasPrice = conversion.maximumMortgage > 0;
+  const snapPoints = useMemo(
+    () => getRentConversionSnapPoints(conversion.maximumMortgage),
+    [conversion.maximumMortgage],
+  );
   const mortgageDelta = formatSignedAmount(conversion.mortgageDelta);
   const rentDelta = formatSignedAmount(conversion.rentDelta);
 
@@ -326,6 +333,23 @@ export function RentPriceConversion({
                 <span className="bg-surface-container-lowest absolute top-1/2 left-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full" />
               </div>
 
+              {/* 5 invisible magnetic snap points */}
+              {snapPoints.map((point) => {
+                const percent =
+                  conversion.maximumMortgage > 0
+                    ? (point / conversion.maximumMortgage) * 100
+                    : 0;
+                return (
+                  <span
+                    key={point}
+                    data-snap-point={point}
+                    aria-hidden="true"
+                    className="pointer-events-none absolute top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0"
+                    style={{ left: `${12 + percent * 0.76}%` }}
+                  />
+                );
+              })}
+
               {hasPrice ? (
                 <div
                   aria-hidden="true"
@@ -355,26 +379,58 @@ export function RentPriceConversion({
                 min={0}
                 onChange={(event) => {
                   if (!draggingRef.current) {
-                    commitConversion(event.target.value);
+                    const raw = Number(event.target.value);
+                    const max = Math.max(0, Math.round(conversion.maximumMortgage));
+                    const result = resolveMagneticRentValue({
+                      activeSnappedPoint: null,
+                      maximumMortgage: max,
+                      raw,
+                      snapPoints,
+                    });
+                    commitConversion(result.value);
                   }
                 }}
                 onInput={(event) => {
                   const raw = Number(event.currentTarget.value);
                   const max = Math.max(0, Math.round(conversion.maximumMortgage));
-                  const halfStep = RENT_CONVERSION_MORTGAGE_UNIT / 2;
-                  const snapped = Math.abs(raw - max) < halfStep ? max : raw;
-                  updateLiveConversion(snapped);
+                  const result = resolveMagneticRentValue({
+                    activeSnappedPoint: snappedPointRef.current,
+                    maximumMortgage: max,
+                    raw,
+                    snapPoints,
+                  });
+                  snappedPointRef.current = result.snappedPoint;
+                  updateLiveConversion(result.value);
                 }}
                 onPointerCancel={(event) => {
                   draggingRef.current = false;
-                  commitConversion(event.currentTarget.value);
+                  const raw = Number(event.currentTarget.value);
+                  const max = Math.max(0, Math.round(conversion.maximumMortgage));
+                  const result = resolveMagneticRentValue({
+                    activeSnappedPoint: snappedPointRef.current,
+                    maximumMortgage: max,
+                    raw,
+                    snapPoints,
+                  });
+                  snappedPointRef.current = null;
+                  commitConversion(result.value);
                 }}
                 onPointerDown={() => {
                   draggingRef.current = true;
+                  snappedPointRef.current = null;
                 }}
                 onPointerUp={(event) => {
                   draggingRef.current = false;
-                  commitConversion(event.currentTarget.value);
+                  const raw = Number(event.currentTarget.value);
+                  const max = Math.max(0, Math.round(conversion.maximumMortgage));
+                  const result = resolveMagneticRentValue({
+                    activeSnappedPoint: snappedPointRef.current,
+                    maximumMortgage: max,
+                    raw,
+                    snapPoints,
+                  });
+                  snappedPointRef.current = null;
+                  commitConversion(result.value);
                 }}
                 step={RENT_CONVERSION_MORTGAGE_UNIT}
                 type="range"

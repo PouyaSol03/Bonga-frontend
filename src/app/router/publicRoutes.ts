@@ -53,7 +53,7 @@ const AgencyQrCodePage = lazyNamed(
 );
 
 export const publicRoutes: AppRoute[] = [
-  { path: "/", title: "بنگاه", Component: OnboardingPage },
+  { path: "/", title: "نشونو", Component: OnboardingPage },
   { path: "/home", title: "خانه", Component: HomePage },
   { path: "/search", title: "جستجو", Component: SearchMapPage },
   { path: "/search/filter", title: "فیلتر جستجو", Component: SearchMapFilterPage },

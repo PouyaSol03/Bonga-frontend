@@ -1942,7 +1942,7 @@ export function SearchMapPage() {
       <div className="bg-surface-container text-on-surface relative flex h-full min-h-0 flex-col overflow-hidden [direction:rtl]">
         <SEO
           title="جستجوی روی نقشه املاک | خرید و اجاره آپارتمان، خانه و زمین"
-          description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه بنگاه."
+          description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه نشونو."
         />
         <SearchMapHeader
           savedCount={savedSearchesQuery.data?.length ?? 0}
@@ -1988,10 +1988,10 @@ export function SearchMapPage() {
       ) : null}
       <SEO
         title="جستجوی روی نقشه املاک | خرید و اجاره آپارتمان، خانه و زمین"
-        description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه بنگاه. به راحتی آپارتمان، خانه ویلایی، زمین و مغازه مورد نظر خود را در محله دلخواه برای خرید یا اجاره پیدا کنید."
-        keywords="جستجوی املاک روی نقشه, نقشه املاک, خرید خانه در محله, قیمت آپارتمان در مناطق مختلف, اجاره آپارتمان از روی نقشه"
+        description="جستجوی پیشرفته و موقعیت‌محور املاک روی نقشه نشونو. به راحتی آپارتمان، خانه ویلایی، زمین و مغازه مورد نظر خود را در محله دلخواه برای خرید یا اجاره پیدا کنید."
+        keywords="جستجوی املاک روی نقشه, نقشه املاک, خرید خانه در محله, قیمت آپارتمان در مناطق مختلف, اجاره آپارتمان از روی نقشه, نشونو, neshoono"
       />
-      <h1 className="sr-only">جستجوی آگهی‌های املاک روی نقشه بنگاه</h1>
+      <h1 className="sr-only">جستجوی آگهی‌های املاک روی نقشه نشونو</h1>
       {!showCurrentEmptyState ? (
         isFullListOpen ? (
           <SearchMapListView

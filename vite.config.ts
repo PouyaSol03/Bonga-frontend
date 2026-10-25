@@ -27,9 +27,9 @@ export default defineConfig(({ mode }) => {
         includeAssets: ["favicon.ico", "apple-touch-icon.png"],
 
         manifest: {
-          name: "Bonga",
-          short_name: "Bonga",
-          description: "Bonga Web Application",
+          name: "neshoono",
+          short_name: "neshoono",
+          description: "neshoono Web Application",
 
           start_url: "/",
           scope: "/",

@@ -283,18 +283,19 @@ export function HomePage() {
       dir="rtl"
     >
       <SEO
-        title="خرید، فروش، رهن و اجاره آپارتمان و خانه | سامانه املاک بنگاه"
-        description="سامانه هوشمند املاک بنگاه؛ مرجع تخصصی خرید، فروش، رهن و اجاره آپارتمان، خانه ویلایی، زمین و مغازه. جدیدترین آگهی‌های املاک را در بنگاه جستجو کنید."
-        keywords="خرید آپارتمان, فروش آپارتمان, رهن و اجاره خانه, خرید زمین, قیمت آپارتمان, مشاور املاک, سامانه املاک بنگاه"
+        title="خرید، فروش، رهن و اجاره آپارتمان و خانه | سامانه املاک نشونو"
+        description="سامانه هوشمند املاک نشونو؛ مرجع تخصصی خرید، فروش، رهن و اجاره آپارتمان، خانه ویلایی، زمین و مغازه. جدیدترین آگهی‌های املاک را در نشونو جستجو کنید."
+        keywords="خرید آپارتمان, فروش آپارتمان, رهن و اجاره خانه, خرید زمین, قیمت آپارتمان, مشاور املاک, سامانه املاک نشونو, neshoono"
         structuredData={{
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "بنگاه",
+          name: "نشونو",
+          alternateName: "neshoono",
           inLanguage: "fa-IR",
-          description: "سامانه هوشمند املاک بنگاه برای خرید، فروش، رهن و اجاره ملک",
+          description: "سامانه هوشمند املاک نشونو برای خرید، فروش، رهن و اجاره ملک",
         }}
       />
-      <h1 className="sr-only">سامانه هوشمند املاک بنگاه برای خرید، فروش، رهن و اجاره ملک</h1>
+      <h1 className="sr-only">سامانه هوشمند املاک نشونو برای خرید، فروش، رهن و اجاره ملک</h1>
       <header className="bg-surface-container-lowest shrink-0">
         <section
           className="bg-surface-container-lowest flex min-h-14 w-full min-w-0 items-center justify-between gap-2 px-3 py-2 [direction:ltr] min-[390px]:min-h-16 min-[390px]:px-4"

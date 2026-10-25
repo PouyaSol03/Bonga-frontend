@@ -73,7 +73,7 @@ export function SEO({
       />
 
       <meta property="og:type" content={ogType} />
-      <meta property="og:site_name" content="بنگاه" />
+      <meta property="og:site_name" content="نشونو" />
       <meta property="og:locale" content="fa_IR" />
       <meta property="og:title" content={ogTitle || title} />
       {resolvedDescription && <meta property="og:description" content={resolvedDescription} />}

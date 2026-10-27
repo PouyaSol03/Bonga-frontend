@@ -24,7 +24,7 @@ export function RentPriceConversionViewer({
   const limitMortgage =
     typeof limitMortgagePrice === "number" &&
     limitMortgagePrice >= 0 &&
-    limitMortgagePrice < baseMortgage
+    limitMortgagePrice !== baseMortgage
       ? limitMortgagePrice
       : defaultLimit;
 
@@ -36,13 +36,23 @@ export function RentPriceConversionViewer({
         (mortgageDifference / RENT_CONVERSION_MORTGAGE_UNIT) * RENT_CONVERSION_RENT_PER_UNIT,
       ),
   );
-  const [liveMortgage, setLiveMortgage] = useState(baseMortgage);
+
+  const totalSteps = Math.max(
+    0,
+    Math.round(Math.abs(baseMortgage - limitMortgage) / RENT_CONVERSION_MORTGAGE_UNIT),
+  );
+
+  const [step, setStep] = useState(totalSteps);
 
   useEffect(() => {
-    setLiveMortgage(baseMortgage);
-  }, [baseMortgage, baseRent, limitMortgage]);
+    setStep(totalSteps);
+  }, [totalSteps]);
 
-  const currentMortgage = liveMortgage;
+  const currentMortgage =
+    totalSteps > 0
+      ? Math.round(limitMortgage + (step / totalSteps) * (baseMortgage - limitMortgage))
+      : baseMortgage;
+
   const currentRent = Math.max(
     0,
     baseRent +
@@ -51,9 +61,8 @@ export function RentPriceConversionViewer({
           RENT_CONVERSION_RENT_PER_UNIT,
       ),
   );
-  const range = baseMortgage - limitMortgage;
-  const sliderPercent =
-    range > 0 ? Math.min(100, Math.max(0, ((currentMortgage - limitMortgage) / range) * 100)) : 100;
+
+  const sliderPercent = totalSteps > 0 ? (step / totalSteps) * 100 : 100;
 
   return (
     <div className="bg-surface-container-lowest rounded-2xl [direction:rtl]">
@@ -70,7 +79,12 @@ export function RentPriceConversionViewer({
 
       
       <RentConversionAmounts currentMortgage={currentMortgage} currentRent={currentRent} />
-      <RentConversionSlider baseMortgage={baseMortgage} limitMortgage={limitMortgage} currentMortgage={currentMortgage} sliderPercent={sliderPercent} onChange={setLiveMortgage} />
+      <RentConversionSlider
+        totalSteps={totalSteps}
+        step={step}
+        sliderPercent={sliderPercent}
+        onStepChange={setStep}
+      />
       <RentConversionEndpoints baseMortgage={baseMortgage} baseRent={baseRent} limitMortgage={limitMortgage} limitRent={limitRent} />
     </div>
   );

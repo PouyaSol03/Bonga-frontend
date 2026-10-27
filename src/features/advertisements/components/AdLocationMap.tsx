@@ -44,6 +44,7 @@ export function AdLocationMap({
       className={`border-outline-var bg-surface-container relative h-[198px] overflow-hidden rounded-2xl border ${className}`}
     >
       <MapContainer
+        key={`${latitude}-${longitude}`}
         attributionControl={false}
         center={[latitude, longitude]}
         className="h-full w-full"

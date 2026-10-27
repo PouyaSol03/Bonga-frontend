@@ -63,7 +63,6 @@ export function StateAdAction({
     return (
       <Link
         className="text-on-surface-var flex h-14 w-full items-center justify-between px-4 no-underline [direction:ltr]"
-        replace={action.icon === "edit"}
         state={{
           ad: action.icon === "upgrade" && !ad ? card : ad,
           card,

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router";
 import { PageFrame } from "../../../../shared/layout/PageFrame";
 import { TopBar } from "../../../../shared/components/TopBar";
+import { canGoBackInApp } from "../../../../shared/navigation/navigation";
 import { type DetailInfoSection } from "../details/detailCore";
 import { DetailInfoSectionBlock } from "./DetailInfoSectionBlock";
 
@@ -21,6 +22,14 @@ export function DetailInfoFullPage({
       : `/ads/${encodeURIComponent(String(adId))}`
     : "/home";
 
+  const handleBack = () => {
+    if (canGoBackInApp()) {
+      navigate(-1);
+      return;
+    }
+    navigate(backTarget, { replace: true });
+  };
+
   return (
     <PageFrame
       className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
@@ -28,7 +37,7 @@ export function DetailInfoFullPage({
     >
       <TopBar
         backTo={backTarget}
-        onBack={() => navigate(backTarget, { replace: true })}
+        onBack={handleBack}
         title={title}
       />
 

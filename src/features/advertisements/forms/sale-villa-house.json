@@ -284,7 +284,7 @@
         },
         {
           "key": "streetWidth",
-          "title": "عرض گذر (متر)",
+          "title": "عرض گذر",
           "input": "number",
           "leftText": "متر",
           "numeric": true

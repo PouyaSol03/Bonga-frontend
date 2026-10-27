@@ -91,7 +91,7 @@ export const propertyInfoLabelMap: Record<string, string> = {
   floor_material: "جنس کف",
   cabinet_material: "جنس کابینت",
   land_width: "عرض زمین",
-  street_width: "عرض خیابان",
+  street_width: "عرض گذر",
   single_room_count: "تعداد اتاق یک تخته",
   double_room_count: "تعداد اتاق دو تخته",
   suite_count: "تعداد سوییت‌ها",

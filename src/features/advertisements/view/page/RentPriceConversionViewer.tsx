@@ -37,10 +37,11 @@ export function RentPriceConversionViewer({
       ),
   );
 
-  const totalSteps = Math.max(
-    0,
-    Math.round(Math.abs(baseMortgage - limitMortgage) / RENT_CONVERSION_MORTGAGE_UNIT),
-  );
+  const conversionRange = Math.abs(baseMortgage - limitMortgage);
+  const totalSteps =
+    conversionRange === 0
+      ? 0
+      : Math.max(1, Math.round(conversionRange / RENT_CONVERSION_MORTGAGE_UNIT));
 
   const [step, setStep] = useState(totalSteps);
 

@@ -1,7 +1,6 @@
 import { Typography } from "../../../../shared/ui/Typography";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
 import LinearArrowRight1 from "../../../../shared/icons/LinearArrowRight1";
-import { RENT_CONVERSION_MORTGAGE_UNIT } from "../../create/rentPriceConversion";
 
 export function RentConversionSlider({
   totalSteps,

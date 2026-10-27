@@ -4,7 +4,7 @@ import "./homeArtwork.css";
 import type { CategoryOption, QuickAction } from "./homeTypes";
 import ArrowDown from "../../shared/assets/icons/ArrowDown";
 import ShenasaVector from "../../shared/assets/icons/ShenasaVector";
-import IranShenasaTypo from "../../shared/assets/icons/IranShenasaTypo";
+import NeshonoTypo from "../../shared/assets/icons/NeshonoTypo";
 import { BusinessFeatureSection } from "./components/BusinessFeatureSection";
 import { HomeStatsSection } from "./components/HomeStatsSection";
 import { TrustedPartnersSection } from "./components/TrustedPartnersSection";
@@ -333,12 +333,17 @@ export function HomePage() {
           </div>
 
           <div
-            className="flex items-end justify-start gap-2 pr-1 min-[390px]:gap-3"
-            aria-label="ایران شناسا"
+            dir="ltr"
+            className="flex items-center gap-2 pr-1 min-[390px]:gap-2.5"
+            aria-label="نشونو"
             role="img"
           >
-            <IranShenasaTypo />
-            <ShenasaVector />
+            <NeshonoTypo
+              height={24}
+              width={61}
+              className="text-on-surface select-none"
+            />
+            <ShenasaVector width={26} height={26} />
           </div>
         </section>
       </header>

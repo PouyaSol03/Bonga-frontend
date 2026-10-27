@@ -202,7 +202,14 @@ export function RentPriceConversion({
 
     if (!sourceChangedOutsideSlider) return;
 
+    const parsedSelected = parseRentPriceValue(selectedMortgagePrice);
     setBaseline({ mortgage: sourceMortgage, rent: sourceRent });
+
+    if (parsedSelected > 0) {
+      setLiveMortgage(parsedSelected);
+      return;
+    }
+
     setLiveMortgage(sourceMortgage);
 
     const normalized = String(sourceMortgage);
@@ -218,6 +225,14 @@ export function RentPriceConversion({
     sourceMortgage,
     sourceRent,
   ]);
+
+  useEffect(() => {
+    if (!enabled || draggingRef.current) return;
+    const parsed = parseRentPriceValue(selectedMortgagePrice);
+    if (parsed > 0 && parsed !== liveMortgage) {
+      setLiveMortgage(parsed);
+    }
+  }, [enabled, liveMortgage, selectedMortgagePrice]);
 
   const handleToggle = (checked: boolean) => {
     if (checked && !canEnable) return;

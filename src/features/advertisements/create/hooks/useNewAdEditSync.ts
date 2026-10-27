@@ -54,8 +54,16 @@ export function useNewAdEditSync({
     enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),
     queryFn: async () => {
       const id = String(editAdId);
-      const res = (await getV2Edit(id)) as { data?: AdvertisementItem } | AdvertisementItem;
-      return ("data" in res && res.data ? res.data : res) as AdvertisementItem;
+      const res = (await getV2Edit(id)) as
+        | { data?: AdvertisementItem; advertise?: AdvertisementItem }
+        | AdvertisementItem;
+      return (
+        "data" in res && res.data
+          ? res.data
+          : "advertise" in res && res.advertise
+            ? res.advertise
+            : res
+      ) as AdvertisementItem;
     },
     queryKey: ["advertisement", "edit-fields", editAdId, activeRole],
   });

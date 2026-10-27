@@ -17,7 +17,7 @@ export function appendFormDataMedia(
         formData.append("images", photo.file, photo.file.name);
       }
     } else {
-      const source = mediaSource(photo.existingValue);
+      const source = mediaSource(photo.existingValue || photo.previewUrl);
       if (source) {
         const canonical = canonicalizeMediaPath(source);
         if (canonical && !seenCanonicalImages.has(canonical)) {
@@ -27,6 +27,10 @@ export function appendFormDataMedia(
       }
     }
   });
+
+  if (options.isEdit && seenCanonicalImages.size === 0) {
+    formData.append("existing_images", "[]");
+  }
 
   const seenCanonicalVideos = new Set<string>();
   if (values.video?.file) {

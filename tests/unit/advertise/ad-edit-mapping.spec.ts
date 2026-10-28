@@ -1,9 +1,9 @@
-import { expect, test } from "@playwright/test";
+import { describe, expect, test } from "vitest";
 import { resolveEditRouteParams } from "../../../src/features/advertisements/create/edit-mapping/editRouteParams";
 import { getAdEditPath } from "../../../src/features/account/adManagement/adManagementData";
 
-test.describe("Ad Edit Form Code Mapping", () => {
-  test("all 23 backend form codes map to correct transaction and category", () => {
+describe("Ad Edit Form Code Mapping", () => {
+  test("all 24 backend form codes map to correct transaction and category", () => {
     const expectedForms: Record<string, { category: string; transaction: string }> = {
       // Sale
       "sale-apartment": { category: "apartment", transaction: "sale" },

@@ -17,12 +17,11 @@
     "audit:perf": "powershell -ExecutionPolicy Bypass -File ./scripts/run-sitespeed.ps1 -Mode representative",
     "audit:perf:all": "powershell -ExecutionPolicy Bypass -File ./scripts/run-sitespeed.ps1 -Mode all-public",
     "audit:seo": "node scripts/audit-seo.mjs",
-    "test:e2e": "playwright test",
-    "test:e2e:ad": "playwright test tests/e2e/advertise",
-    "test:e2e:ad:ui": "playwright test tests/e2e/advertise --ui",
-    "test:e2e:ad:headed": "playwright test tests/e2e/advertise --headed",
-    "test:e2e:ad:debug": "playwright test tests/e2e/advertise --debug",
-    "test:contracts": "playwright test tests/contracts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ad": "vitest run tests/unit/advertise",
+    "test:storybook": "vitest run tests/unit/storybook",
+    "test:typecheck": "tsc --noEmit -p tsconfig.test.json",
     "storybook": "storybook dev -p 6006 --host 192.168.1.242",
     "build-storybook": "storybook build"
   },
@@ -53,7 +52,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.62.1",
     "@storybook/react": "^10.4.6",
     "@storybook/react-vite": "^10.4.6",
     "@types/leaflet": "^1.9.21",
@@ -68,11 +66,13 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "eslint-plugin-storybook": "^10.6.0",
     "globals": "^17.6.0",
+    "jsdom": "^30.1.3",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12",
-    "vite-plugin-pwa": "^1.3.0"
+    "vite-plugin-pwa": "^1.3.0",
+    "vitest": "^5.0.5"
   }
 }

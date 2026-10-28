@@ -1,7 +1,7 @@
-import { expect, test } from "@playwright/test";
+import { describe, expect, test } from "vitest";
 import { getPublisherContactActions } from "../../../src/features/advertisements/view/details/adContactActions";
 
-test.describe("Single Ad Contact Button Labels by Publisher Type", () => {
+describe("Single Ad Contact Button Labels by Publisher Type", () => {
   test("ad 295 payload (publisher_type: user / personal) yields personal labels: chat is 'چت' and call is 'تماس با کاربر'", () => {
     const ad295 = {
       id: 295,
@@ -17,7 +17,9 @@ test.describe("Single Ad Contact Button Labels by Publisher Type", () => {
       },
     };
 
-    const actions = getPublisherContactActions(ad295);
+    const actions = getPublisherContactActions(
+      ad295 as unknown as Parameters<typeof getPublisherContactActions>[0],
+    );
 
     expect(actions.category).toBe("personal");
     expect(actions.chatLabel).toBe("چت");

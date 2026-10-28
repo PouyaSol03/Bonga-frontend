@@ -1,11 +1,8 @@
-import { test, expect } from "@playwright/test";
-import {
-  formatCardPrice,
-  formatDetailPrice,
-} from "../../src/shared/lib/MoneyHandler";
+import { describe, test, expect } from "vitest";
+import { formatCardPrice, formatDetailPrice } from "../../src/shared/lib/MoneyHandler";
 
-test.describe("MoneyHandler price formatting", () => {
-  test.describe("formatCardPrice (summarize with 2 decimals max and slash separator)", () => {
+describe("MoneyHandler price formatting", () => {
+  describe("formatCardPrice (summarize with 2 decimals max and slash separator)", () => {
     test("summarizes billions to 2 decimal places with rounding", () => {
       expect(formatCardPrice(1_560_000_000)).toBe("۱/۵۶ میلیارد");
       expect(formatCardPrice(1_569_000_000)).toBe("۱/۵۷ میلیارد");
@@ -32,7 +29,7 @@ test.describe("MoneyHandler price formatting", () => {
     });
   });
 
-  test.describe("formatDetailPrice (exact real value when card is opened)", () => {
+  describe("formatDetailPrice (exact real value when card is opened)", () => {
     test("shows full detailed breakdown for billions", () => {
       expect(formatDetailPrice(1_560_000_000)).toBe("۱ میلیارد و ۵۶۰ میلیون");
       expect(formatDetailPrice(1_569_000_000)).toBe("۱ میلیارد و ۵۶۹ میلیون");

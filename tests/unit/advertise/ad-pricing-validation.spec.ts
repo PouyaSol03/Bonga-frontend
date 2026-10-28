@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { describe, expect, test } from "vitest";
 import type { UseFormGetValues, UseFormSetValue } from "react-hook-form";
 import type { NewAdFormValues } from "../../../src/features/advertisements/create/types";
 import {
@@ -11,7 +11,7 @@ import {
 } from "../../../src/features/advertisements/create/rentPriceConversion";
 import { expandErrorSections } from "../../../src/features/advertisements/create/validationScroll";
 
-test.describe("Ad pricing and section expansion validations", () => {
+describe("Ad pricing and section expansion validations", () => {
   test("expandErrorSections detects errors and activates matching accordions", () => {
     const values: Partial<NewAdFormValues> = {
       loanEnabled: false,
@@ -21,7 +21,7 @@ test.describe("Ad pricing and section expansion validations", () => {
     };
 
     const setValue: UseFormSetValue<NewAdFormValues> = (key, val) => {
-      values[key] = val;
+      Object.assign(values, { [key]: val });
     };
     const getValues: UseFormGetValues<NewAdFormValues> = ((key?: keyof NewAdFormValues) =>
       key ? values[key] : values) as UseFormGetValues<NewAdFormValues>;
@@ -39,11 +39,7 @@ test.describe("Ad pricing and section expansion validations", () => {
     expect(values.exchangeEnabled).toBe(true);
 
     // Sale terms error triggers sale terms section expansion
-    expandErrorSections(
-      { saleTermsPercent: "درصد نامعتبر است" },
-      setValue,
-      getValues,
-    );
+    expandErrorSections({ saleTermsPercent: "درصد نامعتبر است" }, setValue, getValues);
     expect(values.saleTermsEnabled).toBe(true);
 
     // Rent conversion error triggers conversion expansion
@@ -78,13 +74,7 @@ test.describe("Ad pricing and section expansion validations", () => {
     const points12B = getRentConversionSnapPoints(1_200_000_000);
     expect(points12B).toHaveLength(7);
     expect(points12B).toEqual([
-      0,
-      200_000_000,
-      400_000_000,
-      600_000_000,
-      800_000_000,
-      1_000_000_000,
-      1_200_000_000,
+      0, 200_000_000, 400_000_000, 600_000_000, 800_000_000, 1_000_000_000, 1_200_000_000,
     ]);
 
     // All points are multiples of 50M
@@ -96,13 +86,7 @@ test.describe("Ad pricing and section expansion validations", () => {
     const points1B = getRentConversionSnapPoints(1_000_000_000);
     expect(points1B).toHaveLength(7);
     expect(points1B).toEqual([
-      0,
-      150_000_000,
-      350_000_000,
-      500_000_000,
-      650_000_000,
-      850_000_000,
-      1_000_000_000,
+      0, 150_000_000, 350_000_000, 500_000_000, 650_000_000, 850_000_000, 1_000_000_000,
     ]);
 
     // 2,167,000,000 maximum mortgage (from ad 295) generates 7 points rounded to 50M

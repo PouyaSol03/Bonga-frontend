@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { describe, expect, test, vi } from "vitest";
 import {
   formatNotificationTime,
   getNotificationActionLabel,
@@ -7,7 +7,7 @@ import {
 import { getNotificationDiamondColor } from "../../src/features/notifications/notificationDiamond";
 import type { NotificationItem } from "../../src/features/notifications/api/notification.service";
 
-test.describe("Notification Routing & Actions Unit/Logic Tests", () => {
+describe("Notification Routing & Actions Unit/Logic Tests", () => {
   test("getNotificationDiamondColor renders diamond only for ads and matches status colors", () => {
     // 1. Ads with diamond
     const publishedAd: NotificationItem = {
@@ -75,7 +75,7 @@ test.describe("Notification Routing & Actions Unit/Logic Tests", () => {
       title: "آگهی شما تایید شد",
       payload: { target: "advertise", advertise_id: "12345" },
     };
-    expect(getNotificationPath(adNotification)).toBe("/ads/12345");
+    expect(getNotificationPath(adNotification)).toBe("/account/my-ads/12345/state-ad");
 
     const adNotificationWithoutId: NotificationItem = {
       id: "2",
@@ -182,6 +182,8 @@ test.describe("Notification Routing & Actions Unit/Logic Tests", () => {
   });
 
   test("formatNotificationTime formats date keys correctly", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-28T09:00:00Z"));
     const today = new Date().toISOString();
     expect(formatNotificationTime(today)).toContain("امروز");
 

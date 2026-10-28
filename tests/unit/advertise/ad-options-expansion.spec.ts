@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { describe, expect, test } from "vitest";
 import {
   floorOptions,
   projectFloorOptions,
@@ -15,7 +15,7 @@ import { getFormSchemaByListing } from "../../../src/features/advertisements/for
 import { validateNewAdDetails } from "../../../src/features/advertisements/create/validation";
 import type { NewAdFormValues } from "../../../src/features/advertisements/create/types";
 
-test.describe("Ad options expansion (floors, units, rooms, villa type, villa max floors)", () => {
+describe("Ad options expansion (floors, units, rooms, villa type, villa max floors)", () => {
   test("floorOptions goes up to 40 floors", () => {
     expect(floorOptions[0]).toBe("همکف");
     expect(floorOptions).toContain("۱");
@@ -42,17 +42,7 @@ test.describe("Ad options expansion (floors, units, rooms, villa type, villa max
   });
 
   test("roomOptions goes up to 8 rooms", () => {
-    expect(roomOptions).toEqual([
-      "بدون اتاق",
-      "۱",
-      "۲",
-      "۳",
-      "۴",
-      "۵",
-      "۶",
-      "۷",
-      "۸+",
-    ]);
+    expect(roomOptions).toEqual(["بدون اتاق", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸+"]);
     expect(projectRoomOptions).toEqual(roomOptions);
   });
 
@@ -123,9 +113,7 @@ test.describe("Ad options expansion (floors, units, rooms, villa type, villa max
   });
 
   test("validation bounds: max 60 units per floor, max 7 floors for villa-house", () => {
-    (globalThis as unknown as { window: unknown }).window = {
-      location: new URL("http://localhost/new-ad/details?transaction=sale&category=villa-house"),
-    };
+    window.history.replaceState(null, "", "/new-ad/details?transaction=sale&category=villa-house");
 
     const validValues = {
       location: "Tehran",
@@ -142,6 +130,8 @@ test.describe("Ad options expansion (floors, units, rooms, villa type, villa max
     } as unknown as NewAdFormValues;
     const errors = validateNewAdDetails(invalidUnits)?.errors;
     expect(errors?.unitsPerFloor).toBe("تعداد واحد در هر طبقه نمی‌تواند بیشتر از ۶۰ واحد باشد.");
-    expect(errors?.totalFloors).toBe("تعداد کل طبقات برای خانه، ویلا نمی‌تواند بیشتر از ۷ طبقه باشد.");
+    expect(errors?.totalFloors).toBe(
+      "تعداد کل طبقات برای خانه، ویلا نمی‌تواند بیشتر از ۷ طبقه باشد.",
+    );
   });
 });

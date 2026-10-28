@@ -6,10 +6,10 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { useErrorToast } from "../../../shared/hooks/useErrorToast";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
 import { getBrowserLocation } from "../../../shared/lib/browserLocation";
+import { getStoredSelectedCityCenter, readStoredCoordinate } from "../../../shared/lib/selectedCityCenter";
 import {
   defaultSelectedCity,
   readStoredSelectedCity,
-  selectedCityStorageKeys,
 } from "../../../shared/lib/selectedCityStorage";
 import { useNeighborhoodInfoQuery } from "../../locations/api/neighborhood.hooks";
 import {
@@ -55,38 +55,8 @@ const selectedCityMapZoom = 12;
 const selectedNeighborhoodMapZoom = 16;
 const minNeighborhoodSearchLength = 3;
 
-function readStoredCoordinate(key: string) {
-  const value = window.localStorage.getItem(key);
-
-  if (!value?.trim()) return null;
-
-  const coordinate = Number(value);
-
-  return Number.isFinite(coordinate) ? coordinate : null;
-}
-
 function getStoredCityId() {
   return readStoredSelectedCity()?.id ?? "";
-}
-
-function getStoredSelectedCityCenter() {
-  const lat = readStoredCoordinate(selectedCityStorageKeys.latitude);
-  const lng = readStoredCoordinate(selectedCityStorageKeys.longitude);
-
-  if (lat !== null && Math.abs(lat) <= 90 && lng !== null && Math.abs(lng) <= 180) {
-    return { lat, lng };
-  }
-
-  const selectedCity = readStoredSelectedCity();
-
-  if (selectedCity?.latitude !== undefined && selectedCity.longitude !== undefined) {
-    return {
-      lat: selectedCity.latitude,
-      lng: selectedCity.longitude,
-    };
-  }
-
-  return null;
 }
 
 function getStoredMapCenter(): NewAdMapCenter {

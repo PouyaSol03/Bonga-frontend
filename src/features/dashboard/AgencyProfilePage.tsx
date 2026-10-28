@@ -27,10 +27,8 @@ import {
   useUpdateMyAgencyProfileMutation,
 } from "../account/api/account.hooks";
 import { useNeighborhoodListQuery } from "../locations/api/neighborhood.hooks";
-import {
-  readStoredSelectedCity,
-  selectedCityStorageKeys,
-} from "../../shared/lib/selectedCityStorage";
+import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
+import { getStoredSelectedCityCenter } from "../../shared/lib/selectedCityCenter";
 import type { MyAgencyProfile } from "../account/api/account.service";
 import {
   getNeighborhoodHierarchyDescription,
@@ -74,36 +72,6 @@ type AgencyProfileToast = {
 };
 
 const selectedCityMapZoom = 12;
-
-function readStoredCoordinate(key: string) {
-  const value = window.localStorage.getItem(key);
-
-  if (!value?.trim()) return null;
-
-  const coordinate = Number(value);
-
-  return Number.isFinite(coordinate) ? coordinate : null;
-}
-
-function getStoredSelectedCityCenter() {
-  const lat = readStoredCoordinate(selectedCityStorageKeys.latitude);
-  const lng = readStoredCoordinate(selectedCityStorageKeys.longitude);
-
-  if (lat !== null && Math.abs(lat) <= 90 && lng !== null && Math.abs(lng) <= 180) {
-    return { lat, lng };
-  }
-
-  const selectedCity = readStoredSelectedCity();
-
-  if (selectedCity?.latitude !== undefined && selectedCity.longitude !== undefined) {
-    return {
-      lat: selectedCity.latitude,
-      lng: selectedCity.longitude,
-    };
-  }
-
-  return null;
-}
 
 function getInitialAgencyProfileMapCenter(): AgencyProfileMapCenter {
   const selectedCityCenter = getStoredSelectedCityCenter();

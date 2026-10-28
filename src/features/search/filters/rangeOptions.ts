@@ -1,0 +1,40 @@
+export const customRangeOptionLabel = "مقدار دلخواه";
+
+export const areaRangeOptions = [
+  customRangeOptionLabel,
+  "۳۰",
+  "۴۰",
+  "۵۰",
+  "۶۰",
+  "۷۰",
+  "۸۰",
+  "۹۰",
+  "۱۰۰",
+  "۱۲۰",
+  "۱۵۰",
+  "۲۰۰",
+  "۲۵۰",
+  "۳۰۰",
+  "۴۰۰",
+  "۵۰۰",
+];
+
+export const landWidthRangeOptions = [
+  customRangeOptionLabel,
+  "۵",
+  "۶",
+  "۷",
+  "۸",
+  "۹",
+  "۱۰",
+  "۱۲",
+  "۱۴",
+  "۱۵",
+  "۱۶",
+  "۱۸",
+  "۲۰",
+  "۲۵",
+  "۳۰",
+  "۴۰",
+  "۵۰",
+];

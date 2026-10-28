@@ -34,9 +34,9 @@ import {
   transactionTabs,
   type CategoryKey,
   type TransactionType,
-} from "../SearchMapFilterPage";
+} from "../filters/categories";
 import { useAdvertisementListQuery } from "../../advertisements/api/advertisement.hooks";
-import { readSearchFilters } from "../SearchMapPage";
+import { readSearchFilters } from "../searchFilters";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import type { AdvertisementListParams } from "../../advertisements/api/advertisement.service";
 

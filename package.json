@@ -9,6 +9,8 @@
     "prebuild": "npm run seo:generate",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "lint:lines": "node scripts/check-file-lines.mjs",
+    "lint:architecture": "node scripts/check-architecture.mjs",
     "lint:fix": "eslint . --fix",
     "lint:ci": "eslint . --max-warnings 0",
     "format": "prettier --write .",

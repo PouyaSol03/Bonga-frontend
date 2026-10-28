@@ -86,6 +86,12 @@ Tests live in `tests/unit`. The deleted assigned-ad model test now exercises the
 
 Historical plans under `docs/superpowers` retain their original commands; use the commands above for the current test setup.
 
+## Architecture checks
+
+- `npm run lint:architecture` — reject runtime cycles and shared-to-feature/app imports. Type-only imports are excluded from runtime cycles.
+- `npm run lint:lines` — list every code file exceeding 200 physical lines; includes blank lines/comments. Existing legacy debt makes this check fail until decomposition is complete.
+- `npm run lint:lines -- src/features/crm/layout` — check a focused extraction without hiding repository-wide debt.
+
 ## Performance and SEO audits
 
 - `npm run audit:perf` — repeatable sitespeed.io audit of representative public route templates (Docker Desktop required).

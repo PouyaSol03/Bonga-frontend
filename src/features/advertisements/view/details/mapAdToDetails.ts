@@ -24,7 +24,7 @@ import {
   buildAdvertisementFeatureMap,
   getFeatureValue,
 } from "./adFeatureResolution";
-import { toNumber, toText } from "../viewAdDetails";
+import { toNumber, toText } from "./detailCore";
 
 export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
   const features = getResolvedAdvertisementFeatures(ad);
@@ -148,4 +148,4 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     projectDetails,
   };
 }
-
+

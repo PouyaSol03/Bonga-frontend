@@ -1,23 +1,9 @@
 import type { AdvertisementItem } from "../../api/advertisement.service";
-import {
-  type DetailInfoItem,
-  type DetailInfoSection,
-  createCheckBadge,
-  createChoiceRow,
-  createGridItem,
-  filterDetailSections,
-  formatAgeDetailValue,
-  formatAreaDetailValue,
-  formatFloorDetailValue,
-  formatMeterDetailValue,
-  formatRoomDetailValue,
-  formatTotalFloorsDetailValue,
-  formatUnitsPerFloorDetailValue,
-  getFirstExistingFeatureValue,
-  isFilledValue,
-  parseHotelStarCount,
-  toText,
-} from "../viewAdDetails";
+import { type DetailInfoItem, type DetailInfoSection, toText } from "./detailCore";
+import { createCheckBadge, createChoiceRow, createGridItem, filterDetailSections } from "./detailRows";
+import { formatAgeDetailValue, formatAreaDetailValue, formatFloorDetailValue, formatMeterDetailValue, formatRoomDetailValue, formatTotalFloorsDetailValue, formatUnitsPerFloorDetailValue } from "./detailUnits";
+import { getFirstExistingFeatureValue, isFilledValue } from "./featureValues";
+import { parseHotelStarCount } from "./advertiserAndPricing";
 import { saleFinishSection } from "./salePropertySections";
 
 export function buildRentPropertyDetailSections(
@@ -522,4 +508,4 @@ export function buildRentPropertyDetailSections(
 
   return null;
 }
-
+

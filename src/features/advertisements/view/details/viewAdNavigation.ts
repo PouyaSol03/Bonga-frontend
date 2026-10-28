@@ -1,6 +1,7 @@
 import type { AdvertisementItem } from "../../api/advertisement.service";
 import { parseAdIdFromPath } from "../viewAdData";
-import { getFeatureValue, toText } from "../viewAdDetails";
+import { getFeatureValue } from "./featureValues";
+import { toText } from "./detailCore";
 
 export function parseViewAdIdFromPath(pathname: string) {
   const parsedId = parseAdIdFromPath(pathname);
@@ -57,4 +58,4 @@ export function getDetailPageTitle(
   return "اطلاعات ملک";
 }
 
-
+

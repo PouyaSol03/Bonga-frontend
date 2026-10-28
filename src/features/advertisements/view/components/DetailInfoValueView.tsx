@@ -1,10 +1,8 @@
 import { Typography } from "../../../../shared/ui/Typography";
 import LinearStar from "../../../../shared/icons/LinearStar";
 import { FormattedDetailValueView } from "../viewAdComponents";
-import {
-  type DetailInfoItem,
-  parseHotelStarCount,
-} from "../viewAdDetails";
+import { type DetailInfoItem } from "../details/detailCore";
+import { parseHotelStarCount } from "../details/advertiserAndPricing";
 
 export function DetailInfoValueView({
   item,

@@ -1,6 +1,6 @@
 import { Typography } from "../../../../shared/ui/Typography";
 import { AccommodationRatingBanner } from "../viewAdComponents";
-import type { DetailInfoSection } from "../viewAdDetails";
+import { type DetailInfoSection } from "../details/detailCore";
 import {
   DetailInfoChoiceRows,
   DetailInfoCheckBadges,
@@ -66,4 +66,4 @@ export function DetailInfoSectionBlock({
     </section>
   );
 }
-
+

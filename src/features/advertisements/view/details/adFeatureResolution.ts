@@ -3,7 +3,7 @@ import { propertyInfoLabelMap } from "./propertyInfoMaps";
 import {
   getFirstExistingFeatureValue,
   isFilledValue,
-} from "./detailFormatters";
+} from "./featureValues";
 
 export type AdvertisementFeatureMap = Record<string, unknown>;
 
@@ -145,17 +145,6 @@ export function buildAdvertisementFeatureMap(ad: AdvertisementItem): Advertiseme
   );
 }
 
-export function getFeatureValue(features: NonNullable<AdvertisementItem["features"]>, label: string) {
-  const target = label.toLowerCase().trim();
-  return features.find((feature) => {
-    const l = String(feature.label ?? "")
-      .toLowerCase()
-      .trim();
-    const k = String(feature.key ?? "")
-      .toLowerCase()
-      .trim();
-    return l === target || k === target;
-  })?.value;
-}
+export { getFeatureValue } from "./featureValues";
 
-
+

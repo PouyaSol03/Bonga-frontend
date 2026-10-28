@@ -2,10 +2,7 @@ import { ColorableSvgIcon } from "../../../../shared/components/ColorableSvgIcon
 import { FeaturesIcons } from "../../components/FeaturesIcons";
 import { ViewAdIcon } from "../ViewAdIcon";
 import { Typography } from "../../../../shared/ui/Typography";
-import {
-  type DetailInfoItem,
-  PROPERTY_DETAIL_ICONS,
-} from "../viewAdDetails";
+import { type DetailInfoItem, PROPERTY_DETAIL_ICONS } from "../details/detailCore";
 import { DetailInfoValueView } from "./DetailInfoValueView";
 
 export function DetailInfoIcon({

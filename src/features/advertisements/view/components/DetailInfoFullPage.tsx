@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { PageFrame } from "../../../../shared/layout/PageFrame";
 import { TopBar } from "../../../../shared/components/TopBar";
-import type { DetailInfoSection } from "../viewAdDetails";
+import { type DetailInfoSection } from "../details/detailCore";
 import { DetailInfoSectionBlock } from "./DetailInfoSectionBlock";
 
 export function DetailInfoFullPage({

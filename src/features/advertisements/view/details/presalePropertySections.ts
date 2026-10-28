@@ -1,14 +1,8 @@
 import type { AdvertisementItem } from "../../api/advertisement.service";
-import {
-  type DetailInfoItem,
-  type DetailInfoSection,
-  createCheckBadge,
-  createExchangeRow,
-  createGridItem,
-  filterDetailSections,
-  formatPercentDetailValue,
-  appendSuffixIfNeeded,
-} from "../viewAdDetails";
+import { type DetailInfoItem, type DetailInfoSection } from "./detailCore";
+import { createCheckBadge, createGridItem, filterDetailSections } from "./detailRows";
+import { createExchangeRow } from "./detailFinanceRows";
+import { formatPercentDetailValue, appendSuffixIfNeeded } from "./detailUnits";
 
 export function buildPresalePropertyDetailSections(
   features: NonNullable<AdvertisementItem["features"]>,

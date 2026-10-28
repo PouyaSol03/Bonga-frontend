@@ -1,11 +1,8 @@
 import { getApiAssetUrl } from "../../../../shared/api/api";
 import { getAdvertisementImageUrls } from "../../utils/advertisement-images";
 import type { AdvertisementItem } from "../../api/advertisement.service";
-import {
-  getFeatureValue,
-  toNumber,
-  toText,
-} from "../viewAdDetails";
+import { getFeatureValue } from "./featureValues";
+import { toNumber, toText } from "./detailCore";
 
 export type AlbumMediaItem = {
   src: string;

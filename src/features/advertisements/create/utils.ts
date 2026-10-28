@@ -10,35 +10,6 @@ import {
   blankValues,
   defaultBasicPropertyFields,
   draftKey,
-  facilityItems,
-  heatingItems,
-  landFacilityItems,
-  saleApartmentFacilityItems,
-  saleApartmentHeatingItems,
-  saleLandFacilityItems,
-  saleCommercialFacilityItems,
-  saleCommercialHeatingItems,
-  saleFactoryFacilityItems,
-  saleFactoryHeatingItems,
-  saleOfficeFacilityItems,
-  saleOfficeHeatingItems,
-  saleHotelFacilityItems,
-  saleHotelHeatingItems,
-  saleVillaHouseFacilityItems,
-  saleVillaHouseHeatingItems,
-  rentApartmentFacilityItems,
-  rentCommercialFacilityItems,
-  rentFactoryFacilityItems,
-  rentVillaHouseFacilityItems,
-  rentOfficeFacilityItems,
-  rentHotelFacilityItems,
-  rentHeatingItems,
-  dailyRentHeatingItems,
-  dailyStayFacilityItems,
-  dailyHotelFacilityItems,
-  dailyWorkspaceFacilityItems,
-  projectFacilityItems,
-  projectHeatingItems,
   locationKey,
   locationLatKey,
   locationLngKey,
@@ -48,6 +19,8 @@ import {
   propertySpecs,
   subNeighborhoodIdKey,
 } from "./data";
+import { getFacilityItemsForListing, getHeatingItemsForListing } from "./constants/listingOptions";
+export { getFacilityItemsForListing, getHeatingItemsForListing } from "./constants/listingOptions";
 import type {
   BasicPropertyField,
   BasicPropertyFieldKey,
@@ -659,55 +632,6 @@ export function buildDailyHotelRoomFeatures(values: NewAdFormValues) {
       special_price: toNumber(room.specialPrice),
     }))
     .filter((room) => Object.values(room).some((value) => hasFeatureValue(value)));
-}
-
-export function getHeatingItemsForListing(transaction: string, category: string) {
-  if (transaction === "project" && category === "project-presale") return projectHeatingItems;
-  if (transaction === "sale" && category === "apartment") return saleApartmentHeatingItems;
-  if (transaction === "sale" && category === "villa-house") return saleVillaHouseHeatingItems;
-  if (transaction === "sale" && category === "office") return saleOfficeHeatingItems;
-  if (transaction === "sale" && category === "commercial-unit") return saleCommercialHeatingItems;
-  if (transaction === "sale" && category === "factory-workshop") return saleFactoryHeatingItems;
-  if (transaction === "sale" && category === "hotel-apartment") return saleHotelHeatingItems;
-  if (transaction === "rent" && category.startsWith("daily-")) return dailyRentHeatingItems;
-  if (
-    transaction === "rent" &&
-    [
-      "apartment",
-      "villa-house",
-      "office",
-      "commercial-unit",
-      "factory-workshop",
-      "hotel-apartment",
-    ].includes(category)
-  )
-    return rentHeatingItems;
-
-  return heatingItems;
-}
-
-export function getFacilityItemsForListing(transaction: string, category: string) {
-  if (transaction === "project" && category === "project-presale") return projectFacilityItems;
-  if (transaction === "sale" && category === "apartment") return saleApartmentFacilityItems;
-  if (transaction === "sale" && category === "villa-house") return saleVillaHouseFacilityItems;
-  if (transaction === "sale" && category === "land") return saleLandFacilityItems;
-  if (transaction === "sale" && category === "office") return saleOfficeFacilityItems;
-  if (transaction === "sale" && category === "commercial-unit") return saleCommercialFacilityItems;
-  if (transaction === "sale" && category === "factory-workshop") return saleFactoryFacilityItems;
-  if (transaction === "sale" && category === "hotel-apartment") return saleHotelFacilityItems;
-  if (transaction === "rent" && category === "apartment") return rentApartmentFacilityItems;
-  if (transaction === "rent" && category === "villa-house") return rentVillaHouseFacilityItems;
-  if (transaction === "rent" && category === "office") return rentOfficeFacilityItems;
-  if (transaction === "rent" && category === "commercial-unit") return rentCommercialFacilityItems;
-  if (transaction === "rent" && category === "factory-workshop") return rentFactoryFacilityItems;
-  if (transaction === "rent" && category === "hotel-apartment") return rentHotelFacilityItems;
-  if (transaction === "rent" && ["daily-apartment-suite", "daily-garden-villa"].includes(category))
-    return dailyStayFacilityItems;
-  if (transaction === "rent" && category === "daily-hotel-apartment")
-    return dailyHotelFacilityItems;
-  if (transaction === "rent" && category === "daily-workspace") return dailyWorkspaceFacilityItems;
-
-  return category === "land" || category === "factory-workshop" ? landFacilityItems : facilityItems;
 }
 
 export function getPriceValue(values: NewAdFormValues, transaction: string, category: string) {

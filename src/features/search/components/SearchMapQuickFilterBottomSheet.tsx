@@ -1,479 +1,22 @@
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-
 import { BottomSheet } from "../../../shared/components/BottomSheet";
-import {
-  FormChoiceChip,
-  FormSegmentedControl,
-  FormTextField,
-} from "../../../shared/form/FormControls";
-import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
-import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { Button } from "../../../shared/ui/Button";
-import { Typography } from "../../../shared/ui/Typography";
-import LinearArrowDown1 from "../../../shared/icons/LinearArrowDown1";
-import LinearRuler from "../../../shared/icons/LinearRuler";
 import LinearMoney from "../../../shared/icons/LinearMoney";
-import { useNeighborhoodListQuery } from "../../locations/api/neighborhood.hooks";
-import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
-import { formatBigNumber } from "../../../shared/lib/MoneyHandler";
 import { ageOptions, floorOptions, roomOptions } from "../../advertisements/create/data";
-import {
-  getNeighborhoodDescription,
-  type NeighborhoodDto,
-} from "../../locations/api/neighborhood.service";
-import {
-  toEnglishDigits,
-  toPersianNumber as toPersianDigits,
-} from "../../../shared/lib/numberUtils";
-import {
-  categoryGroupsByTransaction,
-  categoryLabels,
-  getAdvertiseFormCode,
-  getListingFromFormCode,
-  transactionTabs,
-  type CategoryKey,
-  type TransactionType,
-} from "../filters/categories";
-import { useAdvertisementListQuery } from "../../advertisements/api/advertisement.hooks";
-import { readSearchFilters } from "../searchFilters";
-import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
-import type { AdvertisementListParams } from "../../advertisements/api/advertisement.service";
+import { toPersianNumber as toPersianDigits } from "../../../shared/lib/numberUtils";
+import { CategoryFilterSection } from "./quick-filter/CategoryFilterSection";
+import { NeighborhoodFilterSection } from "./quick-filter/NeighborhoodFilterSection";
+import { AreaFilterSection } from "./quick-filter/AreaFilterSection";
+import { PriceFilterSection } from "./quick-filter/PriceFilterSection";
+import { ChoiceFilterSection } from "./quick-filter/ChoiceFilterSection";
+import { getSheetTitle } from "./quick-filter/quickFilterHelpers";
+import { useSearchMapQuickFilterDraft } from "./quick-filter/useSearchMapQuickFilterDraft";
+import type { SearchMapQuickFilterBottomSheetProps, SearchMapQuickFilterId } from "./quick-filter/types";
 
-export type SearchMapQuickFilterId =
-  "category" | "neighborhood" | "area" | "price" | "rooms" | "floor" | "building_age";
+export type { SearchMapQuickFilterId, SearchMapQuickFilterBottomSheetProps };
 
-type SearchMapQuickFilterBottomSheetProps = {
-  filterId: SearchMapQuickFilterId | null;
-  isOpen: boolean;
-  onApply: (params: URLSearchParams) => void;
-  onClose: () => void;
-  resultCount: number;
-  search: string;
-};
-
-const neighborhoodSearchDebounceMs = 250;
-
-function normalizeNumber(value: string) {
-  return toEnglishDigits(value).replace(/[^\d.]/g, "");
-}
-
-function formatGroupedNumber(value: string) {
-  const normalized = normalizeNumber(value);
-  const numericValue = Number(normalized);
-
-  if (!normalized || !Number.isFinite(numericValue)) return "";
-
-  return new Intl.NumberFormat("fa-IR").format(numericValue);
-}
-
-function normalizeChoiceValue(value: string) {
-  const normalized = toEnglishDigits(value)
-    .replace(/‌/g, " ")
-    .replace(/سال/g, "")
-    .replace(/اتاق/g, "")
-    .replace(/طبقه/g, "")
-    .replace(/و بیشتر/g, "")
-    .replace(/بیشتر از/g, "")
-    .replace(/\+/g, "")
-    .trim();
-
-  if (normalized === "همکف" || normalized === "بدون") return "0";
-  if (normalized === "بدون اتاق") return "0";
-
-  const numericValue = normalized.replace(/[^\d.-]/g, "");
-
-  return numericValue || normalized;
-}
-
-function getNeighborhoodId(neighborhood: Pick<NeighborhoodDto, "_id" | "id" | "name">) {
-  return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
-}
-
-function splitParam(value: string | null) {
-  return (value ?? "").split(/[_،,]/).filter(Boolean);
-}
-
-function getSheetTitle(filterId: SearchMapQuickFilterId | null) {
-  switch (filterId) {
-    case "category":
-      return "دسته‌بندی";
-    case "neighborhood":
-      return "محله";
-    case "area":
-      return "متراژ";
-    case "price":
-      return "قیمت";
-    case "rooms":
-      return "تعداد اتاق";
-    case "floor":
-      return "طبقه";
-    case "building_age":
-      return "سن ساخت";
-    default:
-      return "فیلتر";
-  }
-}
-
-type AreaBound = "minimum" | "maximum";
-
-const quickAreaCustomOptionLabel = "وارد کردن مقدار";
-const quickAreaRangeOptions = ["۱۰۰", "۱۱۰", "۱۶۰", "۲۰۰", "۲۵۰"];
-
-function formatAreaValue(value: string) {
-  const normalized = normalizeNumber(value);
-
-  return normalized ? toPersianDigits(normalized) : "";
-}
-
-function QuickAreaRangeField({
-  active,
-  inputRef,
-  isCustom,
-  label,
-  onChange,
-  onClick,
-  value,
-}: {
-  active: boolean;
-  inputRef?: RefObject<HTMLInputElement | null>;
-  isCustom: boolean;
-  label: string;
-  onChange: (value: string) => void;
-  onClick: () => void;
-  value: string;
-}) {
-  const displayedValue = formatAreaValue(value);
-
-  return (
-    <div
-      className={`min-w-0 flex-1`}
-      onClick={() => {
-        if (!isCustom) onClick();
-      }}
-    >
-      <FormTextField
-        className={`[&_input]:placeholder:text-outline w-full ${active ? "[&>span]:border-2" : ""}`}
-        forceHighlight={active}
-        forceLabel={active}
-        inputRef={inputRef}
-        label={label}
-        onChange={isCustom ? (event) => onChange(normalizeNumber(event.target.value)) : undefined}
-        onFocus={() => {
-          if (!isCustom) onClick();
-        }}
-        placeholder={active ? "" : label}
-        readOnly={!isCustom}
-        trailingSlot={
-          <LinearArrowDown1
-            aria-hidden="true"
-            className={`h-5 w-5 shrink-0 ${active ? "text-outline" : "text-on-surface-var"}`}
-          />
-        }
-        value={displayedValue}
-      />
-    </div>
-  );
-}
-
-export function SearchMapQuickFilterBottomSheet({
-  filterId,
-  isOpen,
-  onApply,
-  onClose,
-  resultCount,
-  search,
-}: SearchMapQuickFilterBottomSheetProps) {
-  const shouldReduceMotion = useReducedMotion();
-  const [transaction, setTransaction] = useState<TransactionType>("sale");
-  const [category, setCategory] = useState<CategoryKey | undefined>();
-  const [selectedNeighborhoodIds, setSelectedNeighborhoodIds] = useState<string[]>([]);
-  const [neighborhoodQuery, setNeighborhoodQuery] = useState("");
-  const [debouncedNeighborhoodQuery, setDebouncedNeighborhoodQuery] = useState("");
-  const [areaMinimum, setAreaMinimum] = useState("");
-  const [areaMaximum, setAreaMaximum] = useState("");
-  const [activeAreaBound, setActiveAreaBound] = useState<AreaBound | null>(null);
-  const [customAreaBound, setCustomAreaBound] = useState<AreaBound | null>(null);
-  const [priceMinimum, setPriceMinimum] = useState("");
-  const [priceMaximum, setPriceMaximum] = useState("");
-  const [selectedChoices, setSelectedChoices] = useState<string[]>([]);
-
-  const selectedCity = readStoredSelectedCity();
-  const minimumAreaInputRef = useRef<HTMLInputElement>(null);
-  const maximumAreaInputRef = useRef<HTMLInputElement>(null);
-  const cityId = selectedCity?.id ?? "";
-  const isNeighborhoodSheet = isOpen && filterId === "neighborhood";
-  const neighborhoodsQuery = useNeighborhoodListQuery({
-    cityId,
-    enabled: isNeighborhoodSheet && Boolean(cityId),
-    page: 1,
-    perPage: 50,
-    q: debouncedNeighborhoodQuery,
-  });
-  const neighborhoods = neighborhoodsQuery.data ?? [];
-  const selectedNeighborhoodSet = useMemo(
-    () => new Set(selectedNeighborhoodIds),
-    [selectedNeighborhoodIds],
-  );
-
-  useEffect(() => {
-    if (!isOpen || !filterId) return;
-
-    const params = new URLSearchParams(search);
-    const formCode = params.get("form_code") || params.get("from_code") || "";
-    const listing = getListingFromFormCode(formCode);
-
-    setTransaction(listing?.transaction ?? "sale");
-    setCategory(listing?.category);
-    setSelectedNeighborhoodIds(
-      splitParam(params.get("neighborhood_id") || params.get("neighborhoods")),
-    );
-    setNeighborhoodQuery("");
-    setDebouncedNeighborhoodQuery("");
-    setAreaMinimum(params.get("area_min") ?? "");
-    setAreaMaximum(params.get("area_max") ?? "");
-    setActiveAreaBound(null);
-    setCustomAreaBound(null);
-    setPriceMinimum(params.get("price_min") ?? "");
-    setPriceMaximum(params.get("price_max") ?? "");
-
-    if (filterId === "rooms") {
-      setSelectedChoices(splitParam(params.get("rooms")));
-    } else if (filterId === "floor") {
-      setSelectedChoices(splitParam(params.get("floor")));
-    } else if (filterId === "building_age") {
-      setSelectedChoices(params.get("building_age") ? [params.get("building_age") as string] : []);
-    } else {
-      setSelectedChoices([]);
-    }
-  }, [filterId, isOpen, search]);
-
-  useEffect(() => {
-    if (filterId !== "area" || !activeAreaBound || customAreaBound !== activeAreaBound) return;
-
-    const input =
-      activeAreaBound === "minimum" ? minimumAreaInputRef.current : maximumAreaInputRef.current;
-    const timer = window.setTimeout(() => input?.focus(), 0);
-
-    return () => window.clearTimeout(timer);
-  }, [activeAreaBound, customAreaBound, filterId]);
-
-  useEffect(() => {
-    if (!isNeighborhoodSheet) return;
-
-    const timer = window.setTimeout(
-      () => setDebouncedNeighborhoodQuery(neighborhoodQuery.trim()),
-      neighborhoodSearchDebounceMs,
-    );
-
-    return () => window.clearTimeout(timer);
-  }, [isNeighborhoodSheet, neighborhoodQuery]);
-
-  const draftParamsString = useMemo(() => {
-    if (!isOpen || !filterId) return null;
-
-    const params = new URLSearchParams(search);
-    params.delete("focus");
-
-    switch (filterId) {
-      case "category": {
-        const formCode = category ? getAdvertiseFormCode(transaction, category) : "";
-
-        if (formCode) {
-          params.set("form_code", formCode);
-          params.set("from_code", formCode);
-        } else {
-          params.delete("form_code");
-          params.delete("from_code");
-        }
-        break;
-      }
-      case "neighborhood": {
-        const value = selectedNeighborhoodIds.join("_");
-
-        if (value) {
-          params.set("neighborhood_id", value);
-          params.set("neighborhoods", value);
-        } else {
-          params.delete("neighborhood_id");
-          params.delete("neighborhoods");
-        }
-        break;
-      }
-      case "area":
-        if (areaMinimum) {
-          params.set("area_min", areaMinimum);
-        } else {
-          params.delete("area_min");
-        }
-        if (areaMaximum) {
-          params.set("area_max", areaMaximum);
-        } else {
-          params.delete("area_max");
-        }
-        break;
-      case "price":
-        if (priceMinimum) {
-          params.set("price_min", priceMinimum);
-        } else {
-          params.delete("price_min");
-        }
-        if (priceMaximum) {
-          params.set("price_max", priceMaximum);
-        } else {
-          params.delete("price_max");
-        }
-        break;
-      case "rooms": {
-        const value = selectedChoices.join("_");
-        if (value) {
-          params.set("rooms", value);
-        } else {
-          params.delete("rooms");
-        }
-        break;
-      }
-      case "floor": {
-        const value = selectedChoices.join("_");
-        if (value) {
-          params.set("floor", value);
-        } else {
-          params.delete("floor");
-        }
-        break;
-      }
-      case "building_age":
-        if (selectedChoices[0]) {
-          params.set("building_age", selectedChoices[0]);
-        } else {
-          params.delete("building_age");
-        }
-        break;
-    }
-
-    return params.toString();
-  }, [
-    isOpen,
-    filterId,
-    search,
-    category,
-    transaction,
-    selectedNeighborhoodIds,
-    areaMinimum,
-    areaMaximum,
-    priceMinimum,
-    priceMaximum,
-    selectedChoices,
-  ]);
-
-  const debouncedDraftParams = useDebouncedValue(draftParamsString, 300);
-  const isDraftDebouncing = draftParamsString !== debouncedDraftParams;
-
-  const quickCountQueryParams = useMemo<AdvertisementListParams | null>(() => {
-    if (!isOpen) return null;
-    const params = new URLSearchParams(debouncedDraftParams || search);
-    const cityId = params.get("city_id") || selectedCity?.id || undefined;
-    const filters = readSearchFilters(params);
-    return {
-      cityId,
-      filters,
-      page: 1,
-      perPage: 1,
-    };
-  }, [isOpen, debouncedDraftParams, search, selectedCity?.id]);
-
-  const quickCountQuery = useAdvertisementListQuery(quickCountQueryParams);
-  const isCalculating =
-    isOpen && (isDraftDebouncing || quickCountQuery.isLoading || quickCountQuery.isFetching);
-  const dynamicCount = quickCountQuery.data?.total ?? resultCount;
-
-  const applyCurrentFilter = () => {
-    if (!filterId) return;
-
-    const params = new URLSearchParams(search);
-    params.delete("focus");
-
-    switch (filterId) {
-      case "category": {
-        const formCode = category ? getAdvertiseFormCode(transaction, category) : "";
-
-        if (formCode) {
-          params.set("form_code", formCode);
-          params.set("from_code", formCode);
-        } else {
-          params.delete("form_code");
-          params.delete("from_code");
-        }
-        break;
-      }
-      case "neighborhood": {
-        const value = selectedNeighborhoodIds.join("_");
-
-        if (value) {
-          params.set("neighborhood_id", value);
-          params.set("neighborhoods", value);
-        } else {
-          params.delete("neighborhood_id");
-          params.delete("neighborhoods");
-        }
-        break;
-      }
-      case "area":
-        if (areaMinimum) {
-          params.set("area_min", areaMinimum);
-        } else {
-          params.delete("area_min");
-        }
-        if (areaMaximum) {
-          params.set("area_max", areaMaximum);
-        } else {
-          params.delete("area_max");
-        }
-        break;
-      case "price":
-        if (priceMinimum) {
-          params.set("price_min", priceMinimum);
-        } else {
-          params.delete("price_min");
-        }
-        if (priceMaximum) {
-          params.set("price_max", priceMaximum);
-        } else {
-          params.delete("price_max");
-        }
-        break;
-      case "rooms": {
-        const value = selectedChoices.join("_");
-        if (value) {
-          params.set("rooms", value);
-        } else {
-          params.delete("rooms");
-        }
-        break;
-      }
-      case "floor": {
-        const value = selectedChoices.join("_");
-        if (value) {
-          params.set("floor", value);
-        } else {
-          params.delete("floor");
-        }
-        break;
-      }
-      case "building_age":
-        if (selectedChoices[0]) {
-          params.set("building_age", selectedChoices[0]);
-        } else {
-          params.delete("building_age");
-        }
-        break;
-      default:
-        break;
-    }
-
-    onApply(params);
-    onClose();
-  };
+export function SearchMapQuickFilterBottomSheet(props: SearchMapQuickFilterBottomSheetProps) {
+  const { filterId, isOpen, onClose } = props;
+  const draft = useSearchMapQuickFilterDraft(props);
 
   const choiceOptions =
     filterId === "rooms"
@@ -485,7 +28,7 @@ export function SearchMapQuickFilterBottomSheet({
           : [];
 
   const isAreaSheet = filterId === "area";
-  const isAreaValueListOpen = isAreaSheet && activeAreaBound !== null;
+  const isAreaValueListOpen = isAreaSheet && draft.activeAreaBound !== null;
 
   return (
     <BottomSheet
@@ -528,339 +71,69 @@ export function SearchMapQuickFilterBottomSheet({
         }
       >
         {filterId === "category" ? (
-          <div className="space-y-5" dir="rtl">
-            <FormSegmentedControl
-              ariaLabel="نوع معامله"
-              onChange={(value) => {
-                setTransaction(value);
-                setCategory(undefined);
-              }}
-              options={transactionTabs}
-              value={transaction}
-            />
-
-            {categoryGroupsByTransaction[transaction].map((group) => (
-              <section key={group.title}>
-                <Typography
-                  as="h3"
-                  variant="title"
-                  size="medium"
-                  weight="medium"
-                  className="border-outline-var text-outline mb-3 border-b pb-2 text-right"
-                >
-                  {group.title}
-                </Typography>
-                <div className="flex flex-wrap justify-start gap-2">
-                  {group.items.map((item) => (
-                    <FormChoiceChip
-                      key={item}
-                      label={categoryLabels[item]}
-                      onClick={() => setCategory(item)}
-                      selected={category === item}
-                    />
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
+          <CategoryFilterSection
+            category={draft.category}
+            onCategoryChange={draft.setCategory}
+            onTransactionChange={(t) => {
+              draft.setTransaction(t);
+              draft.setCategory(undefined);
+            }}
+            transaction={draft.transaction}
+          />
         ) : null}
 
         {filterId === "neighborhood" ? (
-          <div className="flex min-h-full flex-col" dir="rtl">
-            <label className="border-outline bg-surface-container-lowest focus-within:border-primary mb-3 flex h-12 shrink-0 items-center rounded-xl border px-4">
-              <input
-                className="text-on-surface placeholder:text-outline h-full min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base leading-6 font-normal outline-none [&::-webkit-search-cancel-button]:hidden"
-                onChange={(event) => setNeighborhoodQuery(event.target.value)}
-                placeholder="جستجو محله"
-                type="search"
-                value={neighborhoodQuery}
-              />
-            </label>
-
-            {selectedNeighborhoodIds.length > 0 ? (
-              <div className="mb-3 flex flex-wrap justify-start gap-2">
-                {selectedNeighborhoodIds.map((id) => {
-                  const neighborhood = neighborhoods.find((item) => getNeighborhoodId(item) === id);
-
-                  return (
-                    <FormChoiceChip
-                      key={id}
-                      label={neighborhood?.name ?? id}
-                      onClick={() =>
-                        setSelectedNeighborhoodIds((current) =>
-                          current.filter((item) => item !== id),
-                        )
-                      }
-                      removable
-                      selected
-                    />
-                  );
-                })}
-              </div>
-            ) : null}
-
-            {!cityId ? (
-              <Typography
-                as="p"
-                variant="body"
-                size="small"
-                weight="regular"
-                className="text-outline mx-auto w-full py-4 text-center"
-              >
-                برای انتخاب محله، ابتدا شهر را انتخاب کنید.
-              </Typography>
-            ) : neighborhoodsQuery.isLoading ? (
-              <div>
-                {Array.from({ length: 5 }, (_, index) => (
-                  <div
-                    className="border-outline-var flex min-h-[72px] animate-pulse items-center justify-between gap-5 border-b py-3"
-                    key={index}
-                  >
-                    <div className="min-w-0 flex-1 space-y-2">
-                      <div className="bg-surface-container mr-auto h-5 w-28 rounded" />
-                      <div className="bg-surface-container-high mr-auto h-4 w-3/4 rounded" />
-                    </div>
-                    <div className="bg-surface-container-high h-[18px] w-[18px] rounded-sm" />
-                  </div>
-                ))}
-              </div>
-            ) : neighborhoodsQuery.isError ? (
-              <div className="text-error mx-auto flex min-h-52 w-full flex-col items-center justify-center text-center text-sm leading-7">
-                دریافت محله‌ها با خطا مواجه شد.
-                <Button
-                  unstyled
-                  className="text-primary mt-2 font-semibold"
-                  onClick={() => void neighborhoodsQuery.refetch()}
-                  type="button"
-                >
-                  تلاش دوباره
-                </Button>
-              </div>
-            ) : neighborhoods.length > 0 ? (
-              <div>
-                {neighborhoods.map((neighborhood) => {
-                  const id = getNeighborhoodId(neighborhood);
-                  const selected = selectedNeighborhoodSet.has(id);
-                  const description = getNeighborhoodDescription(neighborhood);
-
-                  return (
-                    <Button
-                      unstyled
-                      aria-pressed={selected}
-                      className="border-outline-var bg-surface-container-lowest flex min-h-[72px] w-full items-center justify-between gap-5 border-b py-3 text-right"
-                      key={id}
-                      onClick={() =>
-                        setSelectedNeighborhoodIds((current) =>
-                          current.includes(id)
-                            ? current.filter((item) => item !== id)
-                            : [...current, id],
-                        )
-                      }
-                      type="button"
-                    >
-                      <span className="min-w-0 flex-1">
-                        <Typography
-                          as="span"
-                          variant="body"
-                          size="medium"
-                          weight="regular"
-                          className="text-on-surface block"
-                        >
-                          {neighborhood.name}
-                        </Typography>
-                        {description ? (
-                          <Typography
-                            as="span"
-                            variant="body"
-                            size="small"
-                            weight="regular"
-                            className="text-outline mt-0.5 line-clamp-1 block"
-                          >
-                            {description}
-                          </Typography>
-                        ) : null}
-                      </span>
-                      <ChoiceIndicator checked={selected} />
-                    </Button>
-                  );
-                })}
-              </div>
-            ) : neighborhoodQuery.trim() ? (
-              <SearchEmptyState compact />
-            ) : (
-              <Typography
-                as="p"
-                variant="body"
-                size="small"
-                weight="regular"
-                className="text-outline mx-auto w-full py-4 text-center"
-              >
-                محله‌ای برای این شهر ثبت نشده است.
-              </Typography>
-            )}
-          </div>
+          <NeighborhoodFilterSection
+            cityId={draft.cityId}
+            isError={draft.neighborhoodsQuery.isError}
+            isLoading={draft.neighborhoodsQuery.isLoading}
+            neighborhoodQuery={draft.neighborhoodQuery}
+            neighborhoods={draft.neighborhoods}
+            onNeighborhoodQueryChange={draft.setNeighborhoodQuery}
+            onRefetch={() => void draft.neighborhoodsQuery.refetch()}
+            onRemoveNeighborhood={(id) =>
+              draft.setSelectedNeighborhoodIds((curr) => curr.filter((item) => item !== id))
+            }
+            onToggleNeighborhood={(id) =>
+              draft.setSelectedNeighborhoodIds((curr) =>
+                curr.includes(id) ? curr.filter((item) => item !== id) : [...curr, id],
+              )
+            }
+            selectedNeighborhoodIds={draft.selectedNeighborhoodIds}
+          />
         ) : null}
 
         {filterId === "area" ? (
-          <div className="flex h-full min-h-0 flex-col" dir="rtl">
-            <div className="text-on-surface flex items-center gap-2">
-              <LinearRuler aria-hidden="true" className="text-on-surface-var h-6 w-6 shrink-0" />
-              <Typography as="span" variant="title" size="medium" weight="medium">
-                متراژ
-              </Typography>
-              <Typography
-                as="span"
-                variant="label"
-                size="medium"
-                weight="medium"
-                className="text-outline"
-              >
-                (متر)
-              </Typography>
-            </div>
-
-            <div className="mt-6 flex min-h-[66px] items-start gap-4">
-              <QuickAreaRangeField
-                active={activeAreaBound === "minimum"}
-                inputRef={minimumAreaInputRef}
-                isCustom={customAreaBound === "minimum"}
-                label="حداقل"
-                onChange={setAreaMinimum}
-                onClick={() => {
-                  setActiveAreaBound("minimum");
-                  setCustomAreaBound(null);
-                }}
-                value={areaMinimum}
-              />
-              <QuickAreaRangeField
-                active={activeAreaBound === "maximum"}
-                inputRef={maximumAreaInputRef}
-                isCustom={customAreaBound === "maximum"}
-                label="حداکثر"
-                onChange={setAreaMaximum}
-                onClick={() => {
-                  setActiveAreaBound("maximum");
-                  setCustomAreaBound(null);
-                }}
-                value={areaMaximum}
-              />
-            </div>
-
-            <AnimatePresence initial={false}>
-              {activeAreaBound ? (
-                <motion.div
-                  animate={{ opacity: 1 }}
-                  className="border-outline-var mt-4 flex min-h-0 flex-1 flex-col border-t pt-[17px]"
-                  exit={{ opacity: 0 }}
-                  initial={shouldReduceMotion ? false : { opacity: 0 }}
-                  key="area-value-list"
-                  transition={
-                    shouldReduceMotion ? { duration: 0 } : { duration: 0.18, ease: "easeOut" }
-                  }
-                >
-                  <Button
-                    unstyled
-                    className="bg-surface-container-lowest text-on-surface flex h-[72px] w-full shrink-0 items-center justify-center px-2 text-center"
-                    onClick={() => setCustomAreaBound(activeAreaBound)}
-                    type="button"
-                  >
-                    <Typography as="span" variant="body" size="large" weight="regular">
-                      {quickAreaCustomOptionLabel}
-                    </Typography>
-                  </Button>
-
-                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-                    {quickAreaRangeOptions.map((option) => {
-                      const normalizedOption = normalizeNumber(option);
-
-                      return (
-                        <Button
-                          unstyled
-                          className="bg-surface-container-lowest text-on-surface flex h-[72px] w-full shrink-0 items-center justify-center px-2 text-center"
-                          key={option}
-                          onClick={() => {
-                            if (activeAreaBound === "minimum") {
-                              setAreaMinimum(normalizedOption);
-                            } else {
-                              setAreaMaximum(normalizedOption);
-                            }
-
-                            setCustomAreaBound(null);
-                            setActiveAreaBound(null);
-                          }}
-                          type="button"
-                        >
-                          <Typography as="span" variant="body" size="large" weight="regular">
-                            {option}
-                          </Typography>
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </div>
+          <AreaFilterSection
+            activeAreaBound={draft.activeAreaBound}
+            areaMaximum={draft.areaMaximum}
+            areaMinimum={draft.areaMinimum}
+            customAreaBound={draft.customAreaBound}
+            maximumAreaInputRef={draft.maximumAreaInputRef}
+            minimumAreaInputRef={draft.minimumAreaInputRef}
+            onActiveAreaBoundChange={draft.setActiveAreaBound}
+            onAreaMaximumChange={draft.setAreaMaximum}
+            onAreaMinimumChange={draft.setAreaMinimum}
+            onCustomAreaBoundChange={draft.setCustomAreaBound}
+          />
         ) : null}
 
         {filterId === "price" ? (
-          <div className="space-y-4" dir="rtl">
-            <FormTextField
-              badge="تومان"
-              label="حداقل"
-              onChange={(event) => setPriceMinimum(normalizeNumber(event.target.value))}
-              onClear={() => setPriceMinimum("")}
-              placeholder="حداقل قیمت"
-              supportingText={
-                priceMinimum ? `${formatBigNumber(Number(priceMinimum))} تومان` : undefined
-              }
-              value={formatGroupedNumber(priceMinimum)}
-            />
-            <FormTextField
-              badge="تومان"
-              label="حداکثر"
-              onChange={(event) => setPriceMaximum(normalizeNumber(event.target.value))}
-              onClear={() => setPriceMaximum("")}
-              placeholder="حداکثر قیمت"
-              supportingText={
-                priceMaximum ? `${formatBigNumber(Number(priceMaximum))} تومان` : undefined
-              }
-              value={formatGroupedNumber(priceMaximum)}
-            />
-          </div>
+          <PriceFilterSection
+            onPriceMaximumChange={draft.setPriceMaximum}
+            onPriceMinimumChange={draft.setPriceMinimum}
+            priceMaximum={draft.priceMaximum}
+            priceMinimum={draft.priceMinimum}
+          />
         ) : null}
 
         {filterId === "rooms" || filterId === "floor" || filterId === "building_age" ? (
-          <div className="flex flex-wrap justify-start gap-2" dir="rtl">
-            {choiceOptions.map((option) => {
-              const normalizedOption = normalizeChoiceValue(option);
-              const isSelected = selectedChoices.some(
-                (value) => normalizeChoiceValue(value) === normalizedOption,
-              );
-
-              return (
-                <FormChoiceChip
-                  key={option}
-                  label={option}
-                  onClick={() => {
-                    if (filterId === "building_age") {
-                      setSelectedChoices(isSelected ? [] : [normalizedOption]);
-                      return;
-                    }
-
-                    setSelectedChoices((current) =>
-                      isSelected
-                        ? current.filter(
-                            (value) => normalizeChoiceValue(value) !== normalizedOption,
-                          )
-                        : [...current, normalizedOption],
-                    );
-                  }}
-                  selected={isSelected}
-                />
-              );
-            })}
-          </div>
+          <ChoiceFilterSection
+            choiceOptions={choiceOptions}
+            filterId={filterId}
+            onSelectChoices={draft.setSelectedChoices}
+            selectedChoices={draft.selectedChoices}
+          />
         ) : null}
       </div>
 
@@ -872,10 +145,10 @@ export function SearchMapQuickFilterBottomSheet({
         <Button
           unstyled
           className="bg-primary text-on-primary flex h-10 w-full items-center justify-center rounded-[10px] text-sm font-medium transition-colors active:opacity-90"
-          onClick={applyCurrentFilter}
+          onClick={draft.applyCurrentFilter}
           type="button"
         >
-          {isCalculating ? (
+          {draft.isCalculating ? (
             <span className="inline-flex items-center justify-center gap-1.5">
               <span>نمایش</span>
               <span className="inline-flex animate-pulse items-center font-bold tracking-widest">
@@ -885,7 +158,7 @@ export function SearchMapQuickFilterBottomSheet({
             </span>
           ) : (
             <span>
-              نمایش {toPersianDigits(new Intl.NumberFormat("en-US").format(dynamicCount))} آگهی
+              نمایش {toPersianDigits(new Intl.NumberFormat("en-US").format(draft.dynamicCount))} آگهی
             </span>
           )}
         </Button>

@@ -283,8 +283,13 @@ export function DashboardView({
           badgeName={displayBadgeName}
           imageSrc={levelAsset.image}
           to={
-            rankingBadgeQuery.data?.targetUrl ||
-            (isManager ? "/account/dashboard/ranking" : "/account/ranking")
+            rankingBadgeQuery.data?.targetUrl
+              ? rankingBadgeQuery.data.targetUrl.includes("from=")
+                ? rankingBadgeQuery.data.targetUrl
+                : `${rankingBadgeQuery.data.targetUrl}?from=dashboard`
+              : isManager
+                ? "/account/dashboard/ranking?from=dashboard"
+                : "/account/ranking?from=dashboard"
           }
         />
 

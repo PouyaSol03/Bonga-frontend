@@ -82,9 +82,11 @@ function getAccountFallbackBackTo(path: string) {
   }
 
   if (path.startsWith("/account/dashboard/")) {
-    const dashboardSection = path.split("/")[3];
+    const segments = path.split("/").filter(Boolean);
 
-    if (dashboardSection) return `/account/dashboard/${dashboardSection}`;
+    if (segments.length > 3) {
+      return `/account/dashboard/${segments[2]}`;
+    }
 
     return "/account/dashboard";
   }

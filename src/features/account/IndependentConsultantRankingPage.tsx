@@ -7,7 +7,7 @@ import {
 import { usePublicAgentsQuery } from "../agencies/api/agency.hooks";
 import type { V2RankingBadge } from "../dashboard/api/v2/ranking-v2.service";
 import { TopBar } from "../../shared/components/TopBar";
-import { Link } from "react-router";
+import { Link, useLocation, useSearchParams } from "react-router";
 import { BADGE_IMAGES } from "../dashboard/ranking/AgencyBadgesPanel";
 import { Toast, type ToastItem } from "../../shared/components/Toast";
 import { getApiErrorMessage } from "../../shared/api/api";
@@ -39,7 +39,20 @@ function formatOptionalNumber(value: number | null | undefined) {
   return value === null || value === undefined ? "—" : new Intl.NumberFormat("fa-IR").format(value);
 }
 
-export function IndependentConsultantRankingPage() {
+export function IndependentConsultantRankingPage({
+  backTo: explicitBackTo,
+}: {
+  backTo?: string;
+} = {}) {
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+
+  const isFromDashboard =
+    searchParams.get("from") === "dashboard" ||
+    (location.state as { from?: string } | null)?.from === "dashboard" ||
+    (location.state as { from?: string } | null)?.from === "/account/dashboard";
+
+  const resolvedBackTo = explicitBackTo ?? (isFromDashboard ? "/account/dashboard" : "/account");
   const [period, setPeriod] = useState<RankingPeriod>("ماه");
   const rankingQuery = useV2RankingSummaryQuery(period === "هفته" ? "week" : "month");
   const ranking = rankingQuery.data?.data;
@@ -112,10 +125,10 @@ export function IndependentConsultantRankingPage() {
             icon: <LinearInfoCircle className="h-6 w-6" />,
             id: "ranking-info",
             label: "راهنمای نشان‌ها و رتبه",
-            to: "/account/ranking/badges/guide",
+            to: `/account/ranking/badges/guide${isFromDashboard ? "?from=dashboard" : "?from=account"}`,
           },
         ]}
-        backTo="/account"
+        backTo={resolvedBackTo}
         className="[&_button]:text-on-surface"
         title="نشان‌ها و رتبه"
       />

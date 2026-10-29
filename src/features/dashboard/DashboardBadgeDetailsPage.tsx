@@ -1,4 +1,5 @@
 import { PageFrame } from "../../shared/layout/PageFrame";
+import { useSearchParams } from "react-router";
 import LinearStar from "../../shared/icons/LinearStar";
 import { TopBar } from "../../shared/components/TopBar";
 import { Typography } from "../../shared/ui/Typography";
@@ -109,13 +110,19 @@ function DashboardBadgeDetailsPage({ badgeKey }: { badgeKey: BadgeKey }) {
     : readBadgeProgressLevels(badge);
   const starCount = Number(badge?.level ?? readBadgeLevelCount(badge));
 
+  const [searchParams] = useSearchParams();
+  const from = searchParams.get("from");
+  const backTo = from
+    ? `/account/dashboard/ranking?from=${encodeURIComponent(from)}`
+    : "/account/dashboard/ranking";
+
   return (
     <PageFrame
       className="bg-surface-container-lowest text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
-        backTo="/account/dashboard/ranking"
+        backTo={backTo}
         className="bg-surface-container"
         contentClassName="px-1"
         title="جزئیات نشان"

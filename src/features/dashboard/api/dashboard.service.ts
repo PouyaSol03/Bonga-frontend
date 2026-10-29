@@ -665,7 +665,9 @@ export async function getDashboardRankingBadge(
       changeFromLastMonth: toNumber(d.change_from_last_month, 0),
       targetUrl: toStringValue(
         d.target_url,
-        role === "agency" ? "/account/dashboard/ranking" : "/account/ranking",
+        role === "agency"
+          ? "/account/dashboard/ranking?from=dashboard"
+          : "/account/ranking?from=dashboard",
       ),
     };
   } catch {
@@ -1102,7 +1104,9 @@ export async function getDashboardReportsRankingScore(
       targetRank: toNumber(d.target_rank, 0),
       guideUrl: toStringValue(
         d.guide_url,
-        role === "agency" ? "/account/dashboard/ranking" : "/account/ranking",
+        role === "agency"
+          ? "/account/dashboard/ranking?from=dashboard"
+          : "/account/ranking?from=dashboard",
       ),
     };
   } catch {

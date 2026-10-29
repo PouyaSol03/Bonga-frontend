@@ -13,7 +13,7 @@ export function AgencyBadgeBanner(props: AgencyBadgeBannerProps) {
       categoryLabel="سطح آژانس"
       badgeName={props.badgeName ?? level.title}
       imageSrc={props.imageSrc ?? level.image}
-      to="/account/dashboard/ranking"
+      to="/account/dashboard/ranking?from=dashboard"
       {...props}
     />
   );

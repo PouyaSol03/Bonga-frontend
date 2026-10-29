@@ -1,4 +1,5 @@
 import { PageFrame } from "../../shared/layout/PageFrame";
+import { useSearchParams } from "react-router";
 import { TopBar } from "../../shared/components/TopBar";
 import LinearStar from "../../shared/icons/LinearStar";
 import { Typography } from "../../shared/ui/Typography";
@@ -101,12 +102,18 @@ const badgeGuides: BadgeGuide[] = [
 ];
 
 export function DashboardBadgesGuidePage() {
+  const [searchParams] = useSearchParams();
+  const from = searchParams.get("from");
+  const backTo = from
+    ? `/account/dashboard/ranking?from=${encodeURIComponent(from)}`
+    : "/account/dashboard/ranking";
+
   return (
     <PageFrame
       className="bg-surface-container text-on-surface relative mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <TopBar backTo="/account/dashboard/ranking" title="راهنمای نشان‌ها" />
+      <TopBar backTo={backTo} title="راهنمای نشان‌ها" />
 
       <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         {badgeGuides.map((badge, index) => (

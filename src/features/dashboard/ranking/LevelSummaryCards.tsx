@@ -8,9 +8,10 @@ interface LevelSummaryCardProps {
   image: string;
   levelTitle: string;
   score: string;
+  guideTo?: string;
 }
 
-export function LevelSummaryCard({ image, levelTitle, score }: LevelSummaryCardProps) {
+export function LevelSummaryCard({ image, levelTitle, score, guideTo }: LevelSummaryCardProps) {
   return (
     <section
       aria-label="سطح پیشرفت آژانس"
@@ -18,7 +19,7 @@ export function LevelSummaryCard({ image, levelTitle, score }: LevelSummaryCardP
     >
       <div className="min-w-0 flex-1">
         <div className="flex h-6 items-center justify-between gap-2 [direction:ltr]">
-          <GuidePill ariaLabel="راهنمای سطح پیشرفت آژانس" to={DASHBOARD_LEVELS_GUIDE_PATH} />
+          <GuidePill ariaLabel="راهنمای سطح پیشرفت آژانس" to={guideTo ?? DASHBOARD_LEVELS_GUIDE_PATH} />
           <Typography
             as="span"
             variant="label"

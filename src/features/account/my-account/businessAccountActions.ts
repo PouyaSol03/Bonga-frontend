@@ -54,7 +54,7 @@ export function getBusinessAccountActions(
 
   const managerActions: AccountAction[] = [
     { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
-    { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+    { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking?from=account` },
     { icon: "building", label: "صفحه آژانس", to: `${DASHBOARD_PATH}/agency` },
     { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
     { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },
@@ -84,7 +84,7 @@ export function getBusinessAccountActions(
     const permissions = membership?.permissions ?? session?.managerPermissions ?? {};
     const actions: AccountAction[] = [
       { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
-      { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+      { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking?from=account` },
       { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agent` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
     ];
@@ -120,7 +120,7 @@ export function getBusinessAccountActions(
   if (role === INDEPENDENT_CONSULTANT) {
     return [
       { icon: "dashboard", label: "داشبورد", to: DASHBOARD_PATH },
-      { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking` },
+      { icon: "ranking", label: "نشان‌ها و رتبه", to: `${DASHBOARD_PATH}/ranking?from=account` },
       { icon: "building", label: "صفحه مشاور", to: `${DASHBOARD_PATH}/agent` },
       { icon: "tag", label: "مدیریت آگهی‌ها", to: MANAGE_ADS_PATH },
       { icon: "request", label: "مدیریت درخواست‌ها", to: `${DASHBOARD_PATH}/requests` },

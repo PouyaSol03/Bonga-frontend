@@ -162,8 +162,13 @@ export function DashboardReportsView({
           score={rankingScoreQuery.data?.score ?? dashboard?.ranking?.current?.totalScore}
           badgeName={rankingScoreQuery.data?.levelTitle ?? dashboard?.ranking?.current?.levelTitle}
           badgesTo={
-            rankingScoreQuery.data?.guideUrl ||
-            (isManager ? "/account/dashboard/ranking" : "/account/ranking")
+            rankingScoreQuery.data?.guideUrl
+              ? rankingScoreQuery.data.guideUrl.includes("from=")
+                ? rankingScoreQuery.data.guideUrl
+                : `${rankingScoreQuery.data.guideUrl}?from=dashboard`
+              : isManager
+                ? "/account/dashboard/ranking?from=dashboard"
+                : "/account/ranking?from=dashboard"
           }
           deltaRank={rankingScoreQuery.data?.rankChangeLastMonth}
           pointsNeeded={rankingScoreQuery.data?.pointsNeeded}

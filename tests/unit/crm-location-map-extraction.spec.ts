@@ -11,11 +11,9 @@ import {
 } from "../../src/features/crm/location-map/geometry";
 import {
   getSubNeighborhoodColor,
-  MAIN_BOUNDARY_COLOR,
   SUB_BOUNDARY_COLOR,
 } from "../../src/features/crm/location-map/constants";
 import {
-  buildBoundaryItems,
   parseMaybeJson,
   parseSubNeighborhoods,
   targetBoundaryId,

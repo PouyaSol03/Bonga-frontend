@@ -9,7 +9,6 @@ import {
 } from "../../src/features/dashboard/agency-preview/profileHelpers";
 import {
   getAbsoluteAgencyPreviewUrl,
-  getPreviewSearchParam,
 } from "../../src/features/dashboard/agency-preview/urlHelpers";
 import { resolvePreviewEntity } from "../../src/features/dashboard/agency-preview/resolvePreviewEntity";
 

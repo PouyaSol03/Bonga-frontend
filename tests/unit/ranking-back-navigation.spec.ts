@@ -8,15 +8,15 @@ import {
 
 describe("ranking back navigation & helpers", () => {
   it("attaches ?from=account to ranking actions across all account roles", () => {
-    const managerActions = getBusinessAccountActions("REAL_ESTATE_MANAGER", null, null);
+    const managerActions = getBusinessAccountActions("REAL_ESTATE_MANAGER", undefined);
     const managerRanking = managerActions.find((a) => a.icon === "ranking");
     expect(managerRanking?.to).toBe("/account/dashboard/ranking?from=account");
 
-    const consultantActions = getBusinessAccountActions("REAL_ESTATE_CONSULTANT", null, null);
+    const consultantActions = getBusinessAccountActions("REAL_ESTATE_CONSULTANT", undefined);
     const consultantRanking = consultantActions.find((a) => a.icon === "ranking");
     expect(consultantRanking?.to).toBe("/account/dashboard/ranking?from=account");
 
-    const independentActions = getBusinessAccountActions("INDEPENDENT_CONSULTANT", null, null);
+    const independentActions = getBusinessAccountActions("INDEPENDENT_CONSULTANT", undefined);
     const independentRanking = independentActions.find((a) => a.icon === "ranking");
     expect(independentRanking?.to).toBe("/account/dashboard/ranking?from=account");
   });

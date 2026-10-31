@@ -24,14 +24,14 @@ describe("Ad Filter Modularization", () => {
   it("builds filters correctly with fallback propertyType", () => {
     const filters = buildFilters({
       neighborhoods: [{ id: "1", name: "تجریش" }],
-      propertyTypes: ["apartment", "villa"],
+      propertyTypes: ["apartment", "villa-house"],
       publisher: "املاک برتر",
       status: "فعال",
       transaction: "sale",
     });
 
     expect(filters.propertyType).toBe("apartment");
-    expect(filters.propertyTypes).toEqual(["apartment", "villa"]);
+    expect(filters.propertyTypes).toEqual(["apartment", "villa-house"]);
     expect(filters.publisher).toBe("املاک برتر");
     expect(filters.status).toBe("فعال");
     expect(filters.transaction).toBe("sale");
@@ -40,13 +40,13 @@ describe("Ad Filter Modularization", () => {
 
   it("extracts initial property types", () => {
     expect(getInitialPropertyTypes({ neighborhoods: [] })).toEqual([]);
-    expect(getInitialPropertyTypes({ neighborhoods: [], propertyType: "villa" })).toEqual([
-      "villa",
+    expect(getInitialPropertyTypes({ neighborhoods: [], propertyType: "villa-house" })).toEqual([
+      "villa-house",
     ]);
     expect(
       getInitialPropertyTypes({
         neighborhoods: [],
-        propertyType: "villa",
+        propertyType: "villa-house",
         propertyTypes: ["apartment"],
       }),
     ).toEqual(["apartment"]);

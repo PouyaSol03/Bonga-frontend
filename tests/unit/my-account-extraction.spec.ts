@@ -19,6 +19,7 @@ import {
   REAL_ESTATE_MANAGER,
   USER,
 } from "../../src/shared/constants/roles.constants";
+import type { AuthSession } from "../../src/shared/auth/auth-storage";
 
 describe("MyAccountPage modular extraction", () => {
   it("exports MyAccountPage component", () => {
@@ -79,11 +80,14 @@ describe("MyAccountPage modular extraction", () => {
 
   describe("accountSwitchActions", () => {
     it("filters out active role from switch list", () => {
-      const session = {
+      const session: AuthSession = {
         accessToken: "token",
+        accountType: "user",
         activeRole: USER,
+        expiresAt: 0,
         mobile: "09120000000",
-        roles: [{ id: 1, name: "کاربر", slug: USER }, { id: 2, name: "مدیر", slug: REAL_ESTATE_MANAGER }],
+        role: USER,
+        roles: [{ id: "1", name: "کاربر", slug: USER }, { id: "2", name: "مدیر", slug: REAL_ESTATE_MANAGER }],
         userId: "1",
       };
       const switchActions = getAccountSwitchActions(session, USER);
@@ -92,11 +96,14 @@ describe("MyAccountPage modular extraction", () => {
     });
 
     it("returns pending badge action when agency is awaiting approval", () => {
-      const session = {
+      const session: AuthSession = {
         accessToken: "token",
+        accountType: "user",
         activeRole: USER,
+        expiresAt: 0,
         mobile: "09120000000",
-        roles: [{ id: 1, name: "کاربر", slug: USER }],
+        role: USER,
+        roles: [{ id: "1", name: "کاربر", slug: USER }],
         userId: "1",
       };
       const actions = getCreatedBusinessActions(session, { agency_id: 10, agency_status: "wait" });

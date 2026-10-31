@@ -73,11 +73,8 @@ describe("AgencyAssignedUserAdView modular extraction", () => {
         resolveAgencyName(
           {},
           {
-            id: 1,
-            title: "Test",
-            price: "100",
             agency: "املاک کاردان",
-          },
+          } as any,
         ),
       ).toBe("املاک کاردان");
     });

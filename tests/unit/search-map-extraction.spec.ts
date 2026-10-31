@@ -41,7 +41,7 @@ describe("Search Map Coordinate Helpers", () => {
       latitude: 35.7,
       longitude: 51.4,
     });
-    expect(getAdMapPosition({ location: { lat: 35.7, lng: 51.4 } })).toEqual({
+    expect(getAdMapPosition({ location: { coordinates: [51.4, 35.7] } })).toEqual({
       latitude: 35.7,
       longitude: 51.4,
     });
@@ -96,7 +96,7 @@ describe("Search Map Listing Mapper & Pricing", () => {
       price: 8_500_000_000,
       form_code: "sale-apartment",
       rooms: 2,
-      features: [{ key: "building_age", value: "5" }],
+      features: [{ key: "building_age", label: "سن بنا", value: "5" }],
     };
     const listing = mapAdvertisementToSearchListing(item, 0);
     expect(listing).not.toBeNull();

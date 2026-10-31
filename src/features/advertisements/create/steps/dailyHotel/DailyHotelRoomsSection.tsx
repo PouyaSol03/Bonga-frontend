@@ -1,54 +1,22 @@
 import { useMemo, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 
-import { BottomSheet, BottomSheetActionList } from "../../../../../shared/components/BottomSheet";
 import LinearCancelCircle from "../../../../../shared/icons/LinearCancelCircle";
-import { formatBigNumber } from "../../../../../shared/lib/MoneyHandler";
-import { formatNumber } from "../../../../../shared/lib/numberUtils";
-import {
-  dailyHotelMealPlanOptions,
-  dailyHotelRoomTypes,
-  dailyHotelRoomCapacityOptions,
-} from "../../data";
+import { Button } from "../../../../../shared/ui/Button";
+import { Typography } from "../../../../../shared/ui/Typography";
+import { dailyHotelRoomTypes } from "../../data";
 import type {
   DailyHotelRoomConfig,
-  DailyHotelRoomConfigKey,
   DailyHotelRoomTypeId,
   NewAdFormValues,
 } from "../../types";
-import { InputBox, SelectBox } from "../../components/NewAdControls";
-import { Typography } from "../../../../../shared/ui/Typography";
-import { Button } from "../../../../../shared/ui/Button";
-
-const editorSelectFields: Record<
-  Exclude<
-    DailyHotelRoomConfigKey,
-    "id" | "label" | "normalPrice" | "weekendPrice" | "specialPrice"
-  >,
-  { title: string; placeholder: string; options: string[] }
-> = {
-  guestCount: {
-    title: "ظرفیت استاندارد",
-    placeholder: "ظرفیت استاندارد *",
-    options: dailyHotelRoomCapacityOptions,
-  },
-  extraGuestCount: {
-    title: "ظرفیت اضافه",
-    placeholder: "ظرفیت اضافه *",
-    options: dailyHotelRoomCapacityOptions,
-  },
-  mealPlan: {
-    title: "وعده غذایی",
-    placeholder: "وعده غذایی *",
-    options: dailyHotelMealPlanOptions,
-  },
-};
-
-type RoomSelectSheet = {
-  field: keyof typeof editorSelectFields;
-  title: string;
-  options: string[];
-};
+import { DailyHotelRoomEditor } from "./DailyHotelRoomEditor";
+import {
+  buildRoomSummary,
+  getEmptyRoomConfig,
+  hasConfiguredRoom,
+  normalizeRoomConfig,
+} from "./dailyHotelRoomsUtils";
 
 function EditIcon() {
   return (
@@ -85,102 +53,11 @@ function ChevronLeftIcon() {
   );
 }
 
-function getEmptyRoomConfig(id: DailyHotelRoomTypeId): DailyHotelRoomConfig {
-  const room = dailyHotelRoomTypes.find((item) => item.id === id);
-
-  return {
-    id,
-    label: room?.label ?? "",
-    guestCount: "",
-    extraGuestCount: "",
-    mealPlan: "",
-    normalPrice: "",
-    weekendPrice: "",
-    specialPrice: "",
-  };
-}
-
-function normalizeRoomConfig(room: DailyHotelRoomConfig): DailyHotelRoomConfig {
-  return {
-    ...getEmptyRoomConfig(room.id),
-    ...room,
-  };
-}
-
-function hasConfiguredRoom(room?: DailyHotelRoomConfig) {
-  if (!room) return false;
-
-  return [
-    room.guestCount,
-    room.extraGuestCount,
-    room.mealPlan,
-    room.normalPrice,
-    room.weekendPrice,
-    room.specialPrice,
-  ].some((value) => value.trim().length > 0);
-}
-
-function moneySupportingText(value: string) {
-  const number = Number(value.replace(/,/g, ""));
-
-  return Number.isFinite(number) && number > 0 ? `${formatBigNumber(number)} تومان` : "";
-}
-
-function buildRoomSummary(room: DailyHotelRoomConfig) {
-  const summary: string[] = [];
-
-  if (room.guestCount) summary.push(`${room.guestCount} نفر`);
-  if (room.extraGuestCount) summary.push(`${room.extraGuestCount} نفر اضافه`);
-  if (room.mealPlan) summary.push(room.mealPlan);
-  if (room.normalPrice) summary.push(`روز عادی: ${formatNumber(room.normalPrice)} تومان`);
-  if (room.weekendPrice) summary.push(`آخر هفته: ${formatNumber(room.weekendPrice)} تومان`);
-  if (room.specialPrice) summary.push(`روزهای خاص: ${formatNumber(room.specialPrice)} تومان`);
-
-  return summary;
-}
-
-function RoomEditorHeader({ title, onBack }: { title: string; onBack: () => void }) {
-  return (
-    <header className="border-surface-container bg-surface-container shrink-0 border-b pt-2 [direction:rtl]">
-      <div className="flex h-20 items-center gap-2 px-4">
-        <Button
-          unstyled
-          aria-label="بازگشت"
-          className="text-on-surface-var active:bg-surface-container-high grid h-12 w-12 shrink-0 place-items-center rounded-full"
-          onClick={onBack}
-          type="button"
-        >
-          <svg aria-hidden="true" className="h-7 w-7" fill="none" viewBox="0 0 24 24">
-            <path
-              d="M15 7l5 5-5 5M20 12H4"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.8"
-            />
-          </svg>
-        </Button>
-
-        <Typography
-          as="h2"
-          variant="title"
-          size="large"
-          weight="semibold"
-          className="text-on-surface m-0 min-w-0 flex-1 truncate text-right text-xl leading-7 font-semibold"
-        >
-          {title}
-        </Typography>
-      </div>
-    </header>
-  );
-}
-
 export function DailyHotelRoomsSection() {
   const { setValue, control } = useFormContext<NewAdFormValues>();
   const watchedRooms = useWatch({ control, name: "dailyHotelRooms" }) ?? [];
   const [editingRoomId, setEditingRoomId] = useState<DailyHotelRoomTypeId | null>(null);
   const [draftRoom, setDraftRoom] = useState<DailyHotelRoomConfig | null>(null);
-  const [sheet, setSheet] = useState<RoomSelectSheet | null>(null);
 
   const rooms = useMemo(
     () =>
@@ -200,7 +77,6 @@ export function DailyHotelRoomsSection() {
   const closeEditor = () => {
     setEditingRoomId(null);
     setDraftRoom(null);
-    setSheet(null);
   };
 
   const saveRoom = () => {
@@ -224,10 +100,6 @@ export function DailyHotelRoomsSection() {
     });
   };
 
-  const selectedRoom = editingRoomId
-    ? dailyHotelRoomTypes.find((room) => room.id === editingRoomId)
-    : null;
-
   return (
     <>
       <div className="space-y-1 pt-1">
@@ -236,17 +108,8 @@ export function DailyHotelRoomsSection() {
           const summary = buildRoomSummary(room);
 
           return (
-            <div className="border-outline-var border-b py-4 last:border-b-0" key={room.id}>
+            <div className="border-outline-var border-b py-4 last:border-b-0 last:pb-0" key={room.id}>
               <div className="flex items-center justify-between gap-3">
-                <Button
-                  unstyled
-                  className="text-on-surface-var active:bg-surface-container-high grid h-9 w-9 shrink-0 place-items-center rounded-full"
-                  onClick={() => openEditor(room.id)}
-                  type="button"
-                >
-                  {configured ? <EditIcon /> : <ChevronLeftIcon />}
-                </Button>
-
                 <Button
                   unstyled
                   className="text-on-surface min-w-0 flex-1 text-right text-base leading-7 font-semibold"
@@ -254,6 +117,16 @@ export function DailyHotelRoomsSection() {
                   type="button"
                 >
                   {room.label}
+                </Button>
+
+                <Button
+                  unstyled
+                  aria-label={room.label}
+                  className="text-on-surface-var active:bg-surface-container-high grid h-9 w-9 shrink-0 place-items-center rounded-full"
+                  onClick={() => openEditor(room.id)}
+                  type="button"
+                >
+                  {configured ? <EditIcon /> : <ChevronLeftIcon />}
                 </Button>
               </div>
 
@@ -290,158 +163,13 @@ export function DailyHotelRoomsSection() {
         })}
       </div>
 
-      {editingRoomId && draftRoom && selectedRoom ? (
-        <div className="fixed inset-0 z-[70] flex flex-col bg-white" dir="rtl">
-          <RoomEditorHeader title={selectedRoom.label} onBack={closeEditor} />
-
-          <main className="min-h-0 flex-1 overflow-y-auto bg-white px-4 pt-6 pb-4">
-            <div className="space-y-4">
-              <SelectBox
-                onClick={() =>
-                  setSheet({
-                    field: "guestCount",
-                    title: editorSelectFields.guestCount.title,
-                    options: editorSelectFields.guestCount.options,
-                  })
-                }
-                placeholder={editorSelectFields.guestCount.placeholder}
-                value={draftRoom.guestCount}
-              />
-
-              <SelectBox
-                onClick={() =>
-                  setSheet({
-                    field: "extraGuestCount",
-                    title: editorSelectFields.extraGuestCount.title,
-                    options: editorSelectFields.extraGuestCount.options,
-                  })
-                }
-                placeholder={editorSelectFields.extraGuestCount.placeholder}
-                value={draftRoom.extraGuestCount}
-              />
-
-              <SelectBox
-                onClick={() =>
-                  setSheet({
-                    field: "mealPlan",
-                    title: editorSelectFields.mealPlan.title,
-                    options: editorSelectFields.mealPlan.options,
-                  })
-                }
-                placeholder={editorSelectFields.mealPlan.placeholder}
-                value={draftRoom.mealPlan}
-              />
-
-              <InputBox
-                formatNumeric
-                leftText="تومان"
-                numeric
-                onChange={(value) =>
-                  setDraftRoom((current) =>
-                    current ? { ...current, normalPrice: value } : current,
-                  )
-                }
-                placeholder="قیمت روزهای عادی *"
-                supportingText={moneySupportingText(draftRoom.normalPrice)}
-                value={draftRoom.normalPrice}
-              />
-
-              <InputBox
-                formatNumeric
-                leftText="تومان"
-                numeric
-                onChange={(value) =>
-                  setDraftRoom((current) =>
-                    current ? { ...current, weekendPrice: value } : current,
-                  )
-                }
-                placeholder="قیمت آخر هفته *"
-                supportingText={moneySupportingText(draftRoom.weekendPrice)}
-                value={draftRoom.weekendPrice}
-              />
-
-              <InputBox
-                formatNumeric
-                leftText="تومان"
-                numeric
-                onChange={(value) =>
-                  setDraftRoom((current) =>
-                    current ? { ...current, specialPrice: value } : current,
-                  )
-                }
-                placeholder="قیمت روزهای خاص *"
-                supportingText={moneySupportingText(draftRoom.specialPrice)}
-                value={draftRoom.specialPrice}
-              />
-            </div>
-          </main>
-
-          <footer className="bg-surface-container-lowest grid shrink-0 grid-cols-2 gap-3 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_16px_0_rgba(0,0,0,0.08)] [direction:ltr]">
-            <Button
-              unstyled
-              className="bg-primary text-on-primary h-12 rounded-[10px] text-base leading-6 font-medium"
-              onClick={saveRoom}
-              type="button"
-            >
-              ثبت
-            </Button>
-
-            <Button
-              unstyled
-              className="border-primary bg-surface-container-lowest text-primary h-12 rounded-[10px] border text-base leading-6 font-medium"
-              onClick={closeEditor}
-              type="button"
-            >
-              انصراف
-            </Button>
-          </footer>
-
-          <BottomSheet
-            ariaLabel={sheet?.title ?? "انتخاب"}
-            className="rounded-t-[14px]"
-            contentClassName="pt-0 pb-6"
-            handleClassName="h-1 w-[42px] rounded-full bg-outline-var"
-            heightClassName="h-auto max-h-[calc(100dvh-102px)]"
-            isOpen={Boolean(sheet)}
-            headerButtonAriaLabel="بازگشت"
-            onBack={() => setSheet(null)}
-            onClose={() => setSheet(null)}
-            panelPaddingClassName="pt-3"
-            showBackButton={false}
-            showHandle
-            showHeader
-            showHeaderDivider
-            title={sheet?.title ?? "انتخاب"}
-            titleAlign="center"
-            zIndexClassName="z-[60]"
-          >
-            <BottomSheetActionList
-              align="center"
-              isOpen={Boolean(sheet)}
-              items={(sheet?.options ?? []).map((option) => ({
-                id: option,
-                title: option,
-              }))}
-              itemClassName="h-12 text-sm font-normal leading-5"
-              onSelect={(item) => {
-                if (!sheet) return;
-
-                setDraftRoom((current) =>
-                  current
-                    ? {
-                        ...current,
-                        [sheet.field]: item.title,
-                      }
-                    : current,
-                );
-                setSheet(null);
-              }}
-              selectedId={sheet && draftRoom ? draftRoom[sheet.field] : undefined}
-              showCheckIcon
-              showDividers={false}
-            />
-          </BottomSheet>
-        </div>
+      {editingRoomId && draftRoom ? (
+        <DailyHotelRoomEditor
+          draftRoom={draftRoom}
+          onClose={closeEditor}
+          onSave={saveRoom}
+          setDraftRoom={setDraftRoom}
+        />
       ) : null}
     </>
   );

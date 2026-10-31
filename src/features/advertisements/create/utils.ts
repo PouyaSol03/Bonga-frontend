@@ -16,8 +16,10 @@ export {
 } from "./utils/routeAndDraftState";
 
 export {
+  formatMinStayDaysLabel,
   formatUnitsPerFloorLabel,
   labels,
+  normalizeMinStayDaysValue,
   normalizeNumberInput,
   normalizeUnitsPerFloorValue,
   pickFirstNumber,

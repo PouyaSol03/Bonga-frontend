@@ -38,6 +38,24 @@ export function formatUnitsPerFloorLabel(value: unknown): string {
   return normalized ? `${normalized} واحد` : typeof value === "string" ? value : "";
 }
 
+export function normalizeMinStayDaysValue(value: unknown): string {
+  if (value === undefined || value === null || value === "") return "";
+  const str = String(value).trim();
+  const numMatch = str.match(/[۰-۹٠-٩0-9]+/);
+  if (!numMatch) return "";
+  const num = Number(normalizeDigits(numMatch[0]));
+  if (!Number.isFinite(num) || num <= 0) return "";
+  return String(num);
+}
+
+export function formatMinStayDaysLabel(value: unknown): string {
+  if (value === undefined || value === null || value === "") return "";
+  const normalized = normalizeMinStayDaysValue(value);
+  if (!normalized) return typeof value === "string" ? value : "";
+  const num = Number(normalized);
+  return `${new Intl.NumberFormat("fa-IR").format(num)} روز`;
+}
+
 export function normalizeNumberInput(value: unknown): string {
   return normalizeDigits(value).replace(/[^\d,]/g, "");
 }

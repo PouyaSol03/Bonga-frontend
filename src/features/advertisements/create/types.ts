@@ -120,18 +120,19 @@ export type MoreFeatureSelectKey =
   | "rentalPeriod"
   | "viewType"
   | "openingCount"
-  | "projectStatus";
+  | "projectStatus"
+  | "minStayDays";
 
 export type MoreFeatureMultiSelectKey = "suitableFor" | "usageType";
+
+export type MoreFeatureMoneyKey = "evacuationGuarantee";
 
 type MoreFeatureNumberKey =
   | "buildingArea"
   | "landWidth"
   | "streetWidth"
   | "ceilingHeight"
-  | "minContractMonths"
-  | "minStayDays"
-  | "evacuationGuarantee";
+  | "minContractMonths";
 
 export type MoreFeatureDateKey = "readyDeliveryDate" | "projectDeliveryDate";
 
@@ -156,6 +157,7 @@ export type MoreFeatureFormKey =
   | MoreFeatureSelectKey
   | MoreFeatureMultiSelectKey
   | MoreFeatureNumberKey
+  | MoreFeatureMoneyKey
   | MoreFeatureDateKey
   | MoreFeatureTimeKey
   | MoreFeatureToggleKey
@@ -164,7 +166,7 @@ export type MoreFeatureFormKey =
 export type MoreFeatureField = {
   key: MoreFeatureFormKey;
   label: string;
-  control: "select" | "multiSelect" | "number" | "date" | "time" | "toggle" | "input";
+  control: "select" | "multiSelect" | "number" | "money" | "date" | "time" | "toggle" | "input";
   leftText?: string;
   options?: string[];
 };

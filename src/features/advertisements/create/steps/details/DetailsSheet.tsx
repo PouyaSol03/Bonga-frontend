@@ -5,6 +5,7 @@ import { Button } from "../../../../../shared/ui/Button";
 import type { NewAdFormValues, SheetState } from "../../types";
 import type { SetDetailsField, OpenDetailsSheet } from "./types";
 import { toggleArray } from "./formatters";
+import { formatMinStayDaysLabel, normalizeMinStayDaysValue } from "../../utils";
 
 export function DetailsSheet({
   sheet,
@@ -95,8 +96,8 @@ export function DetailsSheet({
           align="center"
           isOpen={Boolean(sheet)}
           items={(sheet?.options ?? []).map((option) => ({
-            id: option,
-            title: option,
+            id: sheet?.key === "minStayDays" ? normalizeMinStayDaysValue(option) : option,
+            title: sheet?.key === "minStayDays" ? formatMinStayDaysLabel(option) : option,
           }))}
           itemClassName="h-12 text-sm font-normal leading-5"
           onSelect={(item) => {
@@ -117,12 +118,20 @@ export function DetailsSheet({
               if (!values.facilities.includes("terrace")) {
                 setField("facilities", [...values.facilities, "terrace"]);
               }
+            } else if (sheet.key === "minStayDays") {
+              setField("minStayDays", normalizeMinStayDaysValue(item.id));
             } else {
               setField(sheet.key, item.title);
             }
             setSheet(null);
           }}
-          selectedId={sheet?.kind === "select" ? values[sheet.key] : undefined}
+          selectedId={
+            sheet?.kind === "select"
+              ? sheet.key === "minStayDays"
+                ? normalizeMinStayDaysValue(values[sheet.key])
+                : values[sheet.key]
+              : undefined
+          }
           showDividers={false}
         />
       )}

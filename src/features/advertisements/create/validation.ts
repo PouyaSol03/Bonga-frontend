@@ -166,8 +166,8 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
 
   const numMinStayDays = parseNumericValue(values.minStayDays);
   if (hasRequiredText(values.minStayDays) && numMinStayDays !== null) {
-    if (numMinStayDays <= 0 || numMinStayDays > 30) {
-      errors.minStayDays = "حداقل مدت اقامت روزانه باید بین ۱ تا ۳۰ روز باشد.";
+    if (numMinStayDays <= 0 || numMinStayDays > 31) {
+      errors.minStayDays = "حداقل مدت اقامت روزانه باید بین ۱ تا ۳۱ روز باشد.";
     }
   }
 

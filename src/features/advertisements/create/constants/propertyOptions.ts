@@ -403,10 +403,16 @@ export const villaTotalFloorsOptions = Array.from(
   (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} طبقه`,
 );
 
+export const minStayDaysOptions = Array.from(
+  { length: 31 },
+  (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} روز`,
+);
+
 export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   age: ageOptions,
   floor: floorOptions,
   rooms: roomOptions,
+  minStayDays: minStayDaysOptions,
   totalFloors: totalFloorsOptions,
   unitsPerFloor: unitsPerFloorOptions,
   unitType: ["شمالی", "جنوبی", "شرقی", "غربی", "دو نبش"],

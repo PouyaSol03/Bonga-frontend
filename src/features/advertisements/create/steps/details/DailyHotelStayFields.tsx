@@ -1,6 +1,7 @@
-import { InputBox, SelectBox } from "../../components/NewAdControls";
-import { dailyRentalPeriodOptions, rentPetPolicyOptions, timeOptions } from "../../data";
+import { SelectBox } from "../../components/NewAdControls";
+import { dailyRentalPeriodOptions, minStayDaysOptions, rentPetPolicyOptions, timeOptions } from "../../data";
 import type { NewAdFormValues, SelectKey } from "../../types";
+import { formatMinStayDaysLabel } from "../../utils";
 import type { SetDetailsField } from "./types";
 
 export function DailyHotelStayFields({
@@ -20,12 +21,11 @@ export function DailyHotelStayFields({
         placeholder="دوره اجاره"
         value={values.rentalPeriod}
       />
-      <InputBox
-        numeric
-        leftText="روز"
-        onChange={(value) => setField("minStayDays", value)}
+      <SelectBox
+        onClear={() => setField("minStayDays", "")}
+        onClick={() => openSelectSheet("minStayDays", "حداقل مدت اقامت", minStayDaysOptions)}
         placeholder="حداقل مدت اقامت"
-        value={values.minStayDays}
+        value={formatMinStayDaysLabel(values.minStayDays)}
       />
       <SelectBox
         onClear={() => setField("checkInTime", "")}

@@ -11,6 +11,7 @@ import {
   totalFloorsOptions,
   unitsPerFloorOptions,
   villaTotalFloorsOptions,
+  minStayDaysOptions,
   capacityOptions,
   dailyRentalPeriodOptions,
   rentApartmentSuitableForOptions,
@@ -133,8 +134,8 @@ const dailyApartmentMoreFeatureFields: MoreFeatureField[] = [
   },
   { key: "checkInTime", label: "ساعت ورود", control: "time" },
   { key: "checkOutTime", label: "ساعت خروج", control: "time" },
-  { key: "minStayDays", label: "حداقل مدت اقامت", control: "number", leftText: "روز" },
-  { key: "evacuationGuarantee", label: "تضمین تخلیه", control: "number", leftText: "تومان" },
+  { key: "minStayDays", label: "حداقل مدت اقامت", control: "select", options: minStayDaysOptions },
+  { key: "evacuationGuarantee", label: "تضمین تخلیه", control: "money", leftText: "تومان" },
   { key: "petPolicy", label: "حیوان خانگی", control: "select", options: rentPetPolicyOptions },
   { key: "furnished", label: "با لوازم و مبله", control: "toggle" },
 ];
@@ -340,8 +341,8 @@ const dailyVillaMoreFeatureFields: MoreFeatureField[] = [
   },
   { key: "checkInTime", label: "ساعت ورود", control: "time" },
   { key: "checkOutTime", label: "ساعت خروج", control: "time" },
-  { key: "minStayDays", label: "حداقل مدت اقامت", control: "number", leftText: "روز" },
-  { key: "evacuationGuarantee", label: "تضمین تخلیه", control: "number", leftText: "تومان" },
+  { key: "minStayDays", label: "حداقل مدت اقامت", control: "select", options: minStayDaysOptions },
+  { key: "evacuationGuarantee", label: "تضمین تخلیه", control: "money", leftText: "تومان" },
   { key: "petPolicy", label: "حیوان خانگی", control: "select", options: rentPetPolicyOptions },
   { key: "furnished", label: "با لوازم و مبله", control: "toggle" },
 ];
@@ -359,8 +360,8 @@ const dailyOfficeMoreFeatureFields: MoreFeatureField[] = [
   },
   { key: "checkInTime", label: "ساعت ورود", control: "time" },
   { key: "checkOutTime", label: "ساعت خروج", control: "time" },
-  { key: "minStayDays", label: "حداقل مدت اقامت", control: "number", leftText: "روز" },
-  { key: "evacuationGuarantee", label: "تضمین تخلیه", control: "number", leftText: "تومان" },
+  { key: "minStayDays", label: "حداقل مدت اقامت", control: "select", options: minStayDaysOptions },
+  { key: "evacuationGuarantee", label: "تضمین تخلیه", control: "money", leftText: "تومان" },
 ];
 
 const saleOfficeMoreFeatureFields: MoreFeatureField[] = [

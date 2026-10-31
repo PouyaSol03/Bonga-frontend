@@ -1,5 +1,6 @@
 import { useFormContext } from "react-hook-form";
-import { formatUnitsPerFloorLabel, getMoreFeatureFields } from "../../utils";
+import { formatMinStayDaysLabel, formatUnitsPerFloorLabel, getMoreFeatureFields } from "../../utils";
+import { formatNumber } from "../../../../../shared/lib/numberUtils";
 import type { MoreFeatureFormKey, NewAdFormValues } from "../../types";
 
 export function useRegisteredMoreFeatures(values: NewAdFormValues) {
@@ -9,22 +10,35 @@ export function useRegisteredMoreFeatures(values: NewAdFormValues) {
     .map((field) => {
       const value = values[field.key];
 
+      const cleanLabel =
+        field.key === "minStayDays"
+          ? "حداقل مدت اقامت"
+          : field.key === "evacuationGuarantee"
+            ? "تضمین تخلیه"
+            : field.label;
+
       if (field.control === "toggle") {
-        return value === true ? { key: field.key, label: field.label } : null;
+        return value === true ? { key: field.key, label: cleanLabel } : null;
       }
 
       if (Array.isArray(value) && value.length) {
         const displayValue = value.filter(Boolean).join("، ");
-        return displayValue ? { key: field.key, label: `${field.label}: ${displayValue}` } : null;
+        return displayValue ? { key: field.key, label: `${cleanLabel}: ${displayValue}` } : null;
       }
 
       if (typeof value === "string" && value.trim()) {
         const displayValue =
-          field.key === "unitsPerFloor" ? formatUnitsPerFloorLabel(value) : value;
+          field.key === "unitsPerFloor"
+            ? formatUnitsPerFloorLabel(value)
+            : field.key === "minStayDays"
+              ? formatMinStayDaysLabel(value)
+              : field.key === "evacuationGuarantee"
+                ? `${formatNumber(value)} تومان`
+                : value;
 
         if (!displayValue) return null;
 
-        return { key: field.key, label: `${field.label}: ${displayValue}` };
+        return { key: field.key, label: `${cleanLabel}: ${displayValue}` };
       }
 
       return null;

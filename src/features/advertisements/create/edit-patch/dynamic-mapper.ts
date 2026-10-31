@@ -152,17 +152,21 @@ function mapCollections(
   if (changed.has("usageType")) appender.appendDynamicArray("land_use", clean.usageType);
   if (changed.has("suitableFor")) appender.appendDynamicArray("suitable_for", clean.suitableFor);
 
-  const heating = resolveFeatureLabels(
-    getHeatingItemsForListing(params.transaction, params.category),
-    clean.heatingCooling,
-  );
-  appender.appendDynamicArray("heating_cooling", heating);
+  if (changed.has("heatingCooling")) {
+    const heating = resolveFeatureLabels(
+      getHeatingItemsForListing(params.transaction, params.category),
+      clean.heatingCooling,
+    );
+    appender.appendDynamicArray("heating_cooling", heating);
+  }
 
-  const facs = resolveFeatureLabels(
-    getFacilityItemsForListing(params.transaction, params.category),
-    clean.facilities,
-  );
-  appender.appendDynamicArray("facilities", facs);
+  if (changed.has("facilities")) {
+    const facs = resolveFeatureLabels(
+      getFacilityItemsForListing(params.transaction, params.category),
+      clean.facilities,
+    );
+    appender.appendDynamicArray("facilities", facs);
+  }
 
   if (changed.has("exchangeEnabled") || changed.has("exchangeTargets")) {
     const exchangeAllowed = !formCode.startsWith("rent-");

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { BottomSheet, BottomSheetActionList } from "../../../../shared/components/BottomSheet";
-import { moreFeatureKeys, moreFeatureOptions, timeOptions, villaTotalFloorsOptions } from "../data";
+import { minStayDaysOptions, moreFeatureKeys, moreFeatureOptions, timeOptions, villaTotalFloorsOptions } from "../data";
 import type {
   MoreFeatureDateKey,
   MoreFeatureFormKey,
@@ -13,9 +13,11 @@ import type {
   NewAdFormValues,
 } from "../types";
 import {
+  formatMinStayDaysLabel,
   formatUnitsPerFloorLabel,
   getMoreFeatureFields,
   getParams,
+  normalizeMinStayDaysValue,
   normalizeUnitsPerFloorValue,
   pickMoreFeatures,
 } from "../utils";
@@ -25,6 +27,7 @@ import {
   MoreFeaturesFooter,
   SelectBox,
 } from "../components/NewAdControls";
+import { moneySupportingText } from "./details/formatters";
 import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { Button } from "../../../../shared/ui/Button";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -73,9 +76,11 @@ export function MoreFeaturesStep({
     const fallbackOptions =
       key === "checkInTime" || key === "checkOutTime"
         ? timeOptions
-        : key === "totalFloors" && category === "villa-house"
-          ? villaTotalFloorsOptions
-          : moreFeatureOptions[key as MoreFeatureSelectKey];
+        : key === "minStayDays"
+          ? minStayDaysOptions
+          : key === "totalFloors" && category === "villa-house"
+            ? villaTotalFloorsOptions
+            : moreFeatureOptions[key as MoreFeatureSelectKey];
     setSheet({ key, title, options: options ?? fallbackOptions });
   };
 
@@ -100,7 +105,9 @@ export function MoreFeaturesStep({
   const getDisplayValue = (key: MoreFeatureFormKey) => {
     const value = getDraftString(key);
 
-    return key === "unitsPerFloor" ? formatUnitsPerFloorLabel(value) : value;
+    if (key === "unitsPerFloor") return formatUnitsPerFloorLabel(value);
+    if (key === "minStayDays") return formatMinStayDaysLabel(value);
+    return value;
   };
 
   const commit = () => {
@@ -161,6 +168,22 @@ export function MoreFeaturesStep({
                     onChange={(value) => setDraftField(field.key, value)}
                     placeholder={field.label}
                     value={getDraftString(field.key)}
+                  />
+                );
+              }
+
+              if (field.control === "money") {
+                const val = getDraftString(field.key);
+                return (
+                  <InputBox
+                    key={field.key}
+                    formatNumeric
+                    leftText={field.leftText ?? "تومان"}
+                    numeric
+                    onChange={(value) => setDraftField(field.key, value)}
+                    placeholder={field.label}
+                    supportingText={moneySupportingText(val)}
+                    value={val}
                   />
                 );
               }
@@ -319,8 +342,18 @@ export function MoreFeaturesStep({
           align="center"
           isOpen={Boolean(sheet)}
           items={(sheet?.options ?? []).map((option) => ({
-            id: sheet?.key === "unitsPerFloor" ? normalizeUnitsPerFloorValue(option) : option,
-            title: sheet?.key === "unitsPerFloor" ? formatUnitsPerFloorLabel(option) : option,
+            id:
+              sheet?.key === "unitsPerFloor"
+                ? normalizeUnitsPerFloorValue(option)
+                : sheet?.key === "minStayDays"
+                  ? normalizeMinStayDaysValue(option)
+                  : option,
+            title:
+              sheet?.key === "unitsPerFloor"
+                ? formatUnitsPerFloorLabel(option)
+                : sheet?.key === "minStayDays"
+                  ? formatMinStayDaysLabel(option)
+                  : option,
           }))}
           itemClassName="h-12 text-sm font-normal leading-5"
           onSelect={(item) => {
@@ -328,7 +361,11 @@ export function MoreFeaturesStep({
 
             setDraftField(
               sheet.key,
-              sheet.key === "unitsPerFloor" ? normalizeUnitsPerFloorValue(item.id) : item.id,
+              sheet.key === "unitsPerFloor"
+                ? normalizeUnitsPerFloorValue(item.id)
+                : sheet.key === "minStayDays"
+                  ? normalizeMinStayDaysValue(item.id)
+                  : item.id,
             );
             setSheet(null);
           }}
@@ -336,7 +373,9 @@ export function MoreFeaturesStep({
             sheet
               ? (sheet.key === "unitsPerFloor"
                   ? normalizeUnitsPerFloorValue(getDraftString(sheet.key))
-                  : getDraftString(sheet.key)) || undefined
+                  : sheet.key === "minStayDays"
+                    ? normalizeMinStayDaysValue(getDraftString(sheet.key))
+                    : getDraftString(sheet.key)) || undefined
               : undefined
           }
           showDividers={false}

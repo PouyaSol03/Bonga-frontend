@@ -108,6 +108,11 @@ export function normalizeDetailValue(label: string, value: unknown): DetailInfoV
     return formatPercentDetailValue(value);
   }
 
+  if (label === "min_stay_days") {
+    const text = toText(value);
+    return text ? `${text} روز` : "-";
+  }
+
   if (label === "sale_terms_installment_months" || label === "min_contract_months") {
     const text = toText(value);
     return text ? `${text} ماه` : "-";

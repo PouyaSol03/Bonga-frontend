@@ -307,10 +307,9 @@
         },
         {
           "key": "minStayDays",
-          "title": "حداقل مدت اقامت (روز)",
-          "input": "number",
-          "leftText": "روز",
-          "numeric": true
+          "title": "حداقل مدت اقامت",
+          "input": "select",
+          "ui": "bottomSheet"
         },
         {
           "key": "checkOutTime",
@@ -358,8 +357,8 @@
         },
         {
           "key": "evacuationGuarantee",
-          "title": "تضمین تخلیه (تومان)",
-          "input": "number",
+          "title": "تضمین تخلیه",
+          "input": "currency",
           "ui": "input",
           "numeric": true,
           "leftText": "تومان"

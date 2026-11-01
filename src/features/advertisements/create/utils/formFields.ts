@@ -1,6 +1,7 @@
 import {
   basicPropertyFieldsByListingType,
   defaultBasicPropertyFields,
+  minStayDaysOptions,
   moreFeatureFieldsByCategory,
   moreFeatureFieldsByListingType,
 } from "../data";
@@ -22,17 +23,24 @@ export function getBasicPropertyFields(): BasicPropertyField[] {
   if (schema?.create?.basicFields) {
     return schema.create.basicFields.map((field) => ({
       key: field.key as BasicPropertyFieldKey,
-      label: field.title,
+      label:
+        field.key === "minStayDays"
+          ? "حداقل مدت اقامت"
+          : field.key === "evacuationGuarantee"
+            ? "تضمین تخلیه"
+            : field.title,
       control:
-        field.input === "multiSelect"
-          ? "multiSelect"
-          : field.input === "select" || field.ui === "bottomSheet"
-            ? "select"
-            : "input",
+        field.key === "minStayDays"
+          ? "select"
+          : field.input === "multiSelect"
+            ? "multiSelect"
+            : field.input === "select" || field.ui === "bottomSheet"
+              ? "select"
+              : "input",
       numeric: field.numeric,
       required: field.required,
-      leftText: field.leftText,
-      options: field.options,
+      leftText: field.key === "evacuationGuarantee" ? "تومان" : field.leftText,
+      options: field.key === "minStayDays" ? (field.options ?? minStayDaysOptions) : field.options,
     }));
   }
 
@@ -44,24 +52,37 @@ export function getMoreFeatureFields(): MoreFeatureField[] {
   const { transaction, category } = getParams();
   const schema = getFormSchemaByListing(transaction, category);
   if (schema?.create?.moreFeatures?.fields) {
-    return schema.create.moreFeatures.fields.map((field) => ({
-      key: field.key as MoreFeatureFormKey,
-      label: field.title,
-      control:
-        field.input === "toggle" || field.ui === "toggle"
-          ? "toggle"
-          : field.input === "time"
-            ? "time"
-            : field.input === "date"
-              ? "date"
-              : field.input === "number"
-                ? "number"
-                : field.input === "multiSelect"
-                  ? "multiSelect"
-                  : "select",
-      options: field.options,
-      leftText: field.leftText,
-    }));
+    return schema.create.moreFeatures.fields.map((field) => {
+      const isMinStay = field.key === "minStayDays";
+      const isEvacuationGuarantee =
+        field.key === "evacuationGuarantee" || field.input === "currency";
+
+      return {
+        key: field.key as MoreFeatureFormKey,
+        label: isMinStay
+          ? "حداقل مدت اقامت"
+          : isEvacuationGuarantee
+            ? "تضمین تخلیه"
+            : field.title,
+        control: isMinStay
+          ? "select"
+          : isEvacuationGuarantee
+            ? "money"
+            : field.input === "toggle" || field.ui === "toggle"
+              ? "toggle"
+              : field.input === "time"
+                ? "time"
+                : field.input === "date"
+                  ? "date"
+                  : field.input === "number"
+                    ? "number"
+                    : field.input === "multiSelect"
+                      ? "multiSelect"
+                      : "select",
+        options: isMinStay ? (field.options ?? minStayDaysOptions) : field.options,
+        leftText: isEvacuationGuarantee ? "تومان" : isMinStay ? undefined : field.leftText,
+      };
+    });
   }
 
   const listingKey = `${transaction}:${category}`;

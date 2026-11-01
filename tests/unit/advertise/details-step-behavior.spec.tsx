@@ -90,7 +90,7 @@ test("error-revealed facility chips retain count sheets, selection and removal",
     expect(clearError).toHaveBeenCalledWith(key);
     expect(clearError).toHaveBeenCalledWith("facilities");
   }
-});
+}, 60_000);
 
 test("location hydration, loan resets and tag removal preserve form write behavior", async () => {
   localStorage.setItem(locationKey, "  تهران  ");

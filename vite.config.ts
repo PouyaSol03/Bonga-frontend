@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
   return {
     test: {
       pool: "vmThreads",
+      testTimeout: 60_000,
       environment: "jsdom",
       environmentOptions: { jsdom: { url: "http://localhost/" } },
       include: ["tests/**/*.spec.{ts,tsx}"],

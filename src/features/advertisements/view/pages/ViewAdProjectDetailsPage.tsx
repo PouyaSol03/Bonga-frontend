@@ -3,12 +3,13 @@ import { useNavigate } from "react-router";
 import { getApiErrorMessage } from "../../../../shared/api/api";
 import { PageFrame } from "../../../../shared/layout/PageFrame";
 import { TopBar } from "../../../../shared/components/TopBar";
+import { canGoBackInApp } from "../../../../shared/navigation/navigation";
 import {
   useAgencyAdvertisementPreviewQuery,
   useAdvertisementDetailQuery,
   useAdvertisementPreviewQuery,
 } from "../../api/advertisement.hooks";
-import { mapAdToDetails, parseViewAdIdFromPath } from "../viewAdDetails";
+import { mapAdToDetails, useViewAdRouteContext } from "../viewAdDetails";
 import { toPersianDigits } from "../../../../shared/lib/numberUtils";
 import type { ViewAdProjectDetailVariant } from "../viewAdTypes";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "../ViewAdRouteStates";
@@ -30,8 +31,7 @@ function toText(val: unknown, fallback = ""): string {
 
 export function ViewAdProjectDetailsPage() {
   const navigate = useNavigate();
-  const adId = parseViewAdIdFromPath(window.location.pathname);
-  const isPreview = window.location.pathname.startsWith("/preview-ad/");
+  const { adId, isPreview } = useViewAdRouteContext();
   const useAgencyAllocationPreview = isPreview && shouldUseAgencyAllocationPreview();
   const detailQuery = useAdvertisementDetailQuery(isPreview ? null : adId);
   const agencyPreviewQuery = useAgencyAdvertisementPreviewQuery(
@@ -163,6 +163,14 @@ export function ViewAdProjectDetailsPage() {
       : `/ads/${encodeURIComponent(String(adId))}`
     : "/home";
 
+  const handleBack = () => {
+    if (canGoBackInApp()) {
+      navigate(-1);
+      return;
+    }
+    navigate(backTarget, { replace: true });
+  };
+
   return (
     <PageFrame
       className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
@@ -171,7 +179,7 @@ export function ViewAdProjectDetailsPage() {
       <TopBar
         backTo={backTarget}
         className="bg-surface-container shrink-0"
-        onBack={() => navigate(backTarget, { replace: true })}
+        onBack={handleBack}
         title="اطلاعات پروژه"
       />
 

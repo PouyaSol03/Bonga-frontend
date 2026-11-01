@@ -50,7 +50,6 @@ export function NeedsEditNotice({
 
       <Link
         className="bg-primary text-on-primary mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg text-sm leading-5 font-medium no-underline"
-        replace
         state={{
           ad,
           card,

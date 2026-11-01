@@ -1,16 +1,20 @@
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { getStoredAuthSession } from "../../../../shared/auth/auth-storage";
-import { parseViewAdIdFromPath } from "../details/viewAdNavigation";
+import { canGoBackInApp } from "../../../../shared/navigation/navigation";
+import { useViewAdRouteContext } from "../details/viewAdNavigation";
 
 export function useViewAdNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const adId = parseViewAdIdFromPath(window.location.pathname);
-  const isPreview = window.location.pathname.startsWith("/preview-ad/");
+  const { adId, isPreview } = useViewAdRouteContext();
 
   const handleBack = useCallback(() => {
+    if (canGoBackInApp() || (typeof window !== "undefined" && window.history.state?.idx > 0)) {
+      navigate(-1);
+      return;
+    }
     if (isPreview) {
       const target = adId
         ? `/account/manage-ads/${encodeURIComponent(String(adId))}/state-ad`
@@ -21,10 +25,6 @@ export function useViewAdNavigation() {
     const from = (location.state as { from?: string } | null)?.from;
     if (from) {
       navigate(from, { replace: true });
-      return;
-    }
-    if (window.history.state?.idx > 0) {
-      navigate(-1);
       return;
     }
     navigate("/home", { replace: true });

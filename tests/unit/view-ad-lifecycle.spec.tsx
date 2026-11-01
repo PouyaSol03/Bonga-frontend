@@ -71,9 +71,14 @@ async function query() {
 }
 
 describe("view ad route and preview selection", () => {
-  it("returns to preview management before history or route state", async () => {
+  it("prioritizes in-app history over static preview path, and falls back to preview management", async () => {
     window.history.replaceState({ idx: 2 }, "", "/preview-ad/12");
     mocks.location.state = { from: "/search" };
+    (await navigation()).handleBack();
+    expect(mocks.navigate).toHaveBeenCalledWith(-1);
+
+    window.history.replaceState({}, "", "/preview-ad/12");
+    mocks.location.state = null;
     (await navigation()).handleBack();
     expect(mocks.navigate).toHaveBeenCalledWith("/account/manage-ads/12/state-ad", {
       replace: true,

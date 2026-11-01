@@ -59,7 +59,9 @@ export function DetailsProperties({
             openSelectSheet={openSelectSheet}
           />
         ) : null}
+        {!isDailyHotelRent ? (
         <RegisteredMoreFeatures values={values} errors={errors} onMoreFeatures={onMoreFeatures} />
+      ) : null}
       </div>
     </Section>
   );

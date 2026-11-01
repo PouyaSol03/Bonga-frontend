@@ -1,20 +1,11 @@
 import type { AdvertisementItem } from "../../api/advertisement.service";
 import type { IconName } from "../viewAdTypes";
 import { formatDetailPrice as formatPrice } from "../../../../shared/lib/MoneyHandler";
-import {
-  toText,
-  type DetailInfoItem,
-  type DetailInfoSection,
-  createCheckBadge,
-  createGridItem,
-  filterDetailSections,
-  formatAreaDetailValue,
-  formatRoomDetailValue,
-  formatTomanDetailValue,
-  getFirstExistingFeatureValue,
-  isFilledValue,
-  parseHotelStarCount,
-} from "../viewAdDetails";
+import { toText, type DetailInfoItem, type DetailInfoSection } from "./detailCore";
+import { createCheckBadge, createGridItem, filterDetailSections } from "./detailRows";
+import { formatAreaDetailValue, formatRoomDetailValue, formatTomanDetailValue } from "./detailUnits";
+import { getFirstExistingFeatureValue, isFilledValue } from "./featureValues";
+import { parseHotelStarCount } from "./advertiserAndPricing";
 
 export function buildDailyPropertyDetailSections(
   features: NonNullable<AdvertisementItem["features"]>,
@@ -180,4 +171,4 @@ export function buildDailyPropertyDetailSections(
 
   return filterDetailSections(sections);
 }
-
+

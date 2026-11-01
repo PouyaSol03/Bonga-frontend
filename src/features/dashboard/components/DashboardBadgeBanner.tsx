@@ -17,7 +17,7 @@ export interface DashboardBadgeBannerProps {
 export function DashboardBadgeBanner({
   badgeName = "مشاور تازه‌کار",
   categoryLabel = "سطح مشاور",
-  to = "/account/dashboard/ranking",
+  to = "/account/dashboard/ranking?from=dashboard",
   imageSrc,
   icon: Icon = LinearRanking,
   iconBgClass = "bg-[#FFF4E5] dark:bg-[#3D2500]",

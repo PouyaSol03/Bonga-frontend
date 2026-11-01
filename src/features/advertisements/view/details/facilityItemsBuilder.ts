@@ -2,10 +2,8 @@ import { getFeatureIconSrc } from "../../../../shared/lib/handleFeaturesIcons";
 import { toPersianNumber as toPersianDigits } from "../../../../shared/lib/numberUtils";
 import type { AdvertisementItem } from "../../api/advertisement.service";
 import type { DetailItem } from "../viewAdTypes";
-import {
-  getFeatureValue,
-  toText,
-} from "../viewAdDetails";
+import { getFeatureValue } from "./featureValues";
+import { toText } from "./detailCore";
 
 export const parkingFacilityFormCodes = new Set([
   "sale-apartment",

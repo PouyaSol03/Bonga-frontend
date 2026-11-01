@@ -3,11 +3,11 @@ import { useEffect, useMemo, useState } from "react";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
-import { ChoiceIndicator } from "../../../shared/ui/Choice";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import LinearTooman from "../../../shared/icons/LinearTooman";
-import { PaymentOptionIcon } from "../../account/adManagement/AdManagementIcons";
+import { PaymentMethodOption } from "../../payments/components/PaymentMethodOption";
+import { formatShortPayment } from "../../payments/components/formatShortPayment";
 import { formatTariffToman } from "../../account/adManagement/AdTariffOptionsView";
 import { useChargeWalletMutation } from "../../account/api/account.hooks";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
@@ -30,21 +30,6 @@ type PackagePaymentPageProps = {
 function toAmount(value: number | string | undefined) {
   const parsed = Number(value ?? 0);
   return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
-}
-
-function formatShortPayment(value: number) {
-  if (value === 0) return "رایگان";
-  if (value >= 1_000_000) {
-    const millions = value / 1_000_000;
-    const formatted = new Intl.NumberFormat("fa-IR", {
-      maximumFractionDigits: millions % 1 === 0 ? 0 : 2,
-    }).format(millions);
-    return `${formatted} میلیون تومان`;
-  }
-  if (value % 1000 === 0) {
-    return `${new Intl.NumberFormat("fa-IR").format(value / 1000)} هزار تومان`;
-  }
-  return `${formatTariffToman(value)} تومان`;
 }
 
 function SummaryRow({
@@ -84,65 +69,6 @@ function SummaryRow({
         {label}
       </Typography>
     </div>
-  );
-}
-
-function PaymentMethodOption({
-  active,
-  disabled = false,
-  icon,
-  label,
-  onClick,
-  subLabel,
-  subLabelClassName = "text-outline",
-}: {
-  active: boolean;
-  disabled?: boolean;
-  icon: "consultant" | "credit" | "online" | "wallet";
-  label: string;
-  onClick: () => void;
-  subLabel: string;
-  subLabelClassName?: string;
-}) {
-  return (
-    <Button
-      unstyled
-      aria-pressed={active}
-      className={`bg-surface-container-lowest flex h-[72px] w-full items-center justify-between border-0 px-4 text-inherit [direction:ltr] ${
-        disabled ? "cursor-not-allowed opacity-50" : ""
-      }`}
-      disabled={disabled}
-      onClick={onClick}
-      type="button"
-    >
-      <ChoiceIndicator
-        checked={active}
-        className={`ml-1 ${!active && !disabled ? "!border-outline-var" : ""}`}
-        disabled={disabled}
-        type="radio"
-      />
-      <Typography
-        as="span"
-        variant="body"
-        size="medium"
-        weight="regular"
-        className="inline-flex items-center gap-2 text-right [direction:rtl]"
-      >
-        <PaymentOptionIcon className="text-on-surface-var h-6 w-6 shrink-0" icon={icon} />
-        <Typography as="span" variant="body" size="medium" weight="regular" className="block">
-          <strong className="text-on-surface block text-base leading-6 font-normal">{label}</strong>
-          <Typography
-            as="span"
-            variant="body"
-            size="medium"
-            weight="regular"
-            className={`block text-sm leading-5 font-normal ${subLabelClassName}`}
-          >
-            {subLabel}
-          </Typography>
-        </Typography>
-      </Typography>
-    </Button>
   );
 }
 

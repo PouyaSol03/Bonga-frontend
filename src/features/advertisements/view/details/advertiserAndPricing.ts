@@ -3,12 +3,8 @@ import { formatDetailPrice as formatPrice } from "../../../../shared/lib/MoneyHa
 import { toPersianNumber as toPersianDigits } from "../../../../shared/lib/numberUtils";
 import type { AdvertisementItem } from "../../api/advertisement.service";
 import type { ViewAdDailyHotelRoom, ViewAdDetails } from "../viewAdTypes";
-import {
-  type AdvertiserPreview,
-  type AdvertisementFeatureMap,
-  toNumber,
-  toText,
-} from "../viewAdDetails";
+import { type AdvertiserPreview, toNumber, toText } from "./detailCore";
+import { type AdvertisementFeatureMap } from "./adFeatureResolution";
 import { toBooleanLike } from "./detailFormatters";
 
 export function formatPricePerMeter(totalPrice: unknown, area: unknown) {
@@ -302,4 +298,4 @@ export function readRentConvertible(
   return false;
 }
 
-
+

@@ -1,7 +1,7 @@
 import { apiV2 } from "../../../../shared/api/api";
 import type { DashboardRankingEntity } from "../dashboard.service";
 
-interface V2RankingSummary {
+export interface V2RankingSummary {
   current?: {
     agency_id?: string | number;
     agent_id?: string | number;

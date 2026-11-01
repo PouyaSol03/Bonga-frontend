@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { TopBar } from "../../shared/components/TopBar";
 import { Typography } from "../../shared/ui/Typography";
@@ -14,6 +15,12 @@ import {
 } from "./utils/rankingLevels";
 
 export function DashboardRankingLevelsGuidePage() {
+  const [searchParams] = useSearchParams();
+  const from = searchParams.get("from");
+  const backTo = from
+    ? `/account/dashboard/ranking?from=${encodeURIComponent(from)}`
+    : "/account/dashboard/ranking";
+
   const role = getActiveAuthRole(getStoredAuthSession());
   const isConsultant = role === INDEPENDENT_CONSULTANT || role === REAL_ESTATE_CONSULTANT;
   const levels = isConsultant ? CONSULTANT_RANKING_LEVELS : AGENCY_RANKING_LEVELS;
@@ -25,7 +32,7 @@ export function DashboardRankingLevelsGuidePage() {
       variant="flush"
     >
       <TopBar
-        backTo="/account/dashboard/ranking"
+        backTo={backTo}
         className="bg-surface-container"
         contentClassName="px-1"
         title={pageTitle}

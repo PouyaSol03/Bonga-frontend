@@ -57,7 +57,7 @@ import {
   getAdvertiseFormCode,
   type CategoryKey,
   type TransactionType,
-} from "../search/SearchMapFilterPage";
+} from "../search/filters/categories";
 
 function getCategorySelectionFormCode(
   category: CategoryOption | QuickAction | undefined,

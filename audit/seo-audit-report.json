@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-13T09:57:26.539Z",
+  "generatedAt": "2026-10-28T15:14:24.787Z",
   "summary": {
-    "passed": 30,
+    "passed": 28,
     "warnings": 1,
-    "failed": 0,
+    "failed": 2,
     "dynamicSitemapUrls": 61
   },
   "passed": [
@@ -30,8 +30,6 @@
     "src/features/search/SearchMapPage.tsx contains an H1",
     "src/features/consultants/ConsultantsDirectoryPage.tsx renders SEO metadata",
     "src/features/consultants/ConsultantsDirectoryPage.tsx contains an H1",
-    "src/features/advertisements/view/ViewAdPage.tsx renders SEO metadata",
-    "src/features/advertisements/view/ViewAdPage.tsx contains an H1",
     "src/features/dashboard/AgencyPreviewPage.tsx renders SEO metadata",
     "src/features/dashboard/AgencyPreviewPage.tsx contains an H1",
     "Nginx emits route-level X-Robots-Tag directives",
@@ -41,7 +39,10 @@
   "warnings": [
     "8 public assets are >= 500 KB; largest: public/vectors/agentLevel/deal_diamond.png (2248 KB), public/figma/dashboard/rank-building.png (2186 KB), public/splash.mp4 (1387 KB), public/White_line_tracing_house_logo_20260912142603.mp4 (1387 KB), public/vectors/agentLevel/unmatched_star.png (1353 KB)"
   ],
-  "failed": [],
+  "failed": [
+    "src/features/advertisements/view/ViewAdPage.tsx does not render the shared SEO component",
+    "src/features/advertisements/view/ViewAdPage.tsx has no H1"
+  ],
   "largestPublicAssets": [
     {
       "file": "public/vectors/agentLevel/deal_diamond.png",

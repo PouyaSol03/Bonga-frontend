@@ -25,9 +25,14 @@ import { syncEditLocationStorage, toFiniteCoordinate } from "./syncEditLocationS
 export { syncEditLocationStorage } from "./syncEditLocationStorage";
 
 export function mapAdvertisementToEditValues(
-  ad: AdvertisementItem,
+  rawAd: AdvertisementItem | { advertise?: AdvertisementItem },
   base: NewAdFormValues,
 ): NewAdFormValues {
+  const ad = (
+    rawAd && typeof rawAd === "object" && "advertise" in rawAd && rawAd.advertise
+      ? rawAd.advertise
+      : rawAd
+  ) as AdvertisementItem;
   const features = getAdvertisementFeatures(ad);
   const next: NewAdFormValues = {
     ...blankValues,

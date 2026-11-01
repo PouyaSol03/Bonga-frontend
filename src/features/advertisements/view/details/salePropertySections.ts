@@ -1,24 +1,10 @@
 import type { AdvertisementItem } from "../../api/advertisement.service";
-import {
-  type DetailInfoItem,
-  type DetailInfoSection,
-  createCheckBadge,
-  createChoiceRow,
-  createExchangeRow,
-  createGridItem,
-  createLoanRow,
-  filterDetailSections,
-  formatAgeDetailValue,
-  formatAreaDetailValue,
-  formatFloorDetailValue,
-  formatMeterDetailValue,
-  formatRoomDetailValue,
-  formatTotalFloorsDetailValue,
-  formatUnitsPerFloorDetailValue,
-  getFirstExistingFeatureValue,
-  isFilledValue,
-  parseHotelStarCount,
-} from "../viewAdDetails";
+import { type DetailInfoItem, type DetailInfoSection } from "./detailCore";
+import { createCheckBadge, createChoiceRow, createGridItem, filterDetailSections } from "./detailRows";
+import { createExchangeRow, createLoanRow } from "./detailFinanceRows";
+import { formatAgeDetailValue, formatAreaDetailValue, formatFloorDetailValue, formatMeterDetailValue, formatRoomDetailValue, formatTotalFloorsDetailValue, formatUnitsPerFloorDetailValue } from "./detailUnits";
+import { getFirstExistingFeatureValue, isFilledValue } from "./featureValues";
+import { parseHotelStarCount } from "./advertiserAndPricing";
 
 export function saleLoanExchangeSection(
   ad: AdvertisementItem,

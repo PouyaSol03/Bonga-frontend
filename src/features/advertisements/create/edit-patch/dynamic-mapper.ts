@@ -49,21 +49,27 @@ function mapAreasAndPrices(
 
   if (changed.has("price"))
     appender.appendDynamic("price", getPriceValue(clean, params.transaction, params.category));
-  if (changed.has("rentPrice")) appender.appendDynamic("rent_price", toNumber(clean.rentPrice));
-  if (changed.has("mortgagePrice"))
-    appender.appendDynamic("mortgage_price", toNumber(clean.mortgagePrice));
+  if (params.transaction === "rent") {
+    if (changed.has("rentPrice")) appender.appendBase("rent_price", toNumber(clean.rentPrice));
+    if (changed.has("mortgagePrice"))
+      appender.appendBase("mortgage_price", toNumber(clean.mortgagePrice));
 
-  if (changed.has("rentConversionEnabled") || changed.has("rentConversionMortgagePrice")) {
-    appender.appendDynamic("rent_conversion_enabled", clean.rentConversionEnabled);
-    appender.appendDynamic("rent_convertible", clean.rentConversionEnabled);
-    if (clean.rentConversionEnabled) {
-      appender.appendDynamic(
-        "rent_conversion_mortgage_price",
-        toNumber(clean.rentConversionMortgagePrice),
-      );
-      appender.appendDynamic("rent_conversion_policy", "قابل تبدیل");
-    } else {
-      appender.appendDynamic("rent_conversion_policy", "غیر قابل تبدیل");
+    if (
+      changed.has("rentConversionEnabled") ||
+      changed.has("rentConversionMortgagePrice") ||
+      changed.has("rentConversionPolicy")
+    ) {
+      appender.appendBase("rent_conversion_enabled", clean.rentConversionEnabled);
+      appender.appendBase("rent_convertible", clean.rentConversionEnabled);
+      if (clean.rentConversionEnabled) {
+        const conversionMortgage =
+          toNumber(clean.rentConversionMortgagePrice) ?? toNumber(clean.mortgagePrice);
+        appender.appendBase("rent_conversion_mortgage_price", conversionMortgage);
+        appender.appendBase("rent_conversion_policy", "قابل تبدیل");
+      } else {
+        appender.appendBase("rent_conversion_mortgage_price", "null");
+        appender.appendBase("rent_conversion_policy", "غیر قابل تبدیل");
+      }
     }
   }
 
@@ -89,8 +95,9 @@ function mapAreasAndPrices(
     appender.appendDynamic("extra_person_price", toNumber(clean.extraPersonPrice));
 }
 
-function resolveFeatureLabels(items: ReturnType<typeof getFacilityItemsForListing>, ids: string[]): string[] {
+function resolveFeatureLabels(items: ReturnType<typeof getFacilityItemsForListing>, ids?: string[]): string[] {
   const result: string[] = [];
+  if (!Array.isArray(ids)) return result;
   for (const id of ids) {
     if (!id || !id.trim()) continue;
     const trimmed = id.trim();
@@ -152,17 +159,21 @@ function mapCollections(
   if (changed.has("usageType")) appender.appendDynamicArray("land_use", clean.usageType);
   if (changed.has("suitableFor")) appender.appendDynamicArray("suitable_for", clean.suitableFor);
 
-  const heating = resolveFeatureLabels(
-    getHeatingItemsForListing(params.transaction, params.category),
-    clean.heatingCooling,
-  );
-  appender.appendDynamicArray("heating_cooling", heating);
+  if (changed.has("heatingCooling")) {
+    const heating = resolveFeatureLabels(
+      getHeatingItemsForListing(params.transaction, params.category),
+      clean.heatingCooling,
+    );
+    appender.appendDynamicArray("heating_cooling", heating);
+  }
 
-  const facs = resolveFeatureLabels(
-    getFacilityItemsForListing(params.transaction, params.category),
-    clean.facilities,
-  );
-  appender.appendDynamicArray("facilities", facs);
+  if (changed.has("facilities")) {
+    const facs = resolveFeatureLabels(
+      getFacilityItemsForListing(params.transaction, params.category),
+      clean.facilities,
+    );
+    appender.appendDynamicArray("facilities", facs);
+  }
 
   if (changed.has("exchangeEnabled") || changed.has("exchangeTargets")) {
     const exchangeAllowed = !formCode.startsWith("rent-");

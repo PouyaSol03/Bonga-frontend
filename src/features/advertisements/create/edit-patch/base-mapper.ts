@@ -109,29 +109,36 @@ function mapChangedMedia(
   changed: Set<keyof NewAdFormValues>,
   appender: PatchAppender,
 ): void {
-  if (changed.has("photos")) {
-    const seenUploaded = new Set<string>();
-    const seenCanonical = new Set<string>();
+  const seenUploaded = new Set<string>();
+  const seenCanonical = new Set<string>();
 
-    clean.photos.forEach((photo) => {
-      if (photo.file) {
+  (clean.photos || []).forEach((photo) => {
+    if (photo.file) {
+      if (changed.has("photos")) {
         const key = `${photo.file.name}_${photo.file.size}`;
         if (!seenUploaded.has(key)) {
           seenUploaded.add(key);
           appender.formData.append("images", photo.file, photo.file.name);
         }
-      } else {
-        const source = mediaSource(photo.existingValue || photo.previewUrl);
-        if (source) {
-          const canonical = canonicalizeMediaPath(source);
-          if (canonical && !seenCanonical.has(canonical)) {
-            seenCanonical.add(canonical);
-            appender.formData.append("existing_images", canonical);
-          }
+      }
+    } else {
+      const source = mediaSource(photo.existingValue || photo.previewUrl);
+      if (source) {
+        const canonical = canonicalizeMediaPath(source);
+        if (canonical && !seenCanonical.has(canonical)) {
+          seenCanonical.add(canonical);
+          appender.formData.append("existing_images", canonical);
         }
       }
-    });
-    appender.appendDynamic("has_image", clean.photos.length > 0);
+    }
+  });
+
+  if (seenCanonical.size === 0) {
+    appender.formData.append("existing_images", "[]");
+  }
+
+  if (changed.has("photos")) {
+    appender.appendDynamic("has_image", (clean.photos || []).length > 0);
   }
 
   if (changed.has("video")) {

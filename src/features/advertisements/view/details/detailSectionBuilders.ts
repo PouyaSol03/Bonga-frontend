@@ -2,40 +2,14 @@ import type { IconName } from "../viewAdTypes";
 import type { AdvertisementItem } from "../../api/advertisement.service";
 import { getFeatureIconSrc } from "../../../../shared/lib/handleFeaturesIcons";
 import { toPersianNumber as toPersianDigits } from "../../../../shared/lib/numberUtils";
-import {
-  type DetailInfoItem,
-  type DetailInfoSection,
-  type DetailInfoTone,
-  
-  buildAdvertisementFeatureMap,
-  createCheckBadge,
-  createChoiceRow,
-  createExchangeRow,
-  createGridItem,
-  createLoanRow,
-  filterDetailSections,
-  formatAgeDetailValue,
-  formatAreaDetailValue,
-  formatFloorDetailValue,
-  formatMeterDetailValue,
-  formatRoomDetailValue,
-  formatTomanDetailValue,
-  formatTotalFloorsDetailValue,
-  formatUnitsPerFloorDetailValue,
-  getElevatorCountText,
-  getFeatureValue,
-  getFirstExistingFeatureValue,
-  getParkingCountText,
-  getResolvedAdvertisementFeatures,
-  getTerraceCountText,
-  getWarehouseCountText,
-  isFilledValue,
-  normalizeFacilityDisplayLabel,
-  parseCountNumber,
-  parseFeatureList,
-  parseHotelStarCount,
-  toText,
-} from "../viewAdDetails";
+import { type DetailInfoItem, type DetailInfoSection, type DetailInfoTone, toText } from "./detailCore";
+import { buildAdvertisementFeatureMap, getResolvedAdvertisementFeatures } from "./adFeatureResolution";
+import { createCheckBadge, createChoiceRow, createGridItem, filterDetailSections } from "./detailRows";
+import { createExchangeRow, createLoanRow } from "./detailFinanceRows";
+import { formatAgeDetailValue, formatAreaDetailValue, formatFloorDetailValue, formatMeterDetailValue, formatRoomDetailValue, formatTomanDetailValue, formatTotalFloorsDetailValue, formatUnitsPerFloorDetailValue } from "./detailUnits";
+import { getElevatorCountText, getParkingCountText, getTerraceCountText, getWarehouseCountText, normalizeFacilityDisplayLabel, parseCountNumber, parseFeatureList } from "./facilityItemsBuilder";
+import { getFeatureValue, getFirstExistingFeatureValue, isFilledValue } from "./featureValues";
+import { parseHotelStarCount } from "./advertiserAndPricing";
 import { buildSalePropertyDetailSections } from "./salePropertySections";
 import { buildRentPropertyDetailSections } from "./rentPropertySections";
 import { buildDailyPropertyDetailSections } from "./dailyPropertySections";

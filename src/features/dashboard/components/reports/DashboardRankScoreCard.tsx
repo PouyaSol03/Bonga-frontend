@@ -30,7 +30,7 @@ export function DashboardRankScoreCard({
   pointsNeeded,
   targetRank,
   badgeName,
-  badgesTo = "/account/dashboard/ranking",
+  badgesTo = "/account/dashboard/ranking?from=dashboard",
   title,
 }: DashboardRankScoreCardProps) {
   const isManager = role === "REAL_ESTATE_MANAGER";

@@ -5,11 +5,8 @@ import type {
   ViewAdDailyHotelRoom,
   ViewAdProjectDetailVariant,
 } from "../viewAdTypes";
-import {
-  type AdvertisementFeatureMap,
-  toNumber,
-  toText,
-} from "../viewAdDetails";
+import { type AdvertisementFeatureMap } from "./adFeatureResolution";
+import { toNumber, toText } from "./detailCore";
 import {
   getFirstExistingFeatureValue,
   isFilledValue,

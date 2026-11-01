@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     test: {
+      pool: "vmThreads",
       environment: "jsdom",
       environmentOptions: { jsdom: { url: "http://localhost/" } },
       include: ["tests/**/*.spec.{ts,tsx}"],

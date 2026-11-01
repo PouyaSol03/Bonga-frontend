@@ -10,6 +10,7 @@ import {
 } from "../viewAdDetails";
 import {
   formatAreaDetailValue,
+  formatMeterDetailValue,
   formatPercentDetailValue,
   getFirstExistingFeatureValue,
   isFilledValue,
@@ -172,8 +173,7 @@ function normalizeDetailValue(label: string, value: unknown): DetailInfoValue {
   }
 
   if (["land_width", "street_width", "height"].includes(label)) {
-    const text = toText(value);
-    return text ? `${text} متر` : "-";
+    return formatMeterDetailValue(value);
   }
 
   if (
@@ -291,4 +291,4 @@ function buildPropertyInfoItem(label: string, rawValue: unknown) {
   };
 }
 
-
+

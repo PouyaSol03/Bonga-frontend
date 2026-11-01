@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useLocation } from "react-router";
 import type { AdvertisementItem } from "../../api/advertisement.service";
 import { parseAdIdFromPath } from "../viewAdData";
 import { getFeatureValue } from "./featureValues";
@@ -14,10 +16,37 @@ export function parseViewAdIdFromPath(pathname: string) {
   return match?.[1] ?? null;
 }
 
-export function getCurrentViewAdBasePath(adId: string) {
-  return window.location.pathname.startsWith("/preview-ad/")
-    ? `/preview-ad/${adId}`
-    : `/ads/${adId}`;
+export function useViewAdRouteContext() {
+  const location = useLocation();
+  const rawPath = location.pathname || (typeof window !== "undefined" ? window.location.pathname : "");
+  const currentParsedId = parseViewAdIdFromPath(rawPath);
+  const isCurrentPreview =
+    rawPath.startsWith("/preview-ad/") ||
+    (typeof window !== "undefined" && window.location.pathname.startsWith("/preview-ad/"));
+
+  const [routeState, setRouteState] = useState(() => ({
+    adId: currentParsedId,
+    isPreview: isCurrentPreview,
+  }));
+
+  if (
+    currentParsedId != null &&
+    (routeState.adId !== currentParsedId || routeState.isPreview !== isCurrentPreview)
+  ) {
+    setRouteState({
+      adId: currentParsedId,
+      isPreview: isCurrentPreview,
+    });
+  }
+
+  return routeState;
+}
+
+export function getCurrentViewAdBasePath(adId: string, isPreview?: boolean) {
+  const preview =
+    isPreview ??
+    (typeof window !== "undefined" && window.location.pathname.startsWith("/preview-ad/"));
+  return preview ? `/preview-ad/${adId}` : `/ads/${adId}`;
 }
 
 export function getDetailPageTitle(
@@ -57,5 +86,3 @@ export function getDetailPageTitle(
 
   return "اطلاعات ملک";
 }
-
-

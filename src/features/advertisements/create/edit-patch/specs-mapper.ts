@@ -12,26 +12,21 @@ export function mapBuildingSpecs(
   if (changed.has("rooms")) appender.appendDynamic("rooms", clean.rooms);
   if (changed.has("age")) appender.appendDynamic("building_age", clean.age);
   if (changed.has("hotelStars")) appender.appendDynamic("hotel_stars", clean.hotelStars);
-  if (changed.has("accommodationType"))
-    appender.appendDynamic("accommodation_type", clean.accommodationType);
+  if (changed.has("accommodationType")) appender.appendDynamic("accommodation_type", clean.accommodationType);
   if (changed.has("spaceType")) appender.appendDynamic("space_type", clean.spaceType);
   if (changed.has("standardCapacity"))
     appender.appendDynamic("capacity", toNumber(pickFirstNumber(clean.standardCapacity)));
   if (changed.has("extraPeopleCapacity"))
-    appender.appendDynamic(
-      "extra_people_capacity",
-      toNumber(pickFirstNumber(clean.extraPeopleCapacity)),
-    );
+    appender.appendDynamic("extra_people_capacity", toNumber(pickFirstNumber(clean.extraPeopleCapacity)));
   if (changed.has("rentalPeriod")) appender.appendDynamic("rental_period", clean.rentalPeriod);
   if (changed.has("viewType")) appender.appendDynamic("view_type", clean.viewType);
   if (changed.has("checkInTime")) appender.appendDynamic("check_in_time", clean.checkInTime);
   if (changed.has("checkOutTime")) appender.appendDynamic("check_out_time", clean.checkOutTime);
-  if (changed.has("minStayDays"))
-    appender.appendDynamic("min_stay_days", toNumber(clean.minStayDays));
+  if (changed.has("minStayDays")) appender.appendDynamic("min_stay_days", toNumber(clean.minStayDays));
   if (changed.has("evacuationGuarantee"))
     appender.appendDynamic("evacuation_guarantee", toNumber(clean.evacuationGuarantee));
-  if (changed.has("renovated")) appender.appendDynamic("renovated", clean.renovated);
-  if (changed.has("furnished")) appender.appendDynamic("furnished", clean.furnished);
+  if (changed.has("renovated")) appender.appendDynamic("renovated", clean.renovated ? 1 : "null");
+  if (changed.has("furnished")) appender.appendDynamic("furnished", clean.furnished ? 1 : "null");
   if (changed.has("totalFloors"))
     appender.appendDynamic("total_floors", toNumber(pickFirstNumber(clean.totalFloors)));
 
@@ -117,38 +112,37 @@ export function mapPermitsAndTerms(
   appender: PatchAppender,
 ): void {
   if (changed.has("managementRoom"))
-    appender.appendDynamic("management_room", clean.managementRoom);
+    appender.appendDynamic("management_room", clean.managementRoom ? 1 : "null");
   if (changed.has("conferenceRoom"))
-    appender.appendDynamic("conference_room", clean.conferenceRoom);
-  if (changed.has("receptionHall")) appender.appendDynamic("reception_hall", clean.receptionHall);
-  if (changed.has("signboard")) appender.appendDynamic("signboard", clean.signboard);
-  if (changed.has("kitchen")) appender.appendDynamic("kitchen", clean.kitchen);
+    appender.appendDynamic("conference_room", clean.conferenceRoom ? 1 : "null");
+  if (changed.has("receptionHall"))
+    appender.appendDynamic("reception_hall", clean.receptionHall ? 1 : "null");
+  if (changed.has("signboard"))
+    appender.appendDynamic("signboard", clean.signboard ? 1 : "null");
+  if (changed.has("kitchen"))
+    appender.appendDynamic("kitchen", clean.kitchen ? 1 : "null");
   if (changed.has("separateEntrance"))
-    appender.appendDynamic("separate_entrance", clean.separateEntrance);
+    appender.appendDynamic("separate_entrance", clean.separateEntrance ? 1 : "null");
 
   if (
     changed.has("hasDocument") ||
     changed.has("documentType") ||
     changed.has("officeDocumentType")
   ) {
-    appender.appendDynamic(
-      "has_document",
-      clean.hasDocument || Boolean(clean.documentType || clean.officeDocumentType),
-    );
-    appender.appendDynamic("document_type", clean.documentType);
+    const hasDoc = clean.hasDocument || Boolean(clean.documentType || clean.officeDocumentType);
+    appender.appendDynamic("has_document", hasDoc ? 1 : "null");
+    appender.appendDynamic("document_type", clean.documentType || "null");
   }
 
   if (changed.has("commercialLicense") || changed.has("commercialPermit")) {
-    appender.appendDynamic(
-      "commercial_permit",
-      clean.commercialLicense || (clean.commercialPermit ? "دارد" : ""),
-    );
+    const val = clean.commercialLicense || (clean.commercialPermit ? "دارد" : "");
+    appender.appendDynamic("commercial_permit", val || "null");
   }
   if (changed.has("constructionLicense") || changed.has("constructionPermit")) {
-    appender.appendDynamic(
-      "build_permit",
-      clean.constructionLicense ? clean.constructionLicense === "دارد" : clean.constructionPermit,
-    );
+    const buildPermit = clean.constructionLicense
+      ? clean.constructionLicense === "دارد"
+      : clean.constructionPermit;
+    appender.appendDynamic("build_permit", buildPermit ? 1 : "null");
   }
 
   if (

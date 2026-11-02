@@ -7,7 +7,7 @@ export function createPatchAppender(
   const appendBase = (key: string, value: unknown) => {
     if (value === undefined) return;
     if (value === null) {
-      formData.append(key, "");
+      formData.append(key, "null");
       return;
     }
     if (typeof value === "string") {
@@ -22,11 +22,12 @@ export function createPatchAppender(
     if (dynamicFieldKeysSet.size > 0 && !dynamicFieldKeysSet.has(key)) return;
     if (value === undefined) return;
     if (value === null) {
-      formData.append(key, "");
+      formData.append(key, "null");
       return;
     }
     if (typeof value === "string") {
-      formData.append(key, value.trim());
+      const trimmed = value.trim();
+      formData.append(key, trimmed ? trimmed : "null");
       return;
     }
     const serialized = typeof value === "boolean" ? (value ? "1" : "0") : String(value);
@@ -76,11 +77,14 @@ export function createPatchAppender(
 
   const appendFacilityCount = (key: string, value: unknown) => {
     if (value === undefined) return;
-    const resolved = value === null ? "" : value;
+    if (value === null || value === "") {
+      formData.append(key, "null");
+      return;
+    }
     if (dynamicFieldKeysSet.size > 0 && dynamicFieldKeysSet.has(key)) {
-      appendDynamic(key, resolved);
+      appendDynamic(key, value);
     } else {
-      appendBase(key, resolved);
+      appendBase(key, value);
     }
   };
 

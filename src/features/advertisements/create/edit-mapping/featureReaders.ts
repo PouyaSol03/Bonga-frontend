@@ -131,9 +131,21 @@ export function readRegistrantType(
 export function getAdvertisementFeatures(
   ad: AdvertisementItem | Record<string, unknown> | undefined,
 ): AdvertisementFeature[] {
-  if (!ad || !Array.isArray(ad.features)) return [];
+  if (!ad) return [];
 
-  return ad.features.flatMap((feature) => {
+  const rawFeatures = [
+    ...(Array.isArray(ad.features) ? ad.features : []),
+    ...(Array.isArray((ad as Record<string, unknown>).dynamic_fields)
+      ? ((ad as Record<string, unknown>).dynamic_fields as unknown[])
+      : []),
+    ...(Array.isArray((ad as Record<string, unknown>).dynamicFields)
+      ? ((ad as Record<string, unknown>).dynamicFields as unknown[])
+      : []),
+  ];
+
+  if (!rawFeatures.length) return [];
+
+  return rawFeatures.flatMap((feature) => {
     if (!feature || typeof feature !== "object") return [];
     const item = feature as Record<string, unknown>;
     const label =

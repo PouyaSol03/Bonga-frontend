@@ -1,27 +1,5 @@
 import type { AdvertisementFeature, AdvertisementItem } from "../../api/advertisement.service";
-import {
-  dailyHotelFacilityItems,
-  dailyStayFacilityItems,
-  dailyWorkspaceFacilityItems,
-  facilityItems,
-  heatingItems,
-  landFacilityItems,
-  propertySpecs,
-  rentApartmentFacilityItems,
-  rentHeatingItems,
-  rentHotelFacilityItems,
-  rentOfficeFacilityItems,
-  rentVillaHouseFacilityItems,
-  saleApartmentFacilityItems,
-  saleApartmentHeatingItems,
-  saleCommercialFacilityItems,
-  saleCommercialHeatingItems,
-  saleFactoryFacilityItems,
-  saleFactoryHeatingItems,
-  saleLandFacilityItems,
-  saleVillaHouseFacilityItems,
-  saleVillaHouseHeatingItems,
-} from "../data";
+import { propertySpecs } from "../data";
 import type { NewAdFormValues } from "../types";
 import {
   idsFromLabels,
@@ -32,6 +10,8 @@ import {
 } from "./featureReaders";
 import { numericInputText } from "./featureFormatters";
 import { mapDailyHotelRooms, mapProjectDetails } from "./specMappers";
+import { mapAmenitySpecs } from "./amenitySpecs";
+import { mapOfficeSpecs } from "./officeSpecs";
 
 function hasNumericLoan(value: unknown): boolean {
   const text = numericInputText(value);
@@ -67,48 +47,8 @@ export function mapAdvertisementSpecs(
   );
   if (selectedSpecs.length) next.selectedSpecs = selectedSpecs;
 
-  const heatingCooling = idsFromLabels(
-    [
-      ...heatingItems,
-      ...saleApartmentHeatingItems,
-      ...saleVillaHouseHeatingItems,
-      ...saleCommercialHeatingItems,
-      ...saleFactoryHeatingItems,
-      ...rentHeatingItems,
-    ],
-    readFirstValue(ad, features, ["heating_cooling"], ["heating_cooling", "heatingCooling"]),
-  );
-  if (heatingCooling.length) next.heatingCooling = heatingCooling;
-
-  const facilities = idsFromLabels(
-    [
-      ...facilityItems,
-      ...landFacilityItems,
-      ...saleApartmentFacilityItems,
-      ...saleVillaHouseFacilityItems,
-      ...saleLandFacilityItems,
-      ...saleCommercialFacilityItems,
-      ...saleFactoryFacilityItems,
-      ...rentApartmentFacilityItems,
-      ...rentVillaHouseFacilityItems,
-      ...rentOfficeFacilityItems,
-      ...rentHotelFacilityItems,
-      ...dailyStayFacilityItems,
-      ...dailyHotelFacilityItems,
-      ...dailyWorkspaceFacilityItems,
-    ],
-    readFirstValue(ad, features, ["facilities"], ["facilities"]),
-  );
-  if (facilities.length) next.facilities = Array.from(new Set(facilities));
-  if (next.elevatorCount && !next.facilities.includes("elevator")) {
-    next.facilities.push("elevator");
-  }
-  if (next.parkingCount && !next.facilities.includes("parking")) {
-    next.facilities.push("parking");
-  }
-  if (next.terraceCount && !next.facilities.includes("terrace")) {
-    next.facilities.push("terrace");
-  }
+  mapAmenitySpecs(ad, features, next);
+  mapOfficeSpecs(ad, features, next);
 
   const exchangeWith = readFirstValue(
     ad,

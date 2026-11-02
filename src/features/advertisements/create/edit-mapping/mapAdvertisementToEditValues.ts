@@ -26,7 +26,7 @@ export { syncEditLocationStorage } from "./syncEditLocationStorage";
 
 export function mapAdvertisementToEditValues(
   rawAd: AdvertisementItem | { advertise?: AdvertisementItem },
-  base: NewAdFormValues,
+  base: Partial<NewAdFormValues> = blankValues,
 ): NewAdFormValues {
   const ad = (
     rawAd && typeof rawAd === "object" && "advertise" in rawAd && rawAd.advertise
@@ -37,10 +37,10 @@ export function mapAdvertisementToEditValues(
   const next: NewAdFormValues = {
     ...blankValues,
     ...base,
-    dailyHotelRooms: base.dailyHotelRooms.length
+    dailyHotelRooms: base.dailyHotelRooms?.length
       ? base.dailyHotelRooms
       : blankValues.dailyHotelRooms,
-    photos: base.photos.length > 0 ? base.photos : getExistingPhotoMedia(ad),
+    photos: base.photos?.length ? base.photos : getExistingPhotoMedia(ad),
     video: base.video ? base.video : getExistingVideoMedia(ad),
   };
   const setText = (

@@ -96,23 +96,13 @@ function mapAreasAndPrices(
 }
 
 function resolveFeatureLabels(items: ReturnType<typeof getFacilityItemsForListing>, ids?: string[]): string[] {
-  const result: string[] = [];
-  if (!Array.isArray(ids)) return result;
-  for (const id of ids) {
-    if (!id || !id.trim()) continue;
-    const trimmed = id.trim();
-    const matchedById = items.find((item) => item.id === trimmed);
-    if (matchedById) {
-      result.push(matchedById.label);
-      continue;
-    }
-    const matchedByLabel = items.find((item) => item.label === trimmed);
-    if (matchedByLabel) {
-      result.push(matchedByLabel.label);
-      continue;
-    }
-    result.push(trimmed);
-  }
+  if (!Array.isArray(ids)) return [];
+  const result = ids.map((id) => {
+    const trimmed = typeof id === "string" ? id.trim() : "";
+    if (!trimmed) return null;
+    const match = items.find((item) => item.id === trimmed || item.label === trimmed);
+    return match ? match.label : trimmed;
+  }).filter((x): x is string => Boolean(x));
   return Array.from(new Set(result));
 }
 
@@ -156,8 +146,20 @@ function mapCollections(
   if (changed.has("suiteCount"))
     appender.appendDynamic("suite_count", toNumber(pickFirstNumber(clean.suiteCount)));
 
-  if (changed.has("usageType")) appender.appendDynamicArray("land_use", clean.usageType);
-  if (changed.has("suitableFor")) appender.appendDynamicArray("suitable_for", clean.suitableFor);
+  if (changed.has("usageType")) {
+    if (!clean.usageType || clean.usageType.length === 0) {
+      appender.appendDynamic("land_use", "null");
+    } else {
+      appender.appendDynamicArray("land_use", clean.usageType);
+    }
+  }
+  if (changed.has("suitableFor")) {
+    if (!clean.suitableFor || clean.suitableFor.length === 0) {
+      appender.appendDynamic("suitable_for", "null");
+    } else {
+      appender.appendDynamicArray("suitable_for", clean.suitableFor);
+    }
+  }
 
   if (changed.has("heatingCooling")) {
     const heating = resolveFeatureLabels(

@@ -6,6 +6,7 @@ import {
   setStoredActiveRole,
   storeLoginRedirectPath,
 } from "../../shared/auth/auth-storage";
+import { getLoginRequiredPath } from "../../shared/navigation/navigation";
 import { clearNewAdDraftStorage } from "../../features/advertisements/create/utils";
 import { hasBusinessPublisherRoles } from "../../features/advertisements/api/publisher-options.hooks";
 import LinearAddCircle from "../../shared/icons/LinearAddCircle";
@@ -73,12 +74,6 @@ const BottomNavigationUnreadChatBadge = lazy(() =>
     default: module.BottomNavigationUnreadChatBadge,
   })),
 );
-
-function getLoginRequiredPath(returnTo: string) {
-  const params = new URLSearchParams({ returnTo });
-
-  return `/login-required?${params.toString()}`;
-}
 
 function BottomNavigationComponent({ activeKey = "account" }: { activeKey?: string }) {
   const navigate = useNavigate();

@@ -1,3 +1,7 @@
+import { ChevronLeftIcon } from "../../../../shared/icons/ChevronLeftIcon";
+
+export { ChevronLeftIcon };
+
 export function PlusIcon({ className = "" }: { className?: string }) {
   return (
     <svg
@@ -30,23 +34,6 @@ export function WarningTriangleIcon({ className = "" }: { className?: string }) 
       <path d="M10.3 4.2 2.6 17.5A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.5L13.7 4.2a2 2 0 0 0-3.4 0Z" />
       <path d="M12 9v4" />
       <path d="M12 16.5h.01" />
-    </svg>
-  );
-}
-
-export function ChevronLeftIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      viewBox="0 0 24 24"
-    >
-      <path d="m15 18-6-6 6-6" />
     </svg>
   );
 }

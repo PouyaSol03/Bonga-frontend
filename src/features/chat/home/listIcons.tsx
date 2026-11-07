@@ -1,22 +1,9 @@
 
 
-export function SearchIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="m16.2 16.2 3.8 3.8" />
-    </svg>
-  );
-}
+import { ChevronLeftIcon } from "../../../shared/icons/ChevronLeftIcon";
+import { SearchIcon } from "../../../shared/icons/SearchIcon";
+
+export { ChevronLeftIcon, SearchIcon };
 
 export function MoreVerticalIcon({ className = "" }: { className?: string }) {
   return (
@@ -66,23 +53,6 @@ export function CheckIcon({ className = "" }: { className?: string }) {
       viewBox="0 0 18 18"
     >
       <path d="m5.1 9.1 2.3 2.3 5.5-5.5" />
-    </svg>
-  );
-}
-
-export function ChevronLeftIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <path d="m15 6-6 6 6 6" />
     </svg>
   );
 }

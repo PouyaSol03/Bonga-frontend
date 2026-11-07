@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, type ReactNode } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
@@ -6,6 +6,7 @@ import { useAccountCreditHistoryInfiniteQuery } from "../api/account.hooks";
 import type { PaymentHistoryItem } from "../api/account.service";
 import type { CreditPayment } from "./creditData";
 import { Typography } from "../../../shared/ui/Typography";
+import { PaymentHistoryRow } from "../components/payment/PaymentHistoryRow";
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -250,38 +251,5 @@ function PaymentHistoryCard({
       <PaymentHistoryRow label="نحوه پرداخت" value={payment.method} />
       <PaymentHistoryRow label="شناسه پرداخت" value={payment.id} />
     </section>
-  );
-}
-
-function PaymentHistoryRow({
-  label,
-  value,
-  valueClassName = "text-on-surface",
-}: {
-  label: string;
-  value: ReactNode;
-  valueClassName?: string;
-}) {
-  return (
-    <div className="flex h-8 shrink-0 items-center justify-between gap-4 text-sm leading-5 font-medium [direction:ltr]">
-      <Typography
-        as="span"
-        variant="body"
-        size="medium"
-        weight="regular"
-        className={`min-w-0 truncate text-left ${valueClassName}`}
-      >
-        {value}
-      </Typography>
-      <Typography
-        as="span"
-        variant="body"
-        size="medium"
-        weight="regular"
-        className="text-outline shrink-0 text-right [direction:rtl]"
-      >
-        {label}
-      </Typography>
-    </div>
   );
 }

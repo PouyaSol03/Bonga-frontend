@@ -1,6 +1,3 @@
-import type { NeighborhoodDto } from "../../locations/api/neighborhood.service";
-import type { SelectedNeighborhood } from "./types";
-
 export function isDesktopDashboard(): boolean {
   return false;
 }
@@ -19,13 +16,7 @@ export function splitProfileName(value: string): { family: string | null; name: 
   };
 }
 
-export function getNeighborhoodId(neighborhood: NeighborhoodDto): string {
-  return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
-}
-
-export function toSelectedNeighborhood(neighborhood: NeighborhoodDto): SelectedNeighborhood {
-  return {
-    id: getNeighborhoodId(neighborhood),
-    name: neighborhood.name,
-  };
-}
+export {
+  getNeighborhoodId,
+  toSelectedNeighborhood,
+} from "../components/neighborhood/neighborhoodHelpers";

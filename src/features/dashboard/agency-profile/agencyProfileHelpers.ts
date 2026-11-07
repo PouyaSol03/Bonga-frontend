@@ -26,18 +26,12 @@ export function getInitialAgencyProfileMapCenter(): AgencyProfileMapCenter {
   };
 }
 
-export function getNeighborhoodId(neighborhood: NeighborhoodDto) {
-  return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
-}
+import {
+  getNeighborhoodId,
+  toSelectedNeighborhood,
+} from "../components/neighborhood/neighborhoodHelpers";
 
-export function toSelectedNeighborhood(neighborhood: NeighborhoodDto): SelectedNeighborhood {
-  return {
-    id: getNeighborhoodId(neighborhood),
-    lat: Number.isFinite(Number(neighborhood.lat)) ? Number(neighborhood.lat) : undefined,
-    lng: Number.isFinite(Number(neighborhood.lng)) ? Number(neighborhood.lng) : undefined,
-    name: neighborhood.name,
-  };
-}
+export { getNeighborhoodId, toSelectedNeighborhood };
 
 export function normalizeOptionalText(value: string) {
   const trimmedValue = value.trim();

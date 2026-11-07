@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../../shared/auth/auth-storage";
+import { getLoginRequiredPath } from "../../../../shared/navigation/navigation";
 import { clearAtomicDraft } from "../draft/adDraftStore";
 import { clearNewAdFlowSession } from "../session";
 import { draftKey } from "../data";
@@ -122,10 +123,7 @@ export function normalizeDraftStringArray(value: unknown): string[] {
   return [];
 }
 
-export function getLoginRequiredPath(returnTo: string): string {
-  const params = new URLSearchParams({ returnTo });
-  return `/login-required?${params.toString()}`;
-}
+export { getLoginRequiredPath };
 
 export function useRequireAuth(): void {
   const navigate = useNavigate();

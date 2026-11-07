@@ -73,3 +73,21 @@ export function parseNumericValue(value: unknown): number | null {
 export const toPersianDigits = toPersianNumber;
 export const toLatinDigits = toEnglishDigits;
 export const toNumericValue = parseNumericValue;
+
+/**
+ * Format an amount as formatted Persian currency string (e.g. "۱٬۲۵۰٬۰۰۰").
+ */
+export function formatMoney(value: unknown, fallback = "۰"): string {
+  if (value === null || value === undefined || value === "") return fallback;
+  const formatted = formatNumber(value);
+  return formatted || fallback;
+}
+
+/**
+ * Safely parse an unknown value to a finite number, defaulting to fallback.
+ */
+export function toNumber(value: unknown, fallback = 0): number {
+  if (value === null || value === undefined || value === "") return fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}

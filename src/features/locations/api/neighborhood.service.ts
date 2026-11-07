@@ -49,6 +49,22 @@ export type NeighborhoodListParams = {
   q?: string;
 };
 
+export function getNeighborhoodId(
+  neighborhood?: Pick<NeighborhoodDto, "id" | "_id" | "name"> | null,
+): string {
+  if (!neighborhood) return "";
+  const raw = neighborhood.id ?? neighborhood._id ?? neighborhood.name;
+  return raw !== undefined && raw !== null ? String(raw) : "";
+}
+
+export function getSubNeighborhoodId(
+  subNeighborhood?: Pick<SubNeighborhoodDto, "id" | "name"> | null,
+): string {
+  if (!subNeighborhood) return "";
+  const raw = subNeighborhood.id ?? subNeighborhood.name;
+  return raw !== undefined && raw !== null ? String(raw) : "";
+}
+
 type NeighborhoodInfoWithLocParams = {
   cityId: string;
   lat: number;

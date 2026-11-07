@@ -7,13 +7,17 @@ export function AgencyCancelAssignmentBottomSheet({
   isOpen,
   isPending,
   onClose,
+  onCancel,
   onConfirm,
 }: {
   isOpen: boolean;
   isPending: boolean;
-  onClose: () => void;
+  onClose?: () => void;
+  onCancel?: () => void;
   onConfirm: () => void;
 }) {
+  const handleClose = onClose ?? onCancel ?? (() => {});
+
   return (
     <BottomSheet
       ariaLabel="لغو واگذاری آگهی به آژانس"
@@ -22,7 +26,7 @@ export function AgencyCancelAssignmentBottomSheet({
       headerButtonAriaLabel="بستن"
       headerClassName="h-10! gap-1! px-2!"
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title="لغو واگذاری آگهی به آژانس"
       variant="confirm"
       zIndexClassName="z-2000"
@@ -124,3 +128,5 @@ export function AgencyCancelAssignmentBottomSheet({
     </BottomSheet>
   );
 }
+
+export { AgencyCancelAssignmentBottomSheet as CancelAssignmentBottomSheet };

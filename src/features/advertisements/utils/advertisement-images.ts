@@ -1,6 +1,5 @@
 import { getApiAssetUrl } from "../../../shared/api/api";
-
-type UnknownRecord = Record<string, unknown>;
+import { isRecord } from "../../../shared/lib/textUtils";
 
 type ImageCandidate = {
   isMain: boolean;
@@ -29,10 +28,6 @@ const nestedImageKeys = [
   "cover",
   "thumbnail",
 ] as const;
-
-function isRecord(value: unknown): value is UnknownRecord {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
 
 function normalizeImageString(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;

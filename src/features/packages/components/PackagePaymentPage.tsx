@@ -11,10 +11,7 @@ import { formatShortPayment } from "../../payments/components/formatShortPayment
 import { formatTariffToman } from "../../account/adManagement/AdTariffOptionsView";
 import { useChargeWalletMutation } from "../../account/api/account.hooks";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
-import {
-  validateDiscountCode,
-  type ValidateDiscountCodeResult,
-} from "../../crm/api/crm-discount.service";
+import { useCheckoutDiscount } from "../../account/adManagement/checkout/useCheckoutDiscount";
 import type { PackageItem, PackagePaymentType } from "../api/package.service";
 
 type PackagePaymentPageProps = {
@@ -130,45 +127,25 @@ export function PackagePaymentPage({
   walletLoading = false,
 }: PackagePaymentPageProps) {
   const [paymentType, setPaymentType] = useState<PackagePaymentType>(0);
-  const [discountInput, setDiscountInput] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState<ValidateDiscountCodeResult | null>(null);
-  const [discountLoading, setDiscountLoading] = useState(false);
-  const [discountError, setDiscountError] = useState<string | null>(null);
 
   const basePrice = packageItem.final_price || packageItem.real_price || 0;
   const isPanel = packageItem.kind === "panel_subscription";
 
-  // Discount validation
-  async function handleApplyDiscount() {
-    const code = discountInput.trim();
-    if (!code) return;
-    setDiscountLoading(true);
-    setDiscountError(null);
-    try {
-      const service = isPanel ? "panel" : "package";
-      const result = await validateDiscountCode({
-        code,
-        price: basePrice,
-        service,
-      });
-      setAppliedDiscount(result);
-      if (result.disable_gateway || result.is_free) {
-        setPaymentType(1);
-      }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "کد تخفیف نامعتبر است";
-      setDiscountError(msg);
-      setAppliedDiscount(null);
-    } finally {
-      setDiscountLoading(false);
-    }
-  }
-
-  function handleRemoveDiscount() {
-    setAppliedDiscount(null);
-    setDiscountInput("");
-    setDiscountError(null);
-  }
+  const {
+    appliedDiscount,
+    discountError,
+    discountInput,
+    discountLoading,
+    handleApplyDiscount,
+    handleRemoveDiscount,
+    setDiscountError,
+    setDiscountInput,
+  } = useCheckoutDiscount(
+    basePrice,
+    basePrice,
+    () => setPaymentType(1),
+    isPanel ? "panel" : "package",
+  );
 
   const finalPayable = appliedDiscount ? appliedDiscount.final_price : basePrice;
   const isFree = Boolean(

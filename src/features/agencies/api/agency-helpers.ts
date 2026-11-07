@@ -1,14 +1,9 @@
 import { getApiAssetUrl } from "../../../shared/api/api";
+import { asRecord, toText } from "../../../shared/lib/textUtils";
+import { toNumber } from "../../../shared/lib/numberUtils";
 import type { AdvertisementItem } from "../../advertisements/api/advertisement.service";
 
-export function toText(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-export function toNumber(value: unknown, fallback = 0): number {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
+export { asRecord, toNumber, toText };
 
 export function toOptionalNumber(value: unknown): number | undefined {
   if (value === null || value === undefined || value === "") return undefined;
@@ -28,12 +23,6 @@ export function toStringArray(value: unknown): string[] {
 export function toAssetUrl(value: unknown): string | undefined {
   const path = toText(value);
   return path ? getApiAssetUrl(path) : undefined;
-}
-
-export function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : {};
 }
 
 export function firstText(...values: unknown[]): string {

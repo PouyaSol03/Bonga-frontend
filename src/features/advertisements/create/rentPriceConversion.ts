@@ -1,3 +1,5 @@
+import { toEnglishDigits } from "../../../shared/lib/numberUtils";
+
 export const RENT_CONVERSION_MORTGAGE_UNIT = 1_000_000;
 export const RENT_CONVERSION_RENT_PER_UNIT = 30_000;
 export const RENT_CONVERSION_SNAP_ROUND_UNIT = 50_000_000;
@@ -9,9 +11,7 @@ function finiteNonNegative(value: number) {
 export function parseRentPriceValue(value: string | number | null | undefined) {
   if (typeof value === "number") return finiteNonNegative(value);
 
-  const normalized = String(value ?? "")
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+  const normalized = toEnglishDigits(String(value ?? ""))
     .replace(/,/g, "")
     .trim();
   const number = Number(normalized);

@@ -1,4 +1,7 @@
-import type { NeighborhoodDto } from "../locations/api/neighborhood.service";
+import {
+  getNeighborhoodId,
+  type NeighborhoodDto,
+} from "../locations/api/neighborhood.service";
 
 const selectedNeighborhoodStorageKey = "bonga-consultants-selected-neighborhood";
 
@@ -7,10 +10,6 @@ type StoredConsultantsNeighborhood = {
   id: string;
   name: string;
 };
-
-function getNeighborhoodId(neighborhood: NeighborhoodDto) {
-  return String(neighborhood.id ?? neighborhood._id ?? "");
-}
 
 export function readConsultantsSelectedNeighborhood(
   expectedCityId?: string,

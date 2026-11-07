@@ -1,8 +1,7 @@
+import { toEnglishDigits } from "../../../../shared/lib/numberUtils";
+
 export function normalizeNumericInput(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
-    .replace(/\D/g, "");
+  return toEnglishDigits(value).replace(/\D/g, "");
 }
 
 export function formatPersianMonthYear(dateString?: string | null): string {

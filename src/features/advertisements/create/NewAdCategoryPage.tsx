@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { getStoredAuthSession, storeLoginRedirectPath } from "../../../shared/auth/auth-storage";
+import { getLoginRequiredPath } from "../../../shared/navigation/navigation";
 import { TopBar } from "../../../shared/components/TopBar";
 import { clearNewAdDraftStorage } from "./utils";
 import { shouldPreserveNewAdDraft } from "./session";
@@ -122,12 +123,6 @@ const transactionConfigs: Record<TransactionType, TransactionConfig> = {
 };
 
 const transactionTabs: TransactionType[] = ["sale", "rent", "project"];
-
-function getLoginRequiredPath(returnTo: string) {
-  const params = new URLSearchParams({ returnTo });
-
-  return `/login-required?${params.toString()}`;
-}
 
 function getInitialType(): TransactionType {
   const type = new URLSearchParams(window.location.search).get("transaction");

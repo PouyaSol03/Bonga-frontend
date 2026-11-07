@@ -1,3 +1,5 @@
+import { asRecord as asRecordHelper, toText } from "../../../../shared/lib/textUtils";
+import { toNumber } from "../../../../shared/lib/numberUtils";
 import type {
   DashboardBalanceDelta,
   DashboardRankingEntity,
@@ -8,22 +10,15 @@ import type {
 } from "./dashboard.types";
 
 export function asRecord(value: unknown): RawRecord {
-  return value && typeof value === "object" && !Array.isArray(value) ? (value as RawRecord) : {};
+  return asRecordHelper(value) as RawRecord;
 }
 
-export function toNumber(value: unknown, fallback = 0) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
+export { toNumber, toText };
 
 export function toNullableNumber(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
-}
-
-export function toText(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
 }
 
 export function toStringValue(value: unknown, fallback = ""): string {

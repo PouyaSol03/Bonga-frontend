@@ -4,6 +4,7 @@ import { PageFrame } from "../../../shared/layout/PageFrame";
 import { SearchEmptyState } from "../../../shared/components/SearchEmptyState";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Typography } from "../../../shared/ui/Typography";
+import { isRecord } from "../../../shared/lib/textUtils";
 import { useMyAdsInfiniteQuery } from "../api/account.hooks";
 import { Link } from "react-router";
 import {
@@ -225,10 +226,6 @@ function readStatistic(ad: unknown, keys: string[]) {
   }
 
   return "—";
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
 function StatisticsNotice({ text }: { text: string }) {

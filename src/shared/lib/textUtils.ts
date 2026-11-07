@@ -14,3 +14,17 @@ export function readText(value: unknown, fallback = ""): string {
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
+
+/**
+ * Converts an unknown value to a trimmed string, defaulting to fallback.
+ */
+export function toText(value: unknown, fallback = ""): string {
+  return typeof value === "string" ? value.trim() : fallback;
+}
+
+/**
+ * Returns value if record, otherwise empty record.
+ */
+export function asRecord(value: unknown): Record<string, unknown> {
+  return isRecord(value) ? value : {};
+}

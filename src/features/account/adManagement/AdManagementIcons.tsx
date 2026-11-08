@@ -2,24 +2,10 @@ import LinearUserSolid from "../../../shared/icons/LinearUserSolid";
 import LinearWallet from "../../../shared/icons/LinearWallet";
 import LinearMellat from "../../../shared/icons/LinearMellat";
 import LinearWallet2 from "../../../shared/icons/LinearWallet2";
+import { SearchIcon } from "../../../shared/icons/SearchIcon";
 
-export function SearchIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <path d="m20 20-4.5-4.5" />
-      <circle cx="10.5" cy="10.5" r="7" />
-    </svg>
-  );
-}
+export { SearchIcon };
+
 export function StatisticsIcon({
   className = "",
   icon,

@@ -9,8 +9,11 @@ import LinearFactor from "../../../shared/icons/LinearFactor";
 import LinearFlag from "../../../shared/icons/LinearFlag";
 import LinearPayment from "../../../shared/icons/LinearPayment";
 import LinearPreview from "../../../shared/icons/LinearPreview";
+import { ChevronLeftIcon } from "../../../shared/icons/ChevronLeftIcon";
 import "../../advertisements/components/AdCard.css";
 import type { StateActionKey } from "./types";
+
+export { ChevronLeftIcon };
 
 export function StateIcon({ icon }: { icon: StateActionKey }) {
   if (icon === "preview") return <LinearPreview className="h-6 w-6" />;
@@ -25,23 +28,6 @@ export function StateIcon({ icon }: { icon: StateActionKey }) {
   if (icon === "stop_publish") return <LinearCancel className="h-6 w-6" />;
 
   return <LinearFactor className="h-6 w-6" />;
-}
-
-export function ChevronLeftIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      viewBox="0 0 24 24"
-    >
-      <path d="m14 7-5 5 5 5" />
-    </svg>
-  );
 }
 
 export function ClockIcon({ className = "" }: { className?: string }) {

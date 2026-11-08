@@ -1,26 +1,12 @@
 import type { WalletPayment } from "../../api/account.service";
+import { formatMoney, toEnglishDigits } from "../../../../shared/lib/numberUtils";
+
+export { formatMoney };
 
 export function normalizeWalletAmount(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+  return toEnglishDigits(value)
     .replace(/[^0-9]/g, "")
     .replace(/^0+(?=\d)/, "");
-}
-
-export function formatMoney(value: unknown) {
-  const amount =
-    typeof value === "number"
-      ? value
-      : typeof value === "string"
-        ? Number(value.replace(/,/g, ""))
-        : 0;
-
-  if (!Number.isFinite(amount)) {
-    return String(value || "۰");
-  }
-
-  return new Intl.NumberFormat("fa-IR").format(amount);
 }
 
 export function readPaymentStatus(payment: WalletPayment) {

@@ -17,6 +17,7 @@ import {
 import { PropertyRequestResults } from "../property-requests/PropertyRequestResults";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { formatNumber as formatCount } from "../../shared/lib/numberUtils";
 
 type CrmPropertyRequestsViewProps = {
   notify: (message: string, tone?: "error" | "success") => void;
@@ -36,10 +37,6 @@ function formatPersianDate(value: string) {
     timeZone: "Asia/Tehran",
     year: "numeric",
   }).format(date);
-}
-
-function formatCount(value: number) {
-  return new Intl.NumberFormat("fa-IR").format(value);
 }
 
 function PropertyRequestCard({

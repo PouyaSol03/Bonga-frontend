@@ -29,7 +29,7 @@ test("preserves every category's ordered block configuration and options", () =>
     ),
   );
   expect(createHash("sha256").update(JSON.stringify(matrix)).digest("hex")).toMatchInlineSnapshot(
-    `"3f6fbbb0dc83693bc6e09ea298cdf3c36b413a32be2408a0b44f2e3c07da01d8"`,
+    `"0797f8197075d899dd09b8466166831bb40c1593f3904f2f0bdfdf2bb18fb5d1"`,
   );
   expect(getFilterBlocks("sale")).toEqual([]);
 });

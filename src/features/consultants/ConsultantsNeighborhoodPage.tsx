@@ -10,6 +10,7 @@ import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { readStoredSelectedCity } from "../../shared/lib/selectedCityStorage";
 import {
   getNeighborhoodDescription,
+  getNeighborhoodId,
   type NeighborhoodDto,
 } from "../locations/api/neighborhood.service";
 import {
@@ -19,10 +20,6 @@ import {
 import { SearchInputBar } from "../../shared/ui/SearchBar";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
-
-function getNeighborhoodId(neighborhood: NeighborhoodDto) {
-  return String(neighborhood.id ?? neighborhood._id ?? "");
-}
 
 function NeighborhoodSearchField({
   onChange,

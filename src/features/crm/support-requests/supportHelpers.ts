@@ -2,13 +2,11 @@ import type { ChatMessage } from "../../chat/api/chat.service";
 import type { PanelSupportRequestStatus } from "../../support/api/panel-support.service";
 import type { SupportRequestItem } from "../../support/api/support-request.service";
 import { readChatPathText } from "../../account/accountSupportViews";
+import { asRecord } from "../../../shared/lib/textUtils";
+import { formatNumber as formatCount } from "../../../shared/lib/numberUtils";
 import type { CrmSupportRequest } from "./types";
 
-export function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : {};
-}
+export { asRecord, formatCount };
 
 export function normalizeStatus(value: unknown): PanelSupportRequestStatus {
   const status = String(value ?? "").toLowerCase();
@@ -114,10 +112,6 @@ export function mapRequest(item: SupportRequestItem): CrmSupportRequest {
 
 export function normalizeSearch(value: string) {
   return value.trim().toLocaleLowerCase("fa-IR");
-}
-
-export function formatCount(value: number) {
-  return new Intl.NumberFormat("fa-IR").format(value);
 }
 
 export function priorityLabel(priority: string) {

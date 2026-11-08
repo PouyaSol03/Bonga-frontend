@@ -1,5 +1,6 @@
 import { api, ApiError, getApiErrorMessage, publicApi } from "../../../shared/api/api";
 import { queryClient } from "../../../shared/api/query-client";
+import { toEnglishDigits } from "../../../shared/lib/numberUtils";
 import {
   clearPendingOtpState,
   clearStoredAuthSession,
@@ -159,9 +160,7 @@ export async function logout() {
 }
 
 export function normalizeDigits(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
+  return toEnglishDigits(value);
 }
 
 export function normalizeMobile(value: string) {

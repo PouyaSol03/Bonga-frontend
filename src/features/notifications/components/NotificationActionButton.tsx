@@ -1,22 +1,6 @@
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
-
-function ChevronLeftIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.5"
-      viewBox="0 0 24 24"
-    >
-      <path d="M15 18l-6-6 6-6" />
-    </svg>
-  );
-}
+import { ChevronLeftIcon } from "../../../shared/icons/ChevronLeftIcon";
 
 export function NotificationActionButton({
   label,

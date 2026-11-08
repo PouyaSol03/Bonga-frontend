@@ -12,10 +12,14 @@ import {
   locationLngKey,
   neighborhoodIdKey,
 } from "../data";
-import type {
-  NeighborhoodDto,
-  SubNeighborhoodDto,
+import {
+  getNeighborhoodId,
+  getSubNeighborhoodId,
+  type NeighborhoodDto,
+  type SubNeighborhoodDto,
 } from "../../../locations/api/neighborhood.service";
+
+export { getNeighborhoodId, getSubNeighborhoodId };
 import { getNeighborhoodSubNeighborhoods } from "../../../locations/api/neighborhood.service";
 
 export type NewAdMapCenter = {
@@ -66,14 +70,6 @@ export function getStoredMapCenter(): NewAdMapCenter {
   }
 
   return { ...defaultMapCenter, zoom: selectedCityMapZoom };
-}
-
-export function getNeighborhoodId(neighborhood: NeighborhoodDto | null) {
-  return String(neighborhood?.id ?? neighborhood?._id ?? "");
-}
-
-export function getSubNeighborhoodId(subNeighborhood: SubNeighborhoodDto | null) {
-  return String(subNeighborhood?.id ?? "");
 }
 
 export function normalizeLocationName(value: string) {

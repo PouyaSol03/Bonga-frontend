@@ -1,6 +1,8 @@
-import type { NeighborhoodDto } from "../../../locations/api/neighborhood.service";
+import { getNeighborhoodId } from "../../../locations/api/neighborhood.service";
 import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../../shared/lib/numberUtils";
 import type { SearchMapQuickFilterId } from "./types";
+
+export { getNeighborhoodId };
 
 export const neighborhoodSearchDebounceMs = 250;
 export const quickAreaCustomOptionLabel = "وارد کردن مقدار";
@@ -36,10 +38,6 @@ export function normalizeChoiceValue(value: string) {
   const numericValue = normalized.replace(/[^\d.-]/g, "");
 
   return numericValue || normalized;
-}
-
-export function getNeighborhoodId(neighborhood: Pick<NeighborhoodDto, "_id" | "id" | "name">) {
-  return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
 }
 
 export function splitParam(value: string | null) {

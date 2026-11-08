@@ -1,4 +1,7 @@
-import type { NeighborhoodDto } from "../../../locations/api/neighborhood.service";
+import {
+  getNeighborhoodId,
+  type NeighborhoodDto,
+} from "../../../locations/api/neighborhood.service";
 import type {
   AdManagementFilters,
   AdManagementSelectedNeighborhood,
@@ -12,9 +15,7 @@ export const emptyFilters: AdManagementFilters = {
   neighborhoods: [],
 };
 
-export function getNeighborhoodId(neighborhood: NeighborhoodDto) {
-  return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
-}
+export { getNeighborhoodId };
 
 export function toSelectedNeighborhood(
   neighborhood: NeighborhoodDto,

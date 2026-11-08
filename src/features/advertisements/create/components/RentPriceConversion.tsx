@@ -10,14 +10,9 @@ import {
   RENT_CONVERSION_MORTGAGE_UNIT,
   resolveMagneticRentValue,
 } from "../rentPriceConversion";
+import { formatMoney } from "../../../../shared/lib/numberUtils";
 import LinearArrowRight1 from "../../../../shared/icons/LinearArrowRight1";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
-
-const faNumber = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 });
-
-function formatMoney(value: number) {
-  return faNumber.format(Math.max(0, Math.round(value)));
-}
 
 function formatDecimalFa(num: number) {
   const formatted = new Intl.NumberFormat("fa-IR", {
@@ -56,7 +51,7 @@ function formatSignedAmount(value: number) {
   }
 
   return {
-    value: `${sign}${faNumber.format(absolute)}`,
+    value: `${sign}${formatMoney(absolute)}`,
     unit: "تومان",
   };
 }

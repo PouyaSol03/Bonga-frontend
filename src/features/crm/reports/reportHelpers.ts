@@ -1,4 +1,5 @@
 import { getCrmRecordId, type CrmRecord, type CrmReportKind } from "../api/crm.service";
+import { formatNumber as formatCount } from "../../../shared/lib/numberUtils";
 import {
   fullName,
   reportReporter,
@@ -112,9 +113,7 @@ export function reportStatus(report: CrmRecord): { label: string; tone: ReportSt
   return { label: raw || "نامشخص", tone: "neutral" };
 }
 
-export function formatCount(value: number) {
-  return new Intl.NumberFormat("fa-IR").format(value);
-}
+export { formatCount };
 
 export function hasMeaningfulValue(value: string) {
   return Boolean(

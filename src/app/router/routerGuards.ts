@@ -1,5 +1,8 @@
 import { selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
 import { DASHBOARD_PATH, LEGACY_DASHBOARD_PATH } from "./types";
+import { getLoginRequiredPath } from "../../shared/navigation/navigation";
+
+export { getLoginRequiredPath };
 
 export function normalizePathname(pathname: string): string {
   const normalized = pathname.replace(/\/{2,}/g, "/");
@@ -28,11 +31,6 @@ export function getCanonicalDashboardPath(path: string): string {
     return `/account/manage-ads${path.slice("/account/my-ads".length)}`;
   }
   return path;
-}
-
-export function getLoginRequiredPath(returnTo: string): string {
-  const params = new URLSearchParams({ returnTo });
-  return `/login-required?${params.toString()}`;
 }
 
 export function isLoginFlowPath(path: string): boolean {

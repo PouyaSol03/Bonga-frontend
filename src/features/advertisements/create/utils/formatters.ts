@@ -2,9 +2,7 @@ import { toEnglishDigits as toLatinDigits } from "../../../../shared/lib/numberU
 import type { ChipItem } from "../types";
 
 export function normalizeDigits(value: unknown): string {
-  return String(value ?? "")
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
+  return toLatinDigits(value);
 }
 
 export function parseUnitsPerFloor(value: unknown): number | null {

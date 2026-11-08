@@ -1,4 +1,5 @@
 import { apiV2 } from "../../../shared/api/api";
+import { readText as toText } from "../../../shared/lib/textUtils";
 import {
   confirmV2DealResult,
   getV2ArchiveEligibility,
@@ -92,13 +93,6 @@ type AssignmentsApiResponse = {
   status?: boolean;
   total?: unknown;
 };
-
-function toText(value: unknown) {
-  if (typeof value === "string" && value.trim()) return value.trim();
-  if (typeof value === "number" && Number.isFinite(value)) return String(value);
-
-  return "";
-}
 
 function toId(value: unknown): number | string | undefined {
   if (typeof value === "number" && Number.isFinite(value)) return value;

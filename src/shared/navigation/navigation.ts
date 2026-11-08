@@ -141,4 +141,12 @@ export function replaceRoute(
   }
 }
 
+export function getLoginRequiredPath(returnTo: string, actionLabel?: string): string {
+  const params = new URLSearchParams({ returnTo });
+  if (actionLabel) {
+    params.set("action", actionLabel);
+  }
+  return `/login-required?${params.toString()}`;
+}
+
 

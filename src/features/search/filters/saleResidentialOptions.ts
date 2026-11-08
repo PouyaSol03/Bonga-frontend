@@ -87,8 +87,8 @@ export const approvedSaleFilterVillaTypeOptions = [
 
 export const approvedSaleFilterFloorOptions = [
   "همکف",
-  ...Array.from({ length: 39 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
-  "۴۰ و بیشتر",
+  ...Array.from({ length: 79 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۸۰ و بیشتر",
 ];
 
 export const approvedSaleFilterUnitsPerFloorOptions = ["۱", "۲", "۳", "۴", "۵", "۶", "۷", "+۸"];

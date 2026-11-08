@@ -1,5 +1,6 @@
 import {
   getNeighborhoodDescription,
+  getNeighborhoodId,
   type NeighborhoodDto,
 } from "../../../locations/api/neighborhood.service";
 import { RadioIndicator } from "../../../../shared/components/RadioIndicator";
@@ -20,10 +21,6 @@ function BackIcon() {
       />
     </svg>
   );
-}
-
-function getNeighborhoodId(item: NeighborhoodDto) {
-  return String(item.id ?? item._id ?? "");
 }
 
 export function AgencyNeighborhoodFilterPage({

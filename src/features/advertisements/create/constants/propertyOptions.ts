@@ -82,8 +82,8 @@ export const moreFeatureKeys: MoreFeatureFormKey[] = [
 
 export const floorOptions = [
   "همکف",
-  ...Array.from({ length: 39 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
-  "۴۰ و بیشتر",
+  ...Array.from({ length: 79 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۸۰ و بیشتر",
 ];
 export const roomOptions = [
   "بدون اتاق",
@@ -134,7 +134,7 @@ export const roomCountOptions = [
   "۳۰",
   "۵۰+",
 ];
-export const openingCountOptions = Array.from({ length: 20 }, (_, index) =>
+export const openingCountOptions = Array.from({ length: 4 }, (_, index) =>
   new Intl.NumberFormat("fa-IR").format(index + 1),
 );
 export const elevatorCountOptions = Array.from({ length: 5 }, (_, index) =>
@@ -394,8 +394,8 @@ export const dailyWorkspaceTypeOptions = [
 ];
 
 export const totalFloorsOptions = [
-  ...Array.from({ length: 39 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} طبقه`),
-  "۴۰ طبقه و بیشتر",
+  ...Array.from({ length: 79 }, (_, i) => `${new Intl.NumberFormat("fa-IR").format(i + 1)} طبقه`),
+  "۸۰ طبقه و بیشتر",
 ];
 
 export const villaTotalFloorsOptions = Array.from(
@@ -421,8 +421,8 @@ export const moreFeatureOptions: Record<MoreFeatureSelectKey, string[]> = {
   occupancyStatus: ["تخلیه", "مالک", "مستاجر دارد"],
   kitchenType: ["اپن", "جزیره", "بسته", "نیمه اپن"],
   facadeMaterial: ["سنگ", "آجر", "سیمان", "کامپوزیت", "شیشه", "رومی", "ترکیبی"],
-  floorMaterial: ["سرامیک", "سنگ", "پارکت", "لمینت", "موزاییک", "کفپوش"],
-  cabinetMaterial: ["MDF", "های‌گلاس", "ممبران", "فلزی", "چوبی", "ندارد"],
+  floorMaterial: ["سرامیک", "سنگ", "پارکت", "لمینت", "موزاییک", "کفپوش", "اسلب"],
+  cabinetMaterial: ["MDF", "های‌گلاس", "ممبران", "فلزی", "چوبی"],
   landPosition: landPositionOptions,
   buildingType: ["ویلایی مستقل", "شهرکی", "آپارتمانی"],
   villaType: ["فلت", "چند طبقه مجزا", "تک طبقه", "دوبلکس", "تریبلکس", "خونه باغ", "باغ‌ویلا"],

@@ -1,16 +1,11 @@
-import type { NeighborhoodDto } from "../../locations/api/neighborhood.service";
+import { getNeighborhoodId } from "../../locations/api/neighborhood.service";
 import type { BusinessType } from "./types";
+import { toEnglishDigits } from "../../../shared/lib/numberUtils";
 
-export function getNeighborhoodId(neighborhood: NeighborhoodDto) {
-  return String(neighborhood.id ?? neighborhood._id ?? neighborhood.name);
-}
+export { getNeighborhoodId };
 
 export function normalizePhoneDigits(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
-    .replace(/\s+/g, "")
-    .trim();
+  return toEnglishDigits(value).replace(/\s+/g, "").trim();
 }
 
 export function getBusinessTypePath(type: BusinessType) {

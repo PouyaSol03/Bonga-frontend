@@ -77,8 +77,8 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
       errors.totalFloors = "تعداد کل طبقات باید بزرگتر از صفر باشد.";
     } else if (category === "villa-house" && numTotalFloors > 7) {
       errors.totalFloors = "تعداد کل طبقات برای خانه، ویلا نمی‌تواند بیشتر از ۷ طبقه باشد.";
-    } else if (numTotalFloors > 70) {
-      errors.totalFloors = "تعداد کل طبقات نمی‌تواند بیشتر از ۷۰ طبقه باشد.";
+    } else if (numTotalFloors > 80) {
+      errors.totalFloors = "تعداد کل طبقات نمی‌تواند بیشتر از ۸۰ طبقه باشد.";
     }
   }
 
@@ -129,8 +129,8 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
 
   const numOpeningCount = parseNumericValue(values.openingCount);
   if (hasRequiredText(values.openingCount) && numOpeningCount !== null) {
-    if (numOpeningCount <= 0 || numOpeningCount > 20) {
-      errors.openingCount = "تعداد دهنه مغازه باید بین ۱ تا ۲۰ باشد.";
+    if (numOpeningCount <= 0 || numOpeningCount > 4) {
+      errors.openingCount = "تعداد دهنه مغازه باید بین ۱ تا ۴ باشد.";
     }
   }
 
@@ -191,8 +191,8 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
     const projFloors = parseNumericValue(values.projectTotalFloors);
     if (!hasRequiredText(values.projectTotalFloors)) {
       errors.projectTotalFloors = "لطفا تعداد کل طبقات را وارد کنید.";
-    } else if (projFloors === null || projFloors <= 0 || projFloors > 70) {
-      errors.projectTotalFloors = "تعداد کل طبقات پروژه باید بین ۱ تا ۷۰ طبقه باشد.";
+    } else if (projFloors === null || projFloors <= 0 || projFloors > 80) {
+      errors.projectTotalFloors = "تعداد کل طبقات پروژه باید بین ۱ تا ۸۰ طبقه باشد.";
     }
 
     const projUnits = parseNumericValue(values.projectTotalUnits);

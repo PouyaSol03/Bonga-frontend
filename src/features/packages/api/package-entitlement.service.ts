@@ -1,15 +1,11 @@
 import { ApiError, apiV2, getActiveV2Role, type V2RoleSegment } from "../../../shared/api/api";
+import { toNumber } from "../../../shared/lib/numberUtils";
 import type { AgentEntitlements } from "./package-types";
 
 type ApiRecord = Record<string, unknown>;
 
 function asRecord(value: unknown): ApiRecord | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as ApiRecord) : null;
-}
-
-function toNumber(value: unknown, fallback = 0): number {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 function toNullableText(value: unknown): string | null {

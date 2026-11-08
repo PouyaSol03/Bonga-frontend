@@ -17,6 +17,7 @@ import {
 import LinearArrowRight2 from "../../shared/icons/LinearArrowRight2";
 import { Typography } from "../../shared/ui/Typography";
 import { Button } from "../../shared/ui/Button";
+import { toPersianDigits } from "../../shared/lib/numberUtils";
 import { saveSelectedCity, selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
 
 async function ensureSelectedCityAfterLogin() {
@@ -426,5 +427,5 @@ export function LoginVerifyPage() {
 }
 
 function formatCountdownSeconds(seconds: number) {
-  return String(seconds).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
+  return toPersianDigits(seconds);
 }

@@ -9,7 +9,10 @@ import { useAgencyInfiniteQuery } from "../../../agencies/api/agency.hooks";
 import { useNeighborhoodListQuery } from "../../../locations/api/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../../../shared/lib/selectedCityStorage";
 import type { AgencySort, PublicAgencyDto } from "../../../agencies/api/agency.service";
-import type { NeighborhoodDto } from "../../../locations/api/neighborhood.service";
+import {
+  getNeighborhoodId,
+  type NeighborhoodDto,
+} from "../../../locations/api/neighborhood.service";
 import { AgencyNeighborhoodFilterPage } from "./AgencyNeighborhoodFilterPage";
 import {
   AgencyDirectoryMapView,
@@ -20,6 +23,7 @@ import LinearArrowRight2 from "../../../../shared/icons/LinearArrowRight2";
 import LinearStar from "../../../../shared/icons/LinearStar";
 import LinearRanking from "../../../../shared/icons/LinearRanking";
 import LinearMapsLocation from "../../../../shared/icons/LinearMapsLocation";
+import { SearchIcon } from "../../../../shared/icons/SearchIcon";
 import { Typography } from "../../../../shared/ui/Typography";
 import { Button } from "../../../../shared/ui/Button";
 import { useNavigate } from "react-router";
@@ -51,19 +55,6 @@ function agencyToMapItem(agency: PublicAgencyDto): AgencyDirectoryMapItem {
     rank: toPersianNumber(agency.rank),
     score: toPersianNumber(agency.score),
   };
-}
-
-function neighborhoodId(item: NeighborhoodDto) {
-  return String(item.id ?? item._id ?? "");
-}
-
-function SearchIcon() {
-  return (
-    <svg aria-hidden="true" className="h-7 w-7" fill="none" viewBox="0 0 24 24">
-      <circle cx="10.7" cy="10.7" r="6.7" stroke="currentColor" strokeWidth="1.7" />
-      <path d="m15.7 15.7 4.6 4.6" stroke="currentColor" strokeLinecap="round" strokeWidth="1.7" />
-    </svg>
-  );
 }
 
 function LocationIcon() {
@@ -289,7 +280,7 @@ export function AgencySelectionStep({
   const selectedCity = readStoredSelectedCity();
 
   const agenciesQuery = useAgencyInfiniteQuery({
-    neighborhoodId: selectedNeighborhood ? neighborhoodId(selectedNeighborhood) : undefined,
+    neighborhoodId: selectedNeighborhood ? getNeighborhoodId(selectedNeighborhood) : undefined,
     perPage: pageSize,
     search: debouncedSearch,
     sort,
@@ -370,7 +361,7 @@ export function AgencySelectionStep({
         onSearchChange={setNeighborhoodSearch}
         onSelect={setPendingNeighborhood}
         search={neighborhoodSearch}
-        selectedId={pendingNeighborhood ? neighborhoodId(pendingNeighborhood) : ""}
+        selectedId={pendingNeighborhood ? getNeighborhoodId(pendingNeighborhood) : ""}
       />
     );
   }

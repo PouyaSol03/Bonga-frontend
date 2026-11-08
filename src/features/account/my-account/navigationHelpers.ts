@@ -1,10 +1,6 @@
-export function getLoginRequiredPath(returnTo: string, actionLabel?: string) {
-  const params = new URLSearchParams({ returnTo });
-  if (actionLabel) {
-    params.set("action", actionLabel);
-  }
-  return `/login-required?${params.toString()}`;
-}
+import { getLoginRequiredPath } from "../../../shared/navigation/navigation";
+
+export { getLoginRequiredPath };
 
 export function clearBusinessSuccessQuery() {
   const url = new URL(window.location.href);

@@ -6,6 +6,7 @@ import { SearchNoResultsRequestCard } from "./SearchNoResultsRequestCard";
 import type { SearchMapListing } from "../searchMapData";
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import { toPersianDigits } from "../../../shared/lib/numberUtils";
 
 type SearchMapListViewProps = {
   hasEmptyResults?: boolean;
@@ -15,11 +16,8 @@ type SearchMapListViewProps = {
   onRequestSubmit?: (title: string) => void;
 };
 
-const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
-
 function toFaCount(n: number): string {
-  const safe = Math.max(0, Math.floor(n));
-  return String(safe).replace(/\d/g, (d) => FA_DIGITS[Number(d)] ?? d);
+  return toPersianDigits(Math.max(0, Math.floor(n)));
 }
 
 function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {

@@ -30,7 +30,7 @@ describe("view ad adapters", () => {
     expect(neighborhood({}, { locationTitle: "ونک" })).toBeNull();
     expect(neighborhood({ neighborhood_id: "9" }, { locationTitle: "تهران" })).toMatchObject({ name: "تهران" });
   });
-  it.each([[0, "۰"], [-2, "۰"], [1_000_000, "۱ میلیون"], [1_250_000, "۱.۳ میلیون"], [1_000_000_000, "۱ میلیارد"], [1_250_000_000, "۱۲۵۰ میلیون"]])("formats rental amount %s", (value, expected) => expect(rent(value)).toBe(expected));
+  it.each([[0, "۰"], [-2, "۰"], [1_000_000, "۱ میلیون"], [1_250_000, "۱.۳ میلیون"], [785_000_000, "۷۸۵ میلیون"], [999_999_999, "۱ میلیارد"], [1_000_000_000, "۱ میلیارد"], [1_250_000_000, "۱.۲۵ میلیارد"], [1_654_000_000, "۱.۶۵۴ میلیارد"]])("formats rental amount %s", (value, expected) => expect(rent(value)).toBe(expected));
   it("normalizes chat ids without losing nullish precedence", () => {
     expect(threadId({ id: " 12 " })).toBe("12");
     expect(threadId({ _id: 4 })).toBe("4");

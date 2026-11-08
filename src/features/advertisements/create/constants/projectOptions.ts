@@ -11,8 +11,8 @@ export const partnershipCurrentStatusOptions = [
 
 export const projectFloorOptions = [
   "همکف",
-  ...Array.from({ length: 39 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
-  "۴۰ و بیشتر",
+  ...Array.from({ length: 79 }, (_, i) => new Intl.NumberFormat("fa-IR").format(i + 1)),
+  "۸۰ و بیشتر",
 ];
 
 export const projectRoomOptions = [

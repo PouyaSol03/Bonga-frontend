@@ -16,22 +16,22 @@ import { validateNewAdDetails } from "../../../src/features/advertisements/creat
 import type { NewAdFormValues } from "../../../src/features/advertisements/create/types";
 
 describe("Ad options expansion (floors, units, rooms, villa type, villa max floors)", () => {
-  test("floorOptions goes up to 40 floors", () => {
+  test("floorOptions goes up to 80 floors", () => {
     expect(floorOptions[0]).toBe("همکف");
     expect(floorOptions).toContain("۱");
     expect(floorOptions).toContain("۳۹");
-    expect(floorOptions[floorOptions.length - 1]).toBe("۴۰ و بیشتر");
-    expect(floorOptions).toHaveLength(41); // همکف + 1..39 + 40 و بیشتر
+    expect(floorOptions[floorOptions.length - 1]).toBe("۸۰ و بیشتر");
+    expect(floorOptions).toHaveLength(81); // همکف + 1..79 + 80 و بیشتر
 
     expect(projectFloorOptions[0]).toBe("همکف");
-    expect(projectFloorOptions[projectFloorOptions.length - 1]).toBe("۴۰ و بیشتر");
+    expect(projectFloorOptions[projectFloorOptions.length - 1]).toBe("۸۰ و بیشتر");
   });
 
-  test("totalFloorsOptions goes up to 40 floors for apartments and general properties", () => {
+  test("totalFloorsOptions goes up to 80 floors for apartments and general properties", () => {
     expect(totalFloorsOptions[0]).toBe("۱ طبقه");
     expect(totalFloorsOptions).toContain("۳۹ طبقه");
-    expect(totalFloorsOptions[totalFloorsOptions.length - 1]).toBe("۴۰ طبقه و بیشتر");
-    expect(totalFloorsOptions).toHaveLength(40);
+    expect(totalFloorsOptions[totalFloorsOptions.length - 1]).toBe("۸۰ طبقه و بیشتر");
+    expect(totalFloorsOptions).toHaveLength(80);
   });
 
   test("unitsPerFloorOptions goes up to 60 units", () => {
@@ -79,7 +79,7 @@ describe("Ad options expansion (floors, units, rooms, villa type, villa max floo
     expect(rentTotalFloorsField?.options).toEqual(villaTotalFloorsOptions);
   });
 
-  test("apartment features has 40 floors, 60 units per floor, and 8 rooms", () => {
+  test("apartment features has 80 floors, 60 units per floor, and 8 rooms", () => {
     const saleAptBasic = basicPropertyFieldsByListingType["sale:apartment"];
     expect(saleAptBasic).toBeDefined();
     const roomsField = saleAptBasic.find((f) => f.key === "rooms");
@@ -92,7 +92,7 @@ describe("Ad options expansion (floors, units, rooms, villa type, villa max floo
     expect(saleAptMore).toBeDefined();
     const totalFloorsField = saleAptMore.find((f) => f.key === "totalFloors");
     expect(totalFloorsField?.options).toEqual(totalFloorsOptions);
-    expect(totalFloorsField?.options).toHaveLength(40);
+    expect(totalFloorsField?.options).toHaveLength(80);
   });
 
   test("schema normalization dynamically injects options based on category", () => {
@@ -109,7 +109,7 @@ describe("Ad options expansion (floors, units, rooms, villa type, villa max floo
     expect(aptSchema).toBeDefined();
     const aptMoreFields = aptSchema?.create.moreFeatures?.fields ?? [];
     const aptTotalFloors = aptMoreFields.find((f) => f.key === "totalFloors");
-    expect(aptTotalFloors?.options).toHaveLength(40);
+    expect(aptTotalFloors?.options).toHaveLength(80);
   });
 
   test("validation bounds: max 60 units per floor, max 7 floors for villa-house", () => {

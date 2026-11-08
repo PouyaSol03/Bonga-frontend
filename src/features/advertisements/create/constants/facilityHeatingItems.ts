@@ -87,6 +87,11 @@ export const saleApartmentFacilityItems: ChipItem[] = [
   { id: "pool", label: "استخر" },
   { id: "jacuzzi", label: "جکوزی" },
   { id: "sauna", label: "سونا" },
+  { id: "gym", label: "سالن ورزشی" },
+  { id: "power", label: "امتیاز برق" },
+  { id: "water", label: "امتیاز آب" },
+  { id: "gas", label: "امتیاز گاز" },
+  { id: "phone", label: "امتیاز تلفن" },
 ];
 
 export const projectHeatingItems: ChipItem[] = saleApartmentHeatingItems;
@@ -157,6 +162,10 @@ export const saleOfficeFacilityItems: ChipItem[] = [
   { id: "pool", label: "استخر" },
   { id: "jacuzzi", label: "جکوزی" },
   { id: "sauna", label: "سونا" },
+  { id: "power", label: "امتیاز برق" },
+  { id: "water", label: "امتیاز آب" },
+  { id: "gas", label: "امتیاز گاز" },
+  { id: "phone", label: "امتیاز تلفن" },
 ];
 
 export const saleCommercialHeatingItems: ChipItem[] = saleVillaHouseHeatingItems;
@@ -174,6 +183,10 @@ export const saleCommercialFacilityItems: ChipItem[] = [
   { id: "camera", label: "دوربین امنیتی" },
   { id: "bms", label: "سیستم هوشمند" },
   { id: "yard", label: "حیاط" },
+  { id: "power", label: "امتیاز برق" },
+  { id: "water", label: "امتیاز آب" },
+  { id: "gas", label: "امتیاز گاز" },
+  { id: "phone", label: "امتیاز تلفن" },
 ];
 
 export const saleFactoryHeatingItems: ChipItem[] = saleVillaHouseHeatingItems;
@@ -206,7 +219,6 @@ export const saleFactoryFacilityItems: ChipItem[] = [
   { id: "gas", label: "امتیاز گاز" },
   { id: "phone", label: "امتیاز تلفن" },
   { id: "walled", label: "دور دیوار/حصار" },
-  { id: "old-building", label: "بنا کلنگی" },
   { id: "guard", label: "نگهبانی" },
   { id: "water-well", label: "چاه آب" },
 ];
@@ -248,11 +260,15 @@ export const rentApartmentFacilityItems: ChipItem[] = [
   { id: "pool", label: "استخر" },
   { id: "jacuzzi", label: "جکوزی" },
   { id: "sauna", label: "سونا" },
+  { id: "gym", label: "سالن ورزشی" },
+  { id: "power", label: "امتیاز برق" },
+  { id: "water", label: "امتیاز آب" },
+  { id: "gas", label: "امتیاز گاز" },
+  { id: "phone", label: "امتیاز تلفن" },
 ];
 
 export const rentVillaHouseFacilityItems: ChipItem[] = [
   ...rentApartmentFacilityItems,
-  { id: "gym", label: "سالن ورزشی" },
   { id: "playground", label: "زمین بازی" },
 ];
 
@@ -295,6 +311,7 @@ export const rentCommercialFacilityItems: ChipItem[] = [
   { id: "water", label: "امتیاز آب" },
   { id: "gas", label: "امتیاز گاز" },
   { id: "phone", label: "امتیاز تلفن" },
+  { id: "power", label: "امتیاز برق" },
 ];
 
 export const rentFactoryFacilityItems: ChipItem[] = [
@@ -304,7 +321,6 @@ export const rentFactoryFacilityItems: ChipItem[] = [
   { id: "gas", label: "امتیاز گاز" },
   { id: "phone", label: "امتیاز تلفن" },
   { id: "walled", label: "دور دیوار/حصار" },
-  { id: "old-building", label: "بنا کلنگی" },
   { id: "guard", label: "نگهبانی" },
   { id: "water-well", label: "چاه آب" },
 ];

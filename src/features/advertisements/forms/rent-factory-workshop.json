@@ -33,7 +33,16 @@
         "input": "select",
         "ui": "bottomSheet",
         "placeholder": "انتخاب کنید",
-        "options": ["شمالی", "جنوبی", "غربی", "شرقی", "دوممر", "دونبش", "سه نبش", "چهارنبش"]
+        "options": [
+          "شمالی",
+          "جنوبی",
+          "غربی",
+          "شرقی",
+          "دوممر",
+          "دونبش",
+          "سه نبش",
+          "چهارنبش"
+        ]
       },
       {
         "key": "age",
@@ -152,16 +161,16 @@
           "label": "دور دیوار/حصار"
         },
         {
-          "id": "old-building",
-          "label": "بنا کلنگی"
-        },
-        {
           "id": "guard",
           "label": "نگهبانی"
         },
         {
           "id": "well",
           "label": "چاه آب"
+        },
+        {
+          "id": "power",
+          "label": "امتیاز برق"
         }
       ]
     },
@@ -173,7 +182,17 @@
           "title": "تعداد اتاق",
           "input": "select",
           "ui": "bottomSheet",
-          "options": ["بدون اتاق", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸+"]
+          "options": [
+            "بدون اتاق",
+            "۱",
+            "۲",
+            "۳",
+            "۴",
+            "۵",
+            "۶",
+            "۷",
+            "۸+"
+          ]
         },
         {
           "key": "ceilingHeight",
@@ -204,21 +223,31 @@
           "title": "دست رسی",
           "input": "select",
           "ui": "bottomSheet",
-          "options": ["جاده آسفالت", "جاده خاکی", "نزدیک بزرگراه"]
+          "options": [
+            "جاده آسفالت",
+            "جاده خاکی",
+            "نزدیک بزرگراه"
+          ]
         },
         {
           "key": "currentStatus",
           "title": "وضعیت فعلی",
           "input": "select",
           "ui": "bottomSheet",
-          "options": ["تخلیه", "فعال"]
+          "options": [
+            "تخلیه",
+            "فعال"
+          ]
         },
         {
           "key": "commercialLicense",
           "title": "مجوز تجاری",
           "input": "select",
           "ui": "bottomSheet",
-          "options": ["دائم", "موقت"]
+          "options": [
+            "دائم",
+            "موقت"
+          ]
         },
         {
           "key": "readyDeliveryDate",
@@ -227,7 +256,7 @@
         },
         {
           "key": "minContractMonths",
-          "title": "حداقل مدت قرارداد (ماه)",
+          "title": "حداقل مدت قرارداد",
           "input": "number",
           "leftText": "ماه",
           "numeric": true
@@ -270,14 +299,25 @@
         "id": "suitableFor",
         "title": "مناسب برای",
         "icon": "suitable",
-        "options": ["صنایع پلاستیک", "صنایع چوب", "کارگاه", "انبار", "تولیدی", "سایر"]
+        "options": [
+          "صنایع پلاستیک",
+          "صنایع چوب",
+          "کارگاه",
+          "انبار",
+          "تولیدی",
+          "سایر"
+        ]
       },
       {
         "kind": "single",
         "id": "commercialLicense",
         "title": "مجوز تجاری",
         "icon": "agreement",
-        "options": ["دائم", "موقت", "ندارد"]
+        "options": [
+          "دائم",
+          "موقت",
+          "ندارد"
+        ]
       },
       {
         "kind": "multi",

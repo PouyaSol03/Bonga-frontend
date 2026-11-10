@@ -1,6 +1,12 @@
 import { useEffect } from "react";
 import type { UseFormReturn } from "react-hook-form";
-import { locationKey } from "../data";
+import {
+  locationKey,
+  locationLatKey,
+  locationLngKey,
+  neighborhoodIdKey,
+  subNeighborhoodIdKey,
+} from "../data";
 import { saveAtomicDraft } from "../draft/adDraftStore";
 import { saveNewAdFlowSession, shouldPreserveNewAdDraft } from "../session";
 import type { FlowStep, NewAdFieldErrors, NewAdFormValues } from "../types";
@@ -26,26 +32,62 @@ export function useNewAdDraftSync({
     if (confirmedLocation && methods.getValues("location") !== confirmedLocation) {
       methods.setValue("location", confirmedLocation, { shouldDirty: true });
     }
+    const confirmedLat = window.localStorage.getItem(locationLatKey)?.trim();
+    if (confirmedLat && methods.getValues("lat") !== confirmedLat) {
+      methods.setValue("lat", confirmedLat, { shouldDirty: true });
+    }
+    const confirmedLng = window.localStorage.getItem(locationLngKey)?.trim();
+    if (confirmedLng && methods.getValues("lng") !== confirmedLng) {
+      methods.setValue("lng", confirmedLng, { shouldDirty: true });
+    }
+    const confirmedNeighborhoodId = window.localStorage.getItem(neighborhoodIdKey)?.trim();
+    if (
+      confirmedNeighborhoodId &&
+      methods.getValues("neighborhoodId") !== confirmedNeighborhoodId
+    ) {
+      methods.setValue("neighborhoodId", confirmedNeighborhoodId, { shouldDirty: true });
+    }
+    const confirmedSubNeighborhoodId =
+      window.localStorage.getItem(subNeighborhoodIdKey)?.trim() || "";
+    if (methods.getValues("subNeighborhoodId") !== confirmedSubNeighborhoodId) {
+      methods.setValue("subNeighborhoodId", confirmedSubNeighborhoodId, { shouldDirty: true });
+    }
 
     const persistDraft = () => {
       const values = methods.getValues();
       const currentConfirmedLoc = window.localStorage.getItem(locationKey)?.trim();
+      const currentLat = window.localStorage.getItem(locationLatKey)?.trim();
+      const currentLng = window.localStorage.getItem(locationLngKey)?.trim();
       const resolvedLoc = values.location || currentConfirmedLoc || "";
-      const currentNeighborhoodId = values.neighborhoodId || "";
-      const currentSubNeighborhoodId = values.subNeighborhoodId || "";
+      const currentNeighborhoodId =
+        values.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey)?.trim() || "";
+      const currentSubNeighborhoodId =
+        values.subNeighborhoodId ||
+        window.localStorage.getItem(subNeighborhoodIdKey)?.trim() ||
+        "";
+      const resolvedLat = values.lat || currentLat || "";
+      const resolvedLng = values.lng || currentLng || "";
 
       saveAtomicDraft({
         draftAdId,
+        lat: resolvedLat,
+        lng: resolvedLng,
         location: resolvedLoc,
         neighborhoodId: currentNeighborhoodId,
         step,
         subNeighborhoodId: currentSubNeighborhoodId,
-        values,
+        values: {
+          ...values,
+          lat: resolvedLat,
+          lng: resolvedLng,
+        },
       });
 
       saveNewAdFlowSession(
         {
           ...values,
+          lat: resolvedLat,
+          lng: resolvedLng,
           location: resolvedLoc,
           neighborhoodId: currentNeighborhoodId,
           subNeighborhoodId: currentSubNeighborhoodId,

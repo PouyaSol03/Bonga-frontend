@@ -1,7 +1,6 @@
 import type { NewAdFormValues } from "../types";
 import type { PatchAppender } from "./types";
 import {
-  locationKey,
   locationLatKey,
   locationLngKey,
   neighborhoodIdKey,
@@ -26,22 +25,48 @@ export function mapChangedBaseFields(
   if (changed.has("title")) appender.appendBase("title", clean.title);
   if (changed.has("description")) appender.appendBase("description", clean.description);
 
-  if (changed.has("location") || changed.has("neighborhoodId") || changed.has("subNeighborhoodId")) {
+  if (
+    changed.has("location") ||
+    changed.has("neighborhoodId") ||
+    changed.has("subNeighborhoodId") ||
+    changed.has("lat") ||
+    changed.has("lng")
+  ) {
     const nId = clean.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey) || "";
-    const subNId = clean.subNeighborhoodId || window.localStorage.getItem(subNeighborhoodIdKey) || "";
-    appender.appendBase("neighborhood_id", nId);
-    appender.appendBase("sub_neighborhood_id", subNId);
-    appender.appendBase("lat", getStoredNewAdLocationNumber(locationLatKey));
-    appender.appendBase("lng", getStoredNewAdLocationNumber(locationLngKey));
-    appender.appendBase("location_label", clean.location || window.localStorage.getItem(locationKey) || "");
+    const subNId =
+      clean.subNeighborhoodId || window.localStorage.getItem(subNeighborhoodIdKey) || "";
+    if (nId) appender.appendBase("neighborhood_id", nId);
+    appender.appendBase("sub_neighborhood_id", subNId || "null");
+
+    const latVal =
+      clean.lat !== undefined && clean.lat !== ""
+        ? clean.lat
+        : getStoredNewAdLocationNumber(locationLatKey);
+    const lngVal =
+      clean.lng !== undefined && clean.lng !== ""
+        ? clean.lng
+        : getStoredNewAdLocationNumber(locationLngKey);
+
+    if (latVal !== null && latVal !== undefined && latVal !== "") {
+      appender.appendBase("lat", latVal);
+    }
+    if (lngVal !== null && lngVal !== undefined && lngVal !== "") {
+      appender.appendBase("lng", lngVal);
+    }
   }
 
   if (changed.has("virtualTourLink") || changed.has("hasVirtualTour")) {
-    appender.appendBase("virtual_tour_link", clean.hasVirtualTour ? clean.virtualTourLink.trim() : "");
+    appender.appendBase(
+      "virtual_tour_link",
+      clean.hasVirtualTour ? clean.virtualTourLink.trim() : "",
+    );
   }
 
   if (changed.has("agencyId")) {
-    appender.appendBase("agency_id", clean.registrantType === "agency" ? clean.agencyId.trim() : "");
+    appender.appendBase(
+      "agency_id",
+      clean.registrantType === "agency" ? clean.agencyId.trim() : "",
+    );
   }
 
   if (changed.has("consultantId") && shouldSendConsultantAssignment(clean)) {
@@ -69,7 +94,10 @@ export function mapChangedBaseFields(
   if (changed.has("whatsapp")) appender.appendBase("whatsapp", clean.whatsapp);
 
   if (changed.has("chatEnabled") || changed.has("phoneEnabled")) {
-    const contactTypes = [clean.chatEnabled ? "chat" : null, clean.phoneEnabled ? "phone" : null].filter(Boolean);
+    const contactTypes = [
+      clean.chatEnabled ? "chat" : null,
+      clean.phoneEnabled ? "phone" : null,
+    ].filter(Boolean);
     contactTypes.forEach((t) => appender.formData.append("contact_type[]", String(t)));
   }
 
@@ -81,29 +109,36 @@ function mapChangedMedia(
   changed: Set<keyof NewAdFormValues>,
   appender: PatchAppender,
 ): void {
-  if (changed.has("photos")) {
-    const seenUploaded = new Set<string>();
-    const seenCanonical = new Set<string>();
+  const seenUploaded = new Set<string>();
+  const seenCanonical = new Set<string>();
 
-    clean.photos.forEach((photo) => {
-      if (photo.file) {
+  (clean.photos || []).forEach((photo) => {
+    if (photo.file) {
+      if (changed.has("photos")) {
         const key = `${photo.file.name}_${photo.file.size}`;
         if (!seenUploaded.has(key)) {
           seenUploaded.add(key);
           appender.formData.append("images", photo.file, photo.file.name);
         }
-      } else {
-        const source = mediaSource(photo.existingValue || photo.previewUrl);
-        if (source) {
-          const canonical = canonicalizeMediaPath(source);
-          if (canonical && !seenCanonical.has(canonical)) {
-            seenCanonical.add(canonical);
-            appender.formData.append("existing_images", canonical);
-          }
+      }
+    } else {
+      const source = mediaSource(photo.existingValue || photo.previewUrl);
+      if (source) {
+        const canonical = canonicalizeMediaPath(source);
+        if (canonical && !seenCanonical.has(canonical)) {
+          seenCanonical.add(canonical);
+          appender.formData.append("existing_images", canonical);
         }
       }
-    });
-    appender.appendDynamic("has_image", clean.photos.length > 0);
+    }
+  });
+
+  if (seenCanonical.size === 0) {
+    appender.formData.append("existing_images", "[]");
+  }
+
+  if (changed.has("photos")) {
+    appender.appendDynamic("has_image", (clean.photos || []).length > 0);
   }
 
   if (changed.has("video")) {

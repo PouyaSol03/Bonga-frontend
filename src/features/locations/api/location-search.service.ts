@@ -97,9 +97,7 @@ function normalizeCoordinateLocationSearchItem(value: unknown): NeighborhoodDto 
   if (!id || !name) return null;
 
   const location =
-    readRecord(item, "location") ??
-    readRecord(item, "coordinates") ??
-    readRecord(item, "point");
+    readRecord(item, "location") ?? readRecord(item, "coordinates") ?? readRecord(item, "point");
   const coordinateArray = Array.isArray(item.coordinates)
     ? item.coordinates
     : Array.isArray(location?.coordinates)
@@ -131,12 +129,7 @@ function normalizeCoordinateLocationSearchItem(value: unknown): NeighborhoodDto 
     neighborhood?.longitude,
   );
 
-  const cityId = readString(
-    item.city_id,
-    item.cityId,
-    neighborhood?.city_id,
-    neighborhood?.cityId,
-  );
+  const cityId = readString(item.city_id, item.cityId, neighborhood?.city_id, neighborhood?.cityId);
 
   return {
     id,
@@ -247,10 +240,7 @@ function normalizeMatchedSubNeighborhood(
     hasExplicitSubNeighborhoodFields || matchedBySubNeighborhood || resultIsSubNeighborhood;
 
   const rawSubNeighborhoods =
-    item.sub_neighborhoods ??
-    item.subNeighborhoods ??
-    item.sub_neighbors ??
-    item.subNeighbors;
+    item.sub_neighborhoods ?? item.subNeighborhoods ?? item.sub_neighbors ?? item.subNeighbors;
   const onlySubNeighborhood =
     itemIsSubNeighborhood && Array.isArray(rawSubNeighborhoods) && rawSubNeighborhoods.length === 1
       ? asRecord(rawSubNeighborhoods[0])
@@ -282,9 +272,9 @@ function normalizeMatchedSubNeighborhood(
   if (!id && !name) return null;
 
   const location = source
-    ? readRecord(source, "location") ??
+    ? (readRecord(source, "location") ??
       readRecord(source, "coordinates") ??
-      readRecord(source, "point")
+      readRecord(source, "point"))
     : null;
   const coordinateArray = Array.isArray(source?.coordinates)
     ? source.coordinates
@@ -393,9 +383,7 @@ function normalizeLocationSearchItem(value: unknown): NeighborhoodDto | null {
   if (!id || !name) return null;
 
   const location =
-    readRecord(item, "location") ??
-    readRecord(item, "coordinates") ??
-    readRecord(item, "point");
+    readRecord(item, "location") ?? readRecord(item, "coordinates") ?? readRecord(item, "point");
   const coordinateArray = Array.isArray(item.coordinates)
     ? item.coordinates
     : Array.isArray(location?.coordinates)
@@ -427,12 +415,7 @@ function normalizeLocationSearchItem(value: unknown): NeighborhoodDto | null {
     neighborhood?.longitude,
   );
 
-  const cityId = readString(
-    item.city_id,
-    item.cityId,
-    neighborhood?.city_id,
-    neighborhood?.cityId,
-  );
+  const cityId = readString(item.city_id, item.cityId, neighborhood?.city_id, neighborhood?.cityId);
   const parentGeofence =
     neighborhood?.geofence ??
     neighborhood?.polygon ??
@@ -448,13 +431,11 @@ function normalizeLocationSearchItem(value: unknown): NeighborhoodDto | null {
     lng,
     city_id: cityId || undefined,
     geofence:
-      parentGeofence ??
-      (matchedSubNeighborhood ? undefined : item.geofence ?? item.polygon),
+      parentGeofence ?? (matchedSubNeighborhood ? undefined : (item.geofence ?? item.polygon)),
     matched_by: Array.isArray(item.matched_by) ? item.matched_by.map(String) : undefined,
     matched_sub_neighborhood: matchedSubNeighborhood,
     polygon:
-      parentGeofence ??
-      (matchedSubNeighborhood ? undefined : item.polygon ?? item.geofence),
+      parentGeofence ?? (matchedSubNeighborhood ? undefined : (item.polygon ?? item.geofence)),
     sub_neighborhoods:
       (item.sub_neighborhoods as NeighborhoodDto["sub_neighborhoods"]) ??
       (neighborhood?.sub_neighborhoods as NeighborhoodDto["sub_neighborhoods"]),
@@ -473,9 +454,7 @@ function unwrapLocationSearchItems(
   normalizeItem: LocationSearchNormalizer,
 ): NeighborhoodDto[] {
   if (Array.isArray(response)) {
-    return response
-      .map(normalizeItem)
-      .filter((item): item is NeighborhoodDto => item !== null);
+    return response.map(normalizeItem).filter((item): item is NeighborhoodDto => item !== null);
   }
 
   const record = asRecord(response);
@@ -492,9 +471,7 @@ function unwrapLocationSearchItems(
 
   for (const candidate of candidates) {
     if (Array.isArray(candidate)) {
-      return candidate
-        .map(normalizeItem)
-        .filter((item): item is NeighborhoodDto => item !== null);
+      return candidate.map(normalizeItem).filter((item): item is NeighborhoodDto => item !== null);
     }
 
     const nestedRecord = asRecord(candidate);
@@ -509,9 +486,7 @@ function unwrapLocationSearchItems(
 }
 
 async function requestLocationSearch(
-  params:
-    | { cityId: string; query: string }
-    | { cityId: string; lat: number; lng: number },
+  params: { cityId: string; query: string } | { cityId: string; lat: number; lng: number },
 ) {
   const cityId = toPostgresInteger(params.cityId, "city_id");
   const searchParams =
@@ -532,16 +507,11 @@ async function requestLocationSearch(
 
   return unwrapLocationSearchItems(
     response,
-    "query" in params
-      ? normalizeLocationSearchItem
-      : normalizeCoordinateLocationSearchItem,
+    "query" in params ? normalizeLocationSearchItem : normalizeCoordinateLocationSearchItem,
   );
 }
 
-export async function searchLocationsByQuery({
-  cityId,
-  query,
-}: LocationSearchByQueryParams) {
+export async function searchLocationsByQuery({ cityId, query }: LocationSearchByQueryParams) {
   if (!query.trim()) return [];
 
   return requestLocationSearch({ cityId, query });

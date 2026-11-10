@@ -22,7 +22,7 @@ function FilterChip({
 }) {
   const chipIcon =
     icon === "chevron" ? (
-      <LinearArrowDown1 className="w-5 h-5" />
+      <LinearArrowDown1 className="h-5 w-5" />
     ) : icon === "location" ? (
       <LinearLocation className="h-5 w-5" />
     ) : icon === "sort" ? (
@@ -72,11 +72,11 @@ function FilterChip({
         <Button
           unstyled
           aria-label={`حذف ${label}`}
-          className="grid h-full shrink-0 place-items-center text-inherit active:bg-primary/10"
+          className="active:bg-primary/10 grid h-full shrink-0 place-items-center text-inherit"
           onClick={onRemove}
           type="button"
         >
-          <LinearCancelSmall className="w-5 h-5" />
+          <LinearCancelSmall className="h-5 w-5" />
         </Button>
       </Typography>
     );

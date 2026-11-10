@@ -2,18 +2,18 @@ import { useState, useEffect } from "react";
 import { useCreateMyAgentMutation, useMyProfileQuery } from "../api/account.hooks";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { useToast } from "../../../shared/hooks/useToast";
-import { BusinessFormPage, RequiredLabel, normalizePhoneDigits } from "../businessCreationShared";
-import type { BusinessToast } from "../businessCreationShared";
+import { BusinessFormPage, RequiredLabel, normalizePhoneDigits, type BusinessToast  } from "../businessCreationShared";
+
 
 export function IndependentConsultantBusinessCreationPage() {
   const { showToast: showGlobalToast } = useToast();
   const { data: profile } = useMyProfileQuery();
   const isAgencyPending = Boolean(
     profile?.agency_id &&
-      (profile?.agency_status === 0 ||
-        profile?.agency_status === "0" ||
-        profile?.agency_status === "wait" ||
-        String(profile?.agency_status).toLowerCase() === "wait"),
+    (profile?.agency_status === 0 ||
+      profile?.agency_status === "0" ||
+      profile?.agency_status === "wait" ||
+      String(profile?.agency_status).toLowerCase() === "wait"),
   );
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -28,7 +28,11 @@ export function IndependentConsultantBusinessCreationPage() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  const showToast = (message: string, title = "خطا", variant: "error" | "success" | "info" | "warning" = "error") => {
+  const showToast = (
+    message: string,
+    title = "خطا",
+    variant: "error" | "success" | "info" | "warning" = "error",
+  ) => {
     setToast({ message, title, variant });
     showGlobalToast(message, title, variant);
   };
@@ -73,7 +77,7 @@ export function IndependentConsultantBusinessCreationPage() {
           <div>
             <RequiredLabel>نام و نام خانوادگی مشاور</RequiredLabel>
             <input
-              className="mt-2 h-14 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline focus:border-primary"
+              className="border-outline-var bg-surface-container-lowest text-on-surface placeholder:text-outline focus:border-primary mt-2 h-14 w-full rounded-xl border px-4 text-right text-base leading-6 font-normal outline-none"
               onChange={(event) => setFullName(event.target.value)}
               placeholder="مثال: املاک نوروزیان"
               value={fullName}
@@ -83,7 +87,7 @@ export function IndependentConsultantBusinessCreationPage() {
           <div>
             <RequiredLabel>شماره همراه</RequiredLabel>
             <input
-              className="mt-2 h-14 w-full rounded-xl border border-outline-var bg-surface-container-lowest px-4 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline focus:border-primary"
+              className="border-outline-var bg-surface-container-lowest text-on-surface placeholder:text-outline focus:border-primary mt-2 h-14 w-full rounded-xl border px-4 text-right text-base leading-6 font-normal outline-none"
               inputMode="tel"
               onChange={(event) => setMobile(event.target.value)}
               placeholder="مثال: ۰۹۱۵۵۲۱۴۰۶۲"

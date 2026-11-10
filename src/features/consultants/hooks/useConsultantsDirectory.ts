@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { useAgencyInfiniteQuery, usePublicAgentsInfiniteQuery } from "../../agencies/api/agency.hooks";
+import {
+  useAgencyInfiniteQuery,
+  usePublicAgentsInfiniteQuery,
+} from "../../agencies/api/agency.hooks";
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
 import { toPersianNumber } from "../../../shared/lib/numberUtils";
 import type { PublicAgencyDto, PublicAgentListDto } from "../../agencies/api/agency.service";
 import type { NeighborhoodDto } from "../../locations/api/neighborhood.service";
-import {
-  readConsultantsSelectedNeighborhood,
-} from "../consultantsNeighborhoodSelection";
+import { readConsultantsSelectedNeighborhood } from "../consultantsNeighborhoodSelection";
 import {
   DIRECTORY_PAGE_SIZE,
   LOAD_MORE_REMAINING_ITEM_COUNT,
@@ -57,12 +58,14 @@ export function useConsultantsDirectory() {
 
   const directoryHistoryState =
     window.history.state && typeof window.history.state === "object"
-      ? (window.history.state as {
-          consultantsDirectoryState?: {
-            search?: string;
-            selectedSort?: SortOptionId | null;
-          };
-        }).consultantsDirectoryState
+      ? (
+          window.history.state as {
+            consultantsDirectoryState?: {
+              search?: string;
+              selectedSort?: SortOptionId | null;
+            };
+          }
+        ).consultantsDirectoryState
       : undefined;
 
   const [search, setSearch] = useState(directoryHistoryState?.search ?? "");
@@ -99,7 +102,8 @@ export function useConsultantsDirectory() {
   });
 
   const agencyDirectoryItems = useMemo(
-    () => agenciesQuery.data?.pages.flatMap((page) => page.data.map(mapAgencyToDirectoryItem)) ?? [],
+    () =>
+      agenciesQuery.data?.pages.flatMap((page) => page.data.map(mapAgencyToDirectoryItem)) ?? [],
     [agenciesQuery.data],
   );
 
@@ -121,7 +125,11 @@ export function useConsultantsDirectory() {
 
       const observer = new IntersectionObserver(
         (entries) => {
-          if (entries[0]?.isIntersecting && activeQuery.hasNextPage && !activeQuery.isFetchingNextPage) {
+          if (
+            entries[0]?.isIntersecting &&
+            activeQuery.hasNextPage &&
+            !activeQuery.isFetchingNextPage
+          ) {
             void activeQuery.fetchNextPage();
           }
         },
@@ -140,27 +148,38 @@ export function useConsultantsDirectory() {
     window.history.replaceState(window.history.state ?? {}, "", nextPath);
   }, []);
 
-  const navigateToAgency = useCallback((item: DirectoryItem) => {
-    if (!item.id) return;
-    const params = new URLSearchParams();
-    if (item.name) params.set("name", item.name);
-    if (item.address) params.set("location", item.address);
-    if (item.image) params.set("logo", item.image);
-    if (selectedCity?.id) params.set("city_id", selectedCity.id);
-    if (selectedCity?.name) params.set("city_name", selectedCity.name);
-    if (item.neighborhoodIds?.length) params.set("neighborhood_ids", item.neighborhoodIds.join(","));
-    if (item.rank) params.set("rank", item.rank);
-    if (item.score) params.set("score", item.score);
-    navigate(`/agencies/${encodeURIComponent(item.id)}${params.toString() ? `?${params.toString()}` : ""}`);
-  }, [navigate, selectedCity]);
+  const navigateToAgency = useCallback(
+    (item: DirectoryItem) => {
+      if (!item.id) return;
+      const params = new URLSearchParams();
+      if (item.name) params.set("name", item.name);
+      if (item.address) params.set("location", item.address);
+      if (item.image) params.set("logo", item.image);
+      if (selectedCity?.id) params.set("city_id", selectedCity.id);
+      if (selectedCity?.name) params.set("city_name", selectedCity.name);
+      if (item.neighborhoodIds?.length)
+        params.set("neighborhood_ids", item.neighborhoodIds.join(","));
+      if (item.rank) params.set("rank", item.rank);
+      if (item.score) params.set("score", item.score);
+      navigate(
+        `/agencies/${encodeURIComponent(item.id)}${params.toString() ? `?${params.toString()}` : ""}`,
+      );
+    },
+    [navigate, selectedCity],
+  );
 
-  const navigateToAgent = useCallback((item: DirectoryItem) => {
-    if (!item.id) return;
-    const params = new URLSearchParams();
-    if (item.name) params.set("name", item.name);
-    if (item.image) params.set("logo", item.image);
-    navigate(`/agents/${encodeURIComponent(item.id)}${params.toString() ? `?${params.toString()}` : ""}`);
-  }, [navigate]);
+  const navigateToAgent = useCallback(
+    (item: DirectoryItem) => {
+      if (!item.id) return;
+      const params = new URLSearchParams();
+      if (item.name) params.set("name", item.name);
+      if (item.image) params.set("logo", item.image);
+      navigate(
+        `/agents/${encodeURIComponent(item.id)}${params.toString() ? `?${params.toString()}` : ""}`,
+      );
+    },
+    [navigate],
+  );
 
   return {
     activeQuery,

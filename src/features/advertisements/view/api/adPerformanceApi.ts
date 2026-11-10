@@ -7,7 +7,7 @@ import {
   type PerformanceDayData,
 } from "../components/performance/viewAdPerformanceData";
 
-export interface AdPerformanceSummaryData {
+interface AdPerformanceSummaryData {
   views_count: number;
   views_growth_percent?: number;
   search_impressions_count: number;
@@ -18,7 +18,7 @@ export interface AdPerformanceSummaryData {
   chats_growth_percent?: number;
 }
 
-export interface AdPerformanceFunnelStage {
+interface AdPerformanceFunnelStage {
   id: string;
   label: string;
   count: number;
@@ -28,29 +28,28 @@ export interface AdPerformanceFunnelStage {
   is_final?: boolean;
 }
 
-export interface AdPerformanceFunnelData {
+interface AdPerformanceFunnelData {
   status?: boolean;
   available?: boolean;
   title?: string;
   stages?: AdPerformanceFunnelStage[];
 }
 
-export interface AdPerformanceChartsData {
+interface AdPerformanceChartsData {
   metric: PerformanceMetricKey;
   week_label: string;
   total_metric_value: number;
   days: PerformanceDayData[];
 }
 
-export async function getAdPerformanceSummary(
+async function getAdPerformanceSummary(
   adId?: string | number,
 ): Promise<AdPerformanceSummaryData | null> {
   if (!adId) return null;
   try {
-    const res = await getV2AdvertisementPerformance<{ data?: AdPerformanceSummaryData } | AdPerformanceSummaryData>(
-      adId,
-      "summary",
-    );
+    const res = await getV2AdvertisementPerformance<
+      { data?: AdPerformanceSummaryData } | AdPerformanceSummaryData
+    >(adId, "summary");
     if (!res) return null;
     return "data" in res && res.data ? res.data : (res as AdPerformanceSummaryData);
   } catch {
@@ -58,18 +57,16 @@ export async function getAdPerformanceSummary(
   }
 }
 
-export async function getAdPerformanceCharts(
+async function getAdPerformanceCharts(
   adId?: string | number,
   metric: PerformanceMetricKey = "views",
   weekOffset = 0,
 ): Promise<AdPerformanceChartsData | null> {
   if (!adId) return null;
   try {
-    const res = await getV2AdvertisementPerformance<{ data?: AdPerformanceChartsData } | AdPerformanceChartsData>(
-      adId,
-      "charts",
-      { metric, week_offset: weekOffset },
-    );
+    const res = await getV2AdvertisementPerformance<
+      { data?: AdPerformanceChartsData } | AdPerformanceChartsData
+    >(adId, "charts", { metric, week_offset: weekOffset });
     if (!res) return null;
     return "data" in res && res.data ? res.data : (res as AdPerformanceChartsData);
   } catch {
@@ -99,15 +96,14 @@ export function useAdPerformanceSummaryQuery(
   });
 }
 
-export async function getAdPerformanceFunnel(
+async function getAdPerformanceFunnel(
   adId?: string | number,
 ): Promise<AdPerformanceFunnelData | null> {
   if (!adId) return null;
   try {
-    const res = await getV2AdvertisementPerformance<{ data?: AdPerformanceFunnelData } | AdPerformanceFunnelData>(
-      adId,
-      "conversion-funnel",
-    );
+    const res = await getV2AdvertisementPerformance<
+      { data?: AdPerformanceFunnelData } | AdPerformanceFunnelData
+    >(adId, "conversion-funnel");
     if (!res) return null;
     return "data" in res && res.data ? res.data : (res as AdPerformanceFunnelData);
   } catch {
@@ -147,4 +143,3 @@ export function useAdPerformanceChartsQuery(
     placeholderData: (previousData) => previousData,
   });
 }
-

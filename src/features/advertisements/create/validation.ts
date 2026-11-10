@@ -1,8 +1,11 @@
 import { getBasicPropertyFields, getParams, trimFormValues } from "./utils";
 import { parseRentPriceValue } from "./rentPriceConversion";
+import { parseNumericValue, toEnglishDigits as toLatinDigits } from "../../../shared/lib/numberUtils";
 import type { FlowStep, NewAdFieldErrors, NewAdFormValues } from "./types";
 
-export type NewAdValidationResult = {
+export { parseNumericValue };
+
+type NewAdValidationResult = {
   errors: NewAdFieldErrors;
   step: FlowStep;
 };
@@ -11,32 +14,7 @@ const MAX_SYSTEM_PRICE = 500_000_000_000_000; // 500 Hemmat (500 trillion Tomans
 const MAX_MONTHLY_RENT = 5_000_000_000; // 5 Billion Tomans
 const MAX_DAILY_RENT = 200_000_000; // 200 Million Tomans per night
 
-export function toLatinDigits(value: string): string {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
-}
-
-export function parseNumericValue(value: unknown): number | null {
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
-  if (typeof value !== "string") return null;
-
-  const normalized = toLatinDigits(value).replace(/,/g, "").trim();
-  if (!normalized) return null;
-
-  const num = Number(normalized);
-  if (Number.isFinite(num)) return num;
-
-  const match = normalized.match(/-?\d+(?:\.\d+)?/);
-  if (match) {
-    const extracted = Number(match[0]);
-    return Number.isFinite(extracted) ? extracted : null;
-  }
-
-  return null;
-}
-
-export function parseFloorNumber(floorStr: unknown): number | null {
+function parseFloorNumber(floorStr: unknown): number | null {
   if (typeof floorStr !== "string") return null;
   const trimmed = floorStr.trim();
   if (trimmed === "همکف") return 0;
@@ -54,11 +32,11 @@ function hasRequiredText(value: unknown): boolean {
   return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
 }
 
-export function hasErrors(errors: NewAdFieldErrors): boolean {
+function hasErrors(errors: NewAdFieldErrors): boolean {
   return Object.values(errors).some(Boolean);
 }
 
-export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
+function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
   const { transaction, category } = getParams();
   const isProject = transaction === "project";
   const isPartnership = isProject && category === "project-partnership";
@@ -97,8 +75,10 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
   if (hasRequiredText(values.totalFloors)) {
     if (numTotalFloors === null || numTotalFloors <= 0) {
       errors.totalFloors = "تعداد کل طبقات باید بزرگتر از صفر باشد.";
-    } else if (numTotalFloors > 70) {
-      errors.totalFloors = "تعداد کل طبقات نمی‌تواند بیشتر از ۷۰ طبقه باشد.";
+    } else if (category === "villa-house" && numTotalFloors > 7) {
+      errors.totalFloors = "تعداد کل طبقات برای خانه، ویلا نمی‌تواند بیشتر از ۷ طبقه باشد.";
+    } else if (numTotalFloors > 80) {
+      errors.totalFloors = "تعداد کل طبقات نمی‌تواند بیشتر از ۸۰ طبقه باشد.";
     }
   }
 
@@ -113,8 +93,8 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
   if (hasRequiredText(values.unitsPerFloor) && numUnitsPerFloor !== null) {
     if (numUnitsPerFloor <= 0) {
       errors.unitsPerFloor = "تعداد واحد در هر طبقه باید بزرگتر از صفر باشد.";
-    } else if (numUnitsPerFloor > 30) {
-      errors.unitsPerFloor = "تعداد واحد در هر طبقه نمی‌تواند بیشتر از ۳۰ واحد باشد.";
+    } else if (numUnitsPerFloor > 60) {
+      errors.unitsPerFloor = "تعداد واحد در هر طبقه نمی‌تواند بیشتر از ۶۰ واحد باشد.";
     }
   }
 
@@ -149,8 +129,8 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
 
   const numOpeningCount = parseNumericValue(values.openingCount);
   if (hasRequiredText(values.openingCount) && numOpeningCount !== null) {
-    if (numOpeningCount <= 0 || numOpeningCount > 20) {
-      errors.openingCount = "تعداد دهنه مغازه باید بین ۱ تا ۲۰ باشد.";
+    if (numOpeningCount <= 0 || numOpeningCount > 4) {
+      errors.openingCount = "تعداد دهنه مغازه باید بین ۱ تا ۴ باشد.";
     }
   }
 
@@ -186,17 +166,20 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
 
   const numMinStayDays = parseNumericValue(values.minStayDays);
   if (hasRequiredText(values.minStayDays) && numMinStayDays !== null) {
-    if (numMinStayDays <= 0 || numMinStayDays > 30) {
-      errors.minStayDays = "حداقل مدت اقامت روزانه باید بین ۱ تا ۳۰ روز باشد.";
+    if (numMinStayDays <= 0 || numMinStayDays > 31) {
+      errors.minStayDays = "حداقل مدت اقامت روزانه باید بین ۱ تا ۳۱ روز باشد.";
     }
   }
 
   // 7. Partnership & Project Flow
   if (isPartnership) {
-    if (!hasRequiredText(values.participationType)) errors.participationType = "لطفا نوع مشارکت را انتخاب کنید.";
-    if (!hasRequiredText(values.currentStatus)) errors.currentStatus = "لطفا وضعیت فعلی ملک را انتخاب کنید.";
+    if (!hasRequiredText(values.participationType))
+      errors.participationType = "لطفا نوع مشارکت را انتخاب کنید.";
+    if (!hasRequiredText(values.currentStatus))
+      errors.currentStatus = "لطفا وضعیت فعلی ملک را انتخاب کنید.";
     if (!hasRequiredText(values.landArea)) errors.landArea = "لطفا متراژ زمین را وارد کنید.";
-    if (!hasRequiredText(values.landPosition)) errors.landPosition = "لطفا موقعیت زمین را انتخاب کنید.";
+    if (!hasRequiredText(values.landPosition))
+      errors.landPosition = "لطفا موقعیت زمین را انتخاب کنید.";
 
     const shareNum = parseNumericValue(values.builderSharePercent);
     if (shareNum !== null && (shareNum <= 0 || shareNum > 100)) {
@@ -208,8 +191,8 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
     const projFloors = parseNumericValue(values.projectTotalFloors);
     if (!hasRequiredText(values.projectTotalFloors)) {
       errors.projectTotalFloors = "لطفا تعداد کل طبقات را وارد کنید.";
-    } else if (projFloors === null || projFloors <= 0 || projFloors > 70) {
-      errors.projectTotalFloors = "تعداد کل طبقات پروژه باید بین ۱ تا ۷۰ طبقه باشد.";
+    } else if (projFloors === null || projFloors <= 0 || projFloors > 80) {
+      errors.projectTotalFloors = "تعداد کل طبقات پروژه باید بین ۱ تا ۸۰ طبقه باشد.";
     }
 
     const projUnits = parseNumericValue(values.projectTotalUnits);
@@ -328,6 +311,8 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
       errors.loanInstallment = "لطفا قسط وام را وارد کنید.";
     } else if (loanInstallment === null || loanInstallment <= 0) {
       errors.loanInstallment = "مبلغ قسط وام باید بزرگتر از صفر باشد.";
+    } else if (loanAmount !== null && loanAmount > 0 && loanInstallment > loanAmount / 2) {
+      errors.loanInstallment = "مبلغ قسط نمی‌تواند بیشتر از نصف مبلغ کل وام باشد.";
     }
   }
 
@@ -356,7 +341,7 @@ export function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldE
   return errors;
 }
 
-export function getMediaValidationErrors(
+function getMediaValidationErrors(
   values: NewAdFormValues,
   options: { forceFullEditFields?: boolean } = {},
 ): NewAdFieldErrors {
@@ -395,7 +380,8 @@ export function getMediaValidationErrors(
 
   // 5. Contact Methods & Phone Number
   if (shouldRequirePersonalContactFields && !values.chatEnabled && !values.phoneEnabled) {
-    errors.contactMethods = "لطفا حداقل یکی از روش‌های ارتباطی چت با کاربران یا شماره تماس را انتخاب کنید.";
+    errors.contactMethods =
+      "لطفا حداقل یکی از روش‌های ارتباطی چت با کاربران یا شماره تماس را انتخاب کنید.";
   }
 
   if (hasRequiredText(values.phoneNumber)) {
@@ -407,7 +393,11 @@ export function getMediaValidationErrors(
 
   if (hasRequiredText(values.ownerPhone)) {
     const cleanOwnerPhone = toLatinDigits(values.ownerPhone).replace(/[\s-]/g, "");
-    if (!/^0\d{10}$/.test(cleanOwnerPhone) && !/^\+?98\d{10}$/.test(cleanOwnerPhone) && !/^09\d{9}$/.test(cleanOwnerPhone)) {
+    if (
+      !/^0\d{10}$/.test(cleanOwnerPhone) &&
+      !/^\+?98\d{10}$/.test(cleanOwnerPhone) &&
+      !/^09\d{9}$/.test(cleanOwnerPhone)
+    ) {
       errors.ownerPhone = "شماره تلفن مالک معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹ یا ۰۲۱۸۸۸۸۸۸۸۸).";
     }
   }

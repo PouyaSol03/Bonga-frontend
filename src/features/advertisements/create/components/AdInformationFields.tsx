@@ -10,29 +10,43 @@ import { Typography } from "../../../../shared/ui/Typography";
 import { TextField } from "../../../../shared/ui/TextField";
 import { AgencyOwnerContactFields } from "./AgencyOwnerContactFields";
 
-type SetNewAdField = <T extends keyof NewAdFormValues>(
-  key: T,
-  value: NewAdFormValues[T],
-) => void;
+type SetNewAdField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => void;
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return (
-    <Typography as="p" variant="body" size="small" weight="regular" className="m-0 mt-2 px-4 text-right text-xs font-normal leading-5 text-error" data-field-error="true">
+    <Typography
+      as="p"
+      variant="body"
+      size="small"
+      weight="regular"
+      className="text-error m-0 mt-2 px-4 text-right text-xs leading-5 font-normal"
+      data-field-error="true"
+    >
       {message}
     </Typography>
   );
 }
 
-
 function SectionHeading({ required = false, title }: { required?: boolean; title: string }) {
   return (
     <div className="mb-2 flex items-center justify-between gap-3">
       <Typography variant="label" size="large" className="text-on-surface">
-        {title} {required ? <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography> : null}
+        {title}{" "}
+        {required ? (
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-error"
+          >
+            *
+          </Typography>
+        ) : null}
       </Typography>
-      <LinearInfoCircle className="w-6 h-6 text-on-surface-var" />
+      <LinearInfoCircle className="text-on-surface-var h-6 w-6" />
     </div>
   );
 }
@@ -50,8 +64,11 @@ function RegistrantTypeFields({
 }) {
   return (
     <div>
-      <div className="mb-3 text-right text-base font-medium leading-7 text-on-surface">
-        ثبت کننده آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
+      <div className="text-on-surface mb-3 text-right text-base leading-7 font-medium">
+        ثبت کننده آگهی{" "}
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">
+          *
+        </Typography>
       </div>
 
       <div className="space-y-3">
@@ -94,7 +111,7 @@ function PersonalContactFields({
   phoneEnabled: boolean;
 }) {
   return (
-    <div data-field-key="contactMethods" className="border-t border-dashed border-outline-var pt-5">
+    <div data-field-key="contactMethods" className="border-outline-var border-t border-dashed pt-5">
       <SectionHeading required title="روش‌های ارتباطی" />
 
       <CheckRow
@@ -130,13 +147,20 @@ function AgencyContactFields({
   ownerFullName: string;
 }) {
   return (
-    <div className="border-t border-outline-var pt-5">
+    <div className="border-outline-var border-t pt-5">
       <SectionHeading title="روش‌های ارتباطی" />
 
-      <div className="space-y-1 text-right text-sm font-normal leading-6 text-outline">
+      <div className="text-outline space-y-1 text-right text-sm leading-6 font-normal">
         <Typography as="p" variant="body" size="medium" weight="regular" className="m-0">
           شما با شماره{" "}
-          <Typography as="span" variant="label" size="medium" weight="medium" className="font-medium text-tertiary [direction:ltr]" dir="ltr">
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-tertiary font-medium [direction:ltr]"
+            dir="ltr"
+          >
             {mobile || "شماره ثبت‌شده شما"}
           </Typography>{" "}
           وارد شده‌اید.
@@ -154,7 +178,7 @@ function AgencyContactFields({
 
       <div className="mt-5 space-y-4">
         <div data-field-key="ownerFullName">
-          <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
+          <div className="text-on-surface mb-3 text-right text-base leading-7 font-semibold">
             نام و نام خانوادگی مالک (اختیاری)
           </div>
           <InputBox
@@ -167,7 +191,7 @@ function AgencyContactFields({
         </div>
 
         <div data-field-key="ownerExactAddress">
-          <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
+          <div className="text-on-surface mb-3 text-right text-base leading-7 font-semibold">
             آدرس دقیق ملک (اختیاری)
           </div>
           <InputBox
@@ -205,19 +229,17 @@ function AgencyPublisherFields({
         variant="body"
         size="large"
         weight="medium"
-        className="m-0 mb-3 text-right text-on-surface-var"
+        className="text-on-surface-var m-0 mb-3 text-right"
       >
         منتشرکننده آگهی
       </Typography>
 
-      <div className="flex min-h-[84px] items-center gap-3 rounded-[16px] bg-surface-container px-4 py-3 [direction:rtl]">
-        <div className={`grid h-14 w-14 shrink-0 place-items-center overflow-hidden bg-surface-container-lowest text-on-surface-var ${isConsultant ? "rounded-full" : "rounded-xl"}`}>
+      <div className="bg-surface-container flex min-h-[84px] items-center gap-3 rounded-[16px] px-4 py-3 [direction:rtl]">
+        <div
+          className={`bg-surface-container-lowest text-on-surface-var grid h-14 w-14 shrink-0 place-items-center overflow-hidden ${isConsultant ? "rounded-full" : "rounded-xl"}`}
+        >
           {logoUrl ? (
-            <img
-              alt=""
-              className="h-full w-full object-cover"
-              src={logoUrl}
-            />
+            <img alt="" className="h-full w-full object-cover" src={logoUrl} />
           ) : isConsultant ? (
             <LinearUserSolid aria-hidden="true" className="h-7 w-7" />
           ) : (
@@ -231,7 +253,7 @@ function AgencyPublisherFields({
             variant="body"
             size="large"
             weight="medium"
-            className="m-0 truncate text-on-surface"
+            className="text-on-surface m-0 truncate"
           >
             {name || "آژانس"}
           </Typography>
@@ -240,7 +262,7 @@ function AgencyPublisherFields({
             variant="body"
             size="medium"
             weight="regular"
-            className="m-0 mt-1 text-on-surface-var"
+            className="text-on-surface-var m-0 mt-1"
           >
             {subtitle}
           </Typography>
@@ -275,7 +297,7 @@ function SocialFields({
 }) {
   return (
     <div>
-      <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
+      <div className="text-on-surface mb-3 text-right text-base leading-7 font-semibold">
         شبکه‌های اجتماعی
       </div>
       <div className="space-y-3">
@@ -339,8 +361,7 @@ export function AdInformationFields({
   allowAssignmentChoice?: boolean;
 }) {
   const isProfessional =
-    isProfessionalPublisher ??
-    (publisherType === "agency" || publisherType === "agent");
+    isProfessionalPublisher ?? (publisherType === "agency" || publisherType === "agent");
   const showPublisherCard = isProfessional || publisherType === "agency";
   const showOwnerContact = isProfessional && !isAssigned;
   const isAgency = !showPublisherCard && values.registrantType === "agency";
@@ -404,9 +425,18 @@ export function AdInformationFields({
         />
       ) : null}
 
-      <div data-field-key="title" className="border-t border-dashed border-outline-var pt-5">
-        <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
-          عنوان آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
+      <div data-field-key="title" className="border-outline-var border-t border-dashed pt-5">
+        <div className="text-on-surface mb-3 text-right text-base leading-7 font-semibold">
+          عنوان آگهی{" "}
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-error"
+          >
+            *
+          </Typography>
         </div>
         <InputBox
           error={errors.title}
@@ -419,17 +449,26 @@ export function AdInformationFields({
       </div>
 
       <div data-field-key="description">
-        <div className="mb-3 text-right text-base font-semibold leading-7 text-on-surface">
-          توضیحات آگهی <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
+        <div className="text-on-surface mb-3 text-right text-base leading-7 font-semibold">
+          توضیحات آگهی{" "}
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-error"
+          >
+            *
+          </Typography>
         </div>
         <label
-          className={`block min-h-32 w-full rounded-[12px] border bg-surface-container-lowest px-4 py-3 text-right text-base font-normal leading-6 text-on-surface focus-within:border-primary ${
+          className={`bg-surface-container-lowest text-on-surface focus-within:border-primary block min-h-32 w-full rounded-[12px] border px-4 py-3 text-right text-base leading-6 font-normal ${
             errors.description ? "border-error" : "border-outline-var"
           }`}
         >
           <textarea
             aria-invalid={Boolean(errors.description)}
-            className="min-h-24 w-full resize-none border-0 bg-transparent p-0 text-right outline-none placeholder:text-outline"
+            className="placeholder:text-outline min-h-24 w-full resize-none border-0 bg-transparent p-0 text-right outline-none"
             maxLength={500}
             onChange={(event) => onSetField("description", event.target.value.slice(0, 500))}
             placeholder="اطلاعات بیشتر را وارد کنید..."

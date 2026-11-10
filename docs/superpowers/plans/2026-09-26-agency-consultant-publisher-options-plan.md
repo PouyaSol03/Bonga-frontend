@@ -21,10 +21,12 @@
 ### Task 1: Prioritize agency-consultant publishing identity
 
 **Files:**
+
 - Modify: `src/features/advertisements/api/publisher-options.hooks.ts:24-91`
 - Modify: `tests/e2e/advertise/publisher-context.spec.ts:5-67`
 
 **Interfaces:**
+
 - Consumes: `getStoredAuthSession()` and `useMyAgencyProfileQuery()` from the existing hook.
 - Produces: `usePublisherOptions(enabled?: boolean): PublisherOption[]`, consumed unchanged by `CreateAdBottomSheet`.
 
@@ -33,11 +35,15 @@
 Replace the multi-role visibility expectation with a consultant-precedence contract. The existing fixture already supplies `real_estate_manager`, `real_estate_consultant`, and `independent_consultant`; assert that the sheet displays exactly the three expected rows and excludes the redundant agency row.
 
 ```ts
-test("shows only the three consultant publisher identities for a multi-role agency consultant", async ({ page }) => {
+test("shows only the three consultant publisher identities for a multi-role agency consultant", async ({
+  page,
+}) => {
   await expect(page.getByText("شخصی", { exact: true })).toBeVisible();
   await expect(page.getByText("مشاور مستقل", { exact: true })).toBeVisible();
   await expect(page.getByText("مشاور آژانس", { exact: true })).toBeVisible();
-  await expect(page.getByText("انتشار به عنوان مشاور آژانس آژانس تست", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("انتشار به عنوان مشاور آژانس آژانس تست", { exact: true }),
+  ).toBeVisible();
   await expect(page.getByText("آژانس تست", { exact: true })).toHaveCount(1);
 });
 ```

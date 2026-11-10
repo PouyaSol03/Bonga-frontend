@@ -14,28 +14,25 @@ function PopularAdsIcon() {
   return (
     <div
       aria-hidden="true"
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary/8"
+      className="bg-secondary/8 grid h-10 w-10 shrink-0 place-items-center rounded-lg"
     >
-      <LinearAnalytics className="w-8 h-8 text-secondary" />
+      <LinearAnalytics className="text-secondary h-8 w-8" />
     </div>
   );
 }
 
 function PopularAdCardSkeleton() {
   return (
-    <div
-      className="w-[300px] shrink-0"
-      aria-hidden="true"
-    >
-      <div className="aspect-[328/219.3] w-full rounded-2xl bg-surface-container animate-pulse" />
-      <div className="mt-3 h-6 w-40 rounded-full bg-surface-container animate-pulse" />
+    <div className="w-[300px] shrink-0" aria-hidden="true">
+      <div className="bg-surface-container aspect-[328/219.3] w-full animate-pulse rounded-2xl" />
+      <div className="bg-surface-container mt-3 h-6 w-40 animate-pulse rounded-full" />
       <div className="mt-3 flex gap-[22px]">
-        <div className="h-5 w-16 rounded-full bg-surface-container animate-pulse" />
-        <div className="h-5 w-16 rounded-full bg-surface-container animate-pulse" />
-        <div className="h-5 w-16 rounded-full bg-surface-container animate-pulse" />
+        <div className="bg-surface-container h-5 w-16 animate-pulse rounded-full" />
+        <div className="bg-surface-container h-5 w-16 animate-pulse rounded-full" />
+        <div className="bg-surface-container h-5 w-16 animate-pulse rounded-full" />
       </div>
-      <div className="mt-3 h-5 w-56 rounded-full bg-surface-container animate-pulse" />
-      <div className="mt-3 h-6 w-44 rounded-full bg-surface-container animate-pulse" />
+      <div className="bg-surface-container mt-3 h-5 w-56 animate-pulse rounded-full" />
+      <div className="bg-surface-container mt-3 h-6 w-44 animate-pulse rounded-full" />
     </div>
   );
 }
@@ -62,11 +59,8 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     const viewport = event.currentTarget;
-    const viewportCenter =
-      viewport.getBoundingClientRect().left + viewport.clientWidth / 2;
-    const slides = Array.from(
-      viewport.querySelectorAll<HTMLElement>("[data-popular-ad-slide]"),
-    );
+    const viewportCenter = viewport.getBoundingClientRect().left + viewport.clientWidth / 2;
+    const slides = Array.from(viewport.querySelectorAll<HTMLElement>("[data-popular-ad-slide]"));
 
     if (!slides.length) return;
 
@@ -102,9 +96,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
   };
 
   const scrollToAdvertisement = (index: number) => {
-    const slides = scrollerRef.current?.querySelectorAll<HTMLElement>(
-      "[data-popular-ad-slide]",
-    );
+    const slides = scrollerRef.current?.querySelectorAll<HTMLElement>("[data-popular-ad-slide]");
     const slide = slides?.[index];
 
     if (!slide || !slides) return;
@@ -112,18 +104,13 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
     slide.scrollIntoView({
       behavior: "smooth",
       block: "nearest",
-      inline:
-        index === 0
-          ? "start"
-          : index === slides.length - 1
-            ? "end"
-            : "center",
+      inline: index === 0 ? "start" : index === slides.length - 1 ? "end" : "center",
     });
   };
 
   return (
     <section
-      className="home-content-visibility border-t-[16px] border-surface-container bg-surface-container-lowest pb-6 pt-6"
+      className="home-content-visibility border-surface-container bg-surface-container-lowest border-t-[16px] pt-6 pb-6"
       aria-labelledby="popular-ads-title"
       dir="rtl"
     >
@@ -137,7 +124,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
             variant="title"
             size="medium"
             weight="semibold"
-            className="m-0 text-on-surface"
+            className="text-on-surface m-0"
           >
             پربازدیدترین آگهی‌ها
           </Typography>
@@ -147,7 +134,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
             variant="body"
             size="small"
             weight="regular"
-            className="m-0 text-on-surface-var"
+            className="text-on-surface-var m-0"
           >
             محبوب‌ترین ملک‌های این هفته
           </Typography>
@@ -156,7 +143,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
 
       <div
         ref={scrollerRef}
-        className="mt-6 snap-x snap-mandatory scroll-px-4 overflow-x-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-6 snap-x snap-mandatory scroll-px-4 scrollbar-none overflow-x-auto [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         onScroll={handleScroll}
       >
         <div className="flex w-max min-w-full gap-4 px-4">
@@ -207,7 +194,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
             variant="body"
             size="small"
             weight="regular"
-            className="m-0 text-outline"
+            className="text-outline m-0"
           >
             دریافت آگهی‌ها با خطا مواجه شد.
           </Typography>
@@ -231,7 +218,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
           variant="body"
           size="small"
           weight="regular"
-          className="m-0 px-4 pt-6 text-center text-outline"
+          className="text-outline m-0 px-4 pt-6 text-center"
         >
           آگهی‌ای برای نمایش وجود ندارد.
         </Typography>
@@ -263,9 +250,7 @@ export function PopularAdsSection({ cityId: _cityId }: PopularAdsSectionProps) {
                 aria-label={`نمایش آگهی ${index + 1}`}
                 aria-current={index === activeIndex ? "true" : undefined}
                 className={`${sizeClass} shrink-0 rounded-full transition-all duration-300 ease-out ${
-                  index === activeIndex
-                    ? "bg-on-surface-var"
-                    : "bg-on-surface-var/16"
+                  index === activeIndex ? "bg-on-surface-var" : "bg-on-surface-var/16"
                 }`}
                 onClick={() => scrollToAdvertisement(index)}
               />

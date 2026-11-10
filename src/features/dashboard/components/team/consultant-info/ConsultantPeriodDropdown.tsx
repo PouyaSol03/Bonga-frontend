@@ -23,16 +23,12 @@ export function ConsultantPeriodDropdown({
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const currentLabel =
-    PERIOD_OPTIONS.find((option) => option.key === period)?.label ?? "در هفته";
+  const currentLabel = PERIOD_OPTIONS.find((option) => option.key === period)?.label ?? "در هفته";
 
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -45,16 +41,21 @@ export function ConsultantPeriodDropdown({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex cursor-pointer items-center gap-1 rounded-lg border-none bg-transparent px-2 py-1 text-xs text-on-surface-var transition active:scale-95"
+        className="text-on-surface-var flex cursor-pointer items-center gap-1 rounded-lg border-none bg-transparent px-2 py-1 text-xs transition active:scale-95"
       >
-        <Typography variant="label" size="small" weight="medium" className="text-on-surface-var text-xs">
+        <Typography
+          variant="label"
+          size="small"
+          weight="medium"
+          className="text-on-surface-var text-xs"
+        >
           {currentLabel}
         </Typography>
-        <LinearArrowDown1 className="h-3.5 w-3.5 text-on-surface-var" />
+        <LinearArrowDown1 className="text-on-surface-var h-3.5 w-3.5" />
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full z-30 mt-1 min-w-[110px] rounded-lg border border-outline-var bg-surface-container-lowest py-1 shadow-md">
+        <div className="border-outline-var bg-surface-container-lowest absolute top-full left-0 z-30 mt-1 min-w-[110px] rounded-lg border py-1 shadow-md">
           {PERIOD_OPTIONS.map((option) => {
             const isSelected = option.key === period;
             return (
@@ -67,16 +68,19 @@ export function ConsultantPeriodDropdown({
                 }}
                 className={`flex w-full cursor-pointer items-center justify-between border-none px-3 py-2 text-right text-xs transition ${
                   isSelected
-                    ? "bg-primary/5 font-bold text-primary"
-                    : "bg-transparent text-on-surface-var"
+                    ? "bg-primary/5 text-primary font-bold"
+                    : "text-on-surface-var bg-transparent"
                 }`}
               >
-                <Typography variant="label" size="small" weight="medium" className={isSelected ? "text-primary text-xs" : "text-on-surface-var text-xs"}>
+                <Typography
+                  variant="label"
+                  size="small"
+                  weight="medium"
+                  className={isSelected ? "text-primary text-xs" : "text-on-surface-var text-xs"}
+                >
                   {option.label}
                 </Typography>
-                {isSelected && (
-                  <LinearTick className="h-3.5 w-3.5 text-primary" />
-                )}
+                {isSelected && <LinearTick className="text-primary h-3.5 w-3.5" />}
               </button>
             );
           })}

@@ -31,8 +31,8 @@ export function NewAdFlowHeader({
       : step === "projectDetails"
         ? "جزئیات پروژه"
         : isEditMode
-        ? "ویرایش آگهی"
-        : "ثبت آگهی";
+          ? "ویرایش آگهی"
+          : "ثبت آگهی";
 
   const onBack =
     step === "moreFeatures" || step === "projectDetails"

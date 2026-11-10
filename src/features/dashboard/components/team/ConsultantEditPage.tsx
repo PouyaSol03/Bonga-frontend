@@ -36,7 +36,7 @@ export function ConsultantEditPage() {
 
   return (
     <section
-      className="relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden"
       dir="rtl"
     >
       <TopBar

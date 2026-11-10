@@ -1,7 +1,4 @@
-import type {
-  DrawingState,
-  GeofenceResult,
-} from "../geofence/geofenceTypes";
+import type { DrawingState, GeofenceResult } from "../geofence/geofenceTypes";
 import { TopBar } from "../../../shared/components/TopBar";
 import { Button } from "../../../shared/ui/Button";
 
@@ -40,23 +37,25 @@ export function SearchMapGeofenceControls({
       />
 
       {isInvalid ? (
-        <div className="pointer-events-none absolute inset-x-4 top-[68px] rounded-xl border border-error/30 bg-error-container/95 px-3 py-2 text-right text-xs font-medium leading-5 text-error shadow-sm backdrop-blur">
+        <div className="border-error/30 bg-error-container/95 text-error pointer-events-none absolute inset-x-4 top-[68px] rounded-xl border px-3 py-2 text-right text-xs leading-5 font-medium shadow-sm backdrop-blur">
           {errorMessage ?? "محدوده معتبر نیست. دوباره آن را رسم کنید."}
         </div>
       ) : null}
 
-      <footer className="pointer-events-auto absolute inset-x-0 bottom-0 h-16 border-t border-outline-var bg-surface-container px-4 py-3 shadow-[0_-2px_10px_rgba(26,26,26,0.06)]">
+      <footer className="border-outline-var bg-surface-container pointer-events-auto absolute inset-x-0 bottom-0 h-16 border-t px-4 py-3 shadow-[0_-2px_10px_rgba(26,26,26,0.06)]">
         <div className="grid h-10 grid-cols-2 gap-4">
-          <Button unstyled
-            className="h-10 rounded-[10px] border border-primary bg-surface-container-lowest px-4 text-sm font-medium leading-5 text-primary transition-colors focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+          <Button
+            unstyled
+            className="border-primary bg-surface-container-lowest text-primary focus-visible:outline-primary/25 h-10 rounded-[10px] border px-4 text-sm leading-5 font-medium transition-colors focus-visible:outline-[3px] focus-visible:outline-offset-2"
             type="button"
             onClick={onDelete}
           >
             حذف
           </Button>
 
-          <Button unstyled
-            className="h-10 rounded-[10px] bg-primary px-4 text-sm font-medium leading-5 text-on-primary transition-opacity focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25 disabled:cursor-not-allowed disabled:opacity-40"
+          <Button
+            unstyled
+            className="bg-primary text-on-primary focus-visible:outline-primary/25 h-10 rounded-[10px] px-4 text-sm leading-5 font-medium transition-opacity focus-visible:outline-[3px] focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
             type="button"
             disabled={!canConfirm}
             onClick={onConfirm}

@@ -17,7 +17,8 @@ const sampleAd: AdCardData = {
   year: "۲ سال",
   timeAndLocation: "۲ ساعت پیش در نیاوران",
   imageClassName: "",
-  imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&auto=format&fit=crop&q=80",
+  imageUrl:
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&auto=format&fit=crop&q=80",
   badges: ["فوری", "ویژه"],
 };
 
@@ -495,4 +496,3 @@ export const CategoryProjectPartnership: Story = {
     variant: "standard",
   },
 };
-

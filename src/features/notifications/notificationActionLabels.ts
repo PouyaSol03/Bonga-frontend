@@ -1,8 +1,6 @@
 import type { NotificationItem } from "./api/notification.service";
 
-export function getNotificationActionLabel(
-  notification: NotificationItem,
-): string | null {
+export function getNotificationActionLabel(notification: NotificationItem): string | null {
   if (notification.payload?.action_label) {
     return String(notification.payload.action_label);
   }
@@ -37,10 +35,7 @@ export function getNotificationActionLabel(
   ) {
     return "ویرایش آگهی";
   }
-  if (
-    title === "اعتبار آگهی در حال اتمام است" ||
-    title === "اعتبار آگهی درحال اتمام است"
-  ) {
+  if (title === "اعتبار آگهی در حال اتمام است" || title === "اعتبار آگهی درحال اتمام است") {
     return "تمدید آگهی";
   }
   if (

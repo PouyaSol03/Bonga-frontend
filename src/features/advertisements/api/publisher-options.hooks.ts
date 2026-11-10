@@ -3,23 +3,37 @@ import { useMemo } from "react";
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { useMyAgencyProfileQuery } from "../../account/api/account.hooks";
 
-export type PublisherOptionId =
-  | "personal"
-  | "independent-consultant"
-  | "agency-manager"
-  | "agency-consultant";
+type PublisherOptionId =
+  "personal" | "independent-consultant" | "agency-manager" | "agency-consultant";
 
 export type PublisherOption = {
   description: string;
   icon: "user" | "building" | "agency";
   id: PublisherOptionId;
-  senderRole:
-    | "user"
-    | "real_estate_manager"
-    | "real_estate_consultant"
-    | "independent_consultant";
+  senderRole: "user" | "real_estate_manager" | "real_estate_consultant" | "independent_consultant";
   title: string;
 };
+
+export function hasBusinessPublisherRoles(session: ReturnType<typeof getStoredAuthSession>): boolean {
+  if (!session) return false;
+  const availableRoles = new Set<string>(
+    [
+      session.activeRole,
+      session.role,
+      ...(session.roles ?? []).map((role) => role.slug),
+    ].filter(Boolean) as string[],
+  );
+
+  return (
+    availableRoles.has("independent_consultant") ||
+    availableRoles.has("independent-consultant") ||
+    availableRoles.has("real_estate_manager") ||
+    availableRoles.has("agency") ||
+    availableRoles.has("real_estate_consultant") ||
+    availableRoles.has("agency_consultant") ||
+    availableRoles.has("agency-consultant")
+  );
+}
 
 export function usePublisherOptions(enabled = true) {
   const session = getStoredAuthSession();
@@ -68,9 +82,7 @@ export function usePublisherOptions(enabled = true) {
       options.push({
         id: "agency-manager",
         title: agencyName || "آژانس",
-        description: agencyName
-          ? `انتشار به نام آژانس ${agencyName}`
-          : "انتشار به نام آژانس",
+        description: agencyName ? `انتشار به نام آژانس ${agencyName}` : "انتشار به نام آژانس",
         icon: "agency",
         senderRole: "real_estate_manager",
       });

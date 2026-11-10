@@ -16,16 +16,6 @@ export interface AgencyCreditItem {
   type: "ad" | "update" | "special" | "expiry";
 }
 
-export interface AgencyUrgentAction {
-  id: string;
-  count: number;
-  title: string;
-  description: string;
-  urgency: "critical" | "warning" | "caution";
-  to?: string;
-  onClick?: () => void;
-}
-
 export interface AgencyNotificationItem {
   id: string;
   title: string;
@@ -46,14 +36,3 @@ export interface AgencyNotificationItem {
   };
 }
 
-export interface AgencyRecentAdItem {
-  id: string;
-  title: string;
-  price: string;
-  area: number;
-  rooms: number;
-  buildYear: number;
-  timeLocation: string;
-  imageUrl?: string;
-  to: string;
-}

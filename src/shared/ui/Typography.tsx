@@ -3,10 +3,10 @@ import { createElement, type ComponentPropsWithRef, type JSX, type ReactNode } f
 import { cn } from "../../design-system/classes";
 import { typography } from "../../design-system/typography";
 
-export type TypographyVariant = "display" | "headline" | "title" | "label" | "body";
+type TypographyVariant = "display" | "headline" | "title" | "label" | "body";
 export type TypographySize = "small" | "medium" | "large";
-export type TypographyWeight = "regular" | "medium" | "semibold";
-export type TypographyElement = Extract<keyof JSX.IntrinsicElements, string>;
+type TypographyWeight = "regular" | "medium" | "semibold";
+type TypographyElement = Extract<keyof JSX.IntrinsicElements, string>;
 
 type TypographyStyleProps =
   | { variant?: "body"; weight?: "regular" | "medium" }
@@ -22,7 +22,7 @@ type TypographyOwnProps<T extends TypographyElement> = {
 
 type TypographyReservedProp = "as" | "children" | "className" | "size" | "variant" | "weight";
 
-export type TypographyProps<T extends TypographyElement = "p"> = TypographyOwnProps<T> &
+type TypographyProps<T extends TypographyElement = "p"> = TypographyOwnProps<T> &
   Omit<ComponentPropsWithRef<T>, TypographyReservedProp>;
 
 const sizeClasses: Record<TypographyVariant, Record<TypographySize, string>> = {
@@ -59,9 +59,12 @@ const weightClasses: Record<TypographyWeight, string> = {
   semibold: "font-semibold",
 };
 
-const textSizePattern = /(?:^|\s)(?:[^\s:]+:)*(?:text-(?:xs|sm|base|lg|xl|[2-9]xl)|text-\[\s*-?\d+(?:\.\d+)?(?:px|rem)\s*\])(?=\s|$)/;
-const lineHeightClassPattern = /^(?:[^\s:]+:)*!?leading-(?:none|tight|snug|normal|relaxed|loose|\d+|\[[^\]]+\])!?$/;
-const fontWeightPattern = /(?:^|\s)(?:[^\s:]+:)*font-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?=\s|$)/;
+const textSizePattern =
+  /(?:^|\s)(?:[^\s:]+:)*(?:text-(?:xs|sm|base|lg|xl|[2-9]xl)|text-\[\s*-?\d+(?:\.\d+)?(?:px|rem)\s*\])(?=\s|$)/;
+const lineHeightClassPattern =
+  /^(?:[^\s:]+:)*!?leading-(?:none|tight|snug|normal|relaxed|loose|\d+|\[[^\]]+\])!?$/;
+const fontWeightPattern =
+  /(?:^|\s)(?:[^\s:]+:)*font-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?=\s|$)/;
 
 function resolveWeight(variant: TypographyVariant, weight?: TypographyWeight): TypographyWeight {
   if (variant === "display" || variant === "headline") {
@@ -119,9 +122,5 @@ export function Typography<T extends TypographyElement = "p">({
     ),
   };
 
-  return createElement(
-    Component,
-    elementProps,
-    children,
-  );
+  return createElement(Component, elementProps, children);
 }

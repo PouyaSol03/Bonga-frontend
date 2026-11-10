@@ -14,7 +14,8 @@ const sampleAd: AdCardData = {
   priceSecondary: "",
   timeAndLocation: "۲ ساعت پیش در سعادت‌آباد",
   imageClassName: "",
-  imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=80",
+  imageUrl:
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=80",
   badges: [],
 };
 
@@ -144,7 +145,12 @@ export const StatusWaitForPayment: Story = {
 export const SvgMockupListOverview: Story = {
   render: () => {
     const cards = [
-      { key: "pending", label: "در انتظار تایید انتشار", role: "agent_in_agency", name: "ناصر اشرفی" },
+      {
+        key: "pending",
+        label: "در انتظار تایید انتشار",
+        role: "agent_in_agency",
+        name: "ناصر اشرفی",
+      },
       { key: "published", label: "منتشر شده", role: "agency", name: "املاک سامان" },
       { key: "expired", label: "منقضی شده", role: "agent", name: "علی رضایی" },
       { key: "deleted", label: "حذف شده", role: "agent_in_agency", name: "ناصر اشرفی" },

@@ -1,8 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import type {
-  NotificationCategory,
-  NotificationItem,
-} from "./api/notification.service";
+import type { NotificationCategory, NotificationItem } from "./api/notification.service";
 import {
   useDeleteNotificationMutation,
   useMarkAllNotificationsReadMutation,
@@ -37,12 +34,10 @@ export function useNotificationsController() {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSettingsSheetOpen, setIsSettingsSheetOpen] = useState(false);
   const [markAllUnread, setMarkAllUnread] = useState(false);
-  const [realtimeNotifications, setRealtimeNotifications] = useState<
-    NotificationItem[]
-  >([]);
-  const [selectedFilterIds, setSelectedFilterIds] = useState<
-    Set<NotificationCategory>
-  >(() => new Set());
+  const [realtimeNotifications, setRealtimeNotifications] = useState<NotificationItem[]>([]);
+  const [selectedFilterIds, setSelectedFilterIds] = useState<Set<NotificationCategory>>(
+    () => new Set(),
+  );
   const loadMoreObserverRef = useRef<IntersectionObserver | null>(null);
 
   const notificationsQuery = useNotificationsInfiniteQuery({
@@ -52,8 +47,7 @@ export function useNotificationsController() {
   const markReadMutation = useMarkNotificationReadMutation();
   const markAllReadMutation = useMarkAllNotificationsReadMutation();
   const deleteMutation = useDeleteNotificationMutation();
-  const agencyRequestDecisionMutation =
-    useAgencyConsultantRequestDecisionMutation();
+  const agencyRequestDecisionMutation = useAgencyConsultantRequestDecisionMutation();
 
   const serverNotifications = useMemo(
     () => notificationsQuery.data?.pages.flatMap((page) => page.data) ?? [],
@@ -66,10 +60,7 @@ export function useNotificationsController() {
   );
 
   const selectedFilters = useMemo(
-    () =>
-      notificationFilterOptions.filter((option) =>
-        selectedFilterIds.has(option.id),
-      ),
+    () => notificationFilterOptions.filter((option) => selectedFilterIds.has(option.id)),
     [selectedFilterIds],
   );
 
@@ -153,7 +144,8 @@ export function useNotificationsController() {
   const toggleFilter = (id: NotificationCategory) => {
     setSelectedFilterIds((current) => {
       const next = new Set(current);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };

@@ -3,9 +3,9 @@ import {
   type DashboardUrgentActionItem,
 } from "../../components/DashboardUrgentActionsCard";
 
-export type AgentUrgentActionItem = DashboardUrgentActionItem;
+type AgentUrgentActionItem = DashboardUrgentActionItem;
 
-export interface AgentUrgentActionsCardProps {
+interface AgentUrgentActionsCardProps {
   items?: AgentUrgentActionItem[];
   viewAllTo?: string;
 }
@@ -13,4 +13,3 @@ export interface AgentUrgentActionsCardProps {
 export function AgentUrgentActionsCard(props: AgentUrgentActionsCardProps) {
   return <DashboardUrgentActionsCard {...props} />;
 }
-

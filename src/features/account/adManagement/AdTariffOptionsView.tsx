@@ -4,7 +4,7 @@ import { Button } from "../../../shared/ui/Button";
 
 export type AdTariffOptionId = "refresh" | "special" | "renew" | "refreshSpecial";
 
-export type AdTariffOption = {
+type AdTariffOption = {
   description: string;
   disabled?: boolean;
   id: AdTariffOptionId;
@@ -15,8 +15,7 @@ export type AdTariffOption = {
 
 const baseTariffOptions: Omit<AdTariffOption, "disabled" | "price" | "warning">[] = [
   {
-    description:
-      "آگهی شما به مدت ۳ روز، هر ۶ ساعت در اولویت نمایش قرار می‌گیرد.",
+    description: "آگهی شما به مدت ۳ روز، هر ۶ ساعت در اولویت نمایش قرار می‌گیرد.",
     id: "refresh",
     title: "بروزرسانی",
   },
@@ -27,14 +26,12 @@ const baseTariffOptions: Omit<AdTariffOption, "disabled" | "price" | "warning">[
     title: "ویژه",
   },
   {
-    description:
-      "آگهی شما پیش از انقضا، برای یک ماه دیگر تمدید می‌شود.",
+    description: "آگهی شما پیش از انقضا، برای یک ماه دیگر تمدید می‌شود.",
     id: "renew",
     title: "تمدید",
   },
   {
-    description:
-      "آگهی بروزرسانی و ویژه به صورت همزمان فعال می‌شود.",
+    description: "آگهی بروزرسانی و ویژه به صورت همزمان فعال می‌شود.",
     id: "refreshSpecial",
     title: "بروزرسانی و ویژه",
   },
@@ -61,6 +58,67 @@ export function formatTariffToman(value: number) {
   return `${new Intl.NumberFormat("fa-IR").format(value)}`;
 }
 
+type AvailableInDuration = {
+  days?: number;
+  hours?: number;
+  total_seconds?: number;
+};
+
+export function resolveAvailableIn(item?: {
+  available_at?: string | null;
+  available_in?: AvailableInDuration | null;
+}): AvailableInDuration | null {
+  if (
+    item?.available_in &&
+    (item.available_in.days !== undefined ||
+      item.available_in.hours !== undefined ||
+      item.available_in.total_seconds !== undefined)
+  ) {
+    return item.available_in;
+  }
+  if (item?.available_at) {
+    const diffMs = new Date(item.available_at).getTime() - Date.now();
+    if (diffMs > 0) {
+      const total_seconds = Math.floor(diffMs / 1000);
+      const days = Math.floor(total_seconds / 86400);
+      const hours = Math.floor((total_seconds % 86400) / 3600);
+      return { days, hours, total_seconds };
+    }
+  }
+  return item?.available_in ?? null;
+}
+
+export function formatAvailableInNotice(
+  availableIn?: AvailableInDuration | null,
+  actionTitle = "تمدید",
+): string {
+  if (!availableIn) {
+    return `امکان ${actionTitle} در حال حاضر فعال نیست.`;
+  }
+
+  const days = Math.max(0, Math.floor(Number(availableIn.days ?? 0)));
+  const hours = Math.max(0, Math.floor(Number(availableIn.hours ?? 0)));
+  const totalSeconds = Number(availableIn.total_seconds ?? 0);
+
+  const faDays = new Intl.NumberFormat("fa-IR").format(days);
+  const faHours = new Intl.NumberFormat("fa-IR").format(hours);
+
+  let timePart: string;
+  if (days > 0 && hours > 0) {
+    timePart = `${faDays} روز و ${faHours} ساعت`;
+  } else if (days > 0) {
+    timePart = `${faDays} روز`;
+  } else if (hours > 0) {
+    timePart = `${faHours} ساعت`;
+  } else if (totalSeconds > 0) {
+    timePart = "کمتر از ۱ ساعت";
+  } else {
+    timePart = "۰ ساعت";
+  }
+
+  return `${timePart} تا فعال شدن امکان ${actionTitle} باقی مانده است.`;
+}
+
 export function getTariffTotal(options: AdTariffOption[], selectedIds: AdTariffOptionId[]) {
   return selectedIds.reduce((total, selectedId) => {
     const option = options.find((item) => item.id === selectedId);
@@ -79,7 +137,7 @@ export function AdTariffOptionsList({
   onToggle: (id: AdTariffOptionId) => void;
 }) {
   return (
-    <div className="divide-y divide-outline-var bg-surface-container-lowest">
+    <div className="divide-outline-var bg-surface-container-lowest divide-y">
       {options.map((option) => (
         <AdTariffOptionRow
           checked={selectedIds.includes(option.id)}
@@ -104,63 +162,94 @@ function AdTariffOptionRow({
   const isDisabled = Boolean(option.disabled);
   const rowClassName = checked ? "bg-primary-container/20" : "bg-surface-container-lowest";
   const priceClassName = isDisabled ? "text-outline/60" : "text-on-surface";
-  const titleClassName = isDisabled ? "text-outline/60" : checked ? "text-on-surface" : "text-on-surface-var";
+  const titleClassName = isDisabled
+    ? "text-outline/60"
+    : checked
+      ? "text-on-surface"
+      : "text-on-surface-var";
   const descriptionClassName = isDisabled ? "text-outline/60" : "text-on-surface-var";
 
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-disabled={isDisabled}
       aria-pressed={checked}
-      className={`block w-full border-0 px-4 py-4 text-inherit ${rowClassName}`}
+      disabled={isDisabled}
+      className={`block w-full border-0 px-4 py-4 text-inherit ${rowClassName} ${
+        isDisabled ? "cursor-not-allowed" : "cursor-pointer"
+      }`}
       onClick={() => {
         if (!isDisabled) onToggle(option.id);
       }}
       type="button"
     >
-      <Typography as="span" variant="body" size="medium" weight="regular" className="flex items-start justify-between gap-5 [direction:ltr]">
-        <Typography as="span" variant="label" size="medium" weight="semibold" className={`flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold leading-5 [direction:rtl] ${priceClassName}`}>
-          {formatTariffToman(option.price)}
-          <AdCardTomanIcon className="h-5 w-5" />
-        </Typography>
-
-        <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 text-right [direction:rtl]">
-          <Typography as="span" variant="label" size="large" weight="semibold" className={`flex items-center justify-start gap-2 text-base font-semibold leading-6 ${titleClassName}`}>
+      <div className="flex flex-col gap-3 [direction:rtl]">
+        <div className="flex items-center justify-between gap-4">
+          <Typography
+            as="p"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className={`m-0 flex items-center justify-start gap-2 ${titleClassName}`}
+          >
             <SelectionBox checked={checked} disabled={isDisabled} />
             {option.title}
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className={`mt-4 block text-sm font-normal leading-6 ${descriptionClassName}`}>
+
+          <Typography
+            as="p"
+            variant="label"
+            size="large"
+            weight="semibold"
+            className={`m-0 flex shrink-0 items-center gap-1 ${priceClassName}`}
+          >
+            {formatTariffToman(option.price)}
+            <AdCardTomanIcon className="h-5 w-5" />
+          </Typography>
+        </div>
+
+        {option.description ? (
+          <Typography
+            as="p"
+            variant="body"
+            size="large"
+            weight="regular"
+            className={`m-0 text-right ${descriptionClassName}`}
+          >
             {option.description}
           </Typography>
-        </Typography>
-      </Typography>
+        ) : null}
 
-      {option.warning ? (
-        <TariffNotice>
-          {option.warning}
-        </TariffNotice>
-      ) : null}
+        {option.warning ? <TariffNotice>{option.warning}</TariffNotice> : null}
+      </div>
     </Button>
   );
 }
 
-function TariffNotice({ children }: { children: ReactNode }) {
+export function TariffNotice({ children }: { children: ReactNode }) {
   return (
-    <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 flex min-h-9 items-center gap-2 rounded-lg bg-warning-container/30 px-3 py-2 text-right text-xs font-medium leading-5 text-warning">
-      <CircleInfoIcon className="h-5 w-5 shrink-0" />
-      <Typography as="span" variant="body" size="medium" weight="regular">{children}</Typography>
-    </Typography>
+    <div className="bg-warning-container/30 text-on-warning-container flex min-h-9 w-full items-start gap-2 rounded-lg px-3 py-2 text-right [direction:rtl]">
+      <CircleAlertIcon className="mt-0.5 h-5 w-5 shrink-0" />
+      <Typography
+        as="span"
+        variant="body"
+        size="large"
+        weight="regular"
+        className="text-on-warning-container flex-1"
+      >
+        {children}
+      </Typography>
+    </div>
   );
 }
 
-function SelectionBox({
-  checked,
-  disabled = false,
-}: {
-  checked: boolean;
-  disabled?: boolean;
-}) {
+function SelectionBox({ checked, disabled = false }: { checked: boolean; disabled?: boolean }) {
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular"
+    <Typography
+      as="span"
+      variant="body"
+      size="medium"
+      weight="regular"
       aria-hidden="true"
       className={`grid h-5 w-5 shrink-0 place-items-center rounded-[4px] ${
         checked
@@ -168,8 +257,8 @@ function SelectionBox({
             ? "bg-outline/60 text-surface-container-lowest"
             : "bg-primary text-on-primary"
           : disabled
-            ? "border border-outline/40 bg-surface-container-lowest text-transparent"
-            : "border border-outline bg-surface-container-lowest text-transparent"
+            ? "border-outline/40 bg-surface-container-lowest border text-transparent"
+            : "border-outline bg-surface-container-lowest border text-transparent"
       }`}
     >
       <svg className="h-4 w-4" fill="none" viewBox="0 0 16 16">
@@ -185,7 +274,7 @@ function SelectionBox({
   );
 }
 
-export function AdCardTomanIcon({ className = "" }: { className?: string }) {
+function AdCardTomanIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <path
@@ -197,12 +286,12 @@ export function AdCardTomanIcon({ className = "" }: { className?: string }) {
   );
 }
 
-function CircleInfoIcon({ className = "" }: { className?: string }) {
+function CircleAlertIcon({ className = "" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 20 20">
       <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M10 9.25v4.25" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
-      <circle cx="10" cy="6.5" fill="currentColor" r="1" />
+      <path d="M10 6v5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
+      <circle cx="10" cy="14" fill="currentColor" r="1" />
     </svg>
   );
 }

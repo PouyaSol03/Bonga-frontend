@@ -13,9 +13,9 @@ function StatsPieIcon() {
   return (
     <div
       aria-hidden="true"
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary/8 text-secondary"
+      className="bg-secondary/8 text-secondary grid h-10 w-10 shrink-0 place-items-center rounded-lg"
     >
-      <LinearAnalystic className="w-8 h-8"/>
+      <LinearAnalystic className="h-8 w-8" />
     </div>
   );
 }
@@ -31,7 +31,7 @@ export function HomeStatsSection() {
 
   return (
     <section
-      className="home-content-visibility border-t-[16px] border-surface-container bg-surface-container-lowest px-4 py-4"
+      className="home-content-visibility border-surface-container bg-surface-container-lowest border-t-[16px] px-4 py-4"
       aria-labelledby="home-stats-title"
       dir="rtl"
     >
@@ -45,7 +45,7 @@ export function HomeStatsSection() {
             variant="title"
             size="medium"
             weight="semibold"
-            className="m-0 text-on-surface"
+            className="text-on-surface m-0"
           >
             آمار و ارقام سامانه
           </Typography>
@@ -55,7 +55,7 @@ export function HomeStatsSection() {
             variant="body"
             size="small"
             weight="regular"
-            className="m-0 text-on-surface-var"
+            className="text-on-surface-var m-0"
           >
             نمایی از رشد و اعتماد کاربران به ما
           </Typography>
@@ -66,17 +66,17 @@ export function HomeStatsSection() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="flex h-[78px] min-w-0 flex-col items-center justify-center rounded-2xl border border-surface-container-low bg-linear-to-b from-surface-container-lowest to-surface-container-low text-center transition-all duration-200 ease-out select-none"
+            className="border-surface-container-low from-surface-container-lowest to-surface-container-low flex h-[78px] min-w-0 flex-col items-center justify-center rounded-2xl border bg-linear-to-b text-center transition-all duration-200 ease-out select-none"
           >
             {isLoading ? (
-              <div className="mb-1.5 h-6 w-20 animate-pulse rounded-md bg-surface-container" />
+              <div className="bg-surface-container mb-1.5 h-6 w-20 animate-pulse rounded-md" />
             ) : (
               <Typography
                 as="p"
                 variant="title"
                 size="large"
                 weight="semibold"
-                className="m-0 text-on-surface"
+                className="text-on-surface m-0"
               >
                 <bdi dir="ltr">{stat.value}</bdi>
               </Typography>
@@ -87,7 +87,7 @@ export function HomeStatsSection() {
               variant="label"
               size="small"
               weight="medium"
-              className="m-0 text-outline"
+              className="text-outline m-0"
             >
               {stat.label}
             </Typography>

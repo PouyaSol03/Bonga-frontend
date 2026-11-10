@@ -1,18 +1,9 @@
 import type { AdCardData } from "../../advertisements/components/AdCard";
 import type { AgencyAdvertiseAssignmentDto } from "../../advertisements/api/agency-advertise-assignment.service";
 import { mapAdvertisementToAdCard } from "../../advertisements/api/advertisement.service";
+import { resolveEditRouteParams } from "../../advertisements/create/edit-mapping/editRouteParams";
 
 export type ConsultantAd = AdCardData;
-
-export type AdManagementPublisherOption = {
-  id: string;
-  image: string;
-  name: string;
-};
-
-export const adManagementPublisherOptions: AdManagementPublisherOption[] = [
-  { id: "owner", image: "", name: "مالک" },
-];
 
 export type AdsTab = "active" | "status";
 
@@ -98,7 +89,12 @@ export const adManagementPropertyGroupsByTransaction: Record<
     },
     {
       title: "روزانه",
-      items: ["daily-apartment-suite", "daily-garden-villa", "daily-hotel-apartment", "daily-workspace"],
+      items: [
+        "daily-apartment-suite",
+        "daily-garden-villa",
+        "daily-hotel-apartment",
+        "daily-workspace",
+      ],
     },
     {
       title: "اداری، تجاری، صنعتی، اقامتی",
@@ -114,13 +110,12 @@ export const adManagementPropertyGroupsByTransaction: Record<
   ],
 };
 
-
 export type StatisticsAd = Pick<
   AdCardData,
   "id" | "imageClassName" | "imageUrl" | "timeAndLocation" | "title"
 >;
 
-export type AdManagementRouteState = {
+type AdManagementRouteState = {
   ad?: ConsultantAd;
   assignment?: AgencyAdvertiseAssignmentDto;
   assignmentId?: number | string;
@@ -161,21 +156,21 @@ export const adManagementPaths = {
   statisticsDetails: "/account/ad-management/statistics/details",
   statusDesk: "/account/ad-management/status-desk",
 } as const;
-
-export function getAgencyAdStatusDeskPath(adId: ConsultantAd["id"] | string) {
-  return `${adManagementPaths.statusDesk}/${encodeURIComponent(String(adId))}`;
-}
-
 export function getAdPreviewPath(adId: ConsultantAd["id"] | string) {
   return `/preview-ad/${encodeURIComponent(String(adId))}`;
 }
 
-export function getAdEditPath(adId?: ConsultantAd["id"] | string, returnTo?: string) {
+export function getAdEditPath(
+  adId?: ConsultantAd["id"] | string,
+  returnTo?: string,
+  adSource?: unknown,
+) {
+  const resolved = resolveEditRouteParams(adSource as never);
   const params = new URLSearchParams({
-    category: "apartment",
+    category: resolved?.category ?? "apartment",
     edit: "true",
-    label: "آپارتمان",
-    transaction: "sale",
+    label: resolved?.label ?? "آپارتمان",
+    transaction: resolved?.transaction ?? "sale",
   });
 
   if (adId !== undefined && adId !== null && adId !== "") {
@@ -198,82 +193,72 @@ const newAdCheckoutStoragePrefix = "bonga:new-ad-checkout:";
 
 export function markAgencyAllocationCheckout(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.setItem(
-    `${agencyAllocationCheckoutStoragePrefix}${String(adId)}`,
-    "1",
-  );
+  window.sessionStorage.setItem(`${agencyAllocationCheckoutStoragePrefix}${String(adId)}`, "1");
 }
 
 export function clearAgencyAllocationCheckout(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.removeItem(
-    `${agencyAllocationCheckoutStoragePrefix}${String(adId)}`,
-  );
+  window.sessionStorage.removeItem(`${agencyAllocationCheckoutStoragePrefix}${String(adId)}`);
 }
 
 export function hasAgencyAllocationCheckoutMarker(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return false;
   return (
-    window.sessionStorage.getItem(
-      `${agencyAllocationCheckoutStoragePrefix}${String(adId)}`,
-    ) === "1"
+    window.sessionStorage.getItem(`${agencyAllocationCheckoutStoragePrefix}${String(adId)}`) === "1"
   );
 }
 
 export function markNewAdCheckout(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.setItem(
-    `${newAdCheckoutStoragePrefix}${String(adId)}`,
-    "1",
-  );
+  window.sessionStorage.setItem(`${newAdCheckoutStoragePrefix}${String(adId)}`, "1");
 }
 
 export function clearNewAdCheckout(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.removeItem(
-    `${newAdCheckoutStoragePrefix}${String(adId)}`,
-  );
+  window.sessionStorage.removeItem(`${newAdCheckoutStoragePrefix}${String(adId)}`);
 }
 
 export function hasNewAdCheckoutMarker(adId: ConsultantAd["id"] | string) {
   if (typeof window === "undefined") return false;
-  return (
-    window.sessionStorage.getItem(
-      `${newAdCheckoutStoragePrefix}${String(adId)}`,
-    ) === "1"
-  );
+  return window.sessionStorage.getItem(`${newAdCheckoutStoragePrefix}${String(adId)}`) === "1";
 }
 
 export function getAdStatePath(adId: ConsultantAd["id"] | string) {
-  return `/account/my-ads/${encodeURIComponent(String(adId))}/state-ad`;
+  return `/account/manage-ads/${encodeURIComponent(String(adId))}/state-ad`;
 }
 
 export function getAdPaymentHistoryPath(adId: ConsultantAd["id"] | string) {
-  return `/account/my-ads/${encodeURIComponent(String(adId))}/payment-history`;
+  return `/account/manage-ads/${encodeURIComponent(String(adId))}/payment-history`;
 }
 
 export function getAdIncreaseVisitsPath(adId: ConsultantAd["id"] | string) {
-  return `/account/my-ads/${encodeURIComponent(String(adId))}/increase-visits`;
+  return `/account/manage-ads/${encodeURIComponent(String(adId))}/increase-visits`;
 }
 
 export function getAdVisitStatisticsPath(adId: ConsultantAd["id"] | string) {
-  return `/account/my-ads/${encodeURIComponent(String(adId))}/visit-statistics`;
+  return `/account/manage-ads/${encodeURIComponent(String(adId))}/visit-statistics`;
 }
 
 export function getAdCloseResultPath(adId: ConsultantAd["id"] | string) {
-  return `/account/my-ads/${encodeURIComponent(String(adId))}/close-result`;
+  return `/account/manage-ads/${encodeURIComponent(String(adId))}/close-result`;
 }
 
 export function getAllocationReviewPath(adId: ConsultantAd["id"]) {
   return `${adManagementPaths.allocationReview}/${adId}`;
 }
 
-export function getAdManagementRouteState(): AdManagementRouteState {
-  return (window.history.state as AdManagementRouteState | null) ?? {};
+export function getAdManagementRouteState(rawState?: unknown): AdManagementRouteState {
+  const state = rawState ?? window.history.state;
+  if (!state || typeof state !== "object") return {};
+  const usr = (state as { usr?: unknown }).usr;
+  if (usr && typeof usr === "object") return { ...state, ...(usr as AdManagementRouteState) };
+  return state as AdManagementRouteState;
 }
 
 function getAdIdFromPath() {
-  const match = window.location.pathname.match(/\/account\/ad-management\/allocation-review\/([^/]+)\/?$/);
+  const match = window.location.pathname.match(
+    /\/account\/ad-management\/allocation-review\/([^/]+)\/?$/,
+  );
 
   return match?.[1];
 }

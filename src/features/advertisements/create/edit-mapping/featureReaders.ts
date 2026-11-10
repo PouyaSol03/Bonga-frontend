@@ -1,14 +1,12 @@
 import type { AdvertisementFeature, AdvertisementItem } from "../../api/advertisement.service";
 import type { NewAdFormValues } from "../types";
-import {
-  normalizeLookupText,
-  readText,
-} from "./featureFormatters";
+import { normalizeLookupText, readText } from "./featureFormatters";
 
 export function readFeatureValue(features: AdvertisementFeature[], labels: string[]): unknown {
   const normalizedLabels = labels.map(normalizeLookupText);
-  const feature = features.find((item: any) => {
-    const lookupValues = [item.key, item.label, (item as any).name]
+  const feature = features.find((item) => {
+    const raw = item as AdvertisementFeature & { name?: string };
+    const lookupValues = [raw.key, raw.label, raw.name]
       .map(normalizeLookupText)
       .filter(Boolean);
 
@@ -26,7 +24,8 @@ export function readFirstValue(
 ): unknown {
   const featureValue = readFeatureValue(features, labels);
 
-  if (featureValue !== undefined && featureValue !== null && featureValue !== "") return featureValue;
+  if (featureValue !== undefined && featureValue !== null && featureValue !== "")
+    return featureValue;
 
   for (const key of keys) {
     const value = ad[key];
@@ -49,7 +48,7 @@ export function readTextValue(
 export function readContactTypes(ad: AdvertisementItem): string[] {
   const contactTypes = Array.isArray(ad.contact_type) ? ad.contact_type : [];
 
-  return contactTypes.map((item: any) => normalizeLookupText(item));
+  return contactTypes.map((item) => normalizeLookupText(item));
 }
 
 export function readSocialValue(ad: AdvertisementItem, key: "telegram" | "whatsapp"): string {
@@ -69,29 +68,39 @@ export function readSocialValue(ad: AdvertisementItem, key: "telegram" | "whatsa
 export function readPublisherName(ad: AdvertisementItem, features: AdvertisementFeature[]): string {
   const publisherType = normalizeLookupText(ad.publisher_type ?? ad.owner_type);
   if (publisherType === "agent") {
-    const agent = ad.agent && typeof ad.agent === "object" ? (ad.agent as Record<string, unknown>) : null;
-    const consultant = ad.consultant && typeof ad.consultant === "object" ? (ad.consultant as Record<string, unknown>) : null;
-    const ownerProfile = ad.owner_profile && typeof ad.owner_profile === "object" ? (ad.owner_profile as Record<string, unknown>) : null;
+    const agent =
+      ad.agent && typeof ad.agent === "object" ? (ad.agent as Record<string, unknown>) : null;
+    const consultant =
+      ad.consultant && typeof ad.consultant === "object"
+        ? (ad.consultant as Record<string, unknown>)
+        : null;
+    const ownerProfile =
+      ad.owner_profile && typeof ad.owner_profile === "object"
+        ? (ad.owner_profile as Record<string, unknown>)
+        : null;
     const name = readText(agent?.name ?? consultant?.name ?? ownerProfile?.name);
     if (name) return name;
   }
 
   if (publisherType === "agency") {
-    const agency = ad.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>) : null;
+    const agency =
+      ad.agency && typeof ad.agency === "object" ? (ad.agency as Record<string, unknown>) : null;
     const name = readText(agency?.name);
     if (name) return name;
   }
 
-  return readTextValue(ad, features, ["publisher", "publisher_name", "agency"], [
-    "publisher",
-    "publisherName",
-    "publisher_name",
-    "agency",
-    "agency_name",
-  ]);
+  return readTextValue(
+    ad,
+    features,
+    ["publisher", "publisher_name", "agency"],
+    ["publisher", "publisherName", "publisher_name", "agency", "agency_name"],
+  );
 }
 
-export function readRegistrantType(ad: AdvertisementItem, features: AdvertisementFeature[]): NewAdFormValues["registrantType"] {
+export function readRegistrantType(
+  ad: AdvertisementItem,
+  features: AdvertisementFeature[],
+): NewAdFormValues["registrantType"] {
   const publisherType = normalizeLookupText(ad.publisher_type);
 
   if (publisherType === "agency" || publisherType === "agent") return "personal";
@@ -99,16 +108,61 @@ export function readRegistrantType(ad: AdvertisementItem, features: Advertisemen
   const ownerType = normalizeLookupText(ad.owner_type);
   const advertiserType = normalizeLookupText(readFeatureValue(features, ["advertiser_type"]));
 
-  if (ownerType.includes("agency") || advertiserType.includes("مشاور") || advertiserType.includes("املاک") || advertiserType.includes("آژانس")) {
+  if (
+    ownerType.includes("agency") ||
+    advertiserType.includes("مشاور") ||
+    advertiserType.includes("املاک") ||
+    advertiserType.includes("آژانس")
+  ) {
     return "agency";
   }
 
-  if (ownerType.includes("owner") || ownerType.includes("personal") || advertiserType.includes("شخصی")) {
+  if (
+    ownerType.includes("owner") ||
+    ownerType.includes("personal") ||
+    advertiserType.includes("شخصی")
+  ) {
     return "personal";
   }
 
   return "";
 }
 
-export * from "./featureFormatters";
+export function getAdvertisementFeatures(
+  ad: AdvertisementItem | Record<string, unknown> | undefined,
+): AdvertisementFeature[] {
+  if (!ad) return [];
 
+  const rawFeatures = [
+    ...(Array.isArray(ad.features) ? ad.features : []),
+    ...(Array.isArray((ad as Record<string, unknown>).dynamic_fields)
+      ? ((ad as Record<string, unknown>).dynamic_fields as unknown[])
+      : []),
+    ...(Array.isArray((ad as Record<string, unknown>).dynamicFields)
+      ? ((ad as Record<string, unknown>).dynamicFields as unknown[])
+      : []),
+  ];
+
+  if (!rawFeatures.length) return [];
+
+  return rawFeatures.flatMap((feature) => {
+    if (!feature || typeof feature !== "object") return [];
+    const item = feature as Record<string, unknown>;
+    const label =
+      (typeof item.label === "string" && item.label.trim()) ||
+      (typeof item.key === "string" && item.key.trim()) ||
+      (typeof item.name === "string" && item.name.trim()) ||
+      "";
+    if (!label) return [];
+
+    return [
+      {
+        key: typeof item.key === "string" ? item.key : undefined,
+        label,
+        value: item.value,
+      },
+    ];
+  });
+}
+
+export * from "./featureFormatters";

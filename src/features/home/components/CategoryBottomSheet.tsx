@@ -1,49 +1,49 @@
-import { useState } from 'react'
+import { useState } from "react";
 
-import { BottomSheet } from '../../../shared/components/BottomSheet'
-import { Button } from '../../../shared/ui/Button'
-import { Typography } from '../../../shared/ui/Typography'
-import type { CategoryOption, QuickAction } from '../homeTypes'
-import LinearArrowLeft1 from '../../../shared/icons/LinearArrowLeft1'
-import LinearArrowRight2 from '../../../shared/icons/LinearArrowRight2'
+import { BottomSheet } from "../../../shared/components/BottomSheet";
+import { Button } from "../../../shared/ui/Button";
+import { Typography } from "../../../shared/ui/Typography";
+import type { CategoryOption, QuickAction } from "../homeTypes";
+import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
+import LinearArrowRight2 from "../../../shared/icons/LinearArrowRight2";
 
 type CategoryBottomSheetProps = {
-  isOpen: boolean
-  onClose: () => void
-  onSelectCategory: (category?: CategoryOption | QuickAction) => void
-  selectedCategory: QuickAction | null
-}
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectCategory: (category?: CategoryOption | QuickAction) => void;
+  selectedCategory: QuickAction | null;
+};
 
 function normalizeCategoryOption(option: CategoryOption | string): CategoryOption {
-  return typeof option === 'string' ? { label: option } : option
+  return typeof option === "string" ? { label: option } : option;
 }
 
-const transactionCategoryLabels = new Set(['فروش', 'اجاره', 'پروژه'])
+const transactionCategoryLabels = new Set(["فروش", "اجاره", "پروژه"]);
 
 function getRootOptionLabel(label: string, parentLabel?: string) {
-  if (!parentLabel) return label
+  if (!parentLabel) return label;
 
-  const normalizedLabel = label.trim()
-  const normalizedParentLabel = parentLabel.trim()
+  const normalizedLabel = label.trim();
+  const normalizedParentLabel = parentLabel.trim();
 
-  if (!transactionCategoryLabels.has(normalizedParentLabel)) return normalizedLabel
-  if (!normalizedLabel.startsWith(normalizedParentLabel)) return normalizedLabel
+  if (!transactionCategoryLabels.has(normalizedParentLabel)) return normalizedLabel;
+  if (!normalizedLabel.startsWith(normalizedParentLabel)) return normalizedLabel;
 
-  return normalizedLabel.slice(normalizedParentLabel.length).trim() || normalizedLabel
+  return normalizedLabel.slice(normalizedParentLabel.length).trim() || normalizedLabel;
 }
 
 function getDrilldownTitle(optionLabel: string, parentLabel?: string) {
-  if (!parentLabel) return optionLabel
+  if (!parentLabel) return optionLabel;
 
-  const normalizedOptionLabel = optionLabel.trim()
-  const normalizedParentLabel = parentLabel.trim()
+  const normalizedOptionLabel = optionLabel.trim();
+  const normalizedParentLabel = parentLabel.trim();
 
-  if (!transactionCategoryLabels.has(normalizedParentLabel)) return normalizedOptionLabel
+  if (!transactionCategoryLabels.has(normalizedParentLabel)) return normalizedOptionLabel;
   if (normalizedOptionLabel.startsWith(normalizedParentLabel)) {
-    return normalizedOptionLabel
+    return normalizedOptionLabel;
   }
 
-  return `${normalizedParentLabel} ${normalizedOptionLabel}`.trim()
+  return `${normalizedParentLabel} ${normalizedOptionLabel}`.trim();
 }
 
 export function CategoryBottomSheet({
@@ -52,30 +52,30 @@ export function CategoryBottomSheet({
   onSelectCategory,
   selectedCategory,
 }: CategoryBottomSheetProps) {
-  const [selectedOption, setSelectedOption] = useState<CategoryOption | null>(null)
+  const [selectedOption, setSelectedOption] = useState<CategoryOption | null>(null);
 
-  const isDrilldown = selectedOption !== null
+  const isDrilldown = selectedOption !== null;
   const title = selectedOption
     ? getDrilldownTitle(selectedOption.label, selectedCategory?.label)
-    : selectedCategory?.label ?? 'فروش'
+    : (selectedCategory?.label ?? "فروش");
 
   const options = selectedOption
-    ? selectedOption.children?.map(normalizeCategoryOption) ?? []
-    : selectedCategory?.options ?? []
+    ? (selectedOption.children?.map(normalizeCategoryOption) ?? [])
+    : (selectedCategory?.options ?? []);
 
   const closeSheet = () => {
-    setSelectedOption(null)
-    onClose()
-  }
+    setSelectedOption(null);
+    onClose();
+  };
 
   const handleBack = () => {
     if (isDrilldown) {
-      setSelectedOption(null)
-      return
+      setSelectedOption(null);
+      return;
     }
 
-    closeSheet()
-  }
+    closeSheet();
+  };
 
   return (
     <BottomSheet
@@ -92,7 +92,7 @@ export function CategoryBottomSheet({
         <Button
           unstyled
           aria-label="بازگشت"
-          className="grid h-10 w-10 shrink-0 place-items-center bg-transparent text-on-surface-var outline-none focus:bg-transparent focus:outline-none focus-visible:bg-transparent focus-visible:outline-none active:bg-transparent"
+          className="text-on-surface-var grid h-10 w-10 shrink-0 place-items-center bg-transparent outline-none focus:bg-transparent focus:outline-none focus-visible:bg-transparent focus-visible:outline-none active:bg-transparent"
           onClick={handleBack}
           type="button"
         >
@@ -104,7 +104,7 @@ export function CategoryBottomSheet({
           variant="title"
           size="medium"
           weight="semibold"
-          className="m-0 min-w-0 flex-1 text-right text-on-surface"
+          className="text-on-surface m-0 min-w-0 flex-1 text-right"
         >
           {title}
         </Typography>
@@ -114,23 +114,23 @@ export function CategoryBottomSheet({
         {options.map((option, index) => {
           const displayLabel = isDrilldown
             ? option.label
-            : getRootOptionLabel(option.label, selectedCategory?.label)
+            : getRootOptionLabel(option.label, selectedCategory?.label);
 
           return (
             <div className="relative" key={option.label}>
               <Button
                 unstyled
-                className="flex h-[72px] w-full items-center gap-3 bg-surface-container-lowest px-4 text-right outline-none focus:outline-none focus-visible:outline-none"
+                className="bg-surface-container-lowest flex h-[72px] w-full items-center gap-3 px-4 text-right outline-none focus:outline-none focus-visible:outline-none"
                 data-category-sheet-row={option.label}
                 tabIndex={isOpen ? 0 : -1}
                 onClick={() => {
                   if (option.children?.length) {
-                    setSelectedOption(option)
-                    return
+                    setSelectedOption(option);
+                    return;
                   }
 
-                  closeSheet()
-                  onSelectCategory(option)
+                  closeSheet();
+                  onSelectCategory(option);
                 }}
                 type="button"
               >
@@ -139,23 +139,23 @@ export function CategoryBottomSheet({
                   variant="body"
                   size="large"
                   weight="regular"
-                  className="min-w-0 flex-1 text-right text-on-surface [direction:rtl]"
+                  className="text-on-surface min-w-0 flex-1 text-right [direction:rtl]"
                 >
                   {displayLabel}
                 </Typography>
 
-                <span className="grid h-6 w-6 shrink-0 place-items-center text-on-surface-var">
+                <span className="text-on-surface-var grid h-6 w-6 shrink-0 place-items-center">
                   <LinearArrowLeft1 className="h-6 w-6" />
                 </span>
               </Button>
 
               {index < options.length - 1 ? (
-                <div className="absolute inset-x-4 bottom-0 h-px bg-outline-var" />
+                <div className="bg-outline-var absolute inset-x-4 bottom-0 h-px" />
               ) : null}
             </div>
-          )
+          );
         })}
       </div>
     </BottomSheet>
-  )
+  );
 }

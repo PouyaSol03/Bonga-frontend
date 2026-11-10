@@ -1,7 +1,9 @@
-import type { NeighborhoodDto } from "../locations/api/neighborhood.service";
+import {
+  getNeighborhoodId,
+  type NeighborhoodDto,
+} from "../locations/api/neighborhood.service";
 
-const selectedNeighborhoodStorageKey =
-  "bonga-consultants-selected-neighborhood";
+const selectedNeighborhoodStorageKey = "bonga-consultants-selected-neighborhood";
 
 type StoredConsultantsNeighborhood = {
   cityId?: string;
@@ -9,27 +11,18 @@ type StoredConsultantsNeighborhood = {
   name: string;
 };
 
-function getNeighborhoodId(neighborhood: NeighborhoodDto) {
-  return String(neighborhood.id ?? neighborhood._id ?? "");
-}
-
 export function readConsultantsSelectedNeighborhood(
   expectedCityId?: string,
 ): NeighborhoodDto | null {
   try {
-    const storedValue = window.sessionStorage.getItem(
-      selectedNeighborhoodStorageKey,
-    );
+    const storedValue = window.sessionStorage.getItem(selectedNeighborhoodStorageKey);
 
     if (!storedValue) return null;
 
-    const parsedValue = JSON.parse(
-      storedValue,
-    ) as Partial<StoredConsultantsNeighborhood>;
+    const parsedValue = JSON.parse(storedValue) as Partial<StoredConsultantsNeighborhood>;
     const id = typeof parsedValue.id === "string" ? parsedValue.id : "";
     const name = typeof parsedValue.name === "string" ? parsedValue.name : "";
-    const cityId =
-      typeof parsedValue.cityId === "string" ? parsedValue.cityId : undefined;
+    const cityId = typeof parsedValue.cityId === "string" ? parsedValue.cityId : undefined;
 
     if (!id || !name) return null;
 

@@ -1,21 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
 import { Typography } from "../../../../shared/ui/Typography";
 import { SwitchButton } from "./NewAdControls";
 import {
   calculateRentPriceConversion,
+  getRentConversionSnapPoints,
   parseRentPriceValue,
   RENT_CONVERSION_MORTGAGE_UNIT,
+  resolveMagneticRentValue,
 } from "../rentPriceConversion";
+import { formatMoney } from "../../../../shared/lib/numberUtils";
 import LinearArrowRight1 from "../../../../shared/icons/LinearArrowRight1";
 import LinearArrowLeft1 from "../../../../shared/icons/LinearArrowLeft1";
-
-const faNumber = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 });
-
-function formatMoney(value: number) {
-  return faNumber.format(Math.max(0, Math.round(value)));
-}
 
 function formatDecimalFa(num: number) {
   const formatted = new Intl.NumberFormat("fa-IR", {
@@ -54,7 +51,7 @@ function formatSignedAmount(value: number) {
   }
 
   return {
-    value: `${sign}${faNumber.format(absolute)}`,
+    value: `${sign}${formatMoney(absolute)}`,
     unit: "تومان",
   };
 }
@@ -78,7 +75,7 @@ function ConversionSummaryCard({
         variant="label"
         size="medium"
         weight="medium"
-        className="mb-2 text-on-surface"
+        className="text-on-surface mb-2"
       >
         {label}
       </Typography>
@@ -103,7 +100,7 @@ function ConversionSummaryCard({
           variant="label"
           size="small"
           weight="medium"
-          className="mt-2 text-on-surface-var"
+          className="text-on-surface-var mt-2"
         >
           {formatted.unit}
         </Typography>
@@ -137,22 +134,22 @@ export function RentPriceConversion({
   const sourceMortgage = parseRentPriceValue(mortgagePrice);
   const sourceRent = parseRentPriceValue(rentPrice);
   const sourceHasPrice = sourceMortgage > 0 && sourceRent > 0;
-  const isMortgageMillionMultiple = sourceMortgage > 0 && sourceMortgage % RENT_CONVERSION_MORTGAGE_UNIT === 0;
+  const isMortgageMillionMultiple =
+    sourceMortgage > 0 && sourceMortgage % RENT_CONVERSION_MORTGAGE_UNIT === 0;
   const canEnable = sourceHasPrice && isMortgageMillionMultiple;
 
   const [baseline, setBaseline] = useState<ConversionBaseline>(() => ({
     mortgage: sourceMortgage,
     rent: sourceRent,
   }));
-  const [liveMortgage, setLiveMortgage] = useState(() =>
-    parseRentPriceValue(selectedMortgagePrice) || sourceMortgage,
+  const [liveMortgage, setLiveMortgage] = useState(
+    () => parseRentPriceValue(selectedMortgagePrice) || sourceMortgage,
   );
 
   const draggingRef = useRef(false);
+  const snappedPointRef = useRef<number | null>(null);
 
-  const activeBaseline = enabled
-    ? baseline
-    : { mortgage: sourceMortgage, rent: sourceRent };
+  const activeBaseline = enabled ? baseline : { mortgage: sourceMortgage, rent: sourceRent };
   const activeMortgage = enabled
     ? liveMortgage
     : parseRentPriceValue(selectedMortgagePrice) || sourceMortgage;
@@ -163,6 +160,10 @@ export function RentPriceConversion({
     activeMortgage,
   );
   const hasPrice = conversion.maximumMortgage > 0;
+  const snapPoints = useMemo(
+    () => getRentConversionSnapPoints(conversion.maximumMortgage),
+    [conversion.maximumMortgage],
+  );
   const mortgageDelta = formatSignedAmount(conversion.mortgageDelta);
   const rentDelta = formatSignedAmount(conversion.rentDelta);
 
@@ -196,7 +197,14 @@ export function RentPriceConversion({
 
     if (!sourceChangedOutsideSlider) return;
 
+    const parsedSelected = parseRentPriceValue(selectedMortgagePrice);
     setBaseline({ mortgage: sourceMortgage, rent: sourceRent });
+
+    if (parsedSelected > 0) {
+      setLiveMortgage(parsedSelected);
+      return;
+    }
+
     setLiveMortgage(sourceMortgage);
 
     const normalized = String(sourceMortgage);
@@ -212,6 +220,14 @@ export function RentPriceConversion({
     sourceMortgage,
     sourceRent,
   ]);
+
+  useEffect(() => {
+    if (!enabled || draggingRef.current) return;
+    const parsed = parseRentPriceValue(selectedMortgagePrice);
+    if (parsed > 0 && parsed !== liveMortgage) {
+      setLiveMortgage(parsed);
+    }
+  }, [enabled, liveMortgage, selectedMortgagePrice]);
 
   const handleToggle = (checked: boolean) => {
     if (checked && !canEnable) return;
@@ -229,11 +245,7 @@ export function RentPriceConversion({
   };
 
   const updateLiveConversion = (value: string | number) => {
-    const next = calculateRentPriceConversion(
-      baseline.mortgage,
-      baseline.rent,
-      value,
-    );
+    const next = calculateRentPriceConversion(baseline.mortgage, baseline.rent, value);
 
     setLiveMortgage(next.convertedMortgage);
     return next;
@@ -246,7 +258,7 @@ export function RentPriceConversion({
   };
 
   return (
-    <div className="mt-5 border-t border-outline-var pt-1">
+    <div className="border-outline-var mt-5 border-t pt-1">
       <div className="flex h-16 items-center justify-between [direction:ltr]">
         <SwitchButton checked={enabled} disabled={!canEnable} onChange={handleToggle} />
 
@@ -255,7 +267,7 @@ export function RentPriceConversion({
           variant="title"
           size="medium"
           weight="semibold"
-          className="text-right text-on-surface [direction:rtl]"
+          className="text-on-surface text-right [direction:rtl]"
         >
           تبدیل رهن و اجاره
         </Typography>
@@ -267,15 +279,15 @@ export function RentPriceConversion({
           variant="body"
           size="small"
           weight="regular"
-          className="text-right text-error -mt-1 mb-2 [direction:rtl]"
+          className="text-error -mt-1 mb-2 text-right [direction:rtl]"
         >
           برای فعال‌سازی تبدیل، مبلغ رهن باید مضربی از یک میلیون تومان باشد.
         </Typography>
       ) : null}
 
       {enabled ? (
-        <div className="pb-2 pt-2 [direction:rtl]">
-          <div className="flex items-start gap-2 rounded-2xl bg-primary-container/20 px-4 py-3 text-primary">
+        <div className="pt-2 pb-2 [direction:rtl]">
+          <div className="bg-primary-container/20 text-primary flex items-start gap-2 rounded-2xl px-4 py-3">
             <LinearInfoCircle aria-hidden="true" className="mt-0.5 h-6 w-6 shrink-0" />
             <Typography
               as="p"
@@ -290,42 +302,80 @@ export function RentPriceConversion({
 
           <div className="mt-4 py-4">
             <div className="flex items-center justify-between gap-4 px-0.5">
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
-                رهن <span className="text-tertiary">{formatMoney(conversion.convertedMortgage)}</span>
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="medium"
+                className="text-on-surface-var"
+              >
+                رهن{" "}
+                <span className="text-tertiary">{formatMoney(conversion.convertedMortgage)}</span>
               </Typography>
-              <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var">
+              <Typography
+                as="span"
+                variant="label"
+                size="medium"
+                weight="medium"
+                className="text-on-surface-var"
+              >
                 اجاره <span className="text-warning">{formatMoney(conversion.convertedRent)}</span>
               </Typography>
             </div>
 
             <div className="relative mx-2 mt-1 h-[28px] select-none [direction:ltr]">
-              <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-surface-container">
+              <div className="bg-surface-container absolute top-1/2 right-0 left-0 h-2 -translate-y-1/2 overflow-hidden rounded-full">
                 <div
-                  className="absolute bottom-0 left-0 top-0 bg-warning"
+                  className="bg-warning absolute top-0 bottom-0 left-0"
                   style={{ width: `${conversion.positionPercent}%` }}
                 />
                 <div
-                  className="absolute bottom-0 right-0 top-0 bg-tertiary"
+                  className="bg-tertiary absolute top-0 right-0 bottom-0"
                   style={{ width: `${100 - conversion.positionPercent}%` }}
                 />
-                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-surface-container-lowest" />
+                <div className="border-surface-container-lowest absolute top-1/2 right-0 left-0 -translate-y-1/2 border-t-2 border-dashed" />
               </div>
 
-              <div className="absolute left-0 top-1/2 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface-container-lowest bg-warning">
-                <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface-container-lowest" />
+              <div className="border-surface-container-lowest bg-warning absolute top-1/2 left-0 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2">
+                <span className="bg-surface-container-lowest absolute top-1/2 left-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full" />
               </div>
-              <div className="absolute right-0 top-1/2 z-10 h-5 w-5 translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface-container-lowest bg-tertiary">
-                <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface-container-lowest" />
+              <div className="border-surface-container-lowest bg-tertiary absolute top-1/2 right-0 z-10 h-5 w-5 translate-x-1/2 -translate-y-1/2 rounded-full border-2">
+                <span className="bg-surface-container-lowest absolute top-1/2 left-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full" />
               </div>
+
+              {/* 5 invisible magnetic snap points */}
+              {snapPoints.map((point) => {
+                const percent =
+                  conversion.maximumMortgage > 0
+                    ? (point / conversion.maximumMortgage) * 100
+                    : 0;
+                return (
+                  <span
+                    key={point}
+                    data-snap-point={point}
+                    aria-hidden="true"
+                    className="pointer-events-none absolute top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0"
+                    style={{ left: `${12 + percent * 0.76}%` }}
+                  />
+                );
+              })}
 
               {hasPrice ? (
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border border-outline-var bg-surface-container-lowest px-4 py-1.5 text-on-surface-var shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
+                  className="border-outline-var bg-surface-container-lowest text-on-surface-var pointer-events-none absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-1 rounded-lg border px-4 py-1.5 shadow-[0_2px_8px_rgba(26,26,26,0.08)]"
                   style={{ left: `${12 + conversion.positionPercent * 0.76}%` }}
                 >
                   <LinearArrowLeft1 className="h-4 w-4" />
-                  <Typography as="span" variant="label" size="small" weight="medium" className="text-on-surface">تبدیل</Typography>
+                  <Typography
+                    as="span"
+                    variant="label"
+                    size="small"
+                    weight="medium"
+                    className="text-on-surface"
+                  >
+                    تبدیل
+                  </Typography>
                   <LinearArrowRight1 className="h-4 w-4" />
                 </div>
               ) : null}
@@ -333,32 +383,64 @@ export function RentPriceConversion({
               <input
                 aria-label="تبدیل مبلغ رهن و اجاره"
                 className="absolute z-20 h-full cursor-ew-resize touch-pan-y opacity-0 disabled:cursor-not-allowed"
-                style={{ left: '12%', width: '76%' }}
+                style={{ left: "12%", width: "76%" }}
                 disabled={!hasPrice}
                 max={Math.max(0, Math.round(conversion.maximumMortgage))}
                 min={0}
                 onChange={(event) => {
                   if (!draggingRef.current) {
-                    commitConversion(event.target.value);
+                    const raw = Number(event.target.value);
+                    const max = Math.max(0, Math.round(conversion.maximumMortgage));
+                    const result = resolveMagneticRentValue({
+                      activeSnappedPoint: null,
+                      maximumMortgage: max,
+                      raw,
+                      snapPoints,
+                    });
+                    commitConversion(result.value);
                   }
                 }}
                 onInput={(event) => {
                   const raw = Number(event.currentTarget.value);
                   const max = Math.max(0, Math.round(conversion.maximumMortgage));
-                  const halfStep = RENT_CONVERSION_MORTGAGE_UNIT / 2;
-                  const snapped = Math.abs(raw - max) < halfStep ? max : raw;
-                  updateLiveConversion(snapped);
+                  const result = resolveMagneticRentValue({
+                    activeSnappedPoint: snappedPointRef.current,
+                    maximumMortgage: max,
+                    raw,
+                    snapPoints,
+                  });
+                  snappedPointRef.current = result.snappedPoint;
+                  updateLiveConversion(result.value);
                 }}
                 onPointerCancel={(event) => {
                   draggingRef.current = false;
-                  commitConversion(event.currentTarget.value);
+                  const raw = Number(event.currentTarget.value);
+                  const max = Math.max(0, Math.round(conversion.maximumMortgage));
+                  const result = resolveMagneticRentValue({
+                    activeSnappedPoint: snappedPointRef.current,
+                    maximumMortgage: max,
+                    raw,
+                    snapPoints,
+                  });
+                  snappedPointRef.current = null;
+                  commitConversion(result.value);
                 }}
                 onPointerDown={() => {
                   draggingRef.current = true;
+                  snappedPointRef.current = null;
                 }}
                 onPointerUp={(event) => {
                   draggingRef.current = false;
-                  commitConversion(event.currentTarget.value);
+                  const raw = Number(event.currentTarget.value);
+                  const max = Math.max(0, Math.round(conversion.maximumMortgage));
+                  const result = resolveMagneticRentValue({
+                    activeSnappedPoint: snappedPointRef.current,
+                    maximumMortgage: max,
+                    raw,
+                    snapPoints,
+                  });
+                  snappedPointRef.current = null;
+                  commitConversion(result.value);
                 }}
                 step={RENT_CONVERSION_MORTGAGE_UNIT}
                 type="range"
@@ -380,7 +462,8 @@ export function RentPriceConversion({
             </div>
 
             <span className="sr-only">
-              تغییر رهن {mortgageDelta.value} {mortgageDelta.unit}، تغییر اجاره {rentDelta.value} {rentDelta.unit}
+              تغییر رهن {mortgageDelta.value} {mortgageDelta.unit}، تغییر اجاره {rentDelta.value}{" "}
+              {rentDelta.unit}
             </span>
           </div>
         </div>

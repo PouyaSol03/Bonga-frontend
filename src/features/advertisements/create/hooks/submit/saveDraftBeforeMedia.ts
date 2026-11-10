@@ -1,20 +1,32 @@
+import type { Dispatch, SetStateAction } from "react";
+import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query";
 import { getApiErrorMessage } from "../../../../../shared/api/api";
+import type { CategoryItem } from "../../../../categories/api/category.service";
+import type {
+  AdvertiseFormDefinition,
+  AdvertisementItem,
+  saveAdvertiseDraft,
+} from "../../../api/advertisement.service";
 import { findCategoryId } from "../../edit-mapping/crmEditNormalizer";
 import { saveNewAdFlowSession } from "../../session";
 import type { FlowStep, NewAdFormValues } from "../../types";
 import { buildNewAdFormData } from "../../utils";
 
 interface SaveDraftBeforeMediaParams {
-  advertiseFormQuery: any;
-  categoriesQuery: any;
+  advertiseFormQuery: UseQueryResult<AdvertiseFormDefinition, Error>;
+  categoriesQuery: UseQueryResult<CategoryItem[], Error>;
   currentFormCode: string;
   draftAdId: string | null;
   editAdId: string | null;
   isEditMode: boolean;
   routeParams: { category: string };
-  saveDraftMutation: any;
+  saveDraftMutation: UseMutationResult<
+    AdvertisementItem,
+    Error,
+    Parameters<typeof saveAdvertiseDraft>[0]
+  >;
   setDraftAdId: (id: string | null) => void;
-  setFieldErrors: (errors: any) => void;
+  setFieldErrors: Dispatch<SetStateAction<Record<string, string>>>;
   setStep: (step: FlowStep) => void;
   setSubmitError: (error: string) => void;
   values: NewAdFormValues;
@@ -39,7 +51,7 @@ export function saveDraftBeforeMedia({
   const resolvedFormCode = advertiseFormQuery.data?.code?.trim() || currentFormCode;
   const formData = buildNewAdFormData(values, {
     categoryId,
-    dynamicFieldKeys: advertiseFormQuery.data?.fields?.map((field: any) => field.key),
+    dynamicFieldKeys: advertiseFormQuery.data?.fields?.map((field) => field.key),
     formCode: resolvedFormCode,
     isDraft: true,
     isEdit: isEditMode,
@@ -57,7 +69,7 @@ export function saveDraftBeforeMedia({
     onError: (error: unknown) => {
       setSubmitError(getApiErrorMessage(error, "خطا در ذخیره پیش‌نویس آگهی"));
     },
-    onSuccess: (savedAd: any) => {
+    onSuccess: (savedAd: AdvertisementItem) => {
       const returnedId = savedAd?.id ?? savedAd?._id;
       if (returnedId) {
         const idStr = String(returnedId);

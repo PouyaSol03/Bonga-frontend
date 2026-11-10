@@ -24,8 +24,6 @@ import {
 } from "./consultant-info/consultantAdsFilterTypes";
 import type { TabKey } from "./consultant-info/types";
 
-export { ConsultantInfoPageSkeleton } from "./consultant-info/ConsultantInfoSkeleton";
-
 export function ConsultantInfoPage({
   consultantOverride,
 }: {
@@ -70,7 +68,8 @@ export function ConsultantInfoPage({
 
   if (
     consultantQuery.isLoading &&
-    (!consultantQuery.data && (!routeConsultant.name || routeConsultant.name === "—"))
+    !consultantQuery.data &&
+    (!routeConsultant.name || routeConsultant.name === "—")
   ) {
     return <ConsultantInfoPageSkeleton />;
   }
@@ -78,7 +77,7 @@ export function ConsultantInfoPage({
   if (consultantQuery.isError && !consultantQuery.data) {
     return (
       <section
-        className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface"
+        className="bg-surface-container-low text-on-surface mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden"
         dir="rtl"
       >
         <TopBar
@@ -145,7 +144,7 @@ export function ConsultantInfoPage({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-low text-on-surface"
+          className="bg-surface-container-low text-on-surface mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden"
           dir="rtl"
         >
           <TopBar
@@ -161,7 +160,7 @@ export function ConsultantInfoPage({
 
             <ConsultantTabsNav activeTab={activeTab} onTabChange={setActiveTab} />
 
-            <div className="flex flex-1 flex-col bg-surface-container-low">
+            <div className="bg-surface-container-low flex flex-1 flex-col">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={activeTab}

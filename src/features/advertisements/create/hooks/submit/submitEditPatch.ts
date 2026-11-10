@@ -1,18 +1,22 @@
+import type { Dispatch, SetStateAction } from "react";
 import type { NavigateFunction } from "react-router";
+import type { UseMutationResult } from "@tanstack/react-query";
 import { getApiErrorMessage } from "../../../../../shared/api/api";
-import { USER } from "../../../../../shared/constants/roles.constants";
-import { adManagementPaths } from "../../../../account/adManagement/adManagementData";
-import { mapAdvertisementToAdCard } from "../../../api/advertisement.service";
-import type { AdvertisementItem } from "../../../api/advertisement.service";
+import { adManagementPaths, getAdStatePath } from "../../../../account/adManagement/adManagementData";
+import {
+  mapAdvertisementToAdCard,
+  updateAdvertisement as updateAdvertisementFn,
+  type AdvertisementItem,
+} from "../../../api/advertisement.service";
+
 import { getMyAdStatusInfo } from "../../../../account/myAdsStatus";
 import { getEditAdRouteState } from "../../routeState";
 import type { NewAdFormValues } from "../../types";
 import { clearNewAdDraftStorage, getDefaultValues } from "../../utils";
 import { buildEditPatchFormData } from "../../edit-patch";
-import { getAdStatePath } from "../../../../account/adManagement/adManagementData";
 
 interface SubmitEditPatchParams {
-  activeRole: string;
+  activeRole?: string;
   categoryId: string | null;
   currentAd?: AdvertisementItem;
   dynamicFieldKeys: string[];
@@ -21,15 +25,19 @@ interface SubmitEditPatchParams {
   formCode: string;
   initialEditValuesRef: React.MutableRefObject<NewAdFormValues | null>;
   navigate: NavigateFunction;
-  setFieldErrors: (errors: any) => void;
+  setFieldErrors: Dispatch<SetStateAction<Record<string, string>>>;
   setSubmitError: (error: string) => void;
   submitLockRef: React.MutableRefObject<boolean>;
-  updateAdvertisement: any;
+  updateAdvertisement: UseMutationResult<
+    AdvertisementItem,
+    Error,
+    Parameters<typeof updateAdvertisementFn>[0]
+  >;
   values: NewAdFormValues;
 }
 
 export function submitEditPatch({
-  activeRole,
+  activeRole: _activeRole,
   categoryId,
   currentAd,
   dynamicFieldKeys,
@@ -48,7 +56,8 @@ export function submitEditPatch({
     setSubmitError("شناسه آگهی برای ویرایش مشخص نیست.");
     return;
   }
-  const baseline = initialEditValuesRef.current ?? getDefaultValues({ ...editAdState, isEditMode: true });
+  const baseline =
+    initialEditValuesRef.current ?? getDefaultValues({ ...editAdState, isEditMode: true });
   const patchResult = buildEditPatchFormData(values, baseline, {
     categoryId,
     dynamicFieldKeys,
@@ -56,19 +65,15 @@ export function submitEditPatch({
   });
 
   const resolvedAd = currentAd ?? editAdState.ad;
-  const fallbackTarget = editAdId
+  const targetPath = editAdId
     ? getAdStatePath(editAdId)
-    : activeRole === USER || !activeRole
-      ? "/account/my-ads"
-      : adManagementPaths.root;
-  const targetPath = editAdState.editReturnTo ?? editAdState.returnTo ?? fallbackTarget;
-  const separator = targetPath.includes("?") ? "&" : "?";
+    : (editAdState.editReturnTo ?? editAdState.returnTo ?? adManagementPaths.root);
 
   if (!patchResult.hasChanges) {
     clearNewAdDraftStorage();
     const currentCard = resolvedAd ? mapAdvertisementToAdCard(resolvedAd, 0) : undefined;
     const statusInfo = resolvedAd ? getMyAdStatusInfo(resolvedAd) : { key: "status" };
-    navigate(`${targetPath}${separator}updated=1`, {
+    navigate(targetPath, {
       replace: true,
       state: {
         ad: resolvedAd,
@@ -88,15 +93,16 @@ export function submitEditPatch({
   updateAdvertisement.mutate(
     { advertiseId: editAdId, payload: patchResult.formData },
     {
-      onError: (error: unknown) => setSubmitError(getApiErrorMessage(error, "ویرایش آگهی با خطا مواجه شد.")),
+      onError: (error: unknown) =>
+        setSubmitError(getApiErrorMessage(error, "ویرایش آگهی با خطا مواجه شد.")),
       onSettled: () => {
         submitLockRef.current = false;
       },
-      onSuccess: (updatedAd: any) => {
+      onSuccess: (updatedAd: AdvertisementItem) => {
         clearNewAdDraftStorage();
         const updatedCard = mapAdvertisementToAdCard(updatedAd, 0);
         const statusInfo = getMyAdStatusInfo(updatedAd);
-        navigate(`${targetPath}${separator}updated=1`, {
+        navigate(targetPath, {
           replace: true,
           state: {
             ad: updatedAd,

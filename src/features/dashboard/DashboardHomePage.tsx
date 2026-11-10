@@ -10,7 +10,6 @@ import {
 import {
   DASHBOARD_ROLES,
   INDEPENDENT_CONSULTANT,
-  REAL_ESTATE_CONSULTANT,
   REAL_ESTATE_MANAGER,
 } from "../../shared/constants/roles.constants";
 import { isForbiddenApiError } from "../../shared/api/api";
@@ -26,9 +25,7 @@ export function DashboardHomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const isReportsView = searchParams.get("view") === "reports";
 
-  const [activeRole, setActiveRole] = useState(() =>
-    getActiveAuthRole(getStoredAuthSession()),
-  );
+  const [activeRole, setActiveRole] = useState(() => getActiveAuthRole(getStoredAuthSession()));
 
   useEffect(() => {
     function syncActiveRole() {
@@ -53,22 +50,29 @@ export function DashboardHomePage() {
   };
 
   const handleCloseReports = () => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.delete("view");
-      return next;
-    });
+    if (window.history.state?.idx > 0) {
+      navigate(-1);
+    } else {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete("view");
+          return next;
+        },
+        { replace: true }
+      );
+    }
   };
 
   const session = getStoredAuthSession();
   const sessionRoles = getSessionRoleSlugs(session);
 
   const effectiveRole =
-    activeRole && DASHBOARD_ROLES.includes(activeRole as any)
+    activeRole && (DASHBOARD_ROLES as readonly string[]).includes(activeRole)
       ? activeRole
-      : (sessionRoles.find((r) => DASHBOARD_ROLES.includes(r as any)) as AuthRoleSlug) ??
+      : ((sessionRoles.find((r) => (DASHBOARD_ROLES as readonly string[]).includes(r)) as AuthRoleSlug) ??
         activeRole ??
-        "user";
+        "user");
 
   const isRealEstateManager = effectiveRole === REAL_ESTATE_MANAGER;
   const isIndependent = effectiveRole === INDEPENDENT_CONSULTANT;
@@ -77,9 +81,7 @@ export function DashboardHomePage() {
     ? "agency"
     : isIndependent
       ? "agent"
-      : effectiveRole === REAL_ESTATE_CONSULTANT
-        ? "agent_in_agency"
-        : (effectiveRole as any);
+      : "agent_in_agency";
 
   const roleType: DashboardRole = isRealEstateManager
     ? "REAL_ESTATE_MANAGER"

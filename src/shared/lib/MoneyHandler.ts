@@ -43,10 +43,7 @@ const formatWithTwoDecimals = (val: number) => {
 
 export const formatCardPrice = (value: unknown): string => {
   if (value === undefined || value === null || value === "") return "توافقی";
-  const num =
-    typeof value === "number"
-      ? value
-      : Number(String(value).replace(/,/g, "").trim());
+  const num = typeof value === "number" ? value : Number(String(value).replace(/,/g, "").trim());
   if (Number.isNaN(num)) return String(value);
 
   if (num >= 1_000_000_000_000) {
@@ -63,12 +60,8 @@ export const formatCardPrice = (value: unknown): string => {
 
 export const formatDetailPrice = (value: unknown): string => {
   if (value === undefined || value === null || value === "") return "توافقی";
-  const num =
-    typeof value === "number"
-      ? value
-      : Number(String(value).replace(/,/g, "").trim());
+  const num = typeof value === "number" ? value : Number(String(value).replace(/,/g, "").trim());
   if (Number.isNaN(num)) return String(value);
   if (num === 0) return "۰";
   return formatBigNumber(num);
 };
-

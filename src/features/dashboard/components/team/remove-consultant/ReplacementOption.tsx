@@ -47,7 +47,7 @@ export function ReplacementOption({
             variant="body"
             size="medium"
             weight="regular"
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary-container text-primary"
+            className="bg-primary-container text-primary grid h-11 w-11 shrink-0 place-items-center rounded-full"
           >
             <LinearBuilding3 className="h-6 w-6" />
           </Typography>
@@ -60,7 +60,7 @@ export function ReplacementOption({
             variant="label"
             size="medium"
             weight="semibold"
-            className="block truncate text-sm font-semibold text-on-surface"
+            className="text-on-surface block truncate text-sm font-semibold"
           >
             {getReplacementLabel(target)}
           </Typography>
@@ -69,16 +69,13 @@ export function ReplacementOption({
             variant="label"
             size="small"
             weight="medium"
-            className="block truncate text-xs font-medium text-outline"
+            className="text-outline block truncate text-xs font-medium"
           >
             {target.kind === "agency" ? target.subtitle : target.consultant.phone}
           </Typography>
         </div>
       </div>
-      <SelectionCheckIndicator
-        checked={isSelected}
-        className="!h-4.5 !w-4.5 rounded-sm"
-      />
+      <SelectionCheckIndicator checked={isSelected} className="!h-4.5 !w-4.5 rounded-sm" />
     </Button>
   );
 }

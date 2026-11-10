@@ -11,4 +11,3 @@ export * from "./DashboardReportsView";
 export * from "./DashboardSkeleton";
 export * from "./DashboardLeadFollowupCard";
 export * from "./DashboardExpiringAdCard";
-export * from "./reports";

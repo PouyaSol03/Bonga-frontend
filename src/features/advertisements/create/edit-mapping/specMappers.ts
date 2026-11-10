@@ -18,7 +18,9 @@ export function mapProjectDetails(value: unknown): NewAdFormValues["projectDetai
       if (!item || typeof item !== "object") return null;
 
       const record = item as Record<string, unknown>;
-      const meterage = numericInputText(record.meterage ?? record.area ?? record.min_meterage ?? record.minMeterage);
+      const meterage = numericInputText(
+        record.meterage ?? record.area ?? record.min_meterage ?? record.minMeterage,
+      );
 
       return {
         floors: readArrayValue(record.floors ?? record.floor),
@@ -52,9 +54,13 @@ export function mapDailyHotelRooms(value: unknown): NewAdFormValues["dailyHotelR
       if (!item || typeof item !== "object") return false;
 
       const record = item as Record<string, unknown>;
-      const roomType = normalizeLookupText(record.room_type ?? record.id ?? record.label ?? record.room_label);
+      const roomType = normalizeLookupText(
+        record.room_type ?? record.id ?? record.label ?? record.room_label,
+      );
 
-      return roomType === normalizeLookupText(room.id) || roomType === normalizeLookupText(room.label);
+      return (
+        roomType === normalizeLookupText(room.id) || roomType === normalizeLookupText(room.label)
+      );
     });
 
     if (!apiRoom || typeof apiRoom !== "object") return room;
@@ -74,5 +80,7 @@ export function mapDailyHotelRooms(value: unknown): NewAdFormValues["dailyHotelR
 }
 
 export function readFormCode(ad: AdvertisementItem, features: AdvertisementFeature[]) {
-  return normalizeLookupText(readFirstValue(ad, features, ["form_code"], ["form_code", "formCode"]));
+  return normalizeLookupText(
+    readFirstValue(ad, features, ["form_code"], ["form_code", "formCode"]),
+  );
 }

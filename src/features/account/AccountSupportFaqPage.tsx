@@ -13,13 +13,7 @@ import { Button } from "../../shared/ui/Button";
 const SUPPORT_PATH = "/account/support";
 const SUPPORT_CHAT_PATH = "/account/support/chat";
 
-type FaqCategory =
-  | "all"
-  | "account"
-  | "advertises"
-  | "property"
-  | "chat"
-  | "support";
+type FaqCategory = "all" | "account" | "advertises" | "property" | "chat" | "support";
 
 type FaqItem = {
   answer: string;
@@ -42,8 +36,7 @@ const faqItems: FaqItem[] = [
     id: "create-account",
     category: "account",
     question: "چگونه حساب کاربری ایجاد کنم؟",
-    answer:
-      "برای ثبت‌نام، شماره موبایل خود را وارد کرده و کد تأیید ارسال‌شده را ثبت کنید.",
+    answer: "برای ثبت‌نام، شماره موبایل خود را وارد کرده و کد تأیید ارسال‌شده را ثبت کنید.",
   },
   {
     id: "edit-profile",
@@ -105,15 +98,13 @@ const faqItems: FaqItem[] = [
     id: "start-chat",
     category: "chat",
     question: "چگونه با آگهی‌دهنده گفتگو کنم؟",
-    answer:
-      "در صفحه جزئیات آگهی، گزینه گفتگو را انتخاب کنید تا صفحه چت با آگهی‌دهنده باز شود.",
+    answer: "در صفحه جزئیات آگهی، گزینه گفتگو را انتخاب کنید تا صفحه چت با آگهی‌دهنده باز شود.",
   },
   {
     id: "support-request",
     category: "support",
     question: "چگونه درخواست پشتیبانی ثبت کنم؟",
-    answer:
-      "از صفحه پشتیبانی وارد درخواست‌های من شوید و گزینه ایجاد درخواست جدید را انتخاب کنید.",
+    answer: "از صفحه پشتیبانی وارد درخواست‌های من شوید و گزینه ایجاد درخواست جدید را انتخاب کنید.",
   },
 ];
 
@@ -131,15 +122,16 @@ function FaqCategoryTabs({
   return (
     <nav
       aria-label="دسته‌بندی سوالات متداول"
-      className="flex h-11 gap-2 overflow-x-auto px-3 pb-2 [direction:rtl] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="flex h-11 [scrollbar-width:none] gap-2 overflow-x-auto px-3 pb-2 [-ms-overflow-style:none] [direction:rtl] [&::-webkit-scrollbar]:hidden"
     >
       {faqCategories.map((category) => {
         const isActive = activeCategory === category.id;
 
         return (
-          <Button unstyled
+          <Button
+            unstyled
             aria-pressed={isActive}
-            className={`flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs font-medium leading-4 transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 focus-visible:outline-primary/25 ${
+            className={`focus-visible:outline-primary/25 flex h-9 shrink-0 items-center justify-center rounded-lg border px-3 text-xs leading-4 font-medium transition-colors focus-visible:outline-3 focus-visible:outline-offset-1 ${
               isActive
                 ? "border-primary bg-primary-container text-primary"
                 : "border-outline-var bg-surface-container-lowest text-on-surface-var active:bg-surface-container-low"
@@ -166,14 +158,19 @@ function FaqAccordionItem({
   onToggle: () => void;
 }) {
   return (
-    <article className="overflow-hidden rounded-xl border border-outline-var bg-surface-container-lowest p-4">
-      <Button unstyled
+    <article className="border-outline-var bg-surface-container-lowest overflow-hidden rounded-xl border p-4">
+      <Button
+        unstyled
         aria-expanded={isOpen}
-        className="flex w-full items-center justify-between gap-3 text-right outline-none transition-colors active:bg-surface-container-low focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-primary/25"
+        className="active:bg-surface-container-low focus-visible:ring-primary/25 flex w-full items-center justify-between gap-3 text-right transition-colors outline-none focus-visible:ring-3 focus-visible:ring-inset"
         onClick={onToggle}
         type="button"
       >
-        <Typography as="span" variant="label" size="medium" weight="semibold"
+        <Typography
+          as="span"
+          variant="label"
+          size="medium"
+          weight="semibold"
           className={`min-w-0 flex-1 text-sm font-semibold ${
             isOpen ? "text-primary" : "text-on-surface"
           }`}
@@ -182,7 +179,7 @@ function FaqAccordionItem({
         </Typography>
 
         <LinearArrowDown1
-          className={`h-5 w-5 shrink-0 text-on-surface-var transition-transform duration-300 ease-out motion-reduce:transition-none ${
+          className={`text-on-surface-var h-5 w-5 shrink-0 transition-transform duration-300 ease-out motion-reduce:transition-none ${
             isOpen ? "rotate-180" : "rotate-0"
           }`}
         />
@@ -191,13 +188,17 @@ function FaqAccordionItem({
       <div
         aria-hidden={!isOpen}
         className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${
-          isOpen
-            ? "grid-rows-[1fr] opacity-100"
-            : "grid-rows-[0fr] opacity-0"
+          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}
       >
         <div className="min-h-0 overflow-hidden">
-          <Typography as="p" variant="body" size="medium" weight="regular" className="m-0 pt-4 text-right text-sm font-normal leading-6 text-on-surface-var">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-on-surface-var m-0 pt-4 text-right text-sm leading-6 font-normal"
+          >
             {item.answer}
           </Typography>
         </div>
@@ -215,8 +216,7 @@ export function AccountSupportFaqPage() {
     const normalizedSearch = normalizeSearchText(search);
 
     return faqItems.filter((item) => {
-      const matchesCategory =
-        activeCategory === "all" || item.category === activeCategory;
+      const matchesCategory = activeCategory === "all" || item.category === activeCategory;
       const matchesSearch =
         !normalizedSearch ||
         normalizeSearchText(item.question).includes(normalizedSearch) ||
@@ -228,24 +228,24 @@ export function AccountSupportFaqPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden"
       variant="flush"
     >
       <TopBar
         backTo={SUPPORT_PATH}
-        className="border-b border-outline-var"
+        className="border-outline-var border-b"
         heightClassName="h-[52px]"
-       
+
         reserveStartSpace
         title="سوالات متداول"
         titleClassName="text-center text-sm font-semibold leading-5"
       />
 
-      <section className="shrink-0 border-b border-outline-var bg-surface-container-lowest pt-3">
-        <label className="mx-3 mb-2 flex h-12 items-center gap-2 rounded-xl border border-outline bg-surface-container-lowest px-3 text-outline focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/20">
+      <section className="border-outline-var bg-surface-container-lowest shrink-0 border-b pt-3">
+        <label className="border-outline bg-surface-container-lowest text-outline focus-within:border-primary focus-within:ring-primary/20 mx-3 mb-2 flex h-12 items-center gap-2 rounded-xl border px-3 focus-within:ring-3">
           <input
             aria-label="جستجو در سوالات متداول"
-            className="min-w-0 flex-1 bg-transparent text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline"
+            className="text-on-surface placeholder:text-outline min-w-0 flex-1 bg-transparent text-right text-sm leading-5 font-normal outline-none"
             onChange={(event) => setSearch(event.target.value)}
             placeholder="دنبال چه چیزی هستید؟"
             type="search"
@@ -263,18 +263,14 @@ export function AccountSupportFaqPage() {
         />
       </section>
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-container-lowest px-3 pb-24 pt-3">
+      <main className="bg-surface-container-lowest flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pt-3 pb-24">
         <div className="space-y-2.5">
           {visibleItems.map((item) => (
             <FaqAccordionItem
               isOpen={expandedId === item.id}
               item={item}
               key={item.id}
-              onToggle={() =>
-                setExpandedId((currentId) =>
-                  currentId === item.id ? "" : item.id,
-                )
-              }
+              onToggle={() => setExpandedId((currentId) => (currentId === item.id ? "" : item.id))}
             />
           ))}
         </div>
@@ -286,7 +282,7 @@ export function AccountSupportFaqPage() {
 
       <Link
         aria-label="گفتگو با پشتیبانی"
-        className="absolute bottom-5 right-4 z-20 grid h-12 w-12 place-items-center rounded-full bg-primary text-on-primary shadow-[0_6px_16px_rgba(0,72,196,0.24)] outline-none active:scale-[0.98] focus-visible:ring-3 focus-visible:ring-surface-container-lowest focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+        className="bg-primary text-on-primary focus-visible:ring-surface-container-lowest focus-visible:ring-offset-primary absolute right-4 bottom-5 z-20 grid h-12 w-12 place-items-center rounded-full shadow-[0_6px_16px_rgba(0,72,196,0.24)] outline-none focus-visible:ring-3 focus-visible:ring-offset-2 active:scale-[0.98]"
         to={SUPPORT_CHAT_PATH}
       >
         <LinearChat className="h-5.5 w-5.5" />

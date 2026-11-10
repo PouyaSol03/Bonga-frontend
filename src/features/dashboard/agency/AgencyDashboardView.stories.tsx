@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AgencyDashboardView } from "./AgencyDashboardView";
 import { AgencyTasksCard } from "./components/AgencyTasksCard";
 import { AgencyQuickAccessGrid } from "./components/AgencyQuickAccessGrid";
@@ -14,7 +14,7 @@ const meta: Meta<typeof AgencyDashboardView> = {
   component: AgencyDashboardView,
   decorators: [
     (Story) => (
-      <div className="max-w-[400px] mx-auto min-h-screen bg-[#F0F0F0]">
+      <div className="mx-auto min-h-screen max-w-[400px] bg-[#F0F0F0]">
         <Story />
       </div>
     ),
@@ -59,9 +59,7 @@ export const SectionNotifications: StoryObj = {
 };
 
 export const SectionReportsTeaser: StoryObj = {
-  render: () => (
-    <AgencyReportsTeaserCard onViewReports={() => alert("Open reports")} />
-  ),
+  render: () => <AgencyReportsTeaserCard onViewReports={() => alert("Open reports")} />,
 };
 
 export const SectionRecentAds: StoryObj = {

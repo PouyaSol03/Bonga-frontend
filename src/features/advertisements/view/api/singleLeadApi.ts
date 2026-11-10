@@ -1,24 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useActiveAuthRole } from "../../../../shared/auth/use-active-auth-role";
 import {
-  addV2AdvertisementLeadNote,
   getV2AdvertisementLeadActivities,
   getV2AdvertisementLeadDetail,
   getV2AdvertisementLeads,
   updateV2AdvertisementLeadStage,
+  type AdvertisementV2Activity,
+  type AdvertisementV2Lead,
 } from "../../api/v2";
-import type {
-  AdvertisementV2Activity,
-  AdvertisementV2Lead,
-  AdvertisementV2Note,
-} from "../../api/v2";
-
-export type ViewAdLeadClient = NonNullable<AdvertisementV2Lead["client"]>;
-export type ViewAdLeadDetail = AdvertisementV2Lead;
-export type ViewAdLeadActivity = AdvertisementV2Activity;
-export type ViewAdLeadNote = AdvertisementV2Note;
-
-export interface NormalizedAdLeadItem {
+type ViewAdLeadDetail = AdvertisementV2Lead;
+type ViewAdLeadActivity = AdvertisementV2Activity;
+interface NormalizedAdLeadItem {
   id: string;
   name: string;
   phone: string;
@@ -30,7 +22,9 @@ export interface NormalizedAdLeadItem {
   callCount: number;
 }
 
-export async function getAdLeadsList(adId?: string | number): Promise<NormalizedAdLeadItem[] | null> {
+async function getAdLeadsList(
+  adId?: string | number,
+): Promise<NormalizedAdLeadItem[] | null> {
   if (!adId) return null;
   const res = await getV2AdvertisementLeads(adId);
   const resUnknown = res as unknown;
@@ -38,9 +32,10 @@ export async function getAdLeadsList(adId?: string | number): Promise<Normalized
     ? resUnknown
     : (resUnknown as { data?: unknown[] })?.data
       ? (resUnknown as { data: unknown[] }).data
-      : (resUnknown as { leads?: unknown[] })?.leads ?? [];
+      : ((resUnknown as { leads?: unknown[] })?.leads ?? []);
 
-  return leads.map((item: any) => {
+  return leads.map((lead: unknown) => {
+    const item = (lead && typeof lead === "object" ? lead : {}) as AdvertisementV2Lead;
     const rawDate = item.created_at || item.date || item.appointment?.date_jalali;
     let formattedDate = "";
     if (rawDate) {
@@ -59,7 +54,10 @@ export async function getAdLeadsList(adId?: string | number): Promise<Normalized
       name: item.client?.name ?? item.name ?? "کاربر",
       phone: item.client?.phone ?? item.phone ?? "",
       avatarUrl: item.client?.avatar_url ?? item.avatar_url,
-      status: item.stage?.title ?? item.stage?.label ?? (typeof item.status === "string" ? item.status : item.status?.new ? "جدید" : "جدید"),
+      status:
+        item.stage?.title ??
+        item.stage?.label ??
+        (typeof item.status === "string" ? item.status : item.status?.new ? "جدید" : "جدید"),
       date: formattedDate,
       time: item.time ?? item.appointment?.time ?? "",
       chatCount: item.stats?.messages_count ?? Number(item.chat_count ?? 0),
@@ -78,21 +76,32 @@ export function useAdLeadsQuery(adId?: string | number) {
   });
 }
 
-export async function getSingleLeadDetails(adId?: string | number, leadId?: string | number): Promise<ViewAdLeadDetail | null> {
+async function getSingleLeadDetails(
+  adId?: string | number,
+  leadId?: string | number,
+): Promise<ViewAdLeadDetail | null> {
   if (!adId || !leadId) return null;
   return getV2AdvertisementLeadDetail(adId, leadId);
 }
 
-export async function getLeadActivities(adId?: string | number, leadId?: string | number): Promise<ViewAdLeadActivity[]> {
+async function getLeadActivities(
+  adId?: string | number,
+  leadId?: string | number,
+): Promise<ViewAdLeadActivity[]> {
   if (!adId || !leadId) return [];
   const res = await getV2AdvertisementLeadActivities(adId, leadId);
-  return Array.isArray(res) ? res : res?.activities ?? [];
+  return Array.isArray(res) ? res : (res?.activities ?? []);
 }
 
 export function useSingleLeadDetailsQuery(adId?: string | number, leadId?: string | number) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["single-lead-details", adId ? String(adId) : "", leadId ? String(leadId) : "", activeRole],
+    queryKey: [
+      "single-lead-details",
+      adId ? String(adId) : "",
+      leadId ? String(leadId) : "",
+      activeRole,
+    ],
     queryFn: () => getSingleLeadDetails(adId, leadId),
     enabled: Boolean(adId && leadId),
     staleTime: 30_000,
@@ -102,7 +111,12 @@ export function useSingleLeadDetailsQuery(adId?: string | number, leadId?: strin
 export function useLeadActivitiesQuery(adId?: string | number, leadId?: string | number) {
   const activeRole = useActiveAuthRole();
   return useQuery({
-    queryKey: ["lead-activities", adId ? String(adId) : "", leadId ? String(leadId) : "", activeRole],
+    queryKey: [
+      "lead-activities",
+      adId ? String(adId) : "",
+      leadId ? String(leadId) : "",
+      activeRole,
+    ],
     queryFn: () => getLeadActivities(adId, leadId),
     enabled: Boolean(adId && leadId),
     staleTime: 30_000,
@@ -118,24 +132,13 @@ export function useUpdateLeadStageMutation(adId?: string | number, leadId?: stri
       return updateV2AdvertisementLeadStage(adId, leadId, stageKey);
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["single-lead-details", String(adId), String(leadId), activeRole] });
-      void qc.invalidateQueries({ queryKey: ["lead-activities", String(adId), String(leadId), activeRole] });
+      void qc.invalidateQueries({
+        queryKey: ["single-lead-details", String(adId), String(leadId), activeRole],
+      });
+      void qc.invalidateQueries({
+        queryKey: ["lead-activities", String(adId), String(leadId), activeRole],
+      });
       void qc.invalidateQueries({ queryKey: ["ad-leads", String(adId), activeRole] });
     },
   });
 }
-
-export function useAddLeadNoteMutation(adId?: string | number, leadId?: string | number) {
-  const qc = useQueryClient();
-  const activeRole = useActiveAuthRole();
-  return useMutation({
-    mutationFn: (content: string) => {
-      if (!adId || !leadId) throw new Error("Missing ad or lead id");
-      return addV2AdvertisementLeadNote(adId, leadId, content);
-    },
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["single-lead-details", String(adId), String(leadId), activeRole] });
-    },
-  });
-}
-

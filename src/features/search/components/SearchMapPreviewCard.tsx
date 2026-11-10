@@ -14,10 +14,7 @@ function getAdNavigationState() {
   };
 }
 
-export function SearchMapPreviewCard({
-  isSelected,
-  listing,
-}: SearchMapPreviewCardProps) {
+export function SearchMapPreviewCard({ isSelected, listing }: SearchMapPreviewCardProps) {
   return (
     <AdCard
       ad={listing.adCard ?? searchMapListingToPreviewAdCardData(listing)}
@@ -63,7 +60,8 @@ function searchMapListingToPreviewAdCardData(listing: SearchMapListing): AdCardD
     builderShare: listing.builderShare,
     currentStatus: listing.currentStatus,
     title: listing.title,
-    timeAndLocation: listing.postedAt || (listing.locationLabel ? `در ${listing.locationLabel}` : ""),
+    timeAndLocation:
+      listing.postedAt || (listing.locationLabel ? `در ${listing.locationLabel}` : ""),
     imageClassName: listing.imageClassName ?? "",
     imageUrl: listing.imageSrc,
     badges: [],

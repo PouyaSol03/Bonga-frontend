@@ -1,20 +1,33 @@
+import type { Dispatch, SetStateAction } from "react";
 import type { NavigateFunction } from "react-router";
+import type { UseMutationResult } from "@tanstack/react-query";
 import { getApiErrorMessage, getApiFieldError } from "../../../../../shared/api/api";
-import { USER } from "../../../../../shared/constants/roles.constants";
-import { adManagementPaths } from "../../../../account/adManagement/adManagementData";
-import { mapAdvertisementToAdCard } from "../../../api/advertisement.service";
+import {
+  adManagementPaths,
+  getAdPaymentPath,
+  getAdStatePath,
+  markNewAdCheckout,
+} from "../../../../account/adManagement/adManagementData";
+import {
+  createAdvertisement,
+  mapAdvertisementToAdCard,
+  type AdvertisementItem,
+} from "../../../api/advertisement.service";
 import type { FlowStep, NewAdFormValues } from "../../types";
 import { clearNewAdDraftStorage } from "../../utils";
-import { getAdPaymentPath, getAdStatePath, markNewAdCheckout } from "../../../../account/adManagement/adManagementData";
 
 interface SubmitCreateAdvertiseParams {
   activeAdId: string | null;
   activeRole: string;
-  createAdvertisement: any;
+  createAdvertisement: UseMutationResult<
+    AdvertisementItem,
+    Error,
+    Parameters<typeof createAdvertisement>[0]
+  >;
   formData: FormData;
   navigate: NavigateFunction;
   routeParams: { category: string; publisherType?: string };
-  setFieldErrors: (errors: any) => void;
+  setFieldErrors: Dispatch<SetStateAction<Record<string, string>>>;
   setStep: (step: FlowStep) => void;
   setSubmitError: (error: string) => void;
   submitLockRef: React.MutableRefObject<boolean>;
@@ -46,7 +59,7 @@ export function submitCreateAdvertise({
       const agencyError = getApiFieldError(error, "agency_id");
       const errorMessage = getApiErrorMessage(error, "ثبت آگهی با خطا مواجه شد.");
       if (agencyError) {
-        setFieldErrors((current: any) => ({ ...current, agencyId: agencyError }));
+        setFieldErrors((current) => ({ ...current, agencyId: agencyError }));
         setStep("agencySelection");
       }
       setSubmitError(agencyError ?? errorMessage);
@@ -56,15 +69,19 @@ export function submitCreateAdvertise({
     onSettled: () => {
       submitLockRef.current = false;
     },
-    onSuccess: (createdAd: any) => {
+    onSuccess: (createdAd: AdvertisementItem) => {
       const createdAdId = createdAd.id ?? createdAd._id ?? activeAdId;
       if (!createdAdId) {
         setSubmitError("شناسه آگهی ثبت‌شده از سرور دریافت نشد.");
         return;
       }
       const ad = mapAdvertisementToAdCard(createdAd, 0);
-      const isWaitingForAgency = createdAd.status === "wait_for_agency" || Number(createdAd.status) === 2;
-      const isAlreadyPublished = createdAd.status === "published" || createdAd.status === "active" || Number(createdAd.status) === 3;
+      const isWaitingForAgency =
+        createdAd.status === "wait_for_agency" || Number(createdAd.status) === 2;
+      const isAlreadyPublished =
+        createdAd.status === "published" ||
+        createdAd.status === "active" ||
+        Number(createdAd.status) === 3;
 
       clearNewAdDraftStorage();
 
@@ -75,7 +92,7 @@ export function submitCreateAdvertise({
             ad: createdAd,
             card: ad,
             isAssigned: true,
-            returnTo: "/account/my-ads",
+            returnTo: adManagementPaths.root,
             status: "wait_for_agency",
             tab: "status",
           },
@@ -89,7 +106,7 @@ export function submitCreateAdvertise({
           state: {
             ad: createdAd,
             card: ad,
-            returnTo: activeRole === USER || !activeRole ? "/account/my-ads" : adManagementPaths.root,
+            returnTo: adManagementPaths.root,
             status: "published",
             tab: "status",
           },
@@ -97,7 +114,8 @@ export function submitCreateAdvertise({
         return;
       }
 
-      const isAgencyPublisher = activeRole === "real_estate_manager" || routeParams.publisherType === "agency";
+      const isAgencyPublisher =
+        activeRole === "real_estate_manager" || routeParams.publisherType === "agency";
       const isConsultantPublisher =
         activeRole === "real_estate_consultant" ||
         routeParams.publisherType === "agent" ||

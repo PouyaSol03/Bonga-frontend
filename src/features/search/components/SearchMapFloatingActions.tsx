@@ -32,28 +32,30 @@ function SearchMapFloatingActionsComponent({
     <div
       className={`pointer-events-none absolute inset-x-0 z-[500] ${
         isEditorMode ? "bottom-20" : "bottom-4"
-      } ${
-        isHidden ? "hidden" : "translate-y-0 opacity-100"
-      }`}
+      } ${isHidden ? "hidden" : "translate-y-0 opacity-100"}`}
       aria-hidden={isHidden}
     >
       {showListButton ? (
         <div className="pointer-events-auto absolute bottom-0 left-1/2 -translate-x-1/2">
-          <Button unstyled
-            className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xl font-bold leading-6 text-on-primary shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40"
+          <Button
+            unstyled
+            className="bg-primary text-on-primary focus-visible:outline-primary/40 flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-xl leading-6 font-bold shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2"
             type="button"
             tabIndex={isHidden ? -1 : 0}
             onClick={onListClick}
           >
             <ListIcon />
-            <Typography as="span" variant="label" size="large" weight="medium">لیست</Typography>
+            <Typography as="span" variant="label" size="large" weight="medium">
+              لیست
+            </Typography>
           </Button>
         </div>
       ) : null}
 
-      <div className="pointer-events-auto absolute bottom-0 right-4 flex flex-col items-center gap-4">
-        <Button unstyled
-          className={`flex p-2 items-center justify-center rounded-xl shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
+      <div className="pointer-events-auto absolute right-4 bottom-0 flex flex-col items-center gap-4">
+        <Button
+          unstyled
+          className={`focus-visible:outline-primary/40 flex items-center justify-center rounded-xl p-2 shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 ${
             isLocated ? "bg-primary text-on-primary" : "bg-surface-container-lowest text-on-surface"
           }`}
           type="button"
@@ -64,13 +66,16 @@ function SearchMapFloatingActionsComponent({
           onClick={onLocateClick}
         >
           <Typography as="span" variant="body" size="medium" weight="regular">
-            <LinearGps className={`h-5 w-5 ${isLocated ? 'text-on-primary' : 'text-on-surface-var'}`} />
+            <LinearGps
+              className={`h-5 w-5 ${isLocated ? "text-on-primary" : "text-on-surface-var"}`}
+            />
           </Typography>
         </Button>
 
-        <Button unstyled
+        <Button
+          unstyled
           aria-pressed={isDrawing}
-          className={`flex p-2 items-center justify-center rounded-xl shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/40 ${
+          className={`focus-visible:outline-primary/40 flex items-center justify-center rounded-xl p-2 shadow-[0_6px_18px_rgba(26,26,26,0.18)] focus-visible:outline-[3px] focus-visible:outline-offset-2 ${
             isDrawing ? "bg-primary text-on-primary" : "bg-surface-container-lowest text-on-surface"
           }`}
           type="button"
@@ -79,7 +84,9 @@ function SearchMapFloatingActionsComponent({
           onClick={onHandClick}
         >
           <Typography as="span" variant="body" size="medium" weight="regular">
-            <LinearHandDraw className={`w-5 h-5 ${isDrawing ? "text-on-primary" : "text-on-surface-var"}`}/>
+            <LinearHandDraw
+              className={`h-5 w-5 ${isDrawing ? "text-on-primary" : "text-on-surface-var"}`}
+            />
           </Typography>
         </Button>
       </div>

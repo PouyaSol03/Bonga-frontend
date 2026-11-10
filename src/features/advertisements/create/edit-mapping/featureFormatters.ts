@@ -1,23 +1,12 @@
 import type { ChipItem } from "../types";
+import { toEnglishDigits as toLatinDigits, toPersianDigits } from "../../../../shared/lib/numberUtils";
 
-export function toLatinDigits(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
-}
-
-export function toPersianDigits(value: string) {
-  return value.replace(/[0-9٠-٩]/g, (digit) => {
-    const latinDigit = digit >= "0" && digit <= "9"
-      ? digit
-      : String("٠١٢٣٤٥٦٧٨٩".indexOf(digit));
-
-    return "۰۱۲۳۴۵۶۷۸۹"[Number(latinDigit)] ?? digit;
-  });
-}
+export { toLatinDigits, toPersianDigits };
 
 export function normalizeLookupText(value: unknown): string {
-  return toLatinDigits(String(value ?? "")).trim().toLowerCase();
+  return toLatinDigits(String(value ?? ""))
+    .trim()
+    .toLowerCase();
 }
 
 export function readText(value: unknown): string {
@@ -38,7 +27,9 @@ export function readText(value: unknown): string {
 }
 
 export function isFilledValue(value: unknown): boolean {
-  return value !== undefined && value !== null && value !== "";
+  if (value === undefined || value === null) return false;
+  const str = String(value).trim();
+  return str !== "" && str !== "null" && str !== "undefined";
 }
 
 export function readNestedText(source: Record<string, unknown>, keys: string[]): string {
@@ -60,7 +51,10 @@ export function readArrayValue(value: unknown): string[] {
   const text = readText(value);
 
   return text
-    ? text.split(/[،,]/).map((item) => item.trim()).filter(Boolean)
+    ? text
+        .split(/[،,]/)
+        .map((item) => item.trim())
+        .filter(Boolean)
     : [];
 }
 
@@ -83,9 +77,7 @@ export function numericInputText(value: unknown): string {
 
   if (!text) return "";
 
-  const normalized = toLatinDigits(text)
-    .replace(/[٬,]/g, "")
-    .replace(/\//g, ".");
+  const normalized = toLatinDigits(text).replace(/[٬,]/g, "").replace(/\//g, ".");
   const decimalMatch = normalized.match(/\d+(?:\.\d+)?/);
 
   if (!decimalMatch) return "";

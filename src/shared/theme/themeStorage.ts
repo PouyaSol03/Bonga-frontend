@@ -16,7 +16,7 @@ function getSystemPrefersDark(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
-export function getStoredTheme(): AppTheme {
+function getStoredTheme(): AppTheme {
   if (typeof window === "undefined") return "system";
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -29,12 +29,11 @@ export function getStoredTheme(): AppTheme {
   return "system";
 }
 
-export function applyTheme(theme: AppTheme) {
+function applyTheme(theme: AppTheme) {
   currentTheme = theme;
   if (typeof document === "undefined") return;
 
-  const isDark =
-    theme === "dark" || (theme === "system" && getSystemPrefersDark());
+  const isDark = theme === "dark" || (theme === "system" && getSystemPrefersDark());
 
   const root = document.documentElement;
   const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
@@ -64,7 +63,7 @@ export function applyTheme(theme: AppTheme) {
   notify();
 }
 
-export function setStoredTheme(theme: AppTheme) {
+function setStoredTheme(theme: AppTheme) {
   try {
     localStorage.setItem(STORAGE_KEY, theme);
   } catch {

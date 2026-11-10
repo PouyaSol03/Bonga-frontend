@@ -1,5 +1,6 @@
 import type { BadgeItem } from "../api/account.service";
 import type { AgentBadge } from "../../dashboard/api/dashboard.service";
+import type { V2RankingBadge } from "../../dashboard/api/v2/ranking-v2.service";
 
 export type BadgeProgressVariant = "complete" | "current" | "locked";
 
@@ -11,7 +12,7 @@ export type BadgeProgressLevel = {
   variant: BadgeProgressVariant;
 };
 
-export function badgeProgressNumber(value: unknown) {
+function badgeProgressNumber(value: unknown) {
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
   if (typeof value === "string" && value.trim()) {
     const parsed = Number(value);
@@ -31,9 +32,10 @@ function badgeProgressText(value: unknown) {
   return "";
 }
 
-export function readBadgeLevelCount(badge?: BadgeItem) {
+export function readBadgeLevelCount(badge?: BadgeItem | V2RankingBadge | null) {
   if (!badge) return 0;
-  const level = badgeProgressNumber(badge.level ?? badge.stars ?? badge.star_count);
+  const b = badge as BadgeItem;
+  const level = badgeProgressNumber(b.level ?? b.stars ?? b.star_count);
   return level === null ? 0 : Math.max(0, Math.min(3, Math.floor(level)));
 }
 
@@ -46,12 +48,13 @@ function normalizeLevelVariant(value: unknown, progress: number): BadgeProgressV
   return "current";
 }
 
-export function readBadgeProgressLevels(badge?: BadgeItem): BadgeProgressLevel[] {
+export function readBadgeProgressLevels(badge?: BadgeItem | V2RankingBadge | null): BadgeProgressLevel[] {
   if (!badge) return [];
-  const rawLevels = Array.isArray(badge.levels)
-    ? badge.levels
-    : Array.isArray(badge.badge_levels)
-      ? badge.badge_levels
+  const b = badge as BadgeItem;
+  const rawLevels = Array.isArray(b.levels)
+    ? b.levels
+    : Array.isArray(b.badge_levels)
+      ? b.badge_levels
       : [];
 
   const levels = rawLevels.flatMap((value, index) => {
@@ -59,19 +62,22 @@ export function readBadgeProgressLevels(badge?: BadgeItem): BadgeProgressLevel[]
     const item = value as Record<string, unknown>;
     const progressValue = badgeProgressNumber(item.progress ?? item.percent ?? item.percentage);
     const progress = progressValue === null ? 0 : Math.max(0, Math.min(100, progressValue));
-    const done = badgeProgressText(item.done ?? item.current ?? item.value ?? item.completed) || "—";
+    const done =
+      badgeProgressText(item.done ?? item.current ?? item.value ?? item.completed) || "—";
     const total = badgeProgressText(item.total ?? item.target ?? item.required) || undefined;
     const title =
       badgeProgressText(item.title ?? item.name ?? item.label) ||
       `سطح ${formatBadgeProgressNumber(index + 1)}`;
 
-    return [{
-      done,
-      progress,
-      title,
-      total,
-      variant: normalizeLevelVariant(item.status ?? item.state, progress),
-    } satisfies BadgeProgressLevel];
+    return [
+      {
+        done,
+        progress,
+        title,
+        total,
+        variant: normalizeLevelVariant(item.status ?? item.state, progress),
+      } satisfies BadgeProgressLevel,
+    ];
   });
 
   if (levels.length > 0) return levels;
@@ -80,38 +86,56 @@ export function readBadgeProgressLevels(badge?: BadgeItem): BadgeProgressLevel[]
   if (progressValue === null) return [];
   const progress = Math.max(0, Math.min(100, progressValue));
 
-  return [{
-    done: `${formatBadgeProgressNumber(progress)}٪`,
-    progress,
-    title: "پیشرفت کلی",
-    total: "۱۰۰٪",
-    variant: progress >= 100 ? "complete" : "current",
-  }];
+  return [
+    {
+      done: `${formatBadgeProgressNumber(progress)}٪`,
+      progress,
+      title: "پیشرفت کلی",
+      total: "۱۰۰٪",
+      variant: progress >= 100 ? "complete" : "current",
+    },
+  ];
 }
 
-export function readAgentBadgeProgressLevels(badge?: AgentBadge | null): BadgeProgressLevel[] {
+export function readAgentBadgeProgressLevels(
+  badge?: AgentBadge | V2RankingBadge | null,
+): BadgeProgressLevel[] {
   if (!badge) return [];
-  if (Array.isArray(badge.thresholds) && badge.thresholds.length > 0) {
-    return badge.thresholds.map((threshold, idx) => {
+  const b = badge as AgentBadge;
+  if (Array.isArray(b.thresholds) && b.thresholds.length > 0) {
+    return b.thresholds.map((threshold, idx) => {
       const levelNumber = idx + 1;
-      const isComplete = badge.level >= levelNumber;
-      const isCurrent = badge.level + 1 === levelNumber;
-      const progress = isComplete ? 100 : isCurrent ? Math.max(0, Math.min(100, badge.progress)) : 0;
-      const variant: BadgeProgressVariant = isComplete ? "complete" : isCurrent ? "current" : "locked";
+      const level = b.level ?? 0;
+      const progressValue = b.progress ?? 0;
+      const isComplete = level >= levelNumber;
+      const isCurrent = level + 1 === levelNumber;
+      const progress = isComplete
+        ? 100
+        : isCurrent
+          ? Math.max(0, Math.min(100, progressValue))
+          : 0;
+      const variant: BadgeProgressVariant = isComplete
+        ? "complete"
+        : isCurrent
+          ? "current"
+          : "locked";
       return {
         title: `سطح ${formatBadgeProgressNumber(levelNumber)}`,
-        done: formatBadgeProgressNumber(isComplete ? threshold : badge.current_value),
+        done: formatBadgeProgressNumber(isComplete ? threshold : (b.current_value ?? 0)),
         total: formatBadgeProgressNumber(threshold),
         progress,
         variant,
       };
     });
   }
-  return [{
-    title: "پیشرفت کلی",
-    done: `${formatBadgeProgressNumber(badge.progress)}٪`,
-    total: "۱۰۰٪",
-    progress: Math.max(0, Math.min(100, badge.progress)),
-    variant: badge.progress >= 100 ? "complete" : "current",
-  }];
+  const generalProgress = b.progress ?? 0;
+  return [
+    {
+      title: "پیشرفت کلی",
+      done: `${formatBadgeProgressNumber(generalProgress)}٪`,
+      total: "۱۰۰٪",
+      progress: Math.max(0, Math.min(100, generalProgress)),
+      variant: generalProgress >= 100 ? "complete" : "current",
+    },
+  ];
 }

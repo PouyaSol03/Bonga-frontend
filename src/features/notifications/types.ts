@@ -3,9 +3,7 @@ import type { AgencyConsultantRequestDecision } from "../agencies/api/agency.ser
 
 export type { AgencyConsultantRequestDecision };
 
-export type AgencyConsultantRequestDisplayState =
-  | AgencyConsultantRequestDecision
-  | "cancel";
+export type AgencyConsultantRequestDisplayState = AgencyConsultantRequestDecision | "cancel";
 
 export type NotificationFilterOption = {
   id: NotificationCategory;
@@ -35,9 +33,7 @@ export const notificationFilterOptions: NotificationFilterOption[] = [
   { id: "support", label: "پشتیبانی" },
 ];
 
-export const allPreferenceCategories = notificationFilterOptions.map(
-  (option) => option.id,
-);
+export const allPreferenceCategories = notificationFilterOptions.map((option) => option.id);
 
 export const notificationManagementOptions: Array<{
   category: NotificationCategory;

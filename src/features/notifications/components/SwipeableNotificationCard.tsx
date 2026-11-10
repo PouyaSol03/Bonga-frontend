@@ -44,10 +44,7 @@ export function SwipeableNotificationCard({
   const isInteractionLocked = isDeleting || isRespondingToAgencyRequest;
 
   const updateDragOffset = (nextOffset: number) => {
-    const clampedOffset = Math.max(
-      0,
-      Math.min(nextOffset, notificationDeleteActionWidth),
-    );
+    const clampedOffset = Math.max(0, Math.min(nextOffset, notificationDeleteActionWidth));
     dragOffsetRef.current = clampedOffset;
     setDragOffset(clampedOffset);
   };
@@ -81,7 +78,7 @@ export function SwipeableNotificationCard({
 
   return (
     <div
-      className={`relative w-full max-w-full overflow-hidden border-b border-outline-var bg-error-container/30 [contain:paint] ${
+      className={`border-outline-var bg-error-container/30 relative w-full max-w-full overflow-hidden border-b [contain:paint] ${
         isDeleting ? "opacity-60" : ""
       }`}
       style={{ touchAction: "pan-y" }}
@@ -89,7 +86,7 @@ export function SwipeableNotificationCard({
       <Button
         unstyled
         aria-label={`حذف اعلان ${item.title || ""}`.trim()}
-        className="absolute inset-y-0 left-0 z-0 flex w-[84px] flex-col items-center justify-center gap-2 bg-error-container/30 text-error disabled:cursor-not-allowed"
+        className="bg-error-container/30 text-error absolute inset-y-0 left-0 z-0 flex w-[84px] flex-col items-center justify-center gap-2 disabled:cursor-not-allowed"
         disabled={isInteractionLocked}
         onClick={onDelete}
         type="button"
@@ -100,16 +97,16 @@ export function SwipeableNotificationCard({
           variant="label"
           size="small"
           weight="semibold"
-          className="text-xs font-semibold leading-4"
+          className="text-xs leading-4 font-semibold"
         >
           حذف
         </Typography>
       </Button>
 
       <article
-        className={`relative z-10 flex w-full max-w-full touch-pan-y select-none flex-col overflow-hidden px-4 py-4 text-right will-change-transform ${
+        className={`relative z-10 flex w-full max-w-full touch-pan-y flex-col overflow-hidden px-4 py-4 text-right will-change-transform select-none ${
           isAgencyConsultantRequest
-            ? "h-[120px] gap-y-2 bg-surface-container-lowest"
+            ? "bg-surface-container-lowest h-[120px] gap-y-2"
             : `h-full gap-y-4 ${
                 isUnread ? "bg-surface-container-low" : "bg-surface-container-lowest"
               }`

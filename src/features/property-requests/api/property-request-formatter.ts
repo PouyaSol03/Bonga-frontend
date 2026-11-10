@@ -10,26 +10,14 @@ import {
   propertyRequestFilterLabels,
   roomLabels,
 } from "./property-request-constants";
+import { toEnglishDigits as toLatinDigits, toPersianDigits } from "../../../shared/lib/numberUtils";
 
-export { propertyRequestCategoryLabels, propertyRequestFilterLabels };
-
-export function toPersianDigits(value: number | string) {
-  return String(value).replace(
-    /\d/g,
-    (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)] ?? digit,
-  );
-}
+export { propertyRequestCategoryLabels, propertyRequestFilterLabels, toPersianDigits };
 
 export function formatPropertyRequestValue(value: string) {
   if (value === "true" || value === "1") return "بله";
   if (value === "false" || value === "0") return "خیر";
   return toPersianDigits(value.replace(/_/g, "، "));
-}
-
-function toLatinDigits(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
 }
 
 function formatCompactToman(value: string) {
@@ -47,7 +35,7 @@ function formatCompactToman(value: string) {
   return `${toPersianDigits(new Intl.NumberFormat("en-US").format(amount))} تومان`;
 }
 
-export function formatCategory(value: string) {
+function formatCategory(value: string) {
   const normalized = value.trim().toLowerCase();
   return propertyRequestCategoryLabels[normalized] ?? formatPropertyRequestValue(value);
 }
@@ -72,7 +60,8 @@ export function getPropertyRequestDetails(request: PropertySearchRequest) {
   const neighborhood = filters.neighborhood_id || filters.neighborhoods;
 
   if (formCode && categoryId) {
-    const formattedForm = formCodeLabels[formCode.trim().toLowerCase()] ?? formatPropertyRequestValue(formCode);
+    const formattedForm =
+      formCodeLabels[formCode.trim().toLowerCase()] ?? formatPropertyRequestValue(formCode);
     const formattedCat = formatCategory(categoryId);
     if (["فروش", "اجاره", "پیش‌فروش", "مشارکت", "معاوضه", "اجاره روزانه"].includes(formattedForm)) {
       details.push(`${formattedForm} ${formattedCat}`);
@@ -82,35 +71,53 @@ export function getPropertyRequestDetails(request: PropertySearchRequest) {
       details.push(formattedForm, formattedCat);
     }
   } else if (formCode) {
-    details.push(formCodeLabels[formCode.trim().toLowerCase()] ?? formatPropertyRequestValue(formCode));
+    details.push(
+      formCodeLabels[formCode.trim().toLowerCase()] ?? formatPropertyRequestValue(formCode),
+    );
   } else if (categoryId) {
     details.push(formatCategory(categoryId));
   }
 
   if (neighborhood) details.push(`محله ${formatPropertyRequestValue(neighborhood)}`);
-  if (filters.building_age) details.push(`سال ساخت ${formatPropertyRequestValue(filters.building_age)}`);
+  if (filters.building_age)
+    details.push(`سال ساخت ${formatPropertyRequestValue(filters.building_age)}`);
 
   const priceRange = formatRange(filters.price_min, filters.price_max, formatCompactToman, "قیمت");
   if (priceRange) details.push(priceRange);
-  if (filters.rooms) details.push(roomLabels[filters.rooms] ?? `${formatPropertyRequestValue(filters.rooms)} خوابه`);
+  if (filters.rooms)
+    details.push(roomLabels[filters.rooms] ?? `${formatPropertyRequestValue(filters.rooms)} خوابه`);
 
-  const areaRange = filters.area_min && filters.area_max
-    ? `متراژ از ${formatPropertyRequestValue(filters.area_min)} تا ${formatPropertyRequestValue(filters.area_max)} متر`
-    : filters.area_min
-      ? `متراژ از ${formatPropertyRequestValue(filters.area_min)} متر`
-      : filters.area_max
-        ? `متراژ تا ${formatPropertyRequestValue(filters.area_max)} متر`
-        : "";
+  const areaRange =
+    filters.area_min && filters.area_max
+      ? `متراژ از ${formatPropertyRequestValue(filters.area_min)} تا ${formatPropertyRequestValue(filters.area_max)} متر`
+      : filters.area_min
+        ? `متراژ از ${formatPropertyRequestValue(filters.area_min)} متر`
+        : filters.area_max
+          ? `متراژ تا ${formatPropertyRequestValue(filters.area_max)} متر`
+          : "";
   if (areaRange) details.push(areaRange);
 
   if (filters.city_id) {
-    details.push(`شهر ${cityLabels[filters.city_id.toLowerCase()] ?? formatPropertyRequestValue(filters.city_id)}`);
+    details.push(
+      `شهر ${cityLabels[filters.city_id.toLowerCase()] ?? formatPropertyRequestValue(filters.city_id)}`,
+    );
   }
 
   const handled = new Set([
-    "area_max", "area_min", "building_age", "category_id", "city_id",
-    "form_code", "from_code", "neighborhood_id", "neighborhoods",
-    "price_max", "price_min", "rooms", "focus", "view",
+    "area_max",
+    "area_min",
+    "building_age",
+    "category_id",
+    "city_id",
+    "form_code",
+    "from_code",
+    "neighborhood_id",
+    "neighborhoods",
+    "price_max",
+    "price_min",
+    "rooms",
+    "focus",
+    "view",
   ]);
 
   Object.entries(filters).forEach(([key, val]) => {
@@ -118,7 +125,8 @@ export function getPropertyRequestDetails(request: PropertySearchRequest) {
     if (key === "has_image" && (val === "true" || val === "1")) details.push("دارای تصویر");
     else if (key === "has_video" && (val === "true" || val === "1")) details.push("دارای ویدئو");
     else if (key === "is_special" && (val === "true" || val === "1")) details.push("آگهی ویژه");
-    else if (key === "query" || key === "q" || key === "qsearch") details.push(formatPropertyRequestValue(val));
+    else if (key === "query" || key === "q" || key === "qsearch")
+      details.push(formatPropertyRequestValue(val));
     else {
       const label = propertyRequestFilterLabels[key] ?? key.replace(/_/g, " ");
       details.push(`${label} ${formatPropertyRequestValue(val)}`);
@@ -150,7 +158,8 @@ export function createPropertyRequestAdvertisementParams(
 ): AdvertisementListParams | null {
   if (!request) return null;
   const filters = request.filters;
-  const normBool = (v?: string) => v === "true" || v === "1" ? true : v === "false" || v === "0" ? false : undefined;
+  const normBool = (v?: string) =>
+    v === "true" || v === "1" ? true : v === "false" || v === "0" ? false : undefined;
   const searchFilters: AdvertisementSearchFilters = {
     areaMax: filters.area_max,
     areaMin: filters.area_min,

@@ -43,9 +43,8 @@ export async function createPropertyRequest(
   input: PropertyRequestCreateInput,
 ): Promise<PropertyRequestCreateResult> {
   const scope = resolvePropertyRequestScope();
-  const filters = (Array.isArray(input.filters)
-    ? input.filters
-    : buildPropertyRequestFilters(input.filters)
+  const filters = (
+    Array.isArray(input.filters) ? input.filters : buildPropertyRequestFilters(input.filters)
   ).filter((f) => !ignoredRequestFilterFields.has(f.field));
 
   const response = await getClient(scope)
@@ -53,7 +52,7 @@ export async function createPropertyRequest(
       json: {
         filters,
         name: input.name.trim() || "درخواست ملک مشابه",
-        ...(scope.apiVersion === "v1" ? {owner_type: input.owner_type ?? scope.ownerType} : {}),
+        ...(scope.apiVersion === "v1" ? { owner_type: input.owner_type ?? scope.ownerType } : {}),
       },
     })
     .json<unknown>();
@@ -69,7 +68,11 @@ export async function createPropertyRequest(
   );
   if (!request) throw new ApiError(500, "خطا در دریافت اطلاعات درخواست ثبت شده.");
 
-  return { quota: normalizeQuota(record?.quota ?? payload?.quota), request, status: readBoolean(record?.status, true) };
+  return {
+    quota: normalizeQuota(record?.quota ?? payload?.quota),
+    request,
+    status: readBoolean(record?.status, true),
+  };
 }
 
 export async function getPropertyRequests(page = 1, perPage = 20): Promise<PropertyRequestPage> {
@@ -97,15 +100,23 @@ export async function getPropertyRequests(page = 1, perPage = 20): Promise<Prope
   const total = readNumber(record?.total ?? payload?.total, data.length);
   const registeredCount = readNumber(record?.registered_count ?? payload?.registered_count, total);
   const requestLimit = readNumber(record?.request_limit ?? payload?.request_limit, 0);
-  const remaining = readNumber(record?.remaining ?? payload?.remaining, Math.max(0, requestLimit - registeredCount));
+  const remaining = readNumber(
+    record?.remaining ?? payload?.remaining,
+    Math.max(0, requestLimit - registeredCount),
+  );
 
   return {
     data,
     hasMore: readBoolean(record?.has_more ?? payload?.has_more, page * perPage < total),
-    ownerType: readText(record?.owner_type ?? payload?.owner_type) === "agency" ? "agency" : scope.ownerType,
+    ownerType:
+      readText(record?.owner_type ?? payload?.owner_type) === "agency" ? "agency" : scope.ownerType,
     page: readNumber(record?.page ?? payload?.page, page),
     perPage: readNumber(record?.per_page ?? payload?.per_page, perPage),
-    quota: normalizeQuota(record?.quota ?? payload?.quota, { limit: requestLimit, remaining, used: registeredCount }),
+    quota: normalizeQuota(record?.quota ?? payload?.quota, {
+      limit: requestLimit,
+      remaining,
+      used: registeredCount,
+    }),
     registeredCount,
     remaining,
     requestLimit,
@@ -149,7 +160,9 @@ export async function getPropertyRequestMatches(
 ): Promise<PropertyRequestMatchesPage> {
   const scope = resolvePropertyRequestScope();
   const response = await getClient(scope)
-    .get(`${scope.basePath}/matches`, { searchParams: { page, per_page: perPage, request_id: requestId } })
+    .get(`${scope.basePath}/matches`, {
+      searchParams: { page, per_page: perPage, request_id: requestId },
+    })
     .json<unknown>();
 
   const record = asRecord(response);
@@ -164,7 +177,10 @@ export async function getPropertyRequestMatches(
 
   return {
     data,
-    hasMore: lastPage > 0 ? currentPage < lastPage : readBoolean(record?.has_more, currentPage * resolvedPerPage < total),
+    hasMore:
+      lastPage > 0
+        ? currentPage < lastPage
+        : readBoolean(record?.has_more, currentPage * resolvedPerPage < total),
     page: currentPage,
     perPage: resolvedPerPage,
     total,

@@ -9,13 +9,39 @@ import type {
 type ApiRecord = Record<string, unknown>;
 
 export const ignoredRequestFilterFields = new Set([
-  "ad_id", "agencies_id", "focus", "q", "qsearch", "query", "search",
-  "my_agency_id", "page", "per_page", "returnTo", "role", "user_id", "view",
+  "ad_id",
+  "agencies_id",
+  "focus",
+  "q",
+  "qsearch",
+  "query",
+  "search",
+  "my_agency_id",
+  "page",
+  "per_page",
+  "returnTo",
+  "role",
+  "user_id",
+  "view",
 ]);
 
 const booleanFields = new Set(["has_image", "has_loan", "has_video", "is_special"]);
-const numericFields = new Set(["area_max", "area_min", "building_age", "loan_amount", "loan_installment", "price_max", "price_min"]);
-const multiFields = new Set(["exchange_with", "floor", "neighborhood_id", "neighborhoods", "rooms"]);
+const numericFields = new Set([
+  "area_max",
+  "area_min",
+  "building_age",
+  "loan_amount",
+  "loan_installment",
+  "price_max",
+  "price_min",
+]);
+const multiFields = new Set([
+  "exchange_with",
+  "floor",
+  "neighborhood_id",
+  "neighborhoods",
+  "rooms",
+]);
 
 export function asRecord(val: unknown): ApiRecord | undefined {
   return val && typeof val === "object" && !Array.isArray(val) ? (val as ApiRecord) : undefined;
@@ -58,7 +84,10 @@ function readIdArray(val: unknown): Array<number | string> {
 
 function serializeFilterValue(val: unknown): string {
   if (Array.isArray(val)) {
-    return val.map((item) => readText(item)).filter(Boolean).join("_");
+    return val
+      .map((item) => readText(item))
+      .filter(Boolean)
+      .join("_");
   }
   if (typeof val === "boolean") return String(val);
   return readText(val);
@@ -90,7 +119,10 @@ function parseFilterValue(field: string, raw: string) {
   const trimmed = raw.trim();
   if (booleanFields.has(field)) return trimmed === "true" || trimmed === "1";
   if (multiFields.has(field)) {
-    const list = trimmed.split(/[_،,]/).map((i) => i.trim()).filter(Boolean);
+    const list = trimmed
+      .split(/[_،,]/)
+      .map((i) => i.trim())
+      .filter(Boolean);
     return list.length > 0 ? list : trimmed;
   }
   if (numericFields.has(field) && /^-?\d+(?:\.\d+)?$/.test(trimmed)) {
@@ -100,11 +132,16 @@ function parseFilterValue(field: string, raw: string) {
   return trimmed;
 }
 
-export function buildPropertyRequestFilters(filters: Record<string, string>): PropertyRequestApiFilter[] {
+export function buildPropertyRequestFilters(
+  filters: Record<string, string>,
+): PropertyRequestApiFilter[] {
   const norm = { ...filters };
   if (norm.form_code) delete norm.from_code;
   if (norm.neighborhood_id) delete norm.neighborhoods;
-  delete norm.query; delete norm.q; delete norm.qsearch; delete norm.search;
+  delete norm.query;
+  delete norm.q;
+  delete norm.qsearch;
+  delete norm.search;
 
   return Object.entries(norm).flatMap(([field, raw]) => {
     if (ignoredRequestFilterFields.has(field)) return [];
@@ -113,7 +150,10 @@ export function buildPropertyRequestFilters(filters: Record<string, string>): Pr
   });
 }
 
-export function normalizeQuota(val: unknown, fallback: Partial<PropertyRequestQuota> = {}): PropertyRequestQuota {
+export function normalizeQuota(
+  val: unknown,
+  fallback: Partial<PropertyRequestQuota> = {},
+): PropertyRequestQuota {
   const rec = asRecord(val);
   const limit = readNumber(rec?.limit, fallback.limit ?? 0);
   const used = readNumber(rec?.used, fallback.used ?? 0);
@@ -131,23 +171,34 @@ export function normalizePropertyRequest(
 
   const isAgency = record.my_agency_id !== undefined && record.my_agency_id !== null;
   const ownerType = isAgency ? "agency" : defaultOwner;
-  const senderLabel = readText(record.senderLabel) || (ownerType === "agency" ? "آژانس املاک" : "آگهی شخصی");
-  const senderRole = readText(record.senderRole) || (ownerType === "agency" ? "real_estate_manager" : "user");
+  const senderLabel =
+    readText(record.senderLabel) || (ownerType === "agency" ? "آژانس املاک" : "آگهی شخصی");
+  const senderRole =
+    readText(record.senderRole) || (ownerType === "agency" ? "real_estate_manager" : "user");
   const id = readText(record.id) || `property-request-${index}`;
 
   return {
-    adId: (record.ad_id as number | string | null | undefined) ?? (record.adId as number | string | null | undefined),
+    adId:
+      (record.ad_id as number | string | null | undefined) ??
+      (record.adId as number | string | null | undefined),
     agenciesId: readIdArray(record.agencies_id ?? record.agenciesId),
     createdAt: readText(record.createdAt ?? record.created_at),
     filters: normalizeFilters(record.filters),
     id,
-    isNew: readBoolean(record.is_new ?? record.isNew ?? record.unread ?? record.is_unread, readText(record.status).toLowerCase() === "new"),
-    myAgencyId: (record.my_agency_id as number | string | null | undefined) ?? (record.myAgencyId as number | string | null | undefined),
+    isNew: readBoolean(
+      record.is_new ?? record.isNew ?? record.unread ?? record.is_unread,
+      readText(record.status).toLowerCase() === "new",
+    ),
+    myAgencyId:
+      (record.my_agency_id as number | string | null | undefined) ??
+      (record.myAgencyId as number | string | null | undefined),
     senderLabel,
     senderRole,
     title: readText(record.name ?? record.title) || "درخواست ملک مشابه",
     updatedAt: readText(record.updatedAt ?? record.updated_at),
-    userId: (record.user_id as number | string | null | undefined) ?? (record.userId as number | string | null | undefined),
+    userId:
+      (record.user_id as number | string | null | undefined) ??
+      (record.userId as number | string | null | undefined),
   };
 }
 
@@ -157,13 +208,36 @@ export function extractAdvertisementItems(val: unknown, depth = 0): Advertisemen
   const record = asRecord(val);
   if (!record) return [];
 
-  for (const k of ["advertises", "advertisements", "ads", "matches", "items", "list", "results", "data", "result", "advertise", "advertisement", "ad"]) {
+  for (const k of [
+    "advertises",
+    "advertisements",
+    "ads",
+    "matches",
+    "items",
+    "list",
+    "results",
+    "data",
+    "result",
+    "advertise",
+    "advertisement",
+    "ad",
+  ]) {
     const list = extractAdvertisementItems(record[k], depth + 1);
     if (list.length > 0) return list;
   }
 
-  const hasId = typeof record.id === "string" || typeof record.id === "number" || typeof record._id === "string";
-  const hasData = [record.title, record.label, record.image, record.images, record.price, record.features].some((v) => v !== undefined && v !== null);
+  const hasId =
+    typeof record.id === "string" ||
+    typeof record.id === "number" ||
+    typeof record._id === "string";
+  const hasData = [
+    record.title,
+    record.label,
+    record.image,
+    record.images,
+    record.price,
+    record.features,
+  ].some((v) => v !== undefined && v !== null);
   return hasId && hasData ? [record as AdvertisementItem] : [];
 }
 

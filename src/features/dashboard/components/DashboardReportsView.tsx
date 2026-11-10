@@ -10,14 +10,12 @@ import {
   useDashboardReportsConversionFunnelQuery,
   useDashboardReportsRankingScoreQuery,
 } from "../api/dashboard.hooks";
-import {
-  DashboardPublishedAdsPieCard,
-  DashboardViewsBarChartCard,
-  DashboardConsultantsBarChartCard,
-  DashboardRegistrationProgressLineCard,
-  DashboardConversionFunnelCard,
-  DashboardRankScoreCard,
-} from "./reports";
+import { DashboardPublishedAdsPieCard } from "./reports/DashboardPublishedAdsPieCard";
+import { DashboardViewsBarChartCard } from "./reports/DashboardViewsBarChartCard";
+import { DashboardConsultantsBarChartCard } from "./reports/DashboardConsultantsBarChartCard";
+import { DashboardRegistrationProgressLineCard } from "./reports/DashboardRegistrationProgressLineCard";
+import { DashboardConversionFunnelCard } from "./reports/DashboardConversionFunnelCard";
+import { DashboardRankScoreCard } from "./reports/DashboardRankScoreCard";
 
 export interface DashboardReportsViewProps {
   role?: DashboardRole;
@@ -100,17 +98,16 @@ export function DashboardReportsView({
   }));
 
   return (
-    <div className="min-h-full bg-surface-container-low pb-6 [direction:rtl]">
+    <div className="bg-surface-container-low min-h-full pb-6 [direction:rtl]">
       {/* TopBar - Registered to App TopBar without notifications */}
       <TopBar
         actions={[]}
-        backTo="/account/dashboard"
         onBack={onBack}
         title="گزارش‌ها و نمودارها"
       />
 
       {/* Main Charts & Analytics - 16px (gap-4) between each card */}
-      <main className="w-full flex flex-col gap-4">
+      <main className="flex w-full flex-col gap-4">
         {/* 1. Published Ads Pie Chart */}
         <DashboardPublishedAdsPieCard
           role={role}
@@ -151,10 +148,7 @@ export function DashboardReportsView({
         />
 
         {/* 5. Conversion Funnel */}
-        <DashboardConversionFunnelCard
-          stages={funnelStages}
-          isLoading={funnelQuery.isLoading}
-        />
+        <DashboardConversionFunnelCard stages={funnelStages} isLoading={funnelQuery.isLoading} />
 
         {/* 6. Rank & Score */}
         <DashboardRankScoreCard
@@ -168,8 +162,13 @@ export function DashboardReportsView({
           score={rankingScoreQuery.data?.score ?? dashboard?.ranking?.current?.totalScore}
           badgeName={rankingScoreQuery.data?.levelTitle ?? dashboard?.ranking?.current?.levelTitle}
           badgesTo={
-            rankingScoreQuery.data?.guideUrl ||
-            (isManager ? "/account/dashboard/ranking" : "/account/ranking")
+            rankingScoreQuery.data?.guideUrl
+              ? rankingScoreQuery.data.guideUrl.includes("from=")
+                ? rankingScoreQuery.data.guideUrl
+                : `${rankingScoreQuery.data.guideUrl}?from=dashboard`
+              : isManager
+                ? "/account/dashboard/ranking?from=dashboard"
+                : "/account/ranking?from=dashboard"
           }
           deltaRank={rankingScoreQuery.data?.rankChangeLastMonth}
           pointsNeeded={rankingScoreQuery.data?.pointsNeeded}

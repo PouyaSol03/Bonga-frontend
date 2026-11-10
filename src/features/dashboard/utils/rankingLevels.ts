@@ -98,7 +98,7 @@ function normalizeText(text?: string | null): string {
   return text.trim().toLowerCase().replace(/[-_]/g, " ");
 }
 
-export const LEVEL_SLUG_TO_PERSIAN: Record<string, string> = {
+const LEVEL_SLUG_TO_PERSIAN: Record<string, string> = {
   // Agency
   newbie: "آژانس تازه‌کار",
   new_agency: "آژانس تازه‌کار",
@@ -157,8 +157,14 @@ export function getAgencyRankingLevel(params?: {
       const lvlTitle = normalizeText(lvl.title);
       const lvlSlug = normalizeText(lvl.slug);
       return (
-        (title && (lvlTitle.includes(title) || title.includes(lvlTitle) || (title.includes("new") && lvlSlug === "newbie"))) ||
-        (slug && (lvlSlug === slug || slug.includes(lvlSlug) || (slug.includes("new") && lvlSlug === "newbie")))
+        (title &&
+          (lvlTitle.includes(title) ||
+            title.includes(lvlTitle) ||
+            (title.includes("new") && lvlSlug === "newbie"))) ||
+        (slug &&
+          (lvlSlug === slug ||
+            slug.includes(lvlSlug) ||
+            (slug.includes("new") && lvlSlug === "newbie")))
       );
     });
     if (found) return found;
@@ -166,9 +172,7 @@ export function getAgencyRankingLevel(params?: {
 
   const score = params?.score;
   if (typeof score === "number" && Number.isFinite(score)) {
-    const foundByScore = levels.find(
-      (lvl) => score >= lvl.minPoints && score <= lvl.maxPoints
-    );
+    const foundByScore = levels.find((lvl) => score >= lvl.minPoints && score <= lvl.maxPoints);
     if (foundByScore) return foundByScore;
     if (score > 100) return levels[levels.length - 1];
   }
@@ -199,9 +203,7 @@ export function getConsultantRankingLevel(params?: {
 
   const score = params?.score;
   if (typeof score === "number" && Number.isFinite(score)) {
-    const foundByScore = levels.find(
-      (lvl) => score >= lvl.minPoints && score <= lvl.maxPoints
-    );
+    const foundByScore = levels.find((lvl) => score >= lvl.minPoints && score <= lvl.maxPoints);
     if (foundByScore) return foundByScore;
     if (score > 100) return levels[levels.length - 1];
   }

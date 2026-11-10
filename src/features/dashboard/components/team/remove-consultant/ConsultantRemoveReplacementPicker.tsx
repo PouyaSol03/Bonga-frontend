@@ -63,7 +63,7 @@ export function ReplacementPicker({
     <section
       aria-label="انتخاب مشاور جایگزین"
       aria-modal="true"
-      className="fixed inset-y-0 left-1/2 z-[1100] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden bg-surface-container text-on-surface"
+      className="bg-surface-container text-on-surface fixed inset-y-0 left-1/2 z-[1100] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden"
       dir="rtl"
       role="dialog"
     >
@@ -77,7 +77,7 @@ export function ReplacementPicker({
       />
 
       <main className="min-h-0 flex-1 overflow-y-auto pb-24">
-        <div className="bg-surface-container-lowest px-4 pb-5 pt-3">
+        <div className="bg-surface-container-lowest px-4 pt-3 pb-5">
           <SearchInputBar
             compact
             debounceMs={300}
@@ -90,7 +90,13 @@ export function ReplacementPicker({
         </div>
 
         <section className="bg-surface-container-lowest px-4 py-4">
-          <Typography as="h2" variant="title" size="small" weight="semibold" className="m-0 text-xs font-semibold leading-5 text-on-surface">
+          <Typography
+            as="h2"
+            variant="title"
+            size="small"
+            weight="semibold"
+            className="text-on-surface m-0 text-xs leading-5 font-semibold"
+          >
             نتیجه جستجو
           </Typography>
 
@@ -111,14 +117,20 @@ export function ReplacementPicker({
           ) : normalizedSearch ? (
             <SearchEmptyState compact />
           ) : (
-            <Typography as="p" variant="body" size="medium" weight="medium" className="mx-auto m-0 w-full px-2 py-8 text-center text-sm font-medium leading-6 text-outline">
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="medium"
+              className="text-outline m-0 mx-auto w-full px-2 py-8 text-center text-sm leading-6 font-medium"
+            >
               مشاور دیگری برای جایگزینی وجود ندارد.
             </Typography>
           )}
         </section>
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 bg-surface-container-lowest px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
+      <div className="bg-surface-container-lowest absolute inset-x-0 bottom-0 px-4 pt-3 pb-[max(8px,env(safe-area-inset-bottom))] shadow-sm">
         <Button
           fullWidth
           disabled={!draftTarget}

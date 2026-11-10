@@ -8,9 +8,7 @@ import {
 export function useNotificationInViewReader({
   setRealtimeNotifications,
 }: {
-  setRealtimeNotifications?: React.Dispatch<
-    React.SetStateAction<NotificationItem[]>
-  >;
+  setRealtimeNotifications?: React.Dispatch<React.SetStateAction<NotificationItem[]>>;
 } = {}) {
   const readIdsRef = useRef<Set<string>>(new Set());
   const pendingIdsRef = useRef<Set<string>>(new Set());
@@ -39,9 +37,7 @@ export function useNotificationInViewReader({
     const idSet = new Set(idsToSend);
 
     setRealtimeNotificationsRef.current?.((current) =>
-      current.map((item) =>
-        idSet.has(String(item.id)) ? { ...item, is_read: true } : item,
-      ),
+      current.map((item) => (idSet.has(String(item.id)) ? { ...item, is_read: true } : item)),
     );
 
     markNotificationsReadInCache(idsToSend);

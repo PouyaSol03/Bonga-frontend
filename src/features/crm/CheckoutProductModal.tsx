@@ -26,7 +26,13 @@ export function numberValue(value: string, label: string) {
 export function Field({ children, label }: { children: ReactNode; label: string }) {
   return (
     <label>
-      <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="semibold"
+        className="mb-2 block text-sm font-bold text-[#4f5a6c]"
+      >
         {label}
       </Typography>
       {children}
@@ -78,34 +84,114 @@ export function CheckoutProductModal({
             price: numberValue(draft.price, "قیمت"),
             credit_cost: numberValue(draft.creditCost, "اعتبار"),
             duration_days: draft.durationDays ? numberValue(draft.durationDays, "مدت روز") : null,
-            duration_months: draft.durationMonths ? numberValue(draft.durationMonths, "مدت ماه") : null,
+            duration_months: draft.durationMonths
+              ? numberValue(draft.durationMonths, "مدت ماه")
+              : null,
             is_active: Boolean(item.is_active),
             sort_order: numberValue(draft.sortOrder || "0", "ترتیب"),
-            metadata: item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata) ? item.metadata as Record<string, unknown> : {},
+            metadata:
+              item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata)
+                ? (item.metadata as Record<string, unknown>)
+                : {},
           });
         }}
       >
         <div className="flex items-center justify-between">
-          <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-lg font-bold">
+          <Typography
+            as="h2"
+            variant="title"
+            size="medium"
+            weight="semibold"
+            className="m-0 text-lg font-bold"
+          >
             ویرایش {draft.title}
           </Typography>
-          <Button unstyled className="text-2xl text-[#596477]" onClick={onClose} type="button">×</Button>
+          <Button unstyled className="text-2xl text-[#596477]" onClick={onClose} type="button">
+            ×
+          </Button>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-4">
-          <Field label="عنوان"><input className={inputClass} onChange={(e) => set("title", e.target.value)} value={draft.title} /></Field>
-          <Field label="قیمت (تومان)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("price", e.target.value)} value={draft.price} /></Field>
-          <Field label="هزینه اعتباری"><input className={inputClass} inputMode="numeric" onChange={(e) => set("creditCost", e.target.value)} value={draft.creditCost} /></Field>
-          <Field label="ترتیب نمایش"><input className={inputClass} inputMode="numeric" onChange={(e) => set("sortOrder", e.target.value)} value={draft.sortOrder} /></Field>
-          <Field label="مدت (روز)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("durationDays", e.target.value)} value={draft.durationDays} /></Field>
-          <Field label="مدت (ماه)"><input className={inputClass} inputMode="numeric" onChange={(e) => set("durationMonths", e.target.value)} value={draft.durationMonths} /></Field>
+          <Field label="عنوان">
+            <input
+              className={inputClass}
+              onChange={(e) => set("title", e.target.value)}
+              value={draft.title}
+            />
+          </Field>
+          <Field label="قیمت (تومان)">
+            <input
+              className={inputClass}
+              inputMode="numeric"
+              onChange={(e) => set("price", e.target.value)}
+              value={draft.price}
+            />
+          </Field>
+          <Field label="هزینه اعتباری">
+            <input
+              className={inputClass}
+              inputMode="numeric"
+              onChange={(e) => set("creditCost", e.target.value)}
+              value={draft.creditCost}
+            />
+          </Field>
+          <Field label="ترتیب نمایش">
+            <input
+              className={inputClass}
+              inputMode="numeric"
+              onChange={(e) => set("sortOrder", e.target.value)}
+              value={draft.sortOrder}
+            />
+          </Field>
+          <Field label="مدت (روز)">
+            <input
+              className={inputClass}
+              inputMode="numeric"
+              onChange={(e) => set("durationDays", e.target.value)}
+              value={draft.durationDays}
+            />
+          </Field>
+          <Field label="مدت (ماه)">
+            <input
+              className={inputClass}
+              inputMode="numeric"
+              onChange={(e) => set("durationMonths", e.target.value)}
+              value={draft.durationMonths}
+            />
+          </Field>
           <label className="col-span-2">
-            <Typography as="span" variant="label" size="medium" weight="semibold" className="mb-2 block text-sm font-bold text-[#4f5a6c]">توضیحات</Typography>
-            <textarea className={`${inputClass} min-h-24 py-3`} onChange={(e) => set("description", e.target.value)} value={draft.description} />
+            <Typography
+              as="span"
+              variant="label"
+              size="medium"
+              weight="semibold"
+              className="mb-2 block text-sm font-bold text-[#4f5a6c]"
+            >
+              توضیحات
+            </Typography>
+            <textarea
+              className={`${inputClass} min-h-24 py-3`}
+              onChange={(e) => set("description", e.target.value)}
+              value={draft.description}
+            />
           </label>
         </div>
         <div className="mt-6 flex justify-end gap-3">
-          <Button unstyled className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold" onClick={onClose} type="button">انصراف</Button>
-          <Button unstyled className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60" disabled={isPending} type="submit">{isPending ? "در حال ذخیره..." : "ذخیره"}</Button>
+          <Button
+            unstyled
+            className="h-10 rounded-xl border border-[#d7dce5] px-5 text-sm font-bold"
+            onClick={onClose}
+            type="button"
+          >
+            انصراف
+          </Button>
+          <Button
+            unstyled
+            className="h-10 rounded-xl bg-[#0048c4] px-6 text-sm font-bold text-white disabled:opacity-60"
+            disabled={isPending}
+            type="submit"
+          >
+            {isPending ? "در حال ذخیره..." : "ذخیره"}
+          </Button>
         </div>
       </form>
     </motion.div>

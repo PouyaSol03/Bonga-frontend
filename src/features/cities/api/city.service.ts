@@ -32,9 +32,7 @@ export async function searchCities(q = "") {
 }
 
 export async function getMostVisitedCityList() {
-  const response = await publicApi
-    .get("public/city/mostVisitedList")
-    .json<CityListResponse>();
+  const response = await publicApi.get("public/city/mostVisitedList").json<CityListResponse>();
 
   return response.data.map(normalizeCityLogo);
 }

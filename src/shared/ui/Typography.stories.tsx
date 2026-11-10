@@ -6,7 +6,7 @@ const meta: Meta<typeof Typography> = {
   component: Typography,
   tags: ["autodocs"],
   args: {
-    children: "بنگاه: سامانه جامع خرید، فروش و رهن و اجاره املاک",
+    children: "نشونو: سامانه جامع خرید، فروش و رهن و اجاره املاک",
   },
 };
 

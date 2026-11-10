@@ -1,5 +1,6 @@
 import { api, ApiError, getApiErrorMessage, publicApi } from "../../../shared/api/api";
 import { queryClient } from "../../../shared/api/query-client";
+import { toEnglishDigits } from "../../../shared/lib/numberUtils";
 import {
   clearPendingOtpState,
   clearStoredAuthSession,
@@ -23,12 +24,12 @@ type StatusResponse = {
   status: boolean;
 };
 
-export type RequestOtpResponse = StatusResponse & {
+type RequestOtpResponse = StatusResponse & {
   has_city: boolean;
   smsRes: StatusResponse;
 };
 
-export type VerifyOtpResponse = StatusResponse & {
+type VerifyOtpResponse = StatusResponse & {
   access_token?: string;
   account_type: string;
   expires_in: number;
@@ -42,7 +43,6 @@ export type VerifyOtpResponse = StatusResponse & {
   userId?: string;
   user_id?: string;
 };
-
 
 function normalizeAuthRoles(response: VerifyOtpResponse): AuthRole[] {
   const rawRoles = Array.isArray(response.roles)
@@ -125,9 +125,7 @@ export async function verifyOtp({ mobile, code }: VerifyOtpPayload) {
     accessToken,
     accountType: response.account_type ?? role,
     activeRole: role,
-    expiresAt: response.expires_in
-      ? Date.now() + response.expires_in * 1000
-      : null,
+    expiresAt: response.expires_in ? Date.now() + response.expires_in * 1000 : null,
     mobile,
     role,
     roles,
@@ -162,9 +160,7 @@ export async function logout() {
 }
 
 export function normalizeDigits(value: string) {
-  return value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
+  return toEnglishDigits(value);
 }
 
 export function normalizeMobile(value: string) {

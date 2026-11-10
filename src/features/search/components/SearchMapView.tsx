@@ -1,7 +1,15 @@
 import "leaflet/dist/leaflet.css";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { DivIcon } from "leaflet";
-import { Circle, MapContainer, Marker, Polygon, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import {
+  Circle,
+  MapContainer,
+  Marker,
+  Polygon,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import type { BrowserLocation } from "../../../shared/lib/browserLocation";
 import type { NeighborhoodGeoPoint } from "../../locations/api/neighborhood.service";
 import { SearchMapMarker } from "./SearchMapMarker";
@@ -23,10 +31,7 @@ import type {
   SearchMapTileConfig,
 } from "../searchMapData";
 
-type InvalidGeofenceResult = Exclude<
-  GeofenceValidationResult,
-  { isValid: true }
->;
+type InvalidGeofenceResult = Exclude<GeofenceValidationResult, { isValid: true }>;
 
 type SearchMapViewProps = {
   center: SearchMapCenter;
@@ -216,7 +221,7 @@ function SearchMapViewComponent({
 
   return (
     <MapContainer
-      className="relative z-0 h-full min-h-[320px] w-full bg-surface-container-low!"
+      className="bg-surface-container-low! relative z-0 h-full min-h-[320px] w-full"
       center={[center.latitude, center.longitude]}
       zoom={center.zoom}
       minZoom={tileConfig.minZoom}
@@ -279,10 +284,7 @@ function SearchMapViewComponent({
       />
 
       {dotMarkers.map((marker) => (
-        <SearchMapMarker
-          key={marker.id}
-          marker={marker}
-        />
+        <SearchMapMarker key={marker.id} marker={marker} />
       ))}
 
       <SearchMapClusterLayer

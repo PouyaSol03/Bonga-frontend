@@ -12,15 +12,12 @@ export function useNotificationPreferencesController() {
   const [optimisticPreferences, setOptimisticPreferences] = useState<
     Partial<Record<NotificationCategory, boolean>>
   >({});
-  const [pendingCategories, setPendingCategories] = useState<
-    Set<NotificationCategory>
-  >(() => new Set());
+  const [pendingCategories, setPendingCategories] = useState<Set<NotificationCategory>>(
+    () => new Set(),
+  );
 
   const preferenceMap = new Map<NotificationCategory, boolean>(
-    (preferencesQuery.data ?? []).map((preference) => [
-      preference.category,
-      preference.enabled,
-    ]),
+    (preferencesQuery.data ?? []).map((preference) => [preference.category, preference.enabled]),
   );
 
   allPreferenceCategories.forEach((category) => {
@@ -55,10 +52,7 @@ export function useNotificationPreferencesController() {
     (category) => preferenceMap.get(category) ?? true,
   );
 
-  const updateCategory = async (
-    category: NotificationCategory,
-    enabled: boolean,
-  ) => {
+  const updateCategory = async (category: NotificationCategory, enabled: boolean) => {
     const previousOptimisticValue = optimisticPreferences[category];
     setOptimisticPreferences((current) => ({ ...current, [category]: enabled }));
     setPendingCategories((current) => new Set(current).add(category));
@@ -96,9 +90,7 @@ export function useNotificationPreferencesController() {
       });
       return next;
     });
-    setPendingCategories(
-      (current) => new Set([...current, ...allPreferenceCategories]),
-    );
+    setPendingCategories((current) => new Set([...current, ...allPreferenceCategories]));
 
     try {
       for (const category of allPreferenceCategories) {

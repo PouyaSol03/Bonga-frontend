@@ -21,10 +21,7 @@ export function normalizePublicAgentListItem(
   const id = firstText(item.id, item._id);
   const name = toText(item.name);
   const family = toText(item.family);
-  const fullName = firstText(
-    item.full_name,
-    [name, family].filter(Boolean).join(" "),
-  );
+  const fullName = firstText(item.full_name, [name, family].filter(Boolean).join(" "));
 
   if (!id || !fullName) return null;
 
@@ -70,10 +67,10 @@ export function normalizePublicAgentDetail(
   const level = asRecord(ranking.level);
   const agencyRecord = asRecord(item.agency ?? item.agency_summary);
   const id = firstText(item.id, item._id);
-  const composedName = [
-    firstText(profile.name, user.name),
-    firstText(profile.family, user.family),
-  ].filter(Boolean).join(" ").trim();
+  const composedName = [firstText(profile.name, user.name), firstText(profile.family, user.family)]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
   const directName = [firstText(item.name), firstText(item.family)]
     .filter(Boolean)
     .join(" ")
@@ -105,42 +102,46 @@ export function normalizePublicAgentDetail(
         item.active_ads_count,
       ),
     ),
-    about_us: firstText(
-      item.about_us,
-      item.about,
-      item.bio,
-      item.description,
-      profile.about_us,
-      profile.bio,
-    ) || undefined,
+    about_us:
+      firstText(
+        item.about_us,
+        item.about,
+        item.bio,
+        item.description,
+        profile.about_us,
+        profile.bio,
+      ) || undefined,
     agencyId: agencyId || undefined,
     agency,
     avatar: toAssetUrl(item.avatar ?? item.img ?? profile.avatar ?? user.avatar),
     id,
     instagram: readSocialValue(item, "instagram") || undefined,
-    level_slug: firstText(
-      item.level_slug,
-      item.level,
-      ranking.level_slug,
-      currentRanking.level_slug,
-      level.slug,
-    ) || undefined,
-    level_title: firstText(
-      item.level_title,
-      ranking.level_title,
-      currentRanking.level_title,
-      level.title,
-      level.name,
-    ) || undefined,
-    mobile: firstText(
-      item.mobile,
-      item.phonenumber,
-      item.phone,
-      profile.mobile,
-      profile.phone,
-      user.mobile,
-      user.phone,
-    ) || undefined,
+    level_slug:
+      firstText(
+        item.level_slug,
+        item.level,
+        ranking.level_slug,
+        currentRanking.level_slug,
+        level.slug,
+      ) || undefined,
+    level_title:
+      firstText(
+        item.level_title,
+        ranking.level_title,
+        currentRanking.level_title,
+        level.title,
+        level.name,
+      ) || undefined,
+    mobile:
+      firstText(
+        item.mobile,
+        item.phonenumber,
+        item.phone,
+        profile.mobile,
+        profile.phone,
+        user.mobile,
+        user.phone,
+      ) || undefined,
     name,
     neighborhood_ids: toStringArray(
       item.neighborhood_ids ??
@@ -152,11 +153,7 @@ export function normalizePublicAgentDetail(
       0,
       firstNumber(0, item.rank, item.ranking_rank, ranking.rank, currentRanking.rank),
     ),
-    recent_advertises: readAdvertises(
-      item.recent_advertises,
-      item.recent_ads,
-      item.advertises,
-    ),
+    recent_advertises: readAdvertises(item.recent_advertises, item.recent_ads, item.advertises),
     role: firstText(item.role) || undefined,
     score: Math.max(
       0,
@@ -174,6 +171,8 @@ export function normalizePublicAgentDetail(
     telegram: readSocialValue(item, "telegram") || undefined,
     userId: firstText(item.user_id, item.userId, user.id, user._id) || undefined,
     whatsapp: readSocialValue(item, "whatsapp") || undefined,
-    badges: Array.isArray(item.badges) ? (item.badges as PublicAgentDetailDto["badges"]) : undefined,
+    badges: Array.isArray(item.badges)
+      ? (item.badges as PublicAgentDetailDto["badges"])
+      : undefined,
   };
 }

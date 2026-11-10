@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AgencyDashboardReportsView } from "./AgencyDashboardReportsView";
 import { AgencyPublishedAdsPieCard } from "./reports/AgencyPublishedAdsPieCard";
 import { AgencyViewsBarChartCard } from "./reports/AgencyViewsBarChartCard";
@@ -12,7 +12,7 @@ const meta: Meta<typeof AgencyDashboardReportsView> = {
   component: AgencyDashboardReportsView,
   decorators: [
     (Story) => (
-      <div className="max-w-[400px] mx-auto min-h-screen bg-[#F0F0F0]">
+      <div className="mx-auto min-h-screen max-w-[400px] bg-[#F0F0F0]">
         <Story />
       </div>
     ),

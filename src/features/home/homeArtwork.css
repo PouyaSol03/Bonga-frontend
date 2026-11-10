@@ -221,10 +221,14 @@
   background:
     radial-gradient(circle at 20px 20px, var(--color-outline-var) 0 5px, transparent 6px),
     radial-gradient(circle at 34px 20px, var(--color-outline-var) 0 5px, transparent 6px),
-    linear-gradient(var(--color-outline-var), var(--color-outline-var)) 20px 42px / 38px 7px no-repeat,
-    linear-gradient(var(--color-outline-var), var(--color-outline-var)) 20px 59px / 31px 7px no-repeat,
-    linear-gradient(var(--color-outline-var), var(--color-outline-var)) 43px 13px / 38px 7px no-repeat,
-    linear-gradient(var(--color-outline-var), var(--color-outline-var)) 43px 29px / 27px 7px no-repeat,
+    linear-gradient(var(--color-outline-var), var(--color-outline-var)) 20px 42px / 38px 7px
+      no-repeat,
+    linear-gradient(var(--color-outline-var), var(--color-outline-var)) 20px 59px / 31px 7px
+      no-repeat,
+    linear-gradient(var(--color-outline-var), var(--color-outline-var)) 43px 13px / 38px 7px
+      no-repeat,
+    linear-gradient(var(--color-outline-var), var(--color-outline-var)) 43px 29px / 27px 7px
+      no-repeat,
     var(--color-surface-container-high);
 }
 
@@ -316,7 +320,9 @@
   width: 6px;
   height: 2px;
   background: currentColor;
-  box-shadow: 0 6px 0 currentColor, 0 12px 0 currentColor;
+  box-shadow:
+    0 6px 0 currentColor,
+    0 12px 0 currentColor;
 }
 
 .home-quick-actions button:nth-child(2) .home-quick-actions__icon::before {
@@ -364,7 +370,11 @@
   height: 8px;
   border: 2px solid currentColor;
   border-radius: 999px;
-  box-shadow: 16px 0 0 -2px var(--color-surface-container-lowest), 16px 0 0 0 currentColor, 8px 12px 0 -2px var(--color-surface-container-lowest), 8px 12px 0 0 currentColor;
+  box-shadow:
+    16px 0 0 -2px var(--color-surface-container-lowest),
+    16px 0 0 0 currentColor,
+    8px 12px 0 -2px var(--color-surface-container-lowest),
+    8px 12px 0 0 currentColor;
 }
 
 .home-business-banner::after {
@@ -376,7 +386,9 @@
   height: 8px;
   border-radius: 999px;
   background: var(--color-primary);
-  box-shadow: 28px 0 0 -1px var(--color-primary-container), 48px 0 0 -1px var(--color-primary-container);
+  box-shadow:
+    28px 0 0 -1px var(--color-primary-container),
+    48px 0 0 -1px var(--color-primary-container);
   transform: translateX(-50%);
 }
 
@@ -461,7 +473,9 @@
   top: 9px;
   height: 3px;
   background: var(--color-tertiary);
-  box-shadow: 0 8px 0 var(--color-tertiary), 0 16px 0 var(--color-primary-container);
+  box-shadow:
+    0 8px 0 var(--color-tertiary),
+    0 16px 0 var(--color-primary-container);
 }
 
 .home-business-banner__money {
@@ -484,7 +498,6 @@
   border-radius: 999px;
   background: var(--color-on-tertiary);
 }
-
 
 /* Skip off-screen Home section rendering until the browser needs it. */
 .home-content-visibility {

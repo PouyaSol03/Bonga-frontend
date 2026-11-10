@@ -1,6 +1,6 @@
 import { publicApi } from "../../../shared/api/api";
 
-export type HomeStats = {
+type HomeStats = {
   activeAdvertises: number;
   approvedAgencies: number;
   approvedAgents: number;
@@ -26,9 +26,7 @@ function toCount(value: unknown) {
 }
 
 export async function getHomeStats(): Promise<HomeStats> {
-  const response = await publicApi
-    .get("public/home/stats")
-    .json<HomeStatsResponse>();
+  const response = await publicApi.get("public/home/stats").json<HomeStatsResponse>();
   const data = response.data ?? {};
 
   return {

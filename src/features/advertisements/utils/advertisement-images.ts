@@ -1,6 +1,5 @@
 import { getApiAssetUrl } from "../../../shared/api/api";
-
-type UnknownRecord = Record<string, unknown>;
+import { isRecord } from "../../../shared/lib/textUtils";
 
 type ImageCandidate = {
   isMain: boolean;
@@ -29,10 +28,6 @@ const nestedImageKeys = [
   "cover",
   "thumbnail",
 ] as const;
-
-function isRecord(value: unknown): value is UnknownRecord {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
 
 function normalizeImageString(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -93,7 +88,9 @@ export function getAdvertisementImageUrls(source: unknown): string[] {
         isMain: isMainImage(image),
         source: readNestedImageSource(image),
       }))
-      .filter((image): image is { index: number; isMain: boolean; source: string } => Boolean(image.source))
+      .filter((image): image is { index: number; isMain: boolean; source: string } =>
+        Boolean(image.source),
+      )
       .sort((a, b) => Number(b.isMain) - Number(a.isMain) || a.index - b.index);
 
     for (const image of imageCandidates) {
@@ -115,8 +112,4 @@ export function getAdvertisementImageUrls(source: unknown): string[] {
 
 export function getPrimaryAdvertisementImageUrl(source: unknown): string | undefined {
   return getAdvertisementImageUrls(source)[0];
-}
-
-export function hasAdvertisementImage(source: unknown) {
-  return Boolean(getPrimaryAdvertisementImageUrl(source));
 }

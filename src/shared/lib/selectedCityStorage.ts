@@ -48,12 +48,8 @@ export function readStoredSelectedCity(): StoredSelectedCity | null {
   if (!name) return { ...defaultSelectedCity };
 
   const storedId = window.localStorage.getItem(selectedCityStorageKeys.id) ?? undefined;
-  const latitude = toFiniteNumber(
-    window.localStorage.getItem(selectedCityStorageKeys.latitude),
-  );
-  const longitude = toFiniteNumber(
-    window.localStorage.getItem(selectedCityStorageKeys.longitude),
-  );
+  const latitude = toFiniteNumber(window.localStorage.getItem(selectedCityStorageKeys.latitude));
+  const longitude = toFiniteNumber(window.localStorage.getItem(selectedCityStorageKeys.longitude));
   const isDefaultCity = name.trim() === defaultSelectedCity.name;
 
   return {
@@ -89,14 +85,8 @@ export function saveSelectedCity(city: StoredSelectedCity) {
     isValidLatitude(city.latitude) &&
     isValidLongitude(city.longitude)
   ) {
-    window.localStorage.setItem(
-      selectedCityStorageKeys.latitude,
-      String(city.latitude),
-    );
-    window.localStorage.setItem(
-      selectedCityStorageKeys.longitude,
-      String(city.longitude),
-    );
+    window.localStorage.setItem(selectedCityStorageKeys.latitude, String(city.latitude));
+    window.localStorage.setItem(selectedCityStorageKeys.longitude, String(city.longitude));
   } else {
     window.localStorage.removeItem(selectedCityStorageKeys.latitude);
     window.localStorage.removeItem(selectedCityStorageKeys.longitude);

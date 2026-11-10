@@ -14,7 +14,11 @@ type ChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   showCheck?: boolean;
 };
 
-function SelectedCheckIcon({ shouldReduceMotion = false }: { shouldReduceMotion?: boolean | null }) {
+function SelectedCheckIcon({
+  shouldReduceMotion = false,
+}: {
+  shouldReduceMotion?: boolean | null;
+}) {
   return (
     <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 20 20">
       <motion.path
@@ -44,24 +48,24 @@ export function Chip({
 }: ChipProps) {
   const shouldReduceMotion = useReducedMotion();
 
-  const renderedIcon = icon && isValidElement<{ className?: string }>(icon)
-    ? cloneElement(icon, {
-        className: cn(
-          "shrink-0",
-          selected ? "text-primary" : "",
-          icon.props.className ?? "",
-        ),
-      })
-    : icon;
+  const renderedIcon =
+    icon && isValidElement<{ className?: string }>(icon)
+      ? cloneElement(icon, {
+          className: cn("shrink-0", selected ? "text-primary" : "", icon.props.className ?? ""),
+        })
+      : icon;
 
   return (
-    <Button unstyled
+    <Button
+      unstyled
       aria-pressed={selected}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center min-w-9 gap-1.5 rounded-[10px] border p-2 text-sm font-medium leading-5 cursor-pointer will-change-transform active:scale-[0.97] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:duration-100 [direction:rtl]",
-        selected ? "border-primary bg-primary/16 text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface",
+        "inline-flex min-w-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] border p-2 text-sm leading-5 font-medium transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform [direction:rtl] active:scale-[0.97] active:duration-100",
+        selected
+          ? "border-primary bg-primary/16 text-primary"
+          : "border-outline-var bg-surface-container-lowest text-on-surface",
         focusRing,
-        "disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100 disabled:border-outline-var/50 disabled:bg-surface-container disabled:text-outline",
+        "disabled:border-outline-var/50 disabled:bg-surface-container disabled:text-outline disabled:pointer-events-none disabled:cursor-not-allowed disabled:active:scale-100",
         className,
       )}
       type={type}
@@ -75,7 +79,7 @@ export function Chip({
                 ? { opacity: 1 }
                 : { marginInlineEnd: 2, opacity: 1, scale: 1, width: 20 }
             }
-            className="inline-flex items-center justify-center overflow-hidden shrink-0"
+            className="inline-flex shrink-0 items-center justify-center overflow-hidden"
             exit={
               shouldReduceMotion
                 ? { opacity: 0 }
@@ -102,9 +106,17 @@ export function Chip({
         )}
       </AnimatePresence>
       {renderedIcon}
-      <Typography as="span" variant="label" size="medium" weight="medium" className="min-w-0 truncate">{children}</Typography>
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="min-w-0 truncate"
+      >
+        {children}
+      </Typography>
       {removable && selected
-        ? removeIcon ?? <LinearCancelSmall aria-hidden="true" className="h-5 w-5" />
+        ? (removeIcon ?? <LinearCancelSmall aria-hidden="true" className="h-5 w-5" />)
         : null}
     </Button>
   );

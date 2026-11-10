@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
 import { cn, focusRing } from "../../design-system/classes";
 import { Typography, type TypographySize } from "./Typography";
 
-export type ButtonVariant =
+type ButtonVariant =
   | "primary"
   | "secondary"
   | "ghost"
@@ -14,10 +14,10 @@ export type ButtonVariant =
   | "danger";
 
 type LegacyButtonSize = "sm" | "md" | "lg";
-export type ButtonSize = "small" | "x-medium" | "medium";
-export type ButtonRadius = "small" | "medium" | "x-medium";
+type ButtonSize = "small" | "x-medium" | "medium";
+type ButtonRadius = "small" | "medium" | "x-medium";
 
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   bgColor?: CSSProperties["backgroundColor"];
   color?: CSSProperties["color"];
   fullWidth?: boolean;
@@ -53,8 +53,7 @@ const variantClasses: Record<ButtonVariant, string> = {
     "border border-primary bg-primary text-on-primary focus:bg-primary/90 active:bg-primary/90 disabled:border-transparent disabled:bg-on-surface/12 disabled:text-outline",
   secondary:
     "border border-primary bg-transparent text-primary focus:bg-primary/20 active:bg-primary/20 disabled:border-outline-var/50 disabled:bg-transparent disabled:text-outline",
-  text:
-    "border border-transparent bg-transparent text-primary focus:bg-transparent active:bg-transparent disabled:bg-transparent disabled:text-outline",
+  text: "border border-transparent bg-transparent text-primary focus:bg-transparent active:bg-transparent disabled:bg-transparent disabled:text-outline",
 };
 
 /* Keep the old sizing contract unchanged for existing screens. */

@@ -32,7 +32,7 @@ function SearchMapHeaderComponent({
   onBack,
 }: SearchMapHeaderProps) {
   return (
-    <header className="absolute inset-x-0 top-0 z-[500] bg-surface-container">
+    <header className="bg-surface-container absolute inset-x-0 top-0 z-[500]">
       <TopBar
         backTo="/home"
         onBack={onBack}
@@ -47,9 +47,7 @@ function SearchMapHeaderComponent({
           isSaving: isSavingSearch,
           isSavedDisabled: isSaveSearchDisabled,
           savedCount,
-          savedLabel: isCurrentSearchSaved
-            ? "نمایش جستجوهای ذخیره شده"
-            : "ذخیره جستجوی فعلی",
+          savedLabel: isCurrentSearchSaved ? "نمایش جستجوهای ذخیره شده" : "ذخیره جستجوی فعلی",
         }}
       />
 

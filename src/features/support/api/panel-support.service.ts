@@ -12,7 +12,7 @@ export type PanelSupportRequestFilters = {
   status?: PanelSupportRequestStatus;
 };
 
-export type PanelSupportRequestsPage = {
+type PanelSupportRequestsPage = {
   data: SupportRequestItem[];
   page: number;
   perPage: number;
@@ -90,12 +90,7 @@ export async function listPanelSupportRequests({
       },
     })
     .json<unknown>();
-  const data = readArray<SupportRequestItem>(payload, [
-    "data",
-    "items",
-    "list",
-    "requests",
-  ]);
+  const data = readArray<SupportRequestItem>(payload, ["data", "items", "list", "requests"]);
   const pagination = findPagination(payload);
 
   return {

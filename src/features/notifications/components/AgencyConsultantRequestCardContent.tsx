@@ -5,10 +5,7 @@ import type {
   AgencyConsultantRequestDecision,
   AgencyConsultantRequestDisplayState,
 } from "../types";
-import {
-  formatNotificationTime,
-  readRecord,
-} from "../notificationRouting";
+import { formatNotificationTime, readRecord } from "../notificationRouting";
 
 export function getAgencyConsultantRequestDisplayState(
   item: NotificationItem,
@@ -20,13 +17,8 @@ export function getAgencyConsultantRequestDisplayState(
   return undefined;
 }
 
-export function AgencyConsultantRequestDescription({
-  item,
-}: {
-  item: NotificationItem;
-}) {
-  const description =
-    item.description || "یک آژانس شما را برای همکاری دعوت کرده است.";
+export function AgencyConsultantRequestDescription({ item }: { item: NotificationItem }) {
+  const description = item.description || "یک آژانس شما را برای همکاری دعوت کرده است.";
   const payload = item.payload ?? {};
   const nestedAgency = readRecord(payload.agency);
   const payloadAgencyName = [
@@ -52,15 +44,14 @@ export function AgencyConsultantRequestDescription({
         variant="body"
         size="small"
         weight="regular"
-        className="m-0 truncate text-xs font-normal leading-5 text-on-surface-var"
+        className="text-on-surface-var m-0 truncate text-xs leading-5 font-normal"
       >
         {displayDescription}
       </Typography>
     );
   }
 
-  const [beforeAgency = "", afterAgency = ""] =
-    displayDescription.split(agencyNameInDescription);
+  const [beforeAgency = "", afterAgency = ""] = displayDescription.split(agencyNameInDescription);
 
   return (
     <Typography
@@ -68,16 +59,10 @@ export function AgencyConsultantRequestDescription({
       variant="body"
       size="small"
       weight="regular"
-      className="m-0 truncate text-xs font-normal leading-5 text-on-surface-var"
+      className="text-on-surface-var m-0 truncate text-xs leading-5 font-normal"
     >
       {beforeAgency}
-      <Typography
-        as="span"
-        variant="body"
-        size="small"
-        weight="regular"
-        className="text-primary"
-      >
+      <Typography as="span" variant="body" size="small" weight="regular" className="text-primary">
         {agencyNameInDescription}
       </Typography>
       {afterAgency}
@@ -103,7 +88,7 @@ export function AgencyConsultantRequestCardContent({
   return (
     <>
       <div className="flex items-start justify-between gap-3 [direction:ltr]">
-        <time className="shrink-0 pt-0.5 text-xs font-normal leading-4 text-outline">
+        <time className="text-outline shrink-0 pt-0.5 text-xs leading-4 font-normal">
           {formatNotificationTime(item.created_at)}
         </time>
 
@@ -112,7 +97,7 @@ export function AgencyConsultantRequestCardContent({
           variant="title"
           size="small"
           weight="semibold"
-          className="m-0 min-w-0 truncate text-right text-sm font-semibold leading-5 text-on-surface [direction:rtl]"
+          className="text-on-surface m-0 min-w-0 truncate text-right text-sm leading-5 font-semibold [direction:rtl]"
         >
           {item.title || "دعوت همکاری جدید"}
         </Typography>
@@ -125,7 +110,7 @@ export function AgencyConsultantRequestCardContent({
       <div className="mt-auto flex items-center justify-start gap-2 [direction:rtl]">
         <Button
           unstyled
-          className="h-7 min-w-[106px] max-w-full shrink-0 rounded-lg bg-primary px-3 text-center text-xs font-medium leading-4 text-on-primary whitespace-nowrap active:opacity-80 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-primary text-on-primary focus-visible:outline-primary/40 h-7 max-w-full min-w-[106px] shrink-0 rounded-lg px-3 text-center text-xs leading-4 font-medium whitespace-nowrap focus-visible:outline-3 focus-visible:outline-offset-2 active:opacity-80 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isResponding || isResolved}
           onClick={() => onDecision("accept")}
           onPointerDown={(event) => event.stopPropagation()}
@@ -144,7 +129,7 @@ export function AgencyConsultantRequestCardContent({
 
         <Button
           unstyled
-          className="h-7 min-w-[76px] max-w-full shrink-0 rounded-lg border border-primary bg-surface-container-lowest px-3 text-center text-xs font-medium leading-4 text-primary whitespace-nowrap active:bg-surface-container focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
+          className="border-primary bg-surface-container-lowest text-primary active:bg-surface-container focus-visible:outline-primary/40 h-7 max-w-full min-w-[76px] shrink-0 rounded-lg border px-3 text-center text-xs leading-4 font-medium whitespace-nowrap focus-visible:outline-3 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isResponding || isResolved}
           onClick={() => onDecision("reject")}
           onPointerDown={(event) => event.stopPropagation()}

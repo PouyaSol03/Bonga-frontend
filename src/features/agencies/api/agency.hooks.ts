@@ -15,8 +15,6 @@ import {
 export * from "./agency-consultants.hooks";
 export * from "./agency-consultant-performance.hooks";
 
-
-
 export function usePublicAgencyDetailQuery({
   enabled = true,
   id,
@@ -53,7 +51,7 @@ export function useTrustedAgenciesQuery({ enabled = true }: { enabled?: boolean 
   });
 }
 
-export type AgencyInfiniteQueryParams = {
+type AgencyInfiniteQueryParams = {
   enabled?: boolean;
   neighborhoodId?: string;
   perPage?: number;
@@ -76,8 +74,7 @@ export function useAgencyInfiniteQuery({
     number
   >({
     enabled,
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getPublicAgencies({
@@ -152,8 +149,7 @@ export function usePublicAgentsInfiniteQuery({
     number
   >({
     enabled,
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.page + 1 : undefined,
+    getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getPublicAgents({

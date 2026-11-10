@@ -63,14 +63,8 @@ export function useNotificationRealtimeSocket({
       void refetchUnreadCount();
     };
 
-    const handleSocketError = ({
-      message: socketMessage,
-    }: {
-      message?: string;
-    }) => {
-      if (import.meta.env.DEV) {
-        console.error(socketMessage || "اتصال اعلان‌ها با خطا مواجه شد");
-      }
+    const handleSocketError = () => {
+      // Ignored
     };
 
     socket.on("connect", handleConnect);
@@ -87,10 +81,5 @@ export function useNotificationRealtimeSocket({
       socket.off("notification:error", handleSocketError);
       disconnectNotificationSocket();
     };
-  }, [
-    onNotificationRead,
-    onNotificationReceived,
-    refetchNotifications,
-    refetchUnreadCount,
-  ]);
+  }, [onNotificationRead, onNotificationReceived, refetchNotifications, refetchUnreadCount]);
 }

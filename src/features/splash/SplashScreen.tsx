@@ -1,44 +1,44 @@
-import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 interface SplashScreenProps {
-  onFinish: () => void
-  videoSrc?: string
+  onFinish: () => void;
+  videoSrc?: string;
 }
 
-export function SplashScreen({ onFinish, videoSrc = '/splash.mp4' }: SplashScreenProps) {
-  const [isVisible, setIsVisible] = useState(true)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const isFinishedRef = useRef(false)
+export function SplashScreen({ onFinish, videoSrc = "/splash.mp4" }: SplashScreenProps) {
+  const [isVisible, setIsVisible] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const isFinishedRef = useRef(false);
 
   const handleComplete = () => {
-    if (isFinishedRef.current) return
-    isFinishedRef.current = true
-    setIsVisible(false)
-  }
+    if (isFinishedRef.current) return;
+    isFinishedRef.current = true;
+    setIsVisible(false);
+  };
 
   const applySpeed = () => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 2.5
+      videoRef.current.playbackRate = 2.5;
     }
-  }
+  };
 
   useEffect(() => {
-    applySpeed()
+    applySpeed();
 
     if (videoRef.current) {
       videoRef.current.play().catch(() => {
         // Autoplay policy fallback: if playback fails, dismiss gracefully
-      })
+      });
     }
 
     // Safety timeout in case video loading hangs or is blocked (3.2s expected at 2.5x)
     const timeout = setTimeout(() => {
-      handleComplete()
-    }, 4500)
+      handleComplete();
+    }, 4500);
 
-    return () => clearTimeout(timeout)
-  }, [])
+    return () => clearTimeout(timeout);
+  }, []);
 
   return (
     <AnimatePresence onExitComplete={onFinish}>
@@ -47,10 +47,10 @@ export function SplashScreen({ onFinish, videoSrc = '/splash.mp4' }: SplashScree
           key="bonga-splash-screen"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.35, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-primary overflow-hidden select-none"
+          transition={{ duration: 0.35, ease: "easeInOut" }}
+          className="bg-primary fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden select-none"
         >
-          <div className="relative w-full h-full max-w-[500px] flex items-center justify-center bg-primary overflow-hidden">
+          <div className="bg-primary relative flex h-full w-full max-w-[500px] items-center justify-center overflow-hidden">
             <video
               ref={videoRef}
               src={videoSrc}
@@ -62,13 +62,13 @@ export function SplashScreen({ onFinish, videoSrc = '/splash.mp4' }: SplashScree
               onPlay={applySpeed}
               onEnded={handleComplete}
               onError={handleComplete}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
             />
           </div>
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
-export default SplashScreen
+export default SplashScreen;

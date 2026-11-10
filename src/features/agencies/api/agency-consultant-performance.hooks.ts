@@ -1,15 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "../../../shared/api/query-keys";
-import {
-  getMyAgencyConsultantActivities,
-  getMyAgencyConsultantActivityFeed,
-  getMyAgencyConsultantActivityStats,
-  getMyAgencyConsultantAdvertisements,
-  getMyAgencyConsultantCharts,
-  getMyAgencyConsultantPublishedAdsMetric,
-  getMyAgencyConsultantRenewalUsageMetric,
-  getMyAgencyConsultantSpecialUsageMetric,
-} from "./agency-consultant-performance.service";
+import { getMyAgencyConsultantActivityFeed, getMyAgencyConsultantActivityStats, getMyAgencyConsultantAdvertisements, getMyAgencyConsultantCharts, getMyAgencyConsultantPublishedAdsMetric, getMyAgencyConsultantRenewalUsageMetric, getMyAgencyConsultantSpecialUsageMetric } from "./agency-consultant-performance.service";
 import type {
   ConsultantActivitiesParams,
   ConsultantAdvertisementsParams,
@@ -25,33 +16,11 @@ export function useAgencyConsultantAdvertisementsQuery({
 }: ConsultantAdvertisementsParams & { enabled?: boolean }) {
   return useQuery({
     enabled: enabled && Boolean(agentId) && String(agentId) !== "0",
-    queryFn: () =>
-      getMyAgencyConsultantAdvertisements({ agentId, page, perPage, status }),
+    queryFn: () => getMyAgencyConsultantAdvertisements({ agentId, page, perPage, status }),
     queryKey: queryKeys.agencies.consultantAdvertisements(agentId, {
       page,
       perPage,
       status,
-    }),
-  });
-}
-
-export function useAgencyConsultantActivitiesQuery({
-  agentId,
-  enabled = true,
-  page = 1,
-  perPage = 20,
-  period = "week",
-  type = "all",
-}: ConsultantActivitiesParams & { enabled?: boolean }) {
-  return useQuery({
-    enabled: enabled && Boolean(agentId) && String(agentId) !== "0",
-    queryFn: () =>
-      getMyAgencyConsultantActivities({ agentId, page, perPage, period, type }),
-    queryKey: queryKeys.agencies.consultantActivities(agentId, {
-      page,
-      perPage,
-      period,
-      type,
     }),
   });
 }
@@ -83,8 +52,7 @@ export function useAgencyConsultantActivityFeedQuery({
 }: ConsultantActivitiesParams & { enabled?: boolean }) {
   return useQuery({
     enabled: enabled && Boolean(agentId) && String(agentId) !== "0",
-    queryFn: () =>
-      getMyAgencyConsultantActivityFeed({ agentId, page, perPage, period, type }),
+    queryFn: () => getMyAgencyConsultantActivityFeed({ agentId, page, perPage, period, type }),
     queryKey: queryKeys.agencies.consultantActivityFeed(agentId, {
       page,
       perPage,
@@ -105,8 +73,7 @@ export function useAgencyConsultantChartsQuery({
 }) {
   return useQuery({
     enabled: enabled && Boolean(agentId) && String(agentId) !== "0",
-    queryFn: () =>
-      getMyAgencyConsultantCharts({ agentId: agentId as number | string, period }),
+    queryFn: () => getMyAgencyConsultantCharts({ agentId: agentId as number | string, period }),
     queryKey: queryKeys.agencies.consultantCharts(agentId ?? "", period),
   });
 }
@@ -120,8 +87,7 @@ export function useAgencyConsultantPublishedAdsMetricQuery({
 }: ConsultantMetricParams & { enabled?: boolean }) {
   return useQuery({
     enabled: enabled && Boolean(agentId) && String(agentId) !== "0",
-    queryFn: () =>
-      getMyAgencyConsultantPublishedAdsMetric({ agentId, period, from, to }),
+    queryFn: () => getMyAgencyConsultantPublishedAdsMetric({ agentId, period, from, to }),
     queryKey: queryKeys.agencies.consultantMetricPublishedAds(agentId, {
       period,
       from,
@@ -139,8 +105,7 @@ export function useAgencyConsultantRenewalUsageMetricQuery({
 }: ConsultantMetricParams & { enabled?: boolean }) {
   return useQuery({
     enabled: enabled && Boolean(agentId) && String(agentId) !== "0",
-    queryFn: () =>
-      getMyAgencyConsultantRenewalUsageMetric({ agentId, period, from, to }),
+    queryFn: () => getMyAgencyConsultantRenewalUsageMetric({ agentId, period, from, to }),
     queryKey: queryKeys.agencies.consultantMetricRenewalUsage(agentId, {
       period,
       from,
@@ -158,8 +123,7 @@ export function useAgencyConsultantSpecialUsageMetricQuery({
 }: ConsultantMetricParams & { enabled?: boolean }) {
   return useQuery({
     enabled: enabled && Boolean(agentId) && String(agentId) !== "0",
-    queryFn: () =>
-      getMyAgencyConsultantSpecialUsageMetric({ agentId, period, from, to }),
+    queryFn: () => getMyAgencyConsultantSpecialUsageMetric({ agentId, period, from, to }),
     queryKey: queryKeys.agencies.consultantMetricSpecialUsage(agentId, {
       period,
       from,

@@ -1,14 +1,7 @@
 import { useFreehandGeofence } from "./useFreehandGeofence";
-import type {
-  DrawingState,
-  GeofenceResult,
-  GeofenceValidationResult,
-} from "./geofenceTypes";
+import type { DrawingState, GeofenceResult, GeofenceValidationResult } from "./geofenceTypes";
 
-type InvalidGeofenceResult = Exclude<
-  GeofenceValidationResult,
-  { isValid: true }
->;
+type InvalidGeofenceResult = Exclude<GeofenceValidationResult, { isValid: true }>;
 
 type SearchMapGeofenceLayerProps = {
   enabled: boolean;

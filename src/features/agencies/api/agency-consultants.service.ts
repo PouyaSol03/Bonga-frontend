@@ -94,13 +94,10 @@ export async function respondToAgencyConsultantRequest({
   agentId,
   decision,
 }: AgencyConsultantRequestDecisionPayload) {
-  return api.patch(
-    `me/agent/agency-requests/${encodeURIComponent(String(agentId))}/${decision}`,
-    {
-      context: { allowNonJsonResponse: true },
-      headers: { Accept: "*/*" },
-    },
-  );
+  return api.patch(`me/agent/agency-requests/${encodeURIComponent(String(agentId))}/${decision}`, {
+    context: { allowNonJsonResponse: true },
+    headers: { Accept: "*/*" },
+  });
 }
 
 export async function cancelMyAgencyConsultantRequest(agentId: number | string) {
@@ -152,5 +149,3 @@ export async function deactivateMyAgencyConsultant({
     json: transferPayload,
   });
 }
-
-

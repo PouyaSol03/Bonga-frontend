@@ -10,7 +10,7 @@ export type AppChromeConfig = {
   wrapInShell: boolean;
 };
 
-export function getBottomNavigationKey(path: string) {
+function getBottomNavigationKey(path: string) {
   if (path === "/account") return "account";
   if (path.startsWith("/account/")) return undefined;
   if (path.startsWith("/account/support")) return undefined;
@@ -25,10 +25,10 @@ export function getBottomNavigationKey(path: string) {
     path === "/account/ad-management/payment" ||
     /^\/account\/ad-management\/payment\/[^/]+\/?$/.test(path) ||
     path === "/account/ad-management/delete" ||
-    /^\/account\/my-ads\/[^/]+\/payment-history\/?$/.test(path) ||
-    /^\/account\/my-ads\/[^/]+\/increase-visits\/?$/.test(path) ||
-    /^\/account\/my-ads\/[^/]+\/visit-statistics\/?$/.test(path) ||
-    /^\/account\/my-ads\/[^/]+\/close-result\/?$/.test(path) ||
+    /^\/account\/(?:my-ads|manage-ads)\/[^/]+\/payment-history\/?$/.test(path) ||
+    /^\/account\/(?:my-ads|manage-ads)\/[^/]+\/increase-visits\/?$/.test(path) ||
+    /^\/account\/(?:my-ads|manage-ads)\/[^/]+\/visit-statistics\/?$/.test(path) ||
+    /^\/account\/(?:my-ads|manage-ads)\/[^/]+\/close-result\/?$/.test(path) ||
     path === "/account/ad-management/filter" ||
     path === "/account/credit/history" ||
     path === "/account/wallet/history" ||
@@ -39,7 +39,7 @@ export function getBottomNavigationKey(path: string) {
     path.startsWith("/account/dashboard/requests") ||
     path.startsWith("/account/dashboard/team") ||
     path.startsWith("/account/ad-management/published") ||
-    /^\/account\/my-ads\/[^/]+\/state-ad\/?$/.test(path)
+    /^\/account\/(?:my-ads|manage-ads)\/[^/]+\/state-ad\/?$/.test(path)
   ) {
     return undefined;
   }
@@ -47,7 +47,7 @@ export function getBottomNavigationKey(path: string) {
   return undefined;
 }
 
-export function getAccountFallbackBackTo(path: string) {
+function getAccountFallbackBackTo(path: string) {
   if (path === "/account") return "/home";
   if (path === "/account/support/chat/new") return "/account/support/chat";
   if (path === "/account/support/requests/new") return "/account/support/requests";
@@ -55,32 +55,38 @@ export function getAccountFallbackBackTo(path: string) {
     path === "/account/support/chat" ||
     path === "/account/support/requests" ||
     path === "/account/support/faq"
-  ) return "/account/support";
+  )
+    return "/account/support";
   if (path === "/account/support") return "/account";
   if (path === "/account/wallet/history") return "/account/wallet";
   if (path.startsWith("/account/ranking/badges")) return "/account/ranking";
   if (path === "/account/ranking/levels") return "/account/ranking";
   if (path === "/account/credit/history") return "/account/credit/panel";
   if (path.startsWith("/account/credit/")) return "/account";
-  if (path === "/account/ad-management/statistics/details") return "/account/ad-management/statistics";
+  if (path === "/account/ad-management/statistics/details")
+    return "/account/ad-management/statistics";
   if (path.startsWith("/account/ad-management/")) return "/account/ad-management";
 
-  const myAdActionMatch = path.match(/^\/account\/my-ads\/([^/]+)\/(payment-history|increase-visits|visit-statistics|close-result|state-ad)\/?$/);
+  const myAdActionMatch = path.match(
+    /^\/account\/(?:my-ads|manage-ads)\/([^/]+)\/(payment-history|increase-visits|visit-statistics|close-result|state-ad)\/?$/,
+  );
 
   if (myAdActionMatch?.[1] && myAdActionMatch[2] !== "state-ad") {
-    return `/account/my-ads/${myAdActionMatch[1]}/state-ad`;
+    return `/account/manage-ads/${myAdActionMatch[1]}/state-ad`;
   }
 
-  if (myAdActionMatch?.[2] === "state-ad") return "/account/my-ads";
+  if (myAdActionMatch?.[2] === "state-ad") return "/account/manage-ads";
 
   if (path === "/account/dashboard/agency/preview/qr-code") {
     return "/account/dashboard/agency/preview";
   }
 
   if (path.startsWith("/account/dashboard/")) {
-    const dashboardSection = path.split("/")[3];
+    const segments = path.split("/").filter(Boolean);
 
-    if (dashboardSection) return `/account/dashboard/${dashboardSection}`;
+    if (segments.length > 3) {
+      return `/account/dashboard/${segments[2]}`;
+    }
 
     return "/account/dashboard";
   }
@@ -90,7 +96,7 @@ export function getAccountFallbackBackTo(path: string) {
   return "/account";
 }
 
-export function getRouteTopBar(
+function getRouteTopBar(
   path: string,
   title: string,
   notificationIcon?: ReactNode,
@@ -161,7 +167,8 @@ export function getAppChromeConfig(
           contentClassName: isDashboardRoute
             ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
             : "flex h-full min-h-0 flex-1 flex-col overflow-hidden",
-          frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]",
+          frameClassName:
+            "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]",
           topBar,
           wrapInShell: true,
         }
@@ -172,7 +179,8 @@ export function getAppChromeConfig(
     return {
       bottomNavigationKey,
       contentClassName: "min-h-0 flex-1 overflow-hidden",
-      frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface",
+      frameClassName:
+        "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface",
       topBar,
       wrapInShell: true,
     };
@@ -181,7 +189,8 @@ export function getAppChromeConfig(
   return {
     bottomNavigationKey,
     contentClassName: "min-h-0 flex-1 overflow-hidden",
-    frameClassName: "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]",
+    frameClassName:
+      "relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]",
     topBar,
     wrapInShell: true,
   };

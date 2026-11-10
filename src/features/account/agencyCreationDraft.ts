@@ -1,15 +1,12 @@
 import type { NeighborhoodDto } from "../locations/api/neighborhood.service";
+import { isRecord } from "../../shared/lib/textUtils";
 
 const AGENCY_CREATION_DRAFT_KEY = "bonga:account:business:create:agency:draft";
 
-export type AgencyCreationDraft = {
+type AgencyCreationDraft = {
   agencyName: string;
   selectedNeighborhoods: NeighborhoodDto[];
 };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
 
 function normalizeStoredNeighborhood(value: unknown): NeighborhoodDto | null {
   if (!isRecord(value)) return null;

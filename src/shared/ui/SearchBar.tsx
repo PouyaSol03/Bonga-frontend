@@ -33,9 +33,10 @@ export function SearchBar({
   ...props
 }: SearchBarProps) {
   return (
-    <Button unstyled
+    <Button
+      unstyled
       className={cn(
-        "flex w-full items-center gap-3 rounded-[12px] border border-outline-var bg-surface-container-lowest px-4 text-right text-base font-normal leading-6 text-on-surface transition",
+        "border-outline-var bg-surface-container-lowest text-on-surface flex w-full items-center gap-3 rounded-[12px] border px-4 text-right text-base leading-6 font-normal transition",
         compact ? "h-12" : "h-14",
         focusRing,
         className,
@@ -43,14 +44,29 @@ export function SearchBar({
       type={type}
       {...props}
     >
-      {leadingIcon ?? <SearchBarSearchIcon aria-hidden="true" className="h-6 w-6 shrink-0 text-on-surface-var" />}
-      <Typography as="span" variant="body" size="medium" weight="regular" className="min-w-0 flex-1 truncate">{text}</Typography>
-      {saved ? <LinearBookmarkSolid aria-hidden="true" className="h-5 w-5 shrink-0 text-primary" /> : null}
+      {leadingIcon ?? (
+        <SearchBarSearchIcon aria-hidden="true" className="text-on-surface-var h-6 w-6 shrink-0" />
+      )}
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
+        className="min-w-0 flex-1 truncate"
+      >
+        {text}
+      </Typography>
+      {saved ? (
+        <LinearBookmarkSolid aria-hidden="true" className="text-primary h-5 w-5 shrink-0" />
+      ) : null}
     </Button>
   );
 }
 
-type SearchInputBarProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "size" | "value"> & {
+type SearchInputBarProps = Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "onChange" | "size" | "value"
+> & {
   compact?: boolean;
   containerClassName?: string;
   debounceMs?: number;
@@ -65,116 +81,124 @@ type SearchInputBarProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange
   value: string;
 };
 
-export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(function SearchInputBar(
-  {
-    className = "",
-    compact = false,
-    containerClassName = "",
-    debounceMs = 300,
-    inputClassName = "",
-    onClear,
-    onDebouncedChange,
-    onSubmit,
-    onValueChange,
-    placeholder = "جستجو",
-    savedSlot,
-    showSearchIcon = true,
-    size,
-    tabIndex,
-    type = "search",
-    value,
-    ...props
-  },
-  ref,
-) {
-  const hasValue = value.length > 0;
-  const resolvedSize = size ?? (compact ? "compact" : "default");
-  const debounceTimerRef = useRef<number | null>(null);
+export const SearchInputBar = forwardRef<HTMLInputElement, SearchInputBarProps>(
+  function SearchInputBar(
+    {
+      className = "",
+      compact = false,
+      containerClassName = "",
+      debounceMs = 300,
+      inputClassName = "",
+      onClear,
+      onDebouncedChange,
+      onSubmit,
+      onValueChange,
+      placeholder = "جستجو",
+      savedSlot,
+      showSearchIcon = true,
+      size,
+      tabIndex,
+      type = "search",
+      value,
+      ...props
+    },
+    ref,
+  ) {
+    const hasValue = value.length > 0;
+    const resolvedSize = size ?? (compact ? "compact" : "default");
+    const debounceTimerRef = useRef<number | null>(null);
 
-  const clearDebounceTimer = () => {
-    if (debounceTimerRef.current !== null) {
-      window.clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = null;
-    }
-  };
+    const clearDebounceTimer = () => {
+      if (debounceTimerRef.current !== null) {
+        window.clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+    };
 
-  useEffect(() => {
-    return () => clearDebounceTimer();
-  }, []);
+    useEffect(() => {
+      return () => clearDebounceTimer();
+    }, []);
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const nextValue = event.target.value;
-    onValueChange(nextValue);
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+      const nextValue = event.target.value;
+      onValueChange(nextValue);
 
-    if (onDebouncedChange) {
+      if (onDebouncedChange) {
+        clearDebounceTimer();
+        debounceTimerRef.current = window.setTimeout(() => {
+          onDebouncedChange(nextValue);
+        }, debounceMs);
+      }
+    };
+
+    const handleClear = () => {
       clearDebounceTimer();
-      debounceTimerRef.current = window.setTimeout(() => {
-        onDebouncedChange(nextValue);
-      }, debounceMs);
-    }
-  };
+      onValueChange("");
+      onClear?.();
+      onDebouncedChange?.("");
+    };
 
-  const handleClear = () => {
-    clearDebounceTimer();
-    onValueChange("");
-    onClear?.();
-    onDebouncedChange?.("");
-  };
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      clearDebounceTimer();
+      onDebouncedChange?.(value);
+      onSubmit?.();
+    };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    clearDebounceTimer();
-    onDebouncedChange?.(value);
-    onSubmit?.();
-  };
-
-  return (
-    <form
-      className={cn(
-        "flex w-full min-w-0 items-center rounded-[12px] border bg-surface-container-lowest px-3 text-right transition [direction:ltr]",
-        resolvedSize === "dense" ? "h-10" : resolvedSize === "compact" ? "h-12" : "h-14",
-        hasValue ? "border-primary" : "border-outline-var",
-        focusRing,
-        containerClassName,
-      )}
-      onSubmit={handleSubmit}
-    >
-      {savedSlot ? (
-        <>
-          {savedSlot}
-          <div className="me-3 h-6 w-px shrink-0 bg-outline-var" />
-        </>
-      ) : null}
-
-      {showSearchIcon ? <SearchBarSearchIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-on-surface-var" /> : null}
-
-      <input
+    return (
+      <form
         className={cn(
-          "min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base font-normal leading-6 text-on-surface outline-none placeholder:text-outline [direction:rtl]",
-          showSearchIcon ? "pr-2" : "",
-          inputClassName,
-          className,
+          "bg-surface-container-lowest flex w-full min-w-0 items-center rounded-[12px] border px-3 text-right transition [direction:ltr]",
+          resolvedSize === "dense" ? "h-10" : resolvedSize === "compact" ? "h-12" : "h-14",
+          hasValue ? "border-primary" : "border-outline-var",
+          focusRing,
+          containerClassName,
         )}
-        onChange={handleChange}
-        placeholder={placeholder}
-        ref={ref}
-        tabIndex={tabIndex}
-        type={type}
-        value={value}
-        {...props}
-      />
+        onSubmit={handleSubmit}
+      >
+        {savedSlot ? (
+          <>
+            {savedSlot}
+            <div className="bg-outline-var me-3 h-6 w-px shrink-0" />
+          </>
+        ) : null}
 
-      {hasValue && (onClear || onDebouncedChange) ? (
-        <Button unstyled
-          aria-label="پاک کردن جستجو"
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-outline transition active:bg-surface-container"
-          onClick={handleClear}
+        {showSearchIcon ? (
+          <SearchBarSearchIcon
+            aria-hidden="true"
+            className="text-on-surface-var h-5 w-5 shrink-0"
+          />
+        ) : null}
+
+        <input
+          className={cn(
+            "text-on-surface placeholder:text-outline min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-right text-base leading-6 font-normal outline-none [direction:rtl]",
+            showSearchIcon ? "pr-2" : "",
+            inputClassName,
+            className,
+          )}
+          onChange={handleChange}
+          placeholder={placeholder}
+          ref={ref}
           tabIndex={tabIndex}
-          type="button"
-        >
-          <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
-        </Button>
-      ) : null}
-    </form>
-  );
-});
+          type={type}
+          value={value}
+          {...props}
+        />
+
+        {hasValue && (onClear || onDebouncedChange) ? (
+          <Button
+            unstyled
+            aria-label="پاک کردن جستجو"
+            className="text-outline active:bg-surface-container grid h-8 w-8 shrink-0 place-items-center rounded-full transition"
+            onClick={handleClear}
+            tabIndex={tabIndex}
+            type="button"
+          >
+            <LinearCancelCircle aria-hidden="true" className="h-6 w-6" />
+          </Button>
+        ) : null}
+      </form>
+    );
+  },
+);

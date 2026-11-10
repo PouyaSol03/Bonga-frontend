@@ -84,7 +84,8 @@ export function JalaliDatePickerSheet({
         </div>
 
         <div className="jalali-date-actions">
-          <Button unstyled
+          <Button
+            unstyled
             className="jalali-date-action jalali-date-cancel"
             type="button"
             onClick={onClose}
@@ -92,7 +93,8 @@ export function JalaliDatePickerSheet({
             لغو
           </Button>
 
-          <Button unstyled
+          <Button
+            unstyled
             className="jalali-date-action jalali-date-confirm"
             type="button"
             disabled={!draftDate}

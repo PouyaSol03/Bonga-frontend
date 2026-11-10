@@ -1,8 +1,14 @@
-import { lazy, memo, Suspense, useState } from "react";
-import type { ComponentType, SVGProps } from "react";
-import { Link,  useNavigate  } from "react-router";
-import { getStoredAuthSession, setStoredActiveRole, storeLoginRedirectPath } from "../../shared/auth/auth-storage";
+import { lazy, memo, Suspense, useState, type ComponentType, type SVGProps  } from "react";
+
+import { Link, useNavigate } from "react-router";
+import {
+  getStoredAuthSession,
+  setStoredActiveRole,
+  storeLoginRedirectPath,
+} from "../../shared/auth/auth-storage";
+import { getLoginRequiredPath } from "../../shared/navigation/navigation";
 import { clearNewAdDraftStorage } from "../../features/advertisements/create/utils";
+import { hasBusinessPublisherRoles } from "../../features/advertisements/api/publisher-options.hooks";
 import LinearAddCircle from "../../shared/icons/LinearAddCircle";
 import LinearChat from "../../shared/icons/LinearChat";
 import LinearHome3 from "../../shared/icons/LinearHome3";
@@ -58,28 +64,18 @@ const navigationItems: BottomNavigationItem[] = [
 ];
 
 const CreateAdBottomSheet = lazy(() =>
-  import("../../features/advertisements/components/CreateAdBottomSheet").then(
-    (module) => ({ default: module.CreateAdBottomSheet }),
-  ),
+  import("../../features/advertisements/components/CreateAdBottomSheet").then((module) => ({
+    default: module.CreateAdBottomSheet,
+  })),
 );
 
 const BottomNavigationUnreadChatBadge = lazy(() =>
-  import("../../features/chat/components/BottomNavigationUnreadChatBadge").then(
-    (module) => ({ default: module.BottomNavigationUnreadChatBadge }),
-  ),
+  import("../../features/chat/components/BottomNavigationUnreadChatBadge").then((module) => ({
+    default: module.BottomNavigationUnreadChatBadge,
+  })),
 );
 
-function getLoginRequiredPath(returnTo: string) {
-  const params = new URLSearchParams({ returnTo });
-
-  return `/login-required?${params.toString()}`;
-}
-
-function BottomNavigationComponent({
-  activeKey = "account",
-}: {
-  activeKey?: string;
-}) {
+function BottomNavigationComponent({ activeKey = "account" }: { activeKey?: string }) {
   const navigate = useNavigate();
   const [isCreateAdOpen, setIsCreateAdOpen] = useState(false);
   const [hasLoadedCreateAdSheet, setHasLoadedCreateAdSheet] = useState(false);
@@ -90,7 +86,7 @@ function BottomNavigationComponent({
   return (
     <>
       <nav
-        className="sticky bottom-0 z-10 h-16 shrink-0 bg-surface-container-lowest shadow-[0_-4px_12px_rgba(26,26,26,0.08)]"
+        className="bg-surface-container-lowest sticky bottom-0 z-10 h-16 shrink-0 shadow-[0_-4px_12px_rgba(26,26,26,0.08)]"
         aria-label="ناوبری اصلی"
       >
         <div className="grid h-full w-full grid-cols-5 px-1 [direction:rtl]">
@@ -117,13 +113,25 @@ function BottomNavigationComponent({
                     return;
                   }
 
+                  if (!hasBusinessPublisherRoles(session)) {
+                    setStoredActiveRole("user");
+                    clearNewAdDraftStorage();
+                    navigate("/new-ad/personal?registrantType=personal&context=personal");
+                    return;
+                  }
+
                   setHasLoadedCreateAdSheet(true);
                   setIsCreateAdOpen(true);
                 }}
-                className={`flex min-w-0 flex-col items-center justify-center whitespace-nowrap text-center focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/25 gap-1 py-2
-                  ${isActive ? "text-primary" : "text-outline"}`}
+                className={`focus-visible:outline-primary/25 flex min-w-0 flex-col items-center justify-center gap-1 py-2 text-center whitespace-nowrap focus-visible:outline-3 focus-visible:outline-offset-[-3px] ${isActive ? "text-primary" : "text-outline"}`}
               >
-                <Typography as="p" variant="body" size="small" weight="medium" className="relative grid h-6 w-6 shrink-0 place-items-center">
+                <Typography
+                  as="p"
+                  variant="body"
+                  size="small"
+                  weight="medium"
+                  className="relative grid h-6 w-6 shrink-0 place-items-center"
+                >
                   <Icon
                     active={isActive}
                     aria-hidden="true"
@@ -145,7 +153,13 @@ function BottomNavigationComponent({
                   ) : null}
                 </Typography>
 
-                <Typography as="span" variant="body" size="small" weight="medium" className="max-w-full overflow-hidden text-ellipsis">
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="small"
+                  weight="medium"
+                  className="max-w-full overflow-hidden text-ellipsis"
+                >
                   {item.label}
                 </Typography>
               </Link>
@@ -170,16 +184,22 @@ function BottomNavigationComponent({
               }
 
               if (option.id === "independent-consultant") {
-                navigate("/new-ad/independent-consultant?registrantType=personal&context=independent-consultant");
+                navigate(
+                  "/new-ad/independent-consultant?registrantType=personal&context=independent-consultant",
+                );
                 return;
               }
 
               if (option.id === "agency-manager") {
-                navigate("/new-ad/agency?registrantType=personal&publisherType=agency&context=agency");
+                navigate(
+                  "/new-ad/agency?registrantType=personal&publisherType=agency&context=agency",
+                );
                 return;
               }
 
-              navigate("/new-ad/agency-consultant?registrantType=personal&publisherType=agent&context=agency-consultant");
+              navigate(
+                "/new-ad/agency-consultant?registrantType=personal&publisherType=agent&context=agency-consultant",
+              );
             }}
           />
         </Suspense>

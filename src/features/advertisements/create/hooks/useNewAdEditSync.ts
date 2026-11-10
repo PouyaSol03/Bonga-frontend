@@ -17,6 +17,7 @@ interface UseNewAdEditSyncProps {
   activeRole: string;
   editAdId: string | null;
   editAdState: ReturnType<typeof getEditAdRouteState>;
+  initialEditValuesRef?: React.MutableRefObject<NewAdFormValues | null>;
   isCrmEditMode: boolean;
   isCrmSource: boolean;
   isEditMode: boolean;
@@ -29,6 +30,7 @@ export function useNewAdEditSync({
   activeRole,
   editAdId,
   editAdState,
+  initialEditValuesRef: externalInitialEditValuesRef,
   isCrmEditMode,
   isCrmSource,
   isEditMode,
@@ -36,9 +38,9 @@ export function useNewAdEditSync({
   restoredValues,
   setSubmitError,
 }: UseNewAdEditSyncProps) {
-  const [, setEditRouteVersion] = useState(0);
+  const [editRouteVersion, setEditRouteVersion] = useState(0);
   const editDataAppliedRef = useRef<string | null>(null);
-  const initialEditValuesRef = useRef<NewAdFormValues | null>(
+  const localInitialEditValuesRef = useRef<NewAdFormValues | null>(
     isEditMode && editAdState.ad
       ? mapAdvertisementToEditValues(
           editAdState.ad,
@@ -46,13 +48,22 @@ export function useNewAdEditSync({
         )
       : null,
   );
+  const initialEditValuesRef = externalInitialEditValuesRef ?? localInitialEditValuesRef;
 
   const editAdQuery = useQuery<AdvertisementItem, Error>({
     enabled: Boolean(isEditMode && !isCrmEditMode && editAdId),
     queryFn: async () => {
       const id = String(editAdId);
-      const res = (await getV2Edit(id)) as any;
-      return (res?.data ?? res) as AdvertisementItem;
+      const res = (await getV2Edit(id)) as
+        | { data?: AdvertisementItem; advertise?: AdvertisementItem }
+        | AdvertisementItem;
+      return (
+        "data" in res && res.data
+          ? res.data
+          : "advertise" in res && res.advertise
+            ? res.advertise
+            : res
+      ) as AdvertisementItem;
     },
     queryKey: ["advertisement", "edit-fields", editAdId, activeRole],
   });
@@ -79,8 +90,8 @@ export function useNewAdEditSync({
     !isCrmSource &&
     (String(editAdData?.status) === "-5" ||
       editAdData?.status === "incomplete" ||
-      (editAdData as any)?.status_code === -5 ||
-      String((editAdData as any)?.status_code) === "-5" ||
+      editAdData?.status_code === -5 ||
+      String(editAdData?.status_code) === "-5" ||
       String(editAdState.ad?.status) === "-5" ||
       editAdState.ad?.status === "incomplete" ||
       editAdState.status === "incomplete" ||
@@ -100,12 +111,16 @@ export function useNewAdEditSync({
       isEditMode: true,
     });
     const baselineEditValues = mapAdvertisementToEditValues(editAdData, editDefaults);
-    initialEditValuesRef.current = baselineEditValues;
+    if (externalInitialEditValuesRef) {
+      externalInitialEditValuesRef.current = baselineEditValues;
+    } else {
+      localInitialEditValuesRef.current = baselineEditValues;
+    }
 
     if (shouldPreserveNewAdDraft(window.history.state) && restoredValues) {
       editDataAppliedRef.current = appliedKey;
       if (routeChanged) {
-        setEditRouteVersion((version) => version + 1);
+        setTimeout(() => setEditRouteVersion((version) => version + 1), 0);
       }
       return undefined;
     }
@@ -123,13 +138,16 @@ export function useNewAdEditSync({
   useEffect(() => {
     if (!isEditMode || !editAdIsError) return;
 
-    setSubmitError(getApiErrorMessage(editAdError, "دریافت اطلاعات آگهی برای ویرایش با خطا مواجه شد."));
+    setSubmitError(
+      getApiErrorMessage(editAdError, "دریافت اطلاعات آگهی برای ویرایش با خطا مواجه شد."),
+    );
   }, [editAdError, editAdIsError, isEditMode, setSubmitError]);
 
   return {
     crmEditRecord,
     editAdData,
     editAdIsLoading,
+    editRouteVersion,
     initialEditValuesRef,
     isEditingIncomplete,
   };

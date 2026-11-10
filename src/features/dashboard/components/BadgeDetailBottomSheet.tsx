@@ -101,14 +101,20 @@ export function BadgeDetailBottomSheet({
 
   const imageSrc = useMemo(() => {
     if (!slug) return BADGE_IMAGES.market_magnet;
-    return BADGE_IMAGES[slug] || BADGE_IMAGES[slug.replace(/_/g, "-")] || "/vectors/badges/badge-cup.webp";
+    return (
+      BADGE_IMAGES[slug] ||
+      BADGE_IMAGES[slug.replace(/_/g, "-")] ||
+      "/vectors/badges/badge-cup.webp"
+    );
   }, [slug]);
 
-  const meta = BADGE_METAS[slug] || BADGE_METAS[slug.replace(/_/g, "-")] || {
-    metricLabel: "امتیاز کسب‌شده",
-    metricValueText: (val) => toPersianDigits(val ?? 0),
-    description: "این نشان براساس میزان فعالیت، رضایت کاربران و کیفیت ثبت آگهی‌ها در سامانه محاسبه می‌شود.",
-  };
+  const meta = BADGE_METAS[slug] ||
+    BADGE_METAS[slug.replace(/_/g, "-")] || {
+      metricLabel: "امتیاز کسب‌شده",
+      metricValueText: (val) => toPersianDigits(val ?? 0),
+      description:
+        "این نشان براساس میزان فعالیت، رضایت کاربران و کیفیت ثبت آگهی‌ها در سامانه محاسبه می‌شود.",
+    };
 
   return (
     <BottomSheet
@@ -119,12 +125,12 @@ export function BadgeDetailBottomSheet({
       title={`نشان ${title}`}
       variant="confirm"
     >
-      <div className="flex flex-col items-center px-4 pb-6 pt-2 text-center [direction:rtl]">
+      <div className="flex flex-col items-center px-4 pt-2 pb-6 text-center [direction:rtl]">
         {/* Graphic illustration */}
         <div className="relative mb-3 flex h-24 w-24 items-center justify-center">
           <img
             alt={title}
-            className={`h-full w-full object-contain ${!badge?.earned && level === 0 ? "grayscale opacity-80" : ""}`}
+            className={`h-full w-full object-contain ${!badge?.earned && level === 0 ? "opacity-80 grayscale" : ""}`}
             src={imageSrc}
           />
         </div>
@@ -138,7 +144,7 @@ export function BadgeDetailBottomSheet({
         <div className="mt-2.5 flex h-4 items-center justify-center gap-1.5 [direction:ltr]">
           {[0, 1, 2].map((starIndex) => (
             <LinearStar
-              className={`h-4 w-4 ${level > starIndex ? "text-amber-500 fill-amber-500" : "text-gray-300"}`}
+              className={`h-4 w-4 ${level > starIndex ? "fill-amber-500 text-amber-500" : "text-gray-300"}`}
               innerColor="currentColor"
               key={starIndex}
             />
@@ -147,17 +153,35 @@ export function BadgeDetailBottomSheet({
 
         {/* Metric row */}
         <div className="mt-4 flex items-baseline justify-center gap-2">
-          <Typography as="span" variant="title" size="large" weight="semibold" className="text-xl font-bold text-on-surface">
+          <Typography
+            as="span"
+            variant="title"
+            size="large"
+            weight="semibold"
+            className="text-on-surface text-xl font-bold"
+          >
             {meta.metricValueText(currentValue)}
           </Typography>
-          <Typography as="span" variant="body" size="medium" weight="medium" className="text-sm text-on-surface-variant">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="medium"
+            className="text-on-surface-variant text-sm"
+          >
             {meta.metricLabel}
           </Typography>
         </div>
 
         {/* Info card (Pale mint background with dark green border) */}
         <div className="mt-5 w-full rounded-2xl border border-emerald-500/60 bg-emerald-50/70 p-4 text-right">
-          <Typography as="p" variant="body" size="small" weight="regular" className="m-0 text-xs font-normal leading-6 text-emerald-950">
+          <Typography
+            as="p"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="m-0 text-xs leading-6 font-normal text-emerald-950"
+          >
             {meta.description}
           </Typography>
         </div>

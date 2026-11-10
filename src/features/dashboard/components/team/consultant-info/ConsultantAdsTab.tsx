@@ -36,17 +36,13 @@ export function ConsultantAdsTab({
 
   const hasActiveFilters = Boolean(
     filters.neighborhoods.length > 0 ||
-      filters.transaction ||
-      filters.propertyTypes.length > 0 ||
-      (filters.status && filters.status !== "همه"),
+    filters.transaction ||
+    filters.propertyTypes.length > 0 ||
+    (filters.status && filters.status !== "همه"),
   );
 
   const apiStatus =
-    filters.status === "فعال"
-      ? "active"
-      : filters.status === "منقضی شده"
-        ? "expired"
-        : "all";
+    filters.status === "فعال" ? "active" : filters.status === "منقضی شده" ? "expired" : "all";
 
   const adsQuery = useAgencyConsultantAdvertisementsQuery({
     agentId: agentId ?? "",
@@ -57,10 +53,7 @@ export function ConsultantAdsTab({
   const rawAds = propAds ?? adsQuery.data?.data ?? [];
   const isLoading = Boolean(agentId) && adsQuery.isLoading;
 
-  const ads = useMemo(
-    () => filterConsultantAds(rawAds, filters),
-    [rawAds, filters],
-  );
+  const ads = useMemo(() => filterConsultantAds(rawAds, filters), [rawAds, filters]);
 
   const handleOpen = () => {
     if (onOpenFilter) {
@@ -85,8 +78,8 @@ export function ConsultantAdsTab({
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-surface-container">
-      <div className="flex items-center justify-start gap-2 overflow-x-auto bg-surface-container-lowest px-4 pb-4 pt-6 no-scrollbar">
+    <div className="bg-surface-container flex flex-1 flex-col">
+      <div className="bg-surface-container-lowest no-scrollbar flex items-center justify-start gap-2 overflow-x-auto px-4 pt-6 pb-4">
         <Chip
           icon={<LinearFilterHorizontal className="h-4 w-4" />}
           onClick={handleOpen}
@@ -142,11 +135,7 @@ export function ConsultantAdsTab({
         ))}
 
         {filters.status && filters.status !== "همه" ? (
-          <Chip
-            removable
-            selected
-            onClick={() => setFilters({ ...filters, status: undefined })}
-          >
+          <Chip removable selected onClick={() => setFilters({ ...filters, status: undefined })}>
             {filters.status}
           </Chip>
         ) : null}
@@ -160,14 +149,14 @@ export function ConsultantAdsTab({
       ) : ads.length > 0 ? (
         ads.map((ad) => (
           <AdCard
-            className="shrink-0 border-b-[12px] border-surface-container last:border-b-0"
+            className="border-surface-container shrink-0 border-b-[12px] last:border-b-0"
             key={ad.id}
             ad={ad}
             to={`/ads/${ad.id}`}
           />
         ))
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-center bg-surface-container-lowest px-4 py-20 text-center">
+        <div className="bg-surface-container-lowest flex flex-1 flex-col items-center justify-center px-4 py-20 text-center">
           <img
             alt=""
             aria-hidden="true"
@@ -179,7 +168,7 @@ export function ConsultantAdsTab({
             variant="body"
             size="medium"
             weight="medium"
-            className="m-0 text-outline"
+            className="text-outline m-0"
           >
             هیچ آگهی‌‎ای برای نمایش وجود ندارد؛
           </Typography>

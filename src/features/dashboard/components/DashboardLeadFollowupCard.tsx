@@ -15,23 +15,23 @@ export interface LeadFollowupItem {
   to?: string;
 }
 
-export interface DashboardLeadFollowupCardProps {
+interface DashboardLeadFollowupCardProps {
   item: LeadFollowupItem;
 }
 
 export function DashboardLeadFollowupCard({ item }: DashboardLeadFollowupCardProps) {
   const targetLink =
     item.to ||
-    (item.adId ? `/account/dashboard/requests?adId=${item.adId}` : "/account/dashboard/requests");
+    (item.adId ? `/account/dashboard/requests?adId=${item.adId}&from=dashboard` : "/account/dashboard/requests?from=dashboard");
 
   return (
-    <div className="flex flex-col justify-between rounded-[12px] bg-white p-4 border border-[#CCCCCC]/40 [direction:rtl]">
+    <div className="flex flex-col justify-between rounded-[12px] border border-[#CCCCCC]/40 bg-white p-4 [direction:rtl]">
       {/* Top row: Image (right) + Info (left) */}
       <div className="flex items-center gap-3">
         <img
           src={item.imageUrl || "/figma/dashboard/lead-apartment.jpg"}
           alt={item.title}
-          className="h-12 w-[72px] shrink-0 rounded-[4px] object-cover bg-gray-100"
+          className="h-12 w-[72px] shrink-0 rounded-[4px] bg-gray-100 object-cover"
           onError={(e) => {
             (e.target as HTMLImageElement).src =
               "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&auto=format&fit=crop&q=80";

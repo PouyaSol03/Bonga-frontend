@@ -29,20 +29,14 @@ const staticDotIcon = new DivIcon({
   iconAnchor: [7, 7],
 });
 
-function SearchMapMarkerComponent(props: SearchMapMarkerProps) {
-  if ("marker" in props) {
-    return (
-      <Marker
-        position={[props.marker.latitude, props.marker.longitude]}
-        icon={staticDotIcon}
-        interactive={false}
-        zIndexOffset={0}
-      />
-    );
-  }
-
-  const { listing, isSeen, isSelected, onSelect } = props;
-  const isPrice = props.isPriceVisible || isSelected;
+function ListingMapMarker({
+  listing,
+  isSeen,
+  isSelected,
+  isPriceVisible,
+  onSelect,
+}: SearchMapListingMarkerProps) {
+  const isPrice = isPriceVisible || isSelected;
   const markerIcon = useMemo(() => {
     return isPrice
       ? createSearchPricePillIcon(listing.priceValue, isSelected, isSeen)
@@ -66,6 +60,29 @@ function SearchMapMarkerComponent(props: SearchMapMarkerProps) {
   );
 }
 
+function SearchMapMarkerComponent(props: SearchMapMarkerProps) {
+  if ("marker" in props) {
+    return (
+      <Marker
+        position={[props.marker.latitude, props.marker.longitude]}
+        icon={staticDotIcon}
+        interactive={false}
+        zIndexOffset={0}
+      />
+    );
+  }
+
+  return (
+    <ListingMapMarker
+      listing={props.listing}
+      isSeen={props.isSeen}
+      isSelected={props.isSelected}
+      isPriceVisible={props.isPriceVisible}
+      onSelect={props.onSelect}
+    />
+  );
+}
+
 export const SearchMapMarker = memo(SearchMapMarkerComponent);
 
 function escapeMarkerText(value: string) {
@@ -77,10 +94,7 @@ function escapeMarkerText(value: string) {
     .replace(/'/g, "&#039;");
 }
 
-function createSearchDotIcon(
-  isSelected: boolean,
-  isSeen: boolean,
-) {
+function createSearchDotIcon(isSelected: boolean, isSeen: boolean) {
   const dotClasses = [
     "search-map-dot",
     isSelected ? "search-map-dot--selected" : "",
@@ -101,11 +115,7 @@ function createSearchDotIcon(
   });
 }
 
-function createSearchPricePillIcon(
-  priceValue: string,
-  isSelected: boolean,
-  isSeen: boolean,
-) {
+function createSearchPricePillIcon(priceValue: string, isSelected: boolean, isSeen: boolean) {
   const safePriceValue = escapeMarkerText(priceValue);
   const pillClasses = [
     "search-map-marker",

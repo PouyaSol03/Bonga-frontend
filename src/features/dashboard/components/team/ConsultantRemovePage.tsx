@@ -46,10 +46,7 @@ export function ConsultantRemovePage() {
   }, [consultantsQuery.data?.data, routeConsultant, routeId]);
 
   const targetAgentId =
-    matchedConsultant?.agentId ??
-    routeConsultant.agentId ??
-    routeId ??
-    routeConsultant.id;
+    matchedConsultant?.agentId ?? routeConsultant.agentId ?? routeId ?? routeConsultant.id;
 
   const consultantQuery = useAgencyConsultantQuery({ agentId: targetAgentId });
   const consultant = consultantQuery.data
@@ -58,10 +55,7 @@ export function ConsultantRemovePage() {
       ? mapAgencyConsultantToTeamConsultant(matchedConsultant)
       : routeConsultant;
   const consultants = useMemo(
-    () =>
-      (consultantsQuery.data?.data ?? []).map(
-        mapAgencyConsultantToTeamConsultant,
-      ),
+    () => (consultantsQuery.data?.data ?? []).map(mapAgencyConsultantToTeamConsultant),
     [consultantsQuery.data?.data],
   );
   const agencyReplacementTarget = useMemo<ReplacementTarget>(
@@ -74,12 +68,11 @@ export function ConsultantRemovePage() {
     [agencyProfileQuery.data?.name],
   );
   const [isReplacementPickerOpen, setIsReplacementPickerOpen] = useState(false);
-  const [selectedReplacement, setSelectedReplacement] =
-    useState<ReplacementTarget | null>(null);
+  const [selectedReplacement, setSelectedReplacement] = useState<ReplacementTarget | null>(null);
 
   return (
     <section
-      className="relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-container-lowest text-on-surface"
+      className="bg-surface-container-lowest text-on-surface relative mx-auto flex h-full min-h-[640px] w-full max-w-[500px] flex-col overflow-hidden"
       dir="rtl"
     >
       <TopBar
@@ -93,23 +86,46 @@ export function ConsultantRemovePage() {
       <main className="min-h-0 flex-1 overflow-y-auto px-4 pb-28">
         <ConsultantProfilePill consultant={consultant} />
 
-        <section className="mt-4 rounded-2xl border border-warning bg-warning-container/30 p-4">
-          <div className="flex items-center gap-2 text-warning">
-            <LinearDanger className="h-6 w-6 text-warning" />
-            <Typography as="h2" variant="title" size="medium" weight="semibold" className="m-0 text-base font-semibold leading-6">توجه!</Typography>
+        <section className="border-warning bg-warning-container/30 mt-4 rounded-2xl border p-4">
+          <div className="text-warning flex items-center gap-2">
+            <LinearDanger className="text-warning h-6 w-6" />
+            <Typography
+              as="h2"
+              variant="title"
+              size="medium"
+              weight="semibold"
+              className="m-0 text-base leading-6 font-semibold"
+            >
+              توجه!
+            </Typography>
           </div>
-          <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 mt-4 text-sm font-medium leading-6 text-on-surface-var">
+          <Typography
+            as="p"
+            variant="body"
+            size="medium"
+            weight="medium"
+            className="text-on-surface-var m-0 mt-4 text-sm leading-6 font-medium"
+          >
             در صورت حذف تمامی اطلاعات ثبت شده به مشاور جایگزین منتقل می‌گردد.
           </Typography>
         </section>
 
         <section className="mt-7">
-          <label className="block text-right text-base font-semibold leading-6 text-on-surface">
-            انتخاب مشاور جایگزین <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">*</Typography>
+          <label className="text-on-surface block text-right text-base leading-6 font-semibold">
+            انتخاب مشاور جایگزین{" "}
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-error"
+            >
+              *
+            </Typography>
           </label>
           <Button
             unstyled
-            className="mt-3 flex h-14 w-full items-center justify-between rounded-xl border border-outline bg-surface-container-lowest px-4 text-sm font-medium leading-5 text-on-surface"
+            className="border-outline bg-surface-container-lowest text-on-surface mt-3 flex h-14 w-full items-center justify-between rounded-xl border px-4 text-sm leading-5 font-medium"
             onClick={() => setIsReplacementPickerOpen(true)}
             type="button"
           >
@@ -123,7 +139,7 @@ export function ConsultantRemovePage() {
         </section>
       </main>
 
-      <div className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-4 bg-surface-container-lowest px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-sm">
+      <div className="bg-surface-container-lowest absolute inset-x-0 bottom-0 grid grid-cols-2 gap-4 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-sm">
         <Button
           fullWidth
           onClick={() => {
@@ -143,16 +159,13 @@ export function ConsultantRemovePage() {
         <Button
           fullWidth
           loading={deactivateConsultantMutation.isPending}
-          disabled={!selectedReplacement} 
+          disabled={!selectedReplacement}
           size="x-medium"
           variant="primary"
           onClick={() => {
             if (!selectedReplacement) return;
 
-            const finalAgentId =
-              consultant.agentId ??
-              matchedConsultant?.agentId ??
-              targetAgentId;
+            const finalAgentId = consultant.agentId ?? matchedConsultant?.agentId ?? targetAgentId;
 
             deactivateConsultantMutation.mutate(
               selectedReplacement.kind === "agency"
@@ -164,8 +177,7 @@ export function ConsultantRemovePage() {
                     agentId: finalAgentId,
                     transferTo: "member",
                     transferUserId:
-                      selectedReplacement.consultant.userId ??
-                      selectedReplacement.consultant.id,
+                      selectedReplacement.consultant.userId ?? selectedReplacement.consultant.id,
                   },
               {
                 onSuccess: () => {

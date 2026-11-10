@@ -1,6 +1,6 @@
 import { PageFrame } from "../../shared/layout/PageFrame";
 import { Typography } from "../../shared/ui/Typography";
-import { getRequestErrorState } from "../../shared/components/ErrorState";
+import { RequestErrorState } from "../../shared/components/ErrorState";
 import { useNotificationsController } from "./useNotificationsController";
 import { NotificationHeader } from "./components/NotificationHeader";
 import { NotificationFilterBar } from "./components/NotificationFilterBar";
@@ -66,14 +66,11 @@ export function NotificationsPage() {
     toggleFilter,
     visibleNotifications,
   } = useNotificationsController();
-
-  const ErrorState = getRequestErrorState(notificationsQuery.error);
-  const isFilteredEmpty =
-    selectedFilterIds.size > 0 && visibleNotifications.length === 0;
+  const isFilteredEmpty = selectedFilterIds.size > 0 && visibleNotifications.length === 0;
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <NotificationHeader
@@ -86,21 +83,22 @@ export function NotificationsPage() {
         selectedFilters={selectedFilters}
       />
 
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-5 [-webkit-overflow-scrolling:touch]">
+      <main className="bg-surface-container-lowest flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto pb-5 [-webkit-overflow-scrolling:touch]">
         {notificationsQuery.isLoading ? (
           <Typography
             as="p"
             variant="body"
             size="medium"
             weight="regular"
-            className="py-16 text-center text-sm text-outline"
+            className="text-outline py-16 text-center text-sm"
           >
             در حال دریافت اعلان‌ها...
           </Typography>
         ) : null}
 
         {notificationsQuery.isError ? (
-          <ErrorState
+          <RequestErrorState
+            error={notificationsQuery.error}
             className="h-full min-h-0 flex-1"
             onRetry={() => void refreshNotifications()}
           />
@@ -119,11 +117,7 @@ export function NotificationsPage() {
                 key={String(notification.id)}
                 ref={(node) => {
                   if (shouldAttachLoadMoreRef) loadMoreSentinelRef(node);
-                  observeNotificationNode(
-                    node,
-                    String(notification.id),
-                    notification.is_read,
-                  );
+                  observeNotificationNode(node, String(notification.id), notification.is_read);
                 }}
               >
                 <SwipeableNotificationCard
@@ -132,18 +126,14 @@ export function NotificationsPage() {
                     getAgencyConsultantRequestDisplayState(notification)
                   }
                   isDeleting={
-                    deleteMutation.isPending &&
-                    deleteMutation.variables === String(notification.id)
+                    deleteMutation.isPending && deleteMutation.variables === String(notification.id)
                   }
                   isRespondingToAgencyRequest={
                     agencyRequestActionNotificationId === String(notification.id)
                   }
                   item={notification}
                   onAgencyRequestDecision={(decision) =>
-                    void handleAgencyConsultantRequestDecision(
-                      notification,
-                      decision,
-                    )
+                    void handleAgencyConsultantRequestDecision(notification, decision)
                   }
                   onDelete={() => void deleteMutation.mutate(String(notification.id))}
                   onOpen={() => void openNotification(notification)}
@@ -153,8 +143,8 @@ export function NotificationsPage() {
           })}
 
         {!notificationsQuery.isLoading &&
-          !notificationsQuery.isError &&
-          (notifications.length === 0 || isFilteredEmpty) ? (
+        !notificationsQuery.isError &&
+        (notifications.length === 0 || isFilteredEmpty) ? (
           <NotificationsEmptyState isFiltered={isFilteredEmpty} />
         ) : null}
       </main>

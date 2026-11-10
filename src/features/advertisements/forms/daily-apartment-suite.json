@@ -44,7 +44,10 @@
           "۲",
           "۳",
           "۴",
-          "۵+"
+          "۵",
+          "۶",
+          "۷",
+          "۸+"
         ]
       },
       {
@@ -347,6 +350,22 @@
         {
           "id": "garden",
           "label": "فضا سبز/باغ"
+        },
+        {
+          "id": "power",
+          "label": "امتیاز برق"
+        },
+        {
+          "id": "water",
+          "label": "امتیاز آب"
+        },
+        {
+          "id": "gas",
+          "label": "امتیاز گاز"
+        },
+        {
+          "id": "phone",
+          "label": "امتیاز تلفن"
         }
       ]
     },
@@ -421,14 +440,13 @@
         },
         {
           "key": "minStayDays",
-          "title": "حداقل مدت اقامت (روز)",
-          "input": "number",
-          "leftText": "روز",
-          "numeric": true
+          "title": "حداقل مدت اقامت",
+          "input": "select",
+          "ui": "bottomSheet"
         },
         {
           "key": "evacuationGuarantee",
-          "title": "تضمین تخلیه (تومان)",
+          "title": "تضمین تخلیه",
           "input": "currency",
           "leftText": "تومان",
           "numeric": true
@@ -499,7 +517,10 @@
           "۲",
           "۳",
           "۴",
-          "۵ و بیشتر"
+          "۵",
+          "۶",
+          "۷",
+          "۸ و بیشتر"
         ]
       },
       {

@@ -1,4 +1,10 @@
-import { useState, type ChangeEventHandler, type InputHTMLAttributes, type ReactNode, type Ref } from "react";
+import {
+  useState,
+  type ChangeEventHandler,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type Ref,
+} from "react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { cn } from "../../design-system/classes";
@@ -75,14 +81,14 @@ export function TextField({
 
   return (
     <label className={cn("block min-w-0", containerClassName)}>
-      <Typography as="span" variant="body" size="medium" weight="regular"
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
         className={cn(
-          "relative flex h-14 items-center gap-2 rounded-[12px] border bg-surface-container-lowest px-4 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] [direction:rtl]",
-          error
-            ? "border-error"
-            : hasHighlightedBorder
-              ? "border-primary"
-              : "border-outline-var",
+          "bg-surface-container-lowest relative flex h-14 items-center gap-2 rounded-[12px] border px-4 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] [direction:rtl]",
+          error ? "border-error" : hasHighlightedBorder ? "border-primary" : "border-outline-var",
           hasFocusedStyle
             ? error
               ? "shadow-[inset_0_0_0_1px_var(--error)]"
@@ -106,8 +112,12 @@ export function TextField({
                 size="small"
                 weight="regular"
                 className={cn(
-                  "block truncate bg-surface-container-lowest px-1.5 rounded",
-                  error ? "text-error" : hasFocusedStyle ? "text-primary font-medium" : "text-outline",
+                  "bg-surface-container-lowest block truncate rounded px-1.5",
+                  error
+                    ? "text-error"
+                    : hasFocusedStyle
+                      ? "text-primary font-medium"
+                      : "text-outline",
                 )}
               >
                 {label}
@@ -120,7 +130,7 @@ export function TextField({
           ref={inputRef}
           aria-invalid={Boolean(error)}
           className={cn(
-            "min-w-0 flex-1 border-0 bg-transparent p-0 text-right text-on-surface caret-primary outline-none placeholder:text-outline placeholder:transition-colors placeholder:duration-150 [direction:rtl]",
+            "text-on-surface caret-primary placeholder:text-outline min-w-0 flex-1 border-0 bg-transparent p-0 text-right outline-none [direction:rtl] placeholder:transition-colors placeholder:duration-150",
             label && "focus:placeholder:text-transparent",
             className,
           )}
@@ -158,7 +168,7 @@ export function TextField({
                 variant="body"
                 size="medium"
                 weight="regular"
-                className="whitespace-nowrap text-sm font-normal leading-5 text-outline"
+                className="text-outline text-sm leading-5 font-normal whitespace-nowrap"
               >
                 {badge}
               </Typography>
@@ -175,9 +185,10 @@ export function TextField({
               key="clear-button"
               transition={{ duration: 0.18, ease: [0.2, 0.8, 0.2, 1] }}
             >
-              <Button unstyled
+              <Button
+                unstyled
                 aria-label="پاک کردن"
-                className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-on-surface-var opacity-40 transition-colors duration-150 active:bg-surface-container-high"
+                className="text-on-surface-var active:bg-surface-container-high grid h-6 w-6 shrink-0 place-items-center rounded-full opacity-40 transition-colors duration-150"
                 onClick={(event) => {
                   event.preventDefault();
                   onClear();
@@ -194,7 +205,16 @@ export function TextField({
         {trailingSlot}
       </Typography>
       {helperText ? (
-        <Typography as="span" variant="body" size="small" weight="regular" className={cn("mt-1 block px-4 text-right text-xs font-normal leading-5", error ? "text-error" : "text-outline")}>
+        <Typography
+          as="span"
+          variant="body"
+          size="small"
+          weight="regular"
+          className={cn(
+            "mt-1 block px-4 text-right text-xs leading-5 font-normal",
+            error ? "text-error" : "text-outline",
+          )}
+        >
           {helperText}
         </Typography>
       ) : null}

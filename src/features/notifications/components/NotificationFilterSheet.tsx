@@ -53,7 +53,7 @@ export function NotificationFilterSheet({
             <Button
               unstyled
               aria-pressed={isSelected}
-              className="flex h-[64px] w-full items-center justify-between text-right text-base font-medium leading-6 text-on-surface focus-visible:outline-3 focus-visible:outline-inset focus-visible:outline-primary/40"
+              className="text-on-surface focus-visible:outline-inset focus-visible:outline-primary/40 flex h-[64px] w-full items-center justify-between text-right text-base leading-6 font-medium focus-visible:outline-3"
               key={option.id}
               onClick={() => onToggle(option.id)}
               type="button"

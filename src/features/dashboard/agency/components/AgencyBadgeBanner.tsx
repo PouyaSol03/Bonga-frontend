@@ -4,7 +4,7 @@ import {
 } from "../../components/DashboardBadgeBanner";
 import { getAgencyRankingLevel } from "../../utils/rankingLevels";
 
-export interface AgencyBadgeBannerProps extends DashboardBadgeBannerProps {}
+interface AgencyBadgeBannerProps extends DashboardBadgeBannerProps {}
 
 export function AgencyBadgeBanner(props: AgencyBadgeBannerProps) {
   const level = getAgencyRankingLevel({ levelTitle: props.badgeName });
@@ -13,7 +13,7 @@ export function AgencyBadgeBanner(props: AgencyBadgeBannerProps) {
       categoryLabel="سطح آژانس"
       badgeName={props.badgeName ?? level.title}
       imageSrc={props.imageSrc ?? level.image}
-      to="/account/dashboard/ranking"
+      to="/account/dashboard/ranking?from=dashboard"
       {...props}
     />
   );

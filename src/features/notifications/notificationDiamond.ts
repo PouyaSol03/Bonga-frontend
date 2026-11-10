@@ -8,9 +8,7 @@ import type { NotificationItem } from "./api/notification.service";
  * - Only advertisement cards ("پیام های آگهی") have a diamond indicator.
  * - Other categories (trades, requests, chats, systems, support) do NOT have a diamond.
  */
-export function getNotificationDiamondColor(
-  notification: NotificationItem,
-): string | null {
+export function getNotificationDiamondColor(notification: NotificationItem): string | null {
   const category = notification.category ?? "systems";
   const title = (notification.title ?? "").trim();
   const type = String(notification.type ?? "").toLowerCase();

@@ -1,15 +1,6 @@
-export function SearchIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
-      <path
-        d="M10.8 18.2a7.4 7.4 0 1 0 0-14.8 7.4 7.4 0 0 0 0 14.8ZM16.1 16.1 21 21"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.7"
-      />
-    </svg>
-  );
-}
+import { SearchIcon } from "../../../shared/icons/SearchIcon";
+
+export { SearchIcon };
 
 export function RankIcon() {
   return (

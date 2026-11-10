@@ -36,7 +36,7 @@ export function DirectoryModeSheet({
             <Button
               unstyled
               aria-pressed={checked}
-              className={`flex w-full px-4 py-6 items-center justify-between text-right font-medium leading-5 ${
+              className={`flex w-full items-center justify-between px-4 py-6 text-right leading-5 font-medium ${
                 checked
                   ? "bg-surface-container-lowest text-primary"
                   : "bg-surface-container-lowest text-on-surface"

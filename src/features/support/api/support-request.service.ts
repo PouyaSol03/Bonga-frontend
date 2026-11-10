@@ -1,6 +1,6 @@
 import { api } from "../../../shared/api/api";
 
-export type SupportRequestPayload = {
+type SupportRequestPayload = {
   category: string;
   priority: "normal" | "important" | "urgent";
   subject: string;
@@ -23,7 +23,7 @@ export type SupportRequestItem = Record<string, unknown> & {
   user?: Record<string, unknown>;
 };
 
-export type SupportRequestsPage = {
+type SupportRequestsPage = {
   data: SupportRequestItem[];
   page: number;
   perPage: number;
@@ -40,8 +40,7 @@ type SupportRequestsResponse =
     };
 
 type SupportRequestResponse =
-  | SupportRequestItem
-  | { data?: SupportRequestItem; request?: SupportRequestItem };
+  SupportRequestItem | { data?: SupportRequestItem; request?: SupportRequestItem };
 
 function readSupportRequest(response: SupportRequestResponse): SupportRequestItem {
   const envelope = response as {
@@ -86,12 +85,12 @@ export async function getSupportRequests({
       },
     })
     .json<SupportRequestsResponse>();
-  const data = Array.isArray(response) ? response : response.data ?? [];
+  const data = Array.isArray(response) ? response : (response.data ?? []);
 
   return {
     data,
-    page: Array.isArray(response) ? page : response.page ?? page,
-    perPage: Array.isArray(response) ? perPage : response.per_page ?? perPage,
-    total: Array.isArray(response) ? data.length : response.total ?? data.length,
+    page: Array.isArray(response) ? page : (response.page ?? page),
+    perPage: Array.isArray(response) ? perPage : (response.per_page ?? perPage),
+    total: Array.isArray(response) ? data.length : (response.total ?? data.length),
   };
 }

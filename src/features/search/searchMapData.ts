@@ -87,8 +87,7 @@ export const searchMapTileConfig: SearchMapTileConfig = {
   isTms: false,
   // The tile server publishes a light basemap only, so dark mode tints the
   // raster tiles whenever the app root carries the `dark` class.
-  className:
-    "[.dark_&]:[filter:grayscale(0.86)_invert(1)_brightness(1.06)_contrast(0.94)]",
+  className: "[.dark_&]:[filter:grayscale(0.86)_invert(1)_brightness(1.06)_contrast(0.94)]",
 };
 
 export const searchMapCenter: SearchMapCenter = {

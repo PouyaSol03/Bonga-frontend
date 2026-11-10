@@ -7,6 +7,13 @@ type SwitchButtonProps = {
   onChange: (checked: boolean) => void;
 };
 
-export function SwitchButton({ ariaLabel, checked, disabled = false, onChange }: SwitchButtonProps) {
-  return <Switch aria-label={ariaLabel} checked={checked} disabled={disabled} onChange={onChange} />;
+export function SwitchButton({
+  ariaLabel,
+  checked,
+  disabled = false,
+  onChange,
+}: SwitchButtonProps) {
+  return (
+    <Switch aria-label={ariaLabel} checked={checked} disabled={disabled} onChange={onChange} />
+  );
 }

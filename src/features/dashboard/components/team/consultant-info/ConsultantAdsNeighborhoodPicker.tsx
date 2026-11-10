@@ -53,10 +53,16 @@ export function ConsultantAdsNeighborhoodPicker({
           variant="label"
           size="medium"
           weight="medium"
-          className="flex items-center gap-1 text-primary font-medium"
+          className="text-primary flex items-center gap-1 font-medium"
         >
-          <LinearArrowLeft1 className="h-5 w-5 text-on-surface-var" />
-          <Typography as="span" variant="label" size="medium" weight="medium" className="text-primary font-medium">
+          <LinearArrowLeft1 className="text-on-surface-var h-5 w-5" />
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-primary font-medium"
+          >
             {selectionLabel}
           </Typography>
         </Typography>
@@ -66,24 +72,19 @@ export function ConsultantAdsNeighborhoodPicker({
           variant="label"
           size="large"
           weight="medium"
-          className="flex items-center gap-2 text-on-surface"
+          className="text-on-surface flex items-center gap-2"
         >
           <Typography as="span" variant="label" size="large" weight="medium">
             محله
           </Typography>
-          <LinearLocation className="h-6 w-6 shrink-0 text-on-surface-var" />
+          <LinearLocation className="text-on-surface-var h-6 w-6 shrink-0" />
         </Typography>
       </Button>
 
       {selectedNeighborhoods.length > 0 ? (
         <div className="mt-2 flex flex-wrap gap-2 pb-3" dir="rtl">
           {selectedNeighborhoods.map((n) => (
-            <Chip
-              key={n.id}
-              removable
-              selected
-              onClick={() => removeNeighborhood(n.id)}
-            >
+            <Chip key={n.id} removable selected onClick={() => removeNeighborhood(n.id)}>
               {n.name}
             </Chip>
           ))}

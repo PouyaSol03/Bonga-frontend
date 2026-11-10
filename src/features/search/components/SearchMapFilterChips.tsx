@@ -19,10 +19,11 @@ export function SearchMapFilterChips({
   return (
     <HorizontalFilterBar ariaLabel="فیلترهای جستجو">
       {[...chips].map((chip) => (
-        <Button unstyled
+        <Button
+          unstyled
           key={chip.id}
           dir="rtl"
-          className={`inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-[10px] border p-2 text-sm font-medium leading-5 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25 ${
+          className={`focus-visible:outline-primary/25 inline-flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-[10px] border p-2 text-sm leading-5 font-medium focus-visible:outline-[3px] focus-visible:outline-offset-2 ${
             chip.isActive
               ? "border-primary bg-primary/16 text-primary"
               : "border-outline-var bg-surface-container-lowest text-on-surface"
@@ -30,12 +31,24 @@ export function SearchMapFilterChips({
           type="button"
           onClick={() => onChipClick?.(chip)}
         >
-          {chip.id === "filters" ? <LinearFilterHorizontal className="w-5 h-5"/> : null}
+          {chip.id === "filters" ? <LinearFilterHorizontal className="h-5 w-5" /> : null}
 
-          <Typography as="span" variant="label" size="medium" weight="medium" className="whitespace-nowrap text-sm font-medium">{chip.label}</Typography>
+          <Typography
+            as="span"
+            variant="label"
+            size="medium"
+            weight="medium"
+            className="text-sm font-medium whitespace-nowrap"
+          >
+            {chip.label}
+          </Typography>
 
           {chip.removable ? (
-            <Typography as="span" variant="body" size="medium" weight="regular"
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
               className="relative h-5 w-5 shrink-0"
               aria-label={`حذف فیلتر ${chip.label}`}
               role="button"
@@ -52,7 +65,7 @@ export function SearchMapFilterChips({
                 onChipRemove?.(chip);
               }}
             >
-              <LinearCancelSmall className="w-5 h-5"/>
+              <LinearCancelSmall className="h-5 w-5" />
             </Typography>
           ) : null}
         </Button>

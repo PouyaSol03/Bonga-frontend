@@ -27,12 +27,10 @@ export function HorizontalFilterBar({
     <section
       ref={scrollRef}
       aria-label={ariaLabel}
-      className={`shrink-0 overflow-x-auto overscroll-x-contain px-4 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
+      className={`shrink-0 [scrollbar-width:none] overflow-x-auto overscroll-x-contain px-4 py-2 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${className}`}
       dir="rtl"
     >
-      <div
-        className={`flex w-max min-w-full items-center gap-2 ${contentClassName}`}
-      >
+      <div className={`flex w-max min-w-full items-center gap-2 ${contentClassName}`}>
         {children}
       </div>
     </section>

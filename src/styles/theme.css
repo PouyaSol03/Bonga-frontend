@@ -1,127 +1,73 @@
 :root {
-    color-scheme: light dark;
-    forced-color-adjust: none;
-    -webkit-forced-color-adjust: none;
-    --primary: var(--primary-400);
-    --on-primary: #FFFFFF;
-    --primary-container: var(--primary-950);
-    --on-primary-container: var(--primary-100);
+  color-scheme: light dark;
+  forced-color-adjust: none;
+  -webkit-forced-color-adjust: none;
+  --primary: var(--primary-400);
+  --on-primary: #ffffff;
+  --primary-container: var(--primary-950);
+  --on-primary-container: var(--primary-100);
 
-    --secondary: var(--secondary-400);
-    --on-secondary: #FFFFFF;
-    --secondary-container: var(--secondary-950);
-    --on-secondary-container: var(--secondary-100);
+  --secondary: var(--secondary-400);
+  --on-secondary: #ffffff;
+  --secondary-container: var(--secondary-950);
+  --on-secondary-container: var(--secondary-100);
 
-    --tertiary: var(--tertiary-400);
-    --on-tertiary: #FFFFFF;
-    --tertiary-container: var(--tertiary-950);
-    --on-tertiary-container: var(--tertiary-100);
+  --tertiary: var(--tertiary-400);
+  --on-tertiary: #ffffff;
+  --tertiary-container: var(--tertiary-950);
+  --on-tertiary-container: var(--tertiary-100);
 
-    --error: var(--error-400);
-    --on-error: #FFFFFF;
-    --error-container: var(--error-950);
-    --on-error-container: var(--error-100);
+  --error: var(--error-400);
+  --on-error: #ffffff;
+  --error-container: var(--error-950);
+  --on-error-container: var(--error-100);
 
-    --warning: var(--warning-400);
-    --on-warning: #FFFFFF;
-    --warning-container: var(--warning-950);
-    --on-warning-container: var(--warning-100);
+  --warning: var(--warning-400);
+  --on-warning: #ffffff;
+  --warning-container: var(--warning-950);
+  --on-warning-container: var(--warning-100);
 
-    --surface: #FAFAFA;
-    --on-surface: var(--neutral-100);
-    --on-surface-var: var(--neutral-300);
-    --outline: var(--neutral-500);
-    --outline-var: var(--neutral-800);
-    --surface-container-lowest: #FFFFFF;
-    --surface-container-low: #F5F5F5;
-    --surface-container: #F0F0F0;
-    --surface-container-high: #EBEBEB;
-    --surface-container-highest: #E5E5E5;
+  --surface: #fafafa;
+  --on-surface: var(--neutral-100);
+  --on-surface-var: var(--neutral-300);
+  --outline: var(--neutral-500);
+  --outline-var: var(--neutral-800);
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f5f5f5;
+  --surface-container: #f0f0f0;
+  --surface-container-high: #ebebeb;
+  --surface-container-highest: #e5e5e5;
 }
 
 @media (prefers-color-scheme: dark) {
-    :root:not(.theme-light-forced) {
-        color-scheme: dark;
-
-        --primary: #5c8cf5;
-        --on-primary: #001b66;
-        --primary-container: #10244f;
-        --on-primary-container: #d7ddf8;
-
-        --secondary: var(--secondary-700);
-        --on-secondary: #ffffff;
-        --secondary-container: var(--secondary-200);
-        --on-secondary-container: var(--secondary-900);
-
-        --tertiary: #2dd489;
-        --on-tertiary: #003820;
-        --tertiary-container: #0d3824;
-        --on-tertiary-container: #c1e7d3;
-
-        --error: #ff6b5c;
-        --on-error: #450000;
-        --error-container: #421412;
-        --on-error-container: #ffcdcf;
-
-        --warning: #ffaa33;
-        --on-warning: #421c00;
-        --warning-container: #4a2c00;
-        --on-warning-container: #ffe099;
-
-        --surface: #121212;
-        --on-surface: var(--neutral-900);
-        --on-surface-var: var(--neutral-800);
-        --outline: var(--neutral-600);
-        --outline-var: #2e2e2e;
-        --surface-container-lowest: #1e1e1e;
-        --surface-container-low: #181818;
-        --surface-container: #121212;
-        --surface-container-high: #242424;
-        --surface-container-highest: #2a2a2a;
-    }
-}
-
-*,
-*::before,
-*::after {
-    forced-color-adjust: none;
-    -webkit-forced-color-adjust: none;
-}
-
-.dark {
+  :root:not(.theme-light-forced) {
     color-scheme: dark;
 
-    /* Primary */
     --primary: #5c8cf5;
     --on-primary: #001b66;
     --primary-container: #10244f;
     --on-primary-container: #d7ddf8;
 
-    /* Secondary */
     --secondary: var(--secondary-700);
     --on-secondary: #ffffff;
     --secondary-container: var(--secondary-200);
     --on-secondary-container: var(--secondary-900);
 
-    /* Tertiary (Success) */
     --tertiary: #2dd489;
     --on-tertiary: #003820;
     --tertiary-container: #0d3824;
     --on-tertiary-container: #c1e7d3;
 
-    /* Error */
     --error: #ff6b5c;
     --on-error: #450000;
     --error-container: #421412;
     --on-error-container: #ffcdcf;
 
-    /* Warning */
     --warning: #ffaa33;
     --on-warning: #421c00;
     --warning-container: #4a2c00;
     --on-warning-container: #ffe099;
 
-    /* Surfaces & Backgrounds */
     --surface: #121212;
     --on-surface: var(--neutral-900);
     --on-surface-var: var(--neutral-800);
@@ -132,16 +78,70 @@
     --surface-container: #121212;
     --surface-container-high: #242424;
     --surface-container-highest: #2a2a2a;
+  }
+}
+
+*,
+*::before,
+*::after {
+  forced-color-adjust: none;
+  -webkit-forced-color-adjust: none;
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Primary */
+  --primary: #5c8cf5;
+  --on-primary: #001b66;
+  --primary-container: #10244f;
+  --on-primary-container: #d7ddf8;
+
+  /* Secondary */
+  --secondary: var(--secondary-700);
+  --on-secondary: #ffffff;
+  --secondary-container: var(--secondary-200);
+  --on-secondary-container: var(--secondary-900);
+
+  /* Tertiary (Success) */
+  --tertiary: #2dd489;
+  --on-tertiary: #003820;
+  --tertiary-container: #0d3824;
+  --on-tertiary-container: #c1e7d3;
+
+  /* Error */
+  --error: #ff6b5c;
+  --on-error: #450000;
+  --error-container: #421412;
+  --on-error-container: #ffcdcf;
+
+  /* Warning */
+  --warning: #ffaa33;
+  --on-warning: #421c00;
+  --warning-container: #4a2c00;
+  --on-warning-container: #ffe099;
+
+  /* Surfaces & Backgrounds */
+  --surface: #121212;
+  --on-surface: var(--neutral-900);
+  --on-surface-var: var(--neutral-800);
+  --outline: var(--neutral-600);
+  --outline-var: #2e2e2e;
+  --surface-container-lowest: #1e1e1e;
+  --surface-container-low: #181818;
+  --surface-container: #121212;
+  --surface-container-high: #242424;
+  --surface-container-highest: #2a2a2a;
 }
 
 /* Inputs & Form controls in dark mode */
 .dark input,
 .dark textarea,
 .dark select {
-    color: var(--on-surface);
+  color: var(--on-surface);
 }
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-    color: var(--outline) !important;
+  color: var(--outline) !important;
 }

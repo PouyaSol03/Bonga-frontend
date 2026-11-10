@@ -3,7 +3,12 @@ import { useMyProfileQuery, useUpdateMyProfileMutation } from "../api/account.ho
 import { getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { useToast } from "../../../shared/hooks/useToast";
-import { AccountPageShell, AccountProfileForm, AccountProfileSkeleton, AccountRetryState } from "../accountPageViews";
+import {
+  AccountPageShell,
+  AccountProfileForm,
+  AccountProfileSkeleton,
+  AccountRetryState,
+} from "../accountPageViews";
 
 export function AccountProfilePage() {
   const navigate = useNavigate();
@@ -22,7 +27,7 @@ export function AccountProfilePage() {
 
   return (
     <AccountPageShell title="مشخصات من">
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest pb-24">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-24">
         {isLoading ? <AccountProfileSkeleton /> : null}
         {isError ? (
           <AccountRetryState
@@ -55,7 +60,6 @@ export function AccountProfilePage() {
           />
         ) : null}
       </main>
-
     </AccountPageShell>
   );
 }

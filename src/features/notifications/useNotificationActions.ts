@@ -8,10 +8,7 @@ import type {
 } from "./api/notification.hooks";
 import type { useAgencyConsultantRequestDecisionMutation } from "../agencies/api/agency.hooks";
 import type { AgencyConsultantRequestDecision } from "./types";
-import {
-  getAgencyConsultantRequestAgentId,
-  getNotificationPath,
-} from "./notificationRouting";
+import { getAgencyConsultantRequestAgentId, getNotificationPath } from "./notificationRouting";
 
 export function useNotificationActions({
   agencyRequestDecisionMutation,
@@ -23,23 +20,20 @@ export function useNotificationActions({
   refetchUnreadCount,
   setRealtimeNotifications,
 }: {
-  agencyRequestDecisionMutation: ReturnType<
-    typeof useAgencyConsultantRequestDecisionMutation
-  >;
+  agencyRequestDecisionMutation: ReturnType<typeof useAgencyConsultantRequestDecisionMutation>;
   deleteMutation: ReturnType<typeof useDeleteNotificationMutation>;
   markAllReadMutation: ReturnType<typeof useMarkAllNotificationsReadMutation>;
   markReadMutation: ReturnType<typeof useMarkNotificationReadMutation>;
   notifications: NotificationItem[];
   refetchNotifications: () => Promise<unknown>;
   refetchUnreadCount: () => Promise<unknown>;
-  setRealtimeNotifications: React.Dispatch<
-    React.SetStateAction<NotificationItem[]>
-  >;
+  setRealtimeNotifications: React.Dispatch<React.SetStateAction<NotificationItem[]>>;
 }) {
   const navigate = useNavigate();
   const [isClearingRead, setIsClearingRead] = useState(false);
-  const [agencyRequestActionNotificationId, setAgencyRequestActionNotificationId] =
-    useState<string | null>(null);
+  const [agencyRequestActionNotificationId, setAgencyRequestActionNotificationId] = useState<
+    string | null
+  >(null);
   const [agencyRequestDecisions, setAgencyRequestDecisions] = useState<
     Record<string, AgencyConsultantRequestDecision>
   >({});
@@ -53,9 +47,7 @@ export function useNotificationActions({
     if (!notification.is_read) {
       setRealtimeNotifications((current) =>
         current.map((item) =>
-          String(item.id) === String(notification.id)
-            ? { ...item, is_read: true }
-            : item,
+          String(item.id) === String(notification.id) ? { ...item, is_read: true } : item,
         ),
       );
       try {
@@ -101,9 +93,7 @@ export function useNotificationActions({
   const markAllRead = async () => {
     try {
       await markAllReadMutation.mutateAsync(undefined);
-      setRealtimeNotifications((current) =>
-        current.map((item) => ({ ...item, is_read: true })),
-      );
+      setRealtimeNotifications((current) => current.map((item) => ({ ...item, is_read: true })));
       await refetchNotifications();
     } catch {
       void refetchNotifications();

@@ -33,7 +33,7 @@ const consultantLevels = [
 export function IndependentConsultantRankingLevelsPage() {
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -42,11 +42,35 @@ export function IndependentConsultantRankingLevelsPage() {
         title="سطح پیشرفت مشاور"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest">
-        <div className="grid h-12 grid-cols-3 items-center border-b border-outline-var text-base font-normal leading-6 text-on-surface-var [direction:rtl]">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="pr-4 text-right">امتیاز</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="text-center">نماد</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular" className="pl-4 text-left">عنوان</Typography>
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <div className="border-outline-var text-on-surface-var grid h-12 grid-cols-3 items-center border-b text-base leading-6 font-normal [direction:rtl]">
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="pr-4 text-right"
+          >
+            امتیاز
+          </Typography>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-center"
+          >
+            نماد
+          </Typography>
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="pl-4 text-left"
+          >
+            عنوان
+          </Typography>
         </div>
         {consultantLevels.map((level) => (
           <LevelTableRow key={level.title} level={level} />
@@ -56,16 +80,22 @@ export function IndependentConsultantRankingLevelsPage() {
   );
 }
 
-function LevelTableRow({
-  level,
-}: {
-  level: (typeof consultantLevels)[number];
-}) {
+function LevelTableRow({ level }: { level: (typeof consultantLevels)[number] }) {
   return (
-    <div className="grid h-[89px] grid-cols-3 items-center border-b border-outline-var text-sm leading-5 [direction:rtl] last:border-b-0">
-      <strong className="pr-4 text-right text-sm font-semibold text-on-surface">{level.points}</strong>
+    <div className="border-outline-var grid h-[89px] grid-cols-3 items-center border-b text-sm leading-5 [direction:rtl] last:border-b-0">
+      <strong className="text-on-surface pr-4 text-right text-sm font-semibold">
+        {level.points}
+      </strong>
       <img alt="" className="mx-auto h-14 w-14 object-contain" src={level.image} />
-      <Typography as="span" variant="label" size="medium" weight="medium" className="pl-4 text-left text-sm font-medium text-on-surface [direction:rtl]">{level.title}</Typography>
+      <Typography
+        as="span"
+        variant="label"
+        size="medium"
+        weight="medium"
+        className="text-on-surface pl-4 text-left text-sm font-medium [direction:rtl]"
+      >
+        {level.title}
+      </Typography>
     </div>
   );
 }

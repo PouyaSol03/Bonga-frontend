@@ -8,10 +8,7 @@ import LinearDocument from "../../../shared/icons/LinearDocument";
 import LinearWalletAdd from "../../../shared/icons/LinearWalletAdd";
 
 export type DashboardRole =
-  | "REAL_ESTATE_MANAGER"
-  | "REAL_ESTATE_CONSULTANT"
-  | "INDEPENDENT_CONSULTANT"
-  | "agency-consultant";
+  "REAL_ESTATE_MANAGER" | "REAL_ESTATE_CONSULTANT" | "INDEPENDENT_CONSULTANT" | "agency-consultant";
 
 interface QuickActionItem {
   id: string;
@@ -26,14 +23,14 @@ const allActions: QuickActionItem[] = [
   {
     id: "consultants",
     label: "مشاورین",
-    to: "/account/dashboard/team",
+    to: "/account/dashboard/team?from=dashboard",
     icon: LinearEditUser,
     hideForIndependent: true,
   },
   {
     id: "requests",
     label: "درخواست",
-    to: "/account/dashboard/requests",
+    to: "/account/dashboard/requests?from=dashboard",
     icon: LinearDocument,
   },
   {
@@ -44,7 +41,7 @@ const allActions: QuickActionItem[] = [
   },
 ];
 
-export interface DashboardQuickAccessGridProps {
+interface DashboardQuickAccessGridProps {
   role?: DashboardRole;
 }
 
@@ -78,9 +75,9 @@ export function DashboardQuickAccessGrid({
           <Link
             key={action.id}
             to={action.to}
-            className="flex flex-1 flex-col items-center justify-center gap-2 rounded-[12px] bg-surface-container-lowest py-2 shadow-sm transition active:scale-95 no-underline"
+            className="bg-surface-container-lowest flex flex-1 flex-col items-center justify-center gap-2 rounded-[12px] py-2 no-underline shadow-sm transition active:scale-95"
           >
-            <Icon className="h-6 w-6 text-primary" />
+            <Icon className="text-primary h-6 w-6" />
             <Typography
               as="span"
               variant="label"

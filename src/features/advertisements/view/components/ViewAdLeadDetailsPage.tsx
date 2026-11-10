@@ -1,24 +1,18 @@
 import { useState } from "react";
 import { PageFrame } from "../../../../shared/layout/PageFrame";
 import { TopBar } from "../../../../shared/components/TopBar";
-import {
-  type ViewAdLeadItem,
-  MOCK_VIEW_AD_LEADS,
-} from "./ViewAdLeadCard";
+import { type ViewAdLeadItem, MOCK_VIEW_AD_LEADS } from "./ViewAdLeadCard";
 import { ViewAdLeadProfileCard } from "./ViewAdLeadProfileCard";
 import { ViewAdLeadStatusSection } from "./ViewAdLeadStatusSection";
 import { ViewAdLeadNotesSection } from "./ViewAdLeadNotesSection";
-import {
-  ViewAdLeadActivitySection,
-  type ActivityLogItem,
-} from "./ViewAdLeadActivitySection";
+import { ViewAdLeadActivitySection, type ActivityLogItem } from "./ViewAdLeadActivitySection";
 import {
   useSingleLeadDetailsQuery,
   useLeadActivitiesQuery,
   useUpdateLeadStageMutation,
 } from "../api/singleLeadApi";
 
-export interface ViewAdLeadDetailsPageProps {
+interface ViewAdLeadDetailsPageProps {
   lead?: ViewAdLeadItem;
   adId?: string;
   backTo?: string;
@@ -50,7 +44,7 @@ function readRouteState(): Record<string, unknown> {
 
 function readAdIdFromPathname(): string | undefined {
   if (typeof window === "undefined") return undefined;
-  const match = window.location.pathname.match(/\/account\/my-ads\/([^/]+)/);
+  const match = window.location.pathname.match(/\/account\/(?:my-ads|manage-ads)\/([^/]+)/);
   return match?.[1] ? decodeURIComponent(match[1]) : undefined;
 }
 
@@ -63,7 +57,7 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
     props?.lead ??
     (routeState?.lead as ViewAdLeadItem) ??
     (leadIdQuery
-      ? MOCK_VIEW_AD_LEADS.find((l) => l.id === leadIdQuery) ?? MOCK_VIEW_AD_LEADS[0]
+      ? (MOCK_VIEW_AD_LEADS.find((l) => l.id === leadIdQuery) ?? MOCK_VIEW_AD_LEADS[0])
       : MOCK_VIEW_AD_LEADS[0]);
 
   const activeLeadId = leadIdQuery ?? fallbackLead.id;
@@ -78,7 +72,7 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
           id: String(leadDetails.id),
           name: leadDetails.client?.name ?? fallbackLead.name,
           phone: leadDetails.client?.phone ?? fallbackLead.phone,
-          status: (leadDetails.stage?.title as any) ?? fallbackLead.status,
+          status: leadDetails.stage?.title ? String(leadDetails.stage.title) : fallbackLead.status,
           date: leadDetails.appointment?.date_jalali ?? fallbackLead.date,
           time: leadDetails.appointment?.time ?? fallbackLead.time,
         }
@@ -86,8 +80,8 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
   };
 
   const defaultBackPath = currentAdId
-    ? `/account/my-ads/${encodeURIComponent(currentAdId)}/state-ad`
-    : "/account/my-ads";
+    ? `/account/manage-ads/${encodeURIComponent(currentAdId)}/state-ad`
+    : "/account/manage-ads";
   const backTo = props?.backTo ?? (routeState?.returnTo as string) ?? defaultBackPath;
 
   const [note, setNote] = useState(leadDetails?.notes ?? "");
@@ -114,25 +108,21 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <TopBar
-        backTo={backTo}
-        className="[&_a]:text-on-surface"
-        title="جزئیات سرنخ"
-      />
+      <TopBar backTo={backTo} className="[&_a]:text-on-surface" title="جزئیات سرنخ" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
+      <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         <ViewAdLeadProfileCard lead={resolvedLead} />
-        <div className="h-4 bg-surface-container" />
+        <div className="bg-surface-container h-4" />
         <ViewAdLeadStatusSection
           initialStatus={resolvedLead.status || "بازدید"}
           onVisitConfirmed={handleVisitConfirmed}
         />
-        <div className="h-4 bg-surface-container" />
+        <div className="bg-surface-container h-4" />
         <ViewAdLeadNotesSection note={note} onChange={setNote} />
-        <div className="h-4 bg-surface-container" />
+        <div className="bg-surface-container h-4" />
         <ViewAdLeadActivitySection activities={displayActivities} />
       </main>
     </PageFrame>

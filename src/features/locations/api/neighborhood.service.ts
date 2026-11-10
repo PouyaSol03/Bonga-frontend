@@ -33,10 +33,6 @@ type NeighborhoodListResponse =
     }
   | NeighborhoodDto[];
 
-
-
-
-
 type NeighborhoodInfoResponse =
   | {
       data?: NeighborhoodDto | NeighborhoodDto[];
@@ -53,12 +49,27 @@ export type NeighborhoodListParams = {
   q?: string;
 };
 
-export type NeighborhoodInfoWithLocParams = {
+export function getNeighborhoodId(
+  neighborhood?: Pick<NeighborhoodDto, "id" | "_id" | "name"> | null,
+): string {
+  if (!neighborhood) return "";
+  const raw = neighborhood.id ?? neighborhood._id ?? neighborhood.name;
+  return raw !== undefined && raw !== null ? String(raw) : "";
+}
+
+export function getSubNeighborhoodId(
+  subNeighborhood?: Pick<SubNeighborhoodDto, "id" | "name"> | null,
+): string {
+  if (!subNeighborhood) return "";
+  const raw = subNeighborhood.id ?? subNeighborhood.name;
+  return raw !== undefined && raw !== null ? String(raw) : "";
+}
+
+type NeighborhoodInfoWithLocParams = {
   cityId: string;
   lat: number;
   lng: number;
 };
-
 
 function toPostgresInteger(value: string | number, field: string) {
   const number = typeof value === "number" ? value : Number(String(value).trim());
@@ -79,7 +90,7 @@ function normalizeNeighborhood(neighborhood: NeighborhoodDto): NeighborhoodDto {
 }
 
 function unwrapNeighborhoodList(response: NeighborhoodListResponse) {
-  const data = Array.isArray(response) ? response : response.data ?? [];
+  const data = Array.isArray(response) ? response : (response.data ?? []);
 
   return data.map(normalizeNeighborhood).filter((item) => item.id && item.name);
 }
@@ -147,14 +158,6 @@ export async function getNeighborhoodInfo(neighborhoodId: string | number) {
   return unwrapNeighborhoodInfo(response);
 }
 
-export async function getSubNeighborhoodList(neighborhoodId: string | number) {
-  const neighborhood = await getNeighborhoodInfo(neighborhoodId);
-  if (!neighborhood) return [];
-
-  return getNeighborhoodSubNeighborhoods(neighborhood)
-    .filter((item) => item.id !== undefined && item.id !== null && item.name);
-}
-
 function parseMaybeJson(value: unknown): unknown {
   if (typeof value !== "string") return value;
 
@@ -211,7 +214,9 @@ export function getNeighborhoodPolygonPoints(value: unknown): NeighborhoodGeoPoi
     .filter((point): point is NeighborhoodGeoPoint => point !== null);
 }
 
-export function getNeighborhoodSubNeighborhoods(neighborhood: NeighborhoodDto): SubNeighborhoodDto[] {
+export function getNeighborhoodSubNeighborhoods(
+  neighborhood: NeighborhoodDto,
+): SubNeighborhoodDto[] {
   const value = neighborhood.sub_neighborhoods ?? neighborhood.sub_neighbors;
   if (!value) return [];
 
@@ -256,21 +261,21 @@ function normalizeSubNeighborhood(value: unknown, index: number): SubNeighborhoo
 
   const latValue = record.lat ?? record.latitude;
   const lngValue = record.lng ?? record.lon ?? record.long ?? record.longitude;
-  const lat = latValue === null || latValue === undefined || latValue === ""
-    ? undefined
-    : Number(latValue);
-  const lng = lngValue === null || lngValue === undefined || lngValue === ""
-    ? undefined
-    : Number(lngValue);
+  const lat =
+    latValue === null || latValue === undefined || latValue === "" ? undefined : Number(latValue);
+  const lng =
+    lngValue === null || lngValue === undefined || lngValue === "" ? undefined : Number(lngValue);
 
-  return [{
-    geofence: record.geofence ?? record.polygon,
-    id: String(record.id ?? record._id ?? `legacy-${index + 1}`),
-    lat: Number.isFinite(lat) ? lat : undefined,
-    lng: Number.isFinite(lng) ? lng : undefined,
-    name,
-    polygon: record.polygon,
-  }];
+  return [
+    {
+      geofence: record.geofence ?? record.polygon,
+      id: String(record.id ?? record._id ?? `legacy-${index + 1}`),
+      lat: Number.isFinite(lat) ? lat : undefined,
+      lng: Number.isFinite(lng) ? lng : undefined,
+      name,
+      polygon: record.polygon,
+    },
+  ];
 }
 
 function getChildName(child: unknown): string {

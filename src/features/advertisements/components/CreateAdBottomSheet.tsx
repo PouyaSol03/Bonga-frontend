@@ -1,7 +1,4 @@
-import {
-  usePublisherOptions,
-  type PublisherOption,
-} from "../api/publisher-options.hooks";
+import { usePublisherOptions, type PublisherOption } from "../api/publisher-options.hooks";
 import { BottomSheet } from "../../../shared/components/BottomSheet";
 import LinearArrowLeft1 from "../../../shared/icons/LinearArrowLeft1";
 import LinearBuilding2 from "../../../shared/icons/LinearBuilding2";
@@ -56,7 +53,7 @@ export function CreateAdBottomSheet({
     >
       {options.map((option) => (
         <ListItem
-          className="after:absolute after:inset-x-4 after:bottom-0 after:h-px after:bg-outline-var last:after:hidden"
+          className="after:bg-outline-var after:absolute after:inset-x-4 after:bottom-0 after:h-px last:after:hidden"
           description={option.description}
           key={option.id}
           leading={<CreateAdIcon type={option.icon} />}

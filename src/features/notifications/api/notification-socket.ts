@@ -1,13 +1,10 @@
 import { io, type Socket } from "socket.io-client";
 
 import { getStoredAccessToken } from "../../../shared/auth/auth-storage";
-import type {
-  NotificationCategory,
-  NotificationItem,
-} from "./notification.service";
+import type { NotificationCategory, NotificationItem } from "./notification.service";
 import { websocketBaseUrl } from "../../../shared/api/api";
 
-export type NotificationNewPayload = {
+type NotificationNewPayload = {
   notification?: NotificationItem;
   unread_count?: number;
 };
@@ -41,14 +38,11 @@ type NotificationSocketClientToServerEvents = {
   ) => void;
   "notification:subscribe": (
     payload: { page?: string; per_page?: string },
-    callback?: (response: {
-      notifications?: NotificationItem[];
-      unread_count?: number;
-    }) => void,
+    callback?: (response: { notifications?: NotificationItem[]; unread_count?: number }) => void,
   ) => void;
 };
 
-export type NotificationSocket = Socket<
+type NotificationSocket = Socket<
   NotificationSocketServerToClientEvents,
   NotificationSocketClientToServerEvents
 >;
@@ -57,13 +51,12 @@ let notificationSocket: NotificationSocket | null = null;
 
 function getNotificationSocketUrl() {
   const socketBaseUrl =
-    websocketBaseUrl ||
-    (typeof window !== "undefined" ? window.location.origin : "");
+    websocketBaseUrl || (typeof window !== "undefined" ? window.location.origin : "");
 
   return `${socketBaseUrl.replace(/\/$/, "")}/notifications`;
 }
 
-export function getNotificationSocket() {
+function getNotificationSocket() {
   const token = getStoredAccessToken();
 
   if (!notificationSocket) {
@@ -94,10 +87,7 @@ export function subscribeToNotifications({
   perPage = 20,
   onSnapshot,
 }: {
-  onSnapshot?: (payload: {
-    notifications?: NotificationItem[];
-    unread_count?: number;
-  }) => void;
+  onSnapshot?: (payload: { notifications?: NotificationItem[]; unread_count?: number }) => void;
   page?: number;
   perPage?: number;
 } = {}) {

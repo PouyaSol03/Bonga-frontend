@@ -1,4 +1,4 @@
-export type PackageKind = "panel_subscription" | "credit_bundle";
+type PackageKind = "panel_subscription" | "credit_bundle";
 
 export type PackageItem = {
   ad_credit: number;
@@ -56,12 +56,3 @@ export type AgentEntitlements = {
   specialCreditBalance: number;
 };
 
-export type AgentEntitlementLedgerItem = Record<string, unknown>;
-
-export type AgentEntitlementLedgerPage = {
-  data: AgentEntitlementLedgerItem[];
-  hasNextPage: boolean;
-  page: number;
-  perPage: number;
-  total: number;
-};

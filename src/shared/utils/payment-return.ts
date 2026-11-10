@@ -1,4 +1,4 @@
-export type PaymentReturnTarget = {
+type PaymentReturnTarget = {
   kind?: "package" | "wallet_charge";
   label: string;
   path: string;
@@ -27,14 +27,9 @@ export function readPaymentReturnTarget(): PaymentReturnTarget {
     }
 
     return {
-      kind:
-        stored.kind === "package" || stored.kind === "wallet_charge"
-          ? stored.kind
-          : undefined,
+      kind: stored.kind === "package" || stored.kind === "wallet_charge" ? stored.kind : undefined,
       label:
-        typeof stored.label === "string" && stored.label.trim()
-          ? stored.label
-          : fallback.label,
+        typeof stored.label === "string" && stored.label.trim() ? stored.label : fallback.label,
       path: stored.path,
     };
   } catch {

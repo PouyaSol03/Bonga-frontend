@@ -1,9 +1,4 @@
-import {
-  useCallback,
-  useMemo,
-  useRef,
-  type ReactNode,
-} from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
@@ -11,6 +6,7 @@ import { useAccountCreditHistoryInfiniteQuery } from "../api/account.hooks";
 import type { PaymentHistoryItem } from "../api/account.service";
 import type { CreditPayment } from "./creditData";
 import { Typography } from "../../../shared/ui/Typography";
+import { PaymentHistoryRow } from "../components/payment/PaymentHistoryRow";
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -50,7 +46,9 @@ function resolvePaymentStatus(item: PaymentHistoryItem): {
   tone: "error" | "success" | "warning";
 } {
   const statusCode = Number(item.status_code);
-  const statusStr = String(item.status || "").toLowerCase().trim();
+  const statusStr = String(item.status || "")
+    .toLowerCase()
+    .trim();
 
   if (
     statusCode === 1 ||
@@ -90,8 +88,8 @@ function resolvePaymentStatus(item: PaymentHistoryItem): {
 function isPackageOrPanelPayment(item: PaymentHistoryItem): boolean {
   const paymentFor = String(item.payment_for || "").toLowerCase();
   const paymentForCode = Number(item.payment_for_code);
-  const metadata = (item as any)?.metadata;
-  const packageId = (item as any)?.package_id;
+  const metadata = item.metadata;
+  const packageId = item.package_id;
 
   if (paymentFor === "package" || paymentForCode === 2 || Boolean(packageId)) {
     return true;
@@ -116,7 +114,7 @@ function isPackageOrPanelPayment(item: PaymentHistoryItem): boolean {
 }
 
 function resolveServiceLabel(item: PaymentHistoryItem): string {
-  const metadata = (item as any)?.metadata;
+  const metadata = item.metadata;
   const title = metadata?.package_title || metadata?.title;
   const kind = metadata?.package_kind || metadata?.kind;
 
@@ -158,9 +156,7 @@ export function IndependentConsultantCreditHistoryPage() {
   const payments = useMemo(
     () =>
       historyPages?.pages.flatMap((page) =>
-        page.data
-          .filter(isPackageOrPanelPayment)
-          .map(mapPaymentHistoryItem),
+        page.data.filter(isPackageOrPanelPayment).map(mapPaymentHistoryItem),
       ) ?? [],
     [historyPages],
   );
@@ -189,12 +185,12 @@ export function IndependentConsultantCreditHistoryPage() {
 
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account/dashboard/payments" title="تاریخچه پرداخت" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
+      <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         {payments.length === 0 ? (
           <div className="flex h-64 flex-col items-center justify-center p-6 text-center">
             <Typography
@@ -202,7 +198,7 @@ export function IndependentConsultantCreditHistoryPage() {
               variant="body"
               size="medium"
               weight="medium"
-              className="m-0 text-outline"
+              className="text-outline m-0"
             >
               تراکنشی برای بسته یا پنل یافت نشد.
             </Typography>
@@ -210,9 +206,7 @@ export function IndependentConsultantCreditHistoryPage() {
         ) : (
           payments.map((payment, index) => {
             const shouldAttachLoadMoreRef =
-              index === loadMoreTriggerIndex &&
-              hasNextPage &&
-              !isFetchingNextPage;
+              index === loadMoreTriggerIndex && hasNextPage && !isFetchingNextPage;
 
             return (
               <PaymentHistoryCard
@@ -237,7 +231,7 @@ function PaymentHistoryCard({
 }) {
   return (
     <section
-      className="mb-2 flex h-[224px] flex-col justify-between bg-surface-container-lowest px-4 py-4 last:mb-0"
+      className="bg-surface-container-lowest mb-2 flex h-[224px] flex-col justify-between px-4 py-4 last:mb-0"
       ref={ref}
     >
       <PaymentHistoryRow
@@ -257,22 +251,5 @@ function PaymentHistoryCard({
       <PaymentHistoryRow label="نحوه پرداخت" value={payment.method} />
       <PaymentHistoryRow label="شناسه پرداخت" value={payment.id} />
     </section>
-  );
-}
-
-function PaymentHistoryRow({
-  label,
-  value,
-  valueClassName = "text-on-surface",
-}: {
-  label: string;
-  value: ReactNode;
-  valueClassName?: string;
-}) {
-  return (
-    <div className="flex h-8 shrink-0 items-center justify-between gap-4 text-sm font-medium leading-5 [direction:ltr]">
-      <Typography as="span" variant="body" size="medium" weight="regular" className={`min-w-0 truncate text-left ${valueClassName}`}>{value}</Typography>
-      <Typography as="span" variant="body" size="medium" weight="regular" className="shrink-0 text-right text-outline [direction:rtl]">{label}</Typography>
-    </div>
   );
 }

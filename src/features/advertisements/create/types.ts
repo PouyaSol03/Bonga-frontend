@@ -54,7 +54,7 @@ export type BasicPropertyFieldKey =
   | "accommodationType"
   | "spaceType";
 
-export type BasicPropertySelectKey =
+type BasicPropertySelectKey =
   | "floor"
   | "rooms"
   | "age"
@@ -72,7 +72,7 @@ export type BasicPropertySelectKey =
   | "accommodationType"
   | "spaceType";
 
-export type BasicPropertyMultiSelectKey = "suitableFor" | "usageType";
+type BasicPropertyMultiSelectKey = "suitableFor" | "usageType";
 
 export type BasicPropertyField = {
   key: BasicPropertyFieldKey;
@@ -120,24 +120,25 @@ export type MoreFeatureSelectKey =
   | "rentalPeriod"
   | "viewType"
   | "openingCount"
-  | "projectStatus";
+  | "projectStatus"
+  | "minStayDays";
 
 export type MoreFeatureMultiSelectKey = "suitableFor" | "usageType";
 
-export type MoreFeatureNumberKey =
+export type MoreFeatureMoneyKey = "evacuationGuarantee";
+
+type MoreFeatureNumberKey =
   | "buildingArea"
   | "landWidth"
   | "streetWidth"
   | "ceilingHeight"
-  | "minContractMonths"
-  | "minStayDays"
-  | "evacuationGuarantee";
+  | "minContractMonths";
 
 export type MoreFeatureDateKey = "readyDeliveryDate" | "projectDeliveryDate";
 
 export type MoreFeatureTimeKey = "checkInTime" | "checkOutTime";
 
-export type MoreFeatureToggleKey =
+type MoreFeatureToggleKey =
   | "renovated"
   | "furnished"
   | "constructionPermit"
@@ -150,12 +151,13 @@ export type MoreFeatureToggleKey =
   | "separateEntrance"
   | "hasDocument";
 
-export type MoreFeatureInputKey = "builderCompanyName";
+type MoreFeatureInputKey = "builderCompanyName";
 
 export type MoreFeatureFormKey =
   | MoreFeatureSelectKey
   | MoreFeatureMultiSelectKey
   | MoreFeatureNumberKey
+  | MoreFeatureMoneyKey
   | MoreFeatureDateKey
   | MoreFeatureTimeKey
   | MoreFeatureToggleKey
@@ -164,14 +166,14 @@ export type MoreFeatureFormKey =
 export type MoreFeatureField = {
   key: MoreFeatureFormKey;
   label: string;
-  control: "select" | "multiSelect" | "number" | "date" | "time" | "toggle" | "input";
+  control: "select" | "multiSelect" | "number" | "money" | "date" | "time" | "toggle" | "input";
   leftText?: string;
   options?: string[];
 };
 
 /* -------------------------------- Project -------------------------------- */
 
-export type ProjectSelectKey =
+type ProjectSelectKey =
   | "projectStatus"
   | "projectType"
   | "documentType"
@@ -196,13 +198,7 @@ export type ProjectDetailItem = {
   maxMeterage?: string;
 };
 
-export type DailyHotelRoomTypeId =
-  | "single"
-  | "double"
-  | "triple"
-  | "quad"
-  | "quint"
-  | "suite";
+export type DailyHotelRoomTypeId = "single" | "double" | "triple" | "quad" | "quint" | "suite";
 
 export type DailyHotelRoomConfig = {
   id: DailyHotelRoomTypeId;
@@ -231,22 +227,22 @@ export type SelectKey =
 
 export type SheetState =
   | {
-    kind: "select";
-    key: SelectKey;
-    title: string;
-    options: string[];
-  }
+      kind: "select";
+      key: SelectKey;
+      title: string;
+      options: string[];
+    }
   | {
-    kind: "multiSelect";
-    key: BasicPropertyMultiSelectKey;
-    title: string;
-    options: string[];
-  }
+      kind: "multiSelect";
+      key: BasicPropertyMultiSelectKey;
+      title: string;
+      options: string[];
+    }
   | {
-    kind: "exchange";
-    title: string;
-    options: string[];
-  };
+      kind: "exchange";
+      title: string;
+      options: string[];
+    };
 
 /* ------------------------------- Form Values ------------------------------ */
 
@@ -337,7 +333,7 @@ export type NewAdFormValues = {
   elevatorCount: string;
   parkingCount: string;
   terraceCount: string;
-  images_belong_to_ad: boolean;
+  images_not_belong_to_ad: boolean;
   singleRoomCount: string;
   doubleRoomCount: string;
   suiteCount: string;
@@ -390,12 +386,11 @@ export type NewAdFormValues = {
 
   neighborhoodId?: string;
   subNeighborhoodId?: string;
+  lat?: string;
+  lng?: string;
 
   targetOwnerType: "" | "user" | "agency";
   targetOwnerId: string;
 };
 
-export type MoreFeaturesFormValues = Pick<
-  NewAdFormValues,
-  MoreFeatureFormKey
->;
+export type MoreFeaturesFormValues = Pick<NewAdFormValues, MoreFeatureFormKey>;

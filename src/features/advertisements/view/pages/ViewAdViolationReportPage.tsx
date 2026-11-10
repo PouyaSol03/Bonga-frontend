@@ -21,22 +21,40 @@ function ReportRadio({
 }) {
   return (
     <label className="flex h-11 cursor-pointer items-center justify-between gap-4 text-right [direction:rtl]">
-      <Typography as="span" variant="body" size="large" weight="regular" className={`text-base font-normal leading-6 ${checked ? "text-primary" : "text-on-surface"}`}>
+      <Typography
+        as="span"
+        variant="body"
+        size="large"
+        weight="regular"
+        className={`text-base leading-6 font-normal ${checked ? "text-primary" : "text-on-surface"}`}
+      >
         {label}
       </Typography>
       <input checked={checked} className="sr-only" onChange={onChange} type="radio" value={label} />
-      <Typography as="span" variant="body" size="medium" weight="regular"
+      <Typography
+        as="span"
+        variant="body"
+        size="medium"
+        weight="regular"
         aria-hidden="true"
         className={`grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full border ${checked ? "border-primary bg-primary" : "border-outline bg-surface-container-lowest"}`}
       >
-        {checked ? <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 rounded-full bg-on-primary" /> : null}
+        {checked ? (
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="bg-on-primary h-2 w-2 rounded-full"
+          />
+        ) : null}
       </Typography>
     </label>
   );
 }
 
 function ReportSkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`rounded-lg bg-surface-container-high ${className}`} />;
+  return <div className={`bg-surface-container-high rounded-lg ${className}`} />;
 }
 
 export function ViewAdViolationReportPage({
@@ -86,10 +104,10 @@ export function ViewAdViolationReportPage({
   };
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col bg-surface-container-lowest text-on-surface [direction:rtl]">
+    <div className="bg-surface-container-lowest text-on-surface absolute inset-0 z-40 flex flex-col [direction:rtl]">
       <ViewAdActionPageTopBar onBack={onClose} title="گزارش تخلف آگهی" />
 
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-5 pb-4 pt-5 overscroll-contain">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-5 pt-5 pb-4">
         {isLoading ? (
           <div className="space-y-4 pt-2">
             {Array.from({ length: 6 }).map((_, index) => (
@@ -98,9 +116,18 @@ export function ViewAdViolationReportPage({
           </div>
         ) : errorMessage ? (
           <div className="mx-auto flex min-h-[240px] w-full flex-col items-center justify-center gap-4 text-center">
-            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-on-surface-var">{errorMessage}</Typography>
-            <Button unstyled
-              className="h-10 rounded-[10px] border border-primary bg-surface-container-lowest px-5 text-sm font-medium leading-5 text-primary"
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="medium"
+              className="text-on-surface-var m-0 text-sm leading-6 font-medium"
+            >
+              {errorMessage}
+            </Typography>
+            <Button
+              unstyled
+              className="border-primary bg-surface-container-lowest text-primary h-10 rounded-[10px] border px-5 text-sm leading-5 font-medium"
               onClick={onRetry}
               type="button"
             >
@@ -109,7 +136,13 @@ export function ViewAdViolationReportPage({
           </div>
         ) : reasons.length === 0 ? (
           <div className="mx-auto flex min-h-[240px] w-full items-center justify-center text-center">
-            <Typography as="p" variant="body" size="medium" weight="medium" className="m-0 text-sm font-medium leading-6 text-on-surface-var">
+            <Typography
+              as="p"
+              variant="body"
+              size="medium"
+              weight="medium"
+              className="text-on-surface-var m-0 text-sm leading-6 font-medium"
+            >
               دلیلی برای گزارش تخلف دریافت نشد.
             </Typography>
           </div>
@@ -132,7 +165,7 @@ export function ViewAdViolationReportPage({
             {shouldShowDescription ? (
               <textarea
                 aria-label="توضیح گزارش"
-                className="mt-4 h-[104px] w-full resize-none rounded-lg border border-outline-var bg-surface-container-lowest px-3 py-3 text-right text-sm font-normal leading-5 text-on-surface outline-none placeholder:text-outline focus:border-primary"
+                className="border-outline-var bg-surface-container-lowest text-on-surface placeholder:text-outline focus:border-primary mt-4 h-[104px] w-full resize-none rounded-lg border px-3 py-3 text-right text-sm leading-5 font-normal outline-none"
                 onChange={(event) => {
                   setDescription(event.target.value);
                   setValidationMessage("");
@@ -143,7 +176,13 @@ export function ViewAdViolationReportPage({
             ) : null}
 
             {validationMessage ? (
-              <Typography as="p" variant="body" size="small" weight="medium" className="m-0 mt-3 text-right text-xs font-medium leading-5 text-error">
+              <Typography
+                as="p"
+                variant="body"
+                size="small"
+                weight="medium"
+                className="text-error m-0 mt-3 text-right text-xs leading-5 font-medium"
+              >
                 {validationMessage}
               </Typography>
             ) : null}

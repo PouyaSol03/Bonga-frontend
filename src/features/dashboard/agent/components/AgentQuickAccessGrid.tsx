@@ -1,7 +1,7 @@
 import { DashboardQuickAccessGrid } from "../../components/DashboardQuickAccessGrid";
 import type { AgentRoleType } from "../types";
 
-export interface AgentQuickAccessGridProps {
+interface AgentQuickAccessGridProps {
   role?: AgentRoleType;
 }
 

@@ -2,10 +2,7 @@ import type { GeofenceCoordinate, GeofenceResult } from "./geofenceTypes";
 
 const apiCoordinatePrecision = 6;
 
-function coordinatesAreEqual(
-  first: GeofenceCoordinate,
-  second: GeofenceCoordinate,
-) {
+function coordinatesAreEqual(first: GeofenceCoordinate, second: GeofenceCoordinate) {
   return first[0] === second[0] && first[1] === second[1];
 }
 

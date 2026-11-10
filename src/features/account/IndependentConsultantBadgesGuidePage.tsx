@@ -79,12 +79,12 @@ const badgeGuides: BadgeGuide[] = [
 export function IndependentConsultantBadgesGuidePage() {
   return (
     <PageFrame
-      className="flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar backTo="/account/ranking" title="راهنمای نشان‌ها" />
 
-      <main className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-surface-container">
+      <main className="bg-surface-container min-h-0 flex-1 space-y-4 overflow-x-hidden overflow-y-auto">
         {badgeGuides.map((badge) => (
           <BadgeGuideSection badge={badge} key={badge.name} />
         ))}
@@ -96,41 +96,105 @@ export function IndependentConsultantBadgesGuidePage() {
 function BadgeGuideSection({ badge }: { badge: BadgeGuide }) {
   return (
     <section className="bg-surface-container-lowest p-4">
-      <div className="flex h-22 items-center justify-center gap-4 rounded-2xl border border-outline-var bg-linear-to-b from-on-surface/40 to-on-surface/0">
+      <div className="border-outline-var from-on-surface/40 to-on-surface/0 flex h-22 items-center justify-center gap-4 rounded-2xl border bg-linear-to-b">
         <img alt="" className="h-14 w-14 object-contain" src={badge.image} />
-        <Typography as="h2" variant="title" size="large" weight="semibold" className="m-0 text-[22px] font-semibold leading-7 text-primary">{badge.name}</Typography>
+        <Typography
+          as="h2"
+          variant="title"
+          size="large"
+          weight="semibold"
+          className="text-primary m-0 text-[22px] leading-7 font-semibold"
+        >
+          {badge.name}
+        </Typography>
       </div>
 
       <div className="mt-6">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0">سطوح نشان</Typography>
-        <Typography as="p" variant="body" size="large" weight="regular" className="mt-4 text-base font-normal leading-6">{badge.intro}</Typography>
+        <Typography as="h3" variant="title" size="medium" weight="semibold" className="m-0">
+          سطوح نشان
+        </Typography>
+        <Typography
+          as="p"
+          variant="body"
+          size="large"
+          weight="regular"
+          className="mt-4 text-base leading-6 font-normal"
+        >
+          {badge.intro}
+        </Typography>
         <div className="mt-2 space-y-2">
           {badge.levels.map((level, index) => (
-            <div className="flex items-center justify-start gap-1 text-sm font-normal leading-5" key={level}>
+            <div
+              className="flex items-center justify-start gap-1 text-sm leading-5 font-normal"
+              key={level}
+            >
               <LevelStars count={index + 1} />
-              <Typography as="span" variant="body" size="medium" weight="regular">{`سطح ${index + 1}: ${level}`}</Typography>
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+              >{`سطح ${index + 1}: ${level}`}</Typography>
             </div>
           ))}
         </div>
       </div>
 
       <div className="mt-12">
-        <Typography as="h3" variant="title" size="medium" weight="semibold" className="flex items-center gap-1 text-base font-semibold leading-6 text-primary">
-          <Typography as="span" variant="body" size="medium" weight="regular" className="h-2 w-2 ml-2 rounded-full bg-primary" />
+        <Typography
+          as="h3"
+          variant="title"
+          size="medium"
+          weight="semibold"
+          className="text-primary flex items-center gap-1 text-base leading-6 font-semibold"
+        >
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="bg-primary ml-2 h-2 w-2 rounded-full"
+          />
           {badge.indicatorTitle}
         </Typography>
-        <Typography as="p" variant="body" size="large" weight="regular" className="mt-2 text-base font-normal leading-6">{badge.indicatorDescription}</Typography>
+        <Typography
+          as="p"
+          variant="body"
+          size="large"
+          weight="regular"
+          className="mt-2 text-base leading-6 font-normal"
+        >
+          {badge.indicatorDescription}
+        </Typography>
 
-        <Typography as="p" variant="label" size="large" weight="semibold" className="mt-6 text-base font-semibold leading-6">موارد مؤثر در امتیاز:</Typography>
-        <ul className="mt-2 mr-4 space-y-2 text-base font-normal leading-6">
+        <Typography
+          as="p"
+          variant="label"
+          size="large"
+          weight="semibold"
+          className="mt-6 text-base leading-6 font-semibold"
+        >
+          موارد مؤثر در امتیاز:
+        </Typography>
+        <ul className="mt-2 mr-4 space-y-2 text-base leading-6 font-normal">
           {badge.points.map((point) => (
             <li className="flex items-start gap-3.5" key={point}>
-              <Typography as="span" variant="body" size="medium" weight="regular" className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-tertiary" />
-              <Typography as="span" variant="body" size="large" weight="regular">{point}</Typography>
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="bg-tertiary mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full"
+              />
+              <Typography as="span" variant="body" size="large" weight="regular">
+                {point}
+              </Typography>
             </li>
           ))}
         </ul>
-        <Typography as="p" variant="body" size="large" weight="regular" className="mt-4">{badge.note}</Typography>
+        <Typography as="p" variant="body" size="large" weight="regular" className="mt-4">
+          {badge.note}
+        </Typography>
       </div>
     </section>
   );
@@ -138,7 +202,13 @@ function BadgeGuideSection({ badge }: { badge: BadgeGuide }) {
 
 function LevelStars({ count }: { count: number }) {
   return (
-    <Typography as="span" variant="body" size="medium" weight="regular" className="flex shrink-0 gap-0.5 [direction:ltr]">
+    <Typography
+      as="span"
+      variant="body"
+      size="medium"
+      weight="regular"
+      className="flex shrink-0 gap-0.5 [direction:ltr]"
+    >
       {[0, 1, 2].map((star) => (
         <svg
           aria-hidden="true"

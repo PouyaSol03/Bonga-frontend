@@ -23,19 +23,22 @@ export function SearchNoResultsView({
     <>
       <main
         aria-label="نتیجه‌ای برای جستجو پیدا نشد"
-        className="absolute inset-x-0 bottom-0 top-[56px] z-[450] min-h-0 overflow-y-auto overscroll-contain bg-surface-container px-4 pb-24 pt-4"
+        className="bg-surface-container absolute inset-x-0 top-[56px] bottom-0 z-[450] min-h-0 overflow-y-auto overscroll-contain px-4 pt-4 pb-24"
         dir="rtl"
       >
         <SearchNoResultsRequestCard hasFilters={hasFilters} onSubmit={onRequestSubmit} />
       </main>
 
-      <Button unstyled
-        className="absolute bottom-4 left-1/2 z-[520] flex h-10 min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-base font-bold leading-6 text-on-primary shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary/25"
+      <Button
+        unstyled
+        className="bg-primary text-on-primary focus-visible:outline-primary/25 absolute bottom-4 left-1/2 z-[520] flex h-10 min-w-[99px] -translate-x-1/2 items-center justify-center gap-2 rounded-2xl px-4 text-base leading-6 font-bold shadow-[0_10px_26px_rgba(0,72,196,0.24)] focus-visible:outline-[3px] focus-visible:outline-offset-2"
         onClick={onToggleMode}
         type="button"
       >
         {isMapMode ? <ListIcon className="h-5 w-5" /> : <LinearMapsLocation className="h-5 w-5" />}
-        <Typography as="span" variant="body" size="medium" weight="regular">{isMapMode ? "لیست" : "نقشه"}</Typography>
+        <Typography as="span" variant="body" size="medium" weight="regular">
+          {isMapMode ? "لیست" : "نقشه"}
+        </Typography>
       </Button>
     </>
   );

@@ -1,5 +1,6 @@
 import type { UseFormReturn } from "react-hook-form";
 import type { useNewAdStepActions } from "../hooks/useNewAdStepActions";
+import { useNewAdDesktopLayout } from "../NewAdLayoutContext";
 import { AgencySelectionStep } from "../steps/AgencySelectionStep";
 import { DetailsStep } from "../steps/DetailsStep";
 import { MediaStep } from "../steps/MediaStep";
@@ -7,6 +8,7 @@ import { MoreFeaturesStep } from "../steps/MoreFeaturesStep";
 import { ProjectDetailsStep } from "../steps/project/ProjectDetailsStep";
 import { PublisherSelectionStep } from "../steps/PublisherSelectionStep";
 import type { FlowStep, NewAdFieldErrorKey, NewAdFieldErrors, NewAdFormValues } from "../types";
+import { DetailsStepSkeleton } from "./DetailsStepSkeleton";
 
 interface NewAdStepRendererProps {
   actions: ReturnType<typeof useNewAdStepActions>;
@@ -25,7 +27,6 @@ interface NewAdStepRendererProps {
   saveDraftPending: boolean;
   setStep: (step: FlowStep) => void;
   step: FlowStep;
-  submitLockRef: React.MutableRefObject<boolean>;
   updateAdvertisementPending: boolean;
 }
 
@@ -46,15 +47,12 @@ export function NewAdStepRenderer({
   saveDraftPending,
   setStep,
   step,
-  submitLockRef,
   updateAdvertisementPending,
 }: NewAdStepRendererProps) {
-  if (isCrmEditMode && editAdIsLoading) {
-    return (
-      <div className="grid min-h-0 flex-1 place-items-center bg-surface-container text-sm font-medium text-on-surface-var">
-        در حال دریافت اطلاعات آگهی...
-      </div>
-    );
+  const desktop = useNewAdDesktopLayout();
+
+  if (isEditMode && editAdIsLoading) {
+    return <DetailsStepSkeleton desktop={desktop} />;
   }
 
   if (step === "details") {
@@ -63,7 +61,9 @@ export function NewAdStepRenderer({
         errors={fieldErrors}
         isPending={saveDraftPending}
         label={label}
-        onBack={isCrmEditMode ? actions.leaveCrmEditor : isEditMode ? actions.handleEditBack : undefined}
+        onBack={
+          isCrmEditMode ? actions.leaveCrmEditor : isEditMode ? actions.handleEditBack : undefined
+        }
         onClearError={clearFieldError}
         onMoreFeatures={() => setStep("moreFeatures")}
         onNext={actions.goToMedia}
@@ -88,13 +88,18 @@ export function NewAdStepRenderer({
         onSelect={actions.selectAgency}
         selectedAgencyId={methods.watch("agencyId")}
         selectedAgencyName={methods.watch("publisherName")}
-        submitDisabled={createAdvertisementPending || submitLockRef.current}
+        submitDisabled={createAdvertisementPending}
       />
     );
   }
 
   if (step === "publisherSelection" && canChangePublisher) {
-    return <PublisherSelectionStep onBack={() => setStep("media")} onConfirm={actions.confirmPublisher} />;
+    return (
+      <PublisherSelectionStep
+        onBack={() => setStep("media")}
+        onConfirm={actions.confirmPublisher}
+      />
+    );
   }
 
   return (

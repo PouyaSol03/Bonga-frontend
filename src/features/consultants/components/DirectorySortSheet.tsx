@@ -32,7 +32,7 @@ export function DirectorySortSheet({
             <Button
               unstyled
               aria-pressed={checked}
-              className={`flex w-full items-center justify-between py-6 px-4 text-right text-sm font-medium leading-5 ${
+              className={`flex w-full items-center justify-between px-4 py-6 text-right text-sm leading-5 font-medium ${
                 checked
                   ? "bg-surface-container-lowest text-primary"
                   : "bg-surface-container-lowest text-on-surface"

@@ -1,9 +1,6 @@
-export interface AdvertisementV2EventPayload {
-  event_type: "impression" | "call" | string;
-  [key: string]: unknown;
-}
 
-export interface AdvertisementV2LeadClient {
+
+interface AdvertisementV2LeadClient {
   id?: number | string;
   name: string;
   phone: string;
@@ -16,6 +13,15 @@ export interface AdvertisementV2Lead {
   stage?: { key: string; title?: string; label?: string; color?: string };
   appointment?: { date_jalali?: string; time?: string };
   stats?: { calls_count?: number; messages_count?: number };
+  name?: string;
+  phone?: string;
+  avatar_url?: string;
+  created_at?: string;
+  date?: string;
+  time?: string;
+  status?: string | { new?: boolean };
+  chat_count?: number;
+  call_count?: number;
   notes?: string;
 }
 
@@ -25,12 +31,6 @@ export interface AdvertisementV2Activity {
   title: string;
   description?: string | null;
   occurred_at: string;
-}
-
-export interface AdvertisementV2Note {
-  id: string;
-  content: string;
-  created_at: string;
 }
 
 export interface AdvertisementV2OwnerContact {

@@ -1,11 +1,6 @@
 export type GeofenceCoordinate = [longitude: number, latitude: number];
 
-export type DrawingState =
-  | "idle"
-  | "drawing"
-  | "preview"
-  | "invalid"
-  | "confirmed";
+export type DrawingState = "idle" | "drawing" | "preview" | "invalid" | "confirmed";
 
 export type GeofenceResult = {
   type: "Polygon";
@@ -16,7 +11,7 @@ export type GeofenceResult = {
   perimeterMeters: number;
 };
 
-export type GeofenceValidationCode =
+type GeofenceValidationCode =
   | "invalid_coordinate"
   | "not_closed"
   | "too_few_points"

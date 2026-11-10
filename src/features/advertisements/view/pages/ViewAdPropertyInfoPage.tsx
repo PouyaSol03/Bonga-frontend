@@ -8,14 +8,13 @@ import {
   DetailInfoFullPage,
   buildPropertyDetailSections,
   getDetailPageTitle,
-  parseViewAdIdFromPath,
+  useViewAdRouteContext,
 } from "../viewAdDetails";
 import { LoadingState, NotFoundState, ViewAdErrorState } from "../ViewAdRouteStates";
 import { shouldUseAgencyAllocationPreview } from "../viewAdPreviewContext";
 
 export function ViewAdPropertyInfoPage() {
-  const adId = parseViewAdIdFromPath(window.location.pathname);
-  const isPreview = window.location.pathname.startsWith("/preview-ad/");
+  const { adId, isPreview } = useViewAdRouteContext();
   const useAgencyAllocationPreview = isPreview && shouldUseAgencyAllocationPreview();
   const detailQuery = useAdvertisementDetailQuery(isPreview ? null : adId);
   const agencyPreviewQuery = useAgencyAdvertisementPreviewQuery(
@@ -24,7 +23,13 @@ export function ViewAdPropertyInfoPage() {
   const previewQuery = useAdvertisementPreviewQuery(
     isPreview && (!useAgencyAllocationPreview || agencyPreviewQuery.isError) ? adId : null,
   );
-  const { data: ad, error, isError, isLoading, refetch } = isPreview
+  const {
+    data: ad,
+    error,
+    isError,
+    isLoading,
+    refetch,
+  } = isPreview
     ? useAgencyAllocationPreview && !agencyPreviewQuery.isError
       ? agencyPreviewQuery
       : previewQuery
@@ -45,7 +50,7 @@ export function ViewAdPropertyInfoPage() {
   }
 
   const resolvedAd = ad;
-  if (!resolvedAd) return <NotFoundState />;
+  if (!resolvedAd) return isError ? <NotFoundState /> : <LoadingState />;
 
   const features = Array.isArray(resolvedAd.features) ? resolvedAd.features : [];
 
@@ -53,7 +58,10 @@ export function ViewAdPropertyInfoPage() {
     <DetailInfoFullPage
       adId={adId}
       sections={buildPropertyDetailSections(resolvedAd)}
-      title={getDetailPageTitle(features, typeof resolvedAd.form_code === "string" ? resolvedAd.form_code : "")}
+      title={getDetailPageTitle(
+        features,
+        typeof resolvedAd.form_code === "string" ? resolvedAd.form_code : "",
+      )}
     />
   );
 }

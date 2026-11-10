@@ -42,20 +42,20 @@ export function NotificationSettingsSheet({
       showHeader={false}
     >
       <div className="px-3">
-        <div className="flex h-[72px] items-center gap-2 border-b border-outline-var px-1 text-right [direction:rtl]">
-          <LinearArrowRight2 className="h-6 w-6 shrink-0 text-on-surface-var" />
+        <div className="border-outline-var flex h-[72px] items-center gap-2 border-b px-1 text-right [direction:rtl]">
+          <LinearArrowRight2 className="text-on-surface-var h-6 w-6 shrink-0" />
           <Typography
             as="p"
             variant="label"
             size="large"
             weight="medium"
-            className="m-0 font-medium leading-5 text-on-surface"
+            className="text-on-surface m-0 leading-5 font-medium"
           >
             تنظیمات اعلان
           </Typography>
         </div>
 
-        <div className="flex h-[72px] items-center justify-between border-b border-outline-var px-1 [direction:ltr]">
+        <div className="border-outline-var flex h-[72px] items-center justify-between border-b px-1 [direction:ltr]">
           <SwitchButton
             ariaLabel="علامت‌گذاری همه به‌عنوان خوانده‌نشده"
             checked={markAllUnread}
@@ -66,7 +66,7 @@ export function NotificationSettingsSheet({
             variant="body"
             size="medium"
             weight="regular"
-            className="text-right font-normal leading-4 text-on-surface"
+            className="text-on-surface text-right leading-4 font-normal"
             dir="rtl"
           >
             علامت‌گذاری همه به‌عنوان خوانده‌نشده
@@ -75,31 +75,31 @@ export function NotificationSettingsSheet({
 
         <Button
           unstyled
-          className="flex h-[72px] w-full items-center justify-between border-b border-outline-var px-1 text-on-surface [direction:ltr]"
+          className="border-outline-var text-on-surface flex h-[72px] w-full items-center justify-between border-b px-1 [direction:ltr]"
           onClick={onManage}
           type="button"
         >
-          <LinearArrowLeft1 className="h-6 w-6 shrink-0 text-on-surface-var" />
+          <LinearArrowLeft1 className="text-on-surface-var h-6 w-6 shrink-0" />
           <Typography
             as="span"
             variant="body"
             size="medium"
             weight="regular"
-            className="flex items-center gap-2 font-normal leading-4 [direction:rtl]"
+            className="flex items-center gap-2 leading-4 font-normal [direction:rtl]"
           >
-            <LinearNotification className="h-6 w-6 text-on-surface-var" />
+            <LinearNotification className="text-on-surface-var h-6 w-6" />
             مدیریت اعلان‌ها
           </Typography>
         </Button>
 
         <Button
           unstyled
-          className="flex h-[72px] w-full items-center gap-2 border-b border-outline-var px-1 text-[11px] font-normal leading-4 text-on-surface disabled:cursor-wait disabled:opacity-60 [direction:rtl]"
+          className="border-outline-var text-on-surface flex h-[72px] w-full items-center gap-2 border-b px-1 text-[11px] leading-4 font-normal [direction:rtl] disabled:cursor-wait disabled:opacity-60"
           disabled={isMarkingAllRead}
           onClick={onMarkAllRead}
           type="button"
         >
-          <LinearTickDouble className="h-6 w-6 text-on-surface-var" />
+          <LinearTickDouble className="text-on-surface-var h-6 w-6" />
           <Typography as="span" variant="body" size="medium" weight="regular">
             {isMarkingAllRead ? "در حال ثبت..." : "علامت‌گذاری همه به‌عنوان خوانده شده"}
           </Typography>
@@ -107,12 +107,12 @@ export function NotificationSettingsSheet({
 
         <Button
           unstyled
-          className="flex h-[72px] w-full items-center gap-2 px-1 text-[11px] font-normal leading-4 text-on-surface disabled:cursor-wait disabled:opacity-60 [direction:rtl]"
+          className="text-on-surface flex h-[72px] w-full items-center gap-2 px-1 text-[11px] leading-4 font-normal [direction:rtl] disabled:cursor-wait disabled:opacity-60"
           disabled={isClearingRead}
           onClick={onClearRead}
           type="button"
         >
-          <LinearDelete className="h-6 w-6 text-on-surface-var" />
+          <LinearDelete className="text-on-surface-var h-6 w-6" />
           <Typography as="span" variant="body" size="medium" weight="regular">
             {isClearingRead ? "در حال پاک کردن..." : "پاک کردن اعلان‌های خوانده شده"}
           </Typography>

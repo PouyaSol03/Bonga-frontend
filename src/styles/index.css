@@ -132,9 +132,7 @@ body,
   max-height: 100vh;
   margin: 0;
   overflow: hidden;
-  background:
-    linear-gradient(90deg, rgba(0, 72, 196, 0.05), rgba(17, 163, 102, 0.05)),
-    #eef3fb;
+  background: linear-gradient(90deg, rgba(0, 72, 196, 0.05), rgba(17, 163, 102, 0.05)), #eef3fb;
 }
 
 html.dark,
@@ -164,13 +162,13 @@ html.dark #root {
   display: none;
 }
 
-
 button,
 input {
   font: inherit;
 }
 
-:where(a[href],
+:where(
+  a[href],
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [role="link"]:not([aria-disabled="true"]),
@@ -182,7 +180,8 @@ input {
   label[for],
   label:has(input:not(:disabled)),
   select:not(:disabled),
-  summary) {
+  summary
+) {
   cursor: pointer;
 }
 
@@ -380,14 +379,18 @@ input[type="search"]::-webkit-search-results-decoration {
   left: 58%;
   top: 10px;
   width: 45px;
-  box-shadow: 16px 10px 0 #f5f5f5, -18px 18px 0 #f5f5f5;
+  box-shadow:
+    16px 10px 0 #f5f5f5,
+    -18px 18px 0 #f5f5f5;
 }
 
 .cloud-two {
   left: 37%;
   top: 28px;
   width: 24px;
-  box-shadow: -28px 10px 0 #f4f4f4, 36px 17px 0 #f0f0f0;
+  box-shadow:
+    -28px 10px 0 #f4f4f4,
+    36px 17px 0 #f0f0f0;
 }
 
 .tree {
@@ -430,7 +433,6 @@ input[type="search"]::-webkit-search-results-decoration {
   background: #dbe5ff;
   transform: translateX(-50%);
 }
-
 
 .roof {
   position: absolute;
@@ -621,7 +623,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 @media (max-width: 359px) {
-  .brand-mark+strong+h1 {
+  .brand-mark + strong + h1 {
     width: 100%;
     padding-inline: 10px;
     font-size: 15px;

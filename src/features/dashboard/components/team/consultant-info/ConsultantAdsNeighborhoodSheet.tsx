@@ -55,7 +55,7 @@ export function ConsultantAdsNeighborhoodSheet({
       showHandle={false}
       showHeader={false}
     >
-      <div className="shrink-0 px-3 pb-2 pt-3">
+      <div className="shrink-0 px-3 pt-3 pb-2">
         <div className="flex h-11 items-center gap-2 [direction:ltr]">
           <SearchInputBar
             containerClassName="flex-1 border-outline"
@@ -70,7 +70,7 @@ export function ConsultantAdsNeighborhoodSheet({
           <Button
             unstyled
             aria-label="بازگشت"
-            className="grid h-10 w-10 shrink-0 place-items-center text-on-surface-var"
+            className="text-on-surface-var grid h-10 w-10 shrink-0 place-items-center"
             onClick={onClose}
             type="button"
           >
@@ -79,15 +79,20 @@ export function ConsultantAdsNeighborhoodSheet({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-2" dir="rtl">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-2 pb-3" dir="rtl">
         {!cityId ? (
-          <Typography variant="body" size="medium" weight="regular" className="py-3 text-center text-outline">
+          <Typography
+            variant="body"
+            size="medium"
+            weight="regular"
+            className="text-outline py-3 text-center"
+          >
             برای انتخاب محله، ابتدا شهر را انتخاب کنید.
           </Typography>
         ) : neighborhoodsQuery.isLoading ? (
           <div className="space-y-2">
-            <div className="h-12 rounded-[10px] bg-surface-container" />
-            <div className="h-12 rounded-[10px] bg-surface-container" />
+            <div className="bg-surface-container h-12 rounded-[10px]" />
+            <div className="bg-surface-container h-12 rounded-[10px]" />
           </div>
         ) : neighborhoods.length > 0 ? (
           <div className="space-y-1">
@@ -98,18 +103,30 @@ export function ConsultantAdsNeighborhoodSheet({
                 <Button
                   unstyled
                   aria-pressed={isSelected}
-                  className="flex min-h-[56px] w-full items-center justify-between gap-4 rounded-[10px] bg-surface-container-lowest py-2 pl-3 pr-2 text-right transition-colors active:bg-primary-container/20 [direction:ltr]"
+                  className="bg-surface-container-lowest active:bg-primary-container/20 flex min-h-[56px] w-full items-center justify-between gap-4 rounded-[10px] py-2 pr-2 pl-3 text-right transition-colors [direction:ltr]"
                   key={id}
                   onClick={() => onToggle(item)}
                   type="button"
                 >
                   <SelectionCheckIndicator checked={isSelected} />
                   <div className="min-w-0 flex-1 [direction:rtl]">
-                    <Typography variant="label" size="medium" weight="medium" className="block truncate text-on-surface">
+                    <Typography
+                      variant="label"
+                      size="medium"
+                      weight="medium"
+                      className="text-on-surface block truncate"
+                    >
                       {item.name}
                     </Typography>
-                    <Typography variant="body" size="small" weight="regular" className="mt-0.5 block truncate text-outline">
-                      {getNeighborhoodHierarchyDescription(item) || selectedCity?.name || "شهر انتخاب‌شده"}
+                    <Typography
+                      variant="body"
+                      size="small"
+                      weight="regular"
+                      className="text-outline mt-0.5 block truncate"
+                    >
+                      {getNeighborhoodHierarchyDescription(item) ||
+                        selectedCity?.name ||
+                        "شهر انتخاب‌شده"}
                     </Typography>
                   </div>
                 </Button>
@@ -121,7 +138,7 @@ export function ConsultantAdsNeighborhoodSheet({
         )}
       </div>
 
-      <footer className="shrink-0 bg-surface-container-lowest px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-6px_16px_rgba(26,26,26,0.06)]">
+      <footer className="bg-surface-container-lowest shrink-0 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-6px_16px_rgba(26,26,26,0.06)]">
         <Button
           variant="primary"
           size="x-medium"

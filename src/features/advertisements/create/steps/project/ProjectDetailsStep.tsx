@@ -3,11 +3,7 @@ import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
 import { BottomSheet } from "../../../../../shared/components/BottomSheet";
 import LinearDelete from "../../../../../shared/icons/LinearDelete";
-import {
-  projectFloorOptions,
-  projectPositionOptions,
-  projectRoomOptions,
-} from "../../data";
+import { projectFloorOptions, projectPositionOptions, projectRoomOptions } from "../../data";
 import type { NewAdFormValues, ProjectDetailItem } from "../../types";
 import { InputBox, Tag } from "../../components/NewAdControls";
 import { useNewAdDesktopLayout } from "../../NewAdLayoutContext";
@@ -41,9 +37,7 @@ function createProjectDetailItem(): ProjectDetailItem {
 }
 
 function toggleArray(current: string[], value: string) {
-  return current.includes(value)
-    ? current.filter((item) => item !== value)
-    : [...current, value];
+  return current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
 }
 
 function MultiSelectRow({
@@ -60,12 +54,19 @@ function MultiSelectRow({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <Typography as="span" variant="label" size="medium" weight="medium" className="text-sm font-medium leading-5 text-on-surface">
+        <Typography
+          as="span"
+          variant="label"
+          size="medium"
+          weight="medium"
+          className="text-on-surface text-sm leading-5 font-medium"
+        >
           {title}
         </Typography>
 
-        <Button unstyled
-          className="text-sm font-medium leading-5 text-primary"
+        <Button
+          unstyled
+          className="text-primary text-sm leading-5 font-medium"
           onClick={onOpen}
           type="button"
         >
@@ -80,8 +81,9 @@ function MultiSelectRow({
           ))}
         </div>
       ) : (
-        <Button unstyled
-          className="flex h-10 w-full items-center justify-center rounded-[8px] border border-dashed border-outline-var bg-surface-container-lowest text-sm font-normal leading-5 text-outline"
+        <Button
+          unstyled
+          className="border-outline-var bg-surface-container-lowest text-outline flex h-10 w-full items-center justify-center rounded-[8px] border border-dashed text-sm leading-5 font-normal"
           onClick={onOpen}
           type="button"
         >
@@ -105,10 +107,7 @@ function ProjectDetailCard({
 }) {
   const { setValue } = useFormContext<NewAdFormValues>();
 
-  const setItemField = <T extends keyof ProjectDetailItem>(
-    key: T,
-    value: ProjectDetailItem[T],
-  ) => {
+  const setItemField = <T extends keyof ProjectDetailItem>(key: T, value: ProjectDetailItem[T]) => {
     setValue(`projectDetails.${index}.${key}` as never, value as never, {
       shouldDirty: true,
       shouldValidate: true,
@@ -116,11 +115,14 @@ function ProjectDetailCard({
   };
 
   const removeMultiValue = (key: MultiProjectKey, value: string) => {
-    setItemField(key, (item?.[key] ?? []).filter((current) => current !== value));
+    setItemField(
+      key,
+      (item?.[key] ?? []).filter((current) => current !== value),
+    );
   };
 
   return (
-    <div className="space-y-4 border-b border-outline-var pb-5 last:border-b-0">
+    <div className="border-outline-var space-y-4 border-b pb-5 last:border-b-0">
       <InputBox
         numeric
         leftText="متر مربع"
@@ -171,23 +173,22 @@ function ProjectDetailCard({
         onRemove={(value) => removeMultiValue("positions", value)}
       />
 
-      <Button unstyled
-        className="flex h-10 w-full items-center justify-center gap-2 rounded-[8px] border border-error-container bg-surface-container-lowest text-sm font-medium leading-5 text-error"
+      <Button
+        unstyled
+        className="border-error-container bg-surface-container-lowest text-error flex h-10 w-full items-center justify-center gap-2 rounded-[8px] border text-sm leading-5 font-medium"
         onClick={onRemove}
         type="button"
       >
-        <LinearDelete aria-hidden="true" className="h-5 w-5 text-error" />
-        <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">حذف</Typography>
+        <LinearDelete aria-hidden="true" className="text-error h-5 w-5" />
+        <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">
+          حذف
+        </Typography>
       </Button>
     </div>
   );
 }
 
-export function ProjectDetailsStep({
-  onBack,
-}: {
-  onBack: () => void;
-}) {
+export function ProjectDetailsStep({ onBack }: { onBack: () => void }) {
   const desktop = useNewAdDesktopLayout();
   const { control, getValues, setValue } = useFormContext<NewAdFormValues>();
   const [sheet, setSheet] = useState<ProjectMultiSheet | null>(null);
@@ -217,14 +218,19 @@ export function ProjectDetailsStep({
   };
 
   const selectedSheetValues = sheet
-    ? watchedProjectDetails?.[sheet.index]?.[sheet.key] ?? []
+    ? (watchedProjectDetails?.[sheet.index]?.[sheet.key] ?? [])
     : [];
 
   return (
     <>
-      <main className={desktop
-        ? "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container px-6 py-5"
-        : "min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container-lowest px-4 pb-3 pt-4"} dir="rtl">
+      <main
+        className={
+          desktop
+            ? "bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-6 py-5"
+            : "bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-4 pb-3"
+        }
+        dir="rtl"
+      >
         <div className={desktop ? "mx-auto max-w-[1120px] space-y-5" : "space-y-5"}>
           {fields.map((field, index) => (
             <ProjectDetailCard
@@ -246,24 +252,34 @@ export function ProjectDetailsStep({
         </div>
       </main>
 
-      <footer className={desktop
-        ? "flex justify-end gap-3 border-t border-outline-var bg-surface-container-lowest px-6 py-4 [direction:ltr]"
-        : "grid grid-cols-2 gap-3 bg-surface-container-lowest px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 shadow-[0_-4px_16px_0_rgba(0,0,0,0.08)]"}>
-        <Button unstyled
-          className={`h-12 rounded-[10px] border border-primary bg-surface-container-lowest text-base font-medium leading-6 text-primary ${desktop ? "w-40" : ""}`}
+      <footer
+        className={
+          desktop
+            ? "border-outline-var bg-surface-container-lowest flex justify-end gap-3 border-t px-6 py-4 [direction:ltr]"
+            : "bg-surface-container-lowest grid grid-cols-2 gap-3 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_16px_0_rgba(0,0,0,0.08)]"
+        }
+      >
+        <Button
+          unstyled
+          className={`border-primary bg-surface-container-lowest text-primary h-12 rounded-[10px] border text-base leading-6 font-medium ${desktop ? "w-40" : ""}`}
           onClick={onBack}
           type="button"
         >
           بازگشت
         </Button>
 
-        <Button unstyled
-          className={`flex h-12 items-center justify-center gap-2 rounded-[10px] bg-primary text-base font-medium leading-6 text-on-primary active:bg-primary/90 ${desktop ? "w-48" : ""}`}
+        <Button
+          unstyled
+          className={`bg-primary text-on-primary active:bg-primary/90 flex h-12 items-center justify-center gap-2 rounded-[10px] text-base leading-6 font-medium ${desktop ? "w-48" : ""}`}
           onClick={() => append(createProjectDetailItem())}
           type="button"
         >
-          <Typography as="span" variant="body" size="medium" weight="regular">+</Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular">اضافه کردن</Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            +
+          </Typography>
+          <Typography as="span" variant="body" size="medium" weight="regular">
+            اضافه کردن
+          </Typography>
         </Button>
       </footer>
 
@@ -290,14 +306,21 @@ export function ProjectDetailsStep({
             const checked = selectedSheetValues.includes(option);
 
             return (
-              <Button unstyled
-                className="flex h-12 w-full items-center justify-between bg-surface-container-lowest px-5 text-sm font-normal leading-5 text-on-surface"
+              <Button
+                unstyled
+                className="bg-surface-container-lowest text-on-surface flex h-12 w-full items-center justify-between px-5 text-sm leading-5 font-normal"
                 key={option}
                 onClick={() => toggleSheetValue(option)}
                 type="button"
               >
-                <Typography as="span" variant="body" size="medium" weight="regular">{option}</Typography>
-                <Typography as="span" variant="body" size="medium" weight="regular"
+                <Typography as="span" variant="body" size="medium" weight="regular">
+                  {option}
+                </Typography>
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
                   className={`grid h-4 w-4 place-items-center rounded-[3px] border ${
                     checked
                       ? "border-primary bg-primary text-on-primary"
@@ -305,7 +328,13 @@ export function ProjectDetailsStep({
                   }`}
                 >
                   <svg aria-hidden="true" className="h-3 w-3" fill="none" viewBox="0 0 12 12">
-                    <path d="M2.4 6.1 4.8 8.5 9.6 3.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+                    <path
+                      d="M2.4 6.1 4.8 8.5 9.6 3.5"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.6"
+                    />
                   </svg>
                 </Typography>
               </Button>

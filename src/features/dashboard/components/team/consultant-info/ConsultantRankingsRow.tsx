@@ -14,10 +14,10 @@ export function ConsultantRankingsRow({
   rank?: number | null;
 }) {
   return (
-    <div className="w-full bg-surface-container-lowest px-4 py-3">
+    <div className="bg-surface-container-lowest w-full px-4 py-3">
       <div className="grid grid-cols-3 gap-2.5">
-        <article className="flex h-[119px] flex-col items-center justify-between rounded-2xl border border-outline-var/40 bg-surface-container-lowest p-3">
-          <LinearRanking className="h-6 w-6 text-primary" innerColor="currentColor" />
+        <article className="border-outline-var/40 bg-surface-container-lowest flex h-[119px] flex-col items-center justify-between rounded-2xl border p-3">
+          <LinearRanking className="text-primary h-6 w-6" innerColor="currentColor" />
           <Typography
             as="span"
             variant="title"
@@ -44,13 +44,13 @@ export function ConsultantRankingsRow({
             alt={rankingLevel.title}
             className="h-16 w-auto max-w-[54px] object-contain"
           />
-          <span className="inline-flex h-6 items-center justify-center rounded-full bg-primary/12 px-2.5 text-xs font-semibold text-primary">
+          <span className="bg-primary/12 text-primary inline-flex h-6 items-center justify-center rounded-full px-2.5 text-xs font-semibold">
             {rankingLevel.title}
           </span>
         </article>
 
-        <article className="flex h-[119px] flex-col items-center justify-between rounded-2xl border border-outline-var/40 bg-surface-container-lowest p-3">
-          <LinearStar className="h-6 w-6 text-warning" innerColor="currentColor" />
+        <article className="border-outline-var/40 bg-surface-container-lowest flex h-[119px] flex-col items-center justify-between rounded-2xl border p-3">
+          <LinearStar className="text-warning h-6 w-6" innerColor="currentColor" />
           <Typography
             as="span"
             variant="title"

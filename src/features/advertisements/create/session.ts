@@ -39,13 +39,15 @@ export function saveNewAdFlowSession(
   subNeighborhoodId?: string | null,
 ) {
   const resolvedNeighborhoodId =
-    neighborhoodId ??
-    values.neighborhoodId ??
-    (typeof window !== "undefined" ? window.localStorage.getItem(neighborhoodIdKey) : null);
+    neighborhoodId !== undefined
+      ? neighborhoodId
+      : values.neighborhoodId ??
+        (typeof window !== "undefined" ? window.localStorage.getItem(neighborhoodIdKey) : null);
   const resolvedSubNeighborhoodId =
-    subNeighborhoodId ??
-    values.subNeighborhoodId ??
-    (typeof window !== "undefined" ? window.localStorage.getItem(subNeighborhoodIdKey) : null);
+    subNeighborhoodId !== undefined
+      ? subNeighborhoodId
+      : values.subNeighborhoodId ??
+        (typeof window !== "undefined" ? window.localStorage.getItem(subNeighborhoodIdKey) : null);
 
   activeSession = {
     step,
@@ -62,9 +64,13 @@ export function saveNewAdFlowSession(
   if (typeof window !== "undefined") {
     if (resolvedNeighborhoodId) {
       window.localStorage.setItem(neighborhoodIdKey, resolvedNeighborhoodId);
+    } else {
+      window.localStorage.removeItem(neighborhoodIdKey);
     }
     if (resolvedSubNeighborhoodId) {
       window.localStorage.setItem(subNeighborhoodIdKey, resolvedSubNeighborhoodId);
+    } else {
+      window.localStorage.removeItem(subNeighborhoodIdKey);
     }
   }
 }
@@ -90,14 +96,41 @@ export function getNewAdFlowSession() {
   } satisfies NewAdFlowSession;
 }
 
-export function updateNewAdFlowSessionLocation(location: string) {
+export function updateNewAdFlowSessionLocation(
+  location: string,
+  options?: {
+    neighborhoodId?: string | null;
+    subNeighborhoodId?: string | null;
+    lat?: string | null;
+    lng?: string | null;
+  },
+) {
   if (!activeSession) return;
+
+  const resolvedNeighborhoodId =
+    options?.neighborhoodId !== undefined
+      ? options.neighborhoodId
+      : activeSession.neighborhoodId;
+  const resolvedSubNeighborhoodId =
+    options?.subNeighborhoodId !== undefined
+      ? options.subNeighborhoodId
+      : activeSession.subNeighborhoodId;
 
   activeSession = {
     ...activeSession,
+    neighborhoodId: resolvedNeighborhoodId,
+    subNeighborhoodId: resolvedSubNeighborhoodId,
     values: {
       ...cloneValues(activeSession.values),
       location,
+      ...(options?.neighborhoodId !== undefined
+        ? { neighborhoodId: options.neighborhoodId ?? undefined }
+        : {}),
+      ...(options?.subNeighborhoodId !== undefined
+        ? { subNeighborhoodId: options.subNeighborhoodId ?? undefined }
+        : {}),
+      ...(options?.lat !== undefined ? { lat: options.lat ?? undefined } : {}),
+      ...(options?.lng !== undefined ? { lng: options.lng ?? undefined } : {}),
     },
   };
 }

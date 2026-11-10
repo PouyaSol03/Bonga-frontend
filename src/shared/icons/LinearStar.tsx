@@ -1,19 +1,11 @@
-import React from 'react';
+import React from "react";
 
 interface LinearStarProps extends React.SVGProps<SVGSVGElement> {
   innerColor?: string;
 }
 
-const LinearStar: React.FC<LinearStarProps> = ({
-  innerColor = "transparent",
-  ...props
-}) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    {...props}
-  >
+const LinearStar: React.FC<LinearStarProps> = ({ innerColor = "transparent", ...props }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" {...props}>
     <path
       d="M12.2324 3.88867C12.1371 3.70388 11.863 3.70388 11.7676 3.88867L9.5596 8.17675C9.3025 8.676 8.8213 9.02029 8.26858 9.10742L3.46877 9.86328C3.2514 9.89754 3.18636 10.1454 3.32424 10.2822L6.76077 13.6914C7.15868 14.0862 7.34319 14.6483 7.25491 15.2031L6.49807 19.9609C6.46867 20.1457 6.67103 20.3225 6.87502 20.2197L11.2041 18.0371C11.7044 17.7849 12.2957 17.7849 12.7959 18.0371L17.125 20.2197C17.3034 20.3096 17.4808 20.1861 17.503 20.0303L17.502 19.9619V19.9609L16.7451 15.2031C16.6568 14.6483 16.8413 14.0863 17.2393 13.6914L20.6758 10.2822C20.8137 10.1454 20.7486 9.89753 20.5313 9.86328L15.7315 9.10742C15.1788 9.02028 14.6976 8.67597 14.4405 8.17675L12.2324 3.88867Z"
       fill={innerColor}

@@ -1,5 +1,22 @@
 import type { NewAdFormValues, UploadedMediaFile } from "../types";
+import { locationLatKey, locationLngKey } from "../data";
 import { canonicalizeMediaPath, mediaSource } from "../utils";
+
+function areCoordinatesChanged(
+  curr?: string | number | null,
+  prev?: string | number | null,
+): boolean {
+  const c = curr !== undefined && curr !== null ? String(curr).trim() : "";
+  const p = prev !== undefined && prev !== null ? String(prev).trim() : "";
+  if (!c && !p) return false;
+  if (!c || !p) return true;
+  const cNum = Number(c);
+  const pNum = Number(p);
+  if (Number.isFinite(cNum) && Number.isFinite(pNum)) {
+    return Math.abs(cNum - pNum) > 0.000001;
+  }
+  return c !== p;
+}
 
 function isStringChanged(curr?: string, prev?: string): boolean {
   return (curr ?? "").trim() !== (prev ?? "").trim();
@@ -64,26 +81,98 @@ export function getChangedFieldKeys(
   const changed = new Set<keyof NewAdFormValues>();
 
   const stringKeys: (keyof NewAdFormValues)[] = [
-    "location", "meterage", "landArea", "buildingArea", "floor", "rooms", "age",
-    "density", "landPosition", "documentType", "hotelStars", "accommodationType",
-    "spaceType", "standardCapacity", "extraPeopleCapacity", "commercialLicense",
-    "constructionLicense", "participationType", "builderCompanyName", "projectType",
-    "projectTotalFloors", "projectTotalUnits", "projectStatus", "projectDeliveryDate",
-    "saleTermsPercent", "saleTermsInstallmentMonths", "builderSharePercent",
-    "totalFloors", "unitsPerFloor", "unitType", "unitPosition", "occupancyStatus",
-    "kitchenType", "petPolicy", "readyDeliveryDate", "minContractMonths", "rentalPeriod",
-    "viewType", "checkInTime", "checkOutTime", "minStayDays", "evacuationGuarantee",
-    "facadeMaterial", "floorMaterial", "cabinetMaterial", "buildingType", "villaType",
-    "commercialPosition", "ownershipStatus", "currentStatus", "industrialPropertyType",
-    "accessType", "officePosition", "officeDocumentType", "landWidth", "streetWidth",
-    "ceilingHeight", "openingCount", "elevatorCount", "parkingCount", "terraceCount",
-    "singleRoomCount", "doubleRoomCount", "suiteCount", "price", "mortgagePrice",
-    "rentPrice", "rentConversionMortgagePrice", "rentConversionPolicy", "minPrice",
-    "maxPrice", "normalDailyPrice", "weekendDailyPrice", "specialDailyPrice",
-    "extraPersonPrice", "loanAmount", "loanInstallment", "virtualTourLink",
-    "publisherName", "agencyId", "consultantId", "phoneNumber", "ownerPhone",
-    "ownerFullName", "ownerExactAddress", "telegram", "whatsapp", "title",
-    "description", "neighborhoodId", "subNeighborhoodId", "targetOwnerId",
+    "location",
+    "meterage",
+    "landArea",
+    "buildingArea",
+    "floor",
+    "rooms",
+    "age",
+    "density",
+    "landPosition",
+    "documentType",
+    "hotelStars",
+    "accommodationType",
+    "spaceType",
+    "standardCapacity",
+    "extraPeopleCapacity",
+    "commercialLicense",
+    "constructionLicense",
+    "participationType",
+    "builderCompanyName",
+    "projectType",
+    "projectTotalFloors",
+    "projectTotalUnits",
+    "projectStatus",
+    "projectDeliveryDate",
+    "saleTermsPercent",
+    "saleTermsInstallmentMonths",
+    "builderSharePercent",
+    "totalFloors",
+    "unitsPerFloor",
+    "unitType",
+    "unitPosition",
+    "occupancyStatus",
+    "kitchenType",
+    "petPolicy",
+    "readyDeliveryDate",
+    "minContractMonths",
+    "rentalPeriod",
+    "viewType",
+    "checkInTime",
+    "checkOutTime",
+    "minStayDays",
+    "evacuationGuarantee",
+    "facadeMaterial",
+    "floorMaterial",
+    "cabinetMaterial",
+    "buildingType",
+    "villaType",
+    "commercialPosition",
+    "ownershipStatus",
+    "currentStatus",
+    "industrialPropertyType",
+    "accessType",
+    "officePosition",
+    "officeDocumentType",
+    "landWidth",
+    "streetWidth",
+    "ceilingHeight",
+    "openingCount",
+    "elevatorCount",
+    "parkingCount",
+    "terraceCount",
+    "singleRoomCount",
+    "doubleRoomCount",
+    "suiteCount",
+    "price",
+    "mortgagePrice",
+    "rentPrice",
+    "rentConversionMortgagePrice",
+    "rentConversionPolicy",
+    "minPrice",
+    "maxPrice",
+    "normalDailyPrice",
+    "weekendDailyPrice",
+    "specialDailyPrice",
+    "extraPersonPrice",
+    "loanAmount",
+    "loanInstallment",
+    "virtualTourLink",
+    "publisherName",
+    "agencyId",
+    "consultantId",
+    "phoneNumber",
+    "ownerPhone",
+    "ownerFullName",
+    "ownerExactAddress",
+    "telegram",
+    "whatsapp",
+    "title",
+    "description",
+    "neighborhoodId",
+    "subNeighborhoodId",
+    "targetOwnerId",
   ];
 
   for (const key of stringKeys) {
@@ -93,11 +182,26 @@ export function getChangedFieldKeys(
   }
 
   const boolKeys: (keyof NewAdFormValues)[] = [
-    "saleTermsEnabled", "renovated", "furnished", "hasDocument", "managementRoom",
-    "conferenceRoom", "receptionHall", "signboard", "kitchen", "separateEntrance",
-    "constructionPermit", "commercialPermit", "images_belong_to_ad",
-    "rentConversionEnabled", "loanEnabled", "exchangeEnabled", "hasVideo",
-    "hasVirtualTour", "chatEnabled", "phoneEnabled",
+    "saleTermsEnabled",
+    "renovated",
+    "furnished",
+    "hasDocument",
+    "managementRoom",
+    "conferenceRoom",
+    "receptionHall",
+    "signboard",
+    "kitchen",
+    "separateEntrance",
+    "constructionPermit",
+    "commercialPermit",
+    "images_not_belong_to_ad",
+    "rentConversionEnabled",
+    "loanEnabled",
+    "exchangeEnabled",
+    "hasVideo",
+    "hasVirtualTour",
+    "chatEnabled",
+    "phoneEnabled",
   ];
 
   for (const key of boolKeys) {
@@ -107,7 +211,12 @@ export function getChangedFieldKeys(
   }
 
   const arrayKeys: (keyof NewAdFormValues)[] = [
-    "usageType", "suitableFor", "selectedSpecs", "heatingCooling", "facilities", "exchangeTargets",
+    "usageType",
+    "suitableFor",
+    "selectedSpecs",
+    "heatingCooling",
+    "facilities",
+    "exchangeTargets",
   ];
 
   for (const key of arrayKeys) {
@@ -120,8 +229,25 @@ export function getChangedFieldKeys(
   if (curr.targetOwnerType !== prev.targetOwnerType) changed.add("targetOwnerType");
   if (arePhotosChanged(curr.photos, prev.photos)) changed.add("photos");
   if (isVideoChanged(curr.video, prev.video)) changed.add("video");
-  if (areComplexObjectsChanged(curr.projectDetails, prev.projectDetails)) changed.add("projectDetails");
-  if (areComplexObjectsChanged(curr.dailyHotelRooms, prev.dailyHotelRooms)) changed.add("dailyHotelRooms");
+  if (areComplexObjectsChanged(curr.projectDetails, prev.projectDetails))
+    changed.add("projectDetails");
+  if (areComplexObjectsChanged(curr.dailyHotelRooms, prev.dailyHotelRooms))
+    changed.add("dailyHotelRooms");
+
+  const currLat =
+    curr.lat ||
+    (typeof window !== "undefined" ? window.localStorage.getItem(locationLatKey) : undefined);
+  const currLng =
+    curr.lng ||
+    (typeof window !== "undefined" ? window.localStorage.getItem(locationLngKey) : undefined);
+  if (areCoordinatesChanged(currLat, prev.lat)) {
+    changed.add("lat");
+    changed.add("location");
+  }
+  if (areCoordinatesChanged(currLng, prev.lng)) {
+    changed.add("lng");
+    changed.add("location");
+  }
 
   return changed;
 }

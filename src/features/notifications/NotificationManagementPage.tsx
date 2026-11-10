@@ -19,7 +19,7 @@ export function NotificationManagementPage() {
 
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container-lowest text-on-surface [direction:rtl]"
+      className="bg-surface-container-lowest text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
       <TopBar
@@ -30,7 +30,7 @@ export function NotificationManagementPage() {
         titleClassName="text-sm font-semibold leading-5"
       />
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest pb-6">
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto pb-6">
         <section className="flex items-center justify-between px-4 py-3 [direction:ltr]">
           <SwitchButton
             ariaLabel="فعال‌سازی اعلان‌ها"
@@ -39,14 +39,14 @@ export function NotificationManagementPage() {
             onChange={(enabled) => void updateAllCategories(enabled)}
           />
           <div className="flex min-w-0 flex-1 items-start gap-2 text-right [direction:rtl]">
-            <LinearNotification className="h-6 w-6 shrink-0 text-on-surface-var" />
+            <LinearNotification className="text-on-surface-var h-6 w-6 shrink-0" />
             <div className="min-w-0">
               <Typography
                 as="h2"
                 variant="body"
                 size="large"
                 weight="regular"
-                className="m-0 text-on-surface"
+                className="text-on-surface m-0"
               >
                 فعال‌سازی اعلان‌ها
               </Typography>
@@ -55,7 +55,7 @@ export function NotificationManagementPage() {
                 variant="body"
                 size="medium"
                 weight="regular"
-                className="m-0 max-w-[220px] text-sm text-outline"
+                className="text-outline m-0 max-w-[220px] text-sm"
               >
                 با غیرفعال کردن این گزینه، همه اعلان‌ها متوقف می‌شوند.
               </Typography>
@@ -63,7 +63,7 @@ export function NotificationManagementPage() {
           </div>
         </section>
 
-        <div className="h-1.5 bg-surface-container" />
+        <div className="bg-surface-container h-1.5" />
 
         <section aria-label="دسته‌بندی اعلان‌ها">
           {notificationManagementOptions.map((option) => {
@@ -71,19 +71,14 @@ export function NotificationManagementPage() {
 
             return (
               <div
-                className="flex items-center justify-between border-b border-outline-var px-4 py-3.5 [direction:ltr] last:border-b-0"
+                className="border-outline-var flex items-center justify-between border-b px-4 py-3.5 [direction:ltr] last:border-b-0"
                 key={option.category}
               >
                 <SwitchButton
                   ariaLabel={`تغییر وضعیت ${option.label}`}
                   checked={enabled}
-                  disabled={
-                    preferencesQuery.isLoading ||
-                    pendingCategories.has(option.category)
-                  }
-                  onChange={(nextEnabled) =>
-                    void updateCategory(option.category, nextEnabled)
-                  }
+                  disabled={preferencesQuery.isLoading || pendingCategories.has(option.category)}
+                  onChange={(nextEnabled) => void updateCategory(option.category, nextEnabled)}
                 />
                 <div className="min-w-0 flex-1 text-right" dir="rtl">
                   <Typography
@@ -91,7 +86,7 @@ export function NotificationManagementPage() {
                     variant="body"
                     size="large"
                     weight="regular"
-                    className="m-0 text-on-surface"
+                    className="text-on-surface m-0"
                   >
                     {option.label}
                   </Typography>
@@ -100,7 +95,7 @@ export function NotificationManagementPage() {
                     variant="body"
                     size="medium"
                     weight="regular"
-                    className="m-0 text-sm font-normal text-outline"
+                    className="text-outline m-0 text-sm font-normal"
                   >
                     {option.description}
                   </Typography>

@@ -50,6 +50,7 @@ Split any unit again before it reaches 200 lines.
 ### Task 1: Repair Storybook Runtime and Add a Smoke Test
 
 **Files:**
+
 - Modify: `.storybook/main.ts`
 - Modify: `.storybook/preview.tsx`
 - Modify: `package.json`
@@ -57,6 +58,7 @@ Split any unit again before it reaches 200 lines.
 - Create: `playwright.storybook.config.ts`
 
 **Interfaces:**
+
 - Consumes: Storybook story id `features-account-accountmyadstatepage--agency-docs-1-published`.
 - Produces: a Storybook runtime that renders stories without the removed addon error.
 
@@ -70,7 +72,9 @@ test("assigned-ad published story renders without runtime errors", async ({ page
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
   });
-  await page.goto("/iframe.html?id=features-account-accountmyadstatepage--agency-docs-1-published&viewMode=story");
+  await page.goto(
+    "/iframe.html?id=features-account-accountmyadstatepage--agency-docs-1-published&viewMode=story",
+  );
   await expect(page.getByText("منتشر شده", { exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -112,6 +116,7 @@ git commit -m "fix(storybook): restore state-ad story runtime"
 ### Task 2: Extract and Test the Assigned-State Model
 
 **Files:**
+
 - Create: `src/features/account/adState/types.ts`
 - Create: `src/features/account/adState/readers.ts`
 - Create: `src/features/account/adState/stateConfig.ts`
@@ -119,6 +124,7 @@ git commit -m "fix(storybook): restore state-ad story runtime"
 - Create: `tests/e2e/account/account-my-ad-state-model.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `AdCardData`, `MyAdStatusKey`, raw advertisement records.
 - Produces: `buildAssignedAdStateModel(input): AssignedAdStateModel`.
 
@@ -139,8 +145,22 @@ test("maps an agency deal deletion to result confirmation", () => {
 });
 
 test("maps user-stopped and recovery-expired deletions independently", () => {
-  expect(buildAssignedAdStateModel({ ad: {}, card: { id: "1" } as never, statusKey: "deleted", deletedVariant: "user_stopped" }).variant).toBe("user-stopped");
-  expect(buildAssignedAdStateModel({ ad: {}, card: { id: "1" } as never, statusKey: "deleted", deletedVariant: "recovery_expired" }).variant).toBe("recovery-expired");
+  expect(
+    buildAssignedAdStateModel({
+      ad: {},
+      card: { id: "1" } as never,
+      statusKey: "deleted",
+      deletedVariant: "user_stopped",
+    }).variant,
+  ).toBe("user-stopped");
+  expect(
+    buildAssignedAdStateModel({
+      ad: {},
+      card: { id: "1" } as never,
+      statusKey: "deleted",
+      deletedVariant: "recovery_expired",
+    }).variant,
+  ).toBe("recovery-expired");
 });
 ```
 
@@ -186,6 +206,7 @@ git commit -m "refactor(account): model assigned advertisement states"
 ### Task 3: Split the Oversized Route Page Without Changing Other Branches
 
 **Files:**
+
 - Modify: `src/features/account/AccountMyAdStatePage.tsx`
 - Create: `src/features/account/adState/PersonalAdStatePage.tsx`
 - Create: `src/features/account/adState/PersonalAdStateSections.tsx`
@@ -200,6 +221,7 @@ git commit -m "refactor(account): model assigned advertisement states"
 - Create: `src/features/account/myAdsStatusResolver.ts`
 
 **Interfaces:**
+
 - Consumes: the current `AccountMyAdStatePageProps`, route state and queries.
 - Produces: the same exported `AccountMyAdStatePage` and status exports with no route/API behavior change.
 
@@ -253,6 +275,7 @@ git commit -m "refactor(account): split advertisement state page"
 ### Task 4: Build the Shared Reference-Matched Assigned State UI
 
 **Files:**
+
 - Create: `src/features/account/adState/AssignedAdStateView.tsx`
 - Create: `src/features/account/adState/AssignedAdSummary.tsx`
 - Create: `src/features/account/adState/AssignedAdActions.tsx`
@@ -262,6 +285,7 @@ git commit -m "refactor(account): split advertisement state page"
 - Remove after migration: `src/features/account/components/AgencyAssignedUserAdView.tsx`
 
 **Interfaces:**
+
 - Consumes: `AssignedAdStateModel` and `AssignedAdStateActions` callbacks.
 - Produces: `AssignedAdStateView({ model, actions, flow, onFlowChange })`.
 
@@ -309,6 +333,7 @@ git commit -m "feat(account): match assigned ad state layouts"
 ### Task 5: Implement the Three Full-Screen Reference Flows
 
 **Files:**
+
 - Create: `src/features/account/adState/flows/StopPublishFlow.tsx`
 - Create: `src/features/account/adState/flows/CancelAssignmentFlow.tsx`
 - Create: `src/features/account/adState/flows/DealResultFlow.tsx`
@@ -317,13 +342,16 @@ git commit -m "feat(account): match assigned ad state layouts"
 - Modify: `src/features/account/adState/AssignedAdStateView.tsx`
 
 **Interfaces:**
+
 - Consumes: `AssignedAdFlow`, action callbacks, pending flags.
 - Produces: exact flow screens with cancel/back behavior and submit validation.
 
 - [ ] **Step 1: Add failing tests for each initial flow state**
 
 ```ts
-await page.goto("/iframe.html?id=features-account-accountmyadstatepage--agency-docs-2-stop-publish-sheet&viewMode=story");
+await page.goto(
+  "/iframe.html?id=features-account-accountmyadstatepage--agency-docs-2-stop-publish-sheet&viewMode=story",
+);
 await expect(page.getByRole("heading", { name: "توقف انتشار" })).toBeVisible();
 await expect(page.getByRole("button", { name: "ثبت" })).toBeVisible();
 ```
@@ -356,11 +384,13 @@ git commit -m "feat(account): match assigned ad action flows"
 ### Task 6: Rebuild Storybook Fixtures and All Ten Stories
 
 **Files:**
+
 - Modify: `src/features/account/AccountMyAdStatePage.stories.tsx`
 - Create: `src/features/account/adState/fixtures.ts`
 - Modify: `tests/e2e/storybook/account-my-ad-state-storybook.spec.ts`
 
 **Interfaces:**
+
 - Consumes: exported `AccountMyAdStatePageProps` and deterministic fixtures.
 - Produces: ten stable reference stories at `reference360` viewport.
 
@@ -412,9 +442,11 @@ git commit -m "test(storybook): cover assigned ad reference states"
 ### Task 7: Visual Parity Pass and Final Verification
 
 **Files:**
+
 - Modify only mismatching files under `src/features/account/adState/` and the state stories.
 
 **Interfaces:**
+
 - Consumes: ten SVGs in `docs_UI` and ten Storybook stories.
 - Produces: verified 360px visual parity and a clean build.
 

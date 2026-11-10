@@ -17,9 +17,9 @@ If you are developing a production application, we recommend updating the config
 
 ```js
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       // Other configs...
 
@@ -34,43 +34,63 @@ export default defineConfig([
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       // other options...
     },
   },
-])
+]);
 ```
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
 // eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+import reactX from "eslint-plugin-react-x";
+import reactDom from "eslint-plugin-react-dom";
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       // Other configs...
       // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
+      reactX.configs["recommended-typescript"],
       // Enable lint rules for React DOM
       reactDom.configs.recommended,
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       // other options...
     },
   },
-])
+]);
 ```
+
+## Tests
+
+Tests use Vitest with the existing Vite configuration and jsdom; no browser download or running server is required. Supported Node versions: `^22.22.2 || ^24.15.0 || >=26.0.0` (required by jsdom).
+
+- `npm test` — run the complete suite once.
+- `npm run test:watch` — watch changed tests.
+- `npm run test:ad` — advertisement logic tests.
+- `npm run test:storybook` — Storybook configuration and assigned-ad component smoke tests.
+- `npm run test:typecheck` — type-check tests, source, and test configuration.
+
+Tests live in `tests/unit`. The deleted assigned-ad model test now exercises the actual component's seven states and actions. The former browser smoke test renders the published story's component/args in jsdom; it does not verify browser layout or the served Storybook iframe. Network access is stubbed; storage, URL, mocks, and timers are isolated between tests.
+
+Historical plans under `docs/superpowers` retain their original commands; use the commands above for the current test setup.
+
+## Architecture checks
+
+- `npm run lint:architecture` — reject runtime cycles and shared-to-feature/app imports. Type-only imports are excluded from runtime cycles.
+- `npm run lint:lines` — list every code file exceeding 200 physical lines; includes blank lines/comments. Existing legacy debt makes this check fail until decomposition is complete.
+- `npm run lint:lines -- src/features/crm/layout` — check a focused extraction without hiding repository-wide debt.
 
 ## Performance and SEO audits
 

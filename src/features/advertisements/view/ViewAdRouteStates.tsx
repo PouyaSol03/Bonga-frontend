@@ -1,30 +1,30 @@
 import { PageFrame } from "../../../shared/layout/PageFrame";
-import { getRequestErrorState, NotFoundErrorState } from "../../../shared/components/ErrorState";
+import { NotFoundErrorState, RequestErrorState } from "../../../shared/components/ErrorState";
 import { ViewAdTopBar } from "./viewAdComponents";
 import { Typography } from "../../../shared/ui/Typography";
 
-export function NotFoundState() {
+export function NotFoundState({ onBack }: { onBack?: () => void } = {}) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <ViewAdTopBar actionIcons={[]} backTo="/home" />
-      <main className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest">
+      <ViewAdTopBar actionIcons={[]} backTo="/home" onBack={onBack} />
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-y-auto">
         <NotFoundErrorState />
       </main>
     </PageFrame>
   );
 }
 
-export function LoadingState() {
+export function LoadingState({ onBack }: { onBack?: () => void } = {}) {
   return (
     <PageFrame
-      className="relative flex min-h-0 flex-col overflow-hidden bg-surface-container text-on-surface [direction:rtl]"
+      className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
       variant="flush"
     >
-      <ViewAdTopBar actionIcons={[]} backTo="/home" />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface-container">
+      <ViewAdTopBar actionIcons={[]} backTo="/home" onBack={onBack} />
+      <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         <ViewAdPageSkeleton />
       </main>
     </PageFrame>
@@ -32,13 +32,13 @@ export function LoadingState() {
 }
 
 function SkeletonBlock({ className = "" }: { className?: string }) {
-  return <div className={`rounded-lg bg-surface-container-high ${className}`} />;
+  return <div className={`bg-surface-container-high rounded-lg ${className}`} />;
 }
 
 function ViewAdPageSkeleton() {
   return (
     <>
-      <section className="bg-surface-container-lowest px-4 pb-4 pt-4">
+      <section className="bg-surface-container-lowest px-4 pt-4 pb-4">
         <SkeletonBlock className="aspect-[328/219] w-full rounded-2xl" />
         <div className="mt-4 flex items-center justify-between">
           <SkeletonBlock className="h-5 w-20" />
@@ -55,7 +55,7 @@ function ViewAdPageSkeleton() {
       </section>
       <ViewAdSectionSkeleton rows={4} />
       <ViewAdSectionSkeleton rows={6} />
-      <section className="border-t-8 border-surface-container bg-surface-container-lowest px-4 py-4">
+      <section className="border-surface-container bg-surface-container-lowest border-t-8 px-4 py-4">
         <SkeletonBlock className="ml-auto h-5 w-24" />
         <div className="mt-6 space-y-3">
           <SkeletonBlock className="ml-auto h-4 w-full" />
@@ -69,7 +69,7 @@ function ViewAdPageSkeleton() {
 
 function ViewAdSectionSkeleton({ rows }: { rows: number }) {
   return (
-    <section className="border-t-8 border-surface-container bg-surface-container-lowest px-4 py-4">
+    <section className="border-surface-container bg-surface-container-lowest border-t-8 px-4 py-4">
       <SkeletonBlock className="ml-auto h-5 w-28" />
       <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6">
         {Array.from({ length: rows }).map((_, index) => (
@@ -95,18 +95,18 @@ export function ViewAdErrorState({
   message: string;
   onRetry?: () => void;
 }) {
-  const ErrorState = getRequestErrorState(error);
   const reloadPage = () => {
     window.location.reload();
   };
 
   return (
-    <div className="fixed inset-0 z-[999] bg-surface-container-lowest">
-      <div className="h-full min-h-0 bg-surface-container-lowest">
-        <ErrorState className="h-full" onRetry={onRetry ?? reloadPage} />
-        <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">{message}</Typography>
+    <div className="bg-surface-container-lowest fixed inset-0 z-[999]">
+      <div className="bg-surface-container-lowest h-full min-h-0">
+        <RequestErrorState error={error} className="h-full" onRetry={onRetry ?? reloadPage} />
+        <Typography as="p" variant="body" size="medium" weight="regular" className="sr-only">
+          {message}
+        </Typography>
       </div>
     </div>
   );
 }
-

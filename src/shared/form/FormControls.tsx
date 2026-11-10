@@ -24,19 +24,22 @@ export function FormSegmentedControl<T extends string>({
   showDividers = false,
   value,
 }: FormSegmentedControlProps<T>) {
-  const activeIndex = Math.max(0, options.findIndex((option) => option.value === value));
+  const activeIndex = Math.max(
+    0,
+    options.findIndex((option) => option.value === value),
+  );
   const count = options.length || 1;
 
   return (
     <div
       aria-label={ariaLabel}
-      className="relative flex h-10 w-full overflow-hidden rounded-xl border border-outline bg-surface-container-lowest"
+      className="border-outline bg-surface-container-lowest relative flex h-10 w-full overflow-hidden rounded-xl border"
       dir="rtl"
       role="radiogroup"
     >
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 bg-primary-container"
+        className="bg-primary-container pointer-events-none absolute inset-y-0 right-0"
         style={{ width: `${100 / count}%` }}
         animate={{ x: `${-activeIndex * 100}%` }}
         transition={{ type: "spring", stiffness: 400, damping: 32, mass: 0.8 }}
@@ -45,13 +48,12 @@ export function FormSegmentedControl<T extends string>({
         const selected = option.value === value;
 
         return (
-          <Button unstyled
+          <Button
+            unstyled
             aria-checked={selected}
-            className={`relative flex min-w-0 flex-1 items-center justify-center border-outline text-base font-medium leading-6 transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-primary/40 ${
+            className={`border-outline focus-visible:outline-primary/40 relative flex min-w-0 flex-1 items-center justify-center text-base leading-6 font-medium transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-offset-[-3px] ${
               showDividers && index < options.length - 1 ? "border-l" : ""
-            } ${
-              selected ? "text-primary font-semibold" : "text-on-surface-var"
-            }`}
+            } ${selected ? "text-primary font-semibold" : "text-on-surface-var"}`}
             key={option.value}
             onClick={() => onChange(option.value)}
             role="radio"
@@ -151,4 +153,3 @@ export function FormTextField({
     />
   );
 }
-

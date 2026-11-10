@@ -1,10 +1,4 @@
 import { getStoredBackTarget } from "../../../shared/navigation/navigation";
-import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
-import {
-  INDEPENDENT_CONSULTANT,
-  REAL_ESTATE_CONSULTANT,
-  REAL_ESTATE_MANAGER,
-} from "../../../shared/constants/roles.constants";
 
 const agencyAllocationPreviewFlow = "agency-allocation";
 
@@ -17,16 +11,6 @@ function isAgencyAllocationState(value: unknown) {
 
   return (value as PreviewNavigationState).previewFlow === agencyAllocationPreviewFlow;
 }
-
-export function isAgencyAuthRole() {
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
-  return (
-    activeRole === REAL_ESTATE_MANAGER ||
-    activeRole === REAL_ESTATE_CONSULTANT ||
-    activeRole === INDEPENDENT_CONSULTANT
-  );
-}
-
 export function shouldUseAgencyAllocationPreview(ad?: unknown) {
   if (typeof window === "undefined") return false;
   if (!window.location.pathname.startsWith("/preview-ad/")) return false;

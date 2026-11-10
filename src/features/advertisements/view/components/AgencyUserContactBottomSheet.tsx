@@ -1,3 +1,4 @@
+import { normalizeSocialUrl } from "../../../../shared/utils/social-url";
 import { BottomSheet } from "../../../../shared/components/BottomSheet";
 import LinearCall from "../../../../shared/icons/LinearCall";
 import LinearComment from "../../../../shared/icons/LinearComment";
@@ -6,7 +7,10 @@ import LinearUserSolid from "../../../../shared/icons/LinearUserSolid";
 import TonalInstagram from "../../../../shared/icons/TonalInstagram";
 import TonalTelegram from "../../../../shared/icons/TonalTelegram";
 import TonalWhatsapp from "../../../../shared/icons/TonalWhatsapp";
-import { toEnglishDigits, toPersianNumber as toPersianDigits } from "../../../../shared/lib/numberUtils";
+import {
+  toEnglishDigits,
+  toPersianNumber as toPersianDigits,
+} from "../../../../shared/lib/numberUtils";
 import { Typography } from "../../../../shared/ui/Typography";
 
 export type AgencyUserContactData = {
@@ -20,27 +24,6 @@ export type AgencyUserContactData = {
     whatsapp?: string;
   };
 };
-
-function normalizeSocialUrl(type: "instagram" | "telegram" | "whatsapp", value: string) {
-  const cleanValue = value.trim();
-  if (!cleanValue) return "";
-  if (/^https?:\/\//i.test(cleanValue)) return cleanValue;
-
-  if (type === "instagram") {
-    const username = cleanValue.replace(/^@/, "").replace(/^instagram\.com\//i, "");
-    return username ? `https://www.instagram.com/${username}` : "";
-  }
-
-  if (type === "telegram") {
-    const username = cleanValue.replace(/^@/, "").replace(/^t\.me\//i, "");
-    return username ? `https://t.me/${username}` : "";
-  }
-
-  const digits = toEnglishDigits(cleanValue).replace(/[^\d]/g, "");
-  if (!digits) return "";
-  const internationalNumber = digits.startsWith("0") ? `98${digits.slice(1)}` : digits;
-  return `https://wa.me/${internationalNumber}`;
-}
 
 export function AgencyUserContactBottomSheet({
   contact,
@@ -67,7 +50,9 @@ export function AgencyUserContactBottomSheet({
       ariaLabel: "اینستاگرام",
       icon: <TonalInstagram className="h-9 w-9" />,
       type: "instagram" as const,
-      url: contact?.social?.instagram ? normalizeSocialUrl("instagram", contact.social.instagram) : "",
+      url: contact?.social?.instagram
+        ? normalizeSocialUrl("instagram", contact.social.instagram)
+        : "",
     },
     {
       ariaLabel: "تلگرام",
@@ -100,7 +85,7 @@ export function AgencyUserContactBottomSheet({
     >
       <div className="flex flex-col">
         {!hasName && !hasPhone && !hasSms && !hasAddress && !hasSocial ? (
-          <div className="py-8 text-center text-sm font-medium text-on-surface-var">
+          <div className="text-on-surface-var py-8 text-center text-sm font-medium">
             اطلاعات تماس مستقیمی برای این کاربر ثبت نشده است.
           </div>
         ) : null}
@@ -113,18 +98,26 @@ export function AgencyUserContactBottomSheet({
                 variant="label"
                 size="large"
                 weight="medium"
-                className="text-left text-base font-semibold leading-6 text-on-surface"
+                className="text-on-surface text-left text-base leading-6 font-semibold"
               >
                 {name}
               </Typography>
-              <div className="flex items-center gap-2 text-base font-medium leading-6 text-on-surface-var [direction:rtl]">
-                <LinearUserSolid className="h-6 w-6 text-on-surface-var" />
-                <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">
+              <div className="text-on-surface-var flex items-center gap-2 text-base leading-6 font-medium [direction:rtl]">
+                <LinearUserSolid className="text-on-surface-var h-6 w-6" />
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="text-on-surface-var"
+                >
                   نام کاربر
                 </Typography>
               </div>
             </div>
-            {hasPhone || hasSms || hasAddress || hasSocial ? <div className="h-px bg-outline-var" /> : null}
+            {hasPhone || hasSms || hasAddress || hasSocial ? (
+              <div className="bg-outline-var h-px" />
+            ) : null}
           </>
         ) : null}
 
@@ -132,24 +125,30 @@ export function AgencyUserContactBottomSheet({
           <>
             <div className="flex h-14 items-center justify-between [direction:ltr]">
               <a
-                className="text-left text-base font-semibold leading-6 text-on-surface no-underline [direction:ltr]"
+                className="text-on-surface text-left text-base leading-6 font-semibold no-underline [direction:ltr]"
                 href={`tel:${phoneHref}`}
                 tabIndex={isOpen ? 0 : -1}
               >
                 {phoneDisplay}
               </a>
               <a
-                className="flex items-center gap-2 text-base font-medium leading-6 text-on-surface-var no-underline [direction:rtl]"
+                className="text-on-surface-var flex items-center gap-2 text-base leading-6 font-medium no-underline [direction:rtl]"
                 href={`tel:${phoneHref}`}
                 tabIndex={isOpen ? 0 : -1}
               >
-                <LinearCall className="h-6 w-6 text-on-surface-var" />
-                <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">
+                <LinearCall className="text-on-surface-var h-6 w-6" />
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="text-on-surface-var"
+                >
                   شماره همراه
                 </Typography>
               </a>
             </div>
-            {hasSms || hasAddress || hasSocial ? <div className="h-px bg-outline-var" /> : null}
+            {hasSms || hasAddress || hasSocial ? <div className="bg-outline-var h-px" /> : null}
           </>
         ) : null}
 
@@ -157,32 +156,44 @@ export function AgencyUserContactBottomSheet({
           <>
             <div className="flex h-14 items-center justify-between [direction:ltr]">
               <a
-                className="text-left text-base font-semibold leading-6 text-on-surface no-underline [direction:ltr]"
+                className="text-on-surface text-left text-base leading-6 font-semibold no-underline [direction:ltr]"
                 href={`sms:${smsHref}`}
                 tabIndex={isOpen ? 0 : -1}
               >
                 {smsDisplay}
               </a>
               <a
-                className="flex items-center gap-2 text-base font-medium leading-6 text-on-surface-var no-underline [direction:rtl]"
+                className="text-on-surface-var flex items-center gap-2 text-base leading-6 font-medium no-underline [direction:rtl]"
                 href={`sms:${smsHref}`}
                 tabIndex={isOpen ? 0 : -1}
               >
-                <LinearComment className="h-6 w-6 text-on-surface-var" />
-                <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">
+                <LinearComment className="text-on-surface-var h-6 w-6" />
+                <Typography
+                  as="span"
+                  variant="body"
+                  size="medium"
+                  weight="regular"
+                  className="text-on-surface-var"
+                >
                   پیامک
                 </Typography>
               </a>
             </div>
-            {hasAddress || hasSocial ? <div className="h-px bg-outline-var" /> : null}
+            {hasAddress || hasSocial ? <div className="bg-outline-var h-px" /> : null}
           </>
         ) : null}
 
         {hasAddress ? (
           <div className="py-4 text-right [direction:rtl]">
-            <div className="flex items-center gap-2 text-base font-medium leading-6 text-on-surface-var">
-              <LinearLocation className="h-6 w-6 text-on-surface-var" />
-              <Typography as="span" variant="body" size="medium" weight="regular" className="text-on-surface-var">
+            <div className="text-on-surface-var flex items-center gap-2 text-base leading-6 font-medium">
+              <LinearLocation className="text-on-surface-var h-6 w-6" />
+              <Typography
+                as="span"
+                variant="body"
+                size="medium"
+                weight="regular"
+                className="text-on-surface-var"
+              >
                 نشانی ملک
               </Typography>
             </div>
@@ -191,7 +202,7 @@ export function AgencyUserContactBottomSheet({
               variant="body"
               size="large"
               weight="medium"
-              className="mt-3 text-right text-base font-semibold leading-6 text-on-surface"
+              className="text-on-surface mt-3 text-right text-base leading-6 font-semibold"
             >
               {address}
             </Typography>
@@ -200,10 +211,16 @@ export function AgencyUserContactBottomSheet({
 
         {hasSocial ? (
           <div className="mt-4 pt-1 text-right [direction:rtl]">
-            <Typography as="span" variant="body" size="medium" weight="regular" className="block mb-4 text-sm font-medium text-on-surface-var">
+            <Typography
+              as="span"
+              variant="body"
+              size="medium"
+              weight="regular"
+              className="text-on-surface-var mb-4 block text-sm font-medium"
+            >
               شبکه‌های اجتماعی
             </Typography>
-            <div className="flex items-center gap-4 justify-end [direction:ltr]">
+            <div className="flex items-center justify-end gap-4 [direction:ltr]">
               {socialLinks.map((item) => (
                 <a
                   aria-label={item.ariaLabel}

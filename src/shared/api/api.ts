@@ -7,10 +7,7 @@ import {
   getStoredAuthSession,
 } from "../auth/auth-storage";
 
-export type ApiQueryParams = Record<
-  string,
-  string | number | boolean | null | undefined
->;
+export type ApiQueryParams = Record<string, string | number | boolean | null | undefined>;
 
 type ErrorPayload = Record<string, unknown> | null;
 
@@ -49,8 +46,7 @@ const configuredApiBaseUrlV2 =
     : "/api/v2");
 
 export const baseUrl = normalizeApiBaseUrl(configuredApiBaseUrl);
-export const baseUrlV2 = normalizeApiBaseUrl(configuredApiBaseUrlV2);
-export const baseUrl_v2 = baseUrlV2;
+const baseUrlV2 = normalizeApiBaseUrl(configuredApiBaseUrlV2);
 
 export const websocketBaseUrl = normalizeWebSocketBaseUrl(
   import.meta.env?.VITE_WEBSOCKET_BASE_URL ?? configuredApiBaseUrl,
@@ -127,7 +123,7 @@ function isCrmOrAdminContext(request?: Request): boolean {
   return false;
 }
 
-export function getApiUserType(request?: Request): ApiUserType {
+function getApiUserType(request?: Request): ApiUserType {
   const activeRole = getActiveAuthRole(getStoredAuthSession());
 
   // The frontend uses `super-admin` internally, while the backend header
@@ -235,9 +231,7 @@ const apiOptions: Options = {
           !Array.isArray(options.searchParams) &&
           !(options.searchParams instanceof URLSearchParams)
         ) {
-          options.searchParams = normalizeSearchParams(
-            options.searchParams as ApiQueryParams,
-          );
+          options.searchParams = normalizeSearchParams(options.searchParams as ApiQueryParams);
         }
       },
     ],
@@ -284,14 +278,13 @@ const apiOptions: Options = {
           }
 
           const payload =
-            error.data && typeof error.data === "object"
-              ? (error.data as ErrorPayload)
-              : null;
+            error.data && typeof error.data === "object" ? (error.data as ErrorPayload) : null;
 
           const code = typeof payload?.code === "string" ? payload.code : undefined;
-          const errors = payload?.errors && typeof payload.errors === "object" && !Array.isArray(payload.errors)
-            ? payload.errors as Record<string, unknown>
-            : undefined;
+          const errors =
+            payload?.errors && typeof payload.errors === "object" && !Array.isArray(payload.errors)
+              ? (payload.errors as Record<string, unknown>)
+              : undefined;
 
           return new ApiError(
             error.response.status,
@@ -332,11 +325,7 @@ const apiOptions: Options = {
 };
 
 export type V2RoleSegment =
-  | "agency"
-  | "independent-consultant"
-  | "personal"
-  | "agency-consultant"
-  | "superadmin";
+  "agency" | "independent-consultant" | "personal" | "agency-consultant" | "superadmin";
 
 export function getV2RoleSegment(role?: string | null): V2RoleSegment {
   switch (role) {
@@ -365,7 +354,7 @@ export function getActiveV2Role(): V2RoleSegment {
   return getV2RoleSegment(activeRole);
 }
 
-export function resolveV2Url(inputUrl: string): string {
+function resolveV2Url(inputUrl: string): string {
   const base = baseUrlV2 || "/api/v2";
   if (!base) return inputUrl;
 
@@ -406,16 +395,11 @@ export function resolveV2Url(inputUrl: string): string {
     }
 
     const hasRole =
-      isGlobalEndpoint ||
-      v2Roles.some((r) => endpoint === r || endpoint.startsWith(`${r}/`));
+      isGlobalEndpoint || v2Roles.some((r) => endpoint === r || endpoint.startsWith(`${r}/`));
 
     const activeRole = hasRole ? "" : getActiveV2Role();
     const role = activeRole === "superadmin" && !isShowEndpoint ? "personal" : activeRole;
-    const finalEndpoint = hasRole
-      ? endpoint
-      : endpoint
-        ? `${role}/${endpoint}`
-        : role;
+    const finalEndpoint = hasRole ? endpoint : endpoint ? `${role}/${endpoint}` : role;
     const finalPath = `${basePath}/${finalEndpoint}`.replace(/\/+/g, "/");
 
     return `${currentUrl.origin}${finalPath}${currentUrl.search}`;
@@ -468,11 +452,8 @@ const apiOptionsV2: Options = {
 };
 
 export const api = ky.create(apiOptions);
-export const apiV1 = api;
-export const clientV1 = api;
 
 export const apiV2 = ky.create(apiOptionsV2);
-export const clientV2 = apiV2;
 
 export const publicApi = api.extend({
   context: {
@@ -487,7 +468,7 @@ export const publicApiV2 = apiV2.extend({
 });
 
 export const client = {
-  v1: apiV1,
+  v1: api,
   v2: apiV2,
 };
 
@@ -513,7 +494,6 @@ export function isForbiddenApiError(error: unknown) {
   return false;
 }
 
-
 export function getApiErrorCode(error: unknown) {
   return error instanceof ApiError ? error.code : undefined;
 }
@@ -525,7 +505,9 @@ export function getApiFieldError(error: unknown, field: string) {
   if (typeof value === "string" && value.trim()) return value.trim();
 
   if (Array.isArray(value)) {
-    const message = value.find((item): item is string => typeof item === "string" && item.trim().length > 0);
+    const message = value.find(
+      (item): item is string => typeof item === "string" && item.trim().length > 0,
+    );
     return message?.trim() ?? null;
   }
 
@@ -543,8 +525,11 @@ export function getApiAssetUrl(path: string) {
     return normalizedPath;
   }
 
-  const backendOrigin = (import.meta as any).env?.VITE_API_URL
-    ? String((import.meta as any).env.VITE_API_URL).replace(/\/api.*$/, "").replace(/\/+$/, "")
+  const viteApiUrl = import.meta.env?.VITE_API_URL;
+  const backendOrigin = viteApiUrl
+    ? String(viteApiUrl)
+        .replace(/\/api.*$/, "")
+        .replace(/\/+$/, "")
     : "";
 
   if (backendOrigin && normalizedPath.startsWith("/")) {

@@ -12,7 +12,6 @@ These rules apply only to this repository: `C:\Projects\Bonga-frontend`.
 8. Always use `figma-mcp-go` for Figma URLs and Figma frame inspection in this project.
 9. When implementing from a Figma frame, the coded screen must visually match that frame exactly except for project rules that explicitly override it, such as omitting mobile status bars and preserving the `500px` mobile shell maximum width. Check direction, alignment, spacing, colors, icons, and text placement against the frame before finishing.
 
-
 ## Feature-first Architecture
 
 - Business code belongs under `src/features/<feature>`. Do not recreate top-level `src/pages`, `src/core/services`, or `src/core/hooks` buckets.

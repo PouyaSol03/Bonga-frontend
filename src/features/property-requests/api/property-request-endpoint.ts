@@ -1,12 +1,6 @@
 import { getActiveV2Role, type V2RoleSegment } from "../../../shared/api/api";
-import {
-  getActiveAuthRole,
-  getStoredAuthSession,
-} from "../../../shared/auth/auth-storage";
-import type {
-  PropertyRequestOwnerType,
-  PropertyRequestScope,
-} from "./property-request-types";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import type { PropertyRequestOwnerType, PropertyRequestScope } from "./property-request-types";
 
 const V2_SUPPORTED_REQUEST_ROLES: ReadonlySet<V2RoleSegment> = new Set<V2RoleSegment>([
   "agency",
@@ -45,37 +39,3 @@ export function resolvePropertyRequestScope(
   };
 }
 
-export function buildPropertyRequestPath(subPath?: string): string {
-  const scope = resolvePropertyRequestScope();
-  const cleanSubPath = subPath ? subPath.replace(/^\/+/, "") : "";
-  return cleanSubPath ? `${scope.basePath}/${cleanSubPath}` : scope.basePath;
-}
-
-export function getRequestSenderInfo(ownerType: PropertyRequestOwnerType) {
-  if (ownerType === "agency") {
-    return {
-      senderLabel: "آژانس املاک",
-      senderRole: "real_estate_manager",
-    };
-  }
-
-  if (ownerType === "agency-consultant") {
-    return {
-      senderLabel: "مشاور آژانس",
-      senderRole: "real_estate_consultant",
-    };
-  }
-
-  const activeRole = getActiveAuthRole(getStoredAuthSession());
-  if (activeRole === "independent_consultant") {
-    return {
-      senderLabel: "مشاور مستقل",
-      senderRole: "independent_consultant",
-    };
-  }
-
-  return {
-    senderLabel: "آگهی شخصی",
-    senderRole: "user",
-  };
-}

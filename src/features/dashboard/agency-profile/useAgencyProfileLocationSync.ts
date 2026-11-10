@@ -1,8 +1,7 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { getNeighborhoodInfoWithLoc, type NeighborhoodDto } from "../../locations/api/neighborhood.service";
 import {
   findNearestNeighborhood,
-  getInitialAgencyProfileMapCenter,
   selectedCityMapZoom,
   toSelectedNeighborhood,
 } from "./agencyProfileHelpers";
@@ -11,15 +10,14 @@ import type { AgencyProfileMapCenter, SelectedNeighborhood } from "./types";
 export function useAgencyProfileLocationSync({
   cityId,
   neighborhoods,
+  setMapCenter,
   setSelectedNeighborhood,
 }: {
   cityId: string;
   neighborhoods: NeighborhoodDto[];
+  setMapCenter: React.Dispatch<React.SetStateAction<AgencyProfileMapCenter>>;
   setSelectedNeighborhood: (neighborhood: SelectedNeighborhood | null) => void;
 }) {
-  const [mapCenter, setMapCenter] = useState<AgencyProfileMapCenter>(
-    getInitialAgencyProfileMapCenter,
-  );
 
   const handleNeighborhoodChange = useCallback(
     (neighborhood: SelectedNeighborhood | null) => {
@@ -32,7 +30,7 @@ export function useAgencyProfileLocationSync({
         });
       }
     },
-    [setSelectedNeighborhood],
+    [setMapCenter, setSelectedNeighborhood],
   );
 
   const handleMapCenterChange = useCallback(
@@ -62,13 +60,12 @@ export function useAgencyProfileLocationSync({
           }
         });
     },
-    [cityId, neighborhoods, setSelectedNeighborhood],
+    [cityId, neighborhoods, setMapCenter, setSelectedNeighborhood],
   );
 
   return {
     handleMapCenterChange,
     handleNeighborhoodChange,
-    mapCenter,
     setMapCenter,
   };
 }

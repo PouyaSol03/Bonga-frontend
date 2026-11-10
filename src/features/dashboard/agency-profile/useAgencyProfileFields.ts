@@ -59,6 +59,19 @@ export function useAgencyProfileFields({
     setLogoPreviewUrl(null);
     setLogoUrl(profile.logo ? getApiAssetUrl(profile.logo) : null);
 
+    const lat = normalizeProfileCoordinate(profile.lat);
+    const lng = normalizeProfileCoordinate(profile.lng);
+
+    if (lat !== null && lng !== null) {
+      setMapCenter({ lat, lng, zoom: selectedCityMapZoom });
+    } else {
+      setMapCenter(getInitialAgencyProfileMapCenter());
+    }
+  }, [profile, setLogoFile, setLogoPreviewUrl, setLogoUrl, setMapCenter]);
+
+  useEffect(() => {
+    if (!profile) return;
+
     const profileNeighborhoodIds = resolveProfileNeighborhoodIds(profile);
     const neighborhoodId = profile.neighborhood_id
       ? String(profile.neighborhood_id)
@@ -69,16 +82,7 @@ export function useAgencyProfileFields({
         .map((id) => resolveNeighborhoodById(id, neighborhoods))
         .filter((item): item is SelectedNeighborhood => Boolean(item)),
     );
-
-    const lat = normalizeProfileCoordinate(profile.lat);
-    const lng = normalizeProfileCoordinate(profile.lng);
-
-    if (lat !== null && lng !== null) {
-      setMapCenter({ lat, lng, zoom: selectedCityMapZoom });
-    } else {
-      setMapCenter(getInitialAgencyProfileMapCenter());
-    }
-  }, [profile, neighborhoods, setLogoFile, setLogoPreviewUrl, setLogoUrl, setMapCenter]);
+  }, [profile, neighborhoods]);
 
   return {
     aboutUs,

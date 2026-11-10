@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Supercluster from "supercluster";
 import { useMap, useMapEvents } from "react-leaflet";
 import type { SearchMapListing } from "../searchMapData";
 import type {
+  SearchMapClusterItem,
   SearchMapListingFeatureProps,
   SearchMapPointFeature,
   SearchMapRenderItem,
@@ -12,8 +13,18 @@ interface UseSearchMapClustersOptions {
   listings: SearchMapListing[];
   radius?: number;
   maxZoom?: number;
+  mapMaxZoom?: number;
   minPoints?: number;
 }
+
+interface UseSearchMapClustersResult {
+  items: SearchMapRenderItem[];
+  zoom: number;
+  expandCluster: (cluster: SearchMapClusterItem) => void;
+}
+
+const SAME_SPOT_THRESHOLD_DEG = 0.00008;
+const FAN_OUT_RADIUS_DEG = 0.00014;
 
 function getBBox(map: ReturnType<typeof useMap>): [number, number, number, number] {
   const bounds = map.getBounds();
@@ -22,10 +33,11 @@ function getBBox(map: ReturnType<typeof useMap>): [number, number, number, numbe
 
 export function useSearchMapClusters({
   listings,
-  radius = 60,
-  maxZoom = 17,
+  radius = 48,
+  maxZoom = 16,
+  mapMaxZoom = 19,
   minPoints = 2,
-}: UseSearchMapClustersOptions): SearchMapRenderItem[] {
+}: UseSearchMapClustersOptions): UseSearchMapClustersResult {
   const map = useMap();
   const [zoom, setZoom] = useState<number>(() => Math.round(map.getZoom()));
   const [bbox, setBBox] = useState<[number, number, number, number]>(() => getBBox(map));
@@ -65,7 +77,18 @@ export function useSearchMapClusters({
     },
   });
 
-  return useMemo(() => {
+  const expandCluster = useCallback(
+    (cluster: SearchMapClusterItem) => {
+      const expansionZoom = clusterIndex.getClusterExpansionZoom(cluster.clusterId);
+      const nextZoom = Math.min(Math.max(expansionZoom, zoom + 1), mapMaxZoom);
+      map.setView([cluster.latitude, cluster.longitude], nextZoom, {
+        animate: true,
+      });
+    },
+    [clusterIndex, map, mapMaxZoom, zoom],
+  );
+
+  const items = useMemo(() => {
     if (!clusterIndex || listings.length === 0) return [];
 
     const rawClusters = clusterIndex.getClusters(bbox, zoom);
@@ -77,13 +100,31 @@ export function useSearchMapClusters({
       if (item.properties.cluster) {
         if (zoom >= maxZoom) {
           const leaves = clusterIndex.getLeaves(item.properties.cluster_id, Infinity);
-          const leafCount = leaves.length;
+          const stackedLeaves = leaves.filter((leaf) => {
+            const [leafLng, leafLat] = leaf.geometry.coordinates;
+            return (
+              Math.abs(leafLat - lat) < SAME_SPOT_THRESHOLD_DEG &&
+              Math.abs(leafLng - lng) < SAME_SPOT_THRESHOLD_DEG
+            );
+          });
+          let stackedIndex = 0;
 
-          leaves.forEach((leaf, leafIndex) => {
-            const angle = (leafIndex * 2 * Math.PI) / leafCount;
-            const offsetDist = 0.00014;
-            const leafLat = lat + offsetDist * Math.cos(angle);
-            const leafLng = lng + offsetDist * Math.sin(angle);
+          for (const leaf of leaves) {
+            const [origLng, origLat] = leaf.geometry.coordinates;
+            const isStacked =
+              stackedLeaves.length > 1 &&
+              Math.abs(origLat - lat) < SAME_SPOT_THRESHOLD_DEG &&
+              Math.abs(origLng - lng) < SAME_SPOT_THRESHOLD_DEG;
+
+            let leafLat = origLat;
+            let leafLng = origLng;
+
+            if (isStacked) {
+              const angle = (stackedIndex * 2 * Math.PI) / stackedLeaves.length;
+              leafLat = lat + FAN_OUT_RADIUS_DEG * Math.cos(angle);
+              leafLng = lng + FAN_OUT_RADIUS_DEG * Math.sin(angle);
+              stackedIndex += 1;
+            }
 
             results.push({
               id: leaf.properties.listingId,
@@ -92,10 +133,11 @@ export function useSearchMapClusters({
               isCluster: false,
               listing: leaf.properties.listing,
             });
-          });
+          }
         } else {
           results.push({
             id: `cluster-${item.properties.cluster_id}`,
+            clusterId: item.properties.cluster_id,
             latitude: lat,
             longitude: lng,
             isCluster: true,
@@ -115,4 +157,6 @@ export function useSearchMapClusters({
 
     return results;
   }, [clusterIndex, bbox, zoom, listings.length, maxZoom]);
+
+  return { items, zoom, expandCluster };
 }

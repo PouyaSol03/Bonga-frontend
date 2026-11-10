@@ -293,7 +293,7 @@ function SearchMapViewComponent({
         seenListingIds={seenListingIds}
         selectedListingId={selectedListingId}
         onSelectListing={onSelectListing}
-        maxZoom={tileConfig.maxZoom}
+        mapMaxZoom={tileConfig.maxZoom}
       />
 
       {userLocation ? (

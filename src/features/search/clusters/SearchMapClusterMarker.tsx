@@ -6,47 +6,40 @@ import type { SearchMapClusterItem } from "./searchMapClusterTypes";
 
 interface SearchMapClusterMarkerProps {
   cluster: SearchMapClusterItem;
+  onSelect: (cluster: SearchMapClusterItem) => void;
 }
 
-function resolveClusterBadgeClass(count: number): {
-  sizeClass: string;
-  size: [number, number];
-} {
+const CLUSTER_HIT_AREA_SIZE: [number, number] = [44, 44];
+
+function resolveClusterBadgeClass(count: number): string {
   if (count < 10) {
-    return {
-      sizeClass: "search-map-cluster-marker--small",
-      size: [36, 36],
-    };
+    return "search-map-cluster-marker--small";
   }
   if (count < 50) {
-    return {
-      sizeClass: "search-map-cluster-marker--medium",
-      size: [42, 42],
-    };
+    return "search-map-cluster-marker--medium";
   }
-  return {
-    sizeClass: "search-map-cluster-marker--large",
-    size: [48, 48],
-  };
+  return "search-map-cluster-marker--large";
 }
 
 function createClusterIcon(count: number): DivIcon {
-  const { sizeClass, size } = resolveClusterBadgeClass(count);
+  const sizeClass = resolveClusterBadgeClass(count);
   const formattedCount = toPersianNumber(count);
 
   return new DivIcon({
     className: "search-map-marker-wrapper search-map-marker-wrapper--cluster",
     html: `
-      <div class="search-map-cluster-marker ${sizeClass}">
-        <span>${formattedCount}</span>
+      <div class="search-map-cluster-hit-area">
+        <div class="search-map-cluster-marker ${sizeClass}">
+          <span>${formattedCount}</span>
+        </div>
       </div>
     `,
-    iconSize: size,
-    iconAnchor: [size[0] / 2, size[1] / 2],
+    iconSize: CLUSTER_HIT_AREA_SIZE,
+    iconAnchor: [CLUSTER_HIT_AREA_SIZE[0] / 2, CLUSTER_HIT_AREA_SIZE[1] / 2],
   });
 }
 
-function SearchMapClusterMarkerComponent({ cluster }: SearchMapClusterMarkerProps) {
+function SearchMapClusterMarkerComponent({ cluster, onSelect }: SearchMapClusterMarkerProps) {
   const icon = useMemo(() => createClusterIcon(cluster.count), [cluster.count]);
 
   return (
@@ -59,6 +52,7 @@ function SearchMapClusterMarkerComponent({ cluster }: SearchMapClusterMarkerProp
           if (event.originalEvent) {
             DomEvent.stop(event.originalEvent);
           }
+          onSelect(cluster);
         },
       }}
     />

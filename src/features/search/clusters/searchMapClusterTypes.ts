@@ -13,6 +13,7 @@ export type SearchMapPointFeature = GeoJSON.Feature<
 
 export interface SearchMapClusterItem {
   id: string | number;
+  clusterId: number;
   latitude: number;
   longitude: number;
   isCluster: true;

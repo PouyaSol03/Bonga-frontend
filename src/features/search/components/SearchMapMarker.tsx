@@ -6,6 +6,8 @@ import type { SearchMapDotMarker, SearchMapListing } from "../searchMapData";
 
 type SearchMapListingMarkerProps = {
   listing: SearchMapListing;
+  latitude?: number;
+  longitude?: number;
   isPriceVisible: boolean;
   isSeen: boolean;
   isSelected: boolean;
@@ -15,6 +17,8 @@ type SearchMapListingMarkerProps = {
 type SearchMapDotMarkerProps = {
   marker: SearchMapDotMarker;
   listing?: never;
+  latitude?: never;
+  longitude?: never;
   isSeen?: never;
   isSelected?: never;
   onSelect?: never;
@@ -31,6 +35,8 @@ const staticDotIcon = new DivIcon({
 
 function ListingMapMarker({
   listing,
+  latitude,
+  longitude,
   isSeen,
   isSelected,
   isPriceVisible,
@@ -45,7 +51,7 @@ function ListingMapMarker({
 
   return (
     <Marker
-      position={[listing.latitude, listing.longitude]}
+      position={[latitude ?? listing.latitude, longitude ?? listing.longitude]}
       icon={markerIcon}
       zIndexOffset={isSelected ? 100_000 : isPrice ? 5_000 : 1_000}
       eventHandlers={{
@@ -75,6 +81,8 @@ function SearchMapMarkerComponent(props: SearchMapMarkerProps) {
   return (
     <ListingMapMarker
       listing={props.listing}
+      latitude={props.latitude}
+      longitude={props.longitude}
       isSeen={props.isSeen}
       isSelected={props.isSelected}
       isPriceVisible={props.isPriceVisible}

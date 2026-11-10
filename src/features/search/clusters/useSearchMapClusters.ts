@@ -7,6 +7,7 @@ import type {
   SearchMapListingFeatureProps,
   SearchMapPointFeature,
   SearchMapRenderItem,
+  SearchMapSingleItem,
 } from "./searchMapClusterTypes";
 
 interface UseSearchMapClustersOptions {
@@ -29,6 +30,58 @@ const FAN_OUT_RADIUS_DEG = 0.00014;
 function getBBox(map: ReturnType<typeof useMap>): [number, number, number, number] {
   const bounds = map.getBounds();
   return [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
+}
+
+function fanOutOverlappingSingles(items: SearchMapRenderItem[]): SearchMapRenderItem[] {
+  const singles = items.filter((item): item is SearchMapSingleItem => !item.isCluster);
+  if (singles.length < 2) return items;
+
+  const visited = new Set<number>();
+  const groups: SearchMapSingleItem[][] = [];
+
+  for (let i = 0; i < singles.length; i += 1) {
+    if (visited.has(i)) continue;
+    visited.add(i);
+    const seed = singles[i];
+    const group: SearchMapSingleItem[] = [seed];
+
+    for (let j = i + 1; j < singles.length; j += 1) {
+      if (visited.has(j)) continue;
+      const candidate = singles[j];
+      if (
+        Math.abs(candidate.latitude - seed.latitude) < SAME_SPOT_THRESHOLD_DEG &&
+        Math.abs(candidate.longitude - seed.longitude) < SAME_SPOT_THRESHOLD_DEG
+      ) {
+        visited.add(j);
+        group.push(candidate);
+      }
+    }
+
+    if (group.length > 1) {
+      groups.push(group);
+    }
+  }
+
+  if (groups.length === 0) return items;
+
+  const adjustedCoords = new Map<string, { latitude: number; longitude: number }>();
+  for (const group of groups) {
+    const centerLat = group.reduce((sum, item) => sum + item.latitude, 0) / group.length;
+    const centerLng = group.reduce((sum, item) => sum + item.longitude, 0) / group.length;
+    group.forEach((item, index) => {
+      const angle = (index * 2 * Math.PI) / group.length;
+      adjustedCoords.set(String(item.id), {
+        latitude: centerLat + FAN_OUT_RADIUS_DEG * Math.cos(angle),
+        longitude: centerLng + FAN_OUT_RADIUS_DEG * Math.sin(angle),
+      });
+    });
+  }
+
+  return items.map((item) => {
+    if (item.isCluster) return item;
+    const override = adjustedCoords.get(String(item.id));
+    return override ? { ...item, ...override } : item;
+  });
 }
 
 export function useSearchMapClusters({
@@ -100,36 +153,12 @@ export function useSearchMapClusters({
       if (item.properties.cluster) {
         if (zoom >= maxZoom) {
           const leaves = clusterIndex.getLeaves(item.properties.cluster_id, Infinity);
-          const stackedLeaves = leaves.filter((leaf) => {
-            const [leafLng, leafLat] = leaf.geometry.coordinates;
-            return (
-              Math.abs(leafLat - lat) < SAME_SPOT_THRESHOLD_DEG &&
-              Math.abs(leafLng - lng) < SAME_SPOT_THRESHOLD_DEG
-            );
-          });
-          let stackedIndex = 0;
-
           for (const leaf of leaves) {
             const [origLng, origLat] = leaf.geometry.coordinates;
-            const isStacked =
-              stackedLeaves.length > 1 &&
-              Math.abs(origLat - lat) < SAME_SPOT_THRESHOLD_DEG &&
-              Math.abs(origLng - lng) < SAME_SPOT_THRESHOLD_DEG;
-
-            let leafLat = origLat;
-            let leafLng = origLng;
-
-            if (isStacked) {
-              const angle = (stackedIndex * 2 * Math.PI) / stackedLeaves.length;
-              leafLat = lat + FAN_OUT_RADIUS_DEG * Math.cos(angle);
-              leafLng = lng + FAN_OUT_RADIUS_DEG * Math.sin(angle);
-              stackedIndex += 1;
-            }
-
             results.push({
               id: leaf.properties.listingId,
-              latitude: leafLat,
-              longitude: leafLng,
+              latitude: origLat,
+              longitude: origLng,
               isCluster: false,
               listing: leaf.properties.listing,
             });
@@ -155,7 +184,7 @@ export function useSearchMapClusters({
       }
     }
 
-    return results;
+    return fanOutOverlappingSingles(results);
   }, [clusterIndex, bbox, zoom, listings.length, maxZoom]);
 
   return { items, zoom, expandCluster };

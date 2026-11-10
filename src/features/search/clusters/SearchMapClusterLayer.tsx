@@ -107,6 +107,8 @@ function SearchMapClusterLayerComponent({
           <SearchMapMarker
             key={String(item.id)}
             listing={listing}
+            latitude={item.latitude}
+            longitude={item.longitude}
             isPriceVisible={isSelected || visiblePriceIds.has(String(listing.id))}
             isSeen={seenListingIds.has(listing.id)}
             isSelected={isSelected}

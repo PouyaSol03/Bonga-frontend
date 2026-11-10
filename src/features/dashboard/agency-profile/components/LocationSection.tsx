@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { searchMapTileConfig } from "../../../search/searchMapData";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -80,19 +80,39 @@ function AgencyProfileMapController({
   onCenterChange: (center: AgencyProfileMapCenter) => void;
 }) {
   const map = useMap();
+  const isProgrammaticMoveRef = useRef(false);
 
   useMapEvents({
     moveend: () => {
+      if (isProgrammaticMoveRef.current) {
+        isProgrammaticMoveRef.current = false;
+        return;
+      }
       const nextCenter = map.getCenter();
       onCenterChange({ lat: nextCenter.lat, lng: nextCenter.lng, zoom: map.getZoom() });
     },
     zoomend: () => {
+      if (isProgrammaticMoveRef.current) {
+        isProgrammaticMoveRef.current = false;
+        return;
+      }
       const nextCenter = map.getCenter();
       onCenterChange({ lat: nextCenter.lat, lng: nextCenter.lng, zoom: map.getZoom() });
     },
   });
 
   useEffect(() => {
+    const current = map.getCenter();
+    const currentZoom = map.getZoom();
+    if (
+      Math.abs(current.lat - center.lat) < 1e-5 &&
+      Math.abs(current.lng - center.lng) < 1e-5 &&
+      currentZoom === center.zoom
+    ) {
+      return;
+    }
+
+    isProgrammaticMoveRef.current = true;
     map.setView([center.lat, center.lng], center.zoom, { animate: true });
   }, [center.lat, center.lng, center.zoom, map]);
 

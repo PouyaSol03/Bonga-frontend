@@ -117,6 +117,7 @@ function ProjectDetailCard({
 }) {
   const { setValue } = useFormContext<NewAdFormValues>();
   const [isOpen, setIsOpen] = useState(true);
+  const meterageValue = (item?.meterage ?? item?.minMeterage ?? "").trim();
 
   const setItemField = <T extends keyof ProjectDetailItem>(key: T, value: ProjectDetailItem[T]) => {
     setValue(`projectDetails.${index}.${key}` as never, value as never, {
@@ -148,7 +149,14 @@ function ProjectDetailCard({
           weight="medium"
           className="text-on-surface"
         >
-          متراژ
+          {meterageValue ? (
+            <>
+              <span className="text-on-surface-var">متراژ</span>{" "}
+              <span>{meterageValue} متر</span>
+            </>
+          ) : (
+            "متراژ"
+          )}
         </Typography>
         <LinearArrowDown1
           aria-hidden="true"

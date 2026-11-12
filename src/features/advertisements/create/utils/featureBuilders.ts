@@ -62,6 +62,19 @@ export function getPriceValue(values: NewAdFormValues, transaction: string, cate
   return toNumber(values.price);
 }
 
+/** True for standard monthly rent listings; excludes daily-rent flows. */
+export function isStandardRentListing(
+  transaction: string,
+  category: string,
+  formCode = "",
+): boolean {
+  return (
+    transaction === "rent" &&
+    !category.startsWith("daily-") &&
+    !formCode.startsWith("daily-")
+  );
+}
+
 export function getAdvertiseFormCode(transaction: string, category: string): string {
   const formCodes: Record<string, string> = {
     "project:project-partnership": "partnership",

@@ -4,7 +4,7 @@ import type { SearchMapListing, SearchMapListingId } from "../searchMapData";
 import { SearchMapMarker } from "../components/SearchMapMarker";
 import { SearchMapClusterMarker } from "./SearchMapClusterMarker";
 import type { SearchMapSingleItem } from "./searchMapClusterTypes";
-import { useSearchMapClusters } from "./useSearchMapClusters";
+import { DEFAULT_CLUSTER_MAX_ZOOM, useSearchMapClusters } from "./useSearchMapClusters";
 
 interface SearchMapClusterLayerProps {
   listings: SearchMapListing[];
@@ -28,13 +28,14 @@ function SearchMapClusterLayerComponent({
   seenListingIds,
   selectedListingId,
   onSelectListing,
-  maxZoom = 16,
+  maxZoom = DEFAULT_CLUSTER_MAX_ZOOM,
   mapMaxZoom = 19,
   radius = 48,
 }: SearchMapClusterLayerProps) {
   const map = useMap();
   const { items, zoom, expandCluster } = useSearchMapClusters({
     listings,
+    selectedListingId,
     maxZoom,
     mapMaxZoom,
     radius,

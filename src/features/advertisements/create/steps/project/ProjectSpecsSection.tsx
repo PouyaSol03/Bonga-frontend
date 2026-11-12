@@ -8,7 +8,7 @@ import {
   saleLandPositionOptions,
 } from "../../data";
 import { getParams } from "../../utils";
-import { InputBox, Section, SelectBox } from "../../components/NewAdControls";
+import { InputBox, Section, SelectBox, Tag } from "../../components/NewAdControls";
 import { Typography } from "../../../../../shared/ui/Typography";
 import LinearBuilding from "../../../../../shared/icons/LinearBuilding";
 import LinearArrowLeft2 from "../../../../../shared/icons/LinearArrowLeft2";
@@ -161,17 +161,17 @@ export function ProjectSpecsSection({
           <div className="mt-3 flex flex-wrap justify-start gap-2" dir="rtl">
             {values.projectDetails
               .filter((item) => item.meterage || item.minMeterage)
-              .map((item, index) => (
-                <Typography
-                  as="span"
-                  variant="label"
-                  size="medium"
-                  weight="medium"
+              .map((item) => (
+                <Tag
                   key={item.id}
-                  className="border-primary bg-primary-container text-primary flex h-9 items-center rounded-[7px] border px-3 text-sm leading-5 font-medium"
-                >
-                  {`جزئیات ${index + 1}: ${item.meterage || item.minMeterage || "-"} متر`}
-                </Typography>
+                  label={`متراژ ${item.meterage || item.minMeterage || "-"} متر`}
+                  onRemove={() =>
+                    setField(
+                      "projectDetails",
+                      values.projectDetails.filter((detail) => detail.id !== item.id),
+                    )
+                  }
+                />
               ))}
           </div>
         ) : null}

@@ -23,7 +23,11 @@ type SearchMapListingSliderProps = {
 
 const previewCardWidth = "min(360px, calc(100vw - 28px))";
 
-function scrollCardToCenter(scrollEl: HTMLElement, card: HTMLElement) {
+function scrollCardToCenter(
+  scrollEl: HTMLElement,
+  card: HTMLElement,
+  behavior: ScrollBehavior = "auto",
+) {
   const scrollRect = scrollEl.getBoundingClientRect();
   const cardRect = card.getBoundingClientRect();
   const currentCenter = cardRect.left + cardRect.width / 2;
@@ -33,7 +37,7 @@ function scrollCardToCenter(scrollEl: HTMLElement, card: HTMLElement) {
   if (Math.abs(diff) > 1) {
     scrollEl.scrollBy({
       left: diff,
-      behavior: "auto",
+      behavior,
     });
   }
 }
@@ -48,6 +52,7 @@ function SearchMapListingSliderComponent({
   const scrollRef = useRef<HTMLDivElement>(null);
   const isProgrammaticScrollRef = useRef(false);
   const isUserInteractingRef = useRef(false);
+  const pendingSmoothScrollIdRef = useRef<string | null>(null);
   const programmaticScrollTimerRef = useRef<number | null>(null);
   const userScrollSettledTimerRef = useRef<number | null>(null);
   const lastActiveIdRef = useRef<SearchMapListingId | null>(selectedListingId);
@@ -102,6 +107,10 @@ function SearchMapListingSliderComponent({
     const card = getSliderCardById(scrollEl, selectedListingId);
     if (!card) return;
 
+    const isSmoothFromCardClick =
+      pendingSmoothScrollIdRef.current === String(selectedListingId);
+    pendingSmoothScrollIdRef.current = null;
+
     lastActiveIdRef.current = selectedListingId;
     isProgrammaticScrollRef.current = true;
     isUserInteractingRef.current = false;
@@ -110,24 +119,86 @@ function SearchMapListingSliderComponent({
       window.clearTimeout(programmaticScrollTimerRef.current);
     }
 
-    scrollCardToCenter(scrollEl, card);
+    if (!isSmoothFromCardClick) {
+      scrollCardToCenter(scrollEl, card, "auto");
+    }
 
-    const frameId = window.requestAnimationFrame(() => {
-      const activeCard = getSliderCardById(scrollEl, selectedListingId);
-      if (activeCard) {
-        scrollCardToCenter(scrollEl, activeCard);
-      }
-    });
+    const frameId = isSmoothFromCardClick
+      ? null
+      : window.requestAnimationFrame(() => {
+          const activeCard = getSliderCardById(scrollEl, selectedListingId);
+          if (activeCard) {
+            scrollCardToCenter(scrollEl, activeCard, "auto");
+          }
+        });
 
     programmaticScrollTimerRef.current = window.setTimeout(() => {
       isProgrammaticScrollRef.current = false;
       programmaticScrollTimerRef.current = null;
-    }, 300);
+    }, isSmoothFromCardClick ? 450 : 300);
 
     return () => {
-      window.cancelAnimationFrame(frameId);
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
+      }
     };
   }, [isOpen, selectedListingId, listings]);
+
+  const handleSliderClick = useCallback(
+    (event: ReactMouseEvent<HTMLDivElement>) => {
+      const scrollEl = scrollRef.current;
+      if (!scrollEl) return;
+
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const card = target.closest<HTMLElement>("[data-map-slider-card]");
+      if (!card) return;
+
+      const clickedId = card.dataset.mapSliderCard;
+      if (!clickedId) return;
+
+      const activeId =
+        selectedListingId != null ? String(selectedListingId) : findCenteredCardId(scrollEl);
+
+      // Clicking the centered/active card allows its Link to open the listing.
+      if (activeId != null && clickedId === activeId) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const clickedListing = listings.find((listing) => String(listing.id) === clickedId);
+      if (!clickedListing) return;
+
+      if (programmaticScrollTimerRef.current !== null) {
+        window.clearTimeout(programmaticScrollTimerRef.current);
+      }
+
+      pendingSmoothScrollIdRef.current = clickedId;
+      lastActiveIdRef.current = clickedListing.id;
+      isProgrammaticScrollRef.current = true;
+      isUserInteractingRef.current = false;
+
+      scrollCardToCenter(scrollEl, card, "smooth");
+      onActiveListingChange?.(clickedListing);
+
+      programmaticScrollTimerRef.current = window.setTimeout(() => {
+        isProgrammaticScrollRef.current = false;
+        programmaticScrollTimerRef.current = null;
+      }, 450);
+    },
+    [listings, onActiveListingChange, selectedListingId],
+  );
+
+  const handleClickCapture = useCallback(
+    (event: ReactMouseEvent<HTMLDivElement>) => {
+      dragScrollHandlers.onClickCapture(event);
+      if (event.defaultPrevented) return;
+      handleSliderClick(event);
+    },
+    [dragScrollHandlers, handleSliderClick],
+  );
 
   useEffect(() => {
     lastActiveIdRef.current = selectedListingId;
@@ -163,6 +234,7 @@ function SearchMapListingSliderComponent({
         onWheel={markUserInteraction}
         onScroll={handleScroll}
         {...dragScrollHandlers}
+        onClickCapture={handleClickCapture}
       >
         {isLoading
           ? Array.from({ length: 2 }).map((_, index) => (
@@ -217,6 +289,7 @@ function findCenteredCardId(scrollEl: HTMLDivElement) {
 function useDragScroll(scrollRef: RefObject<HTMLDivElement | null>, onDragStart?: () => void) {
   const dragStateRef = useRef({
     didDrag: false,
+    hasCaptured: false,
     isDragging: false,
     pointerId: -1,
     startScrollLeft: 0,
@@ -230,7 +303,10 @@ function useDragScroll(scrollRef: RefObject<HTMLDivElement | null>, onDragStart?
     if (!state.isDragging || state.pointerId !== event.pointerId) return;
 
     state.isDragging = false;
-    event.currentTarget.releasePointerCapture(event.pointerId);
+    if (state.hasCaptured) {
+      state.hasCaptured = false;
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   };
 
   return {
@@ -252,12 +328,12 @@ function useDragScroll(scrollRef: RefObject<HTMLDivElement | null>, onDragStart?
 
       dragStateRef.current = {
         didDrag: false,
+        hasCaptured: false,
         isDragging: true,
         pointerId: event.pointerId,
         startScrollLeft: scrollEl.scrollLeft,
         startX: event.clientX,
       };
-      event.currentTarget.setPointerCapture(event.pointerId);
     },
     onPointerLeave: endDrag,
     onPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
@@ -272,6 +348,10 @@ function useDragScroll(scrollRef: RefObject<HTMLDivElement | null>, onDragStart?
       const deltaX = event.clientX - state.startX;
       if (Math.abs(deltaX) > 4) {
         state.didDrag = true;
+        if (!state.hasCaptured) {
+          state.hasCaptured = true;
+          event.currentTarget.setPointerCapture(event.pointerId);
+        }
         event.preventDefault();
       }
 

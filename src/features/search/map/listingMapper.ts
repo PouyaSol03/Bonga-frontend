@@ -14,6 +14,78 @@ import {
 } from "./featureHelpers";
 import { resolveListingPricing } from "./listingPricingHelpers";
 
+const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+
+export function isListingNewWithin24Hours(
+  item: Pick<
+    AdvertisementItem,
+    | "created_at"
+    | "published_date"
+    | "published_days"
+    | "published_hours_ago"
+    | "published_time_ago"
+    | "features"
+  >,
+  nowMs = Date.now(),
+): boolean {
+  if (
+    item.published_hours_ago !== undefined &&
+    item.published_hours_ago !== null &&
+    item.published_hours_ago !== ""
+  ) {
+    const hoursAgo = Number(item.published_hours_ago);
+    if (Number.isFinite(hoursAgo)) {
+      return hoursAgo >= 0 && hoursAgo < 24;
+    }
+  }
+
+  const rawDate =
+    item.created_at ??
+    (typeof item.published_date === "string" ? item.published_date : undefined) ??
+    readFeatureRaw(item as AdvertisementItem, ["created_at", "published_date"]);
+
+  if (typeof rawDate === "string" && rawDate.trim()) {
+    const parsedMs = Date.parse(rawDate.trim());
+    if (Number.isFinite(parsedMs)) {
+      return nowMs - parsedMs <= TWENTY_FOUR_HOURS_MS;
+    }
+  }
+
+  if (item.published_days !== undefined && item.published_days !== null && item.published_days !== "") {
+    const days = Number(item.published_days);
+    if (Number.isFinite(days)) {
+      return days >= 0 && days < 1;
+    }
+  }
+
+  const timeAgo = toText(
+    item.published_time_ago ??
+      readFeatureRaw(item as AdvertisementItem, ["published_time_ago", "published_at"]),
+    "",
+  );
+  if (timeAgo) {
+    if (
+      timeAgo.includes("لحظاتی") ||
+      timeAgo.includes("دقایقی") ||
+      timeAgo.includes("دقیقه") ||
+      timeAgo.includes("ثانیه") ||
+      timeAgo.includes("امروز")
+    ) {
+      return true;
+    }
+    const hourMatch = timeAgo.match(/(\d+|[۰-۹]+)\s*ساعت/);
+    if (hourMatch) {
+      const normalized = hourMatch[1].replace(/[۰-۹]/g, (d) =>
+        String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)),
+      );
+      const hours = Number(normalized);
+      return Number.isFinite(hours) && hours >= 0 && hours < 24;
+    }
+  }
+
+  return false;
+}
+
 export function mapAdvertisementToSearchListing(
   item: AdvertisementItem,
   index: number,
@@ -74,6 +146,7 @@ export function mapAdvertisementToSearchListing(
       item.rooms ? `${toText(item.rooms)} اتاق` : "-",
     ),
     showPriceMarker: true,
+    isNew: isListingNewWithin24Hours(item),
     title: toText(item.title ?? item.label, "آگهی ملک"),
     year: readFeature(item, ["building_age", "age", "year", "سال ساخت"], toText(item.year, "-")),
     landArea: readFeature(

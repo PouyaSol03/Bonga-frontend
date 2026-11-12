@@ -137,6 +137,26 @@
   transition: background-color 280ms ease;
 }
 
+.search-map-marker__new-badge {
+  position: absolute;
+  top: -10px;
+  right: 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border: 1.5px solid var(--primary);
+  border-radius: 999px 999px 0 999px;
+  background: var(--surface-container-lowest);
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 .search-map-marker--selected {
   background: var(--tertiary);
   box-shadow:
@@ -145,6 +165,11 @@
   transform: scale(1.08);
   animation: search-map-ios-selected-spring 320ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
   z-index: 20;
+}
+
+.search-map-marker--selected .search-map-marker__new-badge {
+  border-color: var(--tertiary);
+  color: var(--tertiary);
 }
 
 .search-map-marker--selected .search-map-marker__arrow {

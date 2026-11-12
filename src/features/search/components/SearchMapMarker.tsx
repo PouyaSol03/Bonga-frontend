@@ -43,11 +43,12 @@ function ListingMapMarker({
   onSelect,
 }: SearchMapListingMarkerProps) {
   const isPrice = isPriceVisible || isSelected;
+  const isNew = Boolean(listing.isNew);
   const markerIcon = useMemo(() => {
     return isPrice
-      ? createSearchPricePillIcon(listing.priceValue, isSelected, isSeen)
+      ? createSearchPricePillIcon(listing.priceValue, isSelected, isSeen, isNew)
       : createSearchDotIcon(isSelected, isSeen);
-  }, [isPrice, listing.priceValue, isSelected, isSeen]);
+  }, [isNew, isPrice, listing.priceValue, isSelected, isSeen]);
 
   return (
     <Marker
@@ -123,7 +124,12 @@ function createSearchDotIcon(isSelected: boolean, isSeen: boolean) {
   });
 }
 
-function createSearchPricePillIcon(priceValue: string, isSelected: boolean, isSeen: boolean) {
+export function createSearchPricePillIcon(
+  priceValue: string,
+  isSelected: boolean,
+  isSeen: boolean,
+  isNew = false,
+) {
   const safePriceValue = escapeMarkerText(priceValue);
   const pillClasses = [
     "search-map-marker",
@@ -132,12 +138,14 @@ function createSearchPricePillIcon(priceValue: string, isSelected: boolean, isSe
   ]
     .filter(Boolean)
     .join(" ");
+  const newBadgeHtml = isNew ? '<span class="search-map-marker__new-badge">جدید</span>' : "";
 
   return new DivIcon({
     className: "search-map-marker-wrapper search-map-marker-wrapper--price",
     html: `
       <div class="search-map-price-hit-area">
         <div class="${pillClasses}">
+          ${newBadgeHtml}
           <span>${safePriceValue}</span>
           <span class="search-map-marker__arrow"></span>
         </div>

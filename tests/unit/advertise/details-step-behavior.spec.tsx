@@ -3,7 +3,10 @@ import { createRoot, type Root } from "react-dom/client";
 import { FormProvider, useForm, type UseFormReturn } from "react-hook-form";
 import { afterEach, expect, test, vi } from "vitest";
 import { DetailsAmenities } from "../../../src/features/advertisements/create/steps/details/DetailsAmenities";
+import { DetailsChipSection } from "../../../src/features/advertisements/create/steps/details/DetailsChipSection";
 import { DetailsSheet } from "../../../src/features/advertisements/create/steps/details/DetailsSheet";
+import { RegisteredMoreFeatures } from "../../../src/features/advertisements/create/steps/details/RegisteredMoreFeatures";
+import { ProjectSpecsSection } from "../../../src/features/advertisements/create/steps/project/ProjectSpecsSection";
 import { useDetailsForm } from "../../../src/features/advertisements/create/steps/details/useDetailsForm";
 import { useRegisteredMoreFeatures } from "../../../src/features/advertisements/create/steps/details/useRegisteredMoreFeatures";
 import { blankValues } from "../../../src/features/advertisements/create/constants/initialValues";
@@ -109,4 +112,81 @@ test("location hydration, loan resets and tag removal preserve form write behavi
   expect(form.getValues("unitsPerFloor")).toBe("");
   expect(form.getFieldState("renovated").isDirty).toBe(true);
   expect(clearError).not.toHaveBeenCalled();
+});
+
+test("ProjectSpecsSection renders selected more-features tags and RegisteredMoreFeatures uses uniform spacing when expanded", async () => {
+  window.history.replaceState({}, "", "/new-ad/details?transaction=project&category=project-presale");
+  vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+  container = document.createElement("div");
+  document.body.append(container);
+  root = createRoot(container);
+
+  function ProjectHarness() {
+    const { values, setField } = useDetailsForm(clearError);
+    return (
+      <ProjectSpecsSection
+        values={values}
+        setField={setField}
+        onOpenSelect={() => {}}
+        onOpenProjectDetails={() => {}}
+        onOpenMoreFeatures={() => {}}
+      />
+    );
+  }
+
+  function ProjectForm() {
+    const methods = useForm<NewAdFormValues>({
+      defaultValues: {
+        ...blankValues,
+        projectStatus: "در حال ساخت",
+        kitchenType: "اپن",
+        furnished: true,
+        facadeMaterial: "سنگ",
+        floorMaterial: "سرامیک",
+        cabinetMaterial: "MDF",
+      },
+    });
+    return (
+      <FormProvider {...methods}>
+        <ProjectHarness />
+        <RegisteredMoreFeatures values={methods.watch()} errors={{}} />
+      </FormProvider>
+    );
+  }
+
+  await act(async () => root.render(<ProjectForm />));
+  expect(container.textContent).toContain("وضعیت پروژه: در حال ساخت");
+  expect(container.textContent).toContain("ویرایش مشخصات");
+  expect(container.textContent).toContain("۲ مشخصات دیگر");
+  expect(container.textContent).not.toContain("جنس کف: سرامیک");
+
+  await click("۲ مشخصات دیگر");
+  expect(container.textContent).toContain("جنس کف: سرامیک");
+  expect(container.textContent).toContain("جنس کابینت: MDF");
+  expect(container.querySelector(".space-y-3")).toBeNull();
+});
+
+test("DetailsChipSection clamps its invisible measurement container to zero height", async () => {
+  container = document.createElement("div");
+  document.body.append(container);
+  root = createRoot(container);
+
+  await act(async () =>
+    root.render(
+      <DetailsChipSection
+        icon="amenity"
+        title="امکانات"
+        items={[
+          { id: "elevator", label: "آسانسور" },
+          { id: "parking", label: "پارکینگ" },
+        ]}
+        selected={[]}
+        onSelect={() => {}}
+      />,
+    ),
+  );
+
+  const hiddenWrapper = container.querySelector('[aria-hidden="true"]');
+  expect(hiddenWrapper?.className).toContain("h-0");
+  expect(hiddenWrapper?.className).toContain("overflow-hidden");
 });

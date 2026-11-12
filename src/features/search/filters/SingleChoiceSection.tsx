@@ -38,14 +38,18 @@ export function SingleChoiceSection({
     <FilterSection icon={icon} sectionId={sectionId} title={title}>
       <div className="relative w-full">
         <div
-          ref={measureRef}
-          className="pointer-events-none invisible absolute inset-x-0 top-0 -z-50 flex flex-wrap justify-start gap-2"
           aria-hidden="true"
-          dir="rtl"
+          className="pointer-events-none invisible absolute inset-x-0 top-0 -z-50 h-0 overflow-hidden"
         >
-          {options.map((option) => (
-            <FormChoiceChip key={option} label={option} />
-          ))}
+          <div
+            ref={measureRef}
+            className="flex flex-wrap justify-start gap-2"
+            dir="rtl"
+          >
+            {options.map((option) => (
+              <FormChoiceChip key={option} label={option} />
+            ))}
+          </div>
         </div>
         <div className="flex flex-wrap justify-start gap-2" dir="rtl">
           {initialOptions.map((option) => (

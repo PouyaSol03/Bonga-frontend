@@ -73,20 +73,22 @@ function MultiSelectRow({
         <Typography
           as="span"
           variant="label"
-          size="medium"
+          size="large"
           weight="medium"
-          className="text-on-surface text-sm leading-5 font-medium"
+          className="text-on-surface"
         >
           {title}
         </Typography>
 
         <Button
           unstyled
-          className="border-outline-var bg-surface-container-lowest text-on-surface-var flex h-9 items-center gap-1 rounded-[10px] border px-3 text-sm leading-5 font-normal"
+          className="border-outline-var bg-surface-container-lowest text-on-surface-var flex h-9 items-center gap-1 rounded-[10px] border px-3"
           onClick={onOpen}
           type="button"
         >
-          <span>انتخاب</span>
+          <Typography as="span" variant="label" size="medium" weight="medium">
+            انتخاب
+          </Typography>
           <ChevronLeftIcon aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
         </Button>
       </div>
@@ -142,9 +144,9 @@ function ProjectDetailCard({
         <Typography
           as="span"
           variant="label"
-          size="medium"
+          size="large"
           weight="medium"
-          className="text-on-surface text-sm leading-5 font-medium"
+          className="text-on-surface"
         >
           متراژ
         </Typography>

@@ -93,6 +93,7 @@ export type AdvertisementItem = Record<string, unknown> & {
   price?: string | number;
   price_label?: string;
   published_days?: string | number | null;
+  published_hours_ago?: string | number | null;
   published_date?: string | number | null;
   published_time_ago?: string | number;
   rooms?: string | number;

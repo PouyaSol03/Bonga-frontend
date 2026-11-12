@@ -29,6 +29,7 @@ export type SearchMapListing = {
   imageSrc?: string;
   images: string[];
   showPriceMarker?: boolean;
+  isNew?: boolean;
   imageClassName?: string;
   priceSecondary?: string;
   landArea?: string;

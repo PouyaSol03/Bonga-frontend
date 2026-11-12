@@ -2,7 +2,7 @@ export const approvedDailyAccommodationOptions = [
   "سوئیت",
   "آپارتمان",
   "اتاق",
-  "خوابگاه یا پانسیون",
+  "خوابگاه",
   "بوم گردی",
 ];
 

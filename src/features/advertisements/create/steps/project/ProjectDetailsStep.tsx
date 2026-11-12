@@ -36,8 +36,21 @@ function createProjectDetailItem(): ProjectDetailItem {
   };
 }
 
-function toggleArray(current: string[], value: string) {
-  return current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
+function sortByOptionsOrder(values: string[], options: string[]): string[] {
+  const orderMap = new Map(options.map((option, index) => [option, index]));
+
+  return [...values].sort((a, b) => {
+    const indexA = orderMap.get(a) ?? Number.MAX_SAFE_INTEGER;
+    const indexB = orderMap.get(b) ?? Number.MAX_SAFE_INTEGER;
+    return indexA - indexB;
+  });
+}
+
+function toggleArray(current: string[], value: string, options: string[]) {
+  const next = current.includes(value)
+    ? current.filter((item) => item !== value)
+    : [...current, value];
+  return sortByOptionsOrder(next, options);
 }
 
 function MultiSelectRow({
@@ -133,7 +146,7 @@ function ProjectDetailCard({
 
       <MultiSelectRow
         title="طبقه"
-        values={item?.floors ?? []}
+        values={sortByOptionsOrder(item?.floors ?? [], projectFloorOptions)}
         onOpen={() =>
           onOpenSelect({
             index,
@@ -147,7 +160,7 @@ function ProjectDetailCard({
 
       <MultiSelectRow
         title="تعداد اتاق"
-        values={item?.rooms ?? []}
+        values={sortByOptionsOrder(item?.rooms ?? [], projectRoomOptions)}
         onOpen={() =>
           onOpenSelect({
             index,
@@ -161,7 +174,7 @@ function ProjectDetailCard({
 
       <MultiSelectRow
         title="موقعیت"
-        values={item?.positions ?? []}
+        values={sortByOptionsOrder(item?.positions ?? [], projectPositionOptions)}
         onOpen={() =>
           onOpenSelect({
             index,
@@ -211,7 +224,7 @@ export function ProjectDetailsStep({ onBack }: { onBack: () => void }) {
     const path = `projectDetails.${sheet.index}.${sheet.key}` as const;
     const current = getValues().projectDetails?.[sheet.index]?.[sheet.key] ?? [];
 
-    setValue(path as never, toggleArray(current, value) as never, {
+    setValue(path as never, toggleArray(current, value, sheet.options) as never, {
       shouldDirty: true,
       shouldValidate: true,
     });
@@ -288,7 +301,8 @@ export function ProjectDetailsStep({ onBack }: { onBack: () => void }) {
         className="rounded-t-[14px]"
         contentClassName="pt-0 pb-6"
         handleClassName="h-1 w-[42px] rounded-full bg-outline-var"
-        heightClassName="h-auto max-h-[calc(100dvh-102px)]"
+        heightClassName="h-auto max-h-[50svh]"
+        maxHeight="50svh"
         isOpen={Boolean(sheet)}
         headerButtonAriaLabel="بازگشت"
         onBack={() => setSheet(null)}

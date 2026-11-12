@@ -32,10 +32,8 @@ export function DetailsSheet({
       }
       headerButtonAriaLabel="بازگشت"
       headerClassName={sheet?.kind === "exchange" ? "!gap-0 !px-2" : ""}
-      heightClassName={
-        sheet?.kind === "exchange" ? "h-[min(660px,calc(100svh-24px))]" : "h-auto max-h-[50svh]"
-      }
-      maxHeight={sheet?.kind === "exchange" ? undefined : "50svh"}
+      heightClassName="h-auto max-h-[50svh]"
+      maxHeight="50svh"
       isOpen={Boolean(sheet)}
       onBack={() => setSheet(null)}
       onClose={() => setSheet(null)}

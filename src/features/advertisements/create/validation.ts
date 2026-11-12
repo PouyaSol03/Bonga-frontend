@@ -202,6 +202,10 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
       errors.projectTotalUnits = "تعداد کل واحدها باید بین ۱ تا ۵,۰۰۰ واحد باشد.";
     }
 
+    if (!hasRequiredText(values.documentType)) {
+      errors.documentType = "لطفا سند را انتخاب کنید.";
+    }
+
     const minMeterPrice = parseNumericValue(values.minPrice);
     const maxMeterPrice = parseNumericValue(values.maxPrice);
 

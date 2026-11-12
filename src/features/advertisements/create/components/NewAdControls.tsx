@@ -218,10 +218,19 @@ export function SelectBox({
   );
 }
 
-export function LocationBox({ value, label }: { value: string; label: string }) {
+export function LocationBox({
+  error,
+  value,
+  label,
+}: {
+  error?: string;
+  value: string;
+  label: string;
+}) {
   const navigate = useNavigate();
   return (
     <SelectField
+      error={error}
       onClick={() => {
         const search = window.location.search || `?label=${encodeURIComponent(label)}`;
         const currentState =

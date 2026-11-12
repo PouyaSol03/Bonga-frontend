@@ -26,7 +26,16 @@ export function ProjectSaleTermsFields({
             error={errors.saleTermsPercent}
             numeric
             leftText="درصد"
-            onChange={(value) => setField("saleTermsPercent", value)}
+            onChange={(value) => {
+              const normalizedPercent = value.replace(/,/g, "");
+
+              if (
+                normalizedPercent === "" ||
+                (Number.isFinite(Number(normalizedPercent)) && Number(normalizedPercent) <= 100)
+              ) {
+                setField("saleTermsPercent", normalizedPercent);
+              }
+            }}
             placeholder="درصد شرایط"
             value={values.saleTermsPercent}
           />

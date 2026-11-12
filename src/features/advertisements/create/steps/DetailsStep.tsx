@@ -64,6 +64,7 @@ export function DetailsStep({
         <Section icon="location.svg" title={locationTitle}>
           <div data-field-key="location">
             <LocationBox
+              error={errors.location}
               label={label ?? ""}
               value={
                 values.location ||

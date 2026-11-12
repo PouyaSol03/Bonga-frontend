@@ -12,6 +12,7 @@ import { InputBox, Section, SelectBox } from "../../components/NewAdControls";
 import { Typography } from "../../../../../shared/ui/Typography";
 import { Button } from "../../../../../shared/ui/Button";
 import LinearBuilding from "../../../../../shared/icons/LinearBuilding";
+import LinearArrowLeft1 from "../../../../../shared/icons/LinearArrowLeft1";
 import LinearArrowLeft2 from "../../../../../shared/icons/LinearArrowLeft2";
 
 type ProjectSpecsSectionProps = {
@@ -84,9 +85,7 @@ export function ProjectSpecsSection({
               <Typography as="span" variant="label" size="medium" weight="medium">
                 ثبت ۴ مشخصات دیگر
               </Typography>
-              <Typography as="span" variant="title" size="large" weight="medium">
-                ‹
-              </Typography>
+              <LinearArrowLeft1 aria-hidden="true" className="text-primary h-5 w-5" />
             </Button>
           </div>
         </Section>
@@ -126,7 +125,7 @@ export function ProjectSpecsSection({
           <SelectBox
             onClick={() => onOpenSelect("documentType", "سند", documentTypeOptions)}
             error={errors.documentType}
-            placeholder="سند"
+            placeholder="سند *"
             value={values.documentType}
           />
 

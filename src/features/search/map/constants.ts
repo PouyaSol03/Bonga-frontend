@@ -2,7 +2,7 @@ import type { SearchMapListingId } from "../searchMapData";
 
 export const mapRequestLimit = 100;
 export const emptyListingIds = new Set<SearchMapListingId>();
-export const maxBluePriceMarkers = 4;
+export const maxBluePriceMarkers = 100;
 export const selectedCityMapZoom = 12;
 export const searchDefaultLabel = "جستجو در آگهی‌ها";
 export const SEARCH_FILTER_ENTRY_KEY = "__bongaSearchFilterEntry";

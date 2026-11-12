@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
@@ -8,8 +8,12 @@ import {
 } from "../../account/api/account.hooks";
 import { useNeighborhoodListQuery } from "../../locations/api/neighborhood.hooks";
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
-import { resolveProfileNeighborhoodIds } from "./agencyProfileHelpers";
+import {
+  getInitialAgencyProfileMapCenter,
+  resolveProfileNeighborhoodIds,
+} from "./agencyProfileHelpers";
 import { executeSaveAgencyProfile } from "./agencyProfileSaveAction";
+import type { AgencyProfileMapCenter } from "./types";
 import { useAgencyLogoUpload } from "./useAgencyLogoUpload";
 import { useAgencyProfileFields } from "./useAgencyProfileFields";
 import { useAgencyProfileLocationSync } from "./useAgencyProfileLocationSync";
@@ -44,18 +48,23 @@ export function useAgencyProfileForm() {
     [neighborhoodListQuery.data],
   );
 
+  const [mapCenter, setMapCenter] = useState<AgencyProfileMapCenter>(
+    getInitialAgencyProfileMapCenter,
+  );
+
   const fields = useAgencyProfileFields({
     neighborhoods,
     profile: agencyProfileQuery.data,
     setLogoFile,
     setLogoPreviewUrl,
     setLogoUrl,
-    setMapCenter: (center) => locationSync.setMapCenter(center),
+    setMapCenter,
   });
 
   const locationSync = useAgencyProfileLocationSync({
     cityId,
     neighborhoods,
+    setMapCenter,
     setSelectedNeighborhood: fields.setSelectedNeighborhood,
   });
 
@@ -98,7 +107,7 @@ export function useAgencyProfileForm() {
       instagram: fields.instagram,
       isRealEstateManager,
       logoFile,
-      mapCenter: locationSync.mapCenter,
+      mapCenter,
       neighborhoods,
       phone1: fields.phone1,
       phone2: fields.phone2,
@@ -131,6 +140,7 @@ export function useAgencyProfileForm() {
     isSaving: updateAgencyProfileMutation.isPending,
     logoPreviewUrl,
     logoUrl,
+    mapCenter,
     removeActivityArea,
     setToast,
     toast,

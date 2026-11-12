@@ -359,7 +359,7 @@ export const dailyAccommodationTypeOptions = [
   "سویئت",
   "آپارتمان",
   "اتاق",
-  "خوابگاه یا پانسیون",
+  "خوابگاه",
   "بوم گردی",
 ];
 export const dailyHotelAccommodationTypeOptions = ["هتل", "هتل آپارتمان", "متل", "مسافر خونه"];

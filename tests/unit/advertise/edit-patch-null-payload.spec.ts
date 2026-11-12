@@ -82,4 +82,36 @@ describe("Edit Patch Null Payload for Cleared More Features", () => {
 
     expect(formData.get("document_type")).toBe("قولنامه");
   });
+
+  test("omits monthly rent conversion fields when editing daily rent listings", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/new-ad/details?transaction=rent&category=daily-hotel-apartment",
+    );
+
+    const baseline: NewAdFormValues = {
+      ...blankValues,
+      minPrice: "1000000",
+      rentConversionEnabled: false,
+    };
+
+    const current: NewAdFormValues = {
+      ...baseline,
+      minPrice: "2000000",
+      rentConversionEnabled: true,
+      rentConversionMortgagePrice: "50000000",
+    };
+
+    const { formData } = buildEditPatchFormData(current, baseline, {
+      formCode: "daily-hotel",
+      dynamicFieldKeys: ["min_price", "daily_price"],
+    });
+
+    expect(formData.get("min_price")).toBe("2000000");
+    expect(formData.get("rent_conversion_enabled")).toBeNull();
+    expect(formData.get("rent_convertible")).toBeNull();
+    expect(formData.get("rent_conversion_mortgage_price")).toBeNull();
+    expect(formData.get("rent_conversion_policy")).toBeNull();
+  });
 });

@@ -8,6 +8,7 @@ import {
   getHeatingItemsForListing,
   getParams,
   getPriceValue,
+  isStandardRentListing,
   labels,
   pickFirstNumber,
   toNumber,
@@ -49,7 +50,7 @@ function mapAreasAndPrices(
 
   if (changed.has("price"))
     appender.appendDynamic("price", getPriceValue(clean, params.transaction, params.category));
-  if (params.transaction === "rent") {
+  if (isStandardRentListing(params.transaction, params.category, formCode)) {
     if (changed.has("rentPrice")) appender.appendBase("rent_price", toNumber(clean.rentPrice));
     if (changed.has("mortgagePrice"))
       appender.appendBase("mortgage_price", toNumber(clean.mortgagePrice));

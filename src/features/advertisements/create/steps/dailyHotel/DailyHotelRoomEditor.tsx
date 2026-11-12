@@ -27,8 +27,21 @@ export function DailyHotelRoomEditor({
   const [sheet, setSheet] = useState<RoomSelectSheet | null>(null);
 
   return (
-    <div className="bg-surface-container fixed inset-0 z-[70] flex flex-col" dir="rtl">
-      <div className="bg-surface-container mx-auto flex h-full w-full max-w-[1440px] flex-col overflow-hidden">
+    <div
+      className={
+        desktop
+          ? "bg-surface-container fixed inset-0 z-[70] flex flex-col"
+          : "bg-surface-container-lowest fixed inset-y-0 left-1/2 z-[70] flex w-full max-w-[500px] -translate-x-1/2 flex-col overflow-hidden"
+      }
+      dir="rtl"
+    >
+      <div
+        className={
+          desktop
+            ? "bg-surface-container mx-auto flex h-full w-full max-w-[1440px] flex-col overflow-hidden"
+            : "bg-surface-container-lowest flex h-full w-full flex-col overflow-hidden"
+        }
+      >
         <TopBar onBack={onClose} placement="inline" title={draftRoom.label} />
 
         <main
@@ -127,7 +140,8 @@ export function DailyHotelRoomEditor({
           className="rounded-t-[14px]"
           contentClassName="pt-0 pb-6"
           handleClassName="bg-outline-var h-1 w-[42px] rounded-full"
-          heightClassName="h-auto max-h-[calc(100dvh-102px)]"
+          heightClassName="h-auto max-h-[50svh]"
+          maxHeight="50svh"
           isOpen={Boolean(sheet)}
           headerButtonAriaLabel="بازگشت"
           onBack={() => setSheet(null)}

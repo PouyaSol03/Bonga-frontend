@@ -92,4 +92,46 @@ describe("advertisements/create/utils modularization", () => {
     expect(formData.get("title")).toBe("ویلای ساحلی");
     expect(formData.get("description")).toBe("توضیحات کامل ویلا");
   });
+
+  it("omits monthly rent conversion fields on daily rent create FormData while keeping them on standard rent", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/new-ad/media?transaction=rent&category=daily-apartment-suite",
+    );
+    const dailyFormData = buildNewAdFormData(
+      {
+        ...blankValues,
+        minPrice: "1500000",
+        maxPrice: "2500000",
+      },
+      { formCode: "daily-apartment-suite" },
+    );
+    expect(dailyFormData.get("rent_conversion_enabled")).toBeNull();
+    expect(dailyFormData.get("rent_convertible")).toBeNull();
+    expect(dailyFormData.get("rent_conversion_mortgage_price")).toBeNull();
+    expect(dailyFormData.get("rent_conversion_policy")).toBeNull();
+    expect(dailyFormData.get("rent_price")).toBeNull();
+    expect(dailyFormData.get("mortgage_price")).toBeNull();
+
+    window.history.replaceState(
+      {},
+      "",
+      "/new-ad/media?transaction=rent&category=apartment",
+    );
+    const rentFormData = buildNewAdFormData(
+      {
+        ...blankValues,
+        rentPrice: "10000000",
+        mortgagePrice: "300000000",
+      },
+      { formCode: "rent-apartment" },
+    );
+    expect(rentFormData.get("rent_conversion_enabled")).toBe("0");
+    expect(rentFormData.get("rent_convertible")).toBe("0");
+    expect(rentFormData.get("rent_conversion_mortgage_price")).toBe("null");
+    expect(rentFormData.get("rent_conversion_policy")).toBe("غیر قابل تبدیل");
+    expect(rentFormData.get("rent_price")).toBe("10000000");
+    expect(rentFormData.get("mortgage_price")).toBe("300000000");
+  });
 });

@@ -34,7 +34,7 @@ export function RegisteredMoreFeatures({
   return (
     <>
       {registeredMoreFeatures.length ? (
-        <div className="space-y-3 pt-2" dir="rtl">
+        <div dir="rtl">
           <div className="flex flex-wrap justify-start gap-2">
             {initialMoreFeatureTags.map((item) => (
               <Tag key={item.key} label={item.label} onRemove={() => removeMoreFeature(item.key)} />
@@ -50,7 +50,7 @@ export function RegisteredMoreFeatures({
                 transition={{ duration: 0.28, ease: [0.04, 0.62, 0.23, 0.98] }}
                 className="w-full overflow-hidden"
               >
-                <div className="flex flex-wrap justify-start gap-2 pt-1">
+                <div className="flex flex-wrap justify-start gap-2 pt-2">
                   {extraMoreFeatureTags.map((item) => (
                     <Tag
                       key={item.key}
@@ -66,7 +66,7 @@ export function RegisteredMoreFeatures({
           {hiddenMoreFeatureCount > 0 ? (
             <Button
               unstyled
-              className="text-outline active:text-primary flex h-8 items-center justify-start gap-1.5 text-sm leading-5 font-normal"
+              className="text-outline active:text-primary mt-3 flex h-8 items-center justify-start gap-1.5 text-sm leading-5 font-normal"
               onClick={() => setShowRegisteredMoreFeatures((current) => !current)}
               type="button"
             >
@@ -98,7 +98,9 @@ export function RegisteredMoreFeatures({
             </Button>
           ) : null}
 
-          <MoreFeaturesButton onMoreFeatures={onMoreFeatures}>ویرایش مشخصات</MoreFeaturesButton>
+          <div className={hiddenMoreFeatureCount > 0 ? "mt-0.5" : "mt-2"}>
+            <MoreFeaturesButton onMoreFeatures={onMoreFeatures}>ویرایش مشخصات</MoreFeaturesButton>
+          </div>
         </div>
       ) : moreFeatureFields.length ? (
         <MoreFeaturesButton onMoreFeatures={onMoreFeatures}>

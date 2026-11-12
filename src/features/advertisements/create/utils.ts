@@ -43,6 +43,7 @@ export {
   getAdvertiseFormCode,
   getPriceValue,
   getStoredNewAdLocationNumber,
+  isStandardRentListing,
   shouldOmitOwnerContactsOnAssignment,
   shouldOmitOwnerNameOnAssignment,
   shouldSendConsultantAssignment,

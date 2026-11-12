@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
+import { NewAdDesktopLayoutContext } from "../../../src/features/advertisements/create/NewAdLayoutContext";
 import { DetailsProperties } from "../../../src/features/advertisements/create/steps/details/DetailsProperties";
 import { DailyHotelRoomsSection } from "../../../src/features/advertisements/create/steps/dailyHotel/DailyHotelRoomsSection";
 import { DailyHotelRoomEditor } from "../../../src/features/advertisements/create/steps/dailyHotel/DailyHotelRoomEditor";
@@ -66,7 +67,7 @@ describe("daily hotel create ad UI", () => {
     expect(chevronSvgIndex).toBeGreaterThan(labelIndex);
   });
 
-  it("renders room editor with bounded max-w-[1440px], TopBar and semantic theme backgrounds", () => {
+  it("renders room editor with mobile max-w-[500px] by default, TopBar and semantic theme backgrounds", () => {
     const markup = renderToStaticMarkup(
       createElement(
         MemoryRouter,
@@ -89,8 +90,9 @@ describe("daily hotel create ad UI", () => {
       ),
     );
 
-    // Verify bounded container instead of unconstrained full width
-    expect(markup).toContain("max-w-[1440px]");
+    // Verify mobile shell max width matches other pages
+    expect(markup).toContain("max-w-[500px]");
+    expect(markup).not.toContain("max-w-[1440px]");
     // Verify semantic theme backgrounds instead of hardcoded bg-white
     expect(markup).toContain("bg-surface-container");
     expect(markup).not.toContain("bg-white");
@@ -99,5 +101,32 @@ describe("daily hotel create ad UI", () => {
     // Verify standard action footer buttons
     expect(markup).toContain("تایید");
     expect(markup).toContain("انصراف");
+
+    const desktopMarkup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(
+          NewAdDesktopLayoutContext.Provider,
+          { value: true },
+          createElement(DailyHotelRoomEditor, {
+            draftRoom: {
+              id: "single",
+              label: "اتاق یک تخته",
+              guestCount: "1",
+              extraGuestCount: "",
+              mealPlan: "",
+              normalPrice: "1000000",
+              weekendPrice: "",
+              specialPrice: "",
+            },
+            onClose: () => {},
+            onSave: () => {},
+            setDraftRoom: () => {},
+          }),
+        ),
+      ),
+    );
+    expect(desktopMarkup).toContain("max-w-[1440px]");
   });
 });

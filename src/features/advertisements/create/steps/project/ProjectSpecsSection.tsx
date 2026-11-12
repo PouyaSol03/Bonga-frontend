@@ -8,11 +8,11 @@ import {
   saleLandPositionOptions,
 } from "../../data";
 import { getParams } from "../../utils";
-import { InputBox, Section, SelectBox } from "../../components/NewAdControls";
+import { InputBox, Section, SelectBox, Tag } from "../../components/NewAdControls";
 import { Typography } from "../../../../../shared/ui/Typography";
-import { Button } from "../../../../../shared/ui/Button";
 import LinearBuilding from "../../../../../shared/icons/LinearBuilding";
 import LinearArrowLeft2 from "../../../../../shared/icons/LinearArrowLeft2";
+import { RegisteredMoreFeatures } from "../details/RegisteredMoreFeatures";
 
 type ProjectSpecsSectionProps = {
   errors?: NewAdFieldErrors;
@@ -75,19 +75,11 @@ export function ProjectSpecsSection({
               value={values.landPosition}
             />
 
-            <Button
-              unstyled
-              className="text-primary mx-auto flex items-center justify-center gap-2 py-2.5 text-base leading-6 font-medium active:opacity-80"
-              onClick={onOpenMoreFeatures}
-              type="button"
-            >
-              <Typography as="span" variant="label" size="medium" weight="medium">
-                ثبت ۴ مشخصات دیگر
-              </Typography>
-              <Typography as="span" variant="title" size="large" weight="medium">
-                ‹
-              </Typography>
-            </Button>
+            <RegisteredMoreFeatures
+              values={values}
+              errors={errors}
+              onMoreFeatures={onOpenMoreFeatures}
+            />
           </div>
         </Section>
       </>
@@ -126,21 +118,15 @@ export function ProjectSpecsSection({
           <SelectBox
             onClick={() => onOpenSelect("documentType", "سند", documentTypeOptions)}
             error={errors.documentType}
-            placeholder="سند"
+            placeholder="سند *"
             value={values.documentType}
           />
 
-          <Button
-            unstyled
-            className="text-primary mx-auto flex items-center justify-center gap-2 py-2.5 text-base leading-6 font-medium active:opacity-80"
-            onClick={onOpenMoreFeatures}
-            type="button"
-          >
-            <Typography as="span" variant="label" size="medium" weight="medium">
-              ثبت ۸ مشخصات دیگر
-            </Typography>
-            <LinearArrowLeft2 className="text-primary h-4 w-4" />
-          </Button>
+          <RegisteredMoreFeatures
+            values={values}
+            errors={errors}
+            onMoreFeatures={onOpenMoreFeatures}
+          />
         </div>
       </Section>
 
@@ -175,17 +161,17 @@ export function ProjectSpecsSection({
           <div className="mt-3 flex flex-wrap justify-start gap-2" dir="rtl">
             {values.projectDetails
               .filter((item) => item.meterage || item.minMeterage)
-              .map((item, index) => (
-                <Typography
-                  as="span"
-                  variant="label"
-                  size="medium"
-                  weight="medium"
+              .map((item) => (
+                <Tag
                   key={item.id}
-                  className="border-primary bg-primary-container text-primary flex h-9 items-center rounded-[7px] border px-3 text-sm leading-5 font-medium"
-                >
-                  {`جزئیات ${index + 1}: ${item.meterage || item.minMeterage || "-"} متر`}
-                </Typography>
+                  label={`متراژ ${item.meterage || item.minMeterage || "-"} متر`}
+                  onRemove={() =>
+                    setField(
+                      "projectDetails",
+                      values.projectDetails.filter((detail) => detail.id !== item.id),
+                    )
+                  }
+                />
               ))}
           </div>
         ) : null}

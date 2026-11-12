@@ -1,6 +1,6 @@
 import type { NewAdFormValues } from "../types";
 import { toNumber } from "./formatters";
-import { getPriceValue } from "./featureBuilders";
+import { getPriceValue, isStandardRentListing } from "./featureBuilders";
 import type { FormDataAppenders } from "./formDataAppenders";
 
 export function appendFormDataPricingSpecs(
@@ -22,7 +22,7 @@ export function appendFormDataPricingSpecs(
   appendDynamicValue("land_area", apiLandAreaValue);
   appendDynamicValue("building_area", buildingAreaValue);
   appendDynamicValue("price", getPriceValue(values, params.transaction, params.category));
-  if (params.transaction === "rent") {
+  if (isStandardRentListing(params.transaction, params.category, formCode)) {
     appendBaseValue("rent_price", toNumber(values.rentPrice));
     appendBaseValue("mortgage_price", toNumber(values.mortgagePrice));
     appendBaseValue("rent_conversion_enabled", values.rentConversionEnabled);

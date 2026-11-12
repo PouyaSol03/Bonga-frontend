@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
 import { BottomSheet } from "../../../../../shared/components/BottomSheet";
+import ChevronLeftIcon from "../../../../../shared/icons/ChevronLeftIcon";
+import LinearAdd from "../../../../../shared/icons/LinearAdd";
+import LinearArrowDown1 from "../../../../../shared/icons/LinearArrowDown1";
 import LinearDelete from "../../../../../shared/icons/LinearDelete";
 import { projectFloorOptions, projectPositionOptions, projectRoomOptions } from "../../data";
 import type { NewAdFormValues, ProjectDetailItem } from "../../types";
@@ -65,8 +68,8 @@ function MultiSelectRow({
   onRemove: (value: string) => void;
 }) {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
+    <div className="border-outline-var border-b">
+      <div className="flex items-center justify-between py-3.5">
         <Typography
           as="span"
           variant="label"
@@ -79,29 +82,21 @@ function MultiSelectRow({
 
         <Button
           unstyled
-          className="text-primary text-sm leading-5 font-medium"
+          className="border-outline-var bg-surface-container-lowest text-on-surface-var flex h-9 items-center gap-1 rounded-[10px] border px-3 text-sm leading-5 font-normal"
           onClick={onOpen}
           type="button"
         >
-          انتخاب
+          <span>انتخاب</span>
+          <ChevronLeftIcon aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
         </Button>
       </div>
 
-      {values.length ? (
-        <div className="flex flex-wrap justify-start gap-2" dir="rtl">
+      {values.length > 0 && (
+        <div className="flex flex-wrap justify-start gap-2 pb-3.5" dir="rtl">
           {values.map((value) => (
             <Tag key={value} label={value} onRemove={() => onRemove(value)} />
           ))}
         </div>
-      ) : (
-        <Button
-          unstyled
-          className="border-outline-var bg-surface-container-lowest text-outline flex h-10 w-full items-center justify-center rounded-[8px] border border-dashed text-sm leading-5 font-normal"
-          onClick={onOpen}
-          type="button"
-        >
-          برای انتخاب ضربه بزنید
-        </Button>
       )}
     </div>
   );
@@ -119,6 +114,7 @@ function ProjectDetailCard({
   onRemove: () => void;
 }) {
   const { setValue } = useFormContext<NewAdFormValues>();
+  const [isOpen, setIsOpen] = useState(true);
 
   const setItemField = <T extends keyof ProjectDetailItem>(key: T, value: ProjectDetailItem[T]) => {
     setValue(`projectDetails.${index}.${key}` as never, value as never, {
@@ -135,68 +131,99 @@ function ProjectDetailCard({
   };
 
   return (
-    <div className="border-outline-var space-y-4 border-b pb-5 last:border-b-0">
-      <InputBox
-        numeric
-        leftText="متر مربع"
-        onChange={(value) => setItemField("meterage", value)}
-        placeholder="متراژ *"
-        value={item?.meterage ?? item?.minMeterage ?? ""}
-      />
-
-      <MultiSelectRow
-        title="طبقه"
-        values={sortByOptionsOrder(item?.floors ?? [], projectFloorOptions)}
-        onOpen={() =>
-          onOpenSelect({
-            index,
-            key: "floors",
-            title: "طبقه",
-            options: projectFloorOptions,
-          })
-        }
-        onRemove={(value) => removeMultiValue("floors", value)}
-      />
-
-      <MultiSelectRow
-        title="تعداد اتاق"
-        values={sortByOptionsOrder(item?.rooms ?? [], projectRoomOptions)}
-        onOpen={() =>
-          onOpenSelect({
-            index,
-            key: "rooms",
-            title: "تعداد اتاق",
-            options: projectRoomOptions,
-          })
-        }
-        onRemove={(value) => removeMultiValue("rooms", value)}
-      />
-
-      <MultiSelectRow
-        title="موقعیت"
-        values={sortByOptionsOrder(item?.positions ?? [], projectPositionOptions)}
-        onOpen={() =>
-          onOpenSelect({
-            index,
-            key: "positions",
-            title: "موقعیت",
-            options: projectPositionOptions,
-          })
-        }
-        onRemove={(value) => removeMultiValue("positions", value)}
-      />
-
+    <div className="border-outline-var border-b pb-5 last:border-b-0">
       <Button
         unstyled
-        className="border-error-container bg-surface-container-lowest text-error flex h-10 w-full items-center justify-center gap-2 rounded-[8px] border text-sm leading-5 font-medium"
-        onClick={onRemove}
+        aria-expanded={isOpen}
+        className="flex w-full items-center justify-between py-2 text-right"
+        onClick={() => setIsOpen((prev) => !prev)}
         type="button"
       >
-        <LinearDelete aria-hidden="true" className="text-error h-5 w-5" />
-        <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">
-          حذف
+        <Typography
+          as="span"
+          variant="label"
+          size="medium"
+          weight="medium"
+          className="text-on-surface text-sm leading-5 font-medium"
+        >
+          متراژ
         </Typography>
+        <LinearArrowDown1
+          aria-hidden="true"
+          className={`text-on-surface-var h-4 w-4 shrink-0 transition-transform duration-200 ${
+            isOpen ? "" : "rotate-180"
+          }`}
+        />
       </Button>
+
+      {isOpen && (
+        <div className="pt-2">
+          <div className="border-outline-var border-b pb-4">
+            <InputBox
+              numeric
+              onChange={(value) => setItemField("meterage", value)}
+              placeholder="متراژ (متر مربع)"
+              value={item?.meterage ?? item?.minMeterage ?? ""}
+            />
+          </div>
+
+          <MultiSelectRow
+            title="طبقه"
+            values={sortByOptionsOrder(item?.floors ?? [], projectFloorOptions)}
+            onOpen={() =>
+              onOpenSelect({
+                index,
+                key: "floors",
+                title: "طبقه",
+                options: projectFloorOptions,
+              })
+            }
+            onRemove={(value) => removeMultiValue("floors", value)}
+          />
+
+          <MultiSelectRow
+            title="تعداد اتاق"
+            values={sortByOptionsOrder(item?.rooms ?? [], projectRoomOptions)}
+            onOpen={() =>
+              onOpenSelect({
+                index,
+                key: "rooms",
+                title: "تعداد اتاق",
+                options: projectRoomOptions,
+              })
+            }
+            onRemove={(value) => removeMultiValue("rooms", value)}
+          />
+
+          <MultiSelectRow
+            title="موقعیت"
+            values={sortByOptionsOrder(item?.positions ?? [], projectPositionOptions)}
+            onOpen={() =>
+              onOpenSelect({
+                index,
+                key: "positions",
+                title: "موقعیت",
+                options: projectPositionOptions,
+              })
+            }
+            onRemove={(value) => removeMultiValue("positions", value)}
+          />
+
+          <div className="pt-4">
+            <Button
+              unstyled
+              className="border-error bg-surface-container-lowest text-error flex h-11 w-full items-center justify-center gap-2 rounded-[10px] border text-sm leading-5 font-medium"
+              onClick={onRemove}
+              type="button"
+            >
+              <LinearDelete aria-hidden="true" className="text-error h-5 w-5" />
+              <Typography as="span" variant="body" size="medium" weight="regular" className="text-error">
+                حذف
+              </Typography>
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -214,9 +241,10 @@ export function ProjectDetailsStep({ onBack }: { onBack: () => void }) {
   });
 
   useEffect(() => {
-    if (fields.length) return;
+    const current = getValues("projectDetails");
+    if (Array.isArray(current) && current.length > 0) return;
     append(createProjectDetailItem());
-  }, [append, fields.length]);
+  }, [append, fields.length, getValues]);
 
   const toggleSheetValue = (value: string) => {
     if (!sheet) return;
@@ -268,31 +296,28 @@ export function ProjectDetailsStep({ onBack }: { onBack: () => void }) {
       <footer
         className={
           desktop
-            ? "border-outline-var bg-surface-container-lowest flex justify-end gap-3 border-t px-6 py-4 [direction:ltr]"
+            ? "border-outline-var bg-surface-container-lowest flex justify-end gap-3 border-t px-6 py-4"
             : "bg-surface-container-lowest grid grid-cols-2 gap-3 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-[0_-4px_16px_0_rgba(0,0,0,0.08)]"
         }
+        dir="rtl"
       >
         <Button
           unstyled
-          className={`border-primary bg-surface-container-lowest text-primary h-12 rounded-[10px] border text-base leading-6 font-medium ${desktop ? "w-40" : ""}`}
-          onClick={onBack}
+          className={`border-primary bg-surface-container-lowest text-primary flex h-12 items-center justify-center gap-1.5 rounded-[12px] border text-base leading-6 font-medium ${desktop ? "w-44" : ""}`}
+          onClick={() => append(createProjectDetailItem())}
           type="button"
         >
-          بازگشت
+          <LinearAdd aria-hidden="true" className="h-5 w-5" />
+          <span>اضافه کردن</span>
         </Button>
 
         <Button
           unstyled
-          className={`bg-primary text-on-primary active:bg-primary/90 flex h-12 items-center justify-center gap-2 rounded-[10px] text-base leading-6 font-medium ${desktop ? "w-48" : ""}`}
-          onClick={() => append(createProjectDetailItem())}
+          className={`bg-primary text-on-primary active:bg-primary/90 flex h-12 items-center justify-center rounded-[12px] text-base leading-6 font-medium ${desktop ? "w-44" : ""}`}
+          onClick={onBack}
           type="button"
         >
-          <Typography as="span" variant="body" size="medium" weight="regular">
-            +
-          </Typography>
-          <Typography as="span" variant="body" size="medium" weight="regular">
-            اضافه کردن
-          </Typography>
+          تایید
         </Button>
       </footer>
 

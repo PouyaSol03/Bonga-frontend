@@ -10,10 +10,9 @@ import {
 import { getParams } from "../../utils";
 import { InputBox, Section, SelectBox } from "../../components/NewAdControls";
 import { Typography } from "../../../../../shared/ui/Typography";
-import { Button } from "../../../../../shared/ui/Button";
 import LinearBuilding from "../../../../../shared/icons/LinearBuilding";
-import LinearArrowLeft1 from "../../../../../shared/icons/LinearArrowLeft1";
 import LinearArrowLeft2 from "../../../../../shared/icons/LinearArrowLeft2";
+import { RegisteredMoreFeatures } from "../details/RegisteredMoreFeatures";
 
 type ProjectSpecsSectionProps = {
   errors?: NewAdFieldErrors;
@@ -76,17 +75,11 @@ export function ProjectSpecsSection({
               value={values.landPosition}
             />
 
-            <Button
-              unstyled
-              className="text-primary mx-auto flex items-center justify-center gap-2 py-2.5 text-base leading-6 font-medium active:opacity-80"
-              onClick={onOpenMoreFeatures}
-              type="button"
-            >
-              <Typography as="span" variant="label" size="medium" weight="medium">
-                ثبت ۴ مشخصات دیگر
-              </Typography>
-              <LinearArrowLeft1 aria-hidden="true" className="text-primary h-5 w-5" />
-            </Button>
+            <RegisteredMoreFeatures
+              values={values}
+              errors={errors}
+              onMoreFeatures={onOpenMoreFeatures}
+            />
           </div>
         </Section>
       </>
@@ -129,17 +122,11 @@ export function ProjectSpecsSection({
             value={values.documentType}
           />
 
-          <Button
-            unstyled
-            className="text-primary mx-auto flex items-center justify-center gap-2 py-2.5 text-base leading-6 font-medium active:opacity-80"
-            onClick={onOpenMoreFeatures}
-            type="button"
-          >
-            <Typography as="span" variant="label" size="medium" weight="medium">
-              ثبت ۸ مشخصات دیگر
-            </Typography>
-            <LinearArrowLeft2 className="text-primary h-4 w-4" />
-          </Button>
+          <RegisteredMoreFeatures
+            values={values}
+            errors={errors}
+            onMoreFeatures={onOpenMoreFeatures}
+          />
         </div>
       </Section>
 

@@ -36,22 +36,30 @@ export function ProjectPricing({ values, errors, setField, desktop, onOpenExchan
           supportingText={moneySupportingText(values.maxPrice)}
           value={values.maxPrice}
         />
-        <div className="border-outline-var border-t">
-          <ProjectSaleTermsFields errors={errors} values={values} setField={setField} />
-        </div>
+      </div>
 
-        <div className="border-outline-var border-t">
-          <PriceToggleRow
-            checked={values.exchangeEnabled}
-            label="معاوضه"
-            onChange={(checked) => setField("exchangeEnabled", checked)}
+      <div className="border-outline-var mt-4 border-t">
+        <ProjectSaleTermsFields errors={errors} values={values} setField={setField} />
+      </div>
+
+      <div className="border-outline-var border-t">
+        <PriceToggleRow
+          checked={values.exchangeEnabled}
+          label="معاوضه"
+          onChange={(checked) => setField("exchangeEnabled", checked)}
+        />
+      </div>
+
+      {values.exchangeEnabled ? (
+        <div className="mt-2">
+          <ProjectExchangeField
+            values={values}
+            errors={errors}
+            setField={setField}
+            onOpenExchange={onOpenExchange}
           />
         </div>
-
-        {values.exchangeEnabled ? (
-          <ProjectExchangeField values={values} errors={errors} setField={setField} onOpenExchange={onOpenExchange} />
-        ) : null}
-      </div>
+      ) : null}
     </Section>
   );
 }

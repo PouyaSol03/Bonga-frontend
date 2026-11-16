@@ -54,5 +54,3 @@ export {
 export { buildPayload } from "./utils/payloadBuilder";
 
 export { buildNewAdFormData } from "./utils/formDataBuilder";
-
-export { scrollDownToRevealed } from "./utils/scrollUtils";

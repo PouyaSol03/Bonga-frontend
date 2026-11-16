@@ -1,8 +1,7 @@
-import { DetailSection, MoreLink, PropertyGrid } from "./viewAdComponents";
+import { DetailSection, MoreLink, PropertyGrid  } from "./viewAdComponents";
 import { Typography } from "../../../shared/ui/Typography";
 import type { ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
 import { getCurrentViewAdBasePath } from "./viewAdDetails";
-import { FacilitiesSection } from "./page/FacilitiesSection";
 
 
 function ProjectDetailsCard({ details }: { details: ViewAdProjectDetailVariant[] }) {
@@ -71,7 +70,9 @@ export function PreSaleViewContent({ adId, details }: { adId: string; details: V
         ) : null}
       </DetailSection>
 
-      <FacilitiesSection details={details} />
+      <DetailSection icon="apartment" title="تجهیزات و امکانات">
+        <PropertyGrid items={details.features.slice(0, 6)} withLabels={false} />
+      </DetailSection>
 
       <DetailSection icon="apartment" title="توضیحات">
         <Typography

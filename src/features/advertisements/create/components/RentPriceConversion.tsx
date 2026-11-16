@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import LinearInfoCircle from "../../../../shared/icons/LinearInfoCircle";
 import { Typography } from "../../../../shared/ui/Typography";
 import { SwitchButton } from "./NewAdControls";
-import { scrollDownToRevealed } from "../utils/scrollUtils";
 import {
   calculateRentPriceConversion,
   getRentConversionSnapPoints,
@@ -230,8 +229,6 @@ export function RentPriceConversion({
     }
   }, [enabled, liveMortgage, selectedMortgagePrice]);
 
-  const rowRef = useRef<HTMLDivElement>(null);
-
   const handleToggle = (checked: boolean) => {
     if (checked && !canEnable) return;
 
@@ -242,7 +239,6 @@ export function RentPriceConversion({
       setBaseline({ mortgage: sourceMortgage, rent: sourceRent });
       setLiveMortgage(initialMortgage);
       onSelectedMortgageChange(String(initialMortgage));
-      scrollDownToRevealed(rowRef.current, 220);
     }
 
     onEnabledChange(checked);
@@ -263,16 +259,8 @@ export function RentPriceConversion({
 
   return (
     <div className="border-outline-var mt-5 border-t pt-1">
-      <div
-        ref={rowRef}
-        className={`flex h-16 items-center justify-between [direction:ltr] ${
-          canEnable ? "cursor-pointer select-none" : "cursor-not-allowed opacity-60"
-        }`}
-        onClick={() => handleToggle(!enabled)}
-      >
-        <div onClick={(e) => e.stopPropagation()}>
-          <SwitchButton checked={enabled} disabled={!canEnable} onChange={handleToggle} />
-        </div>
+      <div className="flex h-16 items-center justify-between [direction:ltr]">
+        <SwitchButton checked={enabled} disabled={!canEnable} onChange={handleToggle} />
 
         <Typography
           as="span"

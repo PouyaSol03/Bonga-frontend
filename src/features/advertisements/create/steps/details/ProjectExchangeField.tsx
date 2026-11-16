@@ -11,16 +11,9 @@ export function ProjectExchangeField({ values, errors, setField, onOpenExchange 
   setField: SetDetailsField;
   onOpenExchange: () => void;
 }) {
-  const hasItems = values.exchangeTargets.length > 0;
-  const hasError = Boolean(errors.exchangeTargets);
-
   return (
-    <div className="border-outline-var rounded-[14px] border p-4">
-      <div
-        className={`flex items-center justify-between text-base leading-6 font-medium [direction:rtl] ${
-          hasItems || hasError ? "mb-3" : ""
-        }`}
-      >
+    <div className="border-outline-var rounded-[14px] border px-4 py-4">
+      <div className="mb-4 flex items-center justify-between text-base leading-6 font-medium [direction:rtl]">
         <Typography as="span" variant="body" size="medium" weight="regular">
           معاوضه با
         </Typography>

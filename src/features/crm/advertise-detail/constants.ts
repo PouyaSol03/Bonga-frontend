@@ -13,7 +13,7 @@ export type FeatureRecord = CrmRecord & {
 
 export const formCodeLabels: Record<string, string> = {
   partnership: "مشارکت در ساخت",
-  "presale-special": "پیش فروش پروژه",
+  "presale-special": "پیش‌فروش پروژه",
   "daily-apartment-suite": "اجاره روزانه آپارتمان و سوئیت",
   "daily-garden-villa": "اجاره روزانه باغ و ویلا",
   "daily-hotel": "اجاره روزانه هتل و هتل‌آپارتمان",

@@ -14,7 +14,6 @@ dist-ssr
 .freebuff
 
 # Editor directories and files
-.workbuddy-ai/
 .vscode/*
 !.vscode/extensions.json
 .idea

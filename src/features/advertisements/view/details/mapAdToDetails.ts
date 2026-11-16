@@ -87,7 +87,7 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     categoryNeighborhood: toText(
       ad.category_neighborhood,
       buildCategoryNeighborhoodLabel(formCode, neighborhoodName, locationTitle),
-    ).replace(/پیش[\u200c]?فروش/g, "پیش فروش"),
+    ),
     description: toText(description),
     equipmentSections: [],
     features: facilities,

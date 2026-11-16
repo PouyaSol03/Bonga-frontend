@@ -1,4 +1,4 @@
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 
@@ -16,6 +16,7 @@ import { TextField } from "../../../../shared/ui/TextField";
 import { FeaturesIcons } from "../../components/FeaturesIcons";
 import { TopBar } from "../../../../shared/components/TopBar";
 import { normalizeNumberInput } from "../utils";
+import { scrollDownToRevealed } from "../utils/scrollUtils";
 import { formatNumber as formatPrice } from "../../../../shared/lib/numberUtils";
 import { preserveNewAdDraftStateKey } from "../session";
 import type { ChipItem } from "../types";
@@ -174,7 +175,7 @@ export function InputBox({
       error={error}
       hideBadgeWhenFloatingLabel={unitMovesToFloatingLabel}
       highlightWhenFilled={highlightWhenFilled ?? false}
-      formatNumber={Boolean(numeric)}
+      formatNumber={Boolean(formatNumeric)}
       inputMode={numeric ? "numeric" : "text"}
       label={resolvedFloatingLabel}
       maxLength={maxLength}
@@ -321,14 +322,31 @@ export function Toggle({
   checked,
   label,
   onChange,
+  autoScroll = true,
 }: {
   checked: boolean;
   label: string;
   onChange: (checked: boolean) => void;
+  autoScroll?: boolean;
 }) {
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  const handleToggle = (nextChecked: boolean) => {
+    onChange(nextChecked);
+    if (nextChecked && autoScroll) {
+      scrollDownToRevealed(rowRef.current, 220);
+    }
+  };
+
   return (
-    <div className="border-outline-var flex items-center justify-between border-t py-5 [direction:ltr]">
-      <SwitchButton checked={checked} onChange={onChange} />
+    <div
+      ref={rowRef}
+      className="border-outline-var flex cursor-pointer items-center justify-between border-t py-5 select-none [direction:ltr]"
+      onClick={() => handleToggle(!checked)}
+    >
+      <div onClick={(e) => e.stopPropagation()}>
+        <SwitchButton checked={checked} onChange={handleToggle} />
+      </div>
 
       <div className="flex gap-2">
         <LinearInfoCircle className="text-on-surface-var h-6 w-6" />
@@ -437,8 +455,13 @@ export function CompactToggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex h-14 items-center justify-between [direction:ltr]">
-      <SwitchButton checked={checked} onChange={onChange} />
+    <div
+      className="flex h-14 cursor-pointer items-center justify-between select-none [direction:ltr]"
+      onClick={() => onChange(!checked)}
+    >
+      <div onClick={(e) => e.stopPropagation()}>
+        <SwitchButton checked={checked} onChange={onChange} />
+      </div>
 
       <Typography
         as="span"

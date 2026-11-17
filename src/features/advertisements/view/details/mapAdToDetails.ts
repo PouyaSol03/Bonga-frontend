@@ -67,20 +67,34 @@ export function mapAdToDetails(ad: AdvertisementItem): ViewAdDetails {
     normalizedLocation || toText(ad.form_neighborhood_title, neighborhoodName || title),
   );
   const ownerType = String(ad.publisher_type ?? ad.owner_type ?? "").toLowerCase();
+  const isAgency = ownerType === "agency";
+  const isConsultant =
+    ownerType === "agent" ||
+    ownerType === "consultant" ||
+    ownerType === "agency-consultant" ||
+    ownerType === "independent-consultant";
+  const agencyObj =
+    ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency) ? ad.agency : null;
+  const agentObj =
+    (ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent) ? ad.agent : null) ??
+    (ad.consultant && typeof ad.consultant === "object" && !Array.isArray(ad.consultant)
+      ? ad.consultant
+      : null);
+
   const agencyLocation =
-    ownerType === "agency" && ad.agency && typeof ad.agency === "object"
-      ? toText(ad.agency.location, locationTitle)
-      : ownerType === "agent" && ad.agent && typeof ad.agent === "object"
-        ? toText(ad.agent.agency_name, locationTitle)
+    isAgency && agencyObj
+      ? toText(agencyObj.location, locationTitle)
+      : isConsultant && agentObj
+        ? toText(agentObj.agency_name, locationTitle)
         : locationTitle;
 
   return {
     adCode: toPersianDigits(ad.track_code ?? ad.id ?? ad._id ?? ""),
     agency:
-      ownerType === "agency" && ad.agency && typeof ad.agency === "object"
-        ? toText(ad.agency.name)
-        : ownerType === "agent" && ad.agent && typeof ad.agent === "object"
-          ? toText(ad.agent.agency_name)
+      isAgency && agencyObj
+        ? toText(agencyObj.name)
+        : isConsultant && agentObj
+          ? toText(agentObj.agency_name)
           : toText(featureMap.advertiser_type),
     agencyLocation,
     age,

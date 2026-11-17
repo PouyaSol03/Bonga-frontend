@@ -14,7 +14,12 @@ export function getPublisherContactActions(
 ): PublisherContactActions {
   const type = String(ad?.publisher_type ?? ad?.owner_type ?? "").trim().toLowerCase();
 
-  if (type === "agency-consultant") {
+  if (
+    type === "agency-consultant" ||
+    type === "consultant" ||
+    type === "agent" ||
+    type === "independent-consultant"
+  ) {
     return {
       category: "agency-consultant",
       callLabel: "تماس با مشاور",

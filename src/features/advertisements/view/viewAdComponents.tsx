@@ -255,12 +255,14 @@ function parseStarRatingCount(value: unknown): number | null {
 export function PropertyGrid({
   items,
   withLabels = true,
+  className = "mt-6",
 }: {
   items: DetailItem[];
   withLabels?: boolean;
+  className?: string;
 }) {
   return (
-    <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 [direction:rtl]">
+    <div className={`grid grid-cols-2 gap-x-6 gap-y-6 [direction:rtl] ${className}`}>
       {items.map((item) => {
         const isStarRating =
           item.icon === "star" || item.label.includes("رتبه") || item.label.includes("ستاره");

@@ -3,6 +3,7 @@ import { Typography } from "../../../shared/ui/Typography";
 import type { ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
 import { getCurrentViewAdBasePath } from "./viewAdDetails";
 import { DescriptionSection } from "./page/DescriptionSection";
+import { FacilitiesSection } from "./page/FacilitiesSection";
 
 
 function ProjectDetailsCard({ details }: { details: ViewAdProjectDetailVariant[] }) {
@@ -79,9 +80,7 @@ export function PreSaleViewContent({
         ) : null}
       </DetailSection>
 
-      <DetailSection icon="apartment" title="تجهیزات و امکانات">
-        <PropertyGrid items={details.features.slice(0, 6)} withLabels={false} />
-      </DetailSection>
+      <FacilitiesSection details={details} />
 
       <DescriptionSection details={details} mapPosition={mapPosition ?? null} />
     </>

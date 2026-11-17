@@ -347,13 +347,22 @@ const rentCategoryLabelByFormCode: Record<string, string> = {
   "rent-hotel": "اجاره هتل، اقامتگاه",
 };
 
+const projectCategoryLabelByFormCode: Record<string, string> = {
+  "presale-special": "پیش فروش",
+  "project-presale": "پیش فروش",
+  partnership: "مشارکت در ساخت",
+  "project-partnership": "مشارکت در ساخت",
+};
+
 export function buildCategoryNeighborhoodLabel(
   formCode: string,
   neighborhoodName: string,
   fallback: string,
 ) {
   const listingCategory =
-    saleCategoryLabelByFormCode[formCode] ?? rentCategoryLabelByFormCode[formCode];
+    saleCategoryLabelByFormCode[formCode] ??
+    rentCategoryLabelByFormCode[formCode] ??
+    projectCategoryLabelByFormCode[formCode];
   if (listingCategory && neighborhoodName) {
     return `${listingCategory} در محله ${neighborhoodName}`;
   }

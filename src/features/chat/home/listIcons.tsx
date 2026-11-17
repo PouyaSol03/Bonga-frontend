@@ -18,9 +18,9 @@ export function MoreVerticalIcon({ className = "" }: { className?: string }) {
       <path
         d="M11.9919 12.0004H12.0009M11.9829 6H11.9919M11.9921 18H12.001"
         stroke="currentColor"
-        stroke-width="3"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

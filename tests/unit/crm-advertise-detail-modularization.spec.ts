@@ -93,7 +93,7 @@ describe("CRM Advertise Detail Modularization", () => {
     it("resolves form names from code", () => {
       expect(getFormName("sale-apartment")).toBe("فروش آپارتمان");
       expect(getFormName("rent-garden-villa")).toBe("اجاره باغ و ویلا");
-      expect(getFormName("presale-special")).toBe("پیش‌فروش پروژه");
+      expect(getFormName("presale-special")).toBe("پیش فروش پروژه");
     });
 
     it("finds record name recursively by id", () => {

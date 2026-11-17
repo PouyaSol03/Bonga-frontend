@@ -44,9 +44,9 @@ function GreenBadgeIcon() {
       <path
         d="M5.2 9.4L8.2 12.4L13.8 6.8"
         stroke="var(--surface-container-lowest)"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

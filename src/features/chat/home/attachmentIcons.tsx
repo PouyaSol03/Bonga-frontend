@@ -13,9 +13,9 @@ export function LinkChainIcon({ className = "" }: { className?: string }) {
       <path
         d="M12.0864 5.86813L13.6409 4.31357C15.358 2.59645 18.1034 2.55778 19.7728 4.22721C21.4422 5.8966 21.4036 8.64196 19.6864 10.3591L10.3591 19.6865C8.64198 21.4035 5.89659 21.4422 4.22719 19.7728C2.55777 18.1034 2.59647 15.358 4.31356 13.6409L7.81132 10.1432C8.88451 9.06998 10.6004 9.04581 11.6437 10.0892C12.6871 11.1326 12.663 12.8484 11.5898 13.9216L9.64657 15.8648"
         stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -70,9 +70,9 @@ export function AlbumIcon({ className = "" }: { className?: string }) {
       <path
         d="M17.4 6.6H19.2C20.1941 6.6 21 7.40589 21 8.4V19.2C21 20.1941 20.1941 21 19.2 21H8.4C7.40589 21 6.6 20.1941 6.6 19.2V17.4M3 11.2066C3.55712 11.1358 4.12036 11.1009 4.68454 11.1021C7.07129 11.058 9.39958 11.7087 11.254 12.9382C12.9738 14.0785 14.1822 15.6477 14.7 17.4M12.8998 7.5H12.9079M17.4 15.6V4.8C17.4 3.80589 16.5941 3 15.6 3H4.8C3.80589 3 3 3.80589 3 4.8V15.6C3 16.5941 3.80589 17.4 4.8 17.4H15.6C16.5941 17.4 17.4 16.5941 17.4 15.6Z"
         stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

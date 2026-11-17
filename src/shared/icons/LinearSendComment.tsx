@@ -8,9 +8,9 @@ const LinearSendComment: React.FC<LinearSendCommentProps> = (props) => (
       xmlns="http://www.w3.org/2000/svg"
       d="M13 3H5C4 3 3 4.01433 3 5.02867V16C3 17.0143 4 18 5 18H7V20.2437C7 21.0276 7.87203 21.2119 8.5 20.7508L12 18H19C20 18 21 17.0143 21 16V10"
       stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
 
     <path
@@ -23,9 +23,9 @@ const LinearSendComment: React.FC<LinearSendCommentProps> = (props) => (
       xmlns="http://www.w3.org/2000/svg"
       d="M18.5 8L21 5.5L18.5 3M21 5.5L15 5.5"
       stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );

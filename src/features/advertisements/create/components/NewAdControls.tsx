@@ -175,7 +175,7 @@ export function InputBox({
       error={error}
       hideBadgeWhenFloatingLabel={unitMovesToFloatingLabel}
       highlightWhenFilled={highlightWhenFilled ?? false}
-      formatNumber={Boolean(numeric)}
+      formatNumber={Boolean(formatNumeric)}
       inputMode={numeric ? "numeric" : "text"}
       label={resolvedFloatingLabel}
       maxLength={maxLength}

@@ -25,8 +25,8 @@ const TonalWhatsapp: React.FC<TonalWhatsappProps> = (props) => (
         y2="21"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="#61FD7D" />
-        <stop offset="1" stop-color="#2BB826" />
+        <stop stopColor="#61FD7D" />
+        <stop offset="1" stopColor="#2BB826" />
       </linearGradient>
     </defs>
   </svg>

@@ -8,9 +8,9 @@ const LinearGps: React.FC<LinearGpsProps> = (props) => (
       xmlns="http://www.w3.org/2000/svg"
       d="M19.2 12C19.2 15.9765 15.9765 19.2 12 19.2M19.2 12C19.2 8.02355 15.9765 4.8 12 4.8M19.2 12H21M12 19.2C8.02355 19.2 4.8 15.9765 4.8 12M12 19.2V21M4.8 12C4.8 8.02355 8.02355 4.8 12 4.8M4.8 12H3M12 4.8V3"
       stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
 
     <path

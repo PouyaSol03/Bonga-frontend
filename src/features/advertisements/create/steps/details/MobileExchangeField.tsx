@@ -11,12 +11,19 @@ export function MobileExchangeField({ values, errors, setField, onOpenExchange }
   setField: SetDetailsField;
   onOpenExchange: () => void;
 }) {
+  const hasItems = values.exchangeTargets.length > 0;
+  const hasError = Boolean(errors.exchangeTargets);
+
   return (
     <div
       data-field-key="exchangeTargets"
-      className="border-outline-var mt-3 rounded-2xl border px-4 py-6"
+      className="border-outline-var mt-3 rounded-2xl border p-4"
     >
-      <div className="mb-4 flex items-center justify-between [direction:rtl]">
+      <div
+        className={`flex items-center justify-between [direction:rtl] ${
+          hasItems || hasError ? "mb-3" : ""
+        }`}
+      >
         <Typography
           as="span"
           variant="label"
@@ -42,7 +49,7 @@ export function MobileExchangeField({ values, errors, setField, onOpenExchange }
         </Button>
       </div>
 
-      {values.exchangeTargets.length ? (
+      {hasItems ? (
         <div className="flex flex-wrap justify-start gap-2" dir="rtl">
           {values.exchangeTargets.map((target) => (
             <Tag
@@ -60,7 +67,7 @@ export function MobileExchangeField({ values, errors, setField, onOpenExchange }
         </div>
       ) : null}
 
-      {errors.exchangeTargets ? (
+      {hasError ? (
         <Typography
           as="p"
           variant="body"

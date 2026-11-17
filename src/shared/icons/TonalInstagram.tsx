@@ -31,10 +31,10 @@ const TonalInstagram: React.FC<TonalInstagramProps> = (props) => (
         gradientUnits="userSpaceOnUse"
         gradientTransform="translate(7.78176 22.3864) rotate(-90) scale(17.8393 16.592)"
       >
-        <stop stop-color="#FFDD55" />
-        <stop offset="0.1" stop-color="#FFDD55" />
-        <stop offset="0.5" stop-color="#FF543E" />
-        <stop offset="1" stop-color="#C837AB" />
+        <stop stopColor="#FFDD55" />
+        <stop offset="0.1" stopColor="#FFDD55" />
+        <stop offset="0.5" stopColor="#FF543E" />
+        <stop offset="1" stopColor="#C837AB" />
       </radialGradient>
       <radialGradient
         id="paint1_radial_5632_381"
@@ -44,9 +44,9 @@ const TonalInstagram: React.FC<TonalInstagramProps> = (props) => (
         gradientTransform="matrix(1.56517 7.81914 -32.2301 6.45517 -0.0146069 4.29669)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="#3771C8" />
-        <stop offset="0.128" stop-color="#3771C8" />
-        <stop offset="1" stop-color="#6600FF" stop-opacity="0" />
+        <stop stopColor="#3771C8" />
+        <stop offset="0.128" stopColor="#3771C8" />
+        <stop offset="1" stopColor="#6600FF" stopOpacity="0" />
       </radialGradient>
     </defs>
   </svg>

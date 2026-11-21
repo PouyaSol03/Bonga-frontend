@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -21,10 +21,67 @@ import { toPersianNumber } from "../../../../../shared/lib/numberUtils";
 import { useAdPerformanceChartsQuery } from "../../api/adPerformanceApi";
 import {
   PERFORMANCE_METRICS,
-  type PerformanceDayData,
   type PerformanceMetricKey,
 } from "./viewAdPerformanceData";
 import { renderChartTooltip } from "./ViewAdPerformanceChartTooltip";
+
+export function computeDynamicYAxis(maxValue: number) {
+  if (maxValue <= 0 || maxValue <= 4) {
+    return {
+      domain: [0, 4] as [number, number],
+      ticks: [0, 1, 2, 3, 4],
+      tickFormatter: (val: number) => toPersianNumber(val),
+      width: 28,
+    };
+  }
+
+  const targetIntervals = 4;
+  const roughStep = maxValue / targetIntervals;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+  const normalized = roughStep / magnitude;
+
+  let stepMultiplier: number;
+  if (normalized <= 1.2) {
+    stepMultiplier = 1;
+  } else if (normalized <= 2.5) {
+    stepMultiplier = 2;
+  } else if (normalized <= 5) {
+    stepMultiplier = 5;
+  } else {
+    stepMultiplier = 10;
+  }
+
+  const step = Math.max(1, Math.round(stepMultiplier * magnitude));
+  const upperBound = Math.ceil(maxValue / step) * step;
+  const count = Math.min(6, Math.max(2, Math.round(upperBound / step)));
+
+  const ticks: number[] = [];
+  for (let i = 0; i <= count; i++) {
+    ticks.push(i * step);
+  }
+
+  const isKScale = upperBound >= 1000;
+  const tickFormatter = (val: number) => {
+    if (val === 0) return "۰";
+    if (isKScale && val >= 1000) {
+      const inK = val / 1000;
+      return Number.isInteger(inK)
+        ? `${toPersianNumber(inK)} k`
+        : `${toPersianNumber(inK.toFixed(1))} k`;
+    }
+    return toPersianNumber(Math.round(val));
+  };
+
+  const maxLabelLength = Math.max(...ticks.map((t) => tickFormatter(t).length));
+  const width = Math.max(28, Math.min(48, maxLabelLength * 8 + 8));
+
+  return {
+    domain: [0, ticks[ticks.length - 1] ?? upperBound] as [number, number],
+    ticks,
+    tickFormatter,
+    width,
+  };
+}
 
 export function ViewAdPerformanceProgressCharts({
   adId,
@@ -42,32 +99,58 @@ export function ViewAdPerformanceProgressCharts({
 
   const activeMetric =
     PERFORMANCE_METRICS.find((m) => m.key === activeKey) ?? PERFORMANCE_METRICS[0];
-  const days = (chartData?.days ?? []).map((d) => {
-    const day = d as PerformanceDayData;
-    let displayName: string;
-    if (day.date) {
-      try {
-        displayName = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
-          month: "2-digit",
-          day: "2-digit",
-        }).format(new Date(day.date));
-      } catch {
-        displayName = day.date;
+  const days = useMemo(() => {
+    return (chartData?.days ?? []).map((d) => {
+      const rawRecord = d as Record<string, unknown>;
+      const rawVal =
+        rawRecord.value ?? rawRecord.count ?? rawRecord[activeKey] ?? 0;
+      const value = Number(rawVal) || 0;
+      let displayName: string;
+      const dateStr = typeof rawRecord.date === "string" ? rawRecord.date : undefined;
+      if (dateStr) {
+        try {
+          const parsedDate = new Date(dateStr);
+          if (!isNaN(parsedDate.getTime())) {
+            displayName = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+              month: "2-digit",
+              day: "2-digit",
+            }).format(parsedDate);
+          } else {
+            displayName = dateStr;
+          }
+        } catch {
+          displayName = dateStr;
+        }
+      } else {
+        displayName =
+          (rawRecord.full_name as string) ||
+          (rawRecord.day_name as string) ||
+          (rawRecord.day as string) ||
+          (rawRecord.label as string) ||
+          "";
       }
-    } else {
-      displayName = day.full_name || "";
-    }
 
-    return {
-      ...d,
-      displayName,
-    };
-  });
-  const selectedDay = days[selectedIndex] ?? days[5];
+      return {
+        ...d,
+        value,
+        displayName,
+      };
+    });
+  }, [chartData?.days, activeKey]);
+
+  const maxDayValue = useMemo(
+    () => Math.max(0, ...days.map((d) => Number(d.value) || 0)),
+    [days],
+  );
+  const yAxisConfig = useMemo(() => computeDynamicYAxis(maxDayValue), [maxDayValue]);
+
+  const effectiveIndex = Math.min(selectedIndex, Math.max(0, days.length - 1));
+  const selectedDay = days[effectiveIndex];
   const tooltipText = selectedDay ? toPersianNumber(selectedDay.value) : "";
-  const totalValueText = chartData
-    ? toPersianNumber(chartData.total_metric_value)
-    : activeMetric.defaultTotal;
+  const totalValueText =
+    chartData?.total_metric_value !== undefined && chartData?.total_metric_value !== null
+      ? toPersianNumber(chartData.total_metric_value)
+      : toPersianNumber(days.reduce((sum, d) => sum + (Number(d.value) || 0), 0));
 
   return (
     <section className={`bg-surface-container-lowest w-full p-4 [direction:rtl] ${className}`}>
@@ -181,12 +264,12 @@ export function ViewAdPerformanceProgressCharts({
                 />
                 <YAxis
                   axisLine={false}
-                  domain={[0, 5000]}
+                  domain={yAxisConfig.domain}
                   tick={{ fill: "var(--outline)", fontSize: 11 }}
-                  tickFormatter={(val) => (val === 0 ? "۰" : `${toPersianNumber(val / 1000)} k`)}
+                  tickFormatter={yAxisConfig.tickFormatter}
                   tickLine={false}
-                  ticks={[0, 1000, 2000, 3000, 4000, 5000]}
-                  width={30}
+                  ticks={yAxisConfig.ticks}
+                  width={yAxisConfig.width}
                 />
                 <Bar
                   dataKey="value"
@@ -208,7 +291,7 @@ export function ViewAdPerformanceProgressCharts({
                   ))}
                   <LabelList
                     content={(props) =>
-                      renderChartTooltip(selectedIndex, tooltipText, props as Record<string, unknown>)
+                      renderChartTooltip(effectiveIndex, tooltipText, props as Record<string, unknown>)
                     }
                     dataKey="value"
                   />

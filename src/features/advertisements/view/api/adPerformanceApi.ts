@@ -65,10 +65,17 @@ async function getAdPerformanceCharts(
   if (!adId) return null;
   try {
     const res = await getV2AdvertisementPerformance<
-      { data?: AdPerformanceChartsData } | AdPerformanceChartsData
+      { data?: AdPerformanceChartsData; charts?: AdPerformanceChartsData } | AdPerformanceChartsData
     >(adId, "charts", { metric, week_offset: weekOffset });
     if (!res) return null;
-    return "data" in res && res.data ? res.data : (res as AdPerformanceChartsData);
+    const rec = res as Record<string, unknown>;
+    if (rec.data && typeof rec.data === "object") {
+      return rec.data as AdPerformanceChartsData;
+    }
+    if (rec.charts && typeof rec.charts === "object") {
+      return rec.charts as AdPerformanceChartsData;
+    }
+    return res as AdPerformanceChartsData;
   } catch {
     return null;
   }

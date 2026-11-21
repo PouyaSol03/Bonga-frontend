@@ -260,7 +260,11 @@ export function ViewAdProjectDetailsPage() {
                   weight="semibold"
                   className="text-on-surface text-base font-semibold"
                 >
-                  {toPersianDigits(totalFloors)}
+                  {toPersianDigits(
+                    totalFloors && String(totalFloors).includes("طبقه")
+                      ? totalFloors
+                      : `${totalFloors} طبقه`,
+                  )}
                 </Typography>
               </div>
               <Typography
@@ -285,7 +289,11 @@ export function ViewAdProjectDetailsPage() {
                   weight="semibold"
                   className="text-on-surface text-base font-semibold"
                 >
-                  {toPersianDigits(totalUnits)}
+                  {toPersianDigits(
+                    totalUnits && String(totalUnits).includes("واحد")
+                      ? totalUnits
+                      : `${totalUnits} واحد`,
+                  )}
                 </Typography>
               </div>
               <Typography

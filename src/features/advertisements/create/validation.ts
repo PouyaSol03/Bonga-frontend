@@ -120,10 +120,11 @@ function getDetailsValidationErrors(values: NewAdFormValues): NewAdFieldErrors {
 
   const numLandWidth = parseNumericValue(values.landWidth);
   if (hasRequiredText(values.landWidth)) {
+    const rawLandDigits = toLatinDigits(values.landWidth).replace(/\D/g, "");
     if (numLandWidth === null || numLandWidth <= 0) {
       errors.landWidth = "عرض بر زمین باید بزرگتر از صفر باشد.";
-    } else if (numLandWidth > 500) {
-      errors.landWidth = "عرض بر زمین نمی‌تواند بیشتر از ۵۰۰ متر باشد.";
+    } else if (rawLandDigits.length > 6 || numLandWidth > 999999) {
+      errors.landWidth = "عرض زمین حداکثر می‌تواند ۶ رقم باشد.";
     }
   }
 
@@ -395,15 +396,22 @@ function getMediaValidationErrors(
     }
   }
 
+  if (hasRequiredText(values.ownerFullName) && values.ownerFullName.trim().length > 50) {
+    errors.ownerFullName = "نام مالک حداکثر می‌تواند ۵۰ کاراکتر باشد.";
+  }
+
   if (hasRequiredText(values.ownerPhone)) {
     const cleanOwnerPhone = toLatinDigits(values.ownerPhone).replace(/[\s-]/g, "");
     if (
-      !/^0\d{10}$/.test(cleanOwnerPhone) &&
-      !/^\+?98\d{10}$/.test(cleanOwnerPhone) &&
-      !/^09\d{9}$/.test(cleanOwnerPhone)
+      cleanOwnerPhone.length !== 11 ||
+      (!/^0\d{10}$/.test(cleanOwnerPhone) && !/^09\d{9}$/.test(cleanOwnerPhone))
     ) {
-      errors.ownerPhone = "شماره تلفن مالک معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹ یا ۰۲۱۸۸۸۸۸۸۸۸).";
+      errors.ownerPhone = "شماره تلفن مالک باید ۱۱ رقم باشد (مثال: ۰۹۱۲۳۴۵۶۷۸۹ یا ۰۲۱۸۸۸۸۸۸۸۸).";
     }
+  }
+
+  if (hasRequiredText(values.ownerExactAddress) && values.ownerExactAddress.trim().length > 300) {
+    errors.ownerExactAddress = "نشانی دقیق آگهی حداکثر می‌تواند ۳۰۰ کاراکتر باشد.";
   }
 
   // 6. Title (Min 3, Max 50)

@@ -8,13 +8,6 @@
     "specsTitle": "مشخصات پیش فروش، فروش پروژه",
     "basicFields": [
       {
-        "key": "builderCompanyName",
-        "title": "نام سازنده/شرکت",
-        "input": "text",
-        "ui": "input",
-        "placeholder": "نام شرکت یا سازنده"
-      },
-      {
         "key": "projectType",
         "title": "نوع پروژه",
         "input": "select",
@@ -234,6 +227,13 @@
       "enabled": true,
       "fields": [
         {
+          "key": "builderCompanyName",
+          "title": "نام سازنده/شرکت",
+          "input": "text",
+          "ui": "input",
+          "placeholder": "نام شرکت یا سازنده"
+        },
+        {
           "key": "projectStatus",
           "title": "وضعیت پروژه",
           "input": "select",
@@ -249,6 +249,12 @@
           "input": "date"
         },
         {
+          "key": "furnished",
+          "title": "مبله با لوازم",
+          "input": "toggle",
+          "ui": "toggle"
+        },
+        {
           "key": "kitchenType",
           "title": "نوع آشپزخانه",
           "input": "select",
@@ -259,12 +265,6 @@
             "بسته",
             "نیمه اپن"
           ]
-        },
-        {
-          "key": "furnished",
-          "title": "با لوازم و مبله",
-          "input": "toggle",
-          "ui": "toggle"
         },
         {
           "key": "facadeMaterial",

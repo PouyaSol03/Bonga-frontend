@@ -2684,13 +2684,6 @@ const forms = [
       specsTitle: "مشخصات پیش فروش، فروش ویژه",
       basicFields: [
         {
-          key: "builderCompanyName",
-          title: "نام سازنده/شرکت",
-          input: "text",
-          ui: "input",
-          placeholder: "نام شرکت یا سازنده",
-        },
-        {
           key: "projectType",
           title: "نوع پروژه",
           input: "select",
@@ -2726,6 +2719,13 @@ const forms = [
         enabled: true,
         fields: [
           {
+            key: "builderCompanyName",
+            title: "نام سازنده/شرکت",
+            input: "text",
+            ui: "input",
+            placeholder: "نام شرکت یا سازنده",
+          },
+          {
             key: "projectStatus",
             title: "وضعیت پروژه",
             input: "select",
@@ -2733,6 +2733,7 @@ const forms = [
             options: ["در حال ساخت", "آماده تحویل"],
           },
           { key: "projectDeliveryDate", title: "تاریخ تحویل", input: "date" },
+          { key: "furnished", title: "مبله با لوازم", input: "toggle", ui: "toggle" },
           {
             key: "kitchenType",
             title: "نوع آشپزخانه",
@@ -2761,7 +2762,6 @@ const forms = [
             ui: "bottomSheet",
             options: cabinetOptions,
           },
-          { key: "furnished", title: "با لوازم و مبله", input: "toggle", ui: "toggle" },
         ],
       },
     },

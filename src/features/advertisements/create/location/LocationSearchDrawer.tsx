@@ -2,6 +2,7 @@ import type { RefObject } from "react";
 import { Button } from "../../../../shared/ui/Button";
 import { Typography } from "../../../../shared/ui/Typography";
 import { SearchEmptyState } from "../../../../shared/components/SearchEmptyState";
+import { useToast } from "../../../../shared/hooks/useToast";
 import LinearCancelCircle from "../../../../shared/icons/LinearCancelCircle";
 import type { NeighborhoodDto } from "../../../locations/api/neighborhood.service";
 import { getNeighborhoodSubNeighborhoodNames } from "../../../locations/api/neighborhood.service";
@@ -29,6 +30,7 @@ export function LocationSearchDrawer({
   canSearchNeighborhoods,
   isCrmSource,
   isLoading,
+  isResolvingLocation,
   isSearchExpanded,
   locations,
   onConfirm,
@@ -40,6 +42,20 @@ export function LocationSearchDrawer({
   selectedNeighborhood,
   submitDisabled,
 }: LocationSearchDrawerProps) {
+  const { showToast } = useToast();
+
+  const handleConfirmClick = () => {
+    if (submitDisabled) {
+      if (isResolvingLocation || isLoading) {
+        showToast("در حال دریافت اطلاعات موقعیت، لطفاً چند لحظه صبر کنید...", undefined, "info");
+      } else if (!getNeighborhoodId(selectedNeighborhood)) {
+        showToast("لطفاً محله ملک را از لیست جستجو یا روی نقشه انتخاب کنید.", undefined, "error");
+      }
+      return;
+    }
+    onConfirm();
+  };
+
   return (
     <section
       className={
@@ -141,12 +157,13 @@ export function LocationSearchDrawer({
         unstyled
         className={`${
           isSearchExpanded && !isCrmSource ? "mt-auto" : "mt-4"
-        } bg-primary text-on-primary disabled:bg-surface-container-high disabled:text-outline h-12 w-full shrink-0 rounded-[10px] text-base leading-6 font-medium`}
-        disabled={submitDisabled}
-        onClick={onConfirm}
+        } ${
+          submitDisabled ? "bg-primary/70 text-on-primary" : "bg-primary text-on-primary"
+        } h-12 w-full shrink-0 rounded-[10px] text-base leading-6 font-medium transition-colors cursor-pointer`}
+        onClick={handleConfirmClick}
         type="button"
       >
-        تایید موقعیت
+        {isResolvingLocation || isLoading ? "در حال دریافت موقعیت..." : "تایید موقعیت"}
       </Button>
     </section>
   );

@@ -39,7 +39,11 @@ function AccountProfileAvatarInner({
 
   return (
     <div className={`relative shrink-0 overflow-visible ${className}`}>
-      <div className="bg-surface-container text-outline grid h-full w-full place-items-center overflow-hidden rounded-full">
+      <div
+        className={`${
+          showAvatar ? "bg-surface-container" : "bg-surface"
+        } text-outline grid h-full w-full place-items-center overflow-hidden rounded-full`}
+      >
         {showAvatar ? (
           <img
             alt={label}

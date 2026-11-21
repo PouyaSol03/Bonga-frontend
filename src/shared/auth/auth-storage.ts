@@ -231,10 +231,10 @@ export function setStoredActiveRole(activeRole: AuthRoleSlug) {
 
   if (!session) return;
 
-  const roles =
-    activeRole === "user" && !session.roles.some((role) => role.slug === "user")
-      ? [{ id: "user", name: "کاربر", slug: "user" as const }, ...session.roles]
-      : session.roles;
+  const hasRole = session.roles.some((role) => role.slug === activeRole);
+  const roles = hasRole
+    ? session.roles
+    : [{ id: activeRole, name: activeRole, slug: activeRole }, ...session.roles];
 
   setStoredAuthSession({
     ...session,

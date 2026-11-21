@@ -1,9 +1,6 @@
 import { Link } from "react-router";
 import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
-import {
-  INDEPENDENT_CONSULTANT,
-  REAL_ESTATE_CONSULTANT,
-} from "../../../shared/constants/roles.constants";
+import { INDEPENDENT_CONSULTANT } from "../../../shared/constants/roles.constants";
 import { SwitchButton } from "../../../shared/components/SwitchButton";
 import { TopBar } from "../../../shared/components/TopBar";
 import { PageFrame } from "../../../shared/layout/PageFrame";
@@ -21,8 +18,7 @@ import { useAdFilterState } from "./filter/useAdFilterState";
 export function IndependentConsultantAdFilterPage() {
   const f = useAdFilterState();
   const activeRole = useActiveAuthRole();
-  const isConsultant =
-    activeRole === REAL_ESTATE_CONSULTANT || activeRole === INDEPENDENT_CONSULTANT;
+  const isIndependentConsultant = activeRole === INDEPENDENT_CONSULTANT;
 
   if (f.isPropertyTypePickerOpen && f.transaction) {
     return (
@@ -43,7 +39,8 @@ export function IndependentConsultantAdFilterPage() {
       <TopBar
         backState={{
           filters: f.initialFilters,
-          onlyMine: f.isAssignedTab || isConsultant ? false : f.previousOnlyMine,
+          onlyMine:
+            f.isAssignedTab || isIndependentConsultant ? false : f.previousOnlyMine,
           tab: f.tab,
         }}
         backTo={adManagementPaths.root}
@@ -52,7 +49,7 @@ export function IndependentConsultantAdFilterPage() {
       />
 
       <main className="bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-6 [-webkit-overflow-scrolling:touch]">
-        {!f.isAssignedTab && !isConsultant ? (
+        {!f.isAssignedTab && !isIndependentConsultant ? (
           <section
             className="bg-surface-container-lowest flex items-center justify-between p-4"
             aria-label="نمایش آگهی من"

@@ -2,10 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { getApiErrorMessage, isForbiddenApiError } from "../../../shared/api/api";
 import { useActiveAuthRole } from "../../../shared/auth/use-active-auth-role";
-import {
-  INDEPENDENT_CONSULTANT,
-  REAL_ESTATE_CONSULTANT,
-} from "../../../shared/constants/roles.constants";
+import { INDEPENDENT_CONSULTANT } from "../../../shared/constants/roles.constants";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { useToast } from "../../../shared/hooks/useToast";
 import { useDeleteAdvertisementMutation } from "../../advertisements/api/advertisement.hooks";
@@ -53,10 +50,9 @@ export function useBusinessAdManagement() {
     if (localTab !== null) setActiveTab(null);
   }
 
-  const isConsultant =
-    activeRole === REAL_ESTATE_CONSULTANT || activeRole === INDEPENDENT_CONSULTANT;
+  const isIndependentConsultant = activeRole === INDEPENDENT_CONSULTANT;
   const activeTab = localTab ?? (canAccessAssignments ? (routeState.tab ?? "active") : "active");
-  const showMineOnly = isConsultant ? false : (localMineOnly ?? routeState.onlyMine ?? false);
+  const showMineOnly = isIndependentConsultant ? false : (localMineOnly ?? routeState.onlyMine ?? false);
   const filters = localFilters ?? routeState.filters ?? emptyBusinessFilters;
 
   const [isSearching, setIsSearching] = useState(false);
@@ -200,7 +196,7 @@ export function useBusinessAdManagement() {
   return {
     activeAdvertisements, activeFiltersPresent, activeRole, activeTab,
     assignedAdvertisements, assignedTab, assignmentsQuery, canAccessAssignments,
-    deletingAdId, filters, handleConfirmDelete, handleOpenDelete, isConsultant, isDeleting,
+    deletingAdId, filters, handleConfirmDelete, handleOpenDelete, isIndependentConsultant, isDeleting,
     isSearching, loadMoreRef, preloadIndex, scopedFilters, searchQuery,
     setActiveTab, setDeletingAdId, setIsSearching, setSearchQuery, setShowMineOnly,
     showMineOnly, adsQuery,

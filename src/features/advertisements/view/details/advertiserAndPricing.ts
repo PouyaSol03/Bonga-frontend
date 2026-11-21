@@ -1,6 +1,9 @@
 import { getApiAssetUrl } from "../../../../shared/api/api";
 import { formatDetailPrice as formatPrice } from "../../../../shared/lib/MoneyHandler";
-import { toPersianNumber as toPersianDigits } from "../../../../shared/lib/numberUtils";
+import {
+  toEnglishDigits,
+  toPersianNumber as toPersianDigits,
+} from "../../../../shared/lib/numberUtils";
 import type { AdvertisementItem } from "../../api/advertisement.service";
 import type { ViewAdDailyHotelRoom, ViewAdDetails } from "../viewAdTypes";
 import { type AdvertiserPreview, toNumber, toText } from "./detailCore";
@@ -107,15 +110,126 @@ export function resolvePricePresentation(
   };
 }
 
-export function getMapPosition(ad: AdvertisementItem) {
-  const lat = toNumber(ad.lat);
-  const lng = toNumber(ad.lng);
+function parseCoordinate(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
 
-  if (lat === undefined || lng === undefined) {
+  if (typeof value === "string" && value.trim()) {
+    const cleaned = toEnglishDigits(value.trim())
+      .replace(/[٫/]/g, ".")
+      .replace(/[^\d.-]/g, "");
+    if (!cleaned || cleaned === "-" || cleaned === "." || cleaned === "-.") return undefined;
+    const parsed = Number(cleaned);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
+function isValidCoordinatePair(latitude: number, longitude: number): boolean {
+  if (latitude === 0 && longitude === 0) return false;
+  return Math.abs(latitude) <= 90 && Math.abs(longitude) <= 180;
+}
+
+function isLikelyIranLatitude(value: number): boolean {
+  return value >= 24 && value <= 41;
+}
+
+function isLikelyIranLongitude(value: number): boolean {
+  return value >= 43 && value <= 65;
+}
+
+function normalizeCoordinates(
+  first: unknown,
+  second: unknown,
+): { latitude: number; longitude: number } | null {
+  const num1 = parseCoordinate(first);
+  const num2 = parseCoordinate(second);
+
+  if (num1 === undefined || num2 === undefined) return null;
+
+  if (isLikelyIranLongitude(num1) && isLikelyIranLatitude(num2)) {
+    return { latitude: num2, longitude: num1 };
+  }
+
+  if (isLikelyIranLatitude(num1) && isLikelyIranLongitude(num2)) {
+    return { latitude: num1, longitude: num2 };
+  }
+
+  if (Math.abs(num1) > 90 && Math.abs(num1) <= 180 && Math.abs(num2) <= 90) {
+    return { latitude: num2, longitude: num1 };
+  }
+
+  if (isValidCoordinatePair(num1, num2)) {
+    return { latitude: num1, longitude: num2 };
+  }
+
+  if (isValidCoordinatePair(num2, num1)) {
+    return { latitude: num2, longitude: num1 };
+  }
+
+  return null;
+}
+
+function extractFromContainer(
+  container: unknown,
+): { latitude: number; longitude: number } | null {
+  if (!container || typeof container !== "object" || Array.isArray(container)) {
     return null;
   }
 
-  return { latitude: lat, longitude: lng };
+  const record = container as Record<string, unknown>;
+
+  if (Array.isArray(record.coordinates) && record.coordinates.length >= 2) {
+    const pair =
+      normalizeCoordinates(record.coordinates[1], record.coordinates[0]) ??
+      normalizeCoordinates(record.coordinates[0], record.coordinates[1]);
+    if (pair) return pair;
+  }
+
+  const lat = record.lat ?? record.latitude;
+  const lng = record.lng ?? record.long ?? record.longitude;
+
+  return normalizeCoordinates(lat, lng);
+}
+
+export function getMapPosition(ad: AdvertisementItem): { latitude: number; longitude: number } | null {
+  if (!ad || typeof ad !== "object") return null;
+
+  const direct = extractFromContainer(ad);
+  if (direct) return direct;
+
+  const nestedContainers = [
+    ad.location,
+    ad.point,
+    ad.geo,
+    ad.coordinate,
+    ad.map,
+    ad.address,
+  ];
+
+  for (const container of nestedContainers) {
+    const resolved = extractFromContainer(container);
+    if (resolved) return resolved;
+  }
+
+  const publisherContainers = [
+    ad.agency,
+    ad.agent,
+    ad.consultant,
+  ];
+
+  for (const publisher of publisherContainers) {
+    if (publisher && typeof publisher === "object" && !Array.isArray(publisher)) {
+      const resolved =
+        extractFromContainer(publisher) ??
+        extractFromContainer((publisher as Record<string, unknown>).location);
+      if (resolved) return resolved;
+    }
+  }
+
+  return null;
 }
 
 function readMetric(value: unknown) {
@@ -139,7 +253,7 @@ export function getAdvertiserPreview(
   if (ownerType === "agency") {
     const agency =
       ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency) ? ad.agency : null;
-    const id = agency?.id ?? ad.publisher_agency_id;
+    const id = agency?.id ?? ad.publisher_agency_id ?? ad.agency_id;
 
     if (id === undefined || id === null) return null;
 
@@ -163,10 +277,19 @@ export function getAdvertiserPreview(
     };
   }
 
-  if (ownerType === "agent") {
+  const isConsultant =
+    ownerType === "agent" ||
+    ownerType === "consultant" ||
+    ownerType === "agency-consultant" ||
+    ownerType === "independent-consultant";
+
+  if (isConsultant) {
     const agent =
-      ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent) ? ad.agent : null;
-    const id = agent?.id ?? ad.publisher_agent_id;
+      (ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent) ? ad.agent : null) ??
+      (ad.consultant && typeof ad.consultant === "object" && !Array.isArray(ad.consultant)
+        ? ad.consultant
+        : null);
+    const id = agent?.id ?? ad.publisher_agent_id ?? ad.agent_id;
 
     if (id === undefined || id === null) return null;
 
@@ -177,7 +300,9 @@ export function getAdvertiserPreview(
 
     if (agencyName) params.set("agency", agencyName);
 
-    const isAgencyAgent = Boolean(agencyName || agent?.agency_id || ad.agency);
+    const isAgencyAgent = Boolean(
+      agencyName || agent?.agency_id || ad.agency || ownerType === "agency-consultant",
+    );
     const subtitle = isAgencyAgent ? "مشاور آژانس" : "مشاور مستقل";
     const rawAvatar =
       (typeof agent?.avatar === "string" && agent.avatar.trim()) ||

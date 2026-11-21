@@ -54,8 +54,14 @@ export function normalizeAdvertisementLoan(
 export function unwrapAdvertisementShowResponse(
   response: AdvertisementShowResponse,
 ): AdvertisementItem {
-  if (response?.data && typeof response.data === "object") {
-    return normalizeAdvertisementLoan(response.data);
+  const rawCandidate =
+    response?.data ??
+    (response as Record<string, unknown> | null)?.advertise ??
+    (response as Record<string, unknown> | null)?.result ??
+    ((response as Record<string, unknown> | null)?.id ? response : null);
+
+  if (rawCandidate && typeof rawCandidate === "object" && !Array.isArray(rawCandidate)) {
+    return normalizeAdvertisementLoan(rawCandidate as AdvertisementItem);
   }
 
   throw new ApiError(500, "ساختار اطلاعات آگهی از سرور قابل استفاده نیست.");

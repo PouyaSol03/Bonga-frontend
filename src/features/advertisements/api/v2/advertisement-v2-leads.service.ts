@@ -33,7 +33,27 @@ export const updateV2AdvertisementLeadStage = (
   id: string | number,
   leadId: string | number,
   stageKey: string,
+  idempotencyKey?: string,
+) => {
+  const headers: Record<string, string> = {};
+  if (idempotencyKey) {
+    headers["Idempotency-Key"] = idempotencyKey;
+  }
+  return apiV2
+    .patch(`advertise/${enc(id)}/leads/${enc(leadId)}/stage`, {
+      headers,
+      json: { stage_key: stageKey },
+    })
+    .json();
+};
+
+export const createV2AdvertisementLeadNote = (
+  id: string | number,
+  leadId: string | number,
+  content: string,
 ) =>
   apiV2
-    .patch(`advertise/${enc(id)}/leads/${enc(leadId)}/stage`, { json: { stage_key: stageKey } })
+    .post(`advertise/${enc(id)}/leads/${enc(leadId)}/notes`, {
+      json: { content: content.trim() },
+    })
     .json();

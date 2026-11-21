@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useActiveAuthRole } from "../../../../shared/auth/use-active-auth-role";
 import {
+  createV2AdvertisementLeadNote,
   getV2AdvertisementLeadActivities,
   getV2AdvertisementLeadDetail,
   getV2AdvertisementLeads,
@@ -81,7 +82,13 @@ async function getSingleLeadDetails(
   leadId?: string | number,
 ): Promise<ViewAdLeadDetail | null> {
   if (!adId || !leadId) return null;
-  return getV2AdvertisementLeadDetail(adId, leadId);
+  const res = await getV2AdvertisementLeadDetail(adId, leadId);
+  const resObj = (res && typeof res === "object" ? res : {}) as Record<string, unknown>;
+  const data = (resObj.data && typeof resObj.data === "object" ? resObj.data : {}) as Record<string, unknown>;
+  return {
+    ...data,
+    ...resObj,
+  } as unknown as ViewAdLeadDetail;
 }
 
 async function getLeadActivities(
@@ -90,7 +97,11 @@ async function getLeadActivities(
 ): Promise<ViewAdLeadActivity[]> {
   if (!adId || !leadId) return [];
   const res = await getV2AdvertisementLeadActivities(adId, leadId);
-  return Array.isArray(res) ? res : (res?.activities ?? []);
+  if (Array.isArray(res)) return res;
+  const resObj = (res && typeof res === "object" ? res : {}) as Record<string, unknown>;
+  if (Array.isArray(resObj.activities)) return resObj.activities as ViewAdLeadActivity[];
+  if (Array.isArray(resObj.data)) return resObj.data as ViewAdLeadActivity[];
+  return [];
 }
 
 export function useSingleLeadDetailsQuery(adId?: string | number, leadId?: string | number) {
@@ -127,9 +138,11 @@ export function useUpdateLeadStageMutation(adId?: string | number, leadId?: stri
   const qc = useQueryClient();
   const activeRole = useActiveAuthRole();
   return useMutation({
-    mutationFn: (stageKey: string) => {
+    mutationFn: (params: string | { stageKey: string; idempotencyKey?: string }) => {
       if (!adId || !leadId) throw new Error("Missing ad or lead id");
-      return updateV2AdvertisementLeadStage(adId, leadId, stageKey);
+      const stageKey = typeof params === "string" ? params : params.stageKey;
+      const idempotencyKey = typeof params === "string" ? undefined : params.idempotencyKey;
+      return updateV2AdvertisementLeadStage(adId, leadId, stageKey, idempotencyKey);
     },
     onSuccess: () => {
       void qc.invalidateQueries({
@@ -139,6 +152,25 @@ export function useUpdateLeadStageMutation(adId?: string | number, leadId?: stri
         queryKey: ["lead-activities", String(adId), String(leadId), activeRole],
       });
       void qc.invalidateQueries({ queryKey: ["ad-leads", String(adId), activeRole] });
+    },
+  });
+}
+
+export function useCreateLeadNoteMutation(adId?: string | number, leadId?: string | number) {
+  const qc = useQueryClient();
+  const activeRole = useActiveAuthRole();
+  return useMutation({
+    mutationFn: (content: string) => {
+      if (!adId || !leadId) throw new Error("Missing ad or lead id");
+      return createV2AdvertisementLeadNote(adId, leadId, content);
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({
+        queryKey: ["single-lead-details", String(adId), String(leadId), activeRole],
+      });
+      void qc.invalidateQueries({
+        queryKey: ["lead-activities", String(adId), String(leadId), activeRole],
+      });
     },
   });
 }

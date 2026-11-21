@@ -83,6 +83,12 @@ function registrationOptions(body?: FormData | Record<string, unknown>, isDraft 
   if (context === "personal") {
     omittedKeys.add("consultant_id");
     omittedKeys.add("assigned_consultant_id");
+    omittedKeys.add("owner_contact_name");
+    omittedKeys.add("owner_contact_phone");
+    omittedKeys.add("owner_contact_address");
+    omittedKeys.add("owner_name");
+    omittedKeys.add("owner_phone");
+    omittedKeys.add("owner_address");
   } else if (context === "agency" || context === "agency-consultant") {
     omittedKeys.add("agency_id");
     omittedKeys.add("assigned_consultant_id");

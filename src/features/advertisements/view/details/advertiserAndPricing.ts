@@ -130,15 +130,41 @@ function readMetric(value: unknown) {
   return undefined;
 }
 
+function readScoreMetric(value: unknown): string | undefined {
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return toPersianDigits(value);
+  }
+  if (typeof value === "string" && value.trim()) {
+    return toPersianDigits(value.trim());
+  }
+  return undefined;
+}
+
 export function getAdvertiserPreview(
   ad: AdvertisementItem,
   details: ViewAdDetails,
 ): AdvertiserPreview | null {
+  const rawAd = ad as unknown as Record<string, unknown>;
   const ownerType = String(ad.publisher_type ?? ad.owner_type ?? "").toLowerCase();
 
-  if (ownerType === "agency") {
-    const agency =
-      ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency) ? ad.agency : null;
+  const rawAgency =
+    (ad.agency && typeof ad.agency === "object" && !Array.isArray(ad.agency) ? ad.agency : null) ??
+    (rawAd.owner_profile && typeof rawAd.owner_profile === "object" && ownerType === "agency"
+      ? (rawAd.owner_profile as Record<string, unknown>)
+      : null);
+
+  const rawAgent =
+    (ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent) ? ad.agent : null) ??
+    (rawAd.consultant && typeof rawAd.consultant === "object"
+      ? (rawAd.consultant as Record<string, unknown>)
+      : null) ??
+    (rawAd.owner_profile && typeof rawAd.owner_profile === "object" && (ownerType === "agent" || ownerType === "consultant")
+      ? (rawAd.owner_profile as Record<string, unknown>)
+      : null);
+
+  if (ownerType === "agency" || (Boolean(rawAgency) && !rawAgent)) {
+    const agency = rawAgency as Record<string, unknown> | null;
     const id = agency?.id ?? ad.publisher_agency_id;
 
     if (id === undefined || id === null) return null;
@@ -146,6 +172,10 @@ export function getAdvertiserPreview(
     const name = toText(agency?.name, details.agency || "آژانس املاک");
     const location = toText(agency?.location, details.agencyLocation || details.locationTitle);
     const params = new URLSearchParams({ location, name });
+
+    const rawRank = agency?.rank;
+    const rawScore = agency?.rating_score ?? agency?.score;
+    const isRanked = agency?.ranked !== false && rawRank !== null && rawRank !== undefined;
 
     return {
       href: `/agencies/${encodeURIComponent(String(id))}?${params.toString()}`,
@@ -157,15 +187,15 @@ export function getAdvertiserPreview(
           ? getApiAssetUrl(agency.logo.trim())
           : undefined,
       name,
-      rank: readMetric(agency?.rank),
-      ratingScore: readMetric(agency?.rating_score),
+      rank: isRanked ? readMetric(rawRank) : undefined,
+      ratingScore: readScoreMetric(rawScore),
+      ranked: isRanked,
       subtitle: "آژانس",
     };
   }
 
-  if (ownerType === "agent") {
-    const agent =
-      ad.agent && typeof ad.agent === "object" && !Array.isArray(ad.agent) ? ad.agent : null;
+  if (ownerType === "agent" || ownerType === "consultant" || Boolean(rawAgent)) {
+    const agent = rawAgent as Record<string, unknown> | null;
     const id = agent?.id ?? ad.publisher_agent_id;
 
     if (id === undefined || id === null) return null;
@@ -185,6 +215,10 @@ export function getAdvertiserPreview(
       (typeof agent?.logo === "string" && agent.logo.trim()) ||
       "";
 
+    const rawRank = agent?.rank;
+    const rawScore = agent?.rating_score ?? agent?.score;
+    const isRanked = agent?.ranked !== false && rawRank !== null && rawRank !== undefined;
+
     return {
       href: `/agents/${encodeURIComponent(String(id))}?${params.toString()}`,
       id: String(id),
@@ -192,8 +226,9 @@ export function getAdvertiserPreview(
       location,
       logoUrl: rawAvatar ? getApiAssetUrl(rawAvatar) : undefined,
       name,
-      rank: readMetric(agent?.rank),
-      ratingScore: readMetric(agent?.rating_score),
+      rank: isRanked ? readMetric(rawRank) : undefined,
+      ratingScore: readScoreMetric(rawScore),
+      ranked: isRanked,
       subtitle,
     };
   }

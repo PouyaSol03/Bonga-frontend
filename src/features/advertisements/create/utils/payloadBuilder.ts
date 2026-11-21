@@ -1,5 +1,6 @@
 import { propertySpecs } from "../data";
 import { getFacilityItemsForListing, getHeatingItemsForListing } from "../constants/listingOptions";
+import { getActiveV2Role } from "../../../../shared/api/api";
 import type { NewAdFormValues } from "../types";
 import { labels, toNumber } from "./formatters";
 import {
@@ -55,7 +56,9 @@ export function buildPayload(values: NewAdFormValues) {
     isSaleGardenVilla,
   });
 
-  const omitContacts = shouldOmitOwnerContactsOnAssignment(values);
+  const isPersonal = getActiveV2Role() === "personal";
+  const omitContacts = shouldOmitOwnerContactsOnAssignment(values) || isPersonal;
+  const ownerPhone = values.ownerPhone || values.phoneNumber;
 
   return {
     transaction: params.transaction,
@@ -69,11 +72,8 @@ export function buildPayload(values: NewAdFormValues) {
     contact_type: [values.chatEnabled ? "chat" : null, values.phoneEnabled ? "phone" : null].filter(
       Boolean,
     ),
-    owner_phone: omitContacts ? null : values.phoneNumber || null,
-    owner_name: omitContacts ? null : values.ownerFullName || null,
-    owner_address: omitContacts ? null : values.ownerExactAddress || null,
     owner_contact_name: omitContacts ? null : values.ownerFullName || null,
-    owner_contact_phone: omitContacts ? null : values.ownerPhone || null,
+    owner_contact_phone: omitContacts ? null : ownerPhone || null,
     owner_contact_address: omitContacts ? null : values.ownerExactAddress || null,
     social: {
       telegram: values.telegram || null,

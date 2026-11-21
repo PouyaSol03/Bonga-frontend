@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Typography } from "../../../../shared/ui/Typography";
 import { Chip } from "../../../../shared/ui/Chip";
 import { TextField } from "../../../../shared/ui/TextField";
@@ -9,7 +9,11 @@ import { JalaliDatePickerSheet } from "../../../advertisements/create/steps/proj
 import { toPersianNumber as toPersianDigits } from "../../../../shared/lib/numberUtils";
 import LinearCalendar from "../../../../shared/icons/LinearCalendar";
 
-const STATUS_OPTIONS = ["بازدید", "پیگیری", "انصراف"] as const;
+export const STAGE_OPTIONS = [
+  { key: "visit", label: "بازدید" },
+  { key: "followup", label: "پیگیری" },
+  { key: "cancel", label: "انصراف" },
+] as const;
 
 const TIME_OPTIONS = [
   "09:00",
@@ -28,25 +32,47 @@ const TIME_OPTIONS = [
 ];
 
 interface ViewAdLeadStatusSectionProps {
-  initialStatus?: string;
-  onVisitConfirmed?: (date: string, time: string) => void;
+  currentStage?: string;
+  isMutating?: boolean;
+  onStageChange?: (stageKey: string) => void;
+  onVisitConfirmed?: () => void;
+  serverDate?: string;
+  serverTime?: string;
+}
+
+function resolveStageKey(stage?: string): string {
+  if (!stage) return "visit";
+  const s = stage.trim().toLowerCase();
+  if (s === "visit" || s === "بازدید") return "visit";
+  if (s === "followup" || s === "پیگیری") return "followup";
+  if (s === "cancel" || s === "انصراف") return "cancel";
+  if (s === "closed" || s === "معامله شد") return "closed";
+  if (s === "new" || s === "جدید") return "new";
+  return s;
 }
 
 export function ViewAdLeadStatusSection({
-  initialStatus = "بازدید",
+  currentStage = "visit",
+  isMutating = false,
+  onStageChange,
   onVisitConfirmed,
+  serverDate = "",
+  serverTime = "",
 }: ViewAdLeadStatusSectionProps) {
-  const [selectedStatus, setSelectedStatus] = useState<string>(initialStatus);
-  const [visitDate, setVisitDate] = useState("۱۴۰۴/۱۲/۱۲");
-  const [visitTime, setVisitTime] = useState("18:00");
-  const [isVisited, setIsVisited] = useState(false);
+  const activeKey = resolveStageKey(currentStage);
+  const [visitDate, setVisitDate] = useState(serverDate);
+  const [visitTime, setVisitTime] = useState(serverTime);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [isTimeSheetOpen, setIsTimeSheetOpen] = useState(false);
 
-  const handleVisitedClick = () => {
-    if (isVisited) return;
-    setIsVisited(true);
-    onVisitConfirmed?.(visitDate, toPersianDigits(visitTime));
+  useEffect(() => {
+    if (serverDate) setVisitDate(serverDate);
+    if (serverTime) setVisitTime(serverTime);
+  }, [serverDate, serverTime]);
+
+  const handleChipClick = (stageKey: string) => {
+    if (isMutating || stageKey === activeKey) return;
+    onStageChange?.(stageKey);
   };
 
   return (
@@ -56,16 +82,17 @@ export function ViewAdLeadStatusSection({
       </Typography>
 
       <div className="flex items-center gap-2">
-        {STATUS_OPTIONS.map((status) => {
-          const isSelected = selectedStatus === status;
+        {STAGE_OPTIONS.map((item) => {
+          const isSelected = activeKey === item.key;
           return (
             <Chip
-              key={status}
+              key={item.key}
               selected={isSelected}
-              onClick={() => setSelectedStatus(status)}
-              className="flex-1 shrink justify-center py-2.5"
+              disabled={isMutating}
+              onClick={() => handleChipClick(item.key)}
+              className="flex-1 shrink justify-center py-2.5 disabled:opacity-50"
             >
-              {status}
+              {item.label}
             </Chip>
           );
         })}
@@ -81,13 +108,13 @@ export function ViewAdLeadStatusSection({
             weight="semibold"
             className="text-on-surface-var"
           >
-            تاریخ و ساعت بازدید
+            هماهنگی بازدید
           </Typography>
         </div>
 
         <div className="relative">
           <TextField
-            label="تاریخ بازدید *"
+            label="تاریخ بازدید"
             value={visitDate}
             onChange={(e) => setVisitDate(e.target.value)}
             onClear={() => setVisitDate("")}
@@ -105,7 +132,7 @@ export function ViewAdLeadStatusSection({
         </div>
 
         <SelectField
-          placeholder="ساعت بازدید *"
+          placeholder="ساعت بازدید"
           value={visitTime ? toPersianDigits(visitTime) : undefined}
           onClick={() => setIsTimeSheetOpen(true)}
         />
@@ -123,13 +150,14 @@ export function ViewAdLeadStatusSection({
 
           <Button
             type="button"
-            onClick={handleVisitedClick}
-            variant={isVisited ? "primary" : "secondary"}
+            disabled={isMutating}
+            onClick={() => onVisitConfirmed?.()}
+            variant={activeKey === "visit" ? "primary" : "secondary"}
             size="x-medium"
             radius="medium"
             className="shrink-0"
           >
-            {isVisited ? "بازدید شد ✓" : "بازدید شد"}
+            {isMutating ? "در حال ثبت..." : "بازدید شد"}
           </Button>
         </div>
       </div>

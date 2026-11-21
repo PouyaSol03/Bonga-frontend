@@ -9,12 +9,16 @@ export function AdvertiserMetrics({
   agencyStyle?: boolean;
   preview: AdvertiserPreview;
 }) {
-  if (!preview.ratingScore && !preview.rank) return null;
+  const hasScore = typeof preview.ratingScore === "string" && preview.ratingScore.length > 0;
+  const hasRank = Boolean(preview.rank) && preview.ranked !== false;
+  const isUnranked = preview.ranked === false && hasScore;
+
+  if (!hasScore && !hasRank && !isUnranked) return null;
 
   if (agencyStyle) {
     return (
       <div className="text-on-surface-var mx-auto mt-4 flex items-center justify-center gap-4 [direction:rtl]">
-        {preview.ratingScore ? (
+        {hasScore ? (
           <div className="flex items-center gap-1 [direction:rtl]">
             <ViewAdIcon className="text-on-surface-var h-4 w-4" name="star" />
             <Typography as="span" variant="body" size="small" weight="medium">
@@ -32,11 +36,11 @@ export function AdvertiserMetrics({
           </div>
         ) : null}
 
-        {preview.ratingScore && preview.rank ? (
+        {hasScore && (hasRank || isUnranked) ? (
           <div className="bg-outline-var h-5 w-px rounded-full" />
         ) : null}
 
-        {preview.rank ? (
+        {hasRank ? (
           <div className="flex items-center gap-1 [direction:rtl]">
             <ViewAdIcon className="text-on-surface-var h-4 w-4" name="ranking" />
             <Typography as="span" variant="body" size="small" weight="medium">
@@ -52,6 +56,19 @@ export function AdvertiserMetrics({
               {preview.rank}
             </Typography>
           </div>
+        ) : isUnranked ? (
+          <div className="flex items-center gap-1 [direction:rtl]">
+            <ViewAdIcon className="text-on-surface-var h-4 w-4" name="ranking" />
+            <Typography
+              as="span"
+              variant="body"
+              size="small"
+              weight="regular"
+              className="text-outline mr-1"
+            >
+              بدون رتبه
+            </Typography>
+          </div>
         ) : null}
       </div>
     );
@@ -59,7 +76,7 @@ export function AdvertiserMetrics({
 
   return (
     <div className="text-on-surface-var mx-auto mt-4 flex max-w-[220px] items-center justify-between text-xs leading-4 font-medium [direction:ltr]">
-      {preview.ratingScore ? (
+      {hasScore ? (
         <div className="flex items-center gap-1">
           <Typography
             as="span"
@@ -83,8 +100,10 @@ export function AdvertiserMetrics({
       ) : (
         <span />
       )}
-      {preview.ratingScore && preview.rank ? <div className="bg-outline-var h-4 w-px" /> : null}
-      {preview.rank ? (
+
+      {hasScore && (hasRank || isUnranked) ? <div className="bg-outline-var h-4 w-px" /> : null}
+
+      {hasRank ? (
         <div className="flex items-center gap-1">
           <Typography
             as="span"
@@ -97,6 +116,24 @@ export function AdvertiserMetrics({
           </Typography>
           <Typography as="span" variant="body" size="medium" weight="regular">
             رتبه
+          </Typography>
+          <img
+            alt=""
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0 object-contain"
+            src="/icons/ranking.svg"
+          />
+        </div>
+      ) : isUnranked ? (
+        <div className="flex items-center gap-1">
+          <Typography
+            as="span"
+            variant="body"
+            size="small"
+            weight="regular"
+            className="text-outline"
+          >
+            بدون رتبه
           </Typography>
           <img
             alt=""

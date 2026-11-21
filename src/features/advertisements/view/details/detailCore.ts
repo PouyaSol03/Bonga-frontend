@@ -13,6 +13,7 @@ export type AdvertiserPreview = {
   name: string;
   rank?: string;
   ratingScore?: string;
+  ranked?: boolean;
   subtitle: string;
 };
 

@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { PageFrame } from "../../../../shared/layout/PageFrame";
 import { TopBar } from "../../../../shared/components/TopBar";
-import { type ViewAdLeadItem, MOCK_VIEW_AD_LEADS } from "./ViewAdLeadCard";
+import { Typography } from "../../../../shared/ui/Typography";
+import { useToast } from "../../../../shared/hooks/useToast";
+import { getApiErrorMessage } from "../../../../shared/api/api";
+import type { ViewAdLeadItem } from "./ViewAdLeadCard";
 import { ViewAdLeadProfileCard } from "./ViewAdLeadProfileCard";
 import { ViewAdLeadStatusSection } from "./ViewAdLeadStatusSection";
 import { ViewAdLeadNotesSection } from "./ViewAdLeadNotesSection";
@@ -10,6 +13,7 @@ import {
   useSingleLeadDetailsQuery,
   useLeadActivitiesQuery,
   useUpdateLeadStageMutation,
+  useCreateLeadNoteMutation,
 } from "../api/singleLeadApi";
 
 interface ViewAdLeadDetailsPageProps {
@@ -17,19 +21,6 @@ interface ViewAdLeadDetailsPageProps {
   adId?: string;
   backTo?: string;
 }
-
-const DEFAULT_ACTIVITIES: ActivityLogItem[] = [
-  {
-    id: "act-1",
-    time: "دیروز ۱۲:۲۰",
-    description: "بازدید در ۱۲ اسفند ۱۴۰۴ و در ساعت ۱۸:۰۰ انجام شد.",
-  },
-  {
-    id: "act-2",
-    time: "دیروز ۱۲:۲۰",
-    description: "ساعت بازدید در ۱۲ اسفند ۱۴۰۴ و در ساعت ۱۸:۰۰ تنظیم شد.",
-  },
-];
 
 function readLeadIdFromUrl(): string | undefined {
   if (typeof window === "undefined") return undefined;
@@ -49,61 +40,153 @@ function readAdIdFromPathname(): string | undefined {
 }
 
 export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
+  const { showToast } = useToast();
   const routeState = readRouteState() as Record<string, unknown> | null;
   const leadIdQuery = readLeadIdFromUrl();
   const currentAdId = props?.adId ?? (routeState?.adId as string) ?? readAdIdFromPathname();
 
-  const fallbackLead: ViewAdLeadItem =
-    props?.lead ??
-    (routeState?.lead as ViewAdLeadItem) ??
-    (leadIdQuery
-      ? (MOCK_VIEW_AD_LEADS.find((l) => l.id === leadIdQuery) ?? MOCK_VIEW_AD_LEADS[0])
-      : MOCK_VIEW_AD_LEADS[0]);
+  const passedLead = props?.lead ?? (routeState?.lead as ViewAdLeadItem | undefined);
+  const activeLeadId = leadIdQuery ?? passedLead?.id;
 
-  const activeLeadId = leadIdQuery ?? fallbackLead.id;
-  const { data: leadDetails } = useSingleLeadDetailsQuery(currentAdId, activeLeadId);
-  const { data: liveActivities } = useLeadActivitiesQuery(currentAdId, activeLeadId);
+  const {
+    data: leadDetails,
+    isLoading: isLeadLoading,
+    isError: isLeadError,
+    error: leadError,
+  } = useSingleLeadDetailsQuery(currentAdId, activeLeadId);
+
+  const {
+    data: liveActivities,
+    isLoading: isActivitiesLoading,
+  } = useLeadActivitiesQuery(currentAdId, activeLeadId);
+
   const updateStageMutation = useUpdateLeadStageMutation(currentAdId, activeLeadId);
+  const createNoteMutation = useCreateLeadNoteMutation(currentAdId, activeLeadId);
 
-  const resolvedLead: ViewAdLeadItem = {
-    ...fallbackLead,
-    ...(leadDetails
-      ? {
-          id: String(leadDetails.id),
-          name: leadDetails.client?.name ?? fallbackLead.name,
-          phone: leadDetails.client?.phone ?? fallbackLead.phone,
-          status: leadDetails.stage?.title ? String(leadDetails.stage.title) : fallbackLead.status,
-          date: leadDetails.appointment?.date_jalali ?? fallbackLead.date,
-          time: leadDetails.appointment?.time ?? fallbackLead.time,
-        }
-      : {}),
-  };
+  const [note, setNote] = useState("");
 
   const defaultBackPath = currentAdId
     ? `/account/manage-ads/${encodeURIComponent(currentAdId)}/state-ad`
     : "/account/manage-ads";
   const backTo = props?.backTo ?? (routeState?.returnTo as string) ?? defaultBackPath;
 
-  const [note, setNote] = useState(leadDetails?.notes ?? "");
-  const [activities, setActivities] = useState<ActivityLogItem[]>(DEFAULT_ACTIVITIES);
+  if (!activeLeadId) {
+    return (
+      <PageFrame
+        className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
+        variant="flush"
+      >
+        <TopBar backTo={backTo} className="[&_a]:text-on-surface" title="جزئیات سرنخ" />
+        <main className="bg-surface-container grid min-h-0 flex-1 place-items-center p-6 text-center">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="text-outline">
+            شناسه سرنخ یافت نشد. لطفا از لیست سرنخ‌ها مجدداً وارد شوید.
+          </Typography>
+        </main>
+      </PageFrame>
+    );
+  }
 
-  const displayActivities: ActivityLogItem[] =
-    liveActivities && liveActivities.length > 0
-      ? liveActivities.map((act) => ({
-          id: act.id,
-          time: act.occurred_at,
-          description: act.title + (act.description ? `: ${act.description}` : ""),
-        }))
-      : activities;
+  if (isLeadLoading && !leadDetails && !passedLead) {
+    return (
+      <PageFrame
+        className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
+        variant="flush"
+      >
+        <TopBar backTo={backTo} className="[&_a]:text-on-surface" title="جزئیات سرنخ" />
+        <main className="bg-surface-container grid min-h-0 flex-1 place-items-center p-6 text-center">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="text-outline">
+            در حال دریافت اطلاعات سرنخ...
+          </Typography>
+        </main>
+      </PageFrame>
+    );
+  }
 
-  const handleVisitConfirmed = (date: string, time: string) => {
-    updateStageMutation.mutate("visited");
-    const newLog: ActivityLogItem = {
-      id: `act-${Date.now()}`,
-      time: "هم‌اکنون",
-      description: `بازدید در ${date} و در ساعت ${time} به عنوان انجام‌شده ثبت شد.`,
-    };
-    setActivities((prev) => [newLog, ...prev]);
+  if (isLeadError && !passedLead) {
+    return (
+      <PageFrame
+        className="bg-surface-container text-on-surface relative flex min-h-0 flex-col overflow-hidden [direction:rtl]"
+        variant="flush"
+      >
+        <TopBar backTo={backTo} className="[&_a]:text-on-surface" title="جزئیات سرنخ" />
+        <main className="bg-surface-container grid min-h-0 flex-1 place-items-center p-6 text-center">
+          <Typography as="p" variant="body" size="medium" weight="medium" className="text-error">
+            {getApiErrorMessage(leadError, "دریافت اطلاعات سرنخ با خطا مواجه شد.")}
+          </Typography>
+        </main>
+      </PageFrame>
+    );
+  }
+
+  const resolvedLead: ViewAdLeadItem = {
+    id: String(activeLeadId),
+    name: leadDetails?.client?.name ?? leadDetails?.name ?? passedLead?.name ?? "کاربر",
+    phone: leadDetails?.client?.phone ?? leadDetails?.phone ?? passedLead?.phone ?? "",
+    status:
+      leadDetails?.stage?.title ??
+      (typeof leadDetails?.status === "string" ? leadDetails.status : passedLead?.status ?? "بازدید"),
+    date: leadDetails?.appointment?.date_jalali ?? passedLead?.date ?? "",
+    time: leadDetails?.appointment?.time ?? passedLead?.time ?? "",
+    chatCount: passedLead?.chatCount ?? 0,
+    callCount: passedLead?.callCount ?? 0,
+    avatarUrl: leadDetails?.client?.avatar_url ?? leadDetails?.avatar_url ?? passedLead?.avatarUrl,
+  };
+
+  const displayActivities: ActivityLogItem[] = (liveActivities ?? []).map((act) => ({
+    id: String(act.id),
+    time: act.occurred_at || "",
+    description: act.title + (act.description ? `: ${act.description}` : ""),
+  }));
+
+  const handleStageChange = async (newStageKey: string) => {
+    try {
+      await updateStageMutation.mutateAsync(newStageKey);
+      showToast("وضعیت سرنخ با موفقیت تغییر کرد.", undefined, "success");
+    } catch (err) {
+      showToast(
+        getApiErrorMessage(err, "تغییر وضعیت سرنخ با خطا مواجه شد."),
+        undefined,
+        "error",
+      );
+    }
+  };
+
+  const handleVisitConfirmed = async () => {
+    try {
+      const idempotencyKey = `visit-${activeLeadId}-${Date.now()}`;
+      await updateStageMutation.mutateAsync({ stageKey: "visited", idempotencyKey });
+      showToast("بازدید با موفقیت ثبت شد.", undefined, "success");
+    } catch (err) {
+      showToast(
+        getApiErrorMessage(err, "ثبت بازدید با خطا مواجه شد."),
+        undefined,
+        "error",
+      );
+    }
+  };
+
+  const handleNoteSubmit = async () => {
+    if (!note.trim()) return;
+    try {
+      await createNoteMutation.mutateAsync(note);
+      setNote("");
+      showToast("یادداشت با موفقیت ذخیره شد.", undefined, "success");
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { status?: number } };
+      if (errorObj?.response?.status === 503) {
+        showToast(
+          "امکان ثبت یادداشت در حال حاضر در دسترس نیست.",
+          undefined,
+          "warning",
+        );
+      } else {
+        showToast(
+          getApiErrorMessage(err, "ثبت یادداشت با خطا مواجه شد."),
+          undefined,
+          "error",
+        );
+      }
+    }
   };
 
   return (
@@ -117,13 +200,25 @@ export function ViewAdLeadDetailsPage(props?: ViewAdLeadDetailsPageProps) {
         <ViewAdLeadProfileCard lead={resolvedLead} />
         <div className="bg-surface-container h-4" />
         <ViewAdLeadStatusSection
-          initialStatus={resolvedLead.status || "بازدید"}
+          currentStage={resolvedLead.status}
+          isMutating={updateStageMutation.isPending}
+          onStageChange={handleStageChange}
           onVisitConfirmed={handleVisitConfirmed}
+          serverDate={resolvedLead.date}
+          serverTime={resolvedLead.time}
         />
         <div className="bg-surface-container h-4" />
-        <ViewAdLeadNotesSection note={note} onChange={setNote} />
+        <ViewAdLeadNotesSection
+          note={note}
+          onChange={setNote}
+          onSubmit={handleNoteSubmit}
+          isSubmitting={createNoteMutation.isPending}
+        />
         <div className="bg-surface-container h-4" />
-        <ViewAdLeadActivitySection activities={displayActivities} />
+        <ViewAdLeadActivitySection
+          activities={displayActivities}
+          isLoading={isActivitiesLoading}
+        />
       </main>
     </PageFrame>
   );

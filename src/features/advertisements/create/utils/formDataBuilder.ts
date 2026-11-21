@@ -1,3 +1,4 @@
+import { getActiveV2Role } from "../../../../shared/api/api";
 import {
   locationKey,
   locationLatKey,
@@ -92,21 +93,14 @@ export function buildNewAdFormData(
     appendBaseValue("consultant_id", cleanValues.consultantId.trim());
   }
 
-  const omitContacts = shouldOmitOwnerContactsOnAssignment(cleanValues);
+  const isPersonal = getActiveV2Role() === "personal";
+  const omitContacts = shouldOmitOwnerContactsOnAssignment(cleanValues) || isPersonal;
   if (!options.isEdit && !omitContacts) {
-    if (cleanValues.phoneNumber) appendBaseValue("owner_phone", cleanValues.phoneNumber);
-    if (cleanValues.ownerFullName) appendBaseValue("owner_name", cleanValues.ownerFullName);
+    const ownerPhone = cleanValues.ownerPhone || cleanValues.phoneNumber;
+    if (ownerPhone) appendBaseValue("owner_contact_phone", ownerPhone);
+    if (cleanValues.ownerFullName) appendBaseValue("owner_contact_name", cleanValues.ownerFullName);
     if (cleanValues.ownerExactAddress)
-      appendBaseValue("owner_address", cleanValues.ownerExactAddress);
-  }
-  if (cleanValues.ownerPhone && !omitContacts) {
-    appendBaseValue("owner_contact_phone", cleanValues.ownerPhone);
-  }
-  if (cleanValues.ownerFullName && !omitContacts) {
-    appendBaseValue("owner_contact_name", cleanValues.ownerFullName);
-  }
-  if (cleanValues.ownerExactAddress && !omitContacts) {
-    appendBaseValue("owner_contact_address", cleanValues.ownerExactAddress);
+      appendBaseValue("owner_contact_address", cleanValues.ownerExactAddress);
   }
   appendBaseValue("telegram", cleanValues.telegram);
   appendBaseValue("whatsapp", cleanValues.whatsapp);

@@ -5,6 +5,7 @@ import { buildCategoryNeighborhoodLabel } from "../../src/features/advertisement
 import { mapAdToDetails } from "../../src/features/advertisements/view/details/mapAdToDetails";
 import { PreSaleViewContent } from "../../src/features/advertisements/view/PreSaleViewContent";
 import { MemoryRouter } from "react-router";
+import { getSaleTermsSupportingText } from "../../src/features/advertisements/create/steps/project/ProjectSaleTermsFields";
 
 describe("Bug fixes: Presale display, Owner Phone formatting, and Project Facilities", () => {
   it("does not format numeric input with commas when formatNumeric is not passed (e.g. owner phone)", () => {
@@ -77,5 +78,15 @@ describe("Bug fixes: Presale display, Owner Phone formatting, and Project Facili
 
     expect(markup).toContain("تجهیزات و امکانات");
     expect(markup).toContain("مشاهده 4 امکانات");
+  });
+
+  it("calculates sale terms supporting text correctly including zero percent", () => {
+    expect(getSaleTermsSupportingText("0")).toBe("۰ درصد اقساط، ۱۰۰ درصد نقد");
+    expect(getSaleTermsSupportingText("30")).toBe("۳۰ درصد اقساط، ۷۰ درصد نقد");
+    expect(getSaleTermsSupportingText("100")).toBe("۱۰۰ درصد اقساط، ۰ درصد نقد");
+    expect(getSaleTermsSupportingText("")).toBeUndefined();
+    expect(getSaleTermsSupportingText(undefined)).toBeUndefined();
+    expect(getSaleTermsSupportingText("101")).toBeUndefined();
+    expect(getSaleTermsSupportingText("-5")).toBeUndefined();
   });
 });

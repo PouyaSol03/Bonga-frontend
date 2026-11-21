@@ -9,12 +9,12 @@ type ProjectSaleTermsFieldsProps = {
   setField: <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => void;
 };
 
-function getSaleTermsSupportingText(value?: string): string | undefined {
+export function getSaleTermsSupportingText(value?: string): string | undefined {
   if (!value) return undefined;
   const cleaned = value.replace(/,/g, "").trim();
   if (!cleaned) return undefined;
   const num = Number(cleaned);
-  if (!Number.isFinite(num) || num <= 0 || num > 100) return undefined;
+  if (!Number.isFinite(num) || num < 0 || num > 100) return undefined;
   const installment = num;
   const cash = 100 - num;
   return `${toPersianDigits(installment)} درصد اقساط، ${toPersianDigits(cash)} درصد نقد`;

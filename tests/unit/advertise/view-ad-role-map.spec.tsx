@@ -21,6 +21,21 @@ describe("getMapPosition - Coordinate Resolution for Agency, Consultant & Other 
     });
   });
 
+  it("resolves Persian digits and Persian decimal separators (٫ and /)", () => {
+    expect(getMapPosition({ lat: "۳۵٫۷", lng: "۵۱٫۴" })).toEqual({
+      latitude: 35.7,
+      longitude: 51.4,
+    });
+    expect(getMapPosition({ lat: "۳۵.۷", lng: "۵۱.۴" })).toEqual({
+      latitude: 35.7,
+      longitude: 51.4,
+    });
+    expect(getMapPosition({ lat: "۳۵/۷", lng: "۵۱/۴" })).toEqual({
+      latitude: 35.7,
+      longitude: 51.4,
+    });
+  });
+
   it("resolves latitude and longitude / long property names", () => {
     expect(getMapPosition({ latitude: 35.6892, longitude: 51.389 })).toEqual({
       latitude: 35.6892,

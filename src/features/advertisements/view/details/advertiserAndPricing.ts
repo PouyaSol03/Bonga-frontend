@@ -116,7 +116,9 @@ function parseCoordinate(value: unknown): number | undefined {
   }
 
   if (typeof value === "string" && value.trim()) {
-    const cleaned = toEnglishDigits(value.trim()).replace(/[^\d.-]/g, "");
+    const cleaned = toEnglishDigits(value.trim())
+      .replace(/[٫/]/g, ".")
+      .replace(/[^\d.-]/g, "");
     if (!cleaned || cleaned === "-" || cleaned === "." || cleaned === "-.") return undefined;
     const parsed = Number(cleaned);
     return Number.isFinite(parsed) ? parsed : undefined;

@@ -74,10 +74,18 @@ export function AgencyOwnerContactBottomSheet({
     const trimmed = draftValue.trim();
     if (editingField === "phone" && trimmed) {
       const normalizedPhone = toEnglishDigits(trimmed).replace(/\s+/g, "");
-      if (!/^(09\d{9}|0\d{10})$/.test(normalizedPhone)) {
-        setErrorMessage("شماره وارد شده معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹ یا ۰۲۱۲۲۳۳۴۴۵۵)");
+      if (normalizedPhone.length !== 11 || !/^(09\d{9}|0\d{10})$/.test(normalizedPhone)) {
+        setErrorMessage("شماره تلفن مالک باید ۱۱ رقم باشد (مثال: ۰۹۱۲۳۴۵۶۷۸۹ یا ۰۲۱۲۲۳۳۴۴۵۵)");
         return;
       }
+    }
+    if (editingField === "name" && trimmed.length > 50) {
+      setErrorMessage("نام مالک حداکثر می‌تواند ۵۰ کاراکتر باشد.");
+      return;
+    }
+    if (editingField === "address" && trimmed.length > 300) {
+      setErrorMessage("نشانی دقیق آگهی حداکثر می‌تواند ۳۰۰ کاراکتر باشد.");
+      return;
     }
 
     const nextName = editingField === "name" ? trimmed : name;
@@ -161,7 +169,8 @@ export function AgencyOwnerContactBottomSheet({
               <input
                 autoFocus
                 className="border-outline-var bg-surface-container text-on-surface focus:border-primary w-full rounded-lg border px-3 py-2 text-sm outline-none"
-                onChange={(e) => setDraftValue(e.target.value)}
+                maxLength={50}
+                onChange={(e) => setDraftValue(e.target.value.slice(0, 50))}
                 placeholder="نام و نام خانوادگی مالک"
                 type="text"
                 value={draftValue}
@@ -241,7 +250,11 @@ export function AgencyOwnerContactBottomSheet({
               <input
                 autoFocus
                 className="border-outline-var bg-surface-container text-on-surface focus:border-primary w-full rounded-lg border px-3 py-2 text-sm outline-none [direction:ltr]"
-                onChange={(e) => setDraftValue(e.target.value)}
+                maxLength={11}
+                onChange={(e) => {
+                  const val = toEnglishDigits(e.target.value).replace(/\D/g, "").slice(0, 11);
+                  setDraftValue(val);
+                }}
                 placeholder="۰۹۱۲۳۴۵۶۷۸۹"
                 type="tel"
                 value={draftValue}
@@ -323,8 +336,9 @@ export function AgencyOwnerContactBottomSheet({
               </div>
               <textarea
                 autoFocus
-                className="border-outline-var bg-surface-container text-on-surface focus:border-primary w-full rounded-lg border px-3 py-2 text-sm outline-none"
-                onChange={(e) => setDraftValue(e.target.value)}
+                className="border-outline-var bg-surface-container text-on-surface focus:border-primary w-full rounded-lg border px-3 py-2 text-sm outline-none break-words"
+                maxLength={300}
+                onChange={(e) => setDraftValue(e.target.value.slice(0, 300))}
                 placeholder="نشانی دقیق ملک"
                 rows={2}
                 value={draftValue}
@@ -374,7 +388,7 @@ export function AgencyOwnerContactBottomSheet({
               {address.trim() ? (
                 <Typography
                   as="p"
-                  className="text-on-surface mt-2 text-right text-sm leading-6 font-medium"
+                  className="text-on-surface mt-2 text-right text-sm leading-6 font-medium break-words whitespace-pre-line"
                 >
                   {address.trim()}
                 </Typography>

@@ -33,6 +33,7 @@ import { Button } from "../../../../shared/ui/Button";
 import { Typography } from "../../../../shared/ui/Typography";
 import { ChoiceIndicator } from "../../../../shared/ui/Choice";
 import { JalaliDatePickerSheet } from "./project/JalaliDatePickerSheet";
+import { toEnglishDigits } from "../../../../shared/lib/numberUtils";
 import LinearCalendar from "../../../../shared/icons/LinearCalendar";
 
 export function MoreFeaturesStep({
@@ -160,12 +161,21 @@ export function MoreFeaturesStep({
               }
 
               if (field.control === "number") {
+                const isLandWidth = field.key === "landWidth";
+                const isStreetWidth = field.key === "streetWidth";
+                const maxDigits = isLandWidth ? 6 : isStreetWidth ? 3 : undefined;
+
                 return (
                   <InputBox
+                    formatNumeric={isLandWidth}
                     key={field.key}
                     leftText={field.leftText}
                     numeric
-                    onChange={(value) => setDraftField(field.key, value)}
+                    onChange={(value) => {
+                      const cleanDigits = toEnglishDigits(value).replace(/\D/g, "");
+                      if (maxDigits && cleanDigits.length > maxDigits) return;
+                      setDraftField(field.key, value);
+                    }}
                     placeholder={field.label}
                     value={getDraftString(field.key)}
                   />

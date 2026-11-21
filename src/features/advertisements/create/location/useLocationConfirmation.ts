@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { useToast } from "../../../../shared/hooks/useToast";
 import {
   locationKey,
   locationLatKey,
@@ -34,6 +35,7 @@ export function useLocationConfirmation({
   updateMapCenter,
 }: UseLocationConfirmationProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleBack = () => {
     const currentState =
@@ -63,7 +65,10 @@ export function useLocationConfirmation({
 
   const handleConfirmLocation = () => {
     const neighborhoodId = getNeighborhoodId(selectedNeighborhood);
-    if (!neighborhoodId) return;
+    if (!neighborhoodId) {
+      showToast("لطفاً محله ملک را از لیست جستجو یا روی نقشه مشخص کنید.", undefined, "error");
+      return;
+    }
 
     const confirmedLocation =
       selectedNeighborhood?.name?.trim() || query.trim() || "موقعیت انتخاب‌شده";

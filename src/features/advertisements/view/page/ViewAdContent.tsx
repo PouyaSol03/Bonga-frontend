@@ -38,7 +38,7 @@ export function ViewAdContent({
   return (<>
     <AdvertisementSummary details={details} hasTour3d={hasTour3d} mediaItems={mediaItems} onOpenAlbum={onOpenAlbum} tour3dUrl={tour3dUrl} />
     {details.formCode === "presale-special" ? (
-      <PreSaleViewContent adId={adId} details={details} />
+      <PreSaleViewContent adId={adId} details={details} mapPosition={mapPosition} />
     ) : (<>
       <PropertyOverview adId={adId} details={details} />
       <FacilitiesSection details={details} />

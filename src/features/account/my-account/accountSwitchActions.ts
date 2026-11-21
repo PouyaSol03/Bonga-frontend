@@ -149,7 +149,7 @@ export function getCreatedBusinessActions(
   authSession: AuthSession | null,
   profile?: UserProfile,
   agencyProfile?: MyAgencyProfile,
-  activeRole?: string | null,
+  _activeRole?: string | null,
 ) {
   if (!authSession) return userBusinessActions;
 
@@ -173,9 +173,21 @@ export function getCreatedBusinessActions(
     ];
   }
 
-  const actions = getAccountSwitchActions(authSession, activeRole ?? USER, profile, agencyProfile);
+  const hasBusiness =
+    Boolean(profile?.agency_id) ||
+    Boolean(agencyProfile?.id) ||
+    authSession.roles.some((r) => r.slug !== USER) ||
+    (Array.isArray(profile?.accounts) &&
+      profile.accounts.some(
+        (acc) =>
+          acc.context !== "personal" &&
+          acc.role_slug !== "user" &&
+          acc.type !== "user",
+      ));
 
-  if (actions.length > 0) return actions;
+  if (hasBusiness) {
+    return [];
+  }
 
   return userBusinessActions;
 }

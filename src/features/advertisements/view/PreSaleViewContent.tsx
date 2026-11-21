@@ -2,6 +2,7 @@ import { DetailSection, MoreLink, PropertyGrid } from "./viewAdComponents";
 import { Typography } from "../../../shared/ui/Typography";
 import type { ViewAdDetails, ViewAdProjectDetailVariant } from "./viewAdTypes";
 import { getCurrentViewAdBasePath } from "./viewAdDetails";
+import { DescriptionSection } from "./page/DescriptionSection";
 import { FacilitiesSection } from "./page/FacilitiesSection";
 
 
@@ -41,7 +42,15 @@ function ChipRow({ label, values }: { label: string; values: string[] }) {
   );
 }
 
-export function PreSaleViewContent({ adId, details }: { adId: string; details: ViewAdDetails }) {
+export function PreSaleViewContent({
+  adId,
+  details,
+  mapPosition,
+}: {
+  adId: string;
+  details: ViewAdDetails;
+  mapPosition?: { latitude: number; longitude: number } | null;
+}) {
   const info = details.propertyInfoPreview.filter((item) => !item.label.includes("رتبه"));
 
   return (
@@ -73,17 +82,7 @@ export function PreSaleViewContent({ adId, details }: { adId: string; details: V
 
       <FacilitiesSection details={details} />
 
-      <DetailSection icon="apartment" title="توضیحات">
-        <Typography
-          as="p"
-          variant="body"
-          size="medium"
-          weight="regular"
-          className="text-on-surface mt-6 text-right whitespace-pre-line"
-        >
-          {details.description}
-        </Typography>
-      </DetailSection>
+      <DescriptionSection details={details} mapPosition={mapPosition ?? null} />
     </>
   );
 }

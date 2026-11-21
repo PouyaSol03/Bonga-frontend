@@ -1,7 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { TopBarNavigationLayout } from "../../../../shared/layout/TopBarNavigationLayout";
 import { TopBar } from "../../../../shared/components/TopBar";
-import { Typography } from "../../../../shared/ui/Typography";
 import { ThemeToggleRow } from "../../../../shared/components/ThemeToggle";
 import { useMyAgencyProfileQuery, useMyProfileQuery } from "../../api/account.hooks";
 import {
@@ -15,14 +14,13 @@ import {
 } from "../../../../shared/constants/roles.constants";
 import { getBusinessAccountHeader } from "../accountHeaderHelpers";
 import { getBusinessAccountActions } from "../businessAccountActions";
-import { getAccountSwitchActions } from "../accountSwitchActions";
 import { useLogoutAccount } from "../useLogoutAccount";
-import { AccountProfileAvatar } from "./AccountProfileAvatar";
 import { AccountSection } from "./AccountSection";
 import { AccountNotificationButton } from "./AccountNotificationButton";
 import { AccountLogoutConfirmSheet } from "./AccountLogoutConfirmSheet";
 import { BusinessAccountSkeleton } from "./AccountSkeletons";
-import { Divider } from "./AccountMenuRow";
+import { AccountRoleSwitcher } from "./AccountRoleSwitcher";
+import { AccountHeaderCard } from "./AccountHeaderCard";
 
 export function IndependentConsultantAccountPage({
   authSession,
@@ -59,12 +57,6 @@ export function IndependentConsultantAccountPage({
   }, [agencyProfile]);
 
   const consultantActions = getBusinessAccountActions(activeRole, agencyProfile);
-  const accountSwitchActions = getAccountSwitchActions(
-    authSession,
-    activeRole,
-    profile,
-    agencyProfile,
-  );
   const businessHeader = getBusinessAccountHeader(activeRole, profile, agencyProfile);
   const isBusinessAccountLoading =
     Boolean(authSession) &&
@@ -93,42 +85,19 @@ export function IndependentConsultantAccountPage({
         <BusinessAccountSkeleton />
       ) : (
         <>
-          <section
-            className="bg-surface-container-lowest shrink-0"
-            aria-label={businessHeader.ariaLabel}
-          >
-            <div className="flex h-[128px] min-h-[128px] items-center gap-4 px-4 [direction:rtl]">
-              <AccountProfileAvatar
+          <section className="bg-surface-container-lowest shrink-0 px-4 pt-3 pb-3.5 [direction:rtl]" aria-label="وضعیت و نقش حساب">
+            <AccountRoleSwitcher
+              authSession={authSession}
+              profile={profile}
+              agencyProfile={agencyProfile}
+            />
+            <div className="mt-3">
+              <AccountHeaderCard
                 avatarUrl={businessHeader.imageSrc}
-                className="h-[72px] w-[72px]"
-                iconClassName="h-8 w-8 text-outline"
-                label={businessHeader.name}
+                name={businessHeader.name}
+                mobile={profile?.mobile ?? authSession?.mobile ?? ""}
               />
-              <div className="min-w-0 flex-1 text-right">
-                <Typography
-                  as="p"
-                  variant="body"
-                  size="medium"
-                  weight="medium"
-                  className="m-0 truncate text-sm leading-5 font-semibold"
-                  style={{ color: businessHeader.color }}
-                >
-                  {businessHeader.name}
-                </Typography>
-                <Typography
-                  as="p"
-                  variant="body"
-                  size="medium"
-                  weight="medium"
-                  className="text-outline m-0 mt-2 text-sm leading-5 font-medium"
-                >
-                  {businessHeader.subtitle}
-                </Typography>
-              </div>
             </div>
-
-            {accountSwitchActions.length > 0 ? <Divider /> : null}
-            <AccountSection actions={accountSwitchActions} spacedDividers />
           </section>
 
           <AccountSection actions={consultantActions} className="pt-0.5" spacedDividers />

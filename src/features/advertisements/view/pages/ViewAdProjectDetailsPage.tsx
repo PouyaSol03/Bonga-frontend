@@ -29,6 +29,13 @@ function toText(val: unknown, fallback = ""): string {
   return s || fallback;
 }
 
+export function formatCountWithSuffix(value: unknown, suffix: string, placeholder = "-"): string {
+  if (value === null || value === undefined) return placeholder;
+  const str = String(value).trim();
+  if (!str || str === placeholder) return placeholder;
+  return toPersianDigits(str.includes(suffix) ? str : `${str} ${suffix}`);
+}
+
 export function ViewAdProjectDetailsPage() {
   const navigate = useNavigate();
   const { adId, isPreview } = useViewAdRouteContext();
@@ -135,14 +142,14 @@ export function ViewAdProjectDetailsPage() {
         featureMap.projectTotalFloors ??
         featureMap.total_floors ??
         resolvedAd?.total_floors,
-    ) || "۱۴";
+    ) || "-";
   const totalUnits =
     toText(
       featureMap.project_total_units ??
         featureMap.projectTotalUnits ??
         featureMap.total_units ??
         resolvedAd?.total_units,
-    ) || "۲۵۶";
+    ) || "-";
 
   const rawPrepayment =
     featureMap.sale_terms_percent ??
@@ -260,7 +267,7 @@ export function ViewAdProjectDetailsPage() {
                   weight="semibold"
                   className="text-on-surface text-base font-semibold"
                 >
-                  {toPersianDigits(totalFloors)}
+                  {formatCountWithSuffix(totalFloors, "طبقه")}
                 </Typography>
               </div>
               <Typography
@@ -285,7 +292,7 @@ export function ViewAdProjectDetailsPage() {
                   weight="semibold"
                   className="text-on-surface text-base font-semibold"
                 >
-                  {toPersianDigits(totalUnits)}
+                  {formatCountWithSuffix(totalUnits, "واحد")}
                 </Typography>
               </div>
               <Typography

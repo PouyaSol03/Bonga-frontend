@@ -10,6 +10,7 @@ import {
   formatMeterDetailValue,
   toBooleanLike,
 } from "../../../src/features/advertisements/view/viewAdDetails";
+import { formatCountWithSuffix } from "../../../src/features/advertisements/view/pages/ViewAdProjectDetailsPage";
 
 test("preserves localized scalar formatting", () => {
   expect(toText([12, true, false])).toBe("۱۲، دارد، ندارد");
@@ -52,4 +53,25 @@ test("preserves loan and exchange display rules", () => {
   expect(createLoanRow({ loan: { amount: 1000000 } }, []).value).toBe("دارای وام");
   expect(createExchangeRow([{ label: "has_exchange", value: false }]).value).toBe("بدون معاوضه");
   expect(createExchangeRow([{ label: "exchange_with", value: ["خانه"] }]).value).toEqual(["خانه"]);
+});
+
+test("formatCountWithSuffix preserves missing-value placeholder and formats counts", () => {
+  expect(formatCountWithSuffix(null, "طبقه")).toBe("-");
+  expect(formatCountWithSuffix(undefined, "طبقه")).toBe("-");
+  expect(formatCountWithSuffix("-", "طبقه")).toBe("-");
+  expect(formatCountWithSuffix("", "طبقه")).toBe("-");
+  expect(formatCountWithSuffix("   ", "طبقه")).toBe("-");
+
+  expect(formatCountWithSuffix(14, "طبقه")).toBe("۱۴ طبقه");
+  expect(formatCountWithSuffix("14", "طبقه")).toBe("۱۴ طبقه");
+  expect(formatCountWithSuffix("14 طبقه", "طبقه")).toBe("۱۴ طبقه");
+  expect(formatCountWithSuffix("۱۴ طبقه", "طبقه")).toBe("۱۴ طبقه");
+
+  expect(formatCountWithSuffix(null, "واحد")).toBe("-");
+  expect(formatCountWithSuffix(undefined, "واحد")).toBe("-");
+  expect(formatCountWithSuffix("-", "واحد")).toBe("-");
+  expect(formatCountWithSuffix(256, "واحد")).toBe("۲۵۶ واحد");
+  expect(formatCountWithSuffix("256", "واحد")).toBe("۲۵۶ واحد");
+  expect(formatCountWithSuffix("256 واحد", "واحد")).toBe("۲۵۶ واحد");
+  expect(formatCountWithSuffix("۲۵۶ واحد", "واحد")).toBe("۲۵۶ واحد");
 });

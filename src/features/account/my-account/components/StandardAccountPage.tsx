@@ -1,9 +1,7 @@
 import type { ReactNode } from "react";
 import { TopBarNavigationLayout } from "../../../../shared/layout/TopBarNavigationLayout";
 import { TopBar } from "../../../../shared/components/TopBar";
-import { Typography } from "../../../../shared/ui/Typography";
 import { ThemeToggleRow } from "../../../../shared/components/ThemeToggle";
-import { formatMobileForDisplay } from "../../../auth/api/auth.service";
 import {
   isUserIdentityVerified,
 } from "../../api/account.service";
@@ -25,13 +23,13 @@ import {
 import { getAccountHeader } from "../accountHeaderHelpers";
 import { getCreatedBusinessActions } from "../accountSwitchActions";
 import { useLogoutAccount } from "../useLogoutAccount";
-import { AccountProfileAvatar } from "./AccountProfileAvatar";
 import { AccountSection } from "./AccountSection";
 import { AccountNotificationButton } from "./AccountNotificationButton";
 import { AccountLogoutConfirmSheet } from "./AccountLogoutConfirmSheet";
 import { LoggedOutAccountHeader } from "./LoggedOutAccountHeader";
 import { StandardAccountSkeleton } from "./AccountSkeletons";
-import { Divider } from "./AccountMenuRow";
+import { AccountRoleSwitcher } from "./AccountRoleSwitcher";
+import { AccountHeaderCard } from "./AccountHeaderCard";
 
 export function StandardAccountPage({
   authSession,
@@ -63,6 +61,9 @@ export function StandardAccountPage({
   const displayMobile = profile?.mobile ?? authSession?.mobile ?? "";
   const isAccountLoading =
     isLoggedIn && (isProfileLoading || (hasManagerRole && isAgencyProfileLoading));
+  const businessActions = isLoggedIn
+    ? getCreatedBusinessActions(authSession, profile, agencyProfile, activeRole)
+    : loggedOutBusinessActions;
   const primaryAccountActions = isUserIdentityVerified(profile)
     ? primaryActions.map((action) =>
         action.to === "/account/identity" ? { ...action, label: "مدیریت سیم‌کارت" } : action,
@@ -98,52 +99,32 @@ export function StandardAccountPage({
       ) : (
         <>
           {isLoggedIn ? (
-            <section className="bg-surface-container-lowest shrink-0" aria-label="وضعیت حساب">
-              <div className="flex h-[128px] min-h-[128px] items-center gap-4 px-4 [direction:rtl]">
-                <AccountProfileAvatar
+            <section className="bg-surface-container-lowest shrink-0 px-4 pt-3 pb-3.5 [direction:rtl]" aria-label="وضعیت و نقش حساب">
+              <AccountRoleSwitcher
+                authSession={authSession}
+                profile={profile}
+                agencyProfile={agencyProfile}
+              />
+              <div className="mt-3">
+                <AccountHeaderCard
                   avatarUrl={accountHeader.avatarUrl}
-                  className="h-[72px] w-[72px]"
-                  iconClassName="h-8 w-8 text-outline"
-                  label={accountHeader.label}
+                  name={accountHeader.label}
+                  mobile={displayMobile}
                 />
-
-                <div className="min-w-0 flex-1 text-right">
-                  <Typography
-                    as="p"
-                    variant="body"
-                    size="medium"
-                    weight="medium"
-                    className="m-0 truncate text-sm leading-5 font-semibold"
-                    style={{ color: accountHeader.color }}
-                  >
-                    {accountHeader.label}
-                  </Typography>
-                  <Typography
-                    as="p"
-                    variant="body"
-                    size="medium"
-                    weight="medium"
-                    className="text-outline m-0 mt-2 text-sm leading-5 font-medium [direction:ltr]"
-                  >
-                    {formatMobileForDisplay(displayMobile)}
-                  </Typography>
-                </div>
               </div>
-              <Divider />
             </section>
           ) : (
             <LoggedOutAccountHeader />
           )}
 
-          <AccountSection
-            actions={
-              isLoggedIn
-                ? getCreatedBusinessActions(authSession, profile, agencyProfile, activeRole)
-                : loggedOutBusinessActions
-            }
-          />
-
-          <div className="bg-surface-container h-4" />
+          {businessActions.length > 0 ? (
+            <>
+              <AccountSection actions={businessActions} />
+              <div className="bg-surface-container h-4" />
+            </>
+          ) : (
+            <div className="bg-surface-container h-4" />
+          )}
 
           <AccountSection actions={isLoggedIn ? primaryAccountActions : loggedOutPrimaryActions} />
 

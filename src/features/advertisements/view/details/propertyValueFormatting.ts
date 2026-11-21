@@ -118,5 +118,34 @@ export function normalizeDetailValue(label: string, value: unknown): DetailInfoV
     return text ? `${text} ماه` : "-";
   }
 
+  if (
+    [
+      "project_total_units",
+      "total_units",
+      "تعداد کل واحدها",
+      "تعداد کل واحد ها",
+      "تعداد واحدها",
+      "تعداد واحد ها",
+    ].includes(label)
+  ) {
+    const text = toText(value);
+    if (!text || text === "-") return "-";
+    return text.includes("واحد") ? text : `${text} واحد`;
+  }
+
+  if (
+    [
+      "project_total_floors",
+      "total_floors",
+      "تعداد کل طبقات",
+      "تعداد طبقات",
+      "کل طبقات",
+    ].includes(label)
+  ) {
+    const text = toText(value);
+    if (!text || text === "-") return "-";
+    return text.includes("طبقه") ? text : `${text} طبقه`;
+  }
+
   return toText(value, "-");
 }

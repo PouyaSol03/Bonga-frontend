@@ -44,6 +44,7 @@ export function BusinessAdManagementView() {
     filters,
     handleConfirmDelete,
     handleOpenDelete,
+    isConsultant,
     isDeleting,
     isSearching,
     loadMoreRef,
@@ -129,8 +130,8 @@ export function BusinessAdManagementView() {
         </section>
       ) : null}
 
-      <section aria-label="فیلترهای مدیریت آگهی" className={`bg-surface-container-lowest flex h-14 shrink-0 items-center px-4 [direction:ltr] ${assignedTab ? "justify-end" : "justify-between"}`}>
-        {!assignedTab ? (
+      <section aria-label="فیلترهای مدیریت آگهی" className={`bg-surface-container-lowest flex h-14 shrink-0 items-center px-4 [direction:ltr] ${assignedTab || isConsultant ? "justify-end" : "justify-between"}`}>
+        {!assignedTab && !isConsultant ? (
           <div className="flex items-center gap-2 [direction:rtl]">
             <Typography as="span" variant="body" size="medium" weight="regular" className="bg-outline-var h-6 w-px" aria-hidden="true" />
             <Typography as="span" variant="label" size="medium" weight="medium" className="text-on-surface-var text-sm leading-5 font-medium">
@@ -142,7 +143,7 @@ export function BusinessAdManagementView() {
 
         <Link
           className={`relative inline-flex items-center gap-1 rounded-lg border p-2 text-sm font-normal no-underline ${activeFiltersPresent ? "border-primary bg-primary-container text-primary" : "border-outline-var bg-surface-container-lowest text-on-surface-var"}`}
-          state={{ filters: scopedFilters, onlyMine: assignedTab ? false : showMineOnly, tab: activeTab }}
+          state={{ filters: scopedFilters, onlyMine: assignedTab || isConsultant ? false : showMineOnly, tab: activeTab }}
           to={adManagementPaths.filter}
         >
           <Typography as="span" variant="body" size="medium" weight="regular">{filterLabel}</Typography>

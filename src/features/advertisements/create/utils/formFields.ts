@@ -76,9 +76,11 @@ export function getMoreFeatureFields(): MoreFeatureField[] {
                   ? "date"
                   : field.input === "number"
                     ? "number"
-                    : field.input === "multiSelect"
-                      ? "multiSelect"
-                      : "select",
+                    : field.input === "text" || field.ui === "input"
+                      ? "input"
+                      : field.input === "multiSelect"
+                        ? "multiSelect"
+                        : "select",
         options: isMinStay ? (field.options ?? minStayDaysOptions) : field.options,
         leftText: isEvacuationGuarantee ? "تومان" : isMinStay ? undefined : field.leftText,
       };

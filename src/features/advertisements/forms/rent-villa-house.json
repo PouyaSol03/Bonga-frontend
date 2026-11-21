@@ -338,6 +338,18 @@
           ]
         },
         {
+          "key": "renovated",
+          "title": "بازسازی",
+          "input": "toggle",
+          "ui": "toggle"
+        },
+        {
+          "key": "furnished",
+          "title": "مبله با لوازم",
+          "input": "toggle",
+          "ui": "toggle"
+        },
+        {
           "key": "kitchenType",
           "title": "نوع آشپزخانه",
           "input": "select",
@@ -348,18 +360,6 @@
             "بسته",
             "نیمه اپن"
           ]
-        },
-        {
-          "key": "renovated",
-          "title": "بازسازی",
-          "input": "toggle",
-          "ui": "toggle"
-        },
-        {
-          "key": "furnished",
-          "title": "با لوازم و مبله",
-          "input": "toggle",
-          "ui": "toggle"
         },
         {
           "key": "facadeMaterial",

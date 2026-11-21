@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import LinearUserSolid from "../../../../shared/icons/LinearUserSolid";
 import { ViewAdIcon } from ".././ViewAdIcon";
 import { type AdvertiserPreview } from ".././viewAdDetails";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -10,26 +11,17 @@ export function AdvertiserCard({ preview }: { preview: AdvertiserPreview }) {
     return <AgencyAdvertiserCard preview={preview} />;
   }
 
-  const initial = preview.name.trim().charAt(0) || "م";
-
   return (
     <section className="border-surface-container bg-surface-container-lowest border-t-8 px-4 py-6 text-center">
       <Link
         className="active:bg-surface-container focus-visible:outline-primary/40 block rounded-2xl px-2 py-2 text-inherit no-underline transition focus-visible:outline-3 focus-visible:outline-offset-2"
         to={preview.href}
       >
-        <div className="border-outline-var bg-primary-container mx-auto grid h-16 w-16 place-items-center overflow-hidden rounded-full border">
+        <div className="border-outline-var bg-surface-container text-outline mx-auto grid h-16 w-16 place-items-center overflow-hidden rounded-full border">
           {preview.logoUrl ? (
-            <img alt={preview.name} className="h-full w-full object-cover" src={preview.logoUrl} />
+            <img alt={preview.name} className="h-full w-full object-cover rounded-full" src={preview.logoUrl} />
           ) : (
-            <Typography
-              as="span"
-              variant="headline"
-              size="small"
-              className="text-on-primary-container text-2xl leading-none font-bold"
-            >
-              {initial}
-            </Typography>
+            <LinearUserSolid className="h-8 w-8 text-outline" />
           )}
         </div>
         <Typography

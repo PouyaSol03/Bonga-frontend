@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import LinearBuilding3 from "../../../../shared/icons/LinearBuilding3";
 import { usePublicAgencyDetailQuery } from "../../../agencies/api/agency.hooks";
 import { ViewAdIcon } from ".././ViewAdIcon";
 import { toPersianNumber as toPersianDigits } from "../../../../shared/lib/numberUtils";
@@ -26,7 +27,6 @@ export function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }
       ? toPersianDigits(rawAgencyRank)
       : undefined);
   const ranked = rank !== undefined ? true : preview.ranked;
-  const initial = preview.name.trim().charAt(0) || "آ";
   const resolvedPreview: AdvertiserPreview = {
     ...preview,
     location,
@@ -41,14 +41,12 @@ export function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }
         className="active:bg-surface-container focus-visible:outline-inset focus-visible:outline-primary/40 block px-4 pt-4 pb-3 text-inherit no-underline transition focus-visible:outline-3"
         to={preview.href}
       >
-        <div className="bg-surface-container-lowest mx-auto grid h-20 w-20 place-items-center overflow-hidden rounded-lg">
+        <div className="bg-surface-container-lowest mx-auto grid h-20 w-20 place-items-center overflow-hidden rounded-full">
           {logoUrl ? (
-            <img alt={preview.name} className="h-full w-full object-contain" src={logoUrl} />
+            <img alt={preview.name} className="h-full w-full object-cover rounded-full" src={logoUrl} />
           ) : (
-            <div className="border-outline-var bg-surface-container-lowest grid h-full w-full place-items-center rounded-lg border">
-              <Typography as="span" variant="headline" size="small" className="text-warning">
-                {initial}
-              </Typography>
+            <div className="border-outline-var bg-surface-container text-outline grid h-full w-full place-items-center rounded-full border">
+              <LinearBuilding3 className="h-10 w-10 text-outline" />
             </div>
           )}
         </div>

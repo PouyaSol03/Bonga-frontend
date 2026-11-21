@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import LinearBuilding2 from "../../../../shared/icons/LinearBuilding2";
+import LinearBuilding3 from "../../../../shared/icons/LinearBuilding3";
 import LinearLocation from "../../../../shared/icons/LinearLocation";
+import LinearUserSolid from "../../../../shared/icons/LinearUserSolid";
 import { Typography } from "../../../../shared/ui/Typography";
 import { formatRankingLevelTitle } from "../../utils/rankingLevels";
 
@@ -26,12 +27,16 @@ export function AgencyHero({
       {agencyLogo ? (
         <img
           alt={agencyName}
-          className={`mx-auto h-19 w-19 ${isAgent ? "rounded-full object-cover" : "object-contain"}`}
+          className="mx-auto h-19 w-19 rounded-full object-cover"
           src={agencyLogo}
         />
       ) : (
         <div className="bg-surface-container text-outline mx-auto grid h-19 w-19 place-items-center rounded-full">
-          <LinearBuilding2 className="h-10 w-10" />
+          {isAgent ? (
+            <LinearUserSolid className="h-10 w-10 text-outline" />
+          ) : (
+            <LinearBuilding3 className="h-10 w-10 text-outline" />
+          )}
         </div>
       )}
       <Typography

@@ -175,7 +175,10 @@ export function getAdvertiserPreview(
 
     const rawRank = agency?.rank;
     const rawScore = agency?.rating_score ?? agency?.score;
-    const isRanked = agency?.ranked !== false && rawRank !== null && rawRank !== undefined;
+    const hasRankValue =
+      rawRank !== null && rawRank !== undefined && rawRank !== "" && Number(rawRank) !== 0;
+    const isRanked = hasRankValue && agency?.ranked !== false;
+    const isExplicitlyUnranked = agency?.ranked === false;
 
     return {
       href: `/agencies/${encodeURIComponent(String(id))}?${params.toString()}`,
@@ -189,7 +192,7 @@ export function getAdvertiserPreview(
       name,
       rank: isRanked ? readMetric(rawRank) : undefined,
       ratingScore: readScoreMetric(rawScore),
-      ranked: isRanked,
+      ranked: isExplicitlyUnranked ? false : isRanked ? true : undefined,
       subtitle: "آژانس",
     };
   }
@@ -217,7 +220,10 @@ export function getAdvertiserPreview(
 
     const rawRank = agent?.rank;
     const rawScore = agent?.rating_score ?? agent?.score;
-    const isRanked = agent?.ranked !== false && rawRank !== null && rawRank !== undefined;
+    const hasAgentRankValue =
+      rawRank !== null && rawRank !== undefined && rawRank !== "" && Number(rawRank) !== 0;
+    const isAgentRanked = hasAgentRankValue && agent?.ranked !== false;
+    const isAgentExplicitlyUnranked = agent?.ranked === false;
 
     return {
       href: `/agents/${encodeURIComponent(String(id))}?${params.toString()}`,
@@ -226,9 +232,9 @@ export function getAdvertiserPreview(
       location,
       logoUrl: rawAvatar ? getApiAssetUrl(rawAvatar) : undefined,
       name,
-      rank: isRanked ? readMetric(rawRank) : undefined,
+      rank: isAgentRanked ? readMetric(rawRank) : undefined,
       ratingScore: readScoreMetric(rawScore),
-      ranked: isRanked,
+      ranked: isAgentExplicitlyUnranked ? false : isAgentRanked ? true : undefined,
       subtitle,
     };
   }

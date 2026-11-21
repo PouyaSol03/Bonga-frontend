@@ -43,7 +43,7 @@ export function useAgencyPreviewStats({
       icon: <LinearStar className="h-4 w-4" />,
       label: "امتیاز",
       value: isPublicPreview
-        ? toPersianDigits(publicScore ?? null)
+        ? (publicScore !== undefined && publicScore !== null ? toPersianDigits(publicScore) : "—")
         : dashboard
           ? toPersianDigits(dashboard.ranking.current.totalScore)
           : toPersianDigits(getPreviewSearchParam("score") || null),
@@ -52,10 +52,10 @@ export function useAgencyPreviewStats({
       icon: <LinearRanking className="h-4 w-4" />,
       label: "رتبه",
       value: isPublicPreview
-        ? toPersianDigits(publicRank ?? null)
+        ? (publicRank !== undefined && publicRank !== null && publicRank > 0 ? toPersianDigits(publicRank) : "—")
         : dashboard
-          ? toPersianDigits(dashboard.ranking.rank)
-          : toPersianDigits(getPreviewSearchParam("rank") || null),
+          ? (dashboard.ranking.rank && dashboard.ranking.rank > 0 ? toPersianDigits(dashboard.ranking.rank) : "—")
+          : (getPreviewSearchParam("rank") ? toPersianDigits(getPreviewSearchParam("rank")) : "—"),
     },
     {
       icon: <LinearTag className="h-4 w-4" />,

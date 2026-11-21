@@ -10,8 +10,8 @@ export function AdvertiserMetrics({
   preview: AdvertiserPreview;
 }) {
   const hasScore = typeof preview.ratingScore === "string" && preview.ratingScore.length > 0;
-  const hasRank = Boolean(preview.rank) && preview.ranked !== false;
-  const isUnranked = preview.ranked === false && hasScore;
+  const hasRank = Boolean(preview.rank && preview.rank.trim() !== "" && preview.rank !== "—");
+  const isUnranked = !hasRank && preview.ranked === false && hasScore;
 
   if (!hasScore && !hasRank && !isUnranked) return null;
 

@@ -14,14 +14,25 @@ export function AgencyAdvertiserCard({ preview }: { preview: AdvertiserPreview }
   const agency = agencyQuery.data;
   const logoUrl = preview.logoUrl ?? agency?.logo;
   const location = preview.location || agency?.address || "";
-  const ratingScore = preview.ratingScore ?? (agency ? toPersianDigits(agency.score) : undefined);
-  const rank = preview.rank ?? (agency ? toPersianDigits(agency.rank) : undefined);
+  const ratingScore =
+    preview.ratingScore ??
+    (agency && agency.score !== undefined && agency.score !== null
+      ? toPersianDigits(agency.score)
+      : undefined);
+  const rawAgencyRank = agency?.rank;
+  const rank =
+    preview.rank ??
+    (rawAgencyRank !== undefined && rawAgencyRank !== null && rawAgencyRank > 0
+      ? toPersianDigits(rawAgencyRank)
+      : undefined);
+  const ranked = rank !== undefined ? true : preview.ranked;
   const initial = preview.name.trim().charAt(0) || "آ";
-  const resolvedPreview = {
+  const resolvedPreview: AdvertiserPreview = {
     ...preview,
     location,
     rank,
     ratingScore,
+    ranked,
   };
 
   return (

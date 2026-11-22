@@ -68,13 +68,23 @@ export function MediaStep({
     hasAdManagementPermission &&
     hasConsultantManagementPermission;
 
+  const searchParams =
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const isCrmSource = searchParams?.get("editSource") === "crm";
+  const crmTargetOwnerType =
+    values.targetOwnerType || (searchParams?.get("targetOwnerType") as "user" | "agency" | null);
+  const isCrmAgency =
+    isCrmSource && (crmTargetOwnerType === "agency" || Boolean(values.agencyId));
+
   const isProfessionalPublisher =
+    isCrmAgency ||
     publisherType === "agency" ||
     publisherType === "agent" ||
     activeRole === "real_estate_manager" ||
     activeRole === "independent_consultant" ||
     activeRole === "real_estate_consultant";
-  const isAgencyPublisher = publisherType === "agency" || activeRole === "real_estate_manager";
+  const isAgencyPublisher =
+    isCrmAgency || publisherType === "agency" || activeRole === "real_estate_manager";
   const { data: profile } = useMyProfileQuery();
   const { data: agencyProfile } = useMyAgencyProfileQuery({
     enabled:
@@ -85,7 +95,7 @@ export function MediaStep({
     page: 1,
     perPage: 100,
   });
-  const allowAssignmentChoice = activeRole === "user";
+  const allowAssignmentChoice = !isCrmSource && activeRole === "user";
   const storedMobile = session?.mobile?.trim() ?? "";
   const meShowMobile = profile?.mobile?.trim() || profile?.phone?.trim() || "";
   const profileMobile = profile?.mobile?.trim() || storedMobile;
@@ -103,7 +113,7 @@ export function MediaStep({
   const isIndependent = activeRole === "independent_consultant";
   const isAgencyConsultant =
     Boolean(values.consultantId) || activeRole === "real_estate_consultant";
-  const agencyPublisherIsConsultant = isIndependent || isAgencyConsultant;
+  const agencyPublisherIsConsultant = !isCrmAgency && (isIndependent || isAgencyConsultant);
 
   const isIndependentUser = activeRole === "independent_consultant";
   const isAgencyConsultantUser =
@@ -111,28 +121,40 @@ export function MediaStep({
     publisherType === "agent" ||
     publisherType === "consultant";
   const canChangePublisher =
-    (!isIndependentUser && !isAgencyConsultantUser && isAgencyPublisher) ||
-    isAgencyConsultantManager;
+    !isCrmSource &&
+    ((!isIndependentUser && !isAgencyConsultantUser && isAgencyPublisher) ||
+      isAgencyConsultantManager);
 
-  const agencyPublisherName = agencyPublisherIsConsultant
-    ? selectedConsultant?.name?.trim() ||
-      (profileFullName ? profileFullName : undefined) ||
-      values.publisherName?.trim() ||
-      "مشاور"
-    : agencyProfile?.name?.trim() || values.publisherName?.trim() || "آژانس";
+  const crmAgencyName =
+    values.publisherName?.trim() ||
+    searchParams?.get("agencyName")?.trim() ||
+    searchParams?.get("targetOwnerName")?.trim();
 
-  const agencyPublisherLogoUrl = getApiAssetUrl(
-    agencyPublisherIsConsultant
-      ? selectedConsultant?.avatar?.trim() || profile?.avatar?.trim() || ""
-      : agencyProfile?.logo?.trim() || agencyProfile?.img?.trim() || "",
-  );
+  const agencyPublisherName = isCrmAgency
+    ? crmAgencyName || "آژانس املاک"
+    : agencyPublisherIsConsultant
+      ? selectedConsultant?.name?.trim() ||
+        (profileFullName ? profileFullName : undefined) ||
+        values.publisherName?.trim() ||
+        "مشاور"
+      : agencyProfile?.name?.trim() || values.publisherName?.trim() || "آژانس";
 
-  const agencyPublisherSubtitle = isIndependent
-    ? "مشاور مستقل"
-    : isAgencyConsultant
-      ? "مشاور آژانس"
-      : "آژانس";
-  const isAgencyFlow = values.registrantType === "agency";
+  const agencyPublisherLogoUrl = isCrmAgency
+    ? ""
+    : getApiAssetUrl(
+        agencyPublisherIsConsultant
+          ? selectedConsultant?.avatar?.trim() || profile?.avatar?.trim() || ""
+          : agencyProfile?.logo?.trim() || agencyProfile?.img?.trim() || "",
+      );
+
+  const agencyPublisherSubtitle = isCrmAgency
+    ? "آژانس املاک"
+    : isIndependent
+      ? "مشاور مستقل"
+      : isAgencyConsultant
+        ? "مشاور آژانس"
+        : "آژانس";
+  const isAgencyFlow = !isCrmSource && values.registrantType === "agency";
 
   const setField = <T extends keyof NewAdFormValues>(key: T, value: NewAdFormValues[T]) => {
     setValue(key as never, value as never, { shouldDirty: true });
@@ -144,11 +166,18 @@ export function MediaStep({
   };
 
   useEffect(() => {
-    if (allowAssignmentChoice || values.registrantType === "personal") return;
+    if (
+      isCrmSource ||
+      isProfessionalPublisher ||
+      allowAssignmentChoice ||
+      values.registrantType === "personal"
+    ) {
+      return;
+    }
     setValue("registrantType", "personal", { shouldDirty: false });
     setValue("agencyId", "", { shouldDirty: false });
     setValue("publisherName", "", { shouldDirty: false });
-  }, [allowAssignmentChoice, setValue, values.registrantType]);
+  }, [allowAssignmentChoice, isCrmSource, isProfessionalPublisher, setValue, values.registrantType]);
 
   useEffect(() => {
     if (!isAgencyFlow) return;

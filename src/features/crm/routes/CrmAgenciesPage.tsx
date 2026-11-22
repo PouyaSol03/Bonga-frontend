@@ -11,6 +11,8 @@ import {
   updateCrmConsultant,
 } from "../api/crm.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
+import { CrmAgencyCreateModal } from "../layout/CrmAgencyCreateModal";
+import { CrmAdvertiseCreateModal } from "../layout/CrmAdvertiseCreateModal";
 import {
   AgencyAgentsModal,
   CrmIcon,
@@ -19,6 +21,7 @@ import {
   FilterField,
   Panel,
   PanelHeader,
+  PrimaryButton,
   SmallActionButton,
   TableCell,
   SearchTableEmptyRow,
@@ -57,6 +60,8 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const trusted = trustedFilter === "" ? undefined : trustedFilter === "true";
   const [agentsAgency, setAgentsAgency] = useState<CrmRecord | null>(null);
   const [agentEditor, setAgentEditor] = useState<EditorState | null>(null);
+  const [isCreateAgencyModalOpen, setIsCreateAgencyModalOpen] = useState(false);
+  const [createAdAgency, setCreateAdAgency] = useState<{ id: string; name: string } | null>(null);
 
   const query = useQuery({
     queryFn: () => listCrmAgencies({ name: filterName, trusted }),
@@ -158,7 +163,14 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
     <>
       <Panel>
         <PanelHeader
-          subtitle="در این بخش فقط می‌توانید درخواست آژانس را تایید یا رد کنید."
+          action={
+            <PrimaryButton
+              icon="plus"
+              label="آژانس جدید"
+              onClick={() => setIsCreateAgencyModalOpen(true)}
+            />
+          }
+          subtitle="در این بخش می‌توانید آژانس‌های املاک را مدیریت، تایید یا ثبت کنید."
           title="فهرست آژانس‌ها"
         />
 
@@ -327,11 +339,20 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <SmallActionButton
-                          icon={<CrmIcon name="users" size={16} />}
-                          label="مشاوران"
-                          onClick={() => setAgentsAgency(agency)}
-                        />
+                        <div className="flex items-center gap-2">
+                          <SmallActionButton
+                            icon={<CrmIcon name="plus" size={16} />}
+                            label="ثبت آگهی"
+                            onClick={() =>
+                              setCreateAdAgency({ id, name: readText(agency, ["name"]) })
+                            }
+                          />
+                          <SmallActionButton
+                            icon={<CrmIcon name="users" size={16} />}
+                            label="مشاوران"
+                            onClick={() => setAgentsAgency(agency)}
+                          />
+                        </div>
                       </TableCell>
                     </tr>
                   );
@@ -351,11 +372,21 @@ export function CrmAgenciesPage({ notify, refreshNonce }: CrmRoutePageProps) {
         onClose={() => setAgentsAgency(null)}
         onEdit={openAgencyAgentEditor}
       />
+      <CrmAgencyCreateModal
+        isOpen={isCreateAgencyModalOpen}
+        notify={notify}
+        onClose={() => setIsCreateAgencyModalOpen(false)}
+      />
       <EditorModal
         editor={agentEditor}
         isPending={agentSaveMutation.isPending}
         notify={notify}
         onClose={() => setAgentEditor(null)}
+      />
+      <CrmAdvertiseCreateModal
+        isOpen={Boolean(createAdAgency)}
+        onClose={() => setCreateAdAgency(null)}
+        initialAgency={createAdAgency}
       />
     </>
   );

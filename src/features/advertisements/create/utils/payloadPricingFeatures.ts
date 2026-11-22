@@ -3,7 +3,6 @@ import { toNumber } from "./formatters";
 import {
   addFeature,
   buildProjectDetailFeatures,
-  shouldSendConsultantAssignment,
   type NewAdFeature,
 } from "./featureBuilders";
 
@@ -25,93 +24,84 @@ export function appendPayloadPricingAndAssignmentFeatures(
     isSale: boolean;
     isSaleGardenVilla: boolean;
   },
+  options?: { dynamicFieldKeys?: Iterable<string> },
 ): void {
   const { isDailyRent, isLoanActive, isPartnership, isProject, isRent, isSale, isSaleGardenVilla } = flags;
+  const dynamicKeys = options?.dynamicFieldKeys ? new Set(options.dynamicFieldKeys) : null;
+  const addDynamicFeature = (key: string, value: unknown) => {
+    if (dynamicKeys && !dynamicKeys.has(key)) return;
+    addFeature(features, key, value);
+  };
 
   if (isDailyRent) {
-    addFeature(features, "min_price", toNumber(values.minPrice));
-    addFeature(features, "max_price", toNumber(values.maxPrice));
+    addDynamicFeature("min_price", toNumber(values.minPrice));
+    addDynamicFeature("max_price", toNumber(values.maxPrice));
     if (params.category === "daily-hotel-apartment") {
-      addFeature(features, "min_meter_price", toNumber(values.minPrice));
-      addFeature(features, "max_meter_price", toNumber(values.maxPrice));
+      addDynamicFeature("min_meter_price", toNumber(values.minPrice));
+      addDynamicFeature("max_meter_price", toNumber(values.maxPrice));
     } else {
-      addFeature(features, "normal_daily_price", toNumber(values.normalDailyPrice));
-      addFeature(features, "weekend_daily_price", toNumber(values.weekendDailyPrice));
-      addFeature(features, "special_daily_price", toNumber(values.specialDailyPrice));
-      addFeature(features, "extra_person_price", toNumber(values.extraPersonPrice));
+      addDynamicFeature("normal_daily_price", toNumber(values.normalDailyPrice));
+      addDynamicFeature("weekend_daily_price", toNumber(values.weekendDailyPrice));
+      addDynamicFeature("special_daily_price", toNumber(values.specialDailyPrice));
+      addDynamicFeature("extra_person_price", toNumber(values.extraPersonPrice));
     }
   } else if (isRent) {
-    addFeature(features, "mortgage_price", toNumber(values.mortgagePrice));
-    addFeature(features, "rent_price", toNumber(values.rentPrice));
-    addFeature(features, "rent_conversion_enabled", values.rentConversionEnabled);
-    addFeature(features, "rent_convertible", values.rentConversionEnabled);
+    addDynamicFeature("mortgage_price", toNumber(values.mortgagePrice));
+    addDynamicFeature("rent_price", toNumber(values.rentPrice));
+    addDynamicFeature("rent_conversion_enabled", values.rentConversionEnabled);
+    addDynamicFeature("rent_convertible", values.rentConversionEnabled);
     if (values.rentConversionEnabled) {
-      addFeature(
-        features,
+      addDynamicFeature(
         "rent_conversion_mortgage_price",
         toNumber(values.rentConversionMortgagePrice),
       );
-      addFeature(features, "rent_conversion_policy", "قابل تبدیل");
+      addDynamicFeature("rent_conversion_policy", "قابل تبدیل");
     } else {
-      addFeature(features, "rent_conversion_policy", "غیر قابل تبدیل");
+      addDynamicFeature("rent_conversion_policy", "غیر قابل تبدیل");
     }
   } else if (isProject) {
     if (!isPartnership) {
-      addFeature(features, "min_meter_price", toNumber(values.minPrice));
-      addFeature(features, "max_meter_price", toNumber(values.maxPrice));
+      addDynamicFeature("min_meter_price", toNumber(values.minPrice));
+      addDynamicFeature("max_meter_price", toNumber(values.maxPrice));
     }
   } else {
-    addFeature(features, "price", toNumber(values.price));
+    addDynamicFeature("price", toNumber(values.price));
   }
 
-  addFeature(
-    features,
+  addDynamicFeature(
     "loan_amount",
     isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanAmount) : null,
   );
-  addFeature(
-    features,
+  addDynamicFeature(
     "loan_installment",
     isSale && !isSaleGardenVilla && isLoanActive ? toNumber(values.loanInstallment) : null,
   );
   const exchangeAllowed = isSale || (isProject && !isPartnership);
-  addFeature(features, "has_exchange", exchangeAllowed && values.exchangeEnabled);
-  addFeature(
-    features,
+  addDynamicFeature("has_exchange", exchangeAllowed && values.exchangeEnabled);
+  addDynamicFeature(
     "exchange_with",
     exchangeAllowed && values.exchangeEnabled ? values.exchangeTargets : [],
   );
 
-  addFeature(features, "has_image", values.photos.length > 0);
-  addFeature(features, "has_video", values.hasVideo);
-  addFeature(features, "has_virtual_tour", values.hasVirtualTour);
-  addFeature(features, "publisher", values.registrantType === "agency" ? values.publisherName : "");
-  addFeature(features, "agency_id", values.registrantType === "agency" ? values.agencyId : "");
-  if (shouldSendConsultantAssignment(values)) {
-    addFeature(features, "consultant_id", values.consultantId ? values.consultantId : "");
-  }
-
   if (isProject && !isPartnership) {
-    addFeature(features, "project_total_floors", toNumber(values.projectTotalFloors));
-    addFeature(features, "project_total_units", toNumber(values.projectTotalUnits));
-    addFeature(features, "project_status", values.projectStatus);
-    addFeature(features, "delivery_date", values.projectDeliveryDate);
-    addFeature(features, "project_details", buildProjectDetailFeatures(values));
-    addFeature(features, "sale_terms_enabled", values.saleTermsEnabled);
-    addFeature(
-      features,
+    addDynamicFeature("project_total_floors", toNumber(values.projectTotalFloors));
+    addDynamicFeature("project_total_units", toNumber(values.projectTotalUnits));
+    addDynamicFeature("project_status", values.projectStatus);
+    addDynamicFeature("delivery_date", values.projectDeliveryDate);
+    addDynamicFeature("project_details", buildProjectDetailFeatures(values));
+    addDynamicFeature("sale_terms_enabled", values.saleTermsEnabled);
+    addDynamicFeature(
       "sale_terms_percent",
       values.saleTermsEnabled ? toNumber(values.saleTermsPercent) : null,
     );
-    addFeature(
-      features,
+    addDynamicFeature(
       "sale_terms_installment_months",
       values.saleTermsEnabled ? toNumber(values.saleTermsInstallmentMonths) : null,
     );
   }
 
   if (isPartnership) {
-    addFeature(features, "partnership_type", values.participationType);
-    addFeature(features, "builder_share", toNumber(values.builderSharePercent));
+    addDynamicFeature("partnership_type", values.participationType);
+    addDynamicFeature("builder_share", toNumber(values.builderSharePercent));
   }
 }

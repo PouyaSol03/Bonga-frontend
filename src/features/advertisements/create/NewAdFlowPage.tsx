@@ -44,7 +44,7 @@ export function NewAdFlowPage() {
   const { activeRole, canChangePublisher, isAssigned } = permissions;
 
   const currentFormCode = getAdvertiseFormCode(routeParams.transaction, routeParams.category);
-  const advertiseFormQuery = useAdvertiseFormDefinitionQuery(!isCrmSource ? currentFormCode : null);
+  const advertiseFormQuery = useAdvertiseFormDefinitionQuery(currentFormCode);
   const categoriesQuery = useQuery({
     enabled: isCrmSource || !isEditMode,
     queryFn: getCategoryList,
@@ -130,7 +130,7 @@ export function NewAdFlowPage() {
       variant="flush"
     >
       <FormProvider {...methods}>
-        <NewAdDesktopLayoutContext.Provider value={isCrmSource}>
+        <NewAdDesktopLayoutContext.Provider value={false}>
           <div className="contents">
             <NewAdFlowHeader
               goToDetails={actions.goToDetails}

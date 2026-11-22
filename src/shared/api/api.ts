@@ -17,6 +17,9 @@ function trimTrailingSlashes(value: string) {
 
 function normalizeApiBaseUrl(value: string) {
   const trimmed = trimTrailingSlashes(value);
+  if (import.meta.env?.MODE === "test") {
+    return trimmed;
+  }
   if (import.meta.env?.DEV && trimmed) {
     try {
       if (/^https?:\/\//i.test(trimmed)) {
@@ -521,20 +524,47 @@ export function getApiAssetUrl(path: string) {
     return "";
   }
 
-  if (normalizedPath.startsWith("http://") || normalizedPath.startsWith("https://")) {
+  if (
+    normalizedPath.startsWith("http://") ||
+    normalizedPath.startsWith("https://") ||
+    normalizedPath.startsWith("blob:")
+  ) {
     return normalizedPath;
   }
 
-  const viteApiUrl = import.meta.env?.VITE_API_URL;
-  const backendOrigin = viteApiUrl
-    ? String(viteApiUrl)
-        .replace(/\/api.*$/, "")
-        .replace(/\/+$/, "")
-    : "";
-
-  if (backendOrigin && normalizedPath.startsWith("/")) {
-    return `${backendOrigin}${normalizedPath}`;
+  let fullPath = normalizedPath;
+  if (
+    !fullPath.startsWith("/") &&
+    !fullPath.startsWith("public/") &&
+    !fullPath.startsWith("uploads/") &&
+    !fullPath.startsWith("assets/")
+  ) {
+    fullPath = `/public/uploads/image/advertiseImg/${fullPath}`;
+  } else if (!fullPath.startsWith("/")) {
+    fullPath = `/${fullPath}`;
   }
 
-  return normalizedPath;
+  const rawApiUrl =
+    import.meta.env?.VITE_API_URL ||
+    import.meta.env?.VITE_API_BASE_URL ||
+    import.meta.env?.VITE_API_BASE_URL_V2 ||
+    configuredApiBaseUrl ||
+    "";
+
+  let backendOrigin = "";
+  if (rawApiUrl && /^https?:\/\//i.test(rawApiUrl)) {
+    try {
+      backendOrigin = new URL(rawApiUrl).origin;
+    } catch {
+      backendOrigin = String(rawApiUrl)
+        .replace(/\/api.*$/, "")
+        .replace(/\/+$/, "");
+    }
+  }
+
+  if (backendOrigin) {
+    return `${backendOrigin}${fullPath}`;
+  }
+
+  return fullPath;
 }

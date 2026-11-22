@@ -144,21 +144,50 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
     const id = getCrmRecordId(user) || null;
 
     setEditor({
-      fields: [
-        { label: "نام", name: "name", value: user.name },
-        { label: "نام خانوادگی", name: "family", value: user.family },
-        { label: "کد ملی", name: "nationalnumber", value: user.nationalnumber },
-        { label: "شماره موبایل", name: "mobile", value: user.mobile },
-        { label: "ایمیل", name: "email", type: "email", value: user.email },
-        {
-          label: "نقش‌های کاربر",
-          name: "role_slugs",
-          options: userRoleOptions,
-          type: "checklist",
-          value: userRoleSlugs(user),
-        },
-      ],
+      fields: id
+        ? [
+            { label: "نام", name: "name", value: user.name },
+            { label: "نام خانوادگی", name: "family", value: user.family },
+            { label: "کد ملی", name: "nationalnumber", value: user.nationalnumber },
+            { label: "شماره موبایل", name: "mobile", value: user.mobile },
+            { label: "ایمیل", name: "email", type: "email", value: user.email },
+            {
+              label: "نقش‌های کاربر",
+              name: "role_slugs",
+              options: userRoleOptions,
+              type: "checklist",
+              value: userRoleSlugs(user),
+            },
+          ]
+        : [
+            { label: "نام", name: "name", value: "" },
+            { label: "نام خانوادگی", name: "family", value: "" },
+            { label: "شماره موبایل", name: "mobile", placeholder: "۰۹۱۲۳۴۵۶۷۸۹", value: "" },
+          ],
       onSubmit: async (values) => {
+        if (!id) {
+          const mobile = values.mobile?.trim() ?? "";
+          const name = values.name?.trim() ?? "";
+          const family = values.family?.trim() ?? "";
+
+          if (!name || !family) {
+            throw new Error("نام و نام خانوادگی الزامی است.");
+          }
+          if (!mobile) {
+            throw new Error("شماره موبایل الزامی است.");
+          }
+
+          await saveMutation.mutateAsync({
+            id: null,
+            payload: {
+              family,
+              mobile,
+              name,
+            },
+          });
+          return;
+        }
+
         const allowedRoleSlugs = new Set(userRoleOptions.map((option) => option.value));
         const selectedRoleSlugs = Array.from(
           new Set(

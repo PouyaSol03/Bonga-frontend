@@ -7,10 +7,12 @@ export function CrmTargetOwnerSelect({
   type,
   value,
   onChange,
+  onSelectName,
 }: {
   type: "user" | "agency";
   value: string;
   onChange: (id: string) => void;
+  onSelectName?: (name: string) => void;
 }) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -35,6 +37,29 @@ export function CrmTargetOwnerSelect({
     }, 0);
     return () => clearTimeout(timer);
   }, [value]);
+
+  const { data: initialRecord } = useQuery({
+    queryKey: ["crm", type, "initial", value],
+    queryFn: async () => {
+      if (!value) return null;
+      if (type === "agency") {
+        const agencies = await listCrmAgencies();
+        return agencies.find((item) => getCrmRecordId(item) === String(value)) ?? null;
+      }
+      return null;
+    },
+    enabled: Boolean(value) && !selectedLabel,
+  });
+
+  useEffect(() => {
+    if (initialRecord && !selectedLabel) {
+      const label =
+        type === "user"
+          ? `${initialRecord.name || "بدون نام"} - ${initialRecord.mobile || "بدون شماره"}`
+          : String(initialRecord.name || "بدون نام");
+      setSelectedLabel(label);
+    }
+  }, [initialRecord, selectedLabel, type]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["crm", type, "search", debouncedQuery],
@@ -91,6 +116,7 @@ export function CrmTargetOwnerSelect({
                   onMouseDown={(e) => {
                     e.preventDefault(); // Prevent blur
                     onChange(id);
+                    onSelectName?.(label);
                     setSelectedLabel(label);
                     setQuery("");
                     setIsFocused(false);

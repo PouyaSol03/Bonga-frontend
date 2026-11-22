@@ -1,5 +1,6 @@
 import { toPersianNumber } from "../../../../shared/lib/numberUtils";
 import { formatMobileForDisplay } from "../../../auth/api/auth.service";
+import { Typography } from "../../../../shared/ui/Typography";
 import { AccountProfileAvatar } from "./AccountProfileAvatar";
 
 interface AccountHeaderCardProps {
@@ -16,15 +17,15 @@ export function AccountHeaderCard({ avatarUrl, name, mobile }: AccountHeaderCard
   return (
     <div
       aria-label="مشخصات حساب کاربری"
-      className="relative overflow-hidden rounded-[24px] bg-[#F3F3F3] dark:bg-surface-container-high px-4 py-3.5 select-none"
+      className="relative flex h-[88px] min-h-[88px] items-center overflow-hidden rounded-[24px] bg-[#F3F3F3] dark:bg-surface-container-high px-4 select-none"
     >
       {/* RTL Content: First child is Avatar on the RIGHT, second is Text to the LEFT */}
-      <div className="relative z-10 flex items-center gap-3.5 [direction:rtl]">
+      <div className="relative z-10 flex w-full items-center gap-3.5 [direction:rtl]">
         {/* Avatar on the right */}
         <div className="relative shrink-0">
           <AccountProfileAvatar
             avatarUrl={avatarUrl}
-            className="h-[74px] w-[74px] rounded-full ring-[3.5px] ring-white shadow-xs overflow-hidden"
+            className="h-[72px] w-[72px] rounded-full ring-[3.5px] ring-white shadow-xs overflow-hidden"
             iconClassName="h-8 w-8 text-outline"
             label={name || "کاربر"}
           />
@@ -32,13 +33,25 @@ export function AccountHeaderCard({ avatarUrl, name, mobile }: AccountHeaderCard
 
         {/* Text next to avatar on the left */}
         <div className="min-w-0 flex-1 text-right">
-          <h2 className="m-0 truncate text-base sm:text-lg font-bold text-[#1F1F1F] dark:text-on-surface">
+          <Typography
+            as="h2"
+            variant="label"
+            size="large"
+            weight="semibold"
+            className="m-0 truncate text-[#1F1F1F] dark:text-on-surface"
+          >
             {name || "کاربر شناسا"}
-          </h2>
+          </Typography>
           {formattedMobile ? (
-            <p className="m-0 mt-1 text-xs sm:text-sm font-medium text-[#706563] dark:text-outline text-right [direction:ltr]">
+            <Typography
+              as="p"
+              variant="label"
+              size="medium"
+              weight="medium"
+              className="m-0 mt-1 text-[#706563] dark:text-outline text-right [direction:ltr]"
+            >
               {formattedMobile}
-            </p>
+            </Typography>
           ) : null}
         </div>
       </div>

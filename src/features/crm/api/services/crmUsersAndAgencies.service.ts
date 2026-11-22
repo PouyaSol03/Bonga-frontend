@@ -85,9 +85,33 @@ export async function listCrmUsers(filters: CrmUserFilters = {}) {
   );
 }
 
+export type CreateCrmUserPayload = {
+  mobile: string;
+  name: string;
+  family: string;
+};
+
+export function createCrmUser(payload: CreateCrmUserPayload) {
+  const body: Record<string, unknown> = {
+    mobile: payload.mobile.trim(),
+    name: payload.name.trim(),
+    family: payload.family.trim(),
+  };
+
+  return api.post("panel/user/create", { json: body }).json<unknown>();
+}
+
 export function saveCrmUser(id: string | null, payload: CrmRecord) {
+  if (!id) {
+    return createCrmUser({
+      family: String(payload.family ?? ""),
+      mobile: String(payload.mobile ?? ""),
+      name: String(payload.name ?? ""),
+    });
+  }
+
   return api
-    .post(id ? `panel/user/update/${id}` : "panel/user/create", {
+    .post(`panel/user/update/${id}`, {
       json: payload,
     })
     .json<unknown>();
@@ -139,3 +163,28 @@ export function setCrmAgencyTrusted(id: string, isTrusted: boolean) {
     })
     .json<unknown>();
 }
+
+export type CreateCrmAgencyPayload = {
+  owner_user_id: number;
+  name: string;
+  phone1: string;
+  address: string;
+  neighborhood_id: number;
+  lat: number;
+  lng: number;
+};
+
+export function createCrmAgency(payload: CreateCrmAgencyPayload) {
+  const body: Record<string, unknown> = {
+    owner_user_id: Number(payload.owner_user_id),
+    name: payload.name.trim(),
+    phone1: payload.phone1.trim(),
+    address: payload.address.trim(),
+    neighborhood_id: Number(payload.neighborhood_id),
+    lat: Number(payload.lat),
+    lng: Number(payload.lng),
+  };
+
+  return api.post("panel/agency/create", { json: body }).json<unknown>();
+}
+

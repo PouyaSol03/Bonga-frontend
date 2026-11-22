@@ -13,7 +13,10 @@ import { getParams } from "./routeAndDraftState";
 import { appendPayloadPropertyFeatures } from "./payloadPropertyFeatures";
 import { appendPayloadPricingAndAssignmentFeatures } from "./payloadPricingFeatures";
 
-export function buildPayload(values: NewAdFormValues) {
+export function buildPayload(
+  values: NewAdFormValues,
+  options: { dynamicFieldKeys?: Iterable<string> } = {},
+) {
   const params = getParams();
   const isProject = params.transaction === "project";
   const isPartnership = isProject && params.category === "project-partnership";
@@ -32,28 +35,52 @@ export function buildPayload(values: NewAdFormValues) {
   const extraSpecs = labels(propertySpecs, values.selectedSpecs);
 
   const formCode = getAdvertiseFormCode(params.transaction, params.category);
+  const dynamicKeys = options.dynamicFieldKeys ? new Set(options.dynamicFieldKeys) : null;
+  const addDynamicFeature = (key: string, value: unknown) => {
+    if (dynamicKeys && !dynamicKeys.has(key)) return;
+    addFeature(features, key, value);
+  };
+  const addDynamicAliasFeature = (keys: string[], value: unknown) => {
+    if (!dynamicKeys) {
+      addFeature(features, keys[0], value);
+      return;
+    }
+    const matched = keys.find((k) => dynamicKeys.has(k));
+    if (matched) {
+      addFeature(features, matched, value);
+    }
+  };
 
-  addFeature(features, "form_code", formCode);
-  addFeature(features, "location", values.location);
-  addFeature(features, "area", toNumber(values.meterage));
-  addFeature(features, "land_area", toNumber(values.landArea));
+  if (!dynamicKeys) {
+    addFeature(features, "form_code", formCode);
+    addFeature(features, "location", values.location);
+  }
 
-  appendPayloadPropertyFeatures(features, values, params, isSale, isRent);
+  addDynamicAliasFeature(["area", "meterage"], toNumber(values.meterage));
+  addDynamicFeature("land_area", toNumber(values.landArea));
 
-  addFeature(features, "extra_specs", extraSpecs);
-  addFeature(features, "heating_cooling", heatingCooling);
-  addFeature(features, "facilities", facilities);
+  appendPayloadPropertyFeatures(features, values, params, isSale, isRent, options);
+
+  addDynamicFeature("extra_specs", extraSpecs);
+  addDynamicFeature("heating_cooling", heatingCooling);
+  addDynamicFeature("facilities", facilities);
 
   const isLoanActive = Boolean(values.loanEnabled || values.loanAmount || values.loanInstallment);
-  appendPayloadPricingAndAssignmentFeatures(features, values, params, {
-    isDailyRent,
-    isLoanActive,
-    isPartnership,
-    isProject,
-    isRent,
-    isSale,
-    isSaleGardenVilla,
-  });
+  appendPayloadPricingAndAssignmentFeatures(
+    features,
+    values,
+    params,
+    {
+      isDailyRent,
+      isLoanActive,
+      isPartnership,
+      isProject,
+      isRent,
+      isSale,
+      isSaleGardenVilla,
+    },
+    options,
+  );
 
   const omitContacts = shouldOmitOwnerContactsOnAssignment(values);
 

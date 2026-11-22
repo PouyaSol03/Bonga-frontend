@@ -115,6 +115,12 @@ export const technicalFeatureKeys = new Set([
   "is_special",
   "has_image",
   "has_video",
+  "has_virtual_tour",
+  "agency_id",
+  "consultant_id",
+  "publisher",
+  "target_owner_id",
+  "target_owner_type",
 ]);
 
 export const priceFeatureKeys = new Set([

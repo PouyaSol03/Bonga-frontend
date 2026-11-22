@@ -124,6 +124,9 @@ export { AdvertiseFormCard } from "./layout/AdvertiseFormCard";
 
 export { EditorModal } from "./layout/EditorModal";
 
+export { CrmAgencyCreateModal } from "./layout/CrmAgencyCreateModal";
+export { CrmAdvertiseCreateModal } from "./layout/CrmAdvertiseCreateModal";
+
 export { ConfirmModal } from "./layout/ConfirmModal";
 
 export { parseMapPointValue } from "./layout/mapFormatters";

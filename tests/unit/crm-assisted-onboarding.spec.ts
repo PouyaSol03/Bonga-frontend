@@ -210,7 +210,7 @@ describe("CRM Assisted Onboarding APIs", () => {
           },
         ],
         targetOwnerType: "agency" as const,
-        targetOwnerId: 55,
+        targetOwnerId: "55",
       };
 
       const payload = await buildCrmAdvertisePayload(values);
@@ -239,16 +239,17 @@ describe("CRM Assisted Onboarding APIs", () => {
       };
 
       const payload = await buildCrmAdvertisePayload(values);
-      const buildPermitFeature = payload.features.find((f) => f.key === "build_permit");
+      const features = payload.features ?? [];
+      const buildPermitFeature = features.find((f) => f.key === "build_permit");
       expect(buildPermitFeature).toBeUndefined();
 
-      const hasVirtualTourFeature = payload.features.find((f) => f.key === "has_virtual_tour");
+      const hasVirtualTourFeature = features.find((f) => f.key === "has_virtual_tour");
       expect(hasVirtualTourFeature).toBeUndefined();
 
-      const hasImageFeature = payload.features.find((f) => f.key === "has_image");
+      const hasImageFeature = features.find((f) => f.key === "has_image");
       expect(hasImageFeature).toBeUndefined();
 
-      const agencyIdFeature = payload.features.find((f) => f.key === "agency_id");
+      const agencyIdFeature = features.find((f) => f.key === "agency_id");
       expect(agencyIdFeature).toBeUndefined();
     });
 
@@ -276,7 +277,7 @@ describe("CRM Assisted Onboarding APIs", () => {
       });
 
       expect(payload.virtual_tour_link).toBe("https://tour.example.com");
-      expect(payload.features.map((f) => f.key).sort()).toEqual(["floor", "meterage", "rooms"]);
+      expect((payload.features ?? []).map((f) => f.key).sort()).toEqual(["floor", "meterage", "rooms"]);
     });
   });
 

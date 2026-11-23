@@ -3,6 +3,7 @@ import { Button } from "../../../../shared/ui/Button";
 
 export function GalleryMediaButton({
   iconSrc,
+  isSelected,
   label,
   onClick,
 }: {
@@ -15,7 +16,9 @@ export function GalleryMediaButton({
     <Button
       unstyled
       aria-label={label}
-      className={`grid h-7 w-7 place-items-center rounded-md`}
+      className={`grid h-7 w-7 place-items-center rounded-md transition-colors ${
+        isSelected ? "bg-white/20 text-white" : "text-white/70 hover:text-white"
+      }`}
       onClick={(event) => {
         event.stopPropagation();
         onClick();

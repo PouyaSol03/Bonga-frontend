@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper";
 import { type AlbumMediaItem } from ".././viewAdDetails";
@@ -29,6 +29,16 @@ export function GalleryHero({
   const hasVideo = videoIndex >= 0;
   const imageCount = galleryItems.filter((item) => item.type === "image").length;
 
+  const currentMedia = galleryItems[activeIndex] ?? galleryItems[0];
+  const isImageActive = currentMedia?.type === "image";
+
+  const currentImageNumber = useMemo(() => {
+    if (!isImageActive) return 1;
+    return (
+      galleryItems.slice(0, activeIndex + 1).filter((item) => item.type === "image").length
+    );
+  }, [galleryItems, activeIndex, isImageActive]);
+
   const selectGalleryKind = (kind: GalleryMediaKind) => {
     if (kind === "album") {
       swiperRef.current?.slideTo(0);
@@ -56,6 +66,7 @@ export function GalleryHero({
           className="w-full"
           dir="rtl"
           onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+          onRealIndexChange={(swiper) => setActiveIndex(swiper.realIndex)}
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
           }}
@@ -99,20 +110,29 @@ export function GalleryHero({
           ))}
         </Swiper>
 
-        <div className="absolute top-2 right-2 z-2 inline-flex items-center gap-1 rounded-lg bg-black/60 px-1 text-sm leading-5 font-medium text-white">
+        <div className="absolute top-2 right-2 z-2 inline-flex items-center gap-1 rounded-lg bg-black/60 px-1.5 py-0.5 text-sm leading-5 font-medium text-white">
           <GalleryMediaButton
             iconSrc="/icons/iconAlbum.svg"
-            isSelected={galleryItems[activeIndex]?.type === "image"}
+            isSelected={isImageActive}
             label="album"
             onClick={() => selectGalleryKind("album")}
           />
-          <Typography as="span" variant="body" size="medium" weight="regular">
-            {new Intl.NumberFormat("fa-IR").format(imageCount)}
+          <Typography
+            as="span"
+            variant="body"
+            size="medium"
+            weight="regular"
+            dir="ltr"
+            className="tabular-nums px-0.5"
+          >
+            {imageCount > 1 && isImageActive
+              ? `${new Intl.NumberFormat("fa-IR").format(currentImageNumber)} / ${new Intl.NumberFormat("fa-IR").format(imageCount)}`
+              : new Intl.NumberFormat("fa-IR").format(imageCount)}
           </Typography>
           {hasVideo ? (
             <GalleryMediaButton
               iconSrc="/icons/iconVideo.svg"
-              isSelected={galleryItems[activeIndex]?.type === "video"}
+              isSelected={currentMedia?.type === "video"}
               label="video"
               onClick={() => selectGalleryKind("video")}
             />
@@ -127,24 +147,26 @@ export function GalleryHero({
           ) : null}
         </div>
 
-        <div className="absolute right-0 bottom-3 left-0 z-10 flex justify-center">
-          <div className="flex h-2 items-center gap-1.5">
-            {galleryItems.slice(0, 4).map((item, index) => (
-              <Button
-                unstyled
-                aria-label={`نمایش تصویر ${index + 1}`}
-                className={
-                  index === activeIndex
-                    ? "h-1.5 w-5 rounded-full bg-white"
-                    : "h-1.5 w-1.5 rounded-full bg-white/70"
-                }
-                key={`${item.src}-dot-${index}`}
-                onClick={() => swiperRef.current?.slideTo(index)}
-                type="button"
-              />
-            ))}
+        {galleryItems.length > 1 ? (
+          <div className="pointer-events-none absolute right-0 bottom-3 left-0 z-10 flex justify-center">
+            <div className="pointer-events-auto flex h-2 items-center gap-1.5">
+              {galleryItems.map((item, index) => (
+                <Button
+                  unstyled
+                  aria-label={`نمایش تصویر ${index + 1}`}
+                  className={
+                    index === activeIndex
+                      ? "h-1.5 w-5 rounded-full bg-white transition-all duration-200"
+                      : "h-1.5 w-1.5 rounded-full bg-white/70 transition-all duration-200"
+                  }
+                  key={`${item.src}-dot-${index}`}
+                  onClick={() => swiperRef.current?.slideTo(index)}
+                  type="button"
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
       {imagesNotBelongToAd ? (
         <div className="mt-2.5 flex items-center gap-1.5 px-1 [direction:rtl]">

@@ -85,19 +85,17 @@ export function IndependentConsultantAccountPage({
         <BusinessAccountSkeleton />
       ) : (
         <>
-          <section className="bg-surface-container-lowest shrink-0 px-4 pt-3 pb-3.5 [direction:rtl]" aria-label="وضعیت و نقش حساب">
+          <section className="bg-surface-container-lowest flex shrink-0 flex-col gap-3 px-4 pt-3 pb-3.5 [direction:rtl]" aria-label="وضعیت و نقش حساب">
             <AccountRoleSwitcher
               authSession={authSession}
               profile={profile}
               agencyProfile={agencyProfile}
             />
-            <div className="mt-3">
-              <AccountHeaderCard
-                avatarUrl={businessHeader.imageSrc}
-                name={businessHeader.name}
-                mobile={profile?.mobile ?? authSession?.mobile ?? ""}
-              />
-            </div>
+            <AccountHeaderCard
+              avatarUrl={businessHeader.imageSrc}
+              name={businessHeader.name}
+              mobile={profile?.mobile ?? authSession?.mobile ?? ""}
+            />
           </section>
 
           <AccountSection actions={consultantActions} className="pt-0.5" spacedDividers />

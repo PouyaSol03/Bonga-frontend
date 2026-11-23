@@ -121,6 +121,11 @@ export function AccountRoleSwitcher({
     });
   }
 
+  // If the user has only 1 role (or none), do not render the role switcher
+  if (chips.length <= 1) {
+    return null;
+  }
+
   const getChipClass = (isActive: boolean) =>
     `h-11 justify-center rounded-[14px] text-sm transition-all duration-150 select-none ${
       chips.length > 1 ? "flex-1" : "min-w-[120px] px-6"

@@ -37,11 +37,13 @@ const residentialSaleOptions: CategoryOption[] = [
   { id: "apartment", label: "آپارتمان" },
   { id: "land", label: "زمین، ملک کلنگی" },
   { id: "villa-house", label: "خانه، ویلا" },
+  { id: "garden-villa", label: "باغ و ویلا" },
 ];
 
 const residentialRentOptions: CategoryOption[] = [
   { id: "apartment", label: "آپارتمان" },
   { id: "villa-house", label: "خانه، ویلا" },
+  { id: "garden-villa", label: "باغ و ویلا" },
 ];
 
 const dailyRentOptions: CategoryOption[] = [
@@ -55,6 +57,7 @@ const saleCommercialOptions: CategoryOption[] = [
   { id: "office", label: "اداری" },
   { id: "commercial-unit", label: "تجاری" },
   { id: "factory-workshop", label: "صنعتی" },
+  { id: "warehouse", label: "انبار، سوله" },
   { id: "hotel-apartment", label: "هتل، اقامتگاه" },
 ];
 
@@ -62,6 +65,7 @@ const rentCommercialOptions: CategoryOption[] = [
   { id: "office", label: "اداری" },
   { id: "commercial-unit", label: "تجاری" },
   { id: "factory-workshop", label: "صنعتی" },
+  { id: "warehouse", label: "انبار، سوله" },
   { id: "hotel-apartment", label: "هتل، اقامتگاه" },
 ];
 
@@ -149,8 +153,13 @@ function getInitialRegistrantType(): RegistrantType {
 
 function PageHeader({ title }: { title: string }) {
   const navigate = useNavigate();
+  const isCrmSource = new URLSearchParams(window.location.search).get("editSource") === "crm";
   const handleBack = () => {
-    navigate("/home");
+    if (isCrmSource) {
+      navigate("/crm/advertises");
+    } else {
+      navigate("/home");
+    }
   };
 
   return <TopBar onBack={handleBack} title={title} />;
@@ -321,7 +330,6 @@ export function NewAdCategoryPage() {
   }, []);
 
   const registrantType = getInitialRegistrantType();
-  const isCrmSource = new URLSearchParams(window.location.search).get("editSource") === "crm";
   const [activeType, setActiveType] = useState<TransactionType>(getInitialType);
   const [selectedOptionsByType, setSelectedOptionsByType] = useState<
     Record<TransactionType, string | null>
@@ -352,27 +360,15 @@ export function NewAdCategoryPage() {
 
       <TransactionSegmentedControl
         activeType={activeType}
-        desktop={isCrmSource}
+        desktop={false}
         onChange={(type) => setActiveType(type)}
       />
 
-      <main
-        className={
-          isCrmSource
-            ? "bg-surface-container min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-6 py-5"
-            : "bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
-        }
-      >
-        <div
-          className={
-            isCrmSource
-              ? "mx-auto grid max-w-[1120px] grid-cols-[repeat(auto-fit,minmax(420px,1fr))] items-start gap-5"
-              : "contents"
-          }
-        >
+      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <div className="contents">
           {activeConfig.sections.map((section) => (
             <CategoryOptionSection
-              desktop={isCrmSource}
+              desktop={false}
               key={section.id}
               onSelect={(optionId) => {
                 setSelectedOptionsByType((current) => ({
@@ -388,7 +384,7 @@ export function NewAdCategoryPage() {
       </main>
 
       <NextActionBar
-        desktop={isCrmSource}
+        desktop={false}
         disabled={!hasSelection}
         onNext={() => {
           if (!selectedOption) return;
@@ -422,6 +418,36 @@ export function NewAdCategoryPage() {
           const publisherType = currentSearch.get("publisherType");
           if (publisherType) {
             params.set("publisherType", publisherType);
+          }
+
+          const targetOwnerType = currentSearch.get("targetOwnerType");
+          if (targetOwnerType) {
+            params.set("targetOwnerType", targetOwnerType);
+          }
+
+          const targetOwnerId = currentSearch.get("targetOwnerId");
+          if (targetOwnerId) {
+            params.set("targetOwnerId", targetOwnerId);
+          }
+
+          const targetOwnerName = currentSearch.get("targetOwnerName");
+          if (targetOwnerName) {
+            params.set("targetOwnerName", targetOwnerName);
+          }
+
+          const ownerFullName = currentSearch.get("ownerFullName");
+          if (ownerFullName) {
+            params.set("ownerFullName", ownerFullName);
+          }
+
+          const ownerPhone = currentSearch.get("ownerPhone");
+          if (ownerPhone) {
+            params.set("ownerPhone", ownerPhone);
+          }
+
+          const ownerExactAddress = currentSearch.get("ownerExactAddress");
+          if (ownerExactAddress) {
+            params.set("ownerExactAddress", ownerExactAddress);
           }
 
           if (new URLSearchParams(window.location.search).get("editSource") === "crm") {

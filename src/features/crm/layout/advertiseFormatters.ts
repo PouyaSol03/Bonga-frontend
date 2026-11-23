@@ -48,9 +48,19 @@ export function mapCrmAdvertiseToCard(advertise: CrmRecord, index: number): AdCa
   const mapped = mapAdvertisementToAdCard(advertise as AdvertisementItem, index);
   const rawPrice = formatMoney(advertise.price);
 
+  const agencyName =
+    (typeof advertise.agency === "string" ? advertise.agency.trim() : "") ||
+    readNestedText(advertise, ["agency", "real_estate_agency"], ["name", "title"]) ||
+    readText(
+      advertise,
+      ["agency_name", "publisher_agency_name", "target_owner_name", "publisher_name"],
+      "",
+    ) ||
+    mapped.agency;
+
   return {
     ...mapped,
-    agency: readText(advertise, ["agency_name", "publisher_name"], mapped.agency),
+    agency: agencyName,
     imageCount: mapped.imageCount || String(readArray(advertise, "images").length || 1),
     pricePrimary:
       mapped.pricePrimary && mapped.pricePrimary !== "-" ? mapped.pricePrimary : rawPrice,

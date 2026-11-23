@@ -174,19 +174,45 @@ export function getDefaultValues(
   const queryParams =
     typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const queryAgencyId = queryParams?.get("agencyId") || queryParams?.get("agency_id") || "";
-  const queryAgencyName = queryParams?.get("agencyName") || queryParams?.get("publisherName") || "";
+  const queryAgencyName =
+    queryParams?.get("agencyName") ||
+    queryParams?.get("publisherName") ||
+    queryParams?.get("targetOwnerName") ||
+    "";
+  const targetOwnerType = queryParams?.get("targetOwnerType") as "user" | "agency" | null;
+  const targetOwnerId = queryParams?.get("targetOwnerId") || "";
+  const ownerFullName = queryParams?.get("ownerFullName") || "";
+  const ownerPhone = queryParams?.get("ownerPhone") || "";
+  const ownerExactAddress = queryParams?.get("ownerExactAddress") || "";
 
   return {
     ...baseValues,
     registrantType: editDefaults
       ? baseValues.registrantType
-      : queryAgencyId
+      : targetOwnerType === "agency" || queryAgencyId
         ? "agency"
-        : selectedRegistrantType || baseValues.registrantType,
-    agencyId: editDefaults ? baseValues.agencyId : queryAgencyId || baseValues.agencyId,
+        : targetOwnerType === "user"
+          ? "personal"
+          : selectedRegistrantType || baseValues.registrantType,
+    agencyId: editDefaults
+      ? baseValues.agencyId
+      : (targetOwnerType === "agency" ? targetOwnerId : "") || queryAgencyId || baseValues.agencyId,
     publisherName: editDefaults
       ? baseValues.publisherName
       : queryAgencyName || baseValues.publisherName,
+    targetOwnerType: editDefaults
+      ? baseValues.targetOwnerType
+      : targetOwnerType || baseValues.targetOwnerType,
+    targetOwnerId: editDefaults
+      ? baseValues.targetOwnerId
+      : targetOwnerId || baseValues.targetOwnerId,
+    ownerFullName: editDefaults
+      ? baseValues.ownerFullName
+      : ownerFullName || baseValues.ownerFullName,
+    ownerPhone: editDefaults ? baseValues.ownerPhone : ownerPhone || baseValues.ownerPhone,
+    ownerExactAddress: editDefaults
+      ? baseValues.ownerExactAddress
+      : ownerExactAddress || baseValues.ownerExactAddress,
     hasVideo: false,
     photos: [],
     video: null,

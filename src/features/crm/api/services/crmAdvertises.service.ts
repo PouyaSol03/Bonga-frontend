@@ -27,7 +27,7 @@ export type CrmAdvertisePayload = {
   contact_type: string[];
   owner_phone: string;
   description: string;
-  owner_type: string;
+  owner_type?: string;
   virtual_tour_link: string;
   images: string[];
   target_owner_type?: "user" | "agency";
@@ -81,7 +81,12 @@ function buildCrmAdvertiseFormData(payload: CrmAdvertisePayload, files: File[]) 
     if (value === undefined || value === null) continue;
 
     if (key === "images") {
-      formData.append("existing_images", JSON.stringify(value));
+      const existingUrls = Array.isArray(value)
+        ? value.filter((v): v is string => typeof v === "string" && !v.startsWith("data:image/"))
+        : [];
+      existingUrls.forEach((url) => {
+        formData.append("existing_images", url);
+      });
       continue;
     }
 
@@ -110,6 +115,142 @@ export async function saveCrmAdvertise(
   return unwrapRecord(
     await api
       .post(id ? `panel/advertise/update/${id}` : "panel/advertise/create", { body: formData })
+      .json<unknown>(),
+    ["advertise", "data", "result"],
+  );
+}
+
+export async function uploadCrmAdvertiseImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await api
+      .post("me/img/upload/advertise", { body: formData })
+      .json<Record<string, unknown>>();
+
+    const data = (res.data || res.result || res) as Record<string, unknown>;
+    const path =
+      typeof data === "string"
+        ? data
+        : (data?.path || data?.url || data?.image || data?.file || res.path || res.url || res.image);
+    if (typeof path === "string" && path.trim()) return path.trim();
+  } catch {
+    try {
+      const res = await api
+        .post("me/img/upload/advertiseImg", { body: formData })
+        .json<Record<string, unknown>>();
+      const data = (res.data || res.result || res) as Record<string, unknown>;
+      const path =
+        typeof data === "string"
+          ? data
+          : (data?.path || data?.url || data?.image || data?.file || res.path || res.url || res.image);
+      if (typeof path === "string" && path.trim()) return path.trim();
+    } catch {
+      // ignore
+    }
+  }
+
+  return "";
+}
+
+export type CreateCrmAgencyAdvertisePayload = {
+  advertisement: Record<string, unknown>;
+};
+
+export async function createCrmAgencyAdvertise(
+  agencyId: string | number,
+  payload: CreateCrmAgencyAdvertisePayload,
+) {
+  const rawAd = (payload.advertisement || {}) as Record<string, unknown>;
+  const { owner_type, target_owner_type, target_owner_id, ...cleanAd } = rawAd;
+
+  const forbiddenFeatureKeys = new Set([
+    "agency_id",
+    "consultant_id",
+    "publisher",
+    "has_virtual_tour",
+    "has_image",
+    "has_video",
+    "location",
+    "form_code",
+    "owner_type",
+    "target_owner_type",
+    "target_owner_id",
+    "request_id",
+    "reason",
+  ]);
+
+  const features = Array.isArray(cleanAd.features)
+    ? (cleanAd.features as Array<{ key?: string; name?: string; label?: string }>).filter((f) => {
+        const k = f?.key || f?.name || f?.label;
+        return !k || !forbiddenFeatureKeys.has(k);
+      })
+    : cleanAd.features;
+
+  const body: Record<string, unknown> = {
+    advertisement: {
+      ...cleanAd,
+      ...(features !== undefined ? { features } : {}),
+    },
+  };
+
+  return unwrapRecord(
+    await api
+      .post(`panel/agency/${encodeURIComponent(agencyId)}/advertise/create`, {
+        json: body,
+      })
+      .json<unknown>(),
+    ["advertise", "data", "result"],
+  );
+}
+
+export type CreateCrmUserAdvertisePayload = {
+  advertisement: Record<string, unknown>;
+};
+
+export async function createCrmUserAdvertise(
+  userId: string | number,
+  payload: CreateCrmUserAdvertisePayload,
+) {
+  const rawAd = (payload.advertisement || {}) as Record<string, unknown>;
+  const { owner_type, target_owner_type, target_owner_id, ...cleanAd } = rawAd;
+
+  const forbiddenFeatureKeys = new Set([
+    "agency_id",
+    "consultant_id",
+    "publisher",
+    "has_virtual_tour",
+    "has_image",
+    "has_video",
+    "location",
+    "form_code",
+    "owner_type",
+    "target_owner_type",
+    "target_owner_id",
+    "request_id",
+    "reason",
+  ]);
+
+  const features = Array.isArray(cleanAd.features)
+    ? (cleanAd.features as Array<{ key?: string; name?: string; label?: string }>).filter((f) => {
+        const k = f?.key || f?.name || f?.label;
+        return !k || !forbiddenFeatureKeys.has(k);
+      })
+    : cleanAd.features;
+
+  const body: Record<string, unknown> = {
+    advertisement: {
+      ...cleanAd,
+      ...(features !== undefined ? { features } : {}),
+    },
+  };
+
+  return unwrapRecord(
+    await api
+      .post(`panel/personal/${encodeURIComponent(userId)}/advertise/create`, {
+        json: body,
+      })
       .json<unknown>(),
     ["advertise", "data", "result"],
   );

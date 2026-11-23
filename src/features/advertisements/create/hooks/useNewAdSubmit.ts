@@ -107,22 +107,6 @@ export function useNewAdSubmit({
           return;
         }
 
-        if (isCrmSource) {
-          submitCrmAdvertise({
-            crmEditRecord,
-            crmSaveMutation,
-            editAdId,
-            editAdState,
-            isEditMode,
-            navigate,
-            setFieldErrors,
-            setSubmitError,
-            submitLockRef,
-            values,
-          });
-          return;
-        }
-
         if (!advertiseFormQuery.data) {
           setSubmitError(
             advertiseFormQuery.isError
@@ -136,6 +120,23 @@ export function useNewAdSubmit({
                 ? "در حال دریافت ساختار فرم ویرایش آگهی هستیم. لطفا دوباره تلاش کنید."
                 : "در حال دریافت ساختار فرم ثبت آگهی هستیم. لطفا دوباره تلاش کنید.",
           );
+          return;
+        }
+
+        if (isCrmSource) {
+          submitCrmAdvertise({
+            crmEditRecord,
+            crmSaveMutation,
+            dynamicFieldKeys: advertiseFormQuery.data.fields.map((field) => field.key),
+            editAdId,
+            editAdState,
+            isEditMode,
+            navigate,
+            setFieldErrors,
+            setSubmitError,
+            submitLockRef,
+            values,
+          });
           return;
         }
 

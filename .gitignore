@@ -75,5 +75,6 @@ agents/
 # Design & UI assets
 docs-ui/
 docs-UI/
+.workbuddy-ai/
 
 

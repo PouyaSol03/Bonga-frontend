@@ -11,35 +11,32 @@ export function AdvertiseFeaturesSection({
   visibleFeatures: FeatureRecord[];
 }) {
   return (
-    <PublicStyleSection title="اطلاعات ملک">
+    <PublicStyleSection title="مشخصات و امکانات ملک">
       {visibleFeatures.length ? (
-        <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {visibleFeatures.map((feature, index) => {
             const key = getFeatureKey(feature);
             return (
-              <article className="flex min-w-0 items-start gap-3" key={`${key}-${index}`}>
-                <Typography
-                  as="span"
-                  variant="body"
-                  size="medium"
-                  weight="regular"
-                  className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center text-[#808080]"
-                >
+              <article
+                className="flex min-w-0 items-center gap-3.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa]/70 p-3.5 transition hover:border-[#0048c4]/30 hover:bg-white hover:shadow-xs"
+                key={`${key}-${index}`}
+              >
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef4ff] text-[#0048c4]">
                   {getFeatureIcon(key)}
-                </Typography>
-                <div className="min-w-0">
-                  <strong className="block text-base leading-6 font-medium break-words text-[#1a1a1a]">
-                    {formatDisplayValue(key, feature.value)}
-                  </strong>
+                </div>
+                <div className="min-w-0 flex-1">
                   <Typography
                     as="span"
                     variant="label"
                     size="small"
                     weight="medium"
-                    className="mt-0.5 block text-xs font-medium text-[#a6a6a6]"
+                    className="block text-xs font-medium text-[#808080]"
                   >
                     {getFeatureDisplayLabel(feature)}
                   </Typography>
+                  <strong className="mt-0.5 block truncate text-sm font-bold text-[#1a1a1a]">
+                    {formatDisplayValue(key, feature.value)}
+                  </strong>
                 </div>
               </article>
             );
@@ -51,9 +48,9 @@ export function AdvertiseFeaturesSection({
           variant="body"
           size="medium"
           weight="regular"
-          className="m-0 rounded-xl bg-[#f7f7f7] p-4 text-sm text-[#808080]"
+          className="m-0 rounded-xl bg-[#f7f7f7] p-4 text-center text-sm text-[#808080]"
         >
-          ویژگی دیگری برای این آگهی ثبت نشده است.
+          ویژگی خاصی برای این آگهی ثبت نشده است.
         </Typography>
       )}
     </PublicStyleSection>

@@ -5,12 +5,12 @@ import {
   countCrmAdvertisesByStatus,
   updateCrmAdvertiseStatus,
   getCrmRecordId,
+  listCrmAgencies,
   type AdvertiseStatus,
 } from "../api/crm.service";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { useNavigate } from "react-router";
 import {
-  getCrmAdvertiseCreatePath,
   getCrmAdvertiseEditPath,
   getCrmAdvertiseEditState,
 } from "../crmAdvertiseNavigation";
@@ -20,8 +20,10 @@ import LinearEdit2 from "../../../shared/icons/LinearEdit2";
 import LinearCheckmark from "../../../shared/icons/LinearCheckmark";
 import LinearCancel from "../../../shared/icons/LinearCancel";
 import LinearDelete from "../../../shared/icons/LinearDelete";
+import LinearApartment from "../../../shared/icons/LinearApartment";
 import {
   ConfirmModal,
+  CrmAdvertiseCreateModal,
   CrmIcon,
   CrmSelect,
   FilterField,
@@ -43,6 +45,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
   const [trackCode, setTrackCode] = useState("");
   const [status, setStatus] = useState("");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const filters = useMemo(() => ({ status, trackCode: trackCode.trim() }), [status, trackCode]);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -62,6 +65,26 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
     staleTime: 30_000,
   });
   const pendingCount = pendingAdsCountQuery.data ?? 0;
+
+  const agenciesQuery = useQuery({
+    queryFn: () => listCrmAgencies(),
+    queryKey: ["crm", "agencies", "lookup"],
+    staleTime: 60_000,
+  });
+
+  const agencyMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (agenciesQuery.data) {
+      for (const a of agenciesQuery.data) {
+        const id = getCrmRecordId(a) || String(a.id ?? "");
+        const name = readText(a, ["name", "title"]);
+        if (id && name) {
+          map.set(id, name);
+        }
+      }
+    }
+    return map;
+  }, [agenciesQuery.data]);
 
   useQueryErrorToast([query.error, pendingAdsCountQuery.error], notify);
 
@@ -187,7 +210,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
             <PrimaryButton
               icon="plus"
               label="ثبت آگهی جدید"
-              onClick={() => navigate(getCrmAdvertiseCreatePath())}
+              onClick={() => setIsCreateModalOpen(true)}
             />
           </div>
         </div>
@@ -253,6 +276,13 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
               query.data.map((ad, index) => {
                 const id = getCrmRecordId(ad);
                 const card = mapCrmAdvertiseToCard(ad, index);
+                const agencyId = readText(ad, ["agency_id", "publisher_agency_id", "target_owner_id"]);
+                const resolvedAgencyName =
+                  card.agency ||
+                  (agencyId ? agencyMap.get(agencyId) : "") ||
+                  (agencyId ? `آژانس کد ${agencyId}` : "") ||
+                  (ad.owner_type === "agency" || ad.publisher_type === "agency" ? "آژانس املاک" : "");
+
                 return (
                   <article
                     className="overflow-hidden rounded-xl border border-[#f0f0f0] bg-white p-3 transition hover:border-[#d9e2f2]"
@@ -260,7 +290,10 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   >
                     <div>
                       <AdCard
-                        ad={card}
+                        ad={{
+                          ...card,
+                          agency: resolvedAgencyName || card.agency,
+                        }}
                         showStatusBadge
                         state={{ ad, card, status: ad.status }}
                         to={`/crm/advertises/${encodeURIComponent(id)}`}
@@ -269,13 +302,26 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     </div>
 
                     <div className="mt-3 border-t border-[#f0f0f0] pt-3">
-                      <div className="mb-3 flex items-center px-1 text-xs text-[#808080]">
+                      <div className="mb-3 flex items-center justify-between px-1 text-xs text-[#808080]">
                         <Typography as="span" variant="body" size="medium" weight="regular">
                           کد پیگیری:{" "}
                           <strong className="font-semibold text-[#4d4d4d]">
                             {readText(ad, ["track_code"])}
                           </strong>
                         </Typography>
+                        {resolvedAgencyName ? (
+                          <span
+                            className="inline-flex max-w-[160px] items-center gap-1 rounded-md bg-[#eef4ff] px-2 py-0.5 font-medium text-[#0048c4]"
+                            title={resolvedAgencyName}
+                          >
+                            <LinearApartment className="h-3.5 w-3.5 shrink-0" />
+                            <span className="truncate">{resolvedAgencyName}</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-[#f5f5f5] px-2 py-0.5 text-[#666666]">
+                            شخصی
+                          </span>
+                        )}
                       </div>
                       <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                         <SmallActionButton
@@ -330,6 +376,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
       </section>
 
       <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />
+      <CrmAdvertiseCreateModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
     </>
   );
 }

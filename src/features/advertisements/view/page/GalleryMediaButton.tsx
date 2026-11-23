@@ -7,7 +7,7 @@ export function GalleryMediaButton({
   onClick,
 }: {
   iconSrc: string;
-  isSelected: boolean;
+  isSelected?: boolean;
   label: string;
   onClick: () => void;
 }) {
@@ -15,7 +15,7 @@ export function GalleryMediaButton({
     <Button
       unstyled
       aria-label={label}
-      className={`grid h-7 w-7 place-items-center rounded-md`}
+      className="grid h-7 w-7 place-items-center rounded-md"
       onClick={(event) => {
         event.stopPropagation();
         onClick();

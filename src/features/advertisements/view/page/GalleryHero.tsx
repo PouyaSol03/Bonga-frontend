@@ -56,6 +56,7 @@ export function GalleryHero({
           className="w-full"
           dir="rtl"
           onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+          onRealIndexChange={(swiper) => setActiveIndex(swiper.realIndex)}
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
           }}
@@ -127,24 +128,26 @@ export function GalleryHero({
           ) : null}
         </div>
 
-        <div className="absolute right-0 bottom-3 left-0 z-10 flex justify-center">
-          <div className="flex h-2 items-center gap-1.5">
-            {galleryItems.slice(0, 4).map((item, index) => (
-              <Button
-                unstyled
-                aria-label={`نمایش تصویر ${index + 1}`}
-                className={
-                  index === activeIndex
-                    ? "h-1.5 w-5 rounded-full bg-white"
-                    : "h-1.5 w-1.5 rounded-full bg-white/70"
-                }
-                key={`${item.src}-dot-${index}`}
-                onClick={() => swiperRef.current?.slideTo(index)}
-                type="button"
-              />
-            ))}
+        {galleryItems.length > 1 ? (
+          <div className="pointer-events-none absolute right-0 bottom-3 left-0 z-10 flex justify-center">
+            <div className="pointer-events-auto flex h-2 items-center gap-1.5">
+              {galleryItems.map((item, index) => (
+                <Button
+                  unstyled
+                  aria-label={`نمایش تصویر ${index + 1}`}
+                  className={
+                    index === activeIndex
+                      ? "h-1.5 w-5 rounded-full bg-white transition-all duration-200"
+                      : "h-1.5 w-1.5 rounded-full bg-white/70 transition-all duration-200"
+                  }
+                  key={`${item.src}-dot-${index}`}
+                  onClick={() => swiperRef.current?.slideTo(index)}
+                  type="button"
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
       {imagesNotBelongToAd ? (
         <div className="mt-2.5 flex items-center gap-1.5 px-1 [direction:rtl]">

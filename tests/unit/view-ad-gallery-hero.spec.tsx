@@ -3,8 +3,8 @@ import { render } from "../render";
 import { GalleryHero } from "../../src/features/advertisements/view/page/GalleryHero";
 import type { AlbumMediaItem } from "../../src/features/advertisements/view/viewAdDetails";
 
-describe("GalleryHero active image indicator & dots", () => {
-  it("renders active image indicator format '1 / 4' and shows all dots for media items", async () => {
+describe("GalleryHero dots navigation & media count", () => {
+  it("renders total image count in badge and shows all dots for media items", async () => {
     const mediaItems: AlbumMediaItem[] = [
       { src: "/img1.jpg", type: "image" },
       { src: "/img2.jpg", type: "image" },
@@ -16,11 +16,11 @@ describe("GalleryHero active image indicator & dots", () => {
       <GalleryHero mediaItems={mediaItems} onOpenAlbum={vi.fn()} />,
     );
 
-    // Check top badge text shows active / total (۱ / ۴)
+    // Check top badge text shows total image count (۴)
     const badgeText = container.textContent;
-    expect(badgeText).toContain("۱ / ۴");
+    expect(badgeText).toContain("۴");
 
-    // Check that dots exist for all items, not just sliced to a static 4
+    // Check that dots exist for all items
     const dots = container.querySelectorAll('button[aria-label^="نمایش تصویر"]');
     expect(dots.length).toBe(4);
 
@@ -43,8 +43,8 @@ describe("GalleryHero active image indicator & dots", () => {
       <GalleryHero mediaItems={mediaItems} onOpenAlbum={vi.fn()} />,
     );
 
-    // Check top badge text shows 1 / 6 (۱ / ۶)
-    expect(container.textContent).toContain("۱ / ۶");
+    // Check top badge text shows total (۶)
+    expect(container.textContent).toContain("۶");
 
     // All 6 dots should be rendered, not sliced to 4
     const dots = container.querySelectorAll('button[aria-label^="نمایش تصویر"]');
@@ -58,9 +58,8 @@ describe("GalleryHero active image indicator & dots", () => {
       <GalleryHero mediaItems={mediaItems} onOpenAlbum={vi.fn()} />,
     );
 
-    // With 1 image, badge shows just "۱" without slash
+    // With 1 image, badge shows "۱"
     expect(container.textContent).toContain("۱");
-    expect(container.textContent).not.toContain("۱ / ۱");
 
     // Dots should not be rendered
     const dots = container.querySelectorAll('button[aria-label^="نمایش تصویر"]');

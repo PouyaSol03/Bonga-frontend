@@ -340,8 +340,25 @@ export function AgencySelectionStep({
   };
 
   const openProfile = (agency: PublicAgencyDto) => {
+    if (typeof window !== "undefined" && window.history?.replaceState) {
+      window.history.replaceState(
+        {
+          ...window.history.state,
+          [preserveNewAdDraftStateKey]: true,
+          usr: {
+            ...(typeof window.history.state?.usr === "object" ? window.history.state.usr : {}),
+            [preserveNewAdDraftStateKey]: true,
+          },
+        },
+        "",
+      );
+    }
+
     navigate(`/agencies/${encodeURIComponent(agency.id)}`, {
-      state: { [preserveNewAdDraftStateKey]: true },
+      state: {
+        [preserveNewAdDraftStateKey]: true,
+        fromNewAd: true,
+      },
     });
   };
 

@@ -139,12 +139,12 @@ export function clearNewAdFlowSession() {
   activeSession = null;
 }
 
-export function shouldPreserveNewAdDraft(state: unknown) {
+export function shouldPreserveNewAdDraft(state: unknown): boolean {
   if (!state || typeof state !== "object" || Array.isArray(state)) return false;
   const raw = state as Record<string, unknown>;
   const usr = raw.usr as Record<string, unknown> | undefined;
-  return (
+  return Boolean(
     raw[preserveNewAdDraftStateKey] === true ||
-    (usr && typeof usr === "object" && usr[preserveNewAdDraftStateKey] === true)
+      (usr && typeof usr === "object" && usr[preserveNewAdDraftStateKey] === true),
   );
 }

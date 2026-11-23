@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { getApiErrorMessage } from "../../shared/api/api";
 import { getStoredAuthSession } from "../../shared/auth/auth-storage";
 import { SEO } from "../../shared/components/SEO";
@@ -7,6 +7,10 @@ import { TopBar } from "../../shared/components/TopBar";
 import LinearQrCode from "../../shared/icons/LinearQrCode";
 import LinearShare from "../../shared/icons/LinearShare";
 import type { BadgeDetailItem } from "./components/BadgeDetailBottomSheet";
+import {
+  preserveNewAdDraftStateKey,
+  shouldPreserveNewAdDraft,
+} from "../advertisements/create/session";
 import { AgencyAdsTab } from "./agency-preview/components/AgencyAdsTab";
 import { AgencyConsultantsTab } from "./agency-preview/components/AgencyConsultantsTab";
 import { AgencyHero } from "./agency-preview/components/AgencyHero";
@@ -28,6 +32,7 @@ export { AgencyQrCodePage } from "./agency-preview/AgencyQrCodePage";
 
 export function AgencyPreviewPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<AgencyPreviewTab>(getInitialAgencyTab);
   const [isContactSheetOpen, setIsContactSheetOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -95,6 +100,38 @@ export function AgencyPreviewPage() {
     navigate(targetPath);
   };
 
+  const isFromNewAd =
+    Boolean(
+      location.state &&
+        ((location.state as Record<string, unknown>)[preserveNewAdDraftStateKey] === true ||
+          (location.state as Record<string, unknown>).fromNewAd === true),
+    ) ||
+    shouldPreserveNewAdDraft(location.state) ||
+    shouldPreserveNewAdDraft(window.history.state);
+
+  const handleBack = () => {
+    if (isFromNewAd) {
+      if (window.history.state?.idx > 0) {
+        navigate(-1);
+      } else {
+        navigate("/new-ad", {
+          replace: true,
+          state: { [preserveNewAdDraftStateKey]: true },
+        });
+      }
+      return;
+    }
+
+    if (data.isPublicPreview) {
+      navigate(data.isAgentPreview ? "/consultants?type=consultant" : "/consultants", {
+        replace: true,
+      });
+      return;
+    }
+
+    navigate(agencyEditPath, { replace: true });
+  };
+
   const structuredData = data.isPublicPreview
     ? {
         "@context": "https://schema.org",
@@ -122,7 +159,7 @@ export function AgencyPreviewPage() {
           { id: "share", label: "اشتراک‌گذاری", icon: <LinearShare className="h-6 w-6" />, onClick: () => void actions.handleShareClick() },
           { id: "qr-code", label: "کد QR", icon: <LinearQrCode className="h-6 w-6" />, onClick: handleQrClick },
         ]}
-        backTo={data.isPublicPreview ? (data.isAgentPreview ? "/consultants?type=consultant" : "/consultants") : agencyEditPath}
+        onBack={handleBack}
         className="bg-surface-container-lowest"
         contentClassName="px-2"
         title={pageTitle}

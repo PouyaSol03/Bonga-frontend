@@ -13,8 +13,14 @@ interface SubmitCrmAdvertiseParams {
   crmSaveMutation: UseMutationResult<
     CrmRecord,
     unknown,
-    { id: string | null; original?: CrmRecord; values: NewAdFormValues }
+    {
+      id: string | null;
+      original?: CrmRecord;
+      values: NewAdFormValues;
+      dynamicFieldKeys?: Iterable<string>;
+    }
   >;
+  dynamicFieldKeys?: Iterable<string>;
   editAdId: string | null;
   editAdState: ReturnType<typeof getEditAdRouteState>;
   isEditMode: boolean;
@@ -28,6 +34,7 @@ interface SubmitCrmAdvertiseParams {
 export function submitCrmAdvertise({
   crmEditRecord,
   crmSaveMutation,
+  dynamicFieldKeys,
   editAdId,
   editAdState,
   isEditMode,
@@ -46,7 +53,7 @@ export function submitCrmAdvertise({
   submitLockRef.current = true;
 
   crmSaveMutation.mutate(
-    { id: isEditMode ? editAdId : null, original: crmEditRecord, values },
+    { id: isEditMode ? editAdId : null, original: crmEditRecord, values, dynamicFieldKeys },
     {
       onError: (error: unknown) =>
         setSubmitError(

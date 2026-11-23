@@ -56,29 +56,50 @@ export function readHumanText(record: CrmRecord | undefined, keys: string[]): st
 export function normalizeFeatures(advertise: CrmRecord | undefined): FeatureRecord[] {
   if (!advertise) return [];
 
-  const result: FeatureRecord[] = [];
+  const featureMap = new Map<string, FeatureRecord>();
 
-  for (const key of ["features", "dynamic_fields", "dynamicFields"]) {
-    const value = advertise[key];
+  // Process features, dynamicFields, and dynamic_fields.
+  // dynamic_fields usually contains richest metadata (key, label, type, value).
+  const candidateSources = ["features", "dynamicFields", "dynamic_fields"];
+
+  for (const sourceKey of candidateSources) {
+    const value = advertise[sourceKey];
 
     if (Array.isArray(value)) {
       for (const item of value) {
         if (item && typeof item === "object" && !Array.isArray(item)) {
-          result.push(item as FeatureRecord);
+          const rec = item as FeatureRecord;
+          const k = getFeatureKey(rec);
+          if (k) {
+            const existing = featureMap.get(k);
+            if (!existing) {
+              featureMap.set(k, rec);
+            } else {
+              featureMap.set(k, { ...existing, ...rec });
+            }
+          }
         }
       }
     } else if (value && typeof value === "object") {
-      for (const [label, itemValue] of Object.entries(value as CrmRecord)) {
-        result.push({ label, value: itemValue });
+      for (const [k, itemValue] of Object.entries(value as CrmRecord)) {
+        if (!featureMap.has(k)) {
+          featureMap.set(k, { key: k, label: k, value: itemValue });
+        }
       }
     }
   }
 
-  return result;
+  return Array.from(featureMap.values());
 }
 
 export function getFeatureKey(feature: FeatureRecord): string {
-  return readText(feature, ["code", "key", "name", "label"]);
+  if (feature.key && typeof feature.key === "string" && feature.key.trim()) {
+    return feature.key.trim();
+  }
+  if (feature.code && typeof feature.code === "string" && feature.code.trim()) {
+    return feature.code.trim();
+  }
+  return readText(feature, ["name", "label"]);
 }
 
 export function getFeatureValue(features: FeatureRecord[], keys: string[]): unknown {
@@ -114,6 +135,12 @@ export function findRecordNameById(records: CrmRecord[], id: string): string {
 export function getFeatureDisplayLabel(feature: FeatureRecord): string {
   const key = getFeatureKey(feature);
   const explicitLabel = readText(feature, ["display_name", "displayName", "title"]);
+  if (explicitLabel) return explicitLabel;
 
-  return explicitLabel || featureLabelMap[key] || key || "ویژگی";
+  const label = readText(feature, ["label"]);
+  if (label && label !== key && !/^[a-z0-9_]+$/i.test(label)) {
+    return label;
+  }
+
+  return featureLabelMap[key] || label || key || "ویژگی";
 }

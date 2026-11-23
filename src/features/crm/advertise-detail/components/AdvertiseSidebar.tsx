@@ -17,11 +17,13 @@ import { AdLocationMap } from "../../../advertisements/components/AdLocationMap"
 import { getCrmRecordId, type CrmRecord } from "../../api/crm.service";
 import { DetailSection, InformationRow } from "./DetailPrimitives";
 import { formatArea } from "../formatters";
-import { getFormName } from "../helpers";
+import { getFormName, readText } from "../helpers";
+import type { ResolvedCrmAgency } from "../useCrmAdvertiseDetail";
 
 export function AdvertiseSidebar({
   address,
   advertise,
+  agency,
   area,
   categoryName,
   cityName,
@@ -38,6 +40,7 @@ export function AdvertiseSidebar({
 }: {
   address: string;
   advertise: CrmRecord;
+  agency?: ResolvedCrmAgency | null;
   area: unknown;
   categoryName: string;
   cityName: string;
@@ -55,8 +58,93 @@ export function AdvertiseSidebar({
   };
   trackCode: string;
 }) {
+  const ownerExactAddress = readText(advertise, [
+    "owner_address",
+    "owner_exact_address",
+    "owner_contact_address",
+  ]);
+
   return (
     <aside className="sticky top-0 space-y-4">
+      {/* Agency Section */}
+      {agency ? (
+        <DetailSection
+          icon={<LinearApartment className="h-5 w-5" />}
+          title="آژانس املاک ثبت‌کننده"
+        >
+          <div className="rounded-xl border border-[#0048c4]/20 bg-[#eef4ff]/50 p-4">
+            <div className="flex items-center gap-3">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#0048c4] text-white shadow-sm">
+                <LinearApartment className="h-6 w-6" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <strong className="block truncate text-base font-bold text-[#1a1a1a]">
+                    {agency.name}
+                  </strong>
+                </div>
+                {agency.id ? (
+                  <span className="mt-0.5 block font-mono text-xs text-[#808080]">
+                    شناسه آژانس: #{agency.id}
+                  </span>
+                ) : (
+                  <span className="mt-0.5 inline-block rounded-full bg-[#0048c4]/10 px-2 py-0.5 text-[11px] font-medium text-[#0048c4]">
+                    ثبت‌شده توسط آژانس
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {agency.managerName ? (
+              <div className="mt-3.5 flex items-center justify-between border-t border-[#0048c4]/10 pt-2.5 text-xs">
+                <span className="text-[#808080]">مدیر / مسئول:</span>
+                <strong className="font-semibold text-[#1a1a1a]">{agency.managerName}</strong>
+              </div>
+            ) : null}
+
+            {agency.phone ? (
+              <div className="mt-2 flex items-center justify-between border-t border-[#0048c4]/10 pt-2.5 text-xs">
+                <span className="text-[#808080]">تلفن تماس:</span>
+                <a
+                  href={`tel:${agency.phone}`}
+                  className="font-mono font-semibold text-[#0048c4] hover:underline"
+                  dir="ltr"
+                >
+                  {agency.phone}
+                </a>
+              </div>
+            ) : null}
+
+            {agency.address ? (
+              <div className="mt-2 border-t border-[#0048c4]/10 pt-2.5 text-xs">
+                <span className="mb-0.5 block text-[#808080]">آدرس آژانس:</span>
+                <span className="leading-5 text-[#333333]">{agency.address}</span>
+              </div>
+            ) : null}
+          </div>
+        </DetailSection>
+      ) : (
+        <DetailSection
+          icon={<LinearUserAccount className="h-5 w-5" />}
+          title="نوع ثبت آگهی"
+        >
+          <div className="flex items-center gap-3 rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-3.5">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#eef2f7] text-[#666666]">
+              <LinearUserAccount className="h-5 w-5" />
+            </div>
+            <div>
+              <strong className="block text-sm font-bold text-[#1a1a1a]">
+                ثبت شخصی (کاربر عادی)
+              </strong>
+              <span className="text-xs text-[#808080]">
+                این آگهی به صورت مستقیم توسط کاربر ثبت شده است.
+              </span>
+            </div>
+          </div>
+        </DetailSection>
+      )}
+
+      {/* Main Specs Section */}
       <DetailSection icon={<LinearInformation className="h-5 w-5" />} title="اطلاعات اصلی">
         <InformationRow
           icon={<LinearHome2 className="h-5 w-5" />}
@@ -90,10 +178,11 @@ export function AdvertiseSidebar({
         />
       </DetailSection>
 
-      <DetailSection icon={<LinearOwner className="h-5 w-5" />} title="اطلاعات آگهی‌دهنده">
+      {/* Owner / Client Info */}
+      <DetailSection icon={<LinearOwner className="h-5 w-5" />} title="اطلاعات مالک / مخاطب">
         <InformationRow
           icon={<LinearUserAccount className="h-5 w-5" />}
-          label="نام"
+          label="نام مالک"
           value={ownerName}
         />
         <InformationRow
@@ -101,6 +190,13 @@ export function AdvertiseSidebar({
           label="شماره تماس"
           value={ownerPhone}
         />
+        {ownerExactAddress ? (
+          <InformationRow
+            icon={<LinearMapsLocation className="h-5 w-5" />}
+            label="آدرس دقیق ملک"
+            value={ownerExactAddress}
+          />
+        ) : null}
         <InformationRow
           icon={<LinearDocument className="h-5 w-5" />}
           label="کد پیگیری"
@@ -113,10 +209,11 @@ export function AdvertiseSidebar({
         />
       </DetailSection>
 
+      {/* Map Location */}
       <DetailSection icon={<LinearGps className="h-5 w-5" />} title="موقعیت جغرافیایی">
         <InformationRow
           icon={<LinearMapsLocation className="h-5 w-5" />}
-          label="آدرس دقیق"
+          label="آدرس آگهی"
           value={address}
         />
         {hasMapPosition && latitude !== null && longitude !== null ? (
@@ -139,10 +236,11 @@ export function AdvertiseSidebar({
         )}
       </DetailSection>
 
-      <div className="rounded-xl bg-white p-5 text-sm text-[#666666]">
+      {/* System IDs */}
+      <div className="rounded-xl border border-[#f0f0f0] bg-white p-5 text-sm text-[#666666] shadow-sm">
         <div className="flex items-center gap-2 text-[#0048c4]">
           <LinearApartment className="h-5 w-5" />
-          <strong className="text-sm">شناسه آگهی</strong>
+          <strong className="text-sm font-bold">شناسه سیستمی آگهی</strong>
         </div>
         <Typography
           as="span"

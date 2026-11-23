@@ -1,12 +1,13 @@
 import type { CategoryItem } from "../../../categories/api/category.service";
 import type { CrmAdvertisePayload, CrmRecord } from "../../../crm/api/crm.service";
+import { uploadCrmAdvertiseImage } from "../../../crm/api/services/crmAdvertises.service";
 import { type AdvertisementItem, type AdvertisementFeature  } from "../../api/advertisement.service";
 import { locationLatKey, locationLngKey, neighborhoodIdKey } from "../data";
 
 import type { NewAdFormValues } from "../types";
 
 type EditableAdvertisementFeature = AdvertisementFeature & { key?: string };
-import { buildPayload } from "../utils";
+import { buildPayload, getAdvertiseFormCode, getParams } from "../utils";
 import { isCrmAdvertiseSource } from "./editRouteParams";
 import { getAdvertisementFeatures, normalizeLookupText } from "./featureReaders";
 import { mediaSource } from "./mediaMappers";
@@ -97,26 +98,72 @@ export function findCategoryId(categories: CategoryItem[], value: string) {
 export async function buildCrmAdvertisePayload(
   values: NewAdFormValues,
   original: CrmRecord = {},
+  options?: { dynamicFieldKeys?: Iterable<string> },
 ): Promise<CrmAdvertisePayload> {
-  const structuredPayload = buildPayload(values);
-  const formCode = structuredPayload.features.find((feature) => feature.key === "form_code")?.value;
+  const structuredPayload = buildPayload(values, options);
+  const params = getParams();
+  const formCode =
+    structuredPayload.features.find((feature) => feature.key === "form_code")?.value ||
+    getAdvertiseFormCode(params.transaction, params.category);
   const storedLat = window.localStorage.getItem(locationLatKey);
   const storedLng = window.localStorage.getItem(locationLngKey);
   const storedNeighborhoodId =
     values.neighborhoodId || window.localStorage.getItem(neighborhoodIdKey);
   const lat = Number(storedLat ?? original.lat ?? original.latitude);
   const lng = Number(storedLng ?? original.lng ?? original.long ?? original.longitude);
-  const images = values.photos.flatMap((photo) => {
-    if (photo.file) return [];
+  const images = (
+    await Promise.all(
+      values.photos.map(async (photo) => {
+        if (photo.file) {
+          try {
+            const uploaded = await uploadCrmAdvertiseImage(photo.file);
+            if (uploaded) return uploaded;
+          } catch {
+            // ignore
+          }
+          return null;
+        }
 
-    const source = mediaSource(photo.existingValue);
-    return source && !source.toLowerCase().includes("data:image/") ? [source] : [];
+        const source = mediaSource(photo.existingValue || photo.previewUrl);
+        return source && !source.startsWith("blob:") && !source.toLowerCase().includes("data:image/")
+          ? source
+          : null;
+      }),
+    )
+  ).filter((img): img is string => Boolean(img));
+
+  const isAgencyTarget =
+    values.targetOwnerType === "agency" || Boolean(values.agencyId);
+
+  const forbiddenFeatureKeys = new Set([
+    "agency_id",
+    "consultant_id",
+    "publisher",
+    "has_virtual_tour",
+    "has_image",
+    "has_video",
+    "location",
+    "form_code",
+    "owner_type",
+    "target_owner_type",
+    "target_owner_id",
+    "request_id",
+    "reason",
+  ]);
+
+  const dynamicKeys = options?.dynamicFieldKeys ? new Set(options.dynamicFieldKeys) : null;
+
+  const features = structuredPayload.features.filter((feature) => {
+    if (forbiddenFeatureKeys.has(feature.key)) return false;
+    if (isAgencyTarget && feature.key === "agency_id") return false;
+    if (dynamicKeys && !dynamicKeys.has(feature.key)) return false;
+    return true;
   });
 
   return {
     contact_type: structuredPayload.contact_type.map(String),
     description: values.description,
-    features: structuredPayload.features,
+    features,
     form_code: typeof formCode === "string" ? formCode : String(formCode ?? ""),
     images: images.filter(Boolean),
     lat,
@@ -125,7 +172,9 @@ export async function buildCrmAdvertisePayload(
       storedNeighborhoodId ||
       nestedRecordId(original, "neighborhood_id", ["neighborhood", "district"]),
     owner_phone: values.phoneNumber || String(original.owner_phone ?? ""),
-    owner_type: values.registrantType || String(original.owner_type ?? ""),
+    ...(isAgencyTarget
+      ? {}
+      : { owner_type: values.registrantType || String(original.owner_type ?? "") }),
     title: values.title,
     virtual_tour_link: values.virtualTourLink,
     ...(isCrmAdvertiseSource() && values.targetOwnerType && values.targetOwnerId

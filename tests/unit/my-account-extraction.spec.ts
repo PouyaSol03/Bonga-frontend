@@ -1,3 +1,4 @@
+import React from "react";
 import { describe, expect, it } from "vitest";
 import {
   isBusinessAccount,
@@ -13,6 +14,7 @@ import {
 import { getBusinessAccountActions } from "../../src/features/account/my-account/businessAccountActions";
 import { getLoginRequiredPath } from "../../src/features/account/my-account/navigationHelpers";
 import { MyAccountPage } from "../../src/features/account/MyAccountPage";
+import { AccountRoleSwitcher } from "../../src/features/account/my-account/components/AccountRoleSwitcher";
 import {
   INDEPENDENT_CONSULTANT,
   REAL_ESTATE_CONSULTANT,
@@ -20,6 +22,7 @@ import {
   USER,
 } from "../../src/shared/constants/roles.constants";
 import type { AuthSession } from "../../src/shared/auth/auth-storage";
+import { render } from "../render";
 
 describe("MyAccountPage modular extraction", () => {
   it("exports MyAccountPage component", () => {
@@ -109,6 +112,45 @@ describe("MyAccountPage modular extraction", () => {
       const actions = getCreatedBusinessActions(session, { agency_id: 10, agency_status: "wait" });
       expect(actions[0].badge).toBe("در انتظار");
       expect(actions[0].disabled).toBe(true);
+    });
+  });
+
+  describe("AccountRoleSwitcher", () => {
+    it("returns null when user has only 1 role (personal only)", async () => {
+      const session: AuthSession = {
+        accessToken: "token",
+        accountType: "user",
+        activeRole: USER,
+        expiresAt: 0,
+        mobile: "09120000000",
+        role: USER,
+        roles: [{ id: "1", name: "کاربر", slug: USER }],
+        userId: "1",
+      };
+      const container = await render(React.createElement(AccountRoleSwitcher, { authSession: session }));
+      expect(container.querySelector('[aria-label="انتخاب نقش کاربری"]')).toBeNull();
+      expect(container.textContent).toBe("");
+    });
+
+    it("renders switcher chips when user has multiple roles", async () => {
+      const session: AuthSession = {
+        accessToken: "token",
+        accountType: "user",
+        activeRole: USER,
+        expiresAt: 0,
+        mobile: "09120000000",
+        role: USER,
+        roles: [
+          { id: "1", name: "کاربر", slug: USER },
+          { id: "2", name: "مدیر", slug: REAL_ESTATE_MANAGER },
+        ],
+        userId: "1",
+      };
+      const container = await render(React.createElement(AccountRoleSwitcher, { authSession: session }));
+      const switcher = container.querySelector('[aria-label="انتخاب نقش کاربری"]');
+      expect(switcher).not.toBeNull();
+      expect(container.textContent).toContain("شخصی");
+      expect(container.textContent).toContain("مشاور آژانس");
     });
   });
 });

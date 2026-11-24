@@ -7,7 +7,7 @@ import { toEnglishDigits } from "../../src/shared/lib/numberUtils";
 import { getDefaultValues } from "../../src/features/advertisements/create/utils/defaultValues";
 import { getCrmAdvertiseCreatePath } from "../../src/features/crm/crmAdvertiseNavigation";
 import { AdInformationFields } from "../../src/features/advertisements/create/components/AdInformationFields";
-import { initialNewAdFormValues } from "../../src/features/advertisements/create/constants/initialValues";
+import { blankValues } from "../../src/features/advertisements/create/constants/initialValues";
 
 describe("CRM and Agency fullName & Persian digit normalization", () => {
   it("converts Persian and Arabic phone digits to English digits cleanly", () => {
@@ -98,7 +98,7 @@ describe("CRM ad creation defaults: chat disabled & target user phone", () => {
 
   it("renders disabled chat with warning message when target user is not authorized in CRM", () => {
     const values = {
-      ...initialNewAdFormValues,
+      ...blankValues,
       registrantType: "personal" as const,
       targetOwnerType: "user" as const,
       targetOwnerId: "42",
@@ -132,7 +132,7 @@ describe("CRM ad creation defaults: chat disabled & target user phone", () => {
 
   it("renders chat without warning when target user is authorized in CRM", () => {
     const values = {
-      ...initialNewAdFormValues,
+      ...blankValues,
       registrantType: "personal" as const,
       targetOwnerType: "user" as const,
       targetOwnerId: "42",

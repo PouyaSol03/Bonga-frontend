@@ -19,6 +19,7 @@ import {
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
 import { searchMapTileConfig } from "../../search/searchMapData";
 import { getApiErrorMessage } from "../../../shared/api/api";
+import { toEnglishDigits } from "../../../shared/lib/numberUtils";
 import { Button } from "../../../shared/ui/Button";
 import { Typography } from "../../../shared/ui/Typography";
 import { ModalShell } from "./ModalShell";
@@ -136,7 +137,7 @@ export function CrmAgencyCreateModal({ isOpen, onClose, notify }: Props) {
   // Debounce user phone input
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedUserPhone(userQuery.trim());
+      setDebouncedUserPhone(toEnglishDigits(userQuery).replace(/\D/g, ""));
     }, 350);
     return () => clearTimeout(timer);
   }, [userQuery]);
@@ -236,7 +237,7 @@ export function CrmAgencyCreateModal({ isOpen, onClose, notify }: Props) {
     event.preventDefault();
 
     const trimmedName = name.trim();
-    const trimmedPhone = phone1.trim();
+    const trimmedPhone = toEnglishDigits(phone1).replace(/\D/g, "");
     const trimmedAddress = address.trim();
     const ownerUserId = selectedUser ? Number(getCrmRecordId(selectedUser)) : NaN;
     const neighborhoodId = selectedNeighborhood?.id ? Number(selectedNeighborhood.id) : NaN;

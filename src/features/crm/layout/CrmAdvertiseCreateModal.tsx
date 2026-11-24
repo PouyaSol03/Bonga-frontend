@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { toEnglishDigits } from "../../../shared/lib/numberUtils";
 import { ModalShell } from "./ModalShell";
 import { CrmIcon } from "./CrmIcon";
 import { Typography } from "../../../shared/ui/Typography";
@@ -193,7 +194,7 @@ export function CrmAdvertiseCreateModal({
                   className="h-10 w-full rounded-lg border border-[#d9d9d9] bg-white px-3 text-sm text-left outline-none transition focus:border-[#0048c4]"
                   placeholder="۰۹۱۲۳۴۵۶۷۸۹"
                   value={ownerPhone}
-                  onChange={(e) => setOwnerPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                  onChange={(e) => setOwnerPhone(toEnglishDigits(e.target.value).replace(/\D/g, "").slice(0, 11))}
                 />
               </div>
 

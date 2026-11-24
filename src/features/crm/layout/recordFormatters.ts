@@ -58,7 +58,12 @@ export function getCategoryLabel(category: CrmRecord) {
 }
 
 export function fullName(user: CrmRecord) {
-  return (
-    [readText(user, ["name"], ""), readText(user, ["family"], "")].filter(Boolean).join(" ") || "-"
-  );
+  const firstName = readText(user, ["name", "first_name", "firstName"], "");
+  const lastName = readText(user, ["family", "last_name", "lastName"], "");
+  const directFullName = readText(user, ["full_name", "fullName"], "");
+
+  const parts = [firstName, lastName].filter(Boolean).join(" ");
+  if (parts) return parts;
+  if (directFullName) return directFullName;
+  return "-";
 }

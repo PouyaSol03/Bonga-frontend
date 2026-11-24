@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { listCrmUsers, listCrmAgencies, getCrmRecordId } from "../../../crm/api/crm.service";
+import { fullName } from "../../../crm/layout/recordFormatters";
+import { toEnglishDigits } from "../../../../shared/lib/numberUtils";
 import { Typography } from "../../../../shared/ui/Typography";
 
 export function CrmTargetOwnerSelect({
@@ -21,10 +23,10 @@ export function CrmTargetOwnerSelect({
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedQuery(query);
+      setDebouncedQuery(type === "user" ? toEnglishDigits(query).replace(/\D/g, "") : query.trim());
     }, 400);
     return () => clearTimeout(handler);
-  }, [query]);
+  }, [query, type]);
 
   // When value changes externally (e.g. cleared), clear our local state
   useEffect(() => {
@@ -53,9 +55,10 @@ export function CrmTargetOwnerSelect({
 
   useEffect(() => {
     if (initialRecord && !selectedLabel) {
+      const userDisplayName = fullName(initialRecord);
       const label =
         type === "user"
-          ? `${initialRecord.name || "بدون نام"} - ${initialRecord.mobile || "بدون شماره"}`
+          ? `${userDisplayName !== "-" ? userDisplayName : "بدون نام"} - ${initialRecord.mobile || "بدون شماره"}`
           : String(initialRecord.name || "بدون نام");
       setSelectedLabel(label);
     }
@@ -104,9 +107,10 @@ export function CrmTargetOwnerSelect({
           ) : data && data.length > 0 ? (
             data.map((item) => {
               const id = getCrmRecordId(item);
+              const userDisplayName = fullName(item);
               const label =
                 type === "user"
-                  ? `${item.name || "بدون نام"} - ${item.mobile || "بدون شماره"}`
+                  ? `${userDisplayName !== "-" ? userDisplayName : "بدون نام"} - ${item.mobile || "بدون شماره"}`
                   : String(item.name || "بدون نام");
 
               return (

@@ -41,9 +41,11 @@ export function NewAdFlowHeader({
         ? leaveCrmEditor
         : isEditMode
           ? handleEditBack
-          : step === "details"
-            ? () => navigate(`/new-ad/category${window.location.search}`)
-            : undefined;
+          : step === "media"
+            ? goToDetails
+            : step === "details"
+              ? () => navigate(`/new-ad/category${window.location.search}`)
+              : undefined;
 
   return <Header title={headerTitle} onBack={onBack} />;
 }

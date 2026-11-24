@@ -27,6 +27,7 @@ export function CrmAdvertiseCreateModal({
   const [targetType, setTargetType] = useState<"agency" | "user">("agency");
   const [selectedId, setSelectedId] = useState("");
   const [selectedName, setSelectedName] = useState("");
+  const [selectedUserRecord, setSelectedUserRecord] = useState<any>(null);
 
   // Optional owner contact info if agency is chosen
   const [ownerFullName, setOwnerFullName] = useState("");
@@ -37,6 +38,7 @@ export function CrmAdvertiseCreateModal({
     if (!isOpen) {
       setSelectedId("");
       setSelectedName("");
+      setSelectedUserRecord(null);
       setOwnerFullName("");
       setOwnerPhone("");
       setOwnerExactAddress("");
@@ -48,6 +50,7 @@ export function CrmAdvertiseCreateModal({
       setTargetType("agency");
       setSelectedId(String(initialAgency.id));
       setSelectedName(initialAgency.name);
+      setSelectedUserRecord(null);
     }
   }, [isOpen, initialAgency]);
 
@@ -56,10 +59,21 @@ export function CrmAdvertiseCreateModal({
   const handleContinue = () => {
     if (!selectedId) return;
 
+    const isUserAuthorized =
+      targetType === "user" && selectedUserRecord
+        ? Number(selectedUserRecord.authorized) === 1
+        : undefined;
+    const targetOwnerPhone =
+      targetType === "user" && selectedUserRecord
+        ? String(selectedUserRecord.mobile ?? selectedUserRecord.phone ?? "").trim()
+        : undefined;
+
     const path = getCrmAdvertiseCreatePath({
       targetOwnerType: targetType,
       targetOwnerId: selectedId,
       targetOwnerName: selectedName,
+      targetOwnerPhone,
+      targetOwnerAuthorized: isUserAuthorized,
       agencyId: targetType === "agency" ? selectedId : undefined,
       agencyName: targetType === "agency" ? selectedName : undefined,
       ownerFullName: targetType === "agency" ? ownerFullName.trim() : undefined,
@@ -154,6 +168,7 @@ export function CrmAdvertiseCreateModal({
                 value={selectedId}
                 onChange={(id) => setSelectedId(id)}
                 onSelectName={(name) => setSelectedName(name)}
+                onSelectRecord={(rec) => setSelectedUserRecord(rec)}
               />
             )}
           </div>

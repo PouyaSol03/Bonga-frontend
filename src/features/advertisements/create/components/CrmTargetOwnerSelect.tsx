@@ -10,11 +10,13 @@ export function CrmTargetOwnerSelect({
   value,
   onChange,
   onSelectName,
+  onSelectRecord,
 }: {
   type: "user" | "agency";
   value: string;
   onChange: (id: string) => void;
   onSelectName?: (name: string) => void;
+  onSelectRecord?: (record: any) => void;
 }) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -121,6 +123,7 @@ export function CrmTargetOwnerSelect({
                     e.preventDefault(); // Prevent blur
                     onChange(id);
                     onSelectName?.(label);
+                    onSelectRecord?.(item);
                     setSelectedLabel(label);
                     setQuery("");
                     setIsFocused(false);

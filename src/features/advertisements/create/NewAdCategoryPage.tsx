@@ -435,6 +435,16 @@ export function NewAdCategoryPage() {
             params.set("targetOwnerName", targetOwnerName);
           }
 
+          const targetOwnerPhone = currentSearch.get("targetOwnerPhone");
+          if (targetOwnerPhone) {
+            params.set("targetOwnerPhone", targetOwnerPhone);
+          }
+
+          const targetOwnerAuthorized = currentSearch.get("targetOwnerAuthorized");
+          if (targetOwnerAuthorized) {
+            params.set("targetOwnerAuthorized", targetOwnerAuthorized);
+          }
+
           const ownerFullName = currentSearch.get("ownerFullName");
           if (ownerFullName) {
             params.set("ownerFullName", ownerFullName);

@@ -9,6 +9,7 @@ import { getPublisherContactActions } from "../../src/features/advertisements/vi
 const ad = (value: unknown) => value as AdvertisementItem;
 const details = { locationTitle: "تهران" } as ViewAdDetails;
 const defaults = {
+  isOwnAd: false,
   isPreview: false,
   isPersonalPreview: false,
   useAgencyAllocationPreview: false,
@@ -79,7 +80,14 @@ describe("view ad contact presentation", () => {
       contactActionCount: 0,
       usesPublicAdPresentation: false,
     });
-    expect(html).toContain("این آگهی برای شماست");
+    expect(html).toContain("آگهی متعلق به شماست");
+    expect(html).not.toContain("<button");
+  });
+  it("shows ownership message and suppresses contact actions when isOwnAd is true", () => {
+    const html = markup({
+      isOwnAd: true,
+    });
+    expect(html).toContain("آگهی متعلق به شماست");
     expect(html).not.toContain("<button");
   });
   it("retains unavailable contact message and normal public action grid", () => {

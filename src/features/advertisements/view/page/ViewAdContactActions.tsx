@@ -5,6 +5,7 @@ import type { getPublisherContactActions } from "../details/adContactActions";
 import type { readContactInfo } from "./contactInfo";
 
 type Props = {
+  isOwnAd?: boolean;
   isPreview: boolean;
   isPersonalPreview: boolean;
   useAgencyAllocationPreview: boolean;
@@ -22,6 +23,7 @@ type Props = {
 };
 
 export function ViewAdContactActions({
+  isOwnAd,
   isPreview,
   isPersonalPreview,
   useAgencyAllocationPreview,
@@ -37,6 +39,16 @@ export function ViewAdContactActions({
   onOpenContactInfo,
   onOpenChat,
 }: Props) {
+  if (isOwnAd) {
+    return (
+      <div className="bg-surface-container-lowest shrink-0 px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
+        <div className="bg-surface-container text-outline rounded-[10px] px-4 py-3 text-center text-sm leading-5 font-medium">
+          آگهی متعلق به شماست
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {isPreview && !isPersonalPreview ? (
@@ -120,9 +132,9 @@ export function ViewAdContactActions({
             </div>
           ) : (
             <div className="bg-surface-container text-outline rounded-[10px] px-4 py-3 text-center text-sm leading-5 font-medium">
-              {usesPublicAdPresentation
-                ? "راه ارتباطی برای این آگهی ثبت نشده است."
-                : "این آگهی برای شماست"}
+              {isOwnAd || !usesPublicAdPresentation
+                ? "آگهی متعلق به شماست"
+                : "راه ارتباطی برای این آگهی ثبت نشده است."}
             </div>
           )}
         </div>

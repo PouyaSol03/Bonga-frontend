@@ -10,8 +10,17 @@ export type AlbumMediaItem = {
 };
 
 
-export function isOwnAdvertisement(ad: AdvertisementItem) {
-  return (ad as { is_mine?: unknown }).is_mine === true;
+export function isOwnAdvertisement(ad?: AdvertisementItem | null) {
+  if (!ad) return false;
+  const candidate = ad as { is_mine?: unknown; isMine?: unknown };
+  return (
+    candidate.is_mine === true ||
+    candidate.is_mine === 1 ||
+    candidate.is_mine === "true" ||
+    candidate.isMine === true ||
+    candidate.isMine === 1 ||
+    candidate.isMine === "true"
+  );
 }
 
 export function formatPublishedAge(

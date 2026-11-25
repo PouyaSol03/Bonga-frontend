@@ -34,9 +34,8 @@ export function buildViewAdPresentation(
     contactInfo.phone || contactInfo.instagram || contactInfo.telegram || contactInfo.whatsapp,
   );
   const hasChatContact = usesPublicAdPresentation && contactInfo.chat;
-  const contactActionCount = isPersonalPreview
-    ? 0
-    : Number(hasContactSheetData) + Number(hasChatContact);
+  const contactActionCount =
+    isPersonalPreview || isOwnAd ? 0 : Number(hasContactSheetData) + Number(hasChatContact);
   const contactActionsGridClassName = contactActionCount === 1 ? "grid-cols-1" : "grid-cols-2";
   const mediaItems = buildGalleryMediaItems(resolvedAd);
   const resolvedTour3dUrl = getVirtualTourUrl(resolvedAd);
@@ -44,6 +43,7 @@ export function buildViewAdPresentation(
 
   return {
     details,
+    isOwnAd,
     usesPublicAdPresentation,
     isAdPublished,
     contactInfo,

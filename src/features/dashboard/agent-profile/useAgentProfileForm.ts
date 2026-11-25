@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import { getApiAssetUrl, getApiErrorMessage } from "../../../shared/api/api";
 import { useToast } from "../../../shared/hooks/useToast";
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
@@ -46,6 +47,7 @@ export function useAgentProfileForm() {
   const [selectedActivityAreas, setSelectedActivityAreas] = useState<SelectedNeighborhood[]>([]);
   const [isNeighborhoodPickerOpen, setIsNeighborhoodPickerOpen] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const navigate = useNavigate();
   const { showToast } = useToast();
 
   const {
@@ -160,6 +162,7 @@ export function useAgentProfileForm() {
       }
 
       showToast("اطلاعات مشاور ذخیره شد.");
+      navigate("/account");
     } catch (error) {
       showToast(getApiErrorMessage(error, "ذخیره اطلاعات مشاور با خطا مواجه شد."), "خطا", "error");
     }

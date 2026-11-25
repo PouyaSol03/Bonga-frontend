@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
 import { REAL_ESTATE_MANAGER } from "../../../shared/constants/roles.constants";
@@ -20,6 +21,7 @@ import { useAgencyProfileLocationSync } from "./useAgencyProfileLocationSync";
 import { useAgencyProfileNotifications } from "./useAgencyProfileNotifications";
 
 export function useAgencyProfileForm() {
+  const navigate = useNavigate();
   const { setToast, showToast, toast } = useAgencyProfileNotifications();
   const {
     handleLogoChange,
@@ -99,7 +101,7 @@ export function useAgencyProfileForm() {
     fields.setHasSubmitted(true);
     updateAgencyProfileMutation.reset();
 
-    await executeSaveAgencyProfile({
+    const success = await executeSaveAgencyProfile({
       aboutUs: fields.aboutUs,
       address: fields.address,
       agencyName: fields.agencyName,
@@ -120,6 +122,10 @@ export function useAgencyProfileForm() {
       whatsapp: fields.whatsapp,
       workingHours: fields.workingHours,
     });
+
+    if (success) {
+      navigate("/account");
+    }
   };
 
   const isNeighborhoodResolving =

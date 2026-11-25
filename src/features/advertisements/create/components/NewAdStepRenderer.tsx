@@ -107,6 +107,7 @@ export function NewAdStepRenderer({
       errors={fieldErrors}
       forceFullEditFields={isEditMode && !isEditingIncomplete}
       isAssigned={isAssigned}
+      isEditMode={isEditMode}
       label={label}
       onBack={actions.goToDetails}
       onChangePublisher={canChangePublisher ? () => setStep("publisherSelection") : undefined}

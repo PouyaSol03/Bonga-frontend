@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../../../shared/auth/auth-storage";
@@ -33,6 +33,7 @@ function FieldError({ message }: { message?: string }) {
 export function MediaStep({
   errors = {},
   isAssigned = false,
+  isEditMode = false,
   label,
   onBack,
   onChangePublisher,
@@ -43,6 +44,7 @@ export function MediaStep({
   errors?: NewAdFieldErrors;
   forceFullEditFields?: boolean;
   isAssigned?: boolean;
+  isEditMode?: boolean;
   label: string;
   onBack: () => void;
   onChangePublisher?: () => void;
@@ -179,20 +181,23 @@ export function MediaStep({
     setValue("publisherName", "", { shouldDirty: false });
   }, [allowAssignmentChoice, isCrmSource, isProfessionalPublisher, setValue, values.registrantType]);
 
+  const hasInitializedAgencyContactRef = useRef(false);
+
   useEffect(() => {
-    if (!isAgencyFlow) return;
+    if (!isAgencyFlow || hasInitializedAgencyContactRef.current) return;
+    hasInitializedAgencyContactRef.current = true;
 
     if (!values.chatEnabled) {
-      setValue("chatEnabled", true, { shouldDirty: true });
+      setValue("chatEnabled", true, { shouldDirty: false });
     }
     if (!values.phoneEnabled) {
-      setValue("phoneEnabled", true, { shouldDirty: true });
+      setValue("phoneEnabled", true, { shouldDirty: false });
     }
     if (!values.phoneNumber && profileMobile) {
-      setValue("phoneNumber", profileMobile, { shouldDirty: true });
+      setValue("phoneNumber", profileMobile, { shouldDirty: false });
     }
     if (!values.ownerFullName && profileFullName) {
-      setValue("ownerFullName", profileFullName, { shouldDirty: true });
+      setValue("ownerFullName", profileFullName, { shouldDirty: false });
     }
   }, [
     isAgencyFlow,
@@ -229,11 +234,18 @@ export function MediaStep({
     }
   };
 
+  const isAssigningToAgency =
+    !isCrmSource &&
+    !isEditMode &&
+    allowAssignmentChoice &&
+    values.registrantType === "agency" &&
+    !values.agencyId;
+
   const primaryLabel = submitDisabled
-    ? isAgencyFlow
+    ? isAssigningToAgency
       ? "در حال آماده‌سازی..."
       : "در حال ثبت..."
-    : isAgencyFlow
+    : isAssigningToAgency
       ? "انتخاب آژانس"
       : "ثبت اطلاعات";
 

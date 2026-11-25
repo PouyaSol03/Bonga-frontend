@@ -96,7 +96,10 @@ export function useNewAdStepActions({
   const handleMediaPrimary = () => {
     const values = methods.getValues();
     const shouldChooseAgency =
-      (!isEditMode || isEditingIncomplete) && !isCrmSource && values.registrantType === "agency";
+      (!isEditMode || isEditingIncomplete) &&
+      !isCrmSource &&
+      values.registrantType === "agency" &&
+      !values.agencyId;
 
     if (shouldChooseAgency) {
       goToAgencySelection();

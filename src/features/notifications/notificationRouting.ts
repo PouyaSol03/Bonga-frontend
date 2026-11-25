@@ -14,9 +14,20 @@ export { getNotificationActionLabel } from "./notificationActionLabels";
 export function getAgencyConsultantDecisionRedirectPath(): string {
   const session = getStoredAuthSession();
   const activeRole = getActiveAuthRole(session);
-  const isManager =
-    activeRole === REAL_ESTATE_MANAGER ||
-    session?.roles?.some((r) => r.slug === REAL_ESTATE_MANAGER);
+
+  if (activeRole) {
+    if (activeRole === REAL_ESTATE_MANAGER) {
+      return "/account/dashboard/agency";
+    }
+    if (
+      activeRole === REAL_ESTATE_CONSULTANT ||
+      activeRole === INDEPENDENT_CONSULTANT
+    ) {
+      return "/account/dashboard/agent";
+    }
+  }
+
+  const isManager = session?.roles?.some((r) => r.slug === REAL_ESTATE_MANAGER);
   return isManager ? "/account/dashboard/agency" : "/account/dashboard/agent";
 }
 
@@ -195,12 +206,7 @@ export function getNotificationPath(notification: NotificationItem): string {
     notification.title?.includes("مشاور") ||
     notification.description?.includes("مشاور")
   ) {
-    const session = getStoredAuthSession();
-    const activeRole = getActiveAuthRole(session);
-    const isManager =
-      activeRole === REAL_ESTATE_MANAGER ||
-      session?.roles?.some((r) => r.slug === REAL_ESTATE_MANAGER);
-    return isManager ? "/account/dashboard/agency" : "/account/dashboard/agent";
+    return getAgencyConsultantDecisionRedirectPath();
   }
 
   return "";

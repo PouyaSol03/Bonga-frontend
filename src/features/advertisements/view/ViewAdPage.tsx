@@ -95,6 +95,7 @@ export function ViewAdPage() {
         }}
       />
       <ViewAdContactActions
+        isOwnAd={presentation.isOwnAd}
         isPreview={isPreview}
         isPersonalPreview={isPersonalPreview}
         useAgencyAllocationPreview={useAgencyAllocationPreview}

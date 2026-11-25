@@ -8,7 +8,11 @@ import type {
 } from "./api/notification.hooks";
 import type { useAgencyConsultantRequestDecisionMutation } from "../agencies/api/agency.hooks";
 import type { AgencyConsultantRequestDecision } from "./types";
-import { getAgencyConsultantRequestAgentId, getNotificationPath } from "./notificationRouting";
+import {
+  getAgencyConsultantDecisionRedirectPath,
+  getAgencyConsultantRequestAgentId,
+  getNotificationPath,
+} from "./notificationRouting";
 
 export function useNotificationActions({
   agencyRequestDecisionMutation,
@@ -85,6 +89,11 @@ export function useNotificationActions({
           String(item.id) === notificationId ? { ...item, is_read: true } : item,
         ),
       );
+
+      if (decision === "accept") {
+        const destination = getAgencyConsultantDecisionRedirectPath();
+        navigate(destination);
+      }
     } finally {
       setAgencyRequestActionNotificationId(null);
     }

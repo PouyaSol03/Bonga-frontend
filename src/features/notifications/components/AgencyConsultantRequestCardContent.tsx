@@ -123,7 +123,9 @@ export function AgencyConsultantRequestCardContent({
                 ? "دعوت لغو شد"
                 : isResponding && pendingDecision === "accept"
                   ? "در حال پذیرش..."
-                  : "پذیرش همکاری"}
+                  : item.title?.includes("مشاور") || item.description?.includes("مشاور")
+                    ? "تایید درخواست مشاور"
+                    : "پذیرش همکاری"}
           </Typography>
         </Button>
 

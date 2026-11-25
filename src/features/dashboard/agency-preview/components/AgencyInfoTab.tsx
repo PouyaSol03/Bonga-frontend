@@ -166,7 +166,9 @@ export function AgencyInfoTab({
         title="ثبت بازخورد"
       />
 
-      <AgencyAboutSection aboutText={aboutText} agencyName={agencyName} />
+      {!isAgent ? (
+        <AgencyAboutSection aboutText={aboutText} agencyName={agencyName} />
+      ) : null}
     </div>
   );
 }

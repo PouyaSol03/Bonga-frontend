@@ -11,6 +11,15 @@ import {
 
 export { getNotificationActionLabel } from "./notificationActionLabels";
 
+export function getAgencyConsultantDecisionRedirectPath(): string {
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const isManager =
+    activeRole === REAL_ESTATE_MANAGER ||
+    session?.roles?.some((r) => r.slug === REAL_ESTATE_MANAGER);
+  return isManager ? "/account/dashboard/agency" : "/account/dashboard/agent";
+}
+
 export function readRecord(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null && !Array.isArray(value)
     ? (value as Record<string, unknown>)
@@ -92,6 +101,31 @@ function getAdvertiseStatePath(advertiseId: string) {
 export function getNotificationPath(notification: NotificationItem): string {
   const payload = notification.payload ?? {};
   const target = typeof payload.target === "string" ? payload.target : "";
+  const type = String(notification.type ?? "").toLowerCase();
+  const title = (notification.title ?? "").trim();
+
+  // 1. Consultant approval / Consultant page
+  if (
+    type === "consultant_approved" ||
+    target === "agent" ||
+    target === "consultant" ||
+    (title.includes("مشاور") && (title.includes("تایید شد") || title.includes("تأیید شد")))
+  ) {
+    const agentId = readPayloadId(payload.agent_id ?? payload.agentId);
+    if (agentId) return `/agents/${encodeURIComponent(agentId)}`;
+    return "/account/dashboard/agent";
+  }
+
+  // 2. Agency approval / Agency page
+  if (
+    type === "agency_approved" ||
+    target === "agency" ||
+    (title.includes("آژانس") && (title.includes("تایید شد") || title.includes("تأیید شد")))
+  ) {
+    const agencyId = readPayloadId(payload.agency_id ?? payload.agencyId);
+    if (agencyId) return `/agencies/${encodeURIComponent(agencyId)}`;
+    return "/account/dashboard/agency";
+  }
 
   switch (target) {
     case "advertise": {
@@ -109,6 +143,10 @@ export function getNotificationPath(notification: NotificationItem): string {
 
     case "agency":
       return "/account/dashboard/agency";
+
+    case "agent":
+    case "consultant":
+      return "/account/dashboard/agent";
 
     case "support": {
       const threadId = readPayloadId(payload.chat_thread_id);
@@ -150,6 +188,19 @@ export function getNotificationPath(notification: NotificationItem): string {
     notification.description?.includes("احراز هویت")
   ) {
     return "/account/identity";
+  }
+
+  if (
+    notification.type === "agency_consultant_request" ||
+    notification.title?.includes("مشاور") ||
+    notification.description?.includes("مشاور")
+  ) {
+    const session = getStoredAuthSession();
+    const activeRole = getActiveAuthRole(session);
+    const isManager =
+      activeRole === REAL_ESTATE_MANAGER ||
+      session?.roles?.some((r) => r.slug === REAL_ESTATE_MANAGER);
+    return isManager ? "/account/dashboard/agency" : "/account/dashboard/agent";
   }
 
   return "";

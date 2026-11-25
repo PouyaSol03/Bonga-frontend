@@ -37,13 +37,11 @@ const residentialSaleOptions: CategoryOption[] = [
   { id: "apartment", label: "آپارتمان" },
   { id: "land", label: "زمین، ملک کلنگی" },
   { id: "villa-house", label: "خانه، ویلا" },
-  { id: "garden-villa", label: "باغ و ویلا" },
 ];
 
 const residentialRentOptions: CategoryOption[] = [
   { id: "apartment", label: "آپارتمان" },
   { id: "villa-house", label: "خانه، ویلا" },
-  { id: "garden-villa", label: "باغ و ویلا" },
 ];
 
 const dailyRentOptions: CategoryOption[] = [

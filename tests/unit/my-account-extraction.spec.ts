@@ -132,7 +132,7 @@ describe("MyAccountPage modular extraction", () => {
       expect(container.textContent).toBe("");
     });
 
-    it("renders switcher chips when user has multiple roles", async () => {
+    it("renders switcher chips with 'آژانس' when user has agency manager role", async () => {
       const session: AuthSession = {
         accessToken: "token",
         accountType: "user",
@@ -143,6 +143,28 @@ describe("MyAccountPage modular extraction", () => {
         roles: [
           { id: "1", name: "کاربر", slug: USER },
           { id: "2", name: "مدیر", slug: REAL_ESTATE_MANAGER },
+        ],
+        userId: "1",
+      };
+      const container = await render(React.createElement(AccountRoleSwitcher, { authSession: session }));
+      const switcher = container.querySelector('[aria-label="انتخاب نقش کاربری"]');
+      expect(switcher).not.toBeNull();
+      expect(container.textContent).toContain("شخصی");
+      expect(container.textContent).toContain("آژانس");
+      expect(container.textContent).not.toContain("مشاور آژانس");
+    });
+
+    it("renders switcher chips with 'مشاور آژانس' when user has consultant role", async () => {
+      const session: AuthSession = {
+        accessToken: "token",
+        accountType: "user",
+        activeRole: USER,
+        expiresAt: 0,
+        mobile: "09120000000",
+        role: USER,
+        roles: [
+          { id: "1", name: "کاربر", slug: USER },
+          { id: "2", name: "مشاور", slug: REAL_ESTATE_CONSULTANT },
         ],
         userId: "1",
       };

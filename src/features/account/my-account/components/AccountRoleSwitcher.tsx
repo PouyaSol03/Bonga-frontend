@@ -100,15 +100,26 @@ export function AccountRoleSwitcher({
     });
   }
 
-  // 3. مشاور آژانس (Agency Consultant / Manager)
+  // 3. آژانس (Agency Manager) / مشاور آژانس (Agency Consultant)
   if (hasAgency) {
+    const isManager =
+      activeRole === REAL_ESTATE_MANAGER ||
+      authSession.roles.some((r) => r.slug === REAL_ESTATE_MANAGER) ||
+      profile?.accounts?.some(
+        (acc) =>
+          acc.context === "agency" ||
+          acc.role_slug === "real_estate_manager" ||
+          acc.type === "agency",
+      ) ||
+      Boolean(agencyProfile?.id);
+
     chips.push({
       key: "agency",
-      label: "مشاور آژانس",
+      label: isManager ? "آژانس" : "مشاور آژانس",
       isActive: isAgencyActive,
       onSelect: () => {
         const session = getStoredAuthSession();
-        const isManager =
+        const managerSelected =
           session?.roles.some((r) => r.slug === REAL_ESTATE_MANAGER) ||
           profile?.accounts?.some(
             (acc) =>
@@ -116,7 +127,7 @@ export function AccountRoleSwitcher({
               acc.role_slug === "real_estate_manager" ||
               acc.type === "agency",
           );
-        setStoredActiveRole(isManager ? REAL_ESTATE_MANAGER : REAL_ESTATE_CONSULTANT);
+        setStoredActiveRole(managerSelected ? REAL_ESTATE_MANAGER : REAL_ESTATE_CONSULTANT);
       },
     });
   }

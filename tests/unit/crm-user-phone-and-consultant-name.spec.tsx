@@ -44,6 +44,14 @@ describe("CRM and Agency fullName & Persian digit normalization", () => {
 
     expect(item).not.toBeNull();
     expect(item?.fullName).toBe("سهراب سپهری");
+
+    // Retains full_name when only first_name exists
+    const withFullName = normalizePublicAgentListItem({
+      id: "agent-124",
+      first_name: "سهراب",
+      full_name: "سهراب سپهری کاشانی",
+    });
+    expect(withFullName?.fullName).toBe("سهراب سپهری کاشانی");
   });
 
   it("normalizes agency consultant items with full name", () => {
@@ -55,6 +63,14 @@ describe("CRM and Agency fullName & Persian digit normalization", () => {
 
     expect(item).not.toBeNull();
     expect(item?.name).toBe("حسین رضایی");
+
+    // Retains full_name when only first name exists
+    const withFullName = normalizeAgencyConsultant({
+      id: 457,
+      name: "حسین",
+      full_name: "حسین رضایی مقدم",
+    });
+    expect(withFullName?.name).toBe("حسین رضایی مقدم");
   });
 });
 
@@ -72,6 +88,33 @@ describe("CRM ad creation defaults: chat disabled & target user phone", () => {
     expect(defaults.targetOwnerType).toBe("user");
     expect(defaults.targetOwnerId).toBe("42");
     expect(defaults.targetOwnerAuthorized).toBe(false);
+  });
+
+  it("enables chatEnabled when targetOwnerAuthorized is true in CRM", () => {
+    window.history.pushState(
+      {},
+      "",
+      "/new-ad?editSource=crm&targetOwnerType=user&targetOwnerId=42&targetOwnerPhone=09123456789&targetOwnerAuthorized=true",
+    );
+    const defaults = getDefaultValues({ isEditMode: false } as any);
+
+    expect(defaults.chatEnabled).toBe(true);
+    expect(defaults.targetOwnerAuthorized).toBe(true);
+  });
+
+  it("preserves base chatEnabled when editing an existing ad from CRM if authorized", () => {
+    window.history.pushState(
+      {},
+      "",
+      "/new-ad?editSource=crm&targetOwnerType=user&targetOwnerId=42&targetOwnerPhone=09123456789&targetOwnerAuthorized=true",
+    );
+    const defaults = getDefaultValues({
+      isEditMode: true,
+      card: { title: "تست" },
+      ad: { chatEnabled: true },
+    } as any);
+
+    expect(defaults.chatEnabled).toBe(true);
   });
 
   it("keeps chatEnabled true by default in non-CRM (user client) flow", () => {

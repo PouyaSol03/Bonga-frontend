@@ -36,7 +36,7 @@ export function normalizeAgencyConsultant(
   const userId = toNumber(item.user_id ?? user.id ?? user._id ?? agentId, Number.NaN);
   const firstName = firstText(item.name, item.first_name, user.name, user.first_name);
   const lastName = firstText(item.family, item.last_name, user.family, user.last_name);
-  const combinedName = [firstName, lastName].filter(Boolean).join(" ");
+  const combinedName = firstName && lastName ? `${firstName} ${lastName}` : "";
 
   const name = firstText(
     combinedName,

@@ -194,7 +194,14 @@ export function getDefaultValues(
 
   return {
     ...baseValues,
-    chatEnabled: isCrmSource ? false : baseValues.chatEnabled,
+    chatEnabled:
+      isCrmSource && targetOwnerAuthorized === false
+        ? false
+        : editDefaults
+          ? baseValues.chatEnabled
+          : isCrmSource
+            ? targetOwnerAuthorized === true && baseValues.chatEnabled
+            : baseValues.chatEnabled,
     phoneNumber: editDefaults
       ? baseValues.phoneNumber
       : (targetOwnerType === "user" ? targetOwnerPhone : "") || baseValues.phoneNumber,

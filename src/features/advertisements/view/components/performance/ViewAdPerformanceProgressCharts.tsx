@@ -120,7 +120,16 @@ export function ViewAdPerformanceProgressCharts({
             </button>
           </div>
 
-          <div className="flex items-center [direction:ltr]">
+          <div className="flex items-center gap-1 [direction:ltr]">
+            <Button
+              unstyled
+              aria-label="بازه قبلی (هفته قبل)"
+              className="text-on-surface-var grid h-9 w-9 cursor-pointer place-items-center"
+              onClick={() => setWeekOffset((p) => p + 1)}
+              type="button"
+            >
+              <LinearArrowLeft1 className="h-5 w-5" />
+            </Button>
             <Button
               unstyled
               aria-label="بازه بعدی (هفته بعد)"
@@ -134,15 +143,6 @@ export function ViewAdPerformanceProgressCharts({
               type="button"
             >
               <LinearArrowRight1 className="h-5 w-5" />
-            </Button>
-            <Button
-              unstyled
-              aria-label="بازه قبلی (هفته قبل)"
-              className="text-on-surface-var grid h-9 w-9 cursor-pointer place-items-center"
-              onClick={() => setWeekOffset((p) => p + 1)}
-              type="button"
-            >
-              <LinearArrowLeft1 className="h-5 w-5" />
             </Button>
           </div>
         </div>

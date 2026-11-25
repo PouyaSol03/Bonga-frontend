@@ -52,7 +52,7 @@ export function AccountProfilePage() {
                   );
                 },
                 onSuccess: () => {
-                  navigate("/account/profile");
+                  navigate("/account");
                   showToast("اطلاعات حساب ذخیره شد");
                 },
               });

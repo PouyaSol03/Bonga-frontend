@@ -11,7 +11,14 @@ export function getSearchParamsFromSnapshot(search: string) {
 }
 
 export function getInitialSearchMode(): SearchMapMode {
-  return getSearchParams().get("view") === "list" ? "list" : "map";
+  const urlView = getSearchParams().get("view");
+  if (urlView === "list") return "list";
+  if (urlView === "map") return "map";
+  if (typeof window !== "undefined") {
+    const stored = sessionStorage.getItem("bonga_search_last_mode");
+    if (stored === "list") return "list";
+  }
+  return "map";
 }
 
 export function writeSearchParams(

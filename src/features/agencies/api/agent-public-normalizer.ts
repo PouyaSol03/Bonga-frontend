@@ -18,10 +18,12 @@ import type {
 export function normalizePublicAgentListItem(
   item: PublicAgentListApiItem,
 ): PublicAgentListDto | null {
+  const userRecord = asRecord(item.user);
   const id = firstText(item.id, item._id);
-  const name = toText(item.name);
-  const family = toText(item.family);
-  const fullName = firstText(item.full_name, [name, family].filter(Boolean).join(" "));
+  const name = toText(item.name ?? item.first_name ?? userRecord.name ?? userRecord.first_name);
+  const family = toText(item.family ?? item.last_name ?? userRecord.family ?? userRecord.last_name);
+  const combinedName = name && family ? `${name} ${family}` : "";
+  const fullName = combinedName || firstText(item.full_name, userRecord.full_name, name, family);
 
   if (!id || !fullName) return null;
 

@@ -102,6 +102,12 @@ export function useSearchMapPageState() {
   }, [nav.location.search]);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("bonga_search_last_mode", mode);
+    }
+  }, [mode]);
+
+  useEffect(() => {
     if (selectedListingId == null) return;
     const exists = queries.visibleListings.some(
       (listing) => String(listing.id) === String(selectedListingId),

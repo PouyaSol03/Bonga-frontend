@@ -81,8 +81,10 @@ export type PublicAgentListApiItem = {
   agency_id?: unknown;
   avatar?: unknown;
   family?: unknown;
+  first_name?: unknown;
   full_name?: unknown;
   id?: unknown;
+  last_name?: unknown;
   level_slug?: unknown;
   level_title?: unknown;
   mobile?: unknown;
@@ -92,6 +94,7 @@ export type PublicAgentListApiItem = {
   role?: unknown;
   score?: unknown;
   status?: unknown;
+  user?: unknown;
   user_id?: unknown;
 };
 

@@ -173,9 +173,10 @@ export function SearchMapListView({
   }, [isLoading, listings.length]);
 
   useEffect(() => {
+    const containerEl = scrollContainerRef.current;
     return () => {
-      if (scrollContainerRef.current) {
-        const top = scrollContainerRef.current.scrollTop;
+      if (containerEl) {
+        const top = containerEl.scrollTop;
         sessionStorage.setItem(`bonga_search_list_scroll_${window.location.search}`, String(top));
         sessionStorage.setItem("bonga_search_list_scroll", String(top));
       }

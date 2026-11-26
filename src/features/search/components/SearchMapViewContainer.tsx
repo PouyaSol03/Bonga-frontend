@@ -1,11 +1,11 @@
 import type { BrowserLocation } from "../../../shared/lib/browserLocation";
-import type {
-  SearchMapBounds,
-  SearchMapCenter,
-  SearchMapListing,
-  SearchMapListingId,
+import {
+  searchMapTileConfig,
+  type SearchMapBounds,
+  type SearchMapCenter,
+  type SearchMapListing,
+  type SearchMapListingId,
 } from "../searchMapData";
-import { searchMapTileConfig } from "../searchMapData";
 import { emptyListingIds } from "../map/constants";
 import type { useSearchMapGeofence } from "../map/useSearchMapGeofence";
 import { SearchMapListView } from "./SearchMapListView";

@@ -9,8 +9,9 @@ export const projectPreviewFields: Record<string, PropertyPreviewField[]> = {
   "presale-special": [
     { labels: ["project_type"], label: "نوع پروژه", icon: "construction" },
     { labels: ["document_type", "document", "deed_type"], label: "سند", icon: "agreement" },
+    { labels: ["project_total_units", "total_units"], label: "تعداد کل واحدها", icon: "building" },
     { labels: ["project_total_floors", "total_floors"], label: "تعداد کل طبقات", icon: "floor" },
-    { labels: ["project_total_units", "total_units"], label: "تعداد کل واحدها", icon: "bed" },
+    { labels: ["project_status"], label: "وضعیت پروژه", icon: "apartment" },
   ],
   partnership: [
     {

@@ -89,4 +89,38 @@ describe("Bug fixes: Presale display, Owner Phone formatting, and Project Facili
     expect(getSaleTermsSupportingText("101")).toBeUndefined();
     expect(getSaleTermsSupportingText("-5")).toBeUndefined();
   });
+
+  it("maps and renders presale project info with full-width project type and project status", () => {
+    const mapped = mapAdToDetails({
+      id: 99,
+      form_code: "presale-special",
+      features: [
+        { key: "project_type", label: "نوع پروژه", value: "مسکونی، اداری، تجاری" },
+        { key: "document_type", label: "سند", value: "ملکی" },
+        { key: "project_total_units", label: "تعداد کل واحدها", value: "256" },
+        { key: "project_total_floors", label: "تعداد کل طبقات", value: "14" },
+        { key: "project_status", label: "وضعیت پروژه", value: "در حال ساخت" },
+      ],
+    } as any);
+
+    expect(mapped.propertyInfoPreview.map((item) => item.label)).toEqual([
+      "نوع پروژه",
+      "سند",
+      "تعداد کل واحدها",
+      "تعداد کل طبقات",
+      "وضعیت پروژه",
+    ]);
+
+    const markup = renderToStaticMarkup(
+      <MemoryRouter>
+        <PreSaleViewContent adId="99" details={mapped} />
+      </MemoryRouter>,
+    );
+
+    expect(markup).toContain("اطلاعات پروژه");
+    expect(markup).toContain("col-span-2");
+    expect(markup).toContain("مسکونی، اداری، تجاری");
+    expect(markup).toContain("وضعیت پروژه");
+    expect(markup).toContain("در حال ساخت");
+  });
 });

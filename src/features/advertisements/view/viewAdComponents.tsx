@@ -270,7 +270,7 @@ export function PropertyGrid({
 
         return (
           <div
-            className="flex min-w-0 items-start gap-2"
+            className={`flex min-w-0 items-start gap-2 ${item.fullWidth ? "col-span-2" : ""}`}
             key={`${item.icon}-${item.label}-${item.value}`}
           >
             <DetailItemIcon className="text-on-surface-var h-6 w-6 shrink-0" item={item} />

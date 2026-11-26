@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { NewAdFieldErrors, NewAdFormValues, SelectKey } from "../../types";
 import {
   documentTypeOptions,
@@ -10,7 +11,9 @@ import {
 import { getParams } from "../../utils";
 import { InputBox, Section, SelectBox, Tag } from "../../components/NewAdControls";
 import { Typography } from "../../../../../shared/ui/Typography";
+import { toPersianDigits } from "../../../../../shared/lib/numberUtils";
 import LinearBuilding from "../../../../../shared/icons/LinearBuilding";
+import LinearArrowDown1 from "../../../../../shared/icons/LinearArrowDown1";
 import LinearArrowLeft2 from "../../../../../shared/icons/LinearArrowLeft2";
 import { RegisteredMoreFeatures } from "../details/RegisteredMoreFeatures";
 
@@ -35,6 +38,15 @@ export function ProjectSpecsSection({
 }: ProjectSpecsSectionProps) {
   const { category } = getParams();
   const isPartnership = category === "project-partnership";
+  const [showAllProjectDetails, setShowAllProjectDetails] = useState(false);
+
+  const validProjectDetails = values.projectDetails.filter(
+    (item) => item.meterage || item.minMeterage,
+  );
+  const visibleProjectDetails = showAllProjectDetails
+    ? validProjectDetails
+    : validProjectDetails.slice(0, 4);
+  const remainingProjectDetailsCount = Math.max(0, validProjectDetails.length - 4);
 
   if (isPartnership) {
     return (
@@ -143,28 +155,27 @@ export function ProjectSpecsSection({
             </Typography>
           </div>
 
-          <div className="text-primary flex items-center gap-1">
+          <div className="border-outline-var text-on-surface-var flex items-center gap-1 rounded-xl border px-3 py-1.5">
             <Typography
               as="span"
               variant="label"
               size="medium"
               weight="medium"
-              className="text-primary"
+              className="text-on-surface-var"
             >
               انتخاب
             </Typography>
-            <LinearArrowLeft2 className="text-primary h-4 w-4" />
+            <LinearArrowLeft2 className="text-on-surface-var h-4 w-4" />
           </div>
         </button>
 
-        {values.projectDetails.some((item) => item.meterage || item.minMeterage) ? (
-          <div className="mt-3 flex flex-wrap justify-start gap-2" dir="rtl">
-            {values.projectDetails
-              .filter((item) => item.meterage || item.minMeterage)
-              .map((item) => (
+        {validProjectDetails.length > 0 ? (
+          <>
+            <div className="mt-3 flex flex-wrap justify-start gap-2" dir="rtl">
+              {visibleProjectDetails.map((item) => (
                 <Tag
                   key={item.id}
-                  label={`متراژ ${item.meterage || item.minMeterage || "-"} متر`}
+                  label={`متراژ ${toPersianDigits(item.meterage || item.minMeterage || "-")} متر`}
                   onRemove={() =>
                     setField(
                       "projectDetails",
@@ -173,7 +184,34 @@ export function ProjectSpecsSection({
                   }
                 />
               ))}
-          </div>
+            </div>
+
+            {remainingProjectDetailsCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => setShowAllProjectDetails((prev) => !prev)}
+                className="text-on-surface mt-3 flex items-center gap-1.5 text-sm font-medium transition active:opacity-70"
+              >
+                <Typography
+                  as="span"
+                  variant="label"
+                  size="medium"
+                  weight="medium"
+                  className="text-on-surface"
+                >
+                  {showAllProjectDetails
+                    ? "مشاهده کمتر"
+                    : `${toPersianDigits(remainingProjectDetailsCount)} مورد دیگر`}
+                </Typography>
+                <LinearArrowDown1
+                  aria-hidden="true"
+                  className={`text-on-surface h-4 w-4 transition-transform duration-200 ${
+                    showAllProjectDetails ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+            ) : null}
+          </>
         ) : null}
 
         {projectDetailsError ? (

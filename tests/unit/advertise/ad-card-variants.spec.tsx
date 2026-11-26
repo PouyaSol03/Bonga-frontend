@@ -31,16 +31,16 @@ describe("AdCard variants characterization", () => {
     ));
     expect(hashes).toMatchInlineSnapshot(`
       {
-        "carousel/false": "9cb6b6cbd6271489c4de0703b10c617f362d7cb469238f7b730e8a0de77721ea",
-        "carousel/true": "5a38882eaaae31f45274581b7f206d6e10efc3d12d316dc754bff2ff61bdfaa4",
-        "dashboard/false": "794b2502eeca6bcfbad8bc539d1e7191254045b8453ede884535f47cfbd02d66",
-        "dashboard/true": "09a768a6f3bdd86274ab852b3a81ae975703b53d23f284dd72fc5d2c9e408a60",
-        "mapPreview/false": "b0d6a5b8f8588642c332cca0d08b1084eb15f43789db01a5ccb526ea10490694",
-        "mapPreview/true": "4de1105257c5015770df8983d6cb9cc0322ce6f76e65226dde3e20604afc1f3c",
-        "requestResult/false": "b9e63797ce9eff1107691e4d29aa1e6b3cd17af34aa86ab0695da21cbd19e75d",
-        "requestResult/true": "8aca6027c9c73f88f7a38f97cdb72aac814e026326523adfe7943f4f60f63fe8",
-        "standard/false": "94169ebc01580eff0b4889e2e30c153c70247a47ffe541cfef2adac4e364f235",
-        "standard/true": "03bce3c44f418ad0d6bcee4d2f8d485c7e09a933a36d1b13c0ee44b24c5c60a2",
+        "carousel/false": "46792247701b3b8445ab319ab5efd1037325fb36d360987b025cf96c3be86664",
+        "carousel/true": "df7b4ce6c8bf5054fdc59abea2e758c648599ed4ef3a884f5be1fce937d93182",
+        "dashboard/false": "fb84456e75206bb33fbe546c777a54273c93ac6f8f0108c61872d28a17f2c981",
+        "dashboard/true": "73ccf8d77ae0d2f0a1651ca1288eecfbe832bf03bf3d99848aeafd46ec1dca8f",
+        "mapPreview/false": "a986daf33e4f497bc4045867d4fa7888bb59c56c0de6b047dd3e164016704744",
+        "mapPreview/true": "cb7367d73ac80aa2aa2d0978088a90bddb147b936cb1c4578bd5298328e1c17e",
+        "requestResult/false": "695460898a05a8f2422c961b634975b6c9d4c7f0b806ee2ac77132ebb5c88b79",
+        "requestResult/true": "e7604114125927bbc5457093cff6cd2f6433f2b5d76f9b9d332bc4c684529b52",
+        "standard/false": "0626cde63dac8ae8f023710866ebaa78c3123216603d6c8e469da325f8959734",
+        "standard/true": "0b387ee544fcfd478cbd1876d4127849f0ab43486343c444fa23215df0df2258",
       }
     `);
   });
@@ -57,26 +57,26 @@ describe("AdCard variants characterization", () => {
     }));
     expect(hashes).toMatchInlineSnapshot(`
       {
-        "-1": "f2093da11ea2d6939a4b5453e18be9ade95b2d796ba4051c93a03d792384be6d",
-        "-2": "ce33781a732958983fd097cc0b34c1cb83592640fa1c538030592b3057b93550",
-        "-3": "ba66ac2d01cc54aebd8dbd9612cedc243da4bfcec34a79cf0a2e5fd43b99f3b1",
-        "-5": "fed2b1698062b17dc281b58a08aa95d62b0853a7ffa61d5c6aeb9b699f02e6fe",
-        "0": "2c817b10993dc5fe8f28d5f4756dd96fc8b28f341546ebfc1a7b3a01c15be30d",
-        "1": "a49b044cfe2d4ea9552bf4d4a2f31990f8c335b49933f8febfee6a65db332d53",
-        "2": "4387fb4b35fad9c07b109c98d04bfddf5543998ea14ca949c4b5d1963be8706a",
-        "3": "e550400abaa4f24ae6022798284f5d2ef6b7008670d9d6afaa81512f0b88da8d",
-        "accepted": "8d3c5792ab698f99ce9f7acc8a566b900a1f0f5d30aaf255eaa6ac3f720811c4",
-        "draft": "81dc26c7565d0f9de3510b92c8d38a17e3e32ca9ceebef3881317b1c60d10808",
-        "incomplete": "9c10e76f9934fd8a02e19fa62231e9f5d9f1519f9a04a5f24d36d130dc87c5da",
-        "pending": "9e6d1dd7bdf0d597a3da9e5d4d024eec372ca3bf201969e2ab924fde3466f82f",
-        "publish": "48eb3ee6e51dbfa14b98d399e0f67cc37e836a9688ec614e684c26186bd614b2",
-        "rejected payment": "707cea7f3f7269715776af9443b37e6ad5b773a9c8cc46a7b8b696b5d3703507",
-        "unknown": "100a6f3792141db18a23e6ca3a14bd024d30920435691355b3f1d2e21e30b26c",
-        "تاييد شده": "e7b7919bb1cdedb02b050db0cce5fc96e31ce28b9a0cc2571836ec7a4e0fd2de",
-        "در انتظار پرداخت": "ddce78f364cc391eed56589578bbc20d0b1568feb0a86451dc413f62bcf1f21d",
-        "رد شده": "adb78bb4395644240502cda6c607226013f6faf055fbe9eb40e3427dc5e7e0d7",
-        "غیر‌فعال": "52b08a431790b7bdf27e5a3c2f68c831fa5709f466b7b5e23f1833110b7258f6",
-        "نیمه‌کاره": "d8b7b665cffb370d10d7fa4f0bc23420eccccd884e490b3708d73ccd2679eee5",
+        "-1": "9c1d4100bf9fa0105b81e7d8940b85d445169b34d03b21a8872e11d16103f308",
+        "-2": "e7c0987c4da9b03194af2b057e7070d00184223ee7588dbf83784aa1b4e28af3",
+        "-3": "b348df049ba5237b2941e07113584c6ba9b8a026e1e847bef92d05c06187575c",
+        "-5": "1937d5bbb7c1f3b7a0644b6e0e9fb4b880ce235c2b68a07cfae2e62a73169523",
+        "0": "59e9f5dc3d844a2231b2ea59ccbd33c61c59687f188f4d344b61b4f812b5c443",
+        "1": "65dcac9fa06c0f65d5a76dda4fa9d16c16bd66934d1e9ba7c1c738f66e95e130",
+        "2": "53ae0cc3839e75365430194e1b70e6162ab29ed4348846a4999bb59305b2e5dd",
+        "3": "a157edd78b85ca5cc8ee7310c6c809b53016d6d5045f90a1aed747e812957f39",
+        "accepted": "64cf3f1b98a2f7f754c0a720be0bdfaa53a63a37bc8a8643dfda551a24b94df8",
+        "draft": "520e4bacc5761b81fc3da6c65d790bce0a48d4fc1a21740a309a17be7576e7ae",
+        "incomplete": "532e2e0573b1e9a93a0265573431513c0765ccf8d77e9481402f58022ea80d48",
+        "pending": "c9c312dcdf1e06c7e0a9fa66d632457b06153183a3afdaabb07c51c372d359f0",
+        "publish": "50e0991efb1965e6f0c46b387b5f383b64d731fae888a4b1af2406cf86910b15",
+        "rejected payment": "b7388516c3a0017214932afd1b30d1cfaa539abefaa5e2ddef19d445ca9925fb",
+        "unknown": "83a3354dbe37f9f6c52134025970f8ae2b59d3298fa129f267073dd06f0fee23",
+        "تاييد شده": "8e0fa59791d68e0eca26832fff9d5051b69cd4e55b382cda97c6c5fc432172f2",
+        "در انتظار پرداخت": "db0a28e900e3cdfc4b66f22c6863da3822dce4fcf9f48dec89a31b6476a63833",
+        "رد شده": "395f338979c1505c5887c79d50a67f2dc63900efbb2384120ca6424f996daab7",
+        "غیر‌فعال": "83bb2248d87fda0d549c6f6d8a2a722bdc35ffd38b9e882e6e86645cb7c7aa0a",
+        "نیمه‌کاره": "d4f45aa04d32b33136ca8dc78d597fe0bc6626894552188457c7eef2fcf07124",
       }
     `);
   });
@@ -90,10 +90,10 @@ describe("AdCard variants characterization", () => {
     ));
     expect(hashes).toMatchInlineSnapshot(`
       {
-        "mapPreview/": "cce7f1722883861127e5e5c638805a76d9690dc484f601f9eebe2b9761863ffb",
-        "mapPreview//image.jpg": "98690c43acb9c918871bbdaf2f48d7cc027bef24e7c6aa6e2ddf3ff43e115699",
-        "standard/": "33170de3c7b70f40e66aff4d5e0ce236badf2f1dd43cc6d240645090c65c06ab",
-        "standard//image.jpg": "deb43bb341c6bc73c36c1ec2faee4a28ed3fc7baafdf4831735ef611edec1d75",
+        "mapPreview/": "c6b27b5859703dc21452195c34933151ea112af4eaa05bfae75eea94e74aba24",
+        "mapPreview//image.jpg": "08a45511f3f79709be55918a8c0340caa49a59957bcc33203d713ab7a7fa491f",
+        "standard/": "553e2a3f74900a5c5b6250cf0dd773742007380b365c0689953826f6e34a78c2",
+        "standard//image.jpg": "26aa328d3439883d91a50c131118389eca3c34564fab502d3197e5c5f525a813",
       }
     `);
   });

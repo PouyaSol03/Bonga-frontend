@@ -37,6 +37,7 @@ export function buildAdvertiseSearchParams(
     published_at: filters.publishedAt,
     query: filters.query,
     rooms: filters.rooms,
+    sub_neighborhood_id: filters.subNeighborhoodId,
     ...(filters.featureFilters ?? {}),
   });
 }

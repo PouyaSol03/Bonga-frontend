@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { readStoredSelectedCity } from "../../../shared/lib/selectedCityStorage";
 import {
-  useAdvertisementListQuery,
+  useAdvertisementInfiniteListQuery,
   useAdvertisementMapQuery,
 } from "../../advertisements/api/advertisement.hooks";
 import { getNeighborhoodPolygonPoints } from "../../locations/api/neighborhood.service";
@@ -104,8 +104,11 @@ export function useSearchMapQueries({
     [currentSearch],
   );
 
-  const mapQuery = useAdvertisementMapQuery(mapQueryParams);
-  const listQuery = useAdvertisementListQuery(listQueryParams);
+  const mapQuery = useAdvertisementMapQuery(mode !== "list" ? mapQueryParams : null);
+  const listInfiniteQuery = useAdvertisementInfiniteListQuery(
+    mode === "list" ? listQueryParams : null,
+    { enabled: mode === "list" },
+  );
 
   const apiListings = useMemo(
     () =>
@@ -115,29 +118,38 @@ export function useSearchMapQueries({
     [mapQuery.data],
   );
 
-  const apiListListings = useMemo(
-    () =>
-      (listQuery.data?.data ?? [])
-        .map((item, index) => {
-          const listing = mapAdvertisementToSearchListing(item, index);
-          if (listing) return listing;
+  const apiListListings = useMemo(() => {
+    const pages = listInfiniteQuery.data?.pages ?? [];
+    const allItems = pages.flatMap((page) => page.data);
+    const seenIds = new Set<string | number>();
+    const uniqueItems = allItems.filter((item) => {
+      const id = item.id ?? item._id;
+      if (!id || seenIds.has(id)) return false;
+      seenIds.add(id);
+      return true;
+    });
 
-          return mapAdvertisementToSearchListing(
-            {
-              ...item,
-              lat: mapCenter.latitude,
-              lng: mapCenter.longitude,
-            },
-            index,
-          );
-        })
-        .filter((item): item is SearchMapListing => item !== null),
-    [listQuery.data, mapCenter.latitude, mapCenter.longitude],
-  );
+    return uniqueItems
+      .map((item, index) => {
+        const listing = mapAdvertisementToSearchListing(item, index);
+        if (listing) return listing;
+
+        return mapAdvertisementToSearchListing(
+          {
+            ...item,
+            lat: mapCenter.latitude,
+            lng: mapCenter.longitude,
+          },
+          index,
+        );
+      })
+      .filter((item): item is SearchMapListing => item !== null);
+  }, [listInfiniteQuery.data?.pages, mapCenter.latitude, mapCenter.longitude]);
 
   const listingSource = mode === "list" ? apiListListings : apiListings;
   const isMapLoading = !mapQueryParams || (mapQuery.isFetching && apiListings.length === 0);
-  const isListLoading = listQuery.isFetching && apiListListings.length === 0;
+  const isListLoading =
+    listInfiniteQuery.isLoading || (listInfiniteQuery.isFetching && apiListListings.length === 0);
 
   const [hasInitialMapLoaded, setHasInitialMapLoaded] = useState(false);
 
@@ -172,9 +184,30 @@ export function useSearchMapQueries({
   }, [mapQuery.error, mapQuery.isError, showNotice]);
 
   useEffect(() => {
-    if (!listQuery.isError) return;
-    showNotice(getApiErrorMessage(listQuery.error, "دریافت لیست آگهی‌ها با خطا مواجه شد."));
-  }, [listQuery.error, listQuery.isError, showNotice]);
+    if (!listInfiniteQuery.isError) return;
+    showNotice(
+      getApiErrorMessage(listInfiniteQuery.error, "دریافت لیست آگهی‌ها با خطا مواجه شد."),
+    );
+  }, [listInfiniteQuery.error, listInfiniteQuery.isError, showNotice]);
+
+  const listQuery = useMemo(
+    () => ({
+      ...listInfiniteQuery,
+      data: {
+        data: listInfiniteQuery.data?.pages.flatMap((page) => page.data) ?? [],
+        hasNextPage: Boolean(listInfiniteQuery.hasNextPage),
+        page: listInfiniteQuery.data?.pages[listInfiniteQuery.data.pages.length - 1]?.page ?? 1,
+        total: listInfiniteQuery.data?.pages[0]?.total ?? apiListListings.length,
+      },
+      error: listInfiniteQuery.error,
+      isError: listInfiniteQuery.isError,
+      isFetching: listInfiniteQuery.isFetching,
+      isLoading: listInfiniteQuery.isLoading,
+      isSuccess: listInfiniteQuery.isSuccess,
+      refetch: listInfiniteQuery.refetch,
+    }),
+    [apiListListings.length, listInfiniteQuery],
+  );
 
   return {
     apiListListings,
@@ -182,10 +215,14 @@ export function useSearchMapQueries({
     bluePriceMarkerListingIds,
     chips,
     currentSearchQuery,
+    fetchNextPage: listInfiniteQuery.fetchNextPage,
     hasActiveSearchCriteria,
+    hasNextPage: Boolean(listInfiniteQuery.hasNextPage),
+    isFetchingNextPage: listInfiniteQuery.isFetchingNextPage,
     isInitialMapLoading,
     isListLoading,
     isMapLoading,
+    listInfiniteQuery,
     listQuery,
     mapQuery,
     queryLabel,

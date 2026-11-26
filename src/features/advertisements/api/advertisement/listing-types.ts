@@ -78,6 +78,7 @@ export type AdvertisementSearchFilters = {
   publishedAt?: string;
   query?: string;
   rooms?: string;
+  subNeighborhoodId?: string;
   featureFilters?: Record<string, boolean | number | string>;
 };
 

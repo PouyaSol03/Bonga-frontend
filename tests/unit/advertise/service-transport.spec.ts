@@ -103,7 +103,7 @@ test("map literal geofence separators and nested response candidates", () =>
     expect(requests[0].url).toContain("geofence=1,2|3,4");
     expect(requests[0].url).toContain("query=a%20b");
     expect(requests[0].url).toContain("has_video=false");
-    expect(requests[0].url).toContain("limit=100");
+    expect(requests[0].url).toContain("limit=2000");
     reply({ advertises: [], data: [{ id: 9 }] });
     expect(
       await service.getAdvertisementMap({

@@ -1,6 +1,6 @@
 import type { SearchMapListingId } from "../searchMapData";
 
-export const mapRequestLimit = 100;
+export const mapRequestLimit = 2000;
 export const emptyListingIds = new Set<SearchMapListingId>();
 export const maxBluePriceMarkers = 100;
 export const selectedCityMapZoom = 12;

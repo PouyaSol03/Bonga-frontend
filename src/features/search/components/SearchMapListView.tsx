@@ -1,6 +1,6 @@
+import { useCallback, useEffect, useRef } from "react";
 import LinearMapsLocation from "../../../shared/icons/LinearMapsLocation";
-import { AdCard, type AdCardData  } from "../../advertisements/components/AdCard";
-
+import { AdCard, type AdCardData } from "../../advertisements/components/AdCard";
 import { AdCardSkeleton } from "../../advertisements/components/AdCardSkeleton";
 import { SearchNoResultsRequestCard } from "./SearchNoResultsRequestCard";
 import type { SearchMapListing } from "../searchMapData";
@@ -10,8 +10,11 @@ import { toPersianDigits } from "../../../shared/lib/numberUtils";
 
 type SearchMapListViewProps = {
   hasEmptyResults?: boolean;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
   isLoading?: boolean;
   listings: SearchMapListing[];
+  onFetchNextPage?: () => void;
   onMapClick: () => void;
   onRequestSubmit?: (title: string) => void;
 };
@@ -64,14 +67,93 @@ function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
 
 export function SearchMapListView({
   hasEmptyResults = false,
+  hasNextPage = false,
+  isFetchingNextPage = false,
   isLoading = false,
   listings,
+  onFetchNextPage,
   onMapClick,
   onRequestSubmit,
 }: SearchMapListViewProps) {
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
+  const prefetchObserverRef = useRef<IntersectionObserver | null>(null);
+  const bottomObserverRef = useRef<IntersectionObserver | null>(null);
+
+  const prefetchIndex = Math.max(0, listings.length - 10);
+
+  const handleFetchNext = useCallback(() => {
+    if (!hasNextPage || isFetchingNextPage || !onFetchNextPage) return;
+    onFetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, onFetchNextPage]);
+
+  const prefetchTriggerRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      prefetchObserverRef.current?.disconnect();
+      prefetchObserverRef.current = null;
+      if (!node || !hasNextPage || isFetchingNextPage) return;
+
+      if (typeof IntersectionObserver === "undefined") return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+            handleFetchNext();
+          }
+        },
+        { root: null, rootMargin: "350px 0px", threshold: 0 },
+      );
+      observer.observe(node);
+      prefetchObserverRef.current = observer;
+    },
+    [handleFetchNext, hasNextPage, isFetchingNextPage],
+  );
+
+  const bottomSentinelRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      bottomObserverRef.current?.disconnect();
+      bottomObserverRef.current = null;
+      if (!node || !hasNextPage || isFetchingNextPage) return;
+
+      if (typeof IntersectionObserver === "undefined") return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+            handleFetchNext();
+          }
+        },
+        { root: null, rootMargin: "400px 0px", threshold: 0 },
+      );
+      observer.observe(node);
+      bottomObserverRef.current = observer;
+    },
+    [handleFetchNext, hasNextPage, isFetchingNextPage],
+  );
+
+  useEffect(() => {
+    return () => {
+      prefetchObserverRef.current?.disconnect();
+      bottomObserverRef.current?.disconnect();
+    };
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    if (scrollHeight - (scrollTop + clientHeight) <= 600) {
+      handleFetchNext();
+    }
+  }, [handleFetchNext, hasNextPage, isFetchingNextPage]);
+
   return (
     <>
       <main
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
         className="bg-surface-container absolute inset-0 z-0 flex min-h-0 flex-col overflow-y-auto overscroll-contain pt-[60px] pb-20"
         aria-label="لیست آگهی‌ها"
         dir="rtl"
@@ -91,14 +173,38 @@ export function SearchMapListView({
               <SearchNoResultsRequestCard className="mx-4" onSubmit={onRequestSubmit} />
             </div>
           ) : (
-            listings.map((listing) => (
-              <AdCard
-                className="border-surface-container shrink-0 border-b-[12px] last:border-b-0"
-                key={listing.id}
-                ad={listing.adCard ?? searchMapListingToAdCardData(listing)}
-                to={`/ads/${listing.id}`}
-              />
-            ))
+            <>
+              {listings.map((listing, index) => {
+                const isPrefetchTrigger = hasNextPage && index === prefetchIndex;
+                return (
+                  <div
+                    key={`${listing.id}-${index}`}
+                    ref={isPrefetchTrigger ? prefetchTriggerRef : undefined}
+                    className="border-surface-container shrink-0 border-b-[12px] last:border-b-0"
+                  >
+                    <AdCard
+                      ad={listing.adCard ?? searchMapListingToAdCardData(listing)}
+                      to={`/ads/${listing.id}`}
+                    />
+                  </div>
+                );
+              })}
+              {isFetchingNextPage ? (
+                Array.from({ length: 3 }).map((_, index) => (
+                  <AdCardSkeleton
+                    className="border-surface-container shrink-0 border-b-[12px]"
+                    key={`loading-more-skeleton-${index}`}
+                  />
+                ))
+              ) : null}
+              {hasNextPage ? (
+                <div
+                  ref={bottomSentinelRef}
+                  className="h-4 w-full shrink-0"
+                  aria-hidden="true"
+                />
+              ) : null}
+            </>
           )}
         </div>
       </main>

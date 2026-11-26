@@ -280,6 +280,14 @@ export const queryKeys = {
         JSON.stringify(filters.filters ?? {}),
         filters.perPage,
       ] as const,
+    infiniteList: (filters: { cityId?: string; filters?: unknown; perPage: number }) =>
+      [
+        ...queryKeys.advertisements.all,
+        "infinite-list",
+        filters.cityId ?? "",
+        JSON.stringify(filters.filters ?? {}),
+        filters.perPage,
+      ] as const,
     map: (filters: {
       cityId?: string;
       east?: number;

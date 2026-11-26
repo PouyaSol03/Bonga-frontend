@@ -18,6 +18,9 @@ interface SearchMapViewContainerProps {
   isFullListOpen: boolean;
   isGeofenceEditorOpen: boolean;
   isListLoading: boolean;
+  isFetchingNextPage?: boolean;
+  hasNextPage?: boolean;
+  onFetchNextPage?: () => void;
   mapCenter: SearchMapCenter;
   mapCenterSignal: number;
   mapResizeSignal: number;
@@ -39,6 +42,9 @@ export function SearchMapViewContainer({
   isFullListOpen,
   isGeofenceEditorOpen,
   isListLoading,
+  isFetchingNextPage,
+  hasNextPage,
+  onFetchNextPage,
   mapCenter,
   mapCenterSignal,
   mapResizeSignal,
@@ -55,7 +61,11 @@ export function SearchMapViewContainer({
   if (isFullListOpen) {
     return (
       <SearchMapListView
+        hasEmptyResults={!isListLoading && apiListListings.length === 0}
         isLoading={isListLoading}
+        isFetchingNextPage={isFetchingNextPage}
+        hasNextPage={hasNextPage}
+        onFetchNextPage={onFetchNextPage}
         listings={apiListListings}
         onMapClick={onReturnToMapView}
       />

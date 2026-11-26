@@ -3,6 +3,7 @@ export type { AdvertisementItem } from "./advertisement/item-types";
 export type {
   AdvertisementMapParams,
   AdvertisementListParams,
+  AdvertisementPage,
   AdvertisementSearchFilters,
 } from "./advertisement/listing-types";
 export type {

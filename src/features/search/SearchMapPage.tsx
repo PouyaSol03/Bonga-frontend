@@ -100,6 +100,9 @@ export function SearchMapPage() {
           isFullListOpen={isFullListOpen}
           isGeofenceEditorOpen={isGeofenceEditorOpen}
           isListLoading={queries.isListLoading}
+          isFetchingNextPage={queries.isFetchingNextPage}
+          hasNextPage={queries.hasNextPage}
+          onFetchNextPage={queries.fetchNextPage}
           mapCenter={mapCenter}
           mapCenterSignal={mapCenterSignal}
           mapResizeSignal={mapResizeSignal}

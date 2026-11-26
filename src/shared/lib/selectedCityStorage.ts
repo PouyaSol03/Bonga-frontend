@@ -13,7 +13,7 @@ export const selectedCityStorageKeys = {
 } as const;
 
 export const defaultSelectedCity: Readonly<Required<StoredSelectedCity>> = {
-  id: "000000000000000000000101",
+  id: "7",
   latitude: 36.2605,
   longitude: 59.5986,
   name: "مشهد",
@@ -48,12 +48,14 @@ export function readStoredSelectedCity(): StoredSelectedCity | null {
   if (!name) return { ...defaultSelectedCity };
 
   const storedId = window.localStorage.getItem(selectedCityStorageKeys.id) ?? undefined;
+  const normalizedId =
+    storedId === "000000000000000000000101" ? "7" : storedId;
   const latitude = toFiniteNumber(window.localStorage.getItem(selectedCityStorageKeys.latitude));
   const longitude = toFiniteNumber(window.localStorage.getItem(selectedCityStorageKeys.longitude));
   const isDefaultCity = name.trim() === defaultSelectedCity.name;
 
   return {
-    id: storedId ?? (isDefaultCity ? defaultSelectedCity.id : undefined),
+    id: normalizedId ?? (isDefaultCity ? defaultSelectedCity.id : undefined),
     latitude:
       latitude !== undefined && isValidLatitude(latitude)
         ? latitude

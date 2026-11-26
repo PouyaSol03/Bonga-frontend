@@ -1,4 +1,10 @@
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  type InfiniteData,
+} from "@tanstack/react-query";
 
 import { queryClient } from "../../../shared/api/query-client";
 import { queryKeys } from "../../../shared/api/query-keys";
@@ -31,6 +37,7 @@ import {
   type AgencyRemoveAdPayload,
   type AdvertisementItem,
   type AdvertisementListParams,
+  type AdvertisementPage,
   type AdvertisementMapParams,
   type SubmitAdvertisementCheckoutPayload,
   type SubmitAgencyAdvertisementCheckoutPayload,
@@ -54,6 +61,36 @@ export function useAdvertisementListQuery(params: AdvertisementListParams | null
     }),
     // Cache disabled globally in src/api/query-client.ts.
     // staleTime: 0,
+  });
+}
+
+export function useAdvertisementInfiniteListQuery(
+  params: AdvertisementListParams | null,
+  options?: { enabled?: boolean },
+) {
+  const perPage = params?.perPage ?? 20;
+
+  return useInfiniteQuery<
+    AdvertisementPage,
+    Error,
+    InfiniteData<AdvertisementPage, number>,
+    ReturnType<typeof queryKeys.advertisements.infiniteList>,
+    number
+  >({
+    enabled: (options?.enabled ?? true) && Boolean(params),
+    getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.page + 1 : undefined),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      getAdvertisementList({
+        ...(params as AdvertisementListParams),
+        page: pageParam,
+        perPage,
+      }),
+    queryKey: queryKeys.advertisements.infiniteList({
+      cityId: params?.cityId,
+      filters: params?.filters,
+      perPage,
+    }),
   });
 }
 

@@ -73,7 +73,7 @@ export async function getAdvertisementMap({
   east,
   filters,
   geofence,
-  limit = 100,
+  limit = 2000,
   north,
   south,
   west,

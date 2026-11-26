@@ -136,6 +136,7 @@ const standardSearchParamKeys = new Set([
   "q",
   "qsearch",
   "rooms",
+  "sub_neighborhood_id",
   "city_id",
   "page",
   "per_page",
@@ -186,6 +187,7 @@ export function readSearchFilters(params: URLSearchParams): AdvertisementSearchF
     publishedAt: params.get("published_at") || undefined,
     query: getApiSearchQuery(params),
     rooms: params.get("rooms") || undefined,
+    subNeighborhoodId: params.get("sub_neighborhood_id") || undefined,
     featureFilters,
   };
 }

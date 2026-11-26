@@ -20,7 +20,13 @@ import {
   preloadRoute,
   type AppRoute,
 } from "./routes";
-import { hasStoredCity, getLoginRequiredPath, isLoginFlowPath } from "./routerGuards";
+import {
+  consumeInitialDeepLinkPath,
+  getLoginRequiredPath,
+  hasStoredCity,
+  isLoginFlowPath,
+  storeInitialDeepLinkPath,
+} from "./routerGuards";
 
 export function useAppRouterGuards(
   canonicalPath: string,
@@ -43,10 +49,27 @@ export function useAppRouterGuards(
   // Handle route guards and redirections
   useEffect(() => {
     const hasCity = hasStoredCity();
+    const searchParams = new URLSearchParams(location.search);
     const isOnboardingCitySelection =
-      canonicalPath === "/" && new URLSearchParams(location.search).get("city") === "1";
+      canonicalPath === "/" && searchParams.get("city") === "1";
 
     if (!hasCity && !isLoginFlowPath(canonicalPath)) {
+      if (isOnboardingCitySelection) {
+        return;
+      }
+
+      const isDeepLink =
+        canonicalPath !== "/" &&
+        canonicalPath !== "/home" &&
+        canonicalPath !== "/onboarding";
+
+      if (isDeepLink) {
+        const target = `${canonicalPath}${location.search}${location.hash}`;
+        storeInitialDeepLinkPath(target);
+        navigate(`/?city=1&returnTo=${encodeURIComponent(target)}`, { replace: true });
+        return;
+      }
+
       if (canonicalPath !== "/" || location.search || location.hash) {
         navigate("/", { replace: true });
       }
@@ -66,7 +89,8 @@ export function useAppRouterGuards(
     }
 
     if (canonicalPath === "/" && !isOnboardingCitySelection) {
-      navigate("/home", { replace: true });
+      const redirectTarget = consumeInitialDeepLinkPath();
+      navigate(redirectTarget || "/home", { replace: true });
       return;
     }
 

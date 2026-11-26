@@ -39,6 +39,7 @@ import {
 
 import { Typography } from "../../../shared/ui/Typography";
 import { Button } from "../../../shared/ui/Button";
+import { formatDate } from "../advertise-detail/formatters";
 
 export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const navigate = useNavigate();
@@ -302,13 +303,27 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     </div>
 
                     <div className="mt-3 border-t border-[#f0f0f0] pt-3">
-                      <div className="mb-3 flex items-center justify-between px-1 text-xs text-[#808080]">
-                        <Typography as="span" variant="body" size="medium" weight="regular">
-                          کد پیگیری:{" "}
-                          <strong className="font-semibold text-[#4d4d4d]">
-                            {readText(ad, ["track_code"])}
-                          </strong>
-                        </Typography>
+                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-[#808080]">
+                        <div className="flex flex-col gap-1">
+                          <Typography as="span" variant="body" size="medium" weight="regular">
+                            کد پیگیری:{" "}
+                            <strong className="font-semibold text-[#4d4d4d]">
+                              {readText(ad, ["track_code"])}
+                            </strong>
+                          </Typography>
+                          <Typography
+                            as="span"
+                            variant="body"
+                            size="small"
+                            weight="regular"
+                            className="text-[#808080]"
+                          >
+                            تاریخ انتشار:{" "}
+                            <strong className="font-medium text-[#4d4d4d]">
+                              {formatDate(ad.confirm_date ?? ad.published_at ?? ad.created_at)}
+                            </strong>
+                          </Typography>
+                        </div>
                         {resolvedAgencyName ? (
                           <span
                             className="inline-flex max-w-[160px] items-center gap-1 rounded-md bg-[#eef4ff] px-2 py-0.5 font-medium text-[#0048c4]"

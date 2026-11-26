@@ -27,7 +27,14 @@ export function useAdvertiseLocations({
   const categoryId = readText(advertise, ["category_id"]) || readNestedId(advertise, ["category"]);
 
   const directNeighborhoodName =
-    readHumanText(advertise, ["form_neighborhood_title", "neighborhood_name", "district_name"]) ||
+    readHumanText(advertise, [
+      "form_neighborhood_title",
+      "neighborhood_name",
+      "district_name",
+      "location_label",
+      "location",
+      "user_address",
+    ]) ||
     readNestedName(advertise, ["neighborhood", "district"]) ||
     (typeof featureLocation === "string" ? featureLocation.trim() : "");
   const directCityName =

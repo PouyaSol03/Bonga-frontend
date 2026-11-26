@@ -11,7 +11,11 @@ export function advertiseLocationLabel(advertise: CrmRecord, fallback = "موق�
   const neighborhood =
     readText(advertise, ["neighborhood_name", "district_name"], "") ||
     readNestedText(advertise, ["neighborhood", "district"]);
-  const address = readText(advertise, ["address", "full_address", "formatted_address"], "");
+  const address = readText(
+    advertise,
+    ["location_label", "user_address", "location", "address", "full_address", "formatted_address"],
+    "",
+  );
 
   return address || [city, neighborhood].filter(Boolean).join("، ") || fallback;
 }
@@ -58,6 +62,13 @@ export function mapCrmAdvertiseToCard(advertise: CrmRecord, index: number): AdCa
     ) ||
     mapped.agency;
 
+  const locationText = advertiseLocationLabel(advertise, "");
+  const publishedAtText = mapped.timeAndLocation?.trim() || "";
+  const resolvedTimeAndLocation =
+    publishedAtText && locationText && !publishedAtText.includes(locationText)
+      ? `${publishedAtText} • ${locationText}`
+      : publishedAtText || locationText || "موقعیت ثبت نشده";
+
   return {
     ...mapped,
     agency: agencyName,
@@ -66,6 +77,6 @@ export function mapCrmAdvertiseToCard(advertise: CrmRecord, index: number): AdCa
       mapped.pricePrimary && mapped.pricePrimary !== "-" ? mapped.pricePrimary : rawPrice,
     status: advertiseStatusLabel(advertise.status),
     title: truncateAdCardText(mapped.title),
-    timeAndLocation: truncateAdCardText(advertiseLocationLabel(advertise, mapped.timeAndLocation)),
+    timeAndLocation: truncateAdCardText(resolvedTimeAndLocation),
   };
 }

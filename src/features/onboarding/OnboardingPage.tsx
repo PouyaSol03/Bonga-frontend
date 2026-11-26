@@ -10,6 +10,8 @@ import type { CityDto } from "../cities/api/city.service";
 import LinearCancel from "../../shared/icons/LinearCancel";
 import LinearSearch from "../../shared/icons/LinearSearch";
 import {
+  consumeInitialDeepLinkPath,
+  isInternalAppPath,
   readStoredSelectedCity,
   saveSelectedCity,
   selectedCityStorageKeys,
@@ -428,7 +430,12 @@ function OnboardingCitySelectionPage() {
     if (!hasExplicitCitySelection || !selectedCity) return;
 
     saveSelectedCity(selectedCity);
-    navigate("/home", { replace: true });
+    const searchParams = new URLSearchParams(window.location.search);
+    const returnToFromQuery = searchParams.get("returnTo");
+    const redirectTarget =
+      (isInternalAppPath(returnToFromQuery) ? returnToFromQuery : "") ||
+      consumeInitialDeepLinkPath();
+    navigate(redirectTarget || "/home", { replace: true });
   };
 
   return (

@@ -1,4 +1,9 @@
 import { Link } from "react-router";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+} from "../../../shared/constants/roles.constants";
 import { Typography } from "../../../shared/ui/Typography";
 import { RequestErrorState } from "../../../shared/components/ErrorState";
 import { getApiErrorMessage } from "../../../shared/api/api";
@@ -22,6 +27,11 @@ export function DashboardPaymentDesktopPage({
   packages: PackageItem[];
   refetch: () => void;
 }) {
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const isConsultant =
+    activeRole === REAL_ESTATE_CONSULTANT || activeRole === INDEPENDENT_CONSULTANT;
+
   const flow = useDashboardPaymentFlow({
     packages,
     returnTo: "/account/dashboard/payments",
@@ -90,38 +100,40 @@ export function DashboardPaymentDesktopPage({
 
       {!isError ? (
         <>
-          <section>
-            <Typography
-              as="h2"
-              variant="title"
-              size="large"
-              weight="medium"
-              className="text-on-surface mb-4 text-[22px] font-medium"
-            >
-              اعتبار پنل
-            </Typography>
+          {!isConsultant ? (
+            <section>
+              <Typography
+                as="h2"
+                variant="title"
+                size="large"
+                weight="medium"
+                className="text-on-surface mb-4 text-[22px] font-medium"
+              >
+                اعتبار پنل
+              </Typography>
 
-            {isLoading ? <PricingCardsSkeleton /> : null}
+              {isLoading ? <PricingCardsSkeleton /> : null}
 
-            {!isLoading && panelCreditPlans.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {panelCreditPlans.map((plan) => (
-                  <PricingCard
-                    key={plan.id}
-                    title={plan.title}
-                    price={plan.price}
-                    discount={plan.discount}
-                    priceAfterDiscount={plan.priceAfterDiscount}
-                    onPay={() => flow.handlePay(plan.id)}
-                  />
-                ))}
-              </div>
-            ) : null}
+              {!isLoading && panelCreditPlans.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  {panelCreditPlans.map((plan) => (
+                    <PricingCard
+                      key={plan.id}
+                      title={plan.title}
+                      price={plan.price}
+                      discount={plan.discount}
+                      priceAfterDiscount={plan.priceAfterDiscount}
+                      onPay={() => flow.handlePay(plan.id)}
+                    />
+                  ))}
+                </div>
+              ) : null}
 
-            {!isLoading && panelCreditPlans.length === 0 ? <EmptyPackagesState /> : null}
-          </section>
+              {!isLoading && panelCreditPlans.length === 0 ? <EmptyPackagesState /> : null}
+            </section>
+          ) : null}
 
-          <section className="mt-10">
+          <section className={isConsultant ? "pt-2" : "mt-10"}>
             <Typography
               as="h2"
               variant="title"

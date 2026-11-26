@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
+import { toEnglishDigits } from "../../../shared/lib/numberUtils";
 import { Typography } from "../../../shared/ui/Typography";
 import { modalInputClassName } from "./constants";
 import { CrmSelect } from "./CrmSelect";
@@ -11,6 +12,13 @@ type Props = {
 export function EditorStandardField({ field, values, setValues }: Props) {
   const value = values[field.name] ?? "";
   const isWide = field.type === "textarea";
+  const isPhone =
+    field.type === "tel" ||
+    field.name === "mobile" ||
+    field.name === "phone" ||
+    field.name === "phonenumber";
+  const isNumber = field.type === "number";
+
   return (
     <label className={isWide ? "col-span-2" : ""} key={field.name}>
       <Typography
@@ -52,14 +60,24 @@ export function EditorStandardField({ field, values, setValues }: Props) {
       ) : (
         <input
           className={modalInputClassName}
-          dir={field.type === "number" || field.type === "email" ? "ltr" : "rtl"}
+          dir={isNumber || field.type === "email" || isPhone ? "ltr" : "rtl"}
           name={field.name}
-          onChange={(event) =>
-            setValues((current) => ({ ...current, [field.name]: event.target.value }))
-          }
+          onChange={(event) => {
+            let nextValue = event.target.value;
+            if (isPhone) {
+              const converted = toEnglishDigits(nextValue);
+              nextValue = converted.replace(/\D/g, "");
+              if (field.name === "mobile" || field.name === "phone") {
+                nextValue = nextValue.slice(0, 11);
+              }
+            } else if (isNumber) {
+              nextValue = toEnglishDigits(nextValue);
+            }
+            setValues((current) => ({ ...current, [field.name]: nextValue }));
+          }}
           placeholder={field.placeholder}
           step={field.type === "number" ? "any" : undefined}
-          type={field.type ?? "text"}
+          type={field.type ?? (isPhone ? "tel" : "text")}
           value={value}
         />
       )}

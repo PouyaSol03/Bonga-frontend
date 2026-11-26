@@ -93,21 +93,28 @@ export function RadioCard({
 
 export function CheckRow({
   checked,
+  disabled = false,
   label,
   onChange,
 }: {
   checked: boolean;
-  label: string;
+  disabled?: boolean;
+  label: React.ReactNode;
   onChange: (checked: boolean) => void;
 }) {
   return (
     <Button
       unstyled
-      className="text-on-surface flex w-full items-center justify-start gap-3 py-2.5 text-right text-base leading-6 font-medium last:mt-1"
-      onClick={() => onChange(!checked)}
+      className={`text-on-surface flex w-full items-center justify-start gap-3 py-2.5 text-right text-base leading-6 font-medium last:mt-1 ${
+        disabled ? "cursor-not-allowed" : ""
+      }`}
+      disabled={disabled}
+      onClick={() => {
+        if (!disabled) onChange(!checked);
+      }}
       type="button"
     >
-      <ChoiceIndicator checked={checked} />
+      <ChoiceIndicator checked={checked} disabled={disabled} />
       <Typography as="span" variant="label" size="medium" weight="medium">
         {label}
       </Typography>

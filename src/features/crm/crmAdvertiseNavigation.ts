@@ -8,6 +8,8 @@ export function getCrmAdvertiseCreatePath(options?: {
   targetOwnerType?: "user" | "agency";
   targetOwnerId?: string | number;
   targetOwnerName?: string;
+  targetOwnerPhone?: string;
+  targetOwnerAuthorized?: boolean;
   ownerFullName?: string;
   ownerPhone?: string;
   ownerExactAddress?: string;
@@ -35,6 +37,12 @@ export function getCrmAdvertiseCreatePath(options?: {
   }
   if (options?.targetOwnerName?.trim()) {
     params.set("targetOwnerName", options.targetOwnerName.trim());
+  }
+  if (options?.targetOwnerPhone?.trim()) {
+    params.set("targetOwnerPhone", options.targetOwnerPhone.trim());
+  }
+  if (options?.targetOwnerAuthorized !== undefined) {
+    params.set("targetOwnerAuthorized", String(options.targetOwnerAuthorized));
   }
   if (options?.ownerFullName?.trim()) {
     params.set("ownerFullName", options.ownerFullName.trim());

@@ -24,6 +24,6 @@ export function getParticipantName(thread: unknown) {
       "user.full_name",
       "user.fullName",
       "user.name",
-    ]) || (readPathText(thread, ["category"]) === "agency_support" ? "پشتیبانی آژانس" : "گفتگو")
+    ]) || (readPathText(thread, ["category"]) === "agency_support" ? "پشتیبانی آژانس" : "کاربر")
   );
 }

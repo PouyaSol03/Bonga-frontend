@@ -1,8 +1,20 @@
-import { selectedCityStorageKeys } from "../../shared/lib/selectedCityStorage";
+import {
+  consumeInitialDeepLinkPath,
+  getStoredInitialDeepLinkPath,
+  isInternalAppPath,
+  selectedCityStorageKeys,
+  storeInitialDeepLinkPath,
+} from "../../shared/lib/selectedCityStorage";
 import { DASHBOARD_PATH, LEGACY_DASHBOARD_PATH } from "./types";
 import { getLoginRequiredPath } from "../../shared/navigation/navigation";
 
-export { getLoginRequiredPath };
+export {
+  consumeInitialDeepLinkPath,
+  getLoginRequiredPath,
+  getStoredInitialDeepLinkPath,
+  isInternalAppPath,
+  storeInitialDeepLinkPath,
+};
 
 export function normalizePathname(pathname: string): string {
   const normalized = pathname.replace(/\/{2,}/g, "/");

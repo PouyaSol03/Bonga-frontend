@@ -79,3 +79,14 @@ test.each([
   expect(target === "stop" ? stop : deal).toHaveBeenCalledOnce();
   expect(target === "stop" ? deal : stop).not.toHaveBeenCalled();
 });
+
+test("renders StateAdSummary and ManagerAdSummary with 16px gap between text and image", async () => {
+  const { StateAdSummary } = await import("../../../src/features/account/ad-state/StateAdSummary");
+  const { ManagerAdSummary } = await import("../../../src/features/account/ad-state/ManagerAdSummary");
+
+  const stateSummaryContainer = await render(<StateAdSummary card={card} />, "state-summary");
+  expect(stateSummaryContainer.firstElementChild?.className).toContain("gap-4");
+
+  const managerSummaryContainer = await render(<ManagerAdSummary card={card} />, "manager-summary");
+  expect(managerSummaryContainer.firstElementChild?.className).toContain("gap-4");
+});

@@ -25,7 +25,7 @@ export function ManagerPublisherSection({
         مسئول آگهی (مشاور مسئول)
       </Typography>
       <div className="mt-3">
-        <div className="bg-surface flex items-center justify-end gap-3 rounded-xl p-3 [direction:rtl]">
+        <div className="bg-surface flex items-center justify-end gap-4 rounded-xl p-3 [direction:rtl]">
           {publisher ? (
             <PublisherAvatar publisher={publisher} size="small" />
           ) : (

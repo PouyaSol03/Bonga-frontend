@@ -1,4 +1,9 @@
 import { useNavigate } from "react-router";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../../shared/auth/auth-storage";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+} from "../../../../shared/constants/roles.constants";
 import { BottomSheet } from "../../../../shared/components/BottomSheet";
 import { Button } from "../../../../shared/ui/Button";
 import { Typography } from "../../../../shared/ui/Typography";
@@ -12,6 +17,12 @@ export function AccountBusinessSuccessSheet({
   onClose: () => void;
 }) {
   const navigate = useNavigate();
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const isConsultant =
+    activeRole === REAL_ESTATE_CONSULTANT || activeRole === INDEPENDENT_CONSULTANT;
+  const targetCreditPath = isConsultant ? "/account/credit/packages" : "/account/credit/panel";
+
   return (
     <BottomSheet
       ariaLabel="ثبت موفق حساب"
@@ -79,7 +90,7 @@ export function AccountBusinessSuccessSheet({
         <Button
           unstyled
           className="bg-primary text-on-primary mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm leading-5 font-semibold"
-          onClick={() => navigate("/account/credit/panel")}
+          onClick={() => navigate(targetCreditPath)}
           type="button"
         >
           <LinearWalletAdd color="white" className="text-on-primary h-5 w-5" />

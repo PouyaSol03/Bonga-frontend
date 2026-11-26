@@ -391,6 +391,7 @@ export type NewAdFormValues = {
 
   targetOwnerType: "" | "user" | "agency";
   targetOwnerId: string;
+  agencyContactInitialized?: boolean;
   targetOwnerAuthorized?: boolean;
 };
 

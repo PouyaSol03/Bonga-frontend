@@ -85,6 +85,7 @@ export const blankValues: NewAdFormValues = {
   phoneNumber: "",
   ownerPhone: "",
   ownerFullName: "",
+  agencyContactInitialized: false,
   ownerExactAddress: "",
   telegram: "",
   whatsapp: "",

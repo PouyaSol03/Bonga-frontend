@@ -33,6 +33,7 @@ function FieldError({ message }: { message?: string }) {
 export function MediaStep({
   errors = {},
   isAssigned = false,
+  isEditMode = false,
   label,
   onBack,
   onChangePublisher,
@@ -43,6 +44,7 @@ export function MediaStep({
   errors?: NewAdFieldErrors;
   forceFullEditFields?: boolean;
   isAssigned?: boolean;
+  isEditMode?: boolean;
   label: string;
   onBack: () => void;
   onChangePublisher?: () => void;
@@ -51,7 +53,7 @@ export function MediaStep({
   submitDisabled?: boolean;
 }) {
   const desktop = useNewAdDesktopLayout();
-  const { setValue, watch } = useFormContext<NewAdFormValues>();
+  const { formState, setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
   const publisherType = getParams().publisherType?.toLowerCase() ?? "";
   const session = getStoredAuthSession();
@@ -202,23 +204,30 @@ export function MediaStep({
     setValue("publisherName", "", { shouldDirty: false });
   }, [allowAssignmentChoice, isCrmSource, isProfessionalPublisher, setValue, values.registrantType]);
 
+  const isOwnerFullNameDirty = Boolean(formState.dirtyFields.ownerFullName);
+  const isAgencyContactInitialized = values.agencyContactInitialized === true;
+
   useEffect(() => {
-    if (!isAgencyFlow) return;
+    if (!isAgencyFlow || isAgencyContactInitialized) return;
+    setValue("agencyContactInitialized", true, { shouldDirty: false });
 
     if (!values.chatEnabled) {
-      setValue("chatEnabled", true, { shouldDirty: true });
+      setValue("chatEnabled", true, { shouldDirty: false });
     }
     if (!values.phoneEnabled) {
-      setValue("phoneEnabled", true, { shouldDirty: true });
+      setValue("phoneEnabled", true, { shouldDirty: false });
     }
     if (!values.phoneNumber && profileMobile) {
-      setValue("phoneNumber", profileMobile, { shouldDirty: true });
+      setValue("phoneNumber", profileMobile, { shouldDirty: false });
     }
-    if (!values.ownerFullName && profileFullName) {
-      setValue("ownerFullName", profileFullName, { shouldDirty: true });
+    if (!isEditMode && !isOwnerFullNameDirty && !values.ownerFullName && profileFullName) {
+      setValue("ownerFullName", profileFullName, { shouldDirty: false });
     }
   }, [
+    isAgencyContactInitialized,
     isAgencyFlow,
+    isEditMode,
+    isOwnerFullNameDirty,
     profileFullName,
     profileMobile,
     setValue,
@@ -248,16 +257,23 @@ export function MediaStep({
     setField("phoneEnabled", true);
 
     if (profileMobile) setField("phoneNumber", profileMobile);
-    if (!values.ownerFullName && profileFullName) {
+    if (!isEditMode && !isOwnerFullNameDirty && !values.ownerFullName && profileFullName) {
       setField("ownerFullName", profileFullName);
     }
   };
 
+  const isAssigningToAgency =
+    !isCrmSource &&
+    !isEditMode &&
+    allowAssignmentChoice &&
+    values.registrantType === "agency" &&
+    !values.agencyId;
+
   const primaryLabel = submitDisabled
-    ? isAgencyFlow
+    ? isAssigningToAgency
       ? "در حال آماده‌سازی..."
       : "در حال ثبت..."
-    : isAgencyFlow
+    : isAssigningToAgency
       ? "انتخاب آژانس"
       : "ثبت اطلاعات";
 

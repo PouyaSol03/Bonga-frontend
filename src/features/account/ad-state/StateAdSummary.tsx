@@ -14,7 +14,7 @@ export function StateAdSummary({ ad, card }: { ad?: Record<string, unknown>; car
     ) || "—";
 
   return (
-    <div className="border-surface-container-high bg-surface-container-low mt-4 flex h-[80px] items-center gap-3 rounded-2xl border px-4 [direction:rtl]">
+    <div className="border-surface-container-high bg-surface-container-low mt-4 flex h-[80px] items-center gap-4 rounded-2xl border px-4 [direction:rtl]">
       <div
         aria-hidden="true"
         className={`ad-card__image ${card.imageClassName} h-[52px] w-[70px] shrink-0 rounded-lg bg-cover bg-center`}

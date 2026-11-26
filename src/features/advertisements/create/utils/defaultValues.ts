@@ -126,6 +126,7 @@ export function buildEditDefaultValues(routeState: EditAdRouteState): Partial<Ne
     loanEnabled: hasLoan,
     loanAmount: loanAmount ? priceTextToNumberString(loanAmount) : "",
     loanInstallment: loanInstallment ? priceTextToNumberString(loanInstallment) : "",
+    agencyContactInitialized: true,
   };
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { getActiveAuthRole, getStoredAuthSession } from "../../../../shared/auth/auth-storage";
@@ -53,7 +53,7 @@ export function MediaStep({
   submitDisabled?: boolean;
 }) {
   const desktop = useNewAdDesktopLayout();
-  const { setValue, watch } = useFormContext<NewAdFormValues>();
+  const { formState, setValue, watch } = useFormContext<NewAdFormValues>();
   const values = watch();
   const publisherType = getParams().publisherType?.toLowerCase() ?? "";
   const session = getStoredAuthSession();
@@ -181,11 +181,12 @@ export function MediaStep({
     setValue("publisherName", "", { shouldDirty: false });
   }, [allowAssignmentChoice, isCrmSource, isProfessionalPublisher, setValue, values.registrantType]);
 
-  const hasInitializedAgencyContactRef = useRef(false);
+  const isOwnerFullNameDirty = Boolean(formState.dirtyFields.ownerFullName);
+  const isAgencyContactInitialized = values.agencyContactInitialized === true;
 
   useEffect(() => {
-    if (!isAgencyFlow || hasInitializedAgencyContactRef.current) return;
-    hasInitializedAgencyContactRef.current = true;
+    if (!isAgencyFlow || isAgencyContactInitialized) return;
+    setValue("agencyContactInitialized", true, { shouldDirty: false });
 
     if (!values.chatEnabled) {
       setValue("chatEnabled", true, { shouldDirty: false });
@@ -196,11 +197,14 @@ export function MediaStep({
     if (!values.phoneNumber && profileMobile) {
       setValue("phoneNumber", profileMobile, { shouldDirty: false });
     }
-    if (!values.ownerFullName && profileFullName) {
+    if (!isEditMode && !isOwnerFullNameDirty && !values.ownerFullName && profileFullName) {
       setValue("ownerFullName", profileFullName, { shouldDirty: false });
     }
   }, [
+    isAgencyContactInitialized,
     isAgencyFlow,
+    isEditMode,
+    isOwnerFullNameDirty,
     profileFullName,
     profileMobile,
     setValue,
@@ -229,7 +233,7 @@ export function MediaStep({
     setField("phoneEnabled", true);
 
     if (profileMobile) setField("phoneNumber", profileMobile);
-    if (!values.ownerFullName && profileFullName) {
+    if (!isEditMode && !isOwnerFullNameDirty && !values.ownerFullName && profileFullName) {
       setField("ownerFullName", profileFullName);
     }
   };

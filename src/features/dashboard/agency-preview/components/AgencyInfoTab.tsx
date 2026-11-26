@@ -7,15 +7,14 @@ import { Button } from "../../../../shared/ui/Button";
 import { Typography } from "../../../../shared/ui/Typography";
 import type { PublicAgentAgencySummary } from "../../../agencies/api/agency.service";
 import type { BadgeDetailItem } from "../../components/BadgeDetailBottomSheet";
-import { AgencyAboutSection } from "./AgencyAboutSection";
 import { AgencyActionRow } from "./AgencyActionRow";
 import { AgencyBadgesSection } from "./AgencyBadgesSection";
 
 interface AgencyInfoTabProps {
-  aboutUs: string;
+  aboutUs?: string;
   activityAreas: string[];
   agencyId?: string;
-  agencyName: string;
+  agencyName?: string;
   agentAgency?: PublicAgentAgencySummary;
   badges?: Array<{
     current_value?: number;
@@ -35,13 +34,13 @@ interface AgencyInfoTabProps {
 }
 
 export function AgencyInfoTab({
-  aboutUs,
+  aboutUs: _aboutUs = "",
   activityAreas,
   agencyId: _agencyId = "",
-  agencyName,
+  agencyName: _agencyName = "",
   agentAgency,
   badges,
-  entityLabel = "آژانس",
+  entityLabel: _entityLabel = "آژانس",
   isAgent = false,
   onBadgeClick,
   onFeedbackClick,
@@ -51,7 +50,6 @@ export function AgencyInfoTab({
   const activityAreaText = activityAreas.length
     ? activityAreas.join("، ")
     : "محدوده فعالیت ثبت نشده است.";
-  const aboutText = aboutUs || `توضیحی برای این ${entityLabel} ثبت نشده است.`;
 
   return (
     <div className="bg-surface-container-low space-y-2">
@@ -165,8 +163,6 @@ export function AgencyInfoTab({
         onClick={onFeedbackClick}
         title="ثبت بازخورد"
       />
-
-      <AgencyAboutSection aboutText={aboutText} agencyName={agencyName} />
     </div>
   );
 }

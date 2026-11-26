@@ -1,5 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+} from "../../../shared/constants/roles.constants";
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
 import { RequestErrorState } from "../../../shared/components/ErrorState";
@@ -31,9 +36,15 @@ export function DashboardPaymentMobilePage({
     window.history.state?.returnTo ||
     (typeof window !== "undefined" ? sessionStorage.getItem("bonga:paymentReturnTo") : null) ||
     undefined;
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const isConsultant =
+    activeRole === REAL_ESTATE_CONSULTANT || activeRole === INDEPENDENT_CONSULTANT;
+
   const initialPaymentTab =
-    window.history.state?.initialPaymentTab === "packages" ? "packages" : "panel";
+    isConsultant || window.history.state?.initialPaymentTab === "packages" ? "packages" : "panel";
   const [activeTab, setActiveTab] = useState<MobilePaymentTab>(initialPaymentTab);
+  const effectiveTab = isConsultant ? "packages" : activeTab;
 
   const flow = useDashboardPaymentFlow({
     onSuccessMessage: "بسته با موفقیت خریداری و فعال شد.",
@@ -41,10 +52,10 @@ export function DashboardPaymentMobilePage({
     returnTo,
   });
 
-  const showGift = activeTab === "panel";
+  const showGift = effectiveTab === "panel";
 
   const shownPlans = useMemo(() => {
-    if (activeTab === "panel") {
+    if (effectiveTab === "panel" && !isConsultant) {
       return packages
         .filter((plan) => plan.kind === "panel_subscription")
         .map((plan, index) => mapMobilePanelPlan(plan, index, true));
@@ -53,7 +64,7 @@ export function DashboardPaymentMobilePage({
     return packages
       .filter((plan) => plan.kind === "credit_bundle")
       .map((plan, index) => mapMobilePackagePlan(plan, index));
-  }, [activeTab, packages]);
+  }, [effectiveTab, isConsultant, packages]);
 
   if (flow.selectedPackage) {
     return (
@@ -108,9 +119,15 @@ export function DashboardPaymentMobilePage({
         }
         title="افزایش اعتبار"
       />
-      <MobileCreditTabs activeTab={activeTab} onChange={setActiveTab} />
+      {!isConsultant ? (
+        <MobileCreditTabs activeTab={activeTab} onChange={setActiveTab} />
+      ) : null}
 
-      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pb-4">
+      <main
+        className={`bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pb-4 ${
+          isConsultant ? "pt-4" : ""
+        }`}
+      >
         {isError ? (
           <RequestErrorState error={error} className="min-h-[420px]" onRetry={() => void refetch()} />
         ) : null}

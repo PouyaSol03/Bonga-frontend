@@ -97,6 +97,20 @@ export function getNotificationActionLabel(notification: NotificationItem): stri
   if (title === "پروفایل شما ناقص است") {
     return "تکمیل پروفایل";
   }
+  if (
+    type === "consultant_approved" ||
+    title === "درخواست مشاور شما تایید شد" ||
+    title === "درخواست مشاور شما تأیید شد"
+  ) {
+    return "صفحه مشاور";
+  }
+  if (
+    type === "agency_approved" ||
+    title === "درخواست آژانس شما تایید شد" ||
+    title === "درخواست آژانس شما تأیید شد"
+  ) {
+    return "صفحه آژانس";
+  }
   if (title === "کد تخفیف دریافت کردید") {
     const code = notification.payload?.discount_code || "۲۵۴۸۶۲۴";
     return `کد تخفیف: ${code}`;

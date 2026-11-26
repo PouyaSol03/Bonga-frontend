@@ -98,14 +98,18 @@ function RegistrantTypeFields({
 }
 
 function PersonalContactFields({
+  chatDisabledNotice,
   chatEnabled,
   contactError,
+  isChatDisabled = false,
   mobile,
   onSetField,
   phoneEnabled,
 }: {
+  chatDisabledNotice?: string;
   chatEnabled: boolean;
   contactError?: string;
+  isChatDisabled?: boolean;
   mobile: string;
   onSetField: SetNewAdField;
   phoneEnabled: boolean;
@@ -115,16 +119,30 @@ function PersonalContactFields({
       <SectionHeading required title="روش‌های ارتباطی" />
 
       <CheckRow
-        checked={chatEnabled}
-        label="چت با کاربران"
-        onChange={(checked) => onSetField("chatEnabled", checked)}
+        checked={!isChatDisabled && chatEnabled}
+        disabled={isChatDisabled}
+        label={
+          <span className="flex flex-wrap items-center gap-2">
+            <span>چت با کاربران</span>
+            {chatDisabledNotice ? (
+              <span className="text-xs font-normal text-[#cc3342]">
+                {chatDisabledNotice}
+              </span>
+            ) : null}
+          </span>
+        }
+        onChange={(checked) => {
+          if (!isChatDisabled) {
+            onSetField("chatEnabled", checked);
+          }
+        }}
       />
       <CheckRow
         checked={phoneEnabled}
         label={mobile ? `شماره تماس (${mobile})` : "شماره تماس"}
         onChange={(checked) => {
           onSetField("phoneEnabled", checked);
-          onSetField("phoneNumber", "");
+          onSetField("phoneNumber", checked ? mobile : "");
         }}
       />
 
@@ -328,6 +346,8 @@ export function AdInformationFields({
   agencyPublisherSubtitle,
   canChangePublisher = true,
   errors,
+  isCrmSource = false,
+  isTargetUserAuthorized = true,
   label,
   mobile,
   profileMobile,
@@ -348,7 +368,9 @@ export function AdInformationFields({
   canChangePublisher?: boolean;
   errors: NewAdFieldErrors;
   isAssigned?: boolean;
+  isCrmSource?: boolean;
   isProfessionalPublisher?: boolean;
+  isTargetUserAuthorized?: boolean;
   label: string;
   mobile: string;
   profileMobile: string;
@@ -366,6 +388,13 @@ export function AdInformationFields({
   const showOwnerContact = isProfessional && !isAssigned;
   const isAgency = !showPublisherCard && values.registrantType === "agency";
   const isPersonal = !showPublisherCard && values.registrantType === "personal";
+
+  const isCrmUser = isCrmSource && (values.targetOwnerType === "user" || !values.targetOwnerType);
+  const isChatDisabled = isCrmUser && !isTargetUserAuthorized;
+  const chatDisabledNotice = isChatDisabled
+    ? "به دلیل عدم ثبت نام واقعی کاربر فعلا نمی توان با صاحب ملک چت کرد"
+    : undefined;
+  const personalMobile = isCrmUser ? (mobile || values.phoneNumber || profileMobile) : profileMobile;
 
   return (
     <div className="space-y-4">
@@ -399,9 +428,11 @@ export function AdInformationFields({
 
       {isPersonal ? (
         <PersonalContactFields
-          chatEnabled={values.chatEnabled}
+          chatDisabledNotice={chatDisabledNotice}
+          chatEnabled={isChatDisabled ? false : values.chatEnabled}
           contactError={errors.contactMethods}
-          mobile={profileMobile}
+          isChatDisabled={isChatDisabled}
+          mobile={personalMobile}
           onSetField={onSetField}
           phoneEnabled={values.phoneEnabled}
         />

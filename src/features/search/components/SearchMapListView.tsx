@@ -1,3 +1,4 @@
+import { useEffect, useRef, type UIEvent } from "react";
 import LinearMapsLocation from "../../../shared/icons/LinearMapsLocation";
 import { AdCard, type AdCardData  } from "../../advertisements/components/AdCard";
 
@@ -69,9 +70,64 @@ export function SearchMapListView({
   onMapClick,
   onRequestSubmit,
 }: SearchMapListViewProps) {
+  const mainRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (isLoading || listings.length === 0) return;
+
+    const storageKey = `bonga_search_list_scroll_${window.location.search}`;
+    const fallbackKey = "bonga_search_list_scroll";
+    const saved =
+      sessionStorage.getItem(storageKey) || sessionStorage.getItem(fallbackKey);
+    if (!saved) return;
+
+    const targetY = Number(saved);
+    if (!Number.isFinite(targetY) || targetY <= 0) return;
+
+    const el = mainRef.current;
+    if (!el) return;
+
+    el.scrollTop = targetY;
+
+    const rafId = requestAnimationFrame(() => {
+      if (mainRef.current && mainRef.current.scrollTop !== targetY) {
+        mainRef.current.scrollTop = targetY;
+      }
+    });
+
+    const timerId = setTimeout(() => {
+      if (mainRef.current && mainRef.current.scrollTop !== targetY) {
+        mainRef.current.scrollTop = targetY;
+      }
+    }, 80);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timerId);
+    };
+  }, [isLoading, listings.length]);
+
+  const handleScroll = (e: UIEvent<HTMLElement>) => {
+    const top = e.currentTarget.scrollTop;
+    sessionStorage.setItem(`bonga_search_list_scroll_${window.location.search}`, String(top));
+    sessionStorage.setItem("bonga_search_list_scroll", String(top));
+  };
+
+  useEffect(() => {
+    return () => {
+      if (mainRef.current) {
+        const top = mainRef.current.scrollTop;
+        sessionStorage.setItem(`bonga_search_list_scroll_${window.location.search}`, String(top));
+        sessionStorage.setItem("bonga_search_list_scroll", String(top));
+      }
+    };
+  }, []);
+
   return (
     <>
       <main
+        ref={mainRef}
+        onScroll={handleScroll}
         className="bg-surface-container absolute inset-0 z-0 flex min-h-0 flex-col overflow-y-auto overscroll-contain pt-[60px] pb-20"
         aria-label="لیست آگهی‌ها"
         dir="rtl"

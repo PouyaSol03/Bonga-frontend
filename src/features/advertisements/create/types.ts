@@ -392,6 +392,7 @@ export type NewAdFormValues = {
   targetOwnerType: "" | "user" | "agency";
   targetOwnerId: string;
   agencyContactInitialized?: boolean;
+  targetOwnerAuthorized?: boolean;
 };
 
 export type MoreFeaturesFormValues = Pick<NewAdFormValues, MoreFeatureFormKey>;

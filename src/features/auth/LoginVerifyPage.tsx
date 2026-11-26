@@ -211,6 +211,12 @@ export function LoginVerifyPage() {
         title: "کد نامعتبر!",
         variant: "error",
       });
+      // Enable immediate resend so the user isn't blocked on error
+      setResendSeconds(0);
+      window.sessionStorage.removeItem("bonga-otp-resend-at");
+      lastAutoSubmittedCodeRef.current = "";
+      inputRef.current?.focus();
+      inputRef.current?.select();
     }
   }
 
@@ -373,7 +379,7 @@ export function LoginVerifyPage() {
               </div>
             </div>
 
-            {resendSeconds > 0 ? (
+            {resendSeconds > 0 && notice?.variant !== "error" ? (
               <div
                 className="bg-surface-container text-on-surface mt-12 flex items-center justify-center gap-2 rounded-2xl px-6 py-2 text-sm leading-5 font-medium"
                 aria-live="polite"
@@ -403,7 +409,7 @@ export function LoginVerifyPage() {
                   weight="medium"
                   className="text-sm font-medium"
                 >
-                  {isResending ? "در حال ارسال..." : "دریافت مجدد کد"}
+                  {isResending ? "در حال ارسال..." : "ارسال مجدد کد"}
                 </Typography>
                 <LinearArrowRight2 className="text-on-surface-var h-5 w-5" />
               </Button>

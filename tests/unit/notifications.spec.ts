@@ -125,6 +125,24 @@ describe("Notification Routing & Actions Unit/Logic Tests", () => {
     };
     expect(getNotificationPath(agencyNotification)).toBe("/account/dashboard/agency");
 
+    // 5b. Agent target
+    const agentNotification: NotificationItem = {
+      id: "7b",
+      title: "درخواست همکاری مشاور",
+      payload: { target: "agent" },
+    };
+    expect(getNotificationPath(agentNotification)).toBe("/account/dashboard/agent");
+
+    // 5c. Consultant approved with agent_id (sample notification 8664)
+    const consultantApprovedNotification: NotificationItem = {
+      id: "8664",
+      type: "consultant_approved",
+      title: "درخواست مشاور شما تایید شد",
+      payload: { agent_id: 22 },
+    };
+    expect(getNotificationPath(consultantApprovedNotification)).toBe("/agents/22");
+    expect(getNotificationActionLabel(consultantApprovedNotification)).toBe("صفحه مشاور");
+
     // 6. System target
     const systemNotification: NotificationItem = {
       id: "8",
@@ -189,5 +207,32 @@ describe("Notification Routing & Actions Unit/Logic Tests", () => {
 
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     expect(formatNotificationTime(yesterday)).toContain("دیروز");
+  });
+
+  test("getAgencyConsultantDecisionRedirectPath prioritizes active role over roles array", async () => {
+    const authStorage = await import("../../src/shared/auth/auth-storage");
+    const { getAgencyConsultantDecisionRedirectPath } = await import(
+      "../../src/features/notifications/notificationRouting"
+    );
+
+    // Active consultant role + manager in roles array -> must route to agent dashboard
+    vi.spyOn(authStorage, "getStoredAuthSession").mockReturnValue({
+      token: "test",
+      user: { id: 1, name: "Test" },
+      roles: [{ id: 1, title: "مدیر", slug: "real_estate_manager" }, { id: 2, title: "مشاور", slug: "real_estate_consultant" }],
+    } as any);
+    vi.spyOn(authStorage, "getActiveAuthRole").mockReturnValue("real_estate_consultant");
+
+    expect(getAgencyConsultantDecisionRedirectPath()).toBe("/account/dashboard/agent");
+
+    // Active manager role + consultant in roles array -> must route to agency dashboard
+    vi.spyOn(authStorage, "getActiveAuthRole").mockReturnValue("real_estate_manager");
+    expect(getAgencyConsultantDecisionRedirectPath()).toBe("/account/dashboard/agency");
+
+    // No active role -> fallback to roles array
+    vi.spyOn(authStorage, "getActiveAuthRole").mockReturnValue(null);
+    expect(getAgencyConsultantDecisionRedirectPath()).toBe("/account/dashboard/agency");
+
+    vi.restoreAllMocks();
   });
 });

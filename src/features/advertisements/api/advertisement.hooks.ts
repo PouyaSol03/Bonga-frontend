@@ -52,8 +52,8 @@ export function useAdvertisementListQuery(params: AdvertisementListParams | null
       filters: params?.filters,
       perPage: params?.perPage ?? 20,
     }),
-    // Cache disabled globally in src/api/query-client.ts.
-    // staleTime: 0,
+    staleTime: 1000 * 60 * 2,
+    gcTime: 1000 * 60 * 10,
   });
 }
 
@@ -264,14 +264,12 @@ export function useAdvertisementMapQuery(params: AdvertisementMapParams | null) 
   return useQuery({
     enabled: Boolean(params),
     placeholderData: keepPreviousData,
-    // Previous map-result caching is temporarily disabled.
-    // gcTime: 2 * 60_000,
-
+    gcTime: 1000 * 60 * 10,
     queryFn: () => getAdvertisementMap(params as AdvertisementMapParams),
     queryKey: queryKeys.advertisements.map(params ?? {}),
     refetchOnMount: "always",
     refetchOnReconnect: "always",
-    // staleTime: 15_000,
+    staleTime: 1000 * 60 * 2,
   });
 }
 

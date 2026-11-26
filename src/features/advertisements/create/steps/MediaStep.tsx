@@ -77,6 +77,17 @@ export function MediaStep({
     values.targetOwnerType || (searchParams?.get("targetOwnerType") as "user" | "agency" | null);
   const isCrmAgency =
     isCrmSource && (crmTargetOwnerType === "agency" || Boolean(values.agencyId));
+  const isCrmUser = isCrmSource && (crmTargetOwnerType === "user" || !crmTargetOwnerType);
+  const targetOwnerPhone =
+    values.phoneNumber || searchParams?.get("targetOwnerPhone")?.trim() || "";
+  const targetOwnerAuthParam = searchParams?.get("targetOwnerAuthorized");
+  const isTargetUserAuthorized =
+    values.targetOwnerAuthorized !== undefined
+      ? values.targetOwnerAuthorized
+      : targetOwnerAuthParam !== null
+        ? targetOwnerAuthParam === "true"
+        : false;
+  const isChatDisabled = isCrmUser && !isTargetUserAuthorized;
 
   const isProfessionalPublisher =
     isCrmAgency ||
@@ -168,6 +179,18 @@ export function MediaStep({
   };
 
   useEffect(() => {
+    if (isChatDisabled && values.chatEnabled) {
+      setValue("chatEnabled", false, { shouldDirty: false });
+    }
+  }, [isChatDisabled, setValue, values.chatEnabled]);
+
+  useEffect(() => {
+    if (isCrmUser && targetOwnerPhone && !values.phoneNumber) {
+      setValue("phoneNumber", targetOwnerPhone, { shouldDirty: true });
+    }
+  }, [isCrmUser, setValue, targetOwnerPhone, values.phoneNumber]);
+
+  useEffect(() => {
     if (
       isCrmSource ||
       isProfessionalPublisher ||
@@ -218,10 +241,11 @@ export function MediaStep({
     setField("registrantType", "personal");
     setField("publisherName", "");
     setField("agencyId", "");
-    setField("chatEnabled", true);
+    setField("chatEnabled", isCrmSource ? false : true);
     setField("phoneEnabled", true);
-    if (profileMobile && !values.phoneNumber) {
-      setField("phoneNumber", profileMobile);
+    const userMobile = isCrmUser ? (targetOwnerPhone || values.phoneNumber) : profileMobile;
+    if (userMobile && !values.phoneNumber) {
+      setField("phoneNumber", userMobile);
     }
   };
 
@@ -335,14 +359,16 @@ export function MediaStep({
             canChangePublisher={canChangePublisher}
             errors={errors}
             isAssigned={isAssigned}
+            isCrmSource={isCrmSource}
             isProfessionalPublisher={isProfessionalPublisher}
+            isTargetUserAuthorized={isTargetUserAuthorized}
             label={label}
-            mobile={profileMobile || values.phoneNumber}
+            mobile={isCrmUser ? (targetOwnerPhone || values.phoneNumber) : (profileMobile || values.phoneNumber)}
             onChangePublisher={canChangePublisher ? onChangePublisher : undefined}
             onSelectAgency={selectAgency}
             onSelectPersonal={selectPersonal}
             onSetField={setField}
-            profileMobile={meShowMobile}
+            profileMobile={isCrmUser ? (targetOwnerPhone || values.phoneNumber) : meShowMobile}
             publisherType={publisherType}
             values={values}
           />

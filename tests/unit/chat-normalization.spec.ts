@@ -6,6 +6,8 @@ import { parseChatDate } from "../../src/features/chat/home/chatDates";
 import { readChatMessageAttachment, readChatMessageBody, readChatMessageLocation } from "../../src/features/chat/home/messageContent";
 import { readPathBoolean } from "../../src/features/chat/home/readChatValues";
 
+import { getParticipantName } from "../../src/features/chat/home/participantMetadata";
+
 describe("chat normalization characterization", () => {
   it("preserves alias precedence, whitespace and boolean coercion", () => {
     expect(readChatMessageBody({ body: "  body  ", text: "fallback" })).toBe("  body  ");
@@ -60,5 +62,11 @@ describe("chat normalization characterization", () => {
   });
   it.each([["00:00", "۱۲ بامداد"], ["06:30", "۶:۳۰ صبح"], ["12:00", "۱۲ ظهر"], ["19:00", "۷ عصر"], ["20:00", "۸ شب"], ["invalid", "invalid"]])("formats availability %s", (value, expected) => {
     expect(formatParticipantAvailabilityTime(value)).toBe(expected);
+  });
+  it("returns fallback 'کاربر' when participant has no name in chat thread", () => {
+    expect(getParticipantName({})).toBe("کاربر");
+    expect(getParticipantName({ participant: {} })).toBe("کاربر");
+    expect(getParticipantName({ participant: { name: "علی" } })).toBe("علی");
+    expect(getParticipantName({ category: "agency_support" })).toBe("پشتیبانی آژانس");
   });
 });

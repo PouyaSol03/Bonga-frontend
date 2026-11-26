@@ -37,13 +37,11 @@ const residentialSaleOptions: CategoryOption[] = [
   { id: "apartment", label: "آپارتمان" },
   { id: "land", label: "زمین، ملک کلنگی" },
   { id: "villa-house", label: "خانه، ویلا" },
-  { id: "garden-villa", label: "باغ و ویلا" },
 ];
 
 const residentialRentOptions: CategoryOption[] = [
   { id: "apartment", label: "آپارتمان" },
   { id: "villa-house", label: "خانه، ویلا" },
-  { id: "garden-villa", label: "باغ و ویلا" },
 ];
 
 const dailyRentOptions: CategoryOption[] = [
@@ -433,6 +431,16 @@ export function NewAdCategoryPage() {
           const targetOwnerName = currentSearch.get("targetOwnerName");
           if (targetOwnerName) {
             params.set("targetOwnerName", targetOwnerName);
+          }
+
+          const targetOwnerPhone = currentSearch.get("targetOwnerPhone");
+          if (targetOwnerPhone) {
+            params.set("targetOwnerPhone", targetOwnerPhone);
+          }
+
+          const targetOwnerAuthorized = currentSearch.get("targetOwnerAuthorized");
+          if (targetOwnerAuthorized) {
+            params.set("targetOwnerAuthorized", targetOwnerAuthorized);
           }
 
           const ownerFullName = currentSearch.get("ownerFullName");

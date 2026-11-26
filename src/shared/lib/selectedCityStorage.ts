@@ -92,3 +92,51 @@ export function saveSelectedCity(city: StoredSelectedCity) {
     window.localStorage.removeItem(selectedCityStorageKeys.longitude);
   }
 }
+
+export const initialDeepLinkStorageKey = "bonga-initial-deep-link";
+
+export function isInternalAppPath(path: unknown): path is string {
+  if (typeof path !== "string") return false;
+  const trimmed = path.trim();
+  return (
+    trimmed.startsWith("/") &&
+    !trimmed.startsWith("//") &&
+    !trimmed.includes("\\") &&
+    !trimmed.startsWith("/\\")
+  );
+}
+
+export function storeInitialDeepLinkPath(path: string) {
+  if (typeof window === "undefined") return;
+  if (!isInternalAppPath(path)) return;
+  if (path === "/" || path === "/home" || path === "/onboarding") return;
+  try {
+    window.sessionStorage.setItem(initialDeepLinkStorageKey, path);
+  } catch {
+    // ignore sessionStorage errors
+  }
+}
+
+export function getStoredInitialDeepLinkPath(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    const path = window.sessionStorage.getItem(initialDeepLinkStorageKey);
+    return isInternalAppPath(path) ? path : "";
+  } catch {
+    return "";
+  }
+}
+
+export function consumeInitialDeepLinkPath(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    const path = window.sessionStorage.getItem(initialDeepLinkStorageKey);
+    if (path) {
+      window.sessionStorage.removeItem(initialDeepLinkStorageKey);
+    }
+    return isInternalAppPath(path) ? path : "";
+  } catch {
+    return "";
+  }
+}
+

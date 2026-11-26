@@ -15,6 +15,8 @@ export function DetailsOwner() {
     const searchParams = new URLSearchParams(window.location.search);
     const targetType = searchParams.get("targetOwnerType") as "user" | "agency" | null;
     const targetId = searchParams.get("targetOwnerId");
+    const targetOwnerPhone = searchParams.get("targetOwnerPhone");
+    const targetOwnerAuthParam = searchParams.get("targetOwnerAuthorized");
 
     if (targetType && !values.targetOwnerType) {
       setValue("targetOwnerType", targetType);
@@ -22,7 +24,13 @@ export function DetailsOwner() {
     if (targetId && !values.targetOwnerId) {
       setValue("targetOwnerId", targetId);
     }
-  }, [isCrm, setValue, values.targetOwnerType, values.targetOwnerId]);
+    if (targetOwnerPhone && !values.phoneNumber) {
+      setValue("phoneNumber", targetOwnerPhone);
+    }
+    if (targetOwnerAuthParam !== null && values.targetOwnerAuthorized === undefined) {
+      setValue("targetOwnerAuthorized", targetOwnerAuthParam === "true");
+    }
+  }, [isCrm, setValue, values.phoneNumber, values.targetOwnerAuthorized, values.targetOwnerId, values.targetOwnerType]);
   if (!isCrm) return null;
 
   const targetOwnerName =
@@ -80,6 +88,16 @@ export function DetailsOwner() {
             type={values.targetOwnerType}
             value={values.targetOwnerId}
             onChange={(id) => setValue("targetOwnerId", id)}
+            onSelectRecord={(rec) => {
+              if (values.targetOwnerType === "user" && rec) {
+                const phone = String(rec.mobile ?? rec.phone ?? "").trim();
+                if (phone) {
+                  setValue("phoneNumber", phone);
+                }
+                const isAuth = Number(rec.authorized) === 1;
+                setValue("targetOwnerAuthorized", isAuth);
+              }
+            }}
           />
         )}
       </div>

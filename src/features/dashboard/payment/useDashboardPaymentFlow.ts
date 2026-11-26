@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+} from "../../../shared/constants/roles.constants";
 import { useToast } from "../../../shared/hooks/useToast";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { storePaymentReturnTarget } from "../../../shared/utils/payment-return";
@@ -35,13 +40,26 @@ export function useDashboardPaymentFlow({
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  const selectedPackage = selectedPackageId
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const isConsultant =
+    activeRole === REAL_ESTATE_CONSULTANT || activeRole === INDEPENDENT_CONSULTANT;
+
+  const rawSelectedPackage = selectedPackageId
     ? (packages.find((p) => String(p.id) === String(selectedPackageId)) ?? null)
     : null;
+
+  const selectedPackage =
+    isConsultant && rawSelectedPackage?.kind === "panel_subscription" ? null : rawSelectedPackage;
 
   function handlePay(packageId: string | number) {
     if (packagePaymentMutation.isPending) return;
     const strId = String(packageId);
+    const targetPkg = packages.find((p) => String(p.id) === strId);
+    if (isConsultant && targetPkg?.kind === "panel_subscription") {
+      showToast("امکان خرید اعتبار پنل برای حساب مشاور وجود ندارد.", "خطا", "error");
+      return;
+    }
     window.history.pushState({ ...window.history.state, paymentPackageId: strId }, "");
     setSelectedPackageId(strId);
   }

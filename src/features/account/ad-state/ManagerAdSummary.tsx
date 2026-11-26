@@ -14,7 +14,7 @@ export function ManagerAdSummary({ ad, card }: { ad?: Record<string, unknown>; c
     ) || "—";
 
   return (
-    <div className="bg-surface mt-4 flex h-[68px] items-center rounded-2xl px-3 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]">
+    <div className="bg-surface mt-4 flex h-[68px] items-center gap-4 rounded-2xl px-3 shadow-[0_2px_8px_rgba(26,26,26,0.04)] [direction:ltr]">
       <div className="min-w-0 flex-1 text-right [direction:rtl]">
         <Typography
           as="p"

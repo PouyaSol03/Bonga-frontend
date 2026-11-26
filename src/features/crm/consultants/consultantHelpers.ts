@@ -1,4 +1,5 @@
 import type { EditorState } from "../CrmLayout";
+import { toEnglishDigits } from "../../../shared/lib/numberUtils";
 import {
   consultantAgencyId,
   consultantAgencyName,
@@ -19,7 +20,7 @@ export function filterConsultants(
   filters: ConsultantFilters,
   agencyNames: Map<string, string>,
 ): CrmRecord[] {
-  const normalizedSearch = filters.search.trim().toLocaleLowerCase("fa-IR");
+  const normalizedSearch = toEnglishDigits(filters.search.trim()).toLocaleLowerCase("fa-IR");
 
   return records.filter((consultant) => {
     const agencyId = consultantAgencyId(consultant);
@@ -28,7 +29,7 @@ export function filterConsultants(
       readText(consultant, ["type"], "") === "dependent" || Boolean(agencyId);
     const matchesSearch =
       !normalizedSearch ||
-      [fullName(consultant), readText(consultant, ["mobile", "phone"], ""), agencyName]
+      [fullName(consultant), toEnglishDigits(readText(consultant, ["mobile", "phone"], "")), agencyName]
         .join(" ")
         .toLocaleLowerCase("fa-IR")
         .includes(normalizedSearch);
@@ -101,7 +102,7 @@ export function buildConsultantEditorState(
         await onSave(id, {
           agency_id: selectedAgencyId ? consultantApiIdentifier(selectedAgencyId) : null,
           family: values.family?.trim() ?? "",
-          mobile: values.mobile?.trim() ?? "",
+          mobile: toEnglishDigits(values.mobile ?? "").replace(/\D/g, ""),
           name: values.name?.trim() ?? "",
           status: selectedStatus,
           type: selectedAgencyId ? "dependent" : "independent",
@@ -112,7 +113,7 @@ export function buildConsultantEditorState(
       await onSave(null, {
         agency_id: selectedAgencyId ? consultantApiIdentifier(selectedAgencyId) : null,
         family: values.family?.trim() ?? "",
-        mobile: values.mobile?.trim() ?? "",
+        mobile: toEnglishDigits(values.mobile ?? "").replace(/\D/g, ""),
         name: values.name?.trim() ?? "",
         status: "pending",
         type: selectedAgencyId ? "dependent" : "independent",

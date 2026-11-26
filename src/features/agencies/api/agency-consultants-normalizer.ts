@@ -34,14 +34,16 @@ export function normalizeAgencyConsultant(
   const quotas = asRecord(item.quotas ?? membership.quotas);
   const agentId = toNumber(item.agent_id ?? item.id ?? item._id, Number.NaN);
   const userId = toNumber(item.user_id ?? user.id ?? user._id ?? agentId, Number.NaN);
+  const firstName = firstText(item.name, item.first_name, user.name, user.first_name);
+  const lastName = firstText(item.family, item.last_name, user.family, user.last_name);
+  const combinedName = firstName && lastName ? `${firstName} ${lastName}` : "";
+
   const name = firstText(
-    item.name,
+    combinedName,
     item.full_name,
     user.full_name,
-    user.name,
-    item.first_name && item.last_name
-      ? `${String(item.first_name).trim()} ${String(item.last_name).trim()}`
-      : undefined,
+    firstName,
+    lastName,
   );
   const isActiveValue = item.is_active ?? membership.is_active;
   const metrics = asRecord(item.metrics);

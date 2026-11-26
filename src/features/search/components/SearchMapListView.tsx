@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, type UIEvent } from "react";
 import LinearMapsLocation from "../../../shared/icons/LinearMapsLocation";
 import { AdCard, type AdCardData } from "../../advertisements/components/AdCard";
 import { AdCardSkeleton } from "../../advertisements/components/AdCardSkeleton";
@@ -137,17 +137,64 @@ export function SearchMapListView({
     };
   }, []);
 
-  const handleScroll = useCallback(() => {
-    if (!hasNextPage || isFetchingNextPage) return;
+  useEffect(() => {
+    if (isLoading || listings.length === 0) return;
 
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    const storageKey = `bonga_search_list_scroll_${window.location.search}`;
+    const fallbackKey = "bonga_search_list_scroll";
+    const saved =
+      sessionStorage.getItem(storageKey) || sessionStorage.getItem(fallbackKey);
+    if (!saved) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = container;
-    if (scrollHeight - (scrollTop + clientHeight) <= 600) {
-      handleFetchNext();
-    }
-  }, [handleFetchNext, hasNextPage, isFetchingNextPage]);
+    const targetY = Number(saved);
+    if (!Number.isFinite(targetY) || targetY <= 0) return;
+
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    el.scrollTop = targetY;
+
+    const rafId = requestAnimationFrame(() => {
+      if (scrollContainerRef.current && scrollContainerRef.current.scrollTop !== targetY) {
+        scrollContainerRef.current.scrollTop = targetY;
+      }
+    });
+
+    const timerId = setTimeout(() => {
+      if (scrollContainerRef.current && scrollContainerRef.current.scrollTop !== targetY) {
+        scrollContainerRef.current.scrollTop = targetY;
+      }
+    }, 80);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timerId);
+    };
+  }, [isLoading, listings.length]);
+
+  useEffect(() => {
+    return () => {
+      if (scrollContainerRef.current) {
+        const top = scrollContainerRef.current.scrollTop;
+        sessionStorage.setItem(`bonga_search_list_scroll_${window.location.search}`, String(top));
+        sessionStorage.setItem("bonga_search_list_scroll", String(top));
+      }
+    };
+  }, []);
+
+  const handleScroll = useCallback(
+    (e: UIEvent<HTMLElement>) => {
+      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+      sessionStorage.setItem(`bonga_search_list_scroll_${window.location.search}`, String(scrollTop));
+      sessionStorage.setItem("bonga_search_list_scroll", String(scrollTop));
+
+      if (!hasNextPage || isFetchingNextPage) return;
+      if (scrollHeight - (scrollTop + clientHeight) <= 600) {
+        handleFetchNext();
+      }
+    },
+    [handleFetchNext, hasNextPage, isFetchingNextPage],
+  );
 
   return (
     <>

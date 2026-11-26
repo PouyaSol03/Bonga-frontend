@@ -184,9 +184,27 @@ export function getDefaultValues(
   const ownerFullName = queryParams?.get("ownerFullName") || "";
   const ownerPhone = queryParams?.get("ownerPhone") || "";
   const ownerExactAddress = queryParams?.get("ownerExactAddress") || "";
+  const targetOwnerPhone = queryParams?.get("targetOwnerPhone") || "";
+  const targetOwnerAuthorizedParam = queryParams?.get("targetOwnerAuthorized");
+  const targetOwnerAuthorized =
+    targetOwnerAuthorizedParam !== null && targetOwnerAuthorizedParam !== undefined
+      ? targetOwnerAuthorizedParam === "true"
+      : undefined;
+  const isCrmSource = queryParams?.get("editSource") === "crm";
 
   return {
     ...baseValues,
+    chatEnabled:
+      isCrmSource && targetOwnerAuthorized === false
+        ? false
+        : editDefaults
+          ? baseValues.chatEnabled
+          : isCrmSource
+            ? targetOwnerAuthorized === true && baseValues.chatEnabled
+            : baseValues.chatEnabled,
+    phoneNumber: editDefaults
+      ? baseValues.phoneNumber
+      : (targetOwnerType === "user" ? targetOwnerPhone : "") || baseValues.phoneNumber,
     registrantType: editDefaults
       ? baseValues.registrantType
       : targetOwnerType === "agency" || queryAgencyId
@@ -206,6 +224,11 @@ export function getDefaultValues(
     targetOwnerId: editDefaults
       ? baseValues.targetOwnerId
       : targetOwnerId || baseValues.targetOwnerId,
+    targetOwnerAuthorized: editDefaults
+      ? baseValues.targetOwnerAuthorized
+      : targetOwnerAuthorized !== undefined
+        ? targetOwnerAuthorized
+        : baseValues.targetOwnerAuthorized,
     ownerFullName: editDefaults
       ? baseValues.ownerFullName
       : ownerFullName || baseValues.ownerFullName,

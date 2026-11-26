@@ -1,5 +1,6 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
+import { toEnglishDigits } from "../../../shared/lib/numberUtils";
 import {
   listCrmUsers,
   type CrmRecord,
@@ -45,9 +46,9 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const [nationalnumber, setNationalnumber] = useState("");
   const filters = useMemo(
     () => ({
-      mobile: mobile.trim(),
+      mobile: toEnglishDigits(mobile).replace(/\D/g, ""),
       name: name.trim(),
-      nationalnumber: nationalnumber.trim(),
+      nationalnumber: toEnglishDigits(nationalnumber).replace(/\D/g, ""),
     }),
     [mobile, name, nationalnumber],
   );
@@ -129,7 +130,7 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
       ],
       onSubmit: async (values) => {
         const rawAmount = (values.amount ?? "").trim();
-        const parsedAmount = Number(rawAmount.replace(/[^\d]/g, ""));
+        const parsedAmount = Number(toEnglishDigits(rawAmount).replace(/\D/g, ""));
         if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
           notify("لطفاً مبلغ معتبری (بزرگتر از صفر) به تومان وارد کنید.", "error");
           return;
@@ -166,7 +167,7 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
           ],
       onSubmit: async (values) => {
         if (!id) {
-          const mobile = values.mobile?.trim() ?? "";
+          const mobile = toEnglishDigits(values.mobile ?? "").replace(/\D/g, "");
           const name = values.name?.trim() ?? "";
           const family = values.family?.trim() ?? "";
 
@@ -201,9 +202,9 @@ export function CrmUsersPage({ notify, refreshNonce }: CrmRoutePageProps) {
         const payload: CrmRecord = {
           email: values.email ?? "",
           family: values.family ?? "",
-          mobile: values.mobile ?? "",
+          mobile: toEnglishDigits(values.mobile ?? "").replace(/\D/g, ""),
           name: values.name ?? "",
-          nationalnumber: values.nationalnumber ? values.nationalnumber.trim() : "",
+          nationalnumber: values.nationalnumber ? toEnglishDigits(values.nationalnumber).replace(/\D/g, "") : "",
           roles: selectedRoleSlugs,
         };
 

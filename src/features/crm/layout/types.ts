@@ -41,6 +41,7 @@ export type ModalField = {
     | "number"
     | "select"
     | "sub-neighborhoods"
+    | "tel"
     | "textarea"
     | "text";
   value?: unknown;

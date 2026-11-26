@@ -1,8 +1,13 @@
 import { useState } from "react";
+import { Link, Navigate, useNavigate } from "react-router";
+import { getActiveAuthRole, getStoredAuthSession } from "../../../shared/auth/auth-storage";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+} from "../../../shared/constants/roles.constants";
 
 import { PageFrame } from "../../../shared/layout/PageFrame";
 import { TopBar } from "../../../shared/components/TopBar";
-import { Link, useNavigate } from "react-router";
 import { useToast } from "../../../shared/hooks/useToast";
 import { usePackagePaymentMutation, usePackagesQuery } from "../../packages/api/package.hooks";
 import { useWalletQuery } from "../api/account.hooks";
@@ -60,6 +65,15 @@ function mapPackageToCreditPlan(plan: PackageItem, index: number, view: CreditVi
 }
 
 export function IndependentConsultantCreditPage({ view }: { view: CreditView }) {
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const isConsultant =
+    activeRole === REAL_ESTATE_CONSULTANT || activeRole === INDEPENDENT_CONSULTANT;
+
+  if (isConsultant && view !== "packages") {
+    return <Navigate to="/account/credit/packages" replace />;
+  }
+
   const { showToast } = useToast();
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const packagesQuery = usePackagesQuery();
@@ -142,7 +156,11 @@ export function IndependentConsultantCreditPage({ view }: { view: CreditView }) 
       <CreditTopBar />
       <CreditTabs activeTab={isPackages ? "packages" : "panel"} />
 
-      <main className="bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pb-4">
+      <main
+        className={`bg-surface-container-lowest min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pb-4 ${
+          isConsultant ? "pt-4" : ""
+        }`}
+      >
         {packagesQuery.isLoading ? (
           <CreditPlansSkeleton count={3} />
         ) : packagesQuery.isError ? (
@@ -211,6 +229,13 @@ function CreditTopBar() {
 }
 
 function CreditTabs({ activeTab }: { activeTab: "packages" | "panel" }) {
+  const session = getStoredAuthSession();
+  const activeRole = getActiveAuthRole(session);
+  const isConsultant =
+    activeRole === REAL_ESTATE_CONSULTANT || activeRole === INDEPENDENT_CONSULTANT;
+
+  if (isConsultant) return null;
+
   return (
     <nav className="bg-surface-container-lowest shrink-0 px-4 py-4" aria-label="نوع افزایش اعتبار">
       <div className="border-primary flex h-11 overflow-hidden rounded-xl border [direction:ltr]">

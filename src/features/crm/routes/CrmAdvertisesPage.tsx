@@ -1,13 +1,14 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import {
-  listCrmAdvertises,
+  listCrmAdvertisesPaginated,
   countCrmAdvertisesByStatus,
   updateCrmAdvertiseStatus,
   getCrmRecordId,
   listCrmAgencies,
   type AdvertiseStatus,
 } from "../api/crm.service";
+import { CrmAdvertisesPagination } from "../components/CrmAdvertisesPagination";
 import { getApiErrorMessage } from "../../../shared/api/api";
 import { useNavigate } from "react-router";
 import {
@@ -46,19 +47,41 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
   const queryClient = useQueryClient();
   const [trackCode, setTrackCode] = useState("");
   const [status, setStatus] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(24);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const filters = useMemo(() => ({ status, trackCode: trackCode.trim() }), [status, trackCode]);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const listContainerRef = useRef<HTMLDivElement | null>(null);
 
   const query = useQuery({
     queryFn: () =>
-      listCrmAdvertises({
+      listCrmAdvertisesPaginated({
+        page,
+        perPage,
         status: filters.status === "" ? undefined : (filters.status as AdvertiseStatus),
         trackCode: filters.trackCode,
       }),
-    queryKey: ["crm", "advertises", filters, refreshNonce],
+    queryKey: ["crm", "advertises", filters, page, perPage, refreshNonce],
+    placeholderData: (previousData) => previousData,
   });
+
+  const advertises = query.data?.data ?? [];
+  const currentPage = query.data?.page ?? page;
+  const totalPages = query.data?.lastPage ?? 1;
+  const totalAds = query.data?.total ?? advertises.length;
+
+  const handleChangePage = (nextPage: number) => {
+    setPage(nextPage);
+    listContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleChangePerPage = (nextPerPage: number) => {
+    setPerPage(nextPerPage);
+    setPage(1);
+    listContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const pendingAdsCountQuery = useQuery({
     queryFn: () => countCrmAdvertisesByStatus("wait_for_admin"),
@@ -152,7 +175,10 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                     aria-current={isActive ? "page" : undefined}
                     className={`relative inline-flex h-10 items-center gap-1.5 bg-transparent px-0 text-sm font-semibold whitespace-nowrap transition ${isActive ? "text-[#0048c4]" : "text-[#666666] hover:text-[#303030]"}`}
                     key={option.value || "all"}
-                    onClick={() => setStatus(option.value)}
+                    onClick={() => {
+                      setStatus(option.value);
+                      setPage(1);
+                    }}
                     type="button"
                   >
                     <span>{option.label}</span>
@@ -200,7 +226,10 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                 </Typography>
                 <input
                   className="h-full w-full rounded-xl border border-[#cccccc] bg-white pr-4 pl-12 text-right text-sm font-medium text-[#303030] transition outline-none placeholder:text-[#999999] focus:border-[#0048c4]"
-                  onChange={(event) => setTrackCode(event.target.value)}
+                  onChange={(event) => {
+                    setTrackCode(event.target.value);
+                    setPage(1);
+                  }}
                   placeholder="جستجو با کد پیگیری"
                   type="search"
                   value={trackCode}
@@ -224,7 +253,10 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
             <FilterField label="کد پیگیری">
               <input
                 className={inputClassName}
-                onChange={(event) => setTrackCode(event.target.value)}
+                onChange={(event) => {
+                  setTrackCode(event.target.value);
+                  setPage(1);
+                }}
                 placeholder="مثلاً ۱۲۳۴۵"
                 value={trackCode}
               />
@@ -232,7 +264,10 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
             <FilterField label="وضعیت">
               <CrmSelect
                 className={inputClassName}
-                onChange={(event) => setStatus(event.target.value)}
+                onChange={(event) => {
+                  setStatus(event.target.value);
+                  setPage(1);
+                }}
                 value={status}
               >
                 <option value="">همه وضعیت‌ها</option>
@@ -250,6 +285,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                 onClick={() => {
                   setStatus("");
                   setTrackCode("");
+                  setPage(1);
                 }}
                 type="button"
               >
@@ -259,7 +295,10 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
           </form>
         ) : null}
 
-        <div className="mt-6 min-h-0 flex-1 overflow-x-hidden overflow-y-auto pl-1">
+        <div
+          ref={listContainerRef}
+          className="mt-6 min-h-0 flex-1 overflow-x-hidden overflow-y-auto pl-1"
+        >
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2 2xl:grid-cols-3">
             {query.isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (
@@ -273,8 +312,8 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                   <div className="mt-3 h-4 w-3/5 rounded-full bg-[#eef0f4]" />
                 </div>
               ))
-            ) : query.data?.length ? (
-              query.data.map((ad, index) => {
+            ) : advertises.length ? (
+              advertises.map((ad, index) => {
                 const id = getCrmRecordId(ad);
                 const card = mapCrmAdvertiseToCard(ad, index);
                 const agencyId = readText(ad, ["agency_id", "publisher_agency_id", "target_owner_id"]);
@@ -388,6 +427,18 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
             )}
           </div>
         </div>
+
+        {!query.isLoading && (totalAds > 0 || totalPages > 1) ? (
+          <CrmAdvertisesPagination
+            currentPage={currentPage}
+            isFetching={query.isFetching}
+            onChangePage={handleChangePage}
+            onChangePerPage={handleChangePerPage}
+            perPage={perPage}
+            total={totalAds}
+            totalPages={totalPages}
+          />
+        ) : null}
       </section>
 
       <ConfirmModal confirm={confirm} onClose={() => setConfirm(null)} notify={notify} />

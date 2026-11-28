@@ -1,5 +1,5 @@
 import { api } from "../../../../shared/api/api";
-import { normalizeRows, unwrapRecord } from "./crmBase";
+import { findPaginationRecord, normalizeRows, unwrapRecord, type CrmRecord } from "./crmBase";
 
 export type AdvertiseStatus =
   | "wait_for_payment"
@@ -13,8 +13,18 @@ export type AdvertiseStatus =
   | "incomplete";
 
 export type CrmAdvertiseFilters = {
+  page?: number;
+  perPage?: number;
   status?: AdvertiseStatus;
   trackCode?: string;
+};
+
+export type CrmAdvertisePage = {
+  data: CrmRecord[];
+  page: number;
+  perPage: number;
+  total: number;
+  lastPage: number;
 };
 
 export type CrmAdvertisePayload = {
@@ -35,16 +45,55 @@ export type CrmAdvertisePayload = {
   features?: { key: string; value: unknown }[];
 };
 
-export async function listCrmAdvertises(filters: CrmAdvertiseFilters = {}) {
+/**
+ * Fetches a paginated list of CRM advertises with optional status and track-code filters.
+ */
+export async function listCrmAdvertisesPaginated(
+  filters: CrmAdvertiseFilters = {},
+): Promise<CrmAdvertisePage> {
+  const page = filters.page ?? 1;
+  const perPage = filters.perPage ?? 24;
   const body: Record<string, unknown> = {
-    page: 1,
-    per_page: 50,
+    page,
+    per_page: perPage,
   };
 
   if (filters.status !== undefined) body.status = filters.status;
   if (filters.trackCode?.trim()) body.track_code = filters.trackCode.trim();
 
-  return normalizeRows(await api.post("panel/advertise/list", { json: body }).json<unknown>());
+  const payload = await api.post("panel/advertise/list", { json: body }).json<unknown>();
+  const data = normalizeRows(payload);
+  const pagination = findPaginationRecord(payload);
+  const totalValue = Number(pagination.total ?? pagination.count ?? data.length);
+  const pageValue = Number(pagination.page ?? pagination.current_page ?? page);
+  const perPageValue = Number(pagination.per_page ?? pagination.perPage ?? perPage);
+  const resolvedPerPage =
+    Number.isFinite(perPageValue) && perPageValue > 0 ? perPageValue : perPage;
+  const resolvedTotal = Number.isFinite(totalValue) && totalValue >= 0 ? totalValue : data.length;
+  const explicitLastPage = Number(
+    pagination.last_page ?? pagination.lastPage ?? pagination.total_pages,
+  );
+  const resolvedLastPage =
+    Number.isFinite(explicitLastPage) && explicitLastPage > 0
+      ? explicitLastPage
+      : Math.max(1, Math.ceil(resolvedTotal / resolvedPerPage));
+
+  return {
+    data,
+    page: Number.isFinite(pageValue) && pageValue > 0 ? pageValue : page,
+    perPage: resolvedPerPage,
+    total: resolvedTotal,
+    lastPage: resolvedLastPage,
+  };
+}
+
+export async function listCrmAdvertises(filters: CrmAdvertiseFilters = {}) {
+  const result = await listCrmAdvertisesPaginated({
+    ...filters,
+    page: filters.page ?? 1,
+    perPage: filters.perPage ?? 50,
+  });
+  return result.data;
 }
 
 export async function countCrmAdvertisesByStatus(

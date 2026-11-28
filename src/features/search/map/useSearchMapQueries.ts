@@ -218,6 +218,7 @@ export function useSearchMapQueries({
     fetchNextPage: listInfiniteQuery.fetchNextPage,
     hasActiveSearchCriteria,
     hasNextPage: Boolean(listInfiniteQuery.hasNextPage),
+    isFetchNextPageError: Boolean(listInfiniteQuery.isFetchNextPageError),
     isFetchingNextPage: listInfiniteQuery.isFetchingNextPage,
     isInitialMapLoading,
     isListLoading,

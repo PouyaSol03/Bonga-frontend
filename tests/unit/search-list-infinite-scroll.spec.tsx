@@ -186,4 +186,50 @@ describe("Search List Public Advertise Infinite Scroll & Filters", () => {
     const skeletons = container.querySelectorAll("article[aria-hidden='true']");
     expect(skeletons.length).toBe(0);
   });
+
+  test("gates automatic fetch on pagination error and provides explicit retry button", async () => {
+    container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+
+    const onFetchNextPage = vi.fn();
+    const listings = makeListings(20);
+
+    await act(async () => {
+      root.render(
+        <MemoryRouter>
+          <SearchMapListView
+            hasNextPage
+            isFetchNextPageError
+            isFetchingNextPage={false}
+            listings={listings}
+            onFetchNextPage={onFetchNextPage}
+            onMapClick={vi.fn()}
+          />
+        </MemoryRouter>,
+      );
+    });
+
+    const scrollContainer = container.querySelector("main");
+    Object.defineProperty(scrollContainer!, "scrollTop", { value: 3000, configurable: true });
+    Object.defineProperty(scrollContainer!, "scrollHeight", { value: 3200, configurable: true });
+    Object.defineProperty(scrollContainer!, "clientHeight", { value: 600, configurable: true });
+
+    await act(async () => {
+      scrollContainer!.dispatchEvent(new Event("scroll"));
+    });
+
+    expect(onFetchNextPage).not.toHaveBeenCalled();
+
+    const retryButton = Array.from(container.querySelectorAll("button")).find((btn) =>
+      btn.textContent?.includes("تلاش مجدد"),
+    );
+    expect(retryButton).toBeTruthy();
+
+    await act(async () => {
+      retryButton?.click();
+    });
+
+    expect(onFetchNextPage).toHaveBeenCalledTimes(1);
+  });
 });

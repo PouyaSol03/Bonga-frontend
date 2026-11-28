@@ -11,6 +11,7 @@ import { toPersianDigits } from "../../../shared/lib/numberUtils";
 type SearchMapListViewProps = {
   hasEmptyResults?: boolean;
   hasNextPage?: boolean;
+  isFetchNextPageError?: boolean;
   isFetchingNextPage?: boolean;
   isLoading?: boolean;
   listings: SearchMapListing[];
@@ -68,6 +69,7 @@ function searchMapListingToAdCardData(listing: SearchMapListing): AdCardData {
 export function SearchMapListView({
   hasEmptyResults = false,
   hasNextPage = false,
+  isFetchNextPageError = false,
   isFetchingNextPage = false,
   isLoading = false,
   listings,
@@ -82,21 +84,26 @@ export function SearchMapListView({
   const prefetchIndex = Math.max(0, listings.length - 10);
 
   const handleFetchNext = useCallback(() => {
-    if (!hasNextPage || isFetchingNextPage || !onFetchNextPage) return;
+    if (!hasNextPage || isFetchingNextPage || isFetchNextPageError || !onFetchNextPage) return;
     onFetchNextPage();
-  }, [hasNextPage, isFetchingNextPage, onFetchNextPage]);
+  }, [hasNextPage, isFetchNextPageError, isFetchingNextPage, onFetchNextPage]);
 
   const prefetchTriggerRef = useCallback(
     (node: HTMLDivElement | null) => {
       prefetchObserverRef.current?.disconnect();
       prefetchObserverRef.current = null;
-      if (!node || !hasNextPage || isFetchingNextPage) return;
+      if (!node || !hasNextPage || isFetchingNextPage || isFetchNextPageError) return;
 
       if (typeof IntersectionObserver === "undefined") return;
 
       const observer = new IntersectionObserver(
         (entries) => {
-          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          if (
+            entries[0]?.isIntersecting &&
+            hasNextPage &&
+            !isFetchingNextPage &&
+            !isFetchNextPageError
+          ) {
             handleFetchNext();
           }
         },
@@ -105,20 +112,25 @@ export function SearchMapListView({
       observer.observe(node);
       prefetchObserverRef.current = observer;
     },
-    [handleFetchNext, hasNextPage, isFetchingNextPage],
+    [handleFetchNext, hasNextPage, isFetchNextPageError, isFetchingNextPage],
   );
 
   const bottomSentinelRef = useCallback(
     (node: HTMLDivElement | null) => {
       bottomObserverRef.current?.disconnect();
       bottomObserverRef.current = null;
-      if (!node || !hasNextPage || isFetchingNextPage) return;
+      if (!node || !hasNextPage || isFetchingNextPage || isFetchNextPageError) return;
 
       if (typeof IntersectionObserver === "undefined") return;
 
       const observer = new IntersectionObserver(
         (entries) => {
-          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          if (
+            entries[0]?.isIntersecting &&
+            hasNextPage &&
+            !isFetchingNextPage &&
+            !isFetchNextPageError
+          ) {
             handleFetchNext();
           }
         },
@@ -127,7 +139,7 @@ export function SearchMapListView({
       observer.observe(node);
       bottomObserverRef.current = observer;
     },
-    [handleFetchNext, hasNextPage, isFetchingNextPage],
+    [handleFetchNext, hasNextPage, isFetchNextPageError, isFetchingNextPage],
   );
 
   useEffect(() => {
@@ -189,12 +201,12 @@ export function SearchMapListView({
       sessionStorage.setItem(`bonga_search_list_scroll_${window.location.search}`, String(scrollTop));
       sessionStorage.setItem("bonga_search_list_scroll", String(scrollTop));
 
-      if (!hasNextPage || isFetchingNextPage) return;
+      if (!hasNextPage || isFetchingNextPage || isFetchNextPageError) return;
       if (scrollHeight - (scrollTop + clientHeight) <= 600) {
         handleFetchNext();
       }
     },
-    [handleFetchNext, hasNextPage, isFetchingNextPage],
+    [handleFetchNext, hasNextPage, isFetchNextPageError, isFetchingNextPage],
   );
 
   return (
@@ -245,7 +257,22 @@ export function SearchMapListView({
                   />
                 ))
               ) : null}
-              {hasNextPage ? (
+              {isFetchNextPageError && hasNextPage && !isFetchingNextPage ? (
+                <div className="bg-surface-container-lowest flex flex-col items-center justify-center gap-2 px-4 py-4 text-center">
+                  <Typography as="p" variant="body" size="small" className="text-error">
+                    خطا در دریافت آگهی‌های بیشتر
+                  </Typography>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="small"
+                    onClick={() => onFetchNextPage?.()}
+                  >
+                    تلاش مجدد
+                  </Button>
+                </div>
+              ) : null}
+              {hasNextPage && !isFetchNextPageError ? (
                 <div
                   ref={bottomSentinelRef}
                   className="h-4 w-full shrink-0"

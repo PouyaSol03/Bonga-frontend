@@ -203,14 +203,19 @@ export function useCrmAdvertiseDetail({
   const hasMapPosition = latitude !== null && longitude !== null;
 
   const savedAddress = readHumanText(advertise, [
+    "user_address",
     "address",
     "full_address",
     "formatted_address",
     "postal_address",
+    "location_label",
+    "location",
   ]);
-  const locationTitle = [cityName, neighborhoodName]
-    .filter((value) => value && !value.includes("موجود نیست") && !value.includes("در حال دریافت"))
-    .join("، ");
+  const directLocation = readHumanText(advertise, ["location_label", "location", "user_address"]);
+  const locationTitle =
+    [cityName, neighborhoodName]
+      .filter((value) => value && !value.includes("موجود نیست") && !value.includes("در حال دریافت"))
+      .join("، ") || directLocation;
   const address = savedAddress || locationTitle || "آدرس ثبت نشده است";
   const description = readText(
     advertise,

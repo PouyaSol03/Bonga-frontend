@@ -71,7 +71,7 @@ export function RealEstateManagerAdStatePage({
   });
   const [isPublisherPickerOpen, setIsPublisherPickerOpen] = useState(false);
   const { isDeleteDialogOpen, setIsDeleteDialogOpen, isDeleting, handleDeleteAd } =
-    useManagerAdDeletion(adId, backTo, backState);
+    useManagerAdDeletion(adId, backTo, backState, isIndependentConsultant);
 
   const isAdDeleted =
     statusInfo.key === "deleted" ||

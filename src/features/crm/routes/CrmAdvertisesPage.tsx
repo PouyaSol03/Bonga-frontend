@@ -343,6 +343,8 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                 const hasVideo = Boolean(
                   (Array.isArray(ad.videos) && ad.videos.length > 0) ||
                     ad.video ||
+                    ad.video_url ||
+                    ad.video_path ||
                     ad.has_video === true ||
                     ad.has_video === "true",
                 );

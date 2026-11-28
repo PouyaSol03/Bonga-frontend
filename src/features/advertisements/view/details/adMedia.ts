@@ -51,8 +51,40 @@ export function formatPublishedAge(
   return toText(getFeatureValue(features, "published_at"));
 }
 
+export function readVideoUrls(ad: AdvertisementItem): string[] {
+  const candidate = ad as AdvertisementItem & {
+    videos?: unknown;
+    video_url?: unknown;
+    video_path?: unknown;
+  };
+  const rawVideos = Array.isArray(candidate.videos) ? candidate.videos : [];
+  const allCandidates: unknown[] = [
+    ...rawVideos,
+    candidate.video,
+    candidate.video_url,
+    candidate.video_path,
+  ];
+
+  return Array.from(
+    new Set(
+      allCandidates
+        .map((entry) => {
+          if (typeof entry === "string") return entry.trim();
+          if (entry && typeof entry === "object") {
+            const record = entry as Record<string, unknown>;
+            const raw = record.url ?? record.path ?? record.src;
+            return typeof raw === "string" ? raw.trim() : "";
+          }
+          return "";
+        })
+        .filter(Boolean)
+        .map((rawPath) => getApiAssetUrl(rawPath)),
+    ),
+  );
+}
+
 export function readVideoUrl(ad: AdvertisementItem) {
-  return typeof ad.video === "string" && ad.video.trim() ? getApiAssetUrl(ad.video) : "";
+  return readVideoUrls(ad)[0] ?? "";
 }
 
 export function getVirtualTourUrl(ad: AdvertisementItem) {
@@ -67,20 +99,13 @@ export function hasTour3d(ad: AdvertisementItem) {
 
 export function buildGalleryMediaItems(ad: AdvertisementItem) {
   const images = getAdvertisementImageUrls(ad);
-  const videoUrl = readVideoUrl(ad);
+  const videoItems: AlbumMediaItem[] = readVideoUrls(ad).map((src) => ({
+    src,
+    type: "video",
+  }));
   const imageItems = images.map((src): AlbumMediaItem => ({ src, type: "image" }));
 
-  if (!videoUrl) {
-    return imageItems;
-  }
-
-  return [
-    ...imageItems,
-    {
-      src: videoUrl,
-      type: "video" as const,
-    },
-  ];
+  return [...videoItems, ...imageItems];
 }
 
 

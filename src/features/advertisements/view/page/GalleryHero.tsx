@@ -31,8 +31,10 @@ export function GalleryHero({
 
   const selectGalleryKind = (kind: GalleryMediaKind) => {
     if (kind === "album") {
-      swiperRef.current?.slideTo(0);
-      setActiveIndex(0);
+      const firstImageIndex = galleryItems.findIndex((item) => item.type === "image");
+      const targetIndex = firstImageIndex >= 0 ? firstImageIndex : 0;
+      swiperRef.current?.slideTo(targetIndex);
+      setActiveIndex(targetIndex);
       return;
     }
 

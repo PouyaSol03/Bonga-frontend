@@ -121,7 +121,7 @@ describe("Search Map Query Params Builder", () => {
     expect(params?.south).toBe(35.612346);
     expect(params?.east).toBe(51.498765);
     expect(params?.west).toBe(51.312346);
-    expect(params?.limit).toBe(100);
+    expect(params?.limit).toBe(2000);
   });
 
   it("builds list query params with default pagination", () => {

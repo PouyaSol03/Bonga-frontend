@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Typography } from "../../../../shared/ui/Typography";
 import type { AdCardData } from "./types";
 import { resolveAdCategory } from "./category";
@@ -10,18 +11,27 @@ export function AdCardBody({
   ad,
   className = "",
   hasSecondaryPrice,
+  priceTrailingSlot,
   showBadges,
 }: {
   ad: AdCardData;
   className?: string;
   hasSecondaryPrice: boolean;
+  priceTrailingSlot?: ReactNode;
   showBadges: boolean;
 }) {
   const category = resolveAdCategory(ad);
 
   return (
     <div className={`flex flex-col pt-3 ${className}`}>
-      <AdCardPriceRow ad={ad} hasSecondaryPrice={hasSecondaryPrice} category={category} />
+      {priceTrailingSlot ? (
+        <div className="flex items-center justify-between gap-2">
+          <AdCardPriceRow ad={ad} hasSecondaryPrice={hasSecondaryPrice} category={category} />
+          {priceTrailingSlot}
+        </div>
+      ) : (
+        <AdCardPriceRow ad={ad} hasSecondaryPrice={hasSecondaryPrice} category={category} />
+      )}
 
       <PropertyRow className="mt-3 h-5 gap-[22px] text-sm" ad={ad} />
 

@@ -53,6 +53,7 @@ export type AdCardProps = {
   isSelected?: boolean;
   mapPreviewImages?: string[];
   mapSliderCardId?: number | string;
+  priceTrailingSlot?: ReactNode;
   showBadges?: boolean;
   showAgency?: boolean;
   showImageCount?: boolean;

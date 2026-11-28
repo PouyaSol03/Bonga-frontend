@@ -22,6 +22,9 @@ import LinearCheckmark from "../../../shared/icons/LinearCheckmark";
 import LinearCancel from "../../../shared/icons/LinearCancel";
 import LinearDelete from "../../../shared/icons/LinearDelete";
 import LinearApartment from "../../../shared/icons/LinearApartment";
+import LinearGps from "../../../shared/icons/LinearGps";
+import LinearVideo from "../../../shared/icons/LinearVideo";
+import { getFormName } from "../advertise-detail/helpers";
 import {
   ConfirmModal,
   CrmAdvertiseCreateModal,
@@ -316,12 +319,36 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
               advertises.map((ad, index) => {
                 const id = getCrmRecordId(ad);
                 const card = mapCrmAdvertiseToCard(ad, index);
-                const agencyId = readText(ad, ["agency_id", "publisher_agency_id", "target_owner_id"]);
+                const agencyId =
+                  readText(ad, ["agency_id", "publisher_agency_id", "assigned_agency_id"], "") ||
+                  (ad.target_owner_type === "agency" ? readText(ad, ["target_owner_id"], "") : "");
+                const ownerType = String(
+                  ad.publisher_type ?? ad.owner_type ?? ad.target_owner_type ?? "",
+                ).toLowerCase();
+                const cardAgency =
+                  card.agency && card.agency.trim() !== "شخصی" && card.agency.trim() !== "مشاور مستقل"
+                    ? card.agency.trim()
+                    : "";
                 const resolvedAgencyName =
-                  card.agency ||
+                  cardAgency ||
                   (agencyId ? agencyMap.get(agencyId) : "") ||
-                  (agencyId ? `آژانس کد ${agencyId}` : "") ||
-                  (ad.owner_type === "agency" || ad.publisher_type === "agency" ? "آژانس املاک" : "");
+                  (agencyId || ownerType === "agency" ? "آژانس املاک" : "");
+                const publisherRoleLabel = resolvedAgencyName
+                  ? ""
+                  : ownerType === "independent_consultant" || ownerType === "independent-consultant"
+                    ? "مشاور مستقل"
+                    : "شخصی";
+
+                const formCode = card.formCode || readText(ad, ["form_code"], "");
+                const hasVideo = Boolean(
+                  (Array.isArray(ad.videos) && ad.videos.length > 0) ||
+                    ad.video ||
+                    ad.has_video === true ||
+                    ad.has_video === "true",
+                );
+                const hasTour3d = Boolean(
+                  typeof ad.virtual_tour_link === "string" && ad.virtual_tour_link.trim(),
+                );
 
                 return (
                   <article
@@ -332,14 +359,46 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                       <AdCard
                         ad={{
                           ...card,
-                          agency: resolvedAgencyName || card.agency,
+                          agency: resolvedAgencyName,
                         }}
+                        priceTrailingSlot={
+                          formCode ? (
+                            <span className="shrink-0 rounded-md bg-[#f0f4f8] px-2 py-0.5 text-xs font-semibold text-[#334155]">
+                              {getFormName(formCode)}
+                            </span>
+                          ) : undefined
+                        }
+                        showAgency={Boolean(resolvedAgencyName)}
                         showStatusBadge
                         state={{ ad, card, status: ad.status }}
                         to={`/crm/advertises/${encodeURIComponent(id)}`}
                         variant="dashboard"
                       />
                     </div>
+
+                    {hasVideo || hasTour3d ? (
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5 px-1 text-[11px]">
+                        {hasVideo ? (
+                          <span
+                            aria-label="دارای ویدیو"
+                            title="دارای ویدیو"
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#eef4ff] text-[#0048c4]"
+                          >
+                            <LinearVideo className="h-4 w-4" />
+                          </span>
+                        ) : null}
+                        {hasTour3d ? (
+                          <span
+                            aria-label="دارای تور مجازی ۳D"
+                            title="دارای تور مجازی ۳D"
+                            className="inline-flex h-7 items-center gap-1 rounded-md bg-[#eef4ff] px-1.5 font-semibold text-[#0048c4]"
+                          >
+                            <LinearGps className="h-3.5 w-3.5" />
+                            <span>3D</span>
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : null}
 
                     <div className="mt-3 border-t border-[#f0f0f0] pt-3">
                       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-[#808080]">
@@ -373,7 +432,7 @@ export function CrmAdvertisesPage({ notify, refreshNonce }: CrmRoutePageProps) {
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 rounded-md bg-[#f5f5f5] px-2 py-0.5 text-[#666666]">
-                            شخصی
+                            {publisherRoleLabel}
                           </span>
                         )}
                       </div>

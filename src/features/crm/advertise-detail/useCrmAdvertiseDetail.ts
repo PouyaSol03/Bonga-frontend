@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getApiErrorMessage } from "../../../shared/api/api";
+import { getApiAssetUrl, getApiErrorMessage } from "../../../shared/api/api";
 import { toNumericValue } from "../../../shared/lib/numberUtils";
 import { getAdvertisementImageUrls } from "../../advertisements/utils/advertisement-images";
 import {
@@ -181,6 +181,31 @@ export function useCrmAdvertiseDetail({
 
   const images = getAdvertisementImageUrls(advertise);
   const coverImage = images[0];
+  const rawVideos = Array.isArray(advertise?.videos) ? advertise.videos : [];
+  const videoCandidates: unknown[] = [
+    ...rawVideos,
+    advertise?.video,
+    advertise?.video_url,
+    advertise?.video_path,
+  ];
+  const videos = Array.from(
+    new Set(
+      videoCandidates
+        .map((entry) => {
+          if (typeof entry === "string") return entry.trim();
+          if (entry && typeof entry === "object") {
+            const record = entry as Record<string, unknown>;
+            const raw = record.url ?? record.path ?? record.src;
+            return typeof raw === "string" ? raw.trim() : "";
+          }
+          return "";
+        })
+        .filter(Boolean)
+        .map((rawPath) => getApiAssetUrl(rawPath)),
+    ),
+  );
+  const hasVideo =
+    videos.length > 0 || featureMap.has_video === true || featureMap.has_video === "true";
   const title = readText(advertise, ["title", "label"], "آگهی بدون عنوان");
 
   const rootPrice = advertise?.price || undefined;
@@ -282,7 +307,9 @@ export function useCrmAdvertiseDetail({
     floor,
     formCode,
     hasMapPosition,
+    hasVideo,
     images,
+    videos,
     isLoading: advertiseQuery.isLoading,
     isUpdatingStatus: statusMutation.isPending,
     latitude,

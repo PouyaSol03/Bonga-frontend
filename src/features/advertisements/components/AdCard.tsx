@@ -21,6 +21,7 @@ export function AdCard({
   isSelected = false,
   mapPreviewImages = [],
   mapSliderCardId,
+  priceTrailingSlot,
   showAgency = true,
   showBadges = true,
   showImageCount = true,
@@ -102,6 +103,7 @@ export function AdCard({
           ad={ad}
           className={isDashboard ? "gap-2.5 pt-0" : undefined}
           hasSecondaryPrice={hasSecondaryPrice}
+          priceTrailingSlot={priceTrailingSlot}
           showBadges={showBadges}
         />
       </article>

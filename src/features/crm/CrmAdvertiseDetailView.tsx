@@ -82,12 +82,15 @@ export function CrmAdvertiseDetailView({
             coverImage={detail.coverImage}
             createdAt={detail.createdAt}
             floor={detail.floor}
+            formCode={detail.formCode}
+            hasVideo={detail.hasVideo}
             images={detail.images}
             locationTitle={detail.locationTitle}
             pricePresentation={detail.pricePresentation}
             rooms={detail.rooms}
             title={detail.title}
             trackCode={detail.trackCode}
+            videos={detail.videos}
             virtualTourLink={detail.virtualTourLink}
           />
           <AdvertiseFeaturesSection visibleFeatures={detail.visibleFeatures} />

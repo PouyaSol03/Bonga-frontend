@@ -6,8 +6,12 @@ import LinearHouseDimensions from "../../../../shared/icons/LinearHouseDimension
 import LinearHome2 from "../../../../shared/icons/LinearHome2";
 import LinearApartment from "../../../../shared/icons/LinearApartment";
 import LinearGps from "../../../../shared/icons/LinearGps";
+import LinearVideo from "../../../../shared/icons/LinearVideo";
 import { Typography } from "../../../../shared/ui/Typography";
+import { ViewAdAlbumPage } from "../../../advertisements/view/pages/ViewAdAlbumPage";
+import type { AlbumMediaItem } from "../../../advertisements/view/details/adMedia";
 import { formatArea } from "../formatters";
+import { getFormName } from "../helpers";
 
 export function AdvertiseGallerySection({
   age,
@@ -15,12 +19,15 @@ export function AdvertiseGallerySection({
   coverImage,
   createdAt,
   floor,
+  formCode,
+  hasVideo,
   images,
   locationTitle,
   pricePresentation,
   rooms,
   title,
   trackCode,
+  videos = [],
   virtualTourLink,
 }: {
   age?: unknown;
@@ -28,6 +35,8 @@ export function AdvertiseGallerySection({
   coverImage?: string;
   createdAt: string;
   floor?: unknown;
+  formCode?: string;
+  hasVideo?: boolean;
   images: string[];
   locationTitle: string;
   pricePresentation: {
@@ -39,36 +48,67 @@ export function AdvertiseGallerySection({
   rooms?: unknown;
   title: string;
   trackCode: string;
+  videos?: string[];
   virtualTourLink?: string;
 }) {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
+  const [isAlbumOpen, setIsAlbumOpen] = useState(false);
 
   const displayImages = images.length > 0 ? images : coverImage ? [coverImage] : [];
-  const activeImage = displayImages[selectedImageIndex] || coverImage;
+  const mediaItems: AlbumMediaItem[] = [
+    ...videos.map((src): AlbumMediaItem => ({ src, type: "video" })),
+    ...displayImages.map((src): AlbumMediaItem => ({ src, type: "image" })),
+  ];
+  const safeIndex = Math.min(selectedMediaIndex, Math.max(0, mediaItems.length - 1));
+  const activeMedia = mediaItems[safeIndex];
+  const resolvedHasVideo = Boolean(hasVideo || videos.length > 0);
+  const hasTour3d = Boolean(virtualTourLink?.trim());
 
   return (
     <section className="rounded-2xl border border-[#f0f0f0] bg-white p-5 shadow-xs sm:p-6">
-      {/* Gallery Box */}
-      {displayImages.length > 0 ? (
+      {/* Gallery Box (Videos first, then Images) */}
+      {mediaItems.length > 0 && activeMedia ? (
         <div className="space-y-3">
           <div className="group relative aspect-[16/10] max-h-[460px] w-full overflow-hidden rounded-2xl bg-[#f0f4f8]">
-            <img
-              alt={title}
-              className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.01]"
-              src={activeImage}
-            />
+            {activeMedia.type === "video" ? (
+              <video
+                className="h-full w-full bg-black object-contain"
+                controls
+                playsInline
+                preload="metadata"
+                src={activeMedia.src}
+              />
+            ) : (
+              <button
+                aria-label="مشاهده تمام تصاویر"
+                className="block h-full w-full cursor-zoom-in border-0 bg-transparent p-0"
+                onClick={() => setIsAlbumOpen(true)}
+                type="button"
+              >
+                <img
+                  alt={title}
+                  className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.01]"
+                  src={activeMedia.src}
+                />
+              </button>
+            )}
 
-            {/* Image Count Pill */}
+            {/* Media Count Pill */}
             <Typography
               as="span"
               variant="label"
               size="medium"
               weight="medium"
-              className="absolute bottom-4 left-4 inline-flex h-9 items-center gap-1.5 rounded-xl bg-black/65 px-3.5 text-xs font-semibold text-white backdrop-blur-md"
+              className="pointer-events-none absolute bottom-4 left-4 inline-flex h-9 items-center gap-1.5 rounded-xl bg-black/65 px-3.5 text-xs font-semibold text-white backdrop-blur-md"
             >
-              <LinearImage className="h-4 w-4" />
-              تصویر {new Intl.NumberFormat("fa-IR").format(selectedImageIndex + 1)} از{" "}
-              {new Intl.NumberFormat("fa-IR").format(displayImages.length)}
+              {activeMedia.type === "video" ? (
+                <LinearVideo className="h-4 w-4" />
+              ) : (
+                <LinearImage className="h-4 w-4" />
+              )}
+              {activeMedia.type === "video" ? "ویدیو" : "تصویر"}{" "}
+              {new Intl.NumberFormat("fa-IR").format(safeIndex + 1)} از{" "}
+              {new Intl.NumberFormat("fa-IR").format(mediaItems.length)}
             </Typography>
 
             {/* Virtual Tour Pill */}
@@ -85,21 +125,36 @@ export function AdvertiseGallerySection({
             ) : null}
           </div>
 
-          {/* Thumbnails row if more than 1 image */}
-          {displayImages.length > 1 ? (
+          {/* Thumbnails row if more than 1 media item */}
+          {mediaItems.length > 1 ? (
             <div className="flex gap-2.5 overflow-x-auto pb-1.5 pt-0.5">
-              {displayImages.map((img, idx) => (
+              {mediaItems.map((item, idx) => (
                 <button
-                  key={`${img}-${idx}`}
+                  key={`${item.src}-${item.type}-${idx}`}
                   type="button"
-                  onClick={() => setSelectedImageIndex(idx)}
+                  onClick={() => setSelectedMediaIndex(idx)}
                   className={`relative h-18 w-24 shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 transition ${
-                    selectedImageIndex === idx
+                    safeIndex === idx
                       ? "border-[#0048c4] ring-2 ring-[#0048c4]/30"
                       : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img alt="" className="h-full w-full object-cover" src={img} />
+                  {item.type === "video" ? (
+                    <div className="relative flex h-full w-full items-center justify-center bg-[#0f172a] text-white">
+                      <video
+                        className="h-full w-full object-cover opacity-70"
+                        muted
+                        playsInline
+                        preload="metadata"
+                        src={item.src}
+                      />
+                      <span className="absolute inset-0 grid place-items-center bg-black/35">
+                        <LinearVideo className="h-6 w-6 text-white" />
+                      </span>
+                    </div>
+                  ) : (
+                    <img alt="" className="h-full w-full object-cover" src={item.src} />
+                  )}
                 </button>
               ))}
             </div>
@@ -119,6 +174,52 @@ export function AdvertiseGallerySection({
           </Typography>
         </div>
       )}
+
+      {/* Media icons (only when present) & Persian form name below image on the left */}
+      {resolvedHasVideo || hasTour3d || formCode ? (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            {resolvedHasVideo ? (
+              <span
+                aria-label="دارای ویدیو"
+                title="دارای ویدیو"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#eef4ff] text-[#0048c4]"
+              >
+                <LinearVideo className="h-4.5 w-4.5" />
+              </span>
+            ) : null}
+            {hasTour3d ? (
+              <a
+                aria-label="دارای تور مجازی ۳D"
+                title="دارای تور مجازی ۳D"
+                href={virtualTourLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-8 items-center gap-1 rounded-lg bg-[#eef4ff] px-2 font-semibold text-[#0048c4] transition hover:bg-[#dce8ff]"
+              >
+                <LinearGps className="h-4 w-4" />
+                <span>3D</span>
+              </a>
+            ) : null}
+          </div>
+
+          {formCode ? (
+            <span className="rounded-lg bg-[#f0f4f8] px-2.5 py-1 text-xs font-semibold text-[#334155]">
+              {getFormName(formCode)}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
+      {isAlbumOpen ? (
+        <div className="fixed inset-0 z-[70]">
+          <ViewAdAlbumPage
+            initialIndex={safeIndex}
+            mediaItems={mediaItems}
+            onClose={() => setIsAlbumOpen(false)}
+          />
+        </div>
+      ) : null}
 
       {/* Header Info */}
       <div className="pt-6">

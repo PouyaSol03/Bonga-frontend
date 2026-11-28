@@ -500,8 +500,8 @@ export function AdInformationFields({
           <textarea
             aria-invalid={Boolean(errors.description)}
             className="placeholder:text-outline min-h-24 w-full resize-none border-0 bg-transparent p-0 text-right outline-none"
-            maxLength={500}
-            onChange={(event) => onSetField("description", event.target.value.slice(0, 500))}
+            maxLength={1000}
+            onChange={(event) => onSetField("description", event.target.value.slice(0, 1000))}
             placeholder="اطلاعات بیشتر را وارد کنید..."
             value={values.description}
           />

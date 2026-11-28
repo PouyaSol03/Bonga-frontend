@@ -424,14 +424,14 @@ function getMediaValidationErrors(
     errors.title = "عنوان آگهی حداکثر می‌تواند ۵۰ کاراکتر باشد.";
   }
 
-  // 7. Description (Min 10, Max 500)
+  // 7. Description (Min 10, Max 1000)
   const trimmedDesc = values.description.trim();
   if (!hasRequiredText(trimmedDesc)) {
     errors.description = "لطفا توضیحات آگهی را وارد کنید.";
   } else if (trimmedDesc.length < 10) {
     errors.description = "توضیحات آگهی باید حداقل ۱۰ کاراکتر باشد.";
-  } else if (trimmedDesc.length > 500) {
-    errors.description = "توضیحات آگهی حداکثر می‌تواند ۵۰۰ کاراکتر باشد.";
+  } else if (trimmedDesc.length > 1000) {
+    errors.description = "توضیحات آگهی حداکثر می‌تواند ۱۰۰۰ کاراکتر باشد.";
   }
 
   return errors;

@@ -44,13 +44,27 @@ export function ViewAdContactSheets({
               void refetch();
             }}
             ownerContactAddress={
-              typeof ad?.owner_contact_address === "string" ? ad.owner_contact_address : undefined
+              typeof ad?.owner_contact_address === "string"
+                ? ad.owner_contact_address
+                : typeof ad?.owner_address === "string"
+                  ? ad.owner_address
+                  : typeof ad?.owner_exact_address === "string"
+                    ? ad.owner_exact_address
+                    : undefined
             }
             ownerContactName={
-              typeof ad?.owner_contact_name === "string" ? ad.owner_contact_name : undefined
+              typeof ad?.owner_contact_name === "string"
+                ? ad.owner_contact_name
+                : typeof ad?.owner_name === "string"
+                  ? ad.owner_name
+                  : undefined
             }
             ownerContactPhone={
-              typeof ad?.owner_contact_phone === "string" ? ad.owner_contact_phone : undefined
+              typeof ad?.owner_contact_phone === "string"
+                ? ad.owner_contact_phone
+                : typeof ad?.owner_phone === "string"
+                  ? ad.owner_phone
+                  : undefined
             }
           />
         ) : null

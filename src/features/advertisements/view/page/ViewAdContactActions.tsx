@@ -39,7 +39,7 @@ export function ViewAdContactActions({
   onOpenContactInfo,
   onOpenChat,
 }: Props) {
-  if (isOwnAd) {
+  if (isOwnAd && !(isPreview && (useAgencyAllocationPreview || showAgencyOwnerContact))) {
     return (
       <div className="bg-surface-container-lowest shrink-0 px-4 py-3 shadow-[0_-4px_8px_rgba(0,0,0,0.08)]">
         <div className="bg-surface-container text-outline rounded-[10px] px-4 py-3 text-center text-sm leading-5 font-medium">

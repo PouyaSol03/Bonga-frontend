@@ -1,5 +1,9 @@
 import { getActiveAuthRole, getStoredAuthSession } from "../../../../shared/auth/auth-storage";
-import { REAL_ESTATE_MANAGER } from "../../../../shared/constants/roles.constants";
+import {
+  INDEPENDENT_CONSULTANT,
+  REAL_ESTATE_CONSULTANT,
+  REAL_ESTATE_MANAGER,
+} from "../../../../shared/constants/roles.constants";
 import {
   useAgencyAdvertisementPreviewQuery,
   useAdvertisementDetailQuery,
@@ -27,9 +31,22 @@ export function useViewAdQuery(adId: string | null, isPreview: boolean) {
   } = isPreview ? activePreviewQuery : detailQuery;
   const useAgencyAllocationPreview =
     isPreview && (ad ? shouldUseAgencyAllocationPreview(ad) : shouldUseAgencyAllocationPreview());
+  const isConsultantOrManager =
+    activeRole === REAL_ESTATE_MANAGER ||
+    activeRole === REAL_ESTATE_CONSULTANT ||
+    activeRole === INDEPENDENT_CONSULTANT;
+  const hasOwnerContactFields = Boolean(
+    ad?.owner_contact_phone ||
+      ad?.owner_contact_name ||
+      ad?.owner_contact_address ||
+      ad?.owner_phone ||
+      ad?.owner_name,
+  );
   const isPersonalPreview =
     isPreview &&
     !useAgencyAllocationPreview &&
+    !isConsultantOrManager &&
+    !hasOwnerContactFields &&
     (String(ad?.publisher_type ?? ad?.owner_type ?? "user").toLowerCase() === "user" ||
       String(ad?.publisher_type ?? ad?.owner_type ?? "").toLowerCase() === "personal");
   const showAgencyOwnerContact = isPreview && !useAgencyAllocationPreview && !isPersonalPreview;

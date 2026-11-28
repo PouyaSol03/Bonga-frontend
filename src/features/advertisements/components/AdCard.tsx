@@ -45,6 +45,7 @@ export function AdCard({
         linkState={linkState}
         to={to}
         hasSecondaryPrice={hasSecondaryPrice}
+        showBadges={showBadges}
       />
     );
   }

@@ -15,7 +15,7 @@ export function AdCardPriceRow({
   hasSecondaryPrice: boolean;
   category: AdCategoryType;
 }) {
-  if (category === "sale-apartment") {
+  if (category === "sale-apartment" || (!ad.priceLabelPrimary && category.startsWith("sale-") && !hasSecondaryPrice)) {
     return (
       <div className="flex h-6 items-center justify-start gap-1 [direction:rtl]">
         <Typography

@@ -166,6 +166,61 @@ test("ProjectSpecsSection renders selected more-features tags and RegisteredMore
   expect(container.querySelector(".space-y-3")).toBeNull();
 });
 
+test("ProjectSpecsSection shows first 4 project detail chips and toggles remaining items", async () => {
+  window.history.replaceState({}, "", "/new-ad/details?transaction=project&category=project-presale");
+  container = document.createElement("div");
+  document.body.append(container);
+  root = createRoot(container);
+
+  function Wrapper() {
+    const methods = useForm<NewAdFormValues>({
+      defaultValues: {
+        ...blankValues,
+        projectDetails: [
+          { id: "1", meterage: "120", floors: [], rooms: [], positions: [] },
+          { id: "2", meterage: "150", floors: [], rooms: [], positions: [] },
+          { id: "3", meterage: "200", floors: [], rooms: [], positions: [] },
+          { id: "4", meterage: "250", floors: [], rooms: [], positions: [] },
+          { id: "5", meterage: "300", floors: [], rooms: [], positions: [] },
+          { id: "6", meterage: "350", floors: [], rooms: [], positions: [] },
+          { id: "7", meterage: "400", floors: [], rooms: [], positions: [] },
+          { id: "8", meterage: "450", floors: [], rooms: [], positions: [] },
+          { id: "9", meterage: "500", floors: [], rooms: [], positions: [] },
+        ],
+      },
+    });
+    return (
+      <FormProvider {...methods}>
+        <ProjectDetailsOverflowHarness />
+      </FormProvider>
+    );
+  }
+
+  function ProjectDetailsOverflowHarness() {
+    const { values, setField } = useDetailsForm(clearError);
+    return (
+      <ProjectSpecsSection
+        values={values}
+        setField={setField}
+        onOpenSelect={() => {}}
+        onOpenProjectDetails={() => {}}
+        onOpenMoreFeatures={() => {}}
+      />
+    );
+  }
+
+  await act(async () => root.render(<Wrapper />));
+  expect(container.textContent).toContain("متراژ ۱۲۰ متر");
+  expect(container.textContent).toContain("متراژ ۲۵۰ متر");
+  expect(container.textContent).not.toContain("متراژ ۳۰۰ متر");
+  expect(container.textContent).toContain("۵ مورد دیگر");
+
+  await click("۵ مورد دیگر");
+  expect(container.textContent).toContain("متراژ ۳۰۰ متر");
+  expect(container.textContent).toContain("متراژ ۵۰۰ متر");
+  expect(container.textContent).toContain("مشاهده کمتر");
+});
+
 test("DetailsChipSection clamps its invisible measurement container to zero height", async () => {
   container = document.createElement("div");
   document.body.append(container);

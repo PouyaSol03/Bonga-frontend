@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import type { AdCardData } from "./types";
 import { resolveAdCategory } from "./category";
 import { truncateAdCardText } from "./text";
+import { AdCardBadges } from "./AdCardBadges";
 import { AdCardPriceRow } from "./AdCardPriceRow";
 import { MapPreviewImages } from "./MapPreviewImages";
 import { PropertyRow } from "./PropertyRow";
@@ -16,6 +17,7 @@ export function MapPreviewCard({
   linkState,
   to,
   hasSecondaryPrice,
+  showBadges = true,
 }: {
   ad: AdCardData;
   mapPreviewImages: string[];
@@ -25,14 +27,16 @@ export function MapPreviewCard({
   linkState: unknown;
   to: string;
   hasSecondaryPrice: boolean;
+  showBadges?: boolean;
 }) {
   const images =
     mapPreviewImages.length > 0 ? mapPreviewImages : ad.imageUrl ? [ad.imageUrl] : [];
+  const hasVisibleBadges = showBadges && Array.isArray(ad.badges) && ad.badges.length > 0;
 
   return (
     <Link
       aria-current={isSelected ? "true" : undefined}
-      className={`bg-surface-container-lowest flex h-[216px] w-[min(360px,calc(100vw-28px))] shrink-0 snap-center flex-col overflow-hidden rounded-2xl p-3 text-right no-underline shadow-[0_4px_16px_rgba(0,0,0,0.10)] ${className}`}
+      className={`bg-surface-container-lowest flex min-h-[244px] w-[min(360px,calc(100vw-28px))] shrink-0 snap-center flex-col overflow-hidden rounded-2xl p-3 text-right no-underline shadow-[0_4px_16px_rgba(0,0,0,0.10)] ${className}`}
       data-map-slider-card={mapSliderCardId === undefined ? undefined : String(mapSliderCardId)}
       dir="rtl"
       state={linkState}
@@ -55,10 +59,28 @@ export function MapPreviewCard({
         variant="body"
         size="medium"
         weight="medium"
-        className="text-on-surface mt-1.5 text-right"
+        className="text-on-surface mt-1.5 truncate text-right font-semibold"
       >
         {truncateAdCardText(ad.title)}
       </Typography>
+
+      <div className="mt-2.5 flex items-center justify-start gap-2">
+        {hasVisibleBadges ? (
+          <>
+            <AdCardBadges badges={ad.badges} />
+            <span className="bg-outline-var h-4 w-px shrink-0" aria-hidden="true" />
+          </>
+        ) : null}
+        <Typography
+          as="span"
+          variant="body"
+          size="medium"
+          weight="regular"
+          className="text-outline truncate"
+        >
+          {ad.timeAndLocation}
+        </Typography>
+      </div>
     </Link>
   );
 }

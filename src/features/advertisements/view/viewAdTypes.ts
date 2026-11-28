@@ -68,6 +68,7 @@ export type DetailItem = {
   featureIconLabel?: string;
   hideFallbackIcon?: boolean;
   iconSrc?: string | null;
+  fullWidth?: boolean;
 };
 
 type PropertyInfoRow = DetailItem;

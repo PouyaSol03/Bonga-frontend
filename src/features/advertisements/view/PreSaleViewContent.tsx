@@ -51,7 +51,9 @@ export function PreSaleViewContent({
   details: ViewAdDetails;
   mapPosition?: { latitude: number; longitude: number } | null;
 }) {
-  const info = details.propertyInfoPreview.filter((item) => !item.label.includes("رتبه"));
+  const info = details.propertyInfoPreview
+    .filter((item) => !item.label.includes("رتبه"))
+    .map((item) => (item.label === "نوع پروژه" ? { ...item, fullWidth: true } : item));
 
   return (
     <>
